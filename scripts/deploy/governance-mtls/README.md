@@ -1,8 +1,13 @@
-# Governance 入口网关的 Model mTLS 配置
+# Governance 入口网关的 mTLS 配置
 
 Governance 兼任所有服务的外部入口网关：验证用户登录、租户、套餐和接口权限，
 再用自己的服务身份调用对应领域服务。现有 Model 客户端与业务代码全部复用。
-本目录只接入 Governance → Model，不表示其他服务已经全部接入。
+本目录统一维护 Governance 的客户端证书申请与部署挂载，目前已接入
+Governance → Model，不表示其他服务已经全部接入。
+
+保留一份 `certificate.yaml` 和一份 `deployment-patch.yaml`。以后接入更多服务，
+在同一份部署补丁中补充客户端配置；同一信任体系下复用证书和 CA 挂载，
+不按下游服务新增 patch。
 
 ## 部署
 
@@ -14,7 +19,8 @@ Governance 兼任所有服务的外部入口网关：验证用户登录、租户
 
 配置适配现有 Deployment/governance 和容器 governance；其他部署名需对应调整。
 `ANI_MODEL_ADDR` 保留当前配置，新部署应先设置为 Model 的集群服务地址和端口。
-把平台提供的 **Model 信任根公钥 PEM** 保存为 ca.pem 后执行：
+进入 `scripts/deploy/governance-mtls/`，把平台提供的 **Model 信任根公钥 PEM**
+保存为 ca.pem 后执行：
 
 ```sh
 NS=gov-model-20260919-01  # 替换为目标命名空间
