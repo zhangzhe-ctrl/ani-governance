@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://github.com/bufbuild/buf/releases/download/v1.57.2/buf-Linux-x86_64",
+    "path": "/home/chabking/ani-governance-runs/backend-root-20260919-01/buf-bin/buf",
+    "sha256": "644e6fa4a62afc2b0d425d3ac9538d2f512947c0f2e82fc95c41a5eab6729414",
+    "bytes": 45011128
+  },
+  {
+    "url": "https://github.com/bufbuild/buf/releases/download/v1.57.2/sha256.txt",
+    "path": "/home/chabking/ani-governance-runs/backend-root-20260919-01/buf-backup/buf-v1.57.2-sha256.txt",
+    "sha256": "14031cc5c775586db3ae7615594872dace06c2718a3b4df3adb71a1e4fe95c0f",
+    "bytes": 3788
+  }
+]

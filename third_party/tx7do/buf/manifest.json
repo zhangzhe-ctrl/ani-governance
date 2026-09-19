@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-09-19T09:55:16.492167+00:00",
+  "scope": "Only the two requested BSR module payloads; imports and a full offline generation toolchain are not included.",
+  "original_lock_path": "/home/chabking/ani-governance-runs/backend-root-20260919-01/work/governance/api/buf.lock",
+  "lock_snapshot": "buf.lock.snapshot",
+  "lock_sha256": "2c94e715ce9c1baf699f7d7d1ed3ceba66c06fa33a8d387f4136e5845ec32c45",
+  "tool": {
+    "name": "buf",
+    "version": "1.57.2",
+    "binary_sha256": "644e6fa4a62afc2b0d425d3ac9538d2f512947c0f2e82fc95c41a5eab6729414",
+    "binary_url": "https://github.com/bufbuild/buf/releases/download/v1.57.2/buf-Linux-x86_64",
+    "official_checksum_file": "buf-v1.57.2-sha256.txt",
+    "checksum_verified": true
+  },
+  "source_verification": "pass",
+  "module_count": 2,
+  "modules": [
+    {
+      "module": "buf.build/go-wind/redact",
+      "commit": "d1f98995227e44d6b839e578d9fa1466",
+      "source_uri": "buf.build/go-wind/redact:d1f98995227e44d6b839e578d9fa1466",
+      "registry_url": "https://buf.build/go-wind/redact/commits/d1f98995227e44d6b839e578d9fa1466",
+      "locked_digest": "b5:452e96a0916e75290d0d6bb02b40dfdd2f64f9a21f563b531f249771f3416ea1ca4a05c04851fe11ee745424c4007f1fc046d5cf7d1502820fd84f5d3f47560b",
+      "computed_digest": "b5:452e96a0916e75290d0d6bb02b40dfdd2f64f9a21f563b531f249771f3416ea1ca4a05c04851fe11ee745424c4007f1fc046d5cf7d1502820fd84f5d3f47560b",
+      "digest_verification": "pass",
+      "commit_verification": "pass",
+      "source_dir": "go-wind/redact/d1f98995227e44d6b839e578d9fa1466/source",
+      "source_files": {
+        "redact/v1/redact.proto": {
+          "sha256": "040c1fed6f97bfcde7eed50d80466af20a47c486646a2c9d3dba598176e67c9f",
+          "bytes": 11084
+        }
+      },
+      "module_cache_metadata": "go-wind/redact/d1f98995227e44d6b839e578d9fa1466/module-cache.yaml",
+      "commit_info": "go-wind/redact/d1f98995227e44d6b839e578d9fa1466/commit-info.stdout",
+      "dependencies": [],
+      "license": {
+        "status": "preserved_from_related_pinned_go_module",
+        "bsr_license_present": false,
+        "exact_bsr_commit_license": "not_verified",
+        "module": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact",
+        "version": "v0.0.0-20260831125122-5bb4931991b2",
+        "archive_origin": "https://proxy.golang.org/github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/@v/v0.0.0-20260831125122-5bb4931991b2.zip",
+        "archive_sha256": "5d4adb24bfa9d3f333c083ca685ce15cc8cceeabd4a2c34f78390856b437c5a2",
+        "archive_entry": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2/LICENSE",
+        "path": "go-wind/redact/d1f98995227e44d6b839e578d9fa1466/related-upstream-license/LICENSE",
+        "sha256": "65a50dadfb4ab4f8f2c4136234166e4fe50c9b01472186d33b9c325cb303d266",
+        "source_comparison": {
+          "archive_entry": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2/redact/v1/redact.proto",
+          "go_proto_sha256": "5780be8a947e04cdf5365eb8acf430ceae0ec38eb41b3cca11b9f8c1dd31d1df",
+          "bsr_proto_sha256": "040c1fed6f97bfcde7eed50d80466af20a47c486646a2c9d3dba598176e67c9f",
+          "byte_identical": false,
+          "lf_normalized_identical": true
+        }
+      }
+    },
+    {
+      "module": "buf.build/tx7do/pagination",
+      "commit": "7e34dd27013f4c67bb09025c73a73980",
+      "source_uri": "buf.build/tx7do/pagination:7e34dd27013f4c67bb09025c73a73980",
+      "registry_url": "https://buf.build/tx7do/pagination/commits/7e34dd27013f4c67bb09025c73a73980",
+      "locked_digest": "b5:f1affafbeb5564a0cb38bf25efe4af9af7c0da770fe7d860617dc2dfb6b8dd352de105cd3175c9ac86d9e7ea5c8f409ab94637431a9c6f48ca0fbfb32771b279",
+      "computed_digest": "b5:f1affafbeb5564a0cb38bf25efe4af9af7c0da770fe7d860617dc2dfb6b8dd352de105cd3175c9ac86d9e7ea5c8f409ab94637431a9c6f48ca0fbfb32771b279",
+      "digest_verification": "pass",
+      "commit_verification": "pass",
+      "source_dir": "tx7do/pagination/7e34dd27013f4c67bb09025c73a73980/source",
+      "source_files": {
+        "pagination/v1/pagination.proto": {
+          "sha256": "f6ae44959df02843122e25803f26c356971c0bca3cc5c30b1bdde4f5441aab60",
+          "bytes": 16989
+        }
+      },
+      "module_cache_metadata": "tx7do/pagination/7e34dd27013f4c67bb09025c73a73980/module-cache.yaml",
+      "commit_info": "tx7do/pagination/7e34dd27013f4c67bb09025c73a73980/commit-info.stdout",
+      "dependencies": [
+        {
+          "module": "buf.build/gnostic/gnostic",
+          "commit": "087bc8072ce44e339f213209e4d57bf0",
+          "digest": "b5:c4eebcd04bc2fdd5dd0b8d695eb419682a650b600cdb56ff2ed61208a24603e0eb1b8ae0d467925c69a24bde6d322f3c4112bd2b8efdd682d8c3128384cdac9a"
+        }
+      ],
+      "license": {
+        "status": "preserved_from_related_pinned_go_module",
+        "bsr_license_present": false,
+        "exact_bsr_commit_license": "not_verified",
+        "module": "github.com/tx7do/go-crud/api",
+        "version": "v0.0.7",
+        "archive_origin": "https://proxy.golang.org/github.com/tx7do/go-crud/api/@v/v0.0.7.zip",
+        "archive_sha256": "39043c6dda51d37f2cd1776bb267b83d0109b638d73b51dc794972b7a895d6ca",
+        "archive_entry": "github.com/tx7do/go-crud/api@v0.0.7/LICENSE",
+        "path": "tx7do/pagination/7e34dd27013f4c67bb09025c73a73980/related-upstream-license/LICENSE",
+        "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+        "source_comparison": {
+          "archive_entry": "github.com/tx7do/go-crud/api@v0.0.7/protos/pagination/v1/pagination.proto",
+          "go_proto_sha256": "ebef7621e7c7cb0120fc696a3b9f5c73505b270b2f94ef46847b184a60a77a32",
+          "bsr_proto_sha256": "f6ae44959df02843122e25803f26c356971c0bca3cc5c30b1bdde4f5441aab60",
+          "byte_identical": false,
+          "lf_normalized_identical": false
+        }
+      }
+    }
+  ],
+  "not_verified": [
+    "Full offline generation dependency closure",
+    "BSR commit-specific license provenance: neither exported module includes a license file"
+  ]
+}

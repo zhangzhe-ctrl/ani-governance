@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/home/chabking/ani-governance-runs/backend-root-20260919-01/buf-bin/buf",
+    "registry",
+    "module",
+    "commit",
+    "info",
+    "buf.build/tx7do/pagination:7e34dd27013f4c67bb09025c73a73980",
+    "--format=json",
+    "--timeout=45s"
+  ],
+  "exit_code": 0,
+  "BUF_CACHE_DIR": "/home/chabking/ani-governance-runs/backend-root-20260919-01/buf-cache"
+}

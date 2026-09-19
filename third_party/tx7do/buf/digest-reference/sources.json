@@ -1,0 +1,22 @@
+{
+  "module_key.go.txt": {
+    "url": "https://raw.githubusercontent.com/bufbuild/buf/v1.57.2/private/bufpkg/bufmodule/module_key.go",
+    "sha256": "bd84c347bc2689b554f309a28d643e1b34826df4fe9425a0f2793cc92c6f416b"
+  },
+  "digest.go.txt": {
+    "url": "https://raw.githubusercontent.com/bufbuild/buf/v1.57.2/private/bufpkg/bufmodule/digest.go",
+    "sha256": "29e85a4d5a164533b3fd5da6b9729f3d8d2a0291b5945ae25f93822e27dd1feb"
+  },
+  "cas-manifest.go.txt": {
+    "url": "https://raw.githubusercontent.com/bufbuild/buf/v1.57.2/private/bufpkg/bufcas/manifest.go",
+    "sha256": "6eda14c9aec30e303dd2b91e9dfa992bcb9c07f5c99a7c645c4aad3a812a78a1"
+  },
+  "cas-digest.go.txt": {
+    "url": "https://raw.githubusercontent.com/bufbuild/buf/v1.57.2/private/bufpkg/bufcas/digest.go",
+    "sha256": "152f397b2d51daaa72a07b05d1c8a60c600abd75527e0b74775c110a8c105617"
+  },
+  "LICENSE": {
+    "url": "https://raw.githubusercontent.com/bufbuild/buf/v1.57.2/LICENSE",
+    "sha256": "d851af0a94069552930172f3c7d524813cad3808c24ac04d7e8e26275285a67e"
+  }
+}

@@ -1,0 +1,73 @@
+# Git 属性配置
+# 参考: https://git-scm.com/docs/gitattributes
+#
+# 目标：统一仓库内文本文件的换行符为 LF，避免 Windows 上
+# core.autocrlf 导致的 CRLF/LF 混用与提交警告。
+# .gitattributes 的规则优先级高于 core.autocrlf，设定后跨平台一致。
+
+# ─────────────────────────────────────────────
+# 默认：未匹配的文件不做自动转换，交由 Git 自身判断
+# ─────────────────────────────────────────────
+* text=auto
+
+# ─────────────────────────────────────────────
+# 源码与文本文档 —— 强制 LF
+# ─────────────────────────────────────────────
+*.go         text eol=lf diff=golang
+*.proto      text eol=lf
+*.ts         text eol=lf
+*.tsx        text eol=lf
+*.js         text eol=lf
+*.mjs        text eol=lf
+*.cjs        text eol=lf
+*.vue        text eol=lf
+*.json       text eol=lf
+*.yaml       text eol=lf
+*.yml        text eol=lf
+*.md         text eol=lf
+*.css        text eol=lf
+*.scss       text eol=lf
+*.less       text eol=lf
+*.html       text eol=lf
+*.sh         text eol=lf
+*.ps1        text eol=lf
+*.lua        text eol=lf
+*.sql        text eol=lf
+
+# 构建与配置
+Makefile     text eol=lf
+Dockerfile   text eol=lf
+*.mk         text eol=lf
+.gitignore   text eol=lf
+.gitattributes text eol=lf
+*.env        text eol=lf
+*.lock       text eol=lf
+
+# ─────────────────────────────────────────────
+# 二进制 —— 关闭文本处理与 diff
+# ─────────────────────────────────────────────
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.ico   binary
+*.svg   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.eot   binary
+*.zip   binary
+*.gz    binary
+*.tar   binary
+*.exe   binary
+*.dll   binary
+*.so    binary
+*.dylib binary
+*.a     binary
+*.o     binary
+
+# Immutable upstream snapshots: preserve exact bytes for Go and Buf digests.
+# In particular, locked BSR Proto sources may use CRLF.
+third_party/tx7do/** -text -eol -whitespace

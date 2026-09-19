@@ -1,0 +1,47 @@
+{
+  "created_at_utc": "2026-09-19T09:58:05.780145+00:00",
+  "execution_host": "Fedora",
+  "task_directory": "/home/chabking/ani-governance-runs/backend-root-20260919-01",
+  "source_commit_before_relocation": "2e75263d38fe6a56188f091243cfcf906f103324",
+  "unchanged_go_proto_and_module_files": 1410,
+  "application_module_versions": 49,
+  "additional_gow_module_versions": 4,
+  "total_module_versions": 53,
+  "bsr_source_modules": 2,
+  "pass": [
+    "backend relocation source content preservation",
+    "frontend and docs removal",
+    "upstream notice preservation",
+    "admin server entry build",
+    "tools/register build",
+    "5 targeted data tests",
+    "3 targeted service tests",
+    "changed shell and Python syntax",
+    "historical collector early rejection",
+    "two Compose config validation",
+    "53 module versions replayed from file proxy in empty cache",
+    "two BSR source digests match buf.lock",
+    "backup file checksums"
+  ],
+  "not_verified": [
+    "full test suite",
+    "container image build",
+    "cluster redeployment or new runtime acceptance",
+    "PowerShell execution",
+    "full project offline build or code generation",
+    "exact BSR commit license provenance"
+  ],
+  "binaries_sha256": {
+    "ani-governance": "e03f8063f2a9d81e9fd4e9781633a6bd5fe1954bca7b4b45e917078e01075789",
+    "register": "adba948cee7e5ca30117a1cb4e61475a28ead57e18badd3b206d31ed7ea4b57d"
+  },
+  "evidence_logs": [
+    "evidence/build-server.log",
+    "evidence/build-register.log",
+    "evidence/test-data.log",
+    "evidence/test-service.log",
+    "evidence/backup-with-tools.json",
+    "evidence/compose-config.log",
+    "evidence/layout-validation.json"
+  ]
+}

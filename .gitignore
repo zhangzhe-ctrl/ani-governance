@@ -1,0 +1,54 @@
+# If you prefer the allow list template instead of the deny list, see community template:
+# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
+#
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+
+# OS General
+Thumbs.db
+.DS_Store
+
+# project
+*.cert
+*.key
+*.log
+bin/
+
+# Develop tools
+.vscode/
+.idea/
+*.swp
+
+# ZCode CLI - 忽略会话级临时产物（plans/state 等），保留项目级 skills
+.zcode/*
+!.zcode/skills/
+
+# 浏览器 e2e 测试产物（截图、playwright 缓存）
+chk-*.png
+.playwright-mcp/
+
+# GUI e2e 扫测截图证据（会话产物不入库）
+gui-test-screenshots/
+
+# Backend dependencies and local workspaces
+vendor/
+go.work
+go.work.sum
+__pycache__/
+
+# This immutable backup evidence is covered by third_party/tx7do/SHA256SUMS.
+!third_party/tx7do/buf/verification.log

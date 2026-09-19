@@ -1,0 +1,19 @@
+syntax = "proto3";
+package catalog.service.v1;
+import "gnostic/openapi/v3/annotations.proto";
+
+// A bounded catalog list, without pagination or storage/version details.
+message ListModelsRequest {
+  optional uint32 limit = 1 [json_name = "limit", (gnostic.openapi.v3.property) = {minimum: 1 maximum: 100 default: {number: 100} description: "Maximum results, default 100; this is not full pagination."}];
+  optional string status = 2 [json_name = "status", (gnostic.openapi.v3.property) = {description: "Optional: pending, downloading, ready, error. Unknown, repeated, empty and unsupported query parameters are rejected."}];
+}
+message Model {
+  string id = 1 [json_name = "id"];
+  string model_id = 2 [json_name = "model_id"];
+  string name = 3 [json_name = "name"];
+  string display_name = 4 [json_name = "display_name"];
+  string source = 5 [json_name = "source"];
+  repeated string capabilities = 6 [json_name = "capabilities"];
+  string status = 7 [json_name = "status"];
+}
+message ListModelsResponse { repeated Model models = 1 [json_name = "models"]; }

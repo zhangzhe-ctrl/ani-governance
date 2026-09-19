@@ -1,0 +1,23 @@
+syntax = "proto3";
+package admin.service.v1;
+import "google/api/annotations.proto";
+import "catalog/service/v1/vpc.proto";
+import "gnostic/openapi/v3/annotations.proto";
+
+service NetworkService {
+ rpc GetVPC(catalog.service.v1.GetVPCRequest) returns (catalog.service.v1.GetVPCResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/vpcs/{vpc_id}" };
+   option (gnostic.openapi.v3.operation) = {
+     summary: "Get a VPC in the authenticated tenant"
+     description: "Requires login, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters are rejected. Public identity headers are ignored. The persisted tenant UUID is reused from Model access. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid VPC ID or unsupported query" } } },
+       { name: "401" value: { response: { description: "Missing, invalid or revoked login" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "VPC not found in this tenant" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
+}

@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/home/chabking/ani-governance-runs/backend-root-20260919-01/buf-bin/buf",
+    "export",
+    "buf.build/go-wind/redact:d1f98995227e44d6b839e578d9fa1466",
+    "--all",
+    "--exclude-imports",
+    "--output",
+    "/home/chabking/ani-governance-runs/backend-root-20260919-01/buf-backup/go-wind/redact/d1f98995227e44d6b839e578d9fa1466/source",
+    "--timeout=45s"
+  ],
+  "exit_code": 0,
+  "BUF_CACHE_DIR": "/home/chabking/ani-governance-runs/backend-root-20260919-01/buf-cache"
+}

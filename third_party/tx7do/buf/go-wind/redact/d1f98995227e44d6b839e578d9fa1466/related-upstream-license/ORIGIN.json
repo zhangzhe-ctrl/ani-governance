@@ -1,0 +1,19 @@
+{
+  "status": "preserved_from_related_pinned_go_module",
+  "bsr_license_present": false,
+  "exact_bsr_commit_license": "not_verified",
+  "module": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact",
+  "version": "v0.0.0-20260831125122-5bb4931991b2",
+  "archive_origin": "https://proxy.golang.org/github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/@v/v0.0.0-20260831125122-5bb4931991b2.zip",
+  "archive_sha256": "5d4adb24bfa9d3f333c083ca685ce15cc8cceeabd4a2c34f78390856b437c5a2",
+  "archive_entry": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2/LICENSE",
+  "path": "go-wind/redact/d1f98995227e44d6b839e578d9fa1466/related-upstream-license/LICENSE",
+  "sha256": "65a50dadfb4ab4f8f2c4136234166e4fe50c9b01472186d33b9c325cb303d266",
+  "source_comparison": {
+    "archive_entry": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2/redact/v1/redact.proto",
+    "go_proto_sha256": "5780be8a947e04cdf5365eb8acf430ceae0ec38eb41b3cca11b9f8c1dd31d1df",
+    "bsr_proto_sha256": "040c1fed6f97bfcde7eed50d80466af20a47c486646a2c9d3dba598176e67c9f",
+    "byte_identical": false,
+    "lf_normalized_identical": true
+  }
+}

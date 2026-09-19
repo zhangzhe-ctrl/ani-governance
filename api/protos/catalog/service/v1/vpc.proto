@@ -1,0 +1,22 @@
+syntax = "proto3";
+package catalog.service.v1;
+import "google/protobuf/timestamp.proto";
+
+message GetVPCRequest { string vpc_id = 1 [json_name = "vpc_id"]; }
+// Public product fields only; tenant identity and provider placement stay internal.
+message VPC {
+ string id = 1 [json_name = "id"];
+ string name = 2 [json_name = "name"];
+ string description = 3 [json_name = "description"];
+ string cidr = 4 [json_name = "cidr"];
+ string state = 5 [json_name = "state"];
+ string reason = 6 [json_name = "reason"];
+ google.protobuf.Timestamp created_at = 7 [json_name = "created_at"];
+ google.protobuf.Timestamp updated_at = 8 [json_name = "updated_at"];
+ int64 version = 9 [json_name = "version"];
+ google.protobuf.Timestamp observed_at = 10 [json_name = "observed_at"];
+ bool observation_stale = 11 [json_name = "observation_stale"];
+ string last_operation_id = 12 [json_name = "last_operation_id"];
+ int64 subnet_count = 13 [json_name = "subnet_count"];
+}
+message GetVPCResponse { VPC vpc = 1 [json_name = "vpc"]; }

@@ -1,0 +1,19 @@
+{
+  "status": "preserved_from_related_pinned_go_module",
+  "bsr_license_present": false,
+  "exact_bsr_commit_license": "not_verified",
+  "module": "github.com/tx7do/go-crud/api",
+  "version": "v0.0.7",
+  "archive_origin": "https://proxy.golang.org/github.com/tx7do/go-crud/api/@v/v0.0.7.zip",
+  "archive_sha256": "39043c6dda51d37f2cd1776bb267b83d0109b638d73b51dc794972b7a895d6ca",
+  "archive_entry": "github.com/tx7do/go-crud/api@v0.0.7/LICENSE",
+  "path": "tx7do/pagination/7e34dd27013f4c67bb09025c73a73980/related-upstream-license/LICENSE",
+  "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+  "source_comparison": {
+    "archive_entry": "github.com/tx7do/go-crud/api@v0.0.7/protos/pagination/v1/pagination.proto",
+    "go_proto_sha256": "ebef7621e7c7cb0120fc696a3b9f5c73505b270b2f94ef46847b184a60a77a32",
+    "bsr_proto_sha256": "f6ae44959df02843122e25803f26c356971c0bca3cc5c30b1bdde4f5441aab60",
+    "byte_identical": false,
+    "lf_normalized_identical": false
+  }
+}

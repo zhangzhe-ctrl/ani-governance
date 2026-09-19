@@ -1,0 +1,2140 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-09-19T09:55:31.799086+00:00",
+  "source_commit_before_layout_change": "2e75263d38fe6a56188f091243cfcf906f103324",
+  "go_mod_sha256": "3e5006b30b4df6c1f63bb9dbee407eefba72ddfcf0b9b22d44be73f2f4e8db73",
+  "go_sum_sha256": "a588a6771788d406b3f197f57e05b88dcd090f723e03903a3dc005242de633cc",
+  "toolchain": "go version go1.26.7-X:nodwarf5 linux/amd64",
+  "scope": "Selected application and pinned gow tool tx7do module graphs, deduplicated by module@version; other dependencies and toolchains are excluded.",
+  "application_module_count": 49,
+  "additional_tool_module_versions": 4,
+  "total_module_versions": 53,
+  "verification": {
+    "go_sum_match_application_modules": "pass",
+    "zip_integrity": "pass",
+    "empty_cache_file_proxy_replay_all_modules": "pass",
+    "full_offline_build": "not_verified"
+  },
+  "modules": [
+    {
+      "module_path": "github.com/tx7do/go-crud/api",
+      "version": "v0.0.7",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-crud",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-crud",
+        "Subdir": "api",
+        "Hash": "d84f6345d20e7485c48cf4a716878a6ca418fad6",
+        "Ref": "refs/tags/api/v0.0.7"
+      },
+      "sum": "h1:SDMo1rkQ+Ey9T9vDljaO/Q6Ty3UFiDi3PFJXqKUpcxA=",
+      "go_mod_sum": "h1:++hrhWo1vnieqD7vn8Ft1Sg67PzM4lu9KDbeg+X6Cdc=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-crud/api/@v/v0.0.7.info",
+          "sha256": "e1b65072ec3c78a88d591fdc8f6597b42b00495eaf0bb7d8cb8f53bfd82a60c9",
+          "bytes": 208
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-crud/api/@v/v0.0.7.mod",
+          "sha256": "a176566e1a69b9587a24c2b15448197ac46d8a3f8e0494f450f972216c37b862",
+          "bytes": 438
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-crud/api/@v/v0.0.7.zip",
+          "sha256": "39043c6dda51d37f2cd1776bb267b83d0109b638d73b51dc794972b7a895d6ca",
+          "bytes": 19363
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/api@v0.0.7/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-crud/audit",
+      "version": "v0.0.3",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": true,
+      "upstream_repository": "https://github.com/tx7do/go-crud",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-crud",
+        "Subdir": "audit",
+        "Hash": "6da211be12b0469b9deec2607ac44944d064a099",
+        "Ref": "refs/tags/audit/v0.0.3"
+      },
+      "sum": "h1:RkWXjtN0yCSPNoa+87idGPXYVyz/uI+GEuoJkRPrrUI=",
+      "go_mod_sum": "h1:cBcCo1uDvAjhCpRF29L4NmIUnEX7qDl2FF83a1xPeA4=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-crud/audit/@v/v0.0.3.info",
+          "sha256": "0b223e876803b1fd5797bda1d5145e1b0b44dc0df09167cb38e88bede6167539",
+          "bytes": 212
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-crud/audit/@v/v0.0.3.mod",
+          "sha256": "b61f320611b2167f3702f8c8938626c3f985f7876ede2c3bad95875f14b1b14d",
+          "bytes": 49
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-crud/audit/@v/v0.0.3.zip",
+          "sha256": "1eb664bc228e0a6a202073bf607a9c8d2bf825edf5b7d8143a43297a4e03cb14",
+          "bytes": 13340
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/audit@v0.0.3/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-crud/cache",
+      "version": "v0.0.2",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": true,
+      "upstream_repository": "https://github.com/tx7do/go-crud",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-crud",
+        "Subdir": "cache",
+        "Hash": "6da211be12b0469b9deec2607ac44944d064a099",
+        "Ref": "refs/tags/cache/v0.0.2"
+      },
+      "sum": "h1:Kcb6laFG3pjKiAHcZGb1+XkMoixjuRR1mLprnJTO1Rw=",
+      "go_mod_sum": "h1:1KfIA3GzB/pg/GDsWBc1c6C5I2pzs5d4AELL2ok6YwQ=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-crud/cache/@v/v0.0.2.info",
+          "sha256": "8191043c58cb748c2812af2f24fe09e70e19a5aa49ddb5be11f7c0babc4e6c2d",
+          "bytes": 212
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-crud/cache/@v/v0.0.2.mod",
+          "sha256": "3bbb41dbc987cf869ca0379b38a22508b0220546ec119b58aa9837918ce5ee33",
+          "bytes": 685
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-crud/cache/@v/v0.0.2.zip",
+          "sha256": "223112dd2c643049b9016fef3b54597983d2b76131da7fe1ed47fed5064b0f0d",
+          "bytes": 17665
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/cache@v0.0.2/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-crud/entgo",
+      "version": "v0.0.55",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-crud",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-crud",
+        "Subdir": "entgo",
+        "Hash": "a66fd69dd30411bf14de28a6f0ea3d8af8efee78",
+        "Ref": "refs/tags/entgo/v0.0.55"
+      },
+      "sum": "h1:fbxGhiTtAqIyHsS7c1i4U9xu42zpvivHPlSBFGNdFbk=",
+      "go_mod_sum": "h1:7KCTCJpRKLoDoiJc0iwBB1jkEFxgju9stqFSWIERM94=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-crud/entgo/@v/v0.0.55.info",
+          "sha256": "e7d1aab0281f8458432aed07e3cb03ea832f74aa0794f3f4f1bfa0b8cb8ae13d",
+          "bytes": 214
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-crud/entgo/@v/v0.0.55.mod",
+          "sha256": "ec2dcb88bbd1abee1856cb3dfdb1feff243cc8fa4a4d9cf7a19573a138a45e00",
+          "bytes": 3297
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-crud/entgo/@v/v0.0.55.zip",
+          "sha256": "eaa695c9e46c3b83597fea880e7c6e141c16432887451ea6cfd739eb6b8973a2",
+          "bytes": 165617
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/entgo@v0.0.55/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-crud/gorm",
+      "version": "v0.0.24",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-crud",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-crud",
+        "Subdir": "gorm",
+        "Hash": "a66fd69dd30411bf14de28a6f0ea3d8af8efee78",
+        "Ref": "refs/tags/gorm/v0.0.24"
+      },
+      "sum": "h1:ZbR576OjR9dP/E27y4T8gfLl8bCIGbpywU88859SPkA=",
+      "go_mod_sum": "h1:C4qUg3cDmNtQm2nRUCwehJO1SJBxTwPxz9TEnRsM3ro=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-crud/gorm/@v/v0.0.24.info",
+          "sha256": "6325eee8d17cf86f0edac22ebe34a020feb0eb567dc04d98e660225da0afe486",
+          "bytes": 212
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-crud/gorm/@v/v0.0.24.mod",
+          "sha256": "11b206c0cf3a9287deb2428a1702d3988dbf5f7c1ab8bfb1e847b4c1f3422f29",
+          "bytes": 6120
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-crud/gorm/@v/v0.0.24.zip",
+          "sha256": "3302c8510ce4e90c0b0753e8ffbfb2021200128ad49667f67c22183351cd5379",
+          "bytes": 107372
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/gorm@v0.0.24/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-crud/pagination",
+      "version": "v0.0.16",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-crud",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-crud",
+        "Subdir": "pagination",
+        "Hash": "6da211be12b0469b9deec2607ac44944d064a099",
+        "Ref": "refs/tags/pagination/v0.0.16"
+      },
+      "sum": "h1:vzj50KnqeZTMjm+bf/hvpTy7X/0+1cQyqUIMKNkt4wo=",
+      "go_mod_sum": "h1:d8zSInft//2K6i3Gk320L//COCMXC5zrtcyh7XGroD4=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-crud/pagination/@v/v0.0.16.info",
+          "sha256": "8828b4a52d810f6cef907623060d10585c2cd2be361104f15986e2de1233ed8a",
+          "bytes": 224
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-crud/pagination/@v/v0.0.16.mod",
+          "sha256": "c84fc517493b191e6ba58999572de05571339369c3fb4689a62646a5828b0641",
+          "bytes": 753
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-crud/pagination/@v/v0.0.16.zip",
+          "sha256": "800b627944b3260d2276bed01a404ce7d03e953fe3f403e0a1529e8ec0af12dd",
+          "bytes": 59869
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/pagination@v0.0.16/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-crud/viewer",
+      "version": "v0.0.7",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-crud",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-crud",
+        "Subdir": "viewer",
+        "Hash": "6da211be12b0469b9deec2607ac44944d064a099",
+        "Ref": "refs/tags/viewer/v0.0.7"
+      },
+      "sum": "h1:HF/1d85fv+fhZ8cNHtFCOOEQDEZUDQFUX3V0+RK5RJk=",
+      "go_mod_sum": "h1:t5MGistb4OfREu9aMj85eeYJqswnNpFRWgbL4nHTXiY=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-crud/viewer/@v/v0.0.7.info",
+          "sha256": "18c1ebac4db7360529546f13c78d67f7fff676b5ceab762bb9fe22a5eefbb0a7",
+          "bytes": 214
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-crud/viewer/@v/v0.0.7.mod",
+          "sha256": "09a524f836ffd075a855dc64b250fbf83a76d9d664d790a461378aedc732d435",
+          "bytes": 50
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-crud/viewer/@v/v0.0.7.zip",
+          "sha256": "ae492a763ac491e5cb3567fdbb9486d4a199db9009400b282e05fd318014d49c",
+          "bytes": 15049
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/viewer@v0.0.7/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-scripts",
+      "version": "v0.0.8",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-scripts",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-scripts",
+        "Hash": "ffefa6844bbae82e272155cc79265cf52f77d496",
+        "Ref": "refs/tags/v0.0.8"
+      },
+      "sum": "h1:eH59OMDFfsIou4SGJoaFNbqS2NpFO0yJlYqw0zHGO08=",
+      "go_mod_sum": "h1:OxJCiXouVGS36CZd29UvDClyEQfOCTxHPJ2jSlMf/GI=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-scripts/@v/v0.0.8.info",
+          "sha256": "1d51daf7e3761b651a2ce4a60d1296fb72a8ec5db0cf9bb85cfaa30f5a1443f7",
+          "bytes": 192
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-scripts/@v/v0.0.8.mod",
+          "sha256": "d61e6e937f3d32c89b8bcbf4bf322703d04a40e4b33a8905d6b87a7e466b3ee2",
+          "bytes": 238
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-scripts/@v/v0.0.8.zip",
+          "sha256": "36bb127e6a0e1304453b7891083058bc3a58a2ca723b6affd8bb8a3f2980f88b",
+          "bytes": 82632
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-scripts@v0.0.8/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-scripts/javascript",
+      "version": "v0.0.9",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-scripts",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-scripts",
+        "Subdir": "javascript",
+        "Hash": "cfa9d5641cc67e313cab2a6a8254b7d86b3a2e69",
+        "Ref": "refs/tags/javascript/v0.0.9"
+      },
+      "sum": "h1:j9Ks8DLdk0GGtmPBPmSQB20lGACLyQzcuyveD9HIGUg=",
+      "go_mod_sum": "h1:2yIMSwuF+hksX62dYK0LNuSIovI0ilRkuo4qABt/MSw=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-scripts/javascript/@v/v0.0.9.info",
+          "sha256": "e42e512983b69fa21b70528cb476b6dd4feb2ea97196d7047e749f46437f3717",
+          "bytes": 225
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-scripts/javascript/@v/v0.0.9.mod",
+          "sha256": "aa0144dea1530db8bfbc9161f3a26972dfdec0a0be1c94be61f1a907b95f5b65",
+          "bytes": 687
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-scripts/javascript/@v/v0.0.9.zip",
+          "sha256": "8d3f3e33af3cf05738f855a499b5bb841e76de1dbc05478a4c1415a755e08c9f",
+          "bytes": 29628
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-scripts/javascript@v0.0.9/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-scripts/lua",
+      "version": "v0.0.9",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-scripts",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-scripts",
+        "Subdir": "lua",
+        "Hash": "ffefa6844bbae82e272155cc79265cf52f77d496",
+        "Ref": "refs/tags/lua/v0.0.9"
+      },
+      "sum": "h1:uhpXBF7ZWUzpdA1D0T090Go8ONmguZ1/XixV5T96+lY=",
+      "go_mod_sum": "h1:8oZpp2XdEurmDgxrsCGL/p+NepPKCvr6x8gxgmxdMi4=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-scripts/lua/@v/v0.0.9.info",
+          "sha256": "43ef0d371ba247e98697080c9c892dac7c4619793af2617f8aa4f740bbc9bfb9",
+          "bytes": 211
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-scripts/lua/@v/v0.0.9.mod",
+          "sha256": "77aeefc096dc84085ead9b19f5ead5ed470063c74860c3059046852d65a8de2a",
+          "bytes": 1000
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-scripts/lua/@v/v0.0.9.zip",
+          "sha256": "9cdbe39716a424cb86d5ebce07e2dbe57d9299e01866faea1f2f98a66939a679",
+          "bytes": 51401
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-scripts/lua@v0.0.9/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils",
+      "version": "v1.1.40",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Hash": "67ec3305fb0494389482534a6692b71d4e388786",
+        "Ref": "refs/tags/v1.1.40"
+      },
+      "sum": "h1:PA6ZpBRbYZNUc3xiSP6oRhMGa9iCXLzF5pwvZHJmpZQ=",
+      "go_mod_sum": "h1:A5zjhW0UTM6veYuCbq7/mcwDXaBw8UhBnvaLSwURBRg=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/@v/v1.1.40.info",
+          "sha256": "ea472a75b636c848fc1bfdb20887e19ac31309f795e44c3731d4ae163f75d705",
+          "bytes": 192
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/@v/v1.1.40.mod",
+          "sha256": "82b666f8418537cfeaaa2c637af624f27e3458e159604604a024f9954fed416d",
+          "bytes": 553
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/@v/v1.1.40.zip",
+          "sha256": "90af2ce0742081bbee8fae0ab1ea99f42355977086f7406d60f7658792e9471e",
+          "bytes": 76479
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils@v1.1.40/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils/aggregator",
+      "version": "v0.0.5",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Subdir": "aggregator",
+        "Hash": "4a2babed0b180ce3a85ff48273091e0194f43b10",
+        "Ref": "refs/tags/aggregator/v0.0.5"
+      },
+      "sum": "h1:JId6VIcIR27fMgxvwRPvcY3/9WBGZJKyKvZOdjKNJfc=",
+      "go_mod_sum": "h1:HCSOKLV4YfhiHm9unbqiJi2UAY3xo2oVvfUGSREW3+c=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/aggregator/@v/v0.0.5.info",
+          "sha256": "bd01d146e8dfec50a0deeeb87c281887e17240dbb6e0efee12d860d77cd3c05d",
+          "bytes": 223
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/aggregator/@v/v0.0.5.mod",
+          "sha256": "ed19977c7a537e2c0d11230fb94cdc33bc8fcaf08fb149cc4657e0798b9de36c",
+          "bytes": 142
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/aggregator/@v/v0.0.5.zip",
+          "sha256": "20067ae4df5eb8fd3880365764f6d33065423cf88992bceaaf7d055fbf83ba79",
+          "bytes": 14915
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils/aggregator@v0.0.5/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils/captcha",
+      "version": "v0.0.4",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Subdir": "captcha",
+        "Hash": "a1a84eebc62e89d0f73de155a877b083b8ec2aeb",
+        "Ref": "refs/tags/captcha/v0.0.4"
+      },
+      "sum": "h1:Q5kKDNm+mN89uhz6O1f18B6UAI6DWAlJP9icJEHh308=",
+      "go_mod_sum": "h1:r8NGDV0A0wqaDPN7/5RzkK/p4aj2lu1JoIaZmmSpnmQ=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/captcha/@v/v0.0.4.info",
+          "sha256": "06f90ad170b28b7caf286d4fa75ee83caf93c6d3a8e7a727f8470656ae95534b",
+          "bytes": 217
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/captcha/@v/v0.0.4.mod",
+          "sha256": "7b9e1bfac2a8563d53bb7d9408f205a58446530abd37ae06d1db06783b2c72a5",
+          "bytes": 613
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/captcha/@v/v0.0.4.zip",
+          "sha256": "f937e078b3005f504d1542871fefe2c0183e07fc42ce9aa7e5a0aec81573066e",
+          "bytes": 26034
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils/captcha@v0.0.4/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils/copierutil",
+      "version": "v0.0.8",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Subdir": "copierutil",
+        "Hash": "7f5a9eca30e7539603c56c35aee9aa60b3901b67",
+        "Ref": "refs/tags/copierutil/v0.0.8"
+      },
+      "sum": "h1:zH1qAEuJMO1xrO4A5A3xZllS4o6/E0F5q7xuaHHnRko=",
+      "go_mod_sum": "h1:bCTuve4AbL++mRTmMCsizZy5M6eNG9qiwQz5Hs+pd54=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/copierutil/@v/v0.0.8.info",
+          "sha256": "4ec04217278208bf41af11508345c3a33a375d9808dde791b3da20e9c96dd550",
+          "bytes": 223
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/copierutil/@v/v0.0.8.mod",
+          "sha256": "4971a2d24d84460e3fb95856f60073430ebac689ce9238a7dd5de03173105a97",
+          "bytes": 494
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/copierutil/@v/v0.0.8.zip",
+          "sha256": "5a40a43bb0de27f2a37119621278a36de0c7eb60ea7cb92f38b81c93099a37ab",
+          "bytes": 4716
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils/copierutil@v0.0.8/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils/crypto",
+      "version": "v0.0.2",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Subdir": "crypto",
+        "Hash": "066d16cc611cec9eb50ac64806f3ceb227a4bd59",
+        "Ref": "refs/tags/crypto/v0.0.2"
+      },
+      "sum": "h1:XjpPmjW8Sg598BkJzvqmPsfJ+wUewGLlpbZOG7Gkh+o=",
+      "go_mod_sum": "h1:acjesnMEiwadfDDTZQhyG3R3Q6Y0GX/sZQpGBApK7Gc=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/crypto/@v/v0.0.2.info",
+          "sha256": "fcd6d7d1cffb7c92da05616a993e57bd66b40b446412e33f33305977af2b17a0",
+          "bytes": 215
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/crypto/@v/v0.0.2.mod",
+          "sha256": "dac3db8a4d4a061f56837fe94ffbbab5a8ac0f97b323059854ebeb644673981a",
+          "bytes": 278
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/crypto/@v/v0.0.2.zip",
+          "sha256": "6906712218c9ed7d9261801ebee32e68119a9feabb4903e225852ba6f3f0d99b",
+          "bytes": 20584
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils/crypto@v0.0.2/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils/geoip",
+      "version": "v1.1.8",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Subdir": "geoip",
+        "Hash": "10875a0265c91f84566dd11a6abdf291dc6458af",
+        "Ref": "refs/tags/geoip/v1.1.8"
+      },
+      "sum": "h1:8t5xei9UIlEO4wPDRpgk3ZTOA6CBPc+JyxPr+Bmr77o=",
+      "go_mod_sum": "h1:0K8YEDGtvOLJtdwRbiILEtIWiYnGwi6dN9tkOvcr3G8=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/geoip/@v/v1.1.8.info",
+          "sha256": "5331ffcafaaa9d60df0f29064757a270985d7801f0849a1eb4630dff5ac1ab13",
+          "bytes": 213
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/geoip/@v/v1.1.8.mod",
+          "sha256": "ccf8965b4542aa515d586bb38ad982acb2bf222890db5c9264554af1e8e62c8c",
+          "bytes": 553
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/geoip/@v/v1.1.8.zip",
+          "sha256": "90cc6cf707239bfa2b18c83946f3ec49f24918d8bde2e5fc19a8536a720ba2e5",
+          "bytes": 50817931
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils/geoip@v1.1.8/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils/id",
+      "version": "v0.0.6",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Subdir": "id",
+        "Hash": "594122bfb61f0f3d7ac01e006e3417fa436d6e1c",
+        "Ref": "refs/tags/id/v0.0.6"
+      },
+      "sum": "h1:AFGGf5uxXrclOj//ZCwnkorfLcrhbGqyrVzHG3stuR8=",
+      "go_mod_sum": "h1:0jomL+PRLctsA5VA0C6D7EMB4NVKfZMuLPv8HeWih2w=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/id/@v/v0.0.6.info",
+          "sha256": "ea799c77365ca5aaf514380d021b462487756f7f5d5cab36920f931d4f1969b8",
+          "bytes": 207
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/id/@v/v0.0.6.mod",
+          "sha256": "578d5037c51468a37a8fb3a49b5901c35904e54b5ae495ab59a3c4c7499735d0",
+          "bytes": 684
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/id/@v/v0.0.6.zip",
+          "sha256": "be57d54bcdbccf7c27086dde8bb33e1bbc20f46077887891b1a58676021c2872",
+          "bytes": 49145
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils/id@v0.0.6/machineid/LICENSE.md",
+          "sha256": "1b5036318126618111b864b7707db0bd80cbb6be4fb43b846b4454edf7d0e939"
+        },
+        {
+          "path": "github.com/tx7do/go-utils/id@v0.0.6/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils/jwtutil",
+      "version": "v0.0.3",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Subdir": "jwtutil",
+        "Hash": "4edbad8908f9f4a8a845741712559f87782d07d4",
+        "Ref": "refs/tags/jwtutil/v0.0.3"
+      },
+      "sum": "h1:HaNjYY9NjskvbKlrGli5hPPxoL1JLBOJsOM03WF11Zg=",
+      "go_mod_sum": "h1:ds6CFEDu7tz3NEI6daDkcLwZ5ZD/FMOE8EBaSouId3E=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/jwtutil/@v/v0.0.3.info",
+          "sha256": "0eef67a09326cb7a1814971941ccf0af22639576bbae137a1abdc85699fba02e",
+          "bytes": 217
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/jwtutil/@v/v0.0.3.mod",
+          "sha256": "d6ce5edf7684f8fc10b3fc6e95a33c37a7be195a7b7c8718b3c36097010b78f5",
+          "bytes": 506
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/jwtutil/@v/v0.0.3.zip",
+          "sha256": "cc737ef559eff1a6c33dd3ca9bf1bfc131140233f184547fd6593fb7c2fc8965",
+          "bytes": 9040
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils/jwtutil@v0.0.3/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils/mapper",
+      "version": "v0.0.3",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Subdir": "mapper",
+        "Hash": "de36ab695dda6a8a3b1adcb0830518d302f78cc6",
+        "Ref": "refs/tags/mapper/v0.0.3"
+      },
+      "sum": "h1:Z7YoPVsa6I3lfWGSUoa9atujHWeF3kP+yKfS6Rkx5SM=",
+      "go_mod_sum": "h1:zziBbtoqCt8pRw+jmK9Ic9sRD7a2yCLWG40Hy2UCSCs=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/mapper/@v/v0.0.3.info",
+          "sha256": "d71ba942205fb5a0601e11d0ecf69885b1430f4a5d37171768ccc4beff3adfe0",
+          "bytes": 215
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/mapper/@v/v0.0.3.mod",
+          "sha256": "5502abcfdd3e252a4c019887dafa8fa5776cc6d6d51c0ad59f2f90e161c55e91",
+          "bytes": 506
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/mapper/@v/v0.0.3.zip",
+          "sha256": "e85dfe7d3123ad5c93e36ca3c6dfeeac5ef0aacfc2e7ad32ca3a3e134667e4d6",
+          "bytes": 6354
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils/mapper@v0.0.3/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils/password",
+      "version": "v0.0.2",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Subdir": "password",
+        "Hash": "16b6a884f7f3cd1a0e529b4db7a2eccd354af020",
+        "Ref": "refs/tags/password/v0.0.2"
+      },
+      "sum": "h1:9zQhPgLefoZQjc8VCevY11rZAVzXCBuXBwf/1GR3yP4=",
+      "go_mod_sum": "h1:w5i/vuy8QYtqQGXkweltzjrvJxtUH7rEBzvwj59Lx8o=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/password/@v/v0.0.2.info",
+          "sha256": "e42626bfa2dbed61e586bf780f19d10a04d19e4f5759937a072af88c841514d3",
+          "bytes": 219
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/password/@v/v0.0.2.mod",
+          "sha256": "01225050b22a35fe8459e1db3aa279fe0baf5f03981271f5eba9eae8499a938c",
+          "bytes": 136
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/password/@v/v0.0.2.zip",
+          "sha256": "53fdc415bf96e9f67bb6ce8cb2ca59af87d962985f5c22b19eb279f20b5686ce",
+          "bytes": 15138
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils/password@v0.0.2/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-wind",
+      "version": "v0.0.2",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-wind",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-wind",
+        "Hash": "8af60b4449ce9bfa0910aa3e833c45959dc87b30",
+        "Ref": "refs/tags/v0.0.2"
+      },
+      "sum": "h1:kuI2QpwGacfROQpugPFWIcrtztv7qwFwQ4ts+LTsq2k=",
+      "go_mod_sum": "h1:BgeqjCLtGfTlT709176kd2KuLq7I1Am9tqQBrzYssc0=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-wind/@v/v0.0.2.info",
+          "sha256": "0301a6060f3e60dfc000cf0824cfc0b3a0cbccb3d2c6354c505c560111da58ad",
+          "bytes": 189
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-wind/@v/v0.0.2.mod",
+          "sha256": "6498fb53f6c20d2deb7359c1ad77b1d5755b9076a46b220b4ee3ddfcd39ba056",
+          "bytes": 78
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-wind/@v/v0.0.2.zip",
+          "sha256": "4b69eddbb84064efcb533b44a6096d850e91ad125ac56e693d7dbfca39025712",
+          "bytes": 57411
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-wind@v0.0.2/LICENSE",
+          "sha256": "bf0384a4b69d63403d7747384ddbe9e06628ca620099dee8612e6d6a83f169b3"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-wind-plugins/encoding",
+      "version": "v0.0.1",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": true,
+      "upstream_repository": "https://github.com/tx7do/go-wind-plugins",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-wind-plugins",
+        "Subdir": "encoding",
+        "Hash": "fe57e31e9e752a0d213aceaaff74f96df37fc08e",
+        "Ref": "refs/tags/encoding/v0.0.1"
+      },
+      "sum": "h1:JAFl2LU5/6VBE8WgZvJjEaAD4BDhstS2nhuUC9GrzM4=",
+      "go_mod_sum": "h1:kD3i5H3DaENxuz3eAYvOc6fZbTfUy7h+u5XqOzVWdIE=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-wind-plugins/encoding/@v/v0.0.1.info",
+          "sha256": "fd2a995922f20a99e8ba571899c46dfa6d8e5edc6f2eb4b728999a57f44850b9",
+          "bytes": 226
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-wind-plugins/encoding/@v/v0.0.1.mod",
+          "sha256": "5dbc0d843d7685394f41a0ccd08315220607bd5c7ace6e239045a61fc19464e2",
+          "bytes": 60
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-wind-plugins/encoding/@v/v0.0.1.zip",
+          "sha256": "59544b5ba23ad0ff6282b233ca9ff4826790c273f83ad770396b10cbd8c68c61",
+          "bytes": 5720
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-wind-plugins/encoding@v0.0.1/LICENSE",
+          "sha256": "bf0384a4b69d63403d7747384ddbe9e06628ca620099dee8612e6d6a83f169b3"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-wind-plugins/encoding/json",
+      "version": "v0.0.1",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": true,
+      "upstream_repository": "https://github.com/tx7do/go-wind-plugins",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-wind-plugins",
+        "Subdir": "encoding/json",
+        "Hash": "fe57e31e9e752a0d213aceaaff74f96df37fc08e",
+        "Ref": "refs/tags/encoding/json/v0.0.1"
+      },
+      "sum": "h1:9TBvf41xmxtvIT5oyX0wLYWfJziSMkq1uQ25mXTMby8=",
+      "go_mod_sum": "h1:NYVdkUteSngetTUiDIaInR6PpR5KR8C0XFG4UA8UvlQ=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-wind-plugins/encoding/json/@v/v0.0.1.info",
+          "sha256": "ae5c0062c65f7a2a4939e2169e79065209a1a68f11298b65cfe4e98c915ee307",
+          "bytes": 236
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-wind-plugins/encoding/json/@v/v0.0.1.mod",
+          "sha256": "baec5e2a978da30456c71cbb5c8d5f9c9f1f12a09ed18934a1319b6338f8a6b7",
+          "bytes": 181
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-wind-plugins/encoding/json/@v/v0.0.1.zip",
+          "sha256": "cdf80a79e92dcd8659a4f89bb3b1ee8b054137171e1f4a2d46e8fb045048b457",
+          "bytes": 2400
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-wind-plugins/encoding/json@v0.0.1/LICENSE",
+          "sha256": "bf0384a4b69d63403d7747384ddbe9e06628ca620099dee8612e6d6a83f169b3"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact",
+      "version": "v0.0.0-20260831125122-5bb4931991b2",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/go-wind-toolkit",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-wind-toolkit",
+        "Subdir": "protoc-gen-go-redact",
+        "Hash": "5bb4931991b2f4f559cede7ff534227624835a95"
+      },
+      "sum": "h1:ySk000XN3lMJYPRBS12QKHgZkLAxnl68iCpqLKDGSRw=",
+      "go_mod_sum": "h1:6pZHTHo8t6GjYu8fEAJr/OTSEUCVn7ai6oCvVjRC+tY=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/@v/v0.0.0-20260831125122-5bb4931991b2.info",
+          "sha256": "fccbd1db09eb89a62d6af2bdcca349307849bc47a21f878d2c9202c0b1cb6115",
+          "bytes": 232
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/@v/v0.0.0-20260831125122-5bb4931991b2.mod",
+          "sha256": "b27abc527b2c8812a8441ff0e2d1675c484ffc3dfd93b02c40ebdcc09bcef879",
+          "bytes": 747
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/@v/v0.0.0-20260831125122-5bb4931991b2.zip",
+          "sha256": "5d4adb24bfa9d3f333c083ca685ce15cc8cceeabd4a2c34f78390856b437c5a2",
+          "bytes": 193873
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2/LICENSE",
+          "sha256": "65a50dadfb4ab4f8f2c4136234166e4fe50c9b01472186d33b9c325cb303d266"
+        },
+        {
+          "path": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2/NOTICE",
+          "sha256": "16725b472b9daffaa1cad39bacbfc03504553baac40e23f1c3024955eefdf331"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-authn",
+      "version": "v1.1.11",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-authn",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-authn",
+        "Hash": "356e3365ccc057795608c81e7b8bb2bf9092ada9",
+        "Ref": "refs/tags/v1.1.11"
+      },
+      "sum": "h1:D8MPFjhcnGLf98hMmti89MfCLTMhWne5O9b4N2TKBqc=",
+      "go_mod_sum": "h1:9VSLu7MgL7ZHjH9NcMYlCpjlgOHLZWS1Xfx9omVY8/w=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-authn/@v/v1.1.11.info",
+          "sha256": "42bf9b3bb97cfaf88bbe0dab8056bab6d048ce6126447a6fc0fa7468ce3d4516",
+          "bytes": 196
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-authn/@v/v1.1.11.mod",
+          "sha256": "8c762cba84c1b7cdc4abfe6a7a7f352855f6edd418e79df1960baf91a8fdcfd1",
+          "bytes": 636
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-authn/@v/v1.1.11.zip",
+          "sha256": "82e91286083b3afad80fcd8764bbda20a393739cca0cf624013fce196f8fd983",
+          "bytes": 20645
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-authn@v1.1.11/LICENSE",
+          "sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-authn/engine/jwt",
+      "version": "v1.1.11",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-authn",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-authn",
+        "Subdir": "engine/jwt",
+        "Hash": "8dbdb1d9bf393efd543b7069d632700dbb2d152e",
+        "Ref": "refs/tags/engine/jwt/v1.1.11"
+      },
+      "sum": "h1:/oe8UM1sceyv3OY4SwF2IQAUDN1J2BRAse17jAKf/SM=",
+      "go_mod_sum": "h1:2wR2o9oKHFb2op0Ypn8VM6iO9C/ZPzGm4U1kXXgB72w=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-authn/engine/jwt/@v/v1.1.11.info",
+          "sha256": "d41563dce3b3dc6b74e511dc5bb06008f71dec0d6bef71861f34d625728639dc",
+          "bytes": 229
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-authn/engine/jwt/@v/v1.1.11.mod",
+          "sha256": "3a03cdfbc7fae815b686bfae0477a52afacf6ffbd2eca8075d67b0539daa40e6",
+          "bytes": 759
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-authn/engine/jwt/@v/v1.1.11.zip",
+          "sha256": "f1c1999971aecbddf1700c0b80c585d4da7c79a6e00f7d6a032d2306a00dd41e",
+          "bytes": 12640
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-authn/engine/jwt@v1.1.11/LICENSE",
+          "sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-authz",
+      "version": "v1.1.8",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-authz",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-authz",
+        "Hash": "1248d2f2b0b312f2de53dc3a0f0538acd5fdf875",
+        "Ref": "refs/tags/v1.1.8"
+      },
+      "sum": "h1:cO010t/6A0/YKj0HK/yTyjyG23SAs+HNJJAgGV5j1WI=",
+      "go_mod_sum": "h1:kjANoQ+HDzf0PWYJNoKptp4Yu7YfZ6r5TtYjshbksD0=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-authz/@v/v1.1.8.info",
+          "sha256": "8cca66831a36cba49c7618f78aedcfbea44bc3b7be8912eb6b2ab00d84c600d7",
+          "bytes": 194
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-authz/@v/v1.1.8.mod",
+          "sha256": "8ca8cee441661209987d771464aa9e1ee15e298e3685130469c281ed6d1db24b",
+          "bytes": 278
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-authz/@v/v1.1.8.zip",
+          "sha256": "d9dee50cabd412219ab026f6116d627d5fd2a9fba2fcdccfdbd69d1757ca286e",
+          "bytes": 10226
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-authz@v1.1.8/LICENSE",
+          "sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-authz/engine/casbin",
+      "version": "v1.1.12",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-authz",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-authz",
+        "Subdir": "engine/casbin",
+        "Hash": "dbf7f130fd464a13a036a578c5038aad4d0f610c",
+        "Ref": "refs/tags/engine/casbin/v1.1.12"
+      },
+      "sum": "h1:p42kLY2sjvQXBgEuM5a2FpTZ5ZnR4oQDA7LyGDkrHa8=",
+      "go_mod_sum": "h1:u5K/qrua0FdG4H/bu8NsUobd+Si/Y5RIlbBqeQ1T2qs=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-authz/engine/casbin/@v/v1.1.12.info",
+          "sha256": "3c16e06194b04f81301a6359ae678c71a1bed02c46b9b23f89f2ddd07ebabcfe",
+          "bytes": 235
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-authz/engine/casbin/@v/v1.1.12.mod",
+          "sha256": "6e9675d5a1a6a5b41b6e15dd160de54af3e2fa27703646e5510fc097e55ea3af",
+          "bytes": 829
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-authz/engine/casbin/@v/v1.1.12.zip",
+          "sha256": "1ed01498d04e04beea1f1c9a27e717c707e665ba6746f1348c406e75ac9d6f3f",
+          "bytes": 13060
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/LICENSE",
+          "sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-authz/engine/opa",
+      "version": "v1.1.15",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-authz",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-authz",
+        "Subdir": "engine/opa",
+        "Hash": "dbf7f130fd464a13a036a578c5038aad4d0f610c",
+        "Ref": "refs/tags/engine/opa/v1.1.15"
+      },
+      "sum": "h1:jXvNz5V1znl/jviNHUQDtoMi8kS3NR5Bqv2zRmeELTg=",
+      "go_mod_sum": "h1:D5j0X82vfIvvA7VER5gOx5gBvBh0ywnG98XmCjLYhG8=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-authz/engine/opa/@v/v1.1.15.info",
+          "sha256": "df8800013c35802bc91d45200d6cf306ffc15a344065abfea23e0742ef449e56",
+          "bytes": 229
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-authz/engine/opa/@v/v1.1.15.mod",
+          "sha256": "56d5f44639847eb13224cd192d33e6de9f1faf5adbf1ba05095deb0ea318ca51",
+          "bytes": 2565
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-authz/engine/opa/@v/v1.1.15.zip",
+          "sha256": "8a43608007b392fe9425d7f793db77c71ade96aefef8c3bda9d177aad688025b",
+          "bytes": 48306
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-authz/engine/opa@v1.1.15/LICENSE",
+          "sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-authz/middleware",
+      "version": "v1.1.13",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-authz",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-authz",
+        "Subdir": "middleware",
+        "Hash": "dbf7f130fd464a13a036a578c5038aad4d0f610c",
+        "Ref": "refs/tags/middleware/v1.1.13"
+      },
+      "sum": "h1:f0kngtboah2zSnNvhTYxvZhacGLHPpYb+EeRNjPNxH4=",
+      "go_mod_sum": "h1:WYJL/rPpv38JR6XuPmZiPA50bi5WyxtO50o1RdodCS4=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-authz/middleware/@v/v1.1.13.info",
+          "sha256": "070c809b91e35538a40c904711cf57109438e1b02f6b93faa26822904ad9bbbd",
+          "bytes": 229
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-authz/middleware/@v/v1.1.13.mod",
+          "sha256": "c6792ac3589e0362e809c805cf6aab065123ee7c8a22bfbe3168bf521650b323",
+          "bytes": 611
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-authz/middleware/@v/v1.1.13.zip",
+          "sha256": "0d1efefe79aa9ad11125537b5473cd20c6ffae612e6587cfe03e1ebfc2410d47",
+          "bytes": 7142
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-authz/middleware@v1.1.13/LICENSE",
+          "sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/api",
+      "version": "v0.0.45",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "api",
+        "Hash": "73c769acfaf7d22fbf4c3d17bdb4525e35a0d980",
+        "Ref": "refs/tags/api/v0.0.45"
+      },
+      "sum": "h1:r+SPRi6E6o9m7RibezGRdO598zlnFvYUK4jtAsTGt20=",
+      "go_mod_sum": "h1:p95OtykkiLNcN7CHHjIjb1IhMvJshhxxpYI4mNI4dxY=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/api/@v/v0.0.45.info",
+          "sha256": "4001dc4085e4b31e1081b954b9a3084fc13e1c8e7034351fdff37d0b8463b149",
+          "bytes": 219
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/api/@v/v0.0.45.mod",
+          "sha256": "b603910347434b5e5ff492ffcd3ee4bebb75ad9d46fc1440238edb6337a9c62e",
+          "bytes": 101
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/api/@v/v0.0.45.zip",
+          "sha256": "eb98179b0523bc58dacca0172a1412e48333b59c9758510a1d3e594eb3a9e5da",
+          "bytes": 138964
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/api@v0.0.45/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/bootstrap",
+      "version": "v0.1.17",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "bootstrap",
+        "Hash": "f9a881a1e0b7d577aa7e998c481d133750d3145e",
+        "Ref": "refs/tags/bootstrap/v0.1.17"
+      },
+      "sum": "h1:OR6T5ik90XoJJ6uGuVrnl4glkkkmodeqQxyi6nUZOGE=",
+      "go_mod_sum": "h1:TAmHqyYOTtCUs0RWyLntaE5NFOMH4QR9+P1qNbFA5Do=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/bootstrap/@v/v0.1.17.info",
+          "sha256": "6d83fad06ba90753de8f4dd5d53fb6793089976d3875092f46ac3b33931416a8",
+          "bytes": 231
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/bootstrap/@v/v0.1.17.mod",
+          "sha256": "8ddb098f0921703c37a7f2df6232748ebf68a6e43102cf358ce2330eae61ef0a",
+          "bytes": 3508
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/bootstrap/@v/v0.1.17.zip",
+          "sha256": "600165e9883ff589575e1c6671f0c55fe91d5a48981a7dc899905c3e082bb81d",
+          "bytes": 21168
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/bootstrap@v0.1.17/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/cache/redis",
+      "version": "v0.1.2",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "cache/redis",
+        "Hash": "28be66c6172f15d08a1f5a50463a6fe2522ae7c8",
+        "Ref": "refs/tags/cache/redis/v0.1.2"
+      },
+      "sum": "h1:J/gCUVDYjF+HkVgYYbkvbA312aNycxwh4flnKZjlHnE=",
+      "go_mod_sum": "h1:dhkt4frolJaoWUc9j166+crBPJAuWcYxSeMREXpxyDM=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/cache/redis/@v/v0.1.2.info",
+          "sha256": "2a551f1322d0a0edfee5aabce7bd5945287129f7a9ff5db767a75ee00274efd4",
+          "bytes": 233
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/cache/redis/@v/v0.1.2.mod",
+          "sha256": "cfe45f64f6ab1b2f8920213801c9ce4f70e924213aac045006731471e99fbdbc",
+          "bytes": 857
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/cache/redis/@v/v0.1.2.zip",
+          "sha256": "4765da5532679b49eb8189fa0fd769269feb3dcc04f95c9ea869b46352849b36",
+          "bytes": 4708
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/cache/redis@v0.1.2/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/config",
+      "version": "v0.2.3",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": true,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "config",
+        "Hash": "28be66c6172f15d08a1f5a50463a6fe2522ae7c8",
+        "Ref": "refs/tags/config/v0.2.3"
+      },
+      "sum": "h1:u1GqijwAP8MqmvipEaJodDXjAXJUtIxoWwuFMARchpc=",
+      "go_mod_sum": "h1:xtjR7GUp2a2gQEeY9QEb516WeM0EuU8G9eGxVKBjUH4=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/config/@v/v0.2.3.info",
+          "sha256": "fdce78966582a8a3dcfc090232c7ae81169a5fc8f18d18a99ed0389c1014a251",
+          "bytes": 223
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/config/@v/v0.2.3.mod",
+          "sha256": "f9c4a69bdcb1eef7c8b9fb06e1d99ed16d1516a8157b717197b85586cb9e461f",
+          "bytes": 557
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/config/@v/v0.2.3.zip",
+          "sha256": "a9fc3e09cdb6714eae247790df7f3614a917c27e1c02e1191306b85f15aa70da",
+          "bytes": 7049
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/config@v0.2.3/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/database/ent",
+      "version": "v0.1.6",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "database/ent",
+        "Hash": "28be66c6172f15d08a1f5a50463a6fe2522ae7c8",
+        "Ref": "refs/tags/database/ent/v0.1.6"
+      },
+      "sum": "h1:KTEakqx2NHv5HfAJzqo39HfXRNZnUy8juLOp9eXHC4k=",
+      "go_mod_sum": "h1:QwjgsFXN3mYbf8vZeniW8xXnFKJudh8ezQOQ5fd2dVk=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/database/ent/@v/v0.1.6.info",
+          "sha256": "1d3568aa58f761e1de7f676c1c79505bd5fec8ffd135299100ab2e168e6009a2",
+          "bytes": 235
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/database/ent/@v/v0.1.6.mod",
+          "sha256": "e1a42bc5592138d2bc5c52a141903aaa2eb4d95f8a5018a00b62e4fdbb0cae56",
+          "bytes": 2534
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/database/ent/@v/v0.1.6.zip",
+          "sha256": "8392391ec001777eba043890f9a4f3ab55c640856064bc333f2efee1475352ee",
+          "bytes": 10831
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/database/ent@v0.1.6/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/logger",
+      "version": "v0.1.3",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "logger",
+        "Hash": "28be66c6172f15d08a1f5a50463a6fe2522ae7c8",
+        "Ref": "refs/tags/logger/v0.1.3"
+      },
+      "sum": "h1:nqKlP9rx6hhRpCMGt4eOvCl/ulWFpiFdguIsN7lFBv8=",
+      "go_mod_sum": "h1:jRQ68r97wTwXtYXo2ewTeUHaHWOytj0bYRvUsPH2fcE=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/logger/@v/v0.1.3.info",
+          "sha256": "5ab1916987a15859d8b060d833d1edb39969b733348c28c77911b1ad68c6b4a1",
+          "bytes": 223
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/logger/@v/v0.1.3.mod",
+          "sha256": "0dd55bedff1da03d1b8e121dbd7e633ceacaa7400d71d32d34ce008428808465",
+          "bytes": 608
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/logger/@v/v0.1.3.zip",
+          "sha256": "b0669fbc9c1257c4acc5f4dbed3547e4ed289d9a9b3f87e51d4ca40e81532000",
+          "bytes": 12341
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/logger@v0.1.3/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/oss/minio",
+      "version": "v0.1.3",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "oss/minio",
+        "Hash": "28be66c6172f15d08a1f5a50463a6fe2522ae7c8",
+        "Ref": "refs/tags/oss/minio/v0.1.3"
+      },
+      "sum": "h1:C3dNTNHR005wAXY/rGxTo18Tl3djHXfzQ0iS5S4qSaY=",
+      "go_mod_sum": "h1:xOz+UPzeREFgyMS+IgJBbfRqV0/45H3IFQPxbYjr6oI=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/oss/minio/@v/v0.1.3.info",
+          "sha256": "59fd4a4252d60411a73ffd71c5aae2961899c1243c0710ed70bb00bb94368ef4",
+          "bytes": 229
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/oss/minio/@v/v0.1.3.mod",
+          "sha256": "9061d3af0a4a23683ce8f9a9ab15bf9a196a51caa6522b07a88968e0eff361f2",
+          "bytes": 1104
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/oss/minio/@v/v0.1.3.zip",
+          "sha256": "789560b688519f0ba609744c365747cf8f3ac8ddcc32d290f982cc0b790011eb",
+          "bytes": 10594
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/oss/minio@v0.1.3/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/registry",
+      "version": "v0.2.3",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": true,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "registry",
+        "Hash": "28be66c6172f15d08a1f5a50463a6fe2522ae7c8",
+        "Ref": "refs/tags/registry/v0.2.3"
+      },
+      "sum": "h1:Me74a2teHn++v3NMFB9sgHhVkEasN7iOSyGpIsxP2OY=",
+      "go_mod_sum": "h1:PHnu829N5l68X0E89rQfYWryat4A6HdBfgiE1taLS6Q=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/registry/@v/v0.2.3.info",
+          "sha256": "0ad14a63f5bbee15a2f870334dc15344ba364fe4bf6cb86602fff29dff5962e6",
+          "bytes": 227
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/registry/@v/v0.2.3.mod",
+          "sha256": "dca1d7d74c5334baa9234979a5acfac2bd792156ee4977209211c4915aede832",
+          "bytes": 274
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/registry/@v/v0.2.3.zip",
+          "sha256": "7386e7be4e6772a7c9a255861c68de5f5761de49b4bb6601083b28e6bc2484c0",
+          "bytes": 7014
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/registry@v0.2.3/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/rpc",
+      "version": "v0.1.3",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "rpc",
+        "Hash": "d20307d6dd914043c261d37a132e71b21b9acffd",
+        "Ref": "refs/tags/rpc/v0.1.3"
+      },
+      "sum": "h1:B/aifjU4VMWH+R1nqwoQhdSblO9N1jvtfP05SdKQEGA=",
+      "go_mod_sum": "h1:BoWr7//y/2lIgEhgCp4sxNxGJ0U6GqWxN4FoyTTxpHw=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/rpc/@v/v0.1.3.info",
+          "sha256": "319e5eab2f754774ae8afa0e77bc6241791259620405a3cb6023f87a9bf2fd26",
+          "bytes": 217
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/rpc/@v/v0.1.3.mod",
+          "sha256": "b7475669cd60b8eec1f35aaf3fd16df84b4330b998e20676d2e6a381f63b44a2",
+          "bytes": 2114
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/rpc/@v/v0.1.3.zip",
+          "sha256": "100cdb72feae597a496cf3499913cf7472c1688315237279569c06436b14949b",
+          "bytes": 20195
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/rpc@v0.1.3/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/tracer",
+      "version": "v0.1.5",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": true,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "tracer",
+        "Hash": "28be66c6172f15d08a1f5a50463a6fe2522ae7c8",
+        "Ref": "refs/tags/tracer/v0.1.5"
+      },
+      "sum": "h1:2cDSLSyZS9lynX2xlq1P6MX0DUeAdvNFmEdLghdyqiM=",
+      "go_mod_sum": "h1:apPFnTo4r+6/swsm/yctHKu1/U1x1kcaNqEJ+SLj6Ac=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/tracer/@v/v0.1.5.info",
+          "sha256": "acfe53d9f024a7ae9df6323b4de6eee06aa924676dcab113ce5617145a947449",
+          "bytes": 223
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/tracer/@v/v0.1.5.mod",
+          "sha256": "1ab554010f29fdf92bf6f97b2dde92262794b2e4b4df0d5e075f6088b08fcfd6",
+          "bytes": 1677
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/tracer/@v/v0.1.5.zip",
+          "sha256": "4790fc25bc15e91c285a94ed84c92d0ef0b689a0cbbb74556dd0767c4a3b87ec",
+          "bytes": 13073
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/tracer@v0.1.5/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/transport/asynq",
+      "version": "v0.0.7",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "transport/asynq",
+        "Hash": "28be66c6172f15d08a1f5a50463a6fe2522ae7c8",
+        "Ref": "refs/tags/transport/asynq/v0.0.7"
+      },
+      "sum": "h1:aB5+3tghb1+/BrJm1/p6OH41PM9A1Hx29tj5Nr4/stU=",
+      "go_mod_sum": "h1:7l6AGBGDF6r1r8KX/k92zZlNNUT7tH+nv0SWtPFOGec=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/transport/asynq/@v/v0.0.7.info",
+          "sha256": "edbc29e444252027cbfdf8c5ebde5fc611e0201270b3114fee821ea03a4e900a",
+          "bytes": 241
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/transport/asynq/@v/v0.0.7.mod",
+          "sha256": "72a7f851cd8b4f65c1f5a3b8f8092a2576adac6a567317282e316f6f318f008b",
+          "bytes": 2406
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/transport/asynq/@v/v0.0.7.zip",
+          "sha256": "48ef5a07d052f9c2cd9962f9f7d35bb739aa941f74172cb78d1e8c5a983cd8a8",
+          "bytes": 8594
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/transport/asynq@v0.0.7/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-bootstrap/transport/sse",
+      "version": "v0.0.5",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-bootstrap",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "Subdir": "transport/sse",
+        "Hash": "28be66c6172f15d08a1f5a50463a6fe2522ae7c8",
+        "Ref": "refs/tags/transport/sse/v0.0.5"
+      },
+      "sum": "h1:gO6zSUecvt4mbHY/bUFng5qosdv6ipVxw8sKqbE4iaM=",
+      "go_mod_sum": "h1:Pnd2UnP1C4Lj+5ZORmAYAh00aU3pTHjjN3wdJNHCbNA=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/transport/sse/@v/v0.0.5.info",
+          "sha256": "423c580901095de668ac1c27a4183d887e1055780632bc1ce0ed223f4b407146",
+          "bytes": 237
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/transport/sse/@v/v0.0.5.mod",
+          "sha256": "aa3ed0d8069241941e73b061475930b3bcb1400300d57ef635937b3afbe15376",
+          "bytes": 2132
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-bootstrap/transport/sse/@v/v0.0.5.zip",
+          "sha256": "93727e8bdc579ac29337743f415a6208de940fa39309899c7f20ff1e0b58f98e",
+          "bytes": 6745
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/transport/sse@v0.0.5/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-swagger-ui",
+      "version": "v0.0.1",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-swagger-ui",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-swagger-ui",
+        "Hash": "5d934af765c13a71f248f8b726345adc80cd2734",
+        "Ref": "refs/tags/v0.0.1"
+      },
+      "sum": "h1:hkTsMJZtHQqvqogrrwYyJn46Xj3e26/M+ro4DQxGv0I=",
+      "go_mod_sum": "h1:aSdTwD5e0/A+vZ1mQVSydRNQgQzT+AVqHzCXg9K+XoI=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-swagger-ui/@v/v0.0.1.info",
+          "sha256": "d02ec52acf683c073ce7e509d8e30ede78371bbeb05c90145c1f125e8cd6c0ad",
+          "bytes": 199
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-swagger-ui/@v/v0.0.1.mod",
+          "sha256": "22dfeb8d184c4609efce2d0f08d915dfd5517c41c071d3661e745a24a0d4f6ad",
+          "bytes": 210
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-swagger-ui/@v/v0.0.1.zip",
+          "sha256": "88c063a0fbd4fe623643b60213e853537d3880c04bc223376b6f28654b50db8b",
+          "bytes": 12758
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-swagger-ui@v0.0.1/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-transport/broker",
+      "version": "v1.3.3",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": true,
+      "upstream_repository": "https://github.com/tx7do/kratos-transport",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-transport",
+        "Subdir": "broker",
+        "Hash": "f3c8d16d098db53f0b55601d5537c76beb51364d",
+        "Ref": "refs/tags/broker/v1.3.3"
+      },
+      "sum": "h1:5DodrQf8JW0jHOdnObHLgE1d9wLziv5qKUtsD4cTzXU=",
+      "go_mod_sum": "h1:fAV13/x6/LJltwwg9Ht0gtxeNZ6MfJlMVmyidAHszMI=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-transport/broker/@v/v1.3.3.info",
+          "sha256": "59c3281b25675ce09529c38f7d3b8e328d4cc3824d2dacf02b6e186383bcabab",
+          "bytes": 223
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-transport/broker/@v/v1.3.3.mod",
+          "sha256": "1dc8750795c5b99622f090fb4b69136d0cecdd3891a614178f1c2fd5f80cdf0a",
+          "bytes": 1692
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-transport/broker/@v/v1.3.3.zip",
+          "sha256": "f8d6d3fe63c4eebc9dcbde8106bed4d3d9b0df950cf62df492fda9fab6e844a4",
+          "bytes": 23638
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-transport/broker@v1.3.3/LICENSE",
+          "sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-transport/tracing",
+      "version": "v1.1.2",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": true,
+      "upstream_repository": "https://github.com/tx7do/kratos-transport",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-transport",
+        "Subdir": "tracing",
+        "Hash": "8c4089a2e12b6ad6ece9f2be5713a9487e4066ad",
+        "Ref": "refs/tags/tracing/v1.1.2"
+      },
+      "sum": "h1:sF1TdLhhzJqB5CcCKjG12hkKYEcw0vReUWBoyFYj5jQ=",
+      "go_mod_sum": "h1:6S66jqpDl3i44GgJ1ChYM13F1nYMesQVBtVJfyuqosk=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-transport/tracing/@v/v1.1.2.info",
+          "sha256": "4fa7007d6cb06482f93e674bc60f92b90288977a5ad6fc79203b61e22ee30b2f",
+          "bytes": 225
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-transport/tracing/@v/v1.1.2.mod",
+          "sha256": "7b485356fc8a5094a4b6d3efbc6826d3da6ef46ed3a7b738093554b9e409b533",
+          "bytes": 1290
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-transport/tracing/@v/v1.1.2.zip",
+          "sha256": "af8259ac831557c898d0969cfb7198d5c1b9dd34f3b62e29d3c3179001d09087",
+          "bytes": 7746
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-transport/tracing@v1.1.2/LICENSE",
+          "sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-transport/transport",
+      "version": "v1.3.4",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": true,
+      "upstream_repository": "https://github.com/tx7do/kratos-transport",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-transport",
+        "Subdir": "transport",
+        "Hash": "1e4004bd1dfcedf5a29ac0d1020e574ea79c5f48",
+        "Ref": "refs/tags/transport/v1.3.4"
+      },
+      "sum": "h1:6eKWtpFzRYgUx9E91N1X3IbEvYbhRuqb9ZQiqWDhos8=",
+      "go_mod_sum": "h1:9vCAHfD2/NVwwCICV58/ZzoI2sz0B2lyP8fVZmAgh5o=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/@v/v1.3.4.info",
+          "sha256": "a6f531c40dfa87c5013f5a09bfeaa82b0065b9ef05baecafbe83f4613726f46a",
+          "bytes": 229
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/@v/v1.3.4.mod",
+          "sha256": "4092e57ff560f728129d68d7f0dde68a2923fb542e29d1f6354953a0f4053cbb",
+          "bytes": 1842
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/@v/v1.3.4.zip",
+          "sha256": "dd3bd1d065f07ebc0a2e07d2213de3943d38db3e1c512b040b8b05b0b9bb9a09",
+          "bytes": 8541
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-transport/transport@v1.3.4/LICENSE",
+          "sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-transport/transport/asynq",
+      "version": "v1.3.14",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-transport",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-transport",
+        "Subdir": "transport/asynq",
+        "Hash": "035b95cc82b583141c560a093f422f3509a8d183",
+        "Ref": "refs/tags/transport/asynq/v1.3.14"
+      },
+      "sum": "h1:NBnh9Nm8qVJI1AoALCLakoVTvvzu/hqZnII6QsoWX1g=",
+      "go_mod_sum": "h1:I1qqHw3mOwy7CdE+eZDApRw2QR+bWbez8PbxrODrKaQ=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/asynq/@v/v1.3.14.info",
+          "sha256": "1dea28e71828d115008408a75591002b47e15fa6341f7fd185afa8dff2e89748",
+          "bytes": 243
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/asynq/@v/v1.3.14.mod",
+          "sha256": "465c4356d09e04a6f0ef78ddb2a3f41004c597188fa240c10f95d41a1ebefe64",
+          "bytes": 2541
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/asynq/@v/v1.3.14.zip",
+          "sha256": "15f1cda9e8e6f02d13b1c624ba7cc668722d58bf15856e0c1736ee2b8d402683",
+          "bytes": 19836
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-transport/transport/asynq@v1.3.14/LICENSE",
+          "sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-transport/transport/keepalive",
+      "version": "v1.3.5",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": true,
+      "upstream_repository": "https://github.com/tx7do/kratos-transport",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-transport",
+        "Subdir": "transport/keepalive",
+        "Hash": "ee2faeabbf573b9cae15c01bac926eb45a3e26e1",
+        "Ref": "refs/tags/transport/keepalive/v1.3.5"
+      },
+      "sum": "h1:p1B1jpGN3SqoTrrrSmgsvv5RC/NvCHVbB970u7OTdKQ=",
+      "go_mod_sum": "h1:vfYTnR7EpZfn2+jv1rscmhfNTDvEa5TBDEgU6iuTFwA=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/keepalive/@v/v1.3.5.info",
+          "sha256": "92491bd6914291a0f04733053bd0ec43c3c3de0a36bef3af02cc494eba40d227",
+          "bytes": 249
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/keepalive/@v/v1.3.5.mod",
+          "sha256": "86b66cc31e287d26a0857ebfd5044196d98c557e77ab1f11c3375142da3fb031",
+          "bytes": 2067
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/keepalive/@v/v1.3.5.zip",
+          "sha256": "acfa6703cf6a641f397b3726e6d94aa0877f441932933d3db4f713fe1ba4c25e",
+          "bytes": 11504
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-transport/transport/keepalive@v1.3.5/LICENSE",
+          "sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/kratos-transport/transport/sse",
+      "version": "v1.3.8",
+      "scope": "application",
+      "used_by_gow": false,
+      "indirect": false,
+      "upstream_repository": "https://github.com/tx7do/kratos-transport",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/kratos-transport",
+        "Subdir": "transport/sse",
+        "Hash": "a695baf9a4babfee13a057072fb2b1fed4842d62",
+        "Ref": "refs/tags/transport/sse/v1.3.8"
+      },
+      "sum": "h1:w38AlSYjfQnCvrpZbH6X13Rv0pB1c9qMk7sqkT5gHqE=",
+      "go_mod_sum": "h1:2luD0/3iS4gh9dWv3F3o/75/TbV302NN4mjkV1jLT1w=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/sse/@v/v1.3.8.info",
+          "sha256": "d2153ec625503a7256f11499330026b642df94c8fd2a4713519d997826afff26",
+          "bytes": 237
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/sse/@v/v1.3.8.mod",
+          "sha256": "8d55b5b718f1376c937b8a59a8b37787c1bb5caf4898e518cb956d952362f2ff",
+          "bytes": 2188
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/kratos-transport/transport/sse/@v/v1.3.8.zip",
+          "sha256": "6b0aedee1d181c4ea9a808b74f93680f879f3bae7a9d40cfbc9adfe9226f57ee",
+          "bytes": 34369
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-transport/transport/sse@v1.3.8/LICENSE",
+          "sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-wind-toolkit/gowind",
+      "version": "v1.0.3",
+      "scope": "development-tool",
+      "used_by_gow": true,
+      "indirect": null,
+      "upstream_repository": "https://github.com/tx7do/go-wind-toolkit",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-wind-toolkit",
+        "Subdir": "gowind",
+        "Hash": "19875b9d477351cbc5e5e472880e428980b7f794",
+        "Ref": "refs/tags/gowind/v1.0.3"
+      },
+      "sum": "h1:Iwkk3G2aX9V4WPghPsNjfkyzPEOY6cX/XVsy4BnLJHA=",
+      "go_mod_sum": "h1:3OxbHJ3/k/AU0T+GexlaT80PpniTpu0Yidc8wi/Fkz8=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-wind-toolkit/gowind/@v/v1.0.3.info",
+          "sha256": "a89cd412ef5ff5a91db8f3b008144388339a62efb78dbd5b8a637a1e157f272d",
+          "bytes": 222
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-wind-toolkit/gowind/@v/v1.0.3.mod",
+          "sha256": "d04b3daa0752ddc913ddd88609f4cb0493d263e3df6f31418680e41f54ffa4ca",
+          "bytes": 4519
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-wind-toolkit/gowind/@v/v1.0.3.zip",
+          "sha256": "e773e4e6f10c8bb10de1815c85adefa80c10ccb5346bf7f61b507d54fa754a9d",
+          "bytes": 389471
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-wind-toolkit/gowind@v1.0.3/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils",
+      "version": "v1.1.37",
+      "scope": "development-tool",
+      "used_by_gow": true,
+      "indirect": null,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Hash": "732ab55066de3397f3961fed16bf3d664836046a",
+        "Ref": "refs/tags/v1.1.37"
+      },
+      "sum": "h1:4gQJ6hYMjfzorNHXLK4Ld2RqwavmzN94s6YpiWch1/s=",
+      "go_mod_sum": "h1:A5zjhW0UTM6veYuCbq7/mcwDXaBw8UhBnvaLSwURBRg=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/@v/v1.1.37.info",
+          "sha256": "e3b319f7730582b22f5c80511eef660f9592fe023bcce7f43f9a3a2a6701bcda",
+          "bytes": 192
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/@v/v1.1.37.mod",
+          "sha256": "82b666f8418537cfeaaa2c637af624f27e3458e159604604a024f9954fed416d",
+          "bytes": 553
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/@v/v1.1.37.zip",
+          "sha256": "574c65249f3b997a479d29fcd8d32b9009a7e6f0a6a46f0481a9fc96a3bdb8de",
+          "bytes": 72556
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils@v1.1.37/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils/code_generator",
+      "version": "v0.0.1",
+      "scope": "development-tool",
+      "used_by_gow": true,
+      "indirect": null,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Subdir": "code_generator",
+        "Hash": "3c3c7072819e60157255ea81d07e6cb2e531f2be",
+        "Ref": "refs/tags/code_generator/v0.0.1"
+      },
+      "sum": "h1:PPZT0iL7tuXtXYPyp6c69h5g2anFJ+1oREvD7++y0yg=",
+      "go_mod_sum": "h1:C29vTME26K6JvT82g21b3Jdf/6b031ZSBcdWyIJpHv8=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/code_generator/@v/v0.0.1.info",
+          "sha256": "7a03fe78a4892111e8690dd15d93fd94a9719ea5aa1eb960a93d746c70f07759",
+          "bytes": 231
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/code_generator/@v/v0.0.1.mod",
+          "sha256": "c2c72c789b8aa4619b21534fcb5d70ccf736ee351488336c0df001cc58cd13ef",
+          "bytes": 121
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/code_generator/@v/v0.0.1.zip",
+          "sha256": "2ea1a4c23418e12aab5d892bfac816cf3e34bd70c381d49083825ae232c11ed5",
+          "bytes": 10540
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils/code_generator@v0.0.1/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    },
+    {
+      "module_path": "github.com/tx7do/go-utils/ddl_parser",
+      "version": "v0.0.5",
+      "scope": "development-tool",
+      "used_by_gow": true,
+      "indirect": null,
+      "upstream_repository": "https://github.com/tx7do/go-utils",
+      "origin": {
+        "VCS": "git",
+        "URL": "https://github.com/tx7do/go-utils",
+        "Subdir": "ddl_parser",
+        "Hash": "542c85ea1b3586f8d27caac77f48654a51291d80",
+        "Ref": "refs/tags/ddl_parser/v0.0.5"
+      },
+      "sum": "h1:0F7DCeufEn3uA/Z9VNSsKKBpExKIxpJRmbox63NDFro=",
+      "go_mod_sum": "h1:jxT6rjw6bPKBX33PYTOJdJh0Dj4rX+dJ2nPIXbRK9P4=",
+      "artifacts": {
+        "info": {
+          "path": "proxy/github.com/tx7do/go-utils/ddl_parser/@v/v0.0.5.info",
+          "sha256": "6a0e340403950ec755c667c559151938b263488477e12d5d00c813ea29abdd07",
+          "bytes": 223
+        },
+        "mod": {
+          "path": "proxy/github.com/tx7do/go-utils/ddl_parser/@v/v0.0.5.mod",
+          "sha256": "9366c5e076dec9dd7ce753bf0cfd80cda24b82fab7e410652d0b8a797511c7aa",
+          "bytes": 469
+        },
+        "zip": {
+          "path": "proxy/github.com/tx7do/go-utils/ddl_parser/@v/v0.0.5.zip",
+          "sha256": "505a3977e81b6c680464068cf477b2c083d1b50c9c4b2bb80636bc4f2a96c58d",
+          "bytes": 15486
+        }
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-utils/ddl_parser@v0.0.5/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ]
+    }
+  ]
+}
