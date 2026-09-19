@@ -13,6 +13,8 @@
 | `generate-model-slice.sh`、`generate-network-slice.sh` | 固定范围的 API 生成脚本。 |
 | `package-model-contract.py`、`package-network-contract.py` | 固定版本的领域 Go API 模块交付。 |
 | `bootstrap-model-access.sql`、`bootstrap-network-access.sql` | 专项权限登记，按脚本前提使用，不是通用种子。 |
+| [../docs/service-integration.md](../docs/service-integration.md) | 业务服务接入指南：mTLS 出站、身份 header 契约、装配锚点、Api 登记与验收清单。 |
+| [new-service-scaffold.sh](new-service-scaffold.sh) | 接入骨架生成（只写四个源文件，不执行生成/构建；生成、编译与验收按仓库执行环境约定运行）。 |
 | [model-lab/README.md](model-lab/README.md)、[network-lab/README.md](network-lab/README.md) | 历史隔离实验入口，包含特定环境和验收前提。 |
 | `backup-tx7do.py` | 源码备份及恢复校验，见 [备份说明](../third_party/tx7do/README.md)。 |
 
