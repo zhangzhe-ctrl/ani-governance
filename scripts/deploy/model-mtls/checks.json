@@ -1,0 +1,85 @@
+[
+  {
+    "case": "real-login-a",
+    "status": "pass",
+    "http": 200,
+    "http_only_refresh_cookie": true,
+    "tenant_code": "model-lab-a"
+  },
+  {
+    "case": "real-login-b",
+    "status": "pass",
+    "http": 200,
+    "http_only_refresh_cookie": true,
+    "tenant_code": "model-lab-b"
+  },
+  {
+    "case": "real-login-denied",
+    "status": "pass",
+    "http": 200,
+    "http_only_refresh_cookie": true,
+    "tenant_code": "model-lab-denied"
+  },
+  {
+    "case": "cert-manager-real-models-a",
+    "status": "pass",
+    "http": 200,
+    "seconds": 0.102,
+    "count": 100,
+    "only_projected_fields": true
+  },
+  {
+    "case": "cert-manager-real-models-b",
+    "status": "pass",
+    "http": 200,
+    "seconds": 0.062,
+    "count": 3,
+    "only_projected_fields": true
+  },
+  {
+    "case": "cert-manager-no-login",
+    "status": "pass",
+    "http": 401,
+    "seconds": 0.009,
+    "reason": "UNAUTHORIZED",
+    "model_business_calls_delta": 0.0
+  },
+  {
+    "case": "cert-manager-no-permission",
+    "status": "pass",
+    "http": 403,
+    "seconds": 0.033,
+    "reason": "FORBIDDEN",
+    "model_business_calls_delta": 0.0
+  },
+  {
+    "case": "cert-manager-forged-tenant",
+    "status": "pass",
+    "http": 200,
+    "seconds": 0.105,
+    "count": 100,
+    "only_projected_fields": true
+  },
+  {
+    "case": "cert-manager-no-client-certificate",
+    "status": "pass",
+    "code": "Unavailable",
+    "error": "connection error: desc = \"error reading server preface: remote error: tls: certificate required\"",
+    "models": 0
+  },
+  {
+    "case": "cert-manager-wrong-service",
+    "status": "pass",
+    "code": "Unavailable",
+    "error": "connection error: desc = \"error reading server preface: remote error: tls: bad certificate\"",
+    "models": 0
+  },
+  {
+    "case": "cert-manager-final-read",
+    "status": "pass",
+    "http": 200,
+    "seconds": 0.045,
+    "count": 100,
+    "only_projected_fields": true
+  }
+]

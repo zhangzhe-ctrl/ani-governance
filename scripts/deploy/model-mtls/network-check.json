@@ -1,0 +1,17 @@
+[
+  {
+    "case": "real-login-a",
+    "status": "pass",
+    "http": 200,
+    "http_only_refresh_cookie": true,
+    "tenant_code": "model-lab-a"
+  },
+  {
+    "case": "cert-manager-network-regression",
+    "status": "pass",
+    "http": 200,
+    "seconds": 0.125,
+    "vpc_id": "vpc_19c7ffbe896e58a3a2ef1f2ba4622de6",
+    "vpc_name": "network-a"
+  }
+]

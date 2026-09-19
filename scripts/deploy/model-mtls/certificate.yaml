@@ -1,0 +1,20 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: governance-client
+spec:
+  secretName: governance-client-tls
+  issuerRef:
+    name: ani-internal-ca
+    kind: Issuer
+  dnsNames:
+    - ani-governance
+  usages:
+    - digital signature
+    - client auth
+  duration: 72h
+  renewBefore: 24h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
