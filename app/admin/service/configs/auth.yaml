@@ -65,21 +65,8 @@ authn:
       - "key2"
 
 authz:
-  type: "noop" # casbin, opa, zanzibar, noop
+  type: "casbin" # casbin, opa, noop
 
   casbin:
 
   opa:
-
-  zanzibar:
-    type: "keto" # keto, open_fga
-
-    keto:
-      write_url: "http://keto:4466"
-      read_url: "http://keto:4466"
-      use_grpc: true
-
-    open_fga:
-      api_url: "http://openfga:8080"
-      store_id: "your_store_id"
-      token: "your_token"

@@ -6,7 +6,7 @@ ANI 独立维护的 Go 后端，基于 [go-wind-admin](https://github.com/tx7do/
 
 ## 开发
 
-Go 基准 **1.26.7**，gow 固定 **v1.0.3**。主路径使用 Kratos、Ent、PostgreSQL 和 Redis；其他依赖按启用模块配置。GORM 备用装配尚未完成。
+Go 基准 **1.26.7**，gow 固定 **v1.0.3**。主路径使用 Kratos、Ent、PostgreSQL 和 Redis；其他依赖按启用模块配置。
 
 当前固定版本的 Model/Network API 模块需要既有模块交付与相应 file-GOPROXY 配置；请先取得匹配交付并按其说明配置依赖消费。`third_party/tx7do/` 仅覆盖其清单所列依赖，不是全项目离线依赖包。
 

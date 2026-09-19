@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tx7do/go-crud/viewer"
 	"github.com/tx7do/go-utils/captcha"
 	"github.com/tx7do/go-utils/timeutil"
 	"github.com/tx7do/go-utils/trans"
@@ -246,8 +245,15 @@ func (s *AuthenticationService) checkLoginPolicies(ctx context.Context, tenantID
 }
 
 func (s *AuthenticationService) resetContextForLogin(ctx context.Context) context.Context {
-	// 没有 viewer 信息，使用空的 NoopContext
-	ctx = viewer.WithContext(ctx, viewer.NewNoopContext())
+	// 登录前没有任何已认证身份，但凭证/用户查询必须绕过租户隔离：
+	// go-crud TenantPrivacy.EvalQuery 对"非平台/非系统"的 viewer 一律注入
+	// WHERE tenant_id = viewer.TenantID()，而 NoopContext 的 TenantID 恒为 0
+	// 且 IsPlatformContext/IsSystemContext 均为 false——privacy.Allow 决策
+	// 无法阻止该谓词注入（注入发生在规则内部，不受决策短路影响），
+	// 租户用户（tenant_id>0）的凭证行因此永远查不到（USER_NOT_FOUND）。
+	// 这里改用系统视图：TenantPrivacy 对系统上下文直接放行、不注入谓词，
+	// 登录期的租户限定由显式的 tenantID 查询参数自行完成（见 doGrantTypePassword）。
+	ctx = appViewer.NewSystemViewerContext(ctx)
 	// 绕过隐私保护中间件
 	ctx = privacy.DecisionContext(ctx, privacy.Allow)
 

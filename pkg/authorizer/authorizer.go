@@ -181,15 +181,7 @@ func (a *Authorizer) newEngine(ctx context.Context, cfg *conf.Authorization) aut
 
 	case "opa":
 		return a.newEngineOPA(ctx)
-
-	case "zanzibar":
-		return a.newEngineZanzibar(ctx)
 	}
-}
-
-// newEngineZanzibar 创建 Zanzibar 引擎（未实现）
-func (a *Authorizer) newEngineZanzibar(_ context.Context) authzEngine.Engine {
-	return nil
 }
 
 // newEngineNoop 创建 Noop 引擎

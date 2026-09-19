@@ -91,8 +91,9 @@
 ### 变更
 - 登录页与输入控件视觉对齐设计语言规范（认证卡实底、输入框与表面同层、
   占位符提亮，暗色登录左栏修正）；Vben 暗色主题对齐规范近黑蓝系。
-- go-crud 依赖升级：entgo v0.0.55、gorm v0.0.24、pagination v0.0.16、viewer v0.0.7，
-  并同步新增租户守卫 Create 防伪造 / DeleteOne 越权单测。
+- go-crud 依赖升级：entgo v0.0.55、pagination v0.0.16、viewer v0.0.7，
+  并同步新增租户守卫 Create 防伪造 / DeleteOne 越权单测。（gorm v0.0.24
+  为当时升级记录；GORM 备用装配现已整体移除）
 - 刷新令牌（refresh token）由本地存储迁移至 HttpOnly Cookie，并改用自描述 JWT。
 - CORS 补齐 `allow_credentials`，以适配 HttpOnly Cookie 刷新令牌的跨域携带。
 - 安全加固：内容安全策略（CSP）、输入校验、日志注入防护、枚举零值守卫。

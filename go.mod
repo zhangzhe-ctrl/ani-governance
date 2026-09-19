@@ -7,7 +7,6 @@ require (
 	github.com/alicebob/miniredis/v2 v2.39.0
 	github.com/envoyproxy/protoc-gen-validate v1.3.3
 	github.com/getkin/kin-openapi v0.149.0
-	github.com/glebarez/sqlite v1.11.0
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/golang-jwt/jwt/v5 v5.3.1
@@ -15,7 +14,6 @@ require (
 	github.com/hibiken/asynq v0.26.0
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/jinzhu/copier v0.4.0
-	github.com/jinzhu/inflection v1.0.0
 	github.com/lib/pq v1.12.3
 	github.com/mileusna/useragent v1.3.5
 	github.com/minio/minio-go/v7 v7.3.0
@@ -24,7 +22,6 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/tx7do/go-crud/api v0.0.7
 	github.com/tx7do/go-crud/entgo v0.0.55
-	github.com/tx7do/go-crud/gorm v0.0.24
 	github.com/tx7do/go-crud/pagination v0.0.16
 	github.com/tx7do/go-crud/viewer v0.0.7
 	github.com/tx7do/go-scripts v0.0.8
@@ -67,8 +64,6 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20260908043556-f8649ddbbfe6
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12
-	gorm.io/datatypes v1.2.7
-	gorm.io/gorm v1.31.2
 	modernc.org/sqlite v1.58.0
 )
 

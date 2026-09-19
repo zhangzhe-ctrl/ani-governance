@@ -2,7 +2,7 @@
 //
 // 覆盖目标：
 //   - newEngine 按 conf.Authorization.Type 选择引擎的分支逻辑
-//     （空串/未知串/noop → noop 引擎；zanzibar → nil；nil 配置 → nil；
+//     （空串/未知串/noop → noop 引擎；nil 配置 → nil；
 //     casbin/opa 走真实引擎构造，OPA 依赖 provider 提供模型文件）。
 //   - generateCasbinPolicies / generateOpaPolicies 的输出形状
 //     （多角色多 API 条目下的映射关系，以及空输入的退化形状）。
@@ -144,14 +144,6 @@ func TestNewEngine_UnknownTypeFallsThroughToNoop(t *testing.T) {
 	eng := a.newEngine(context.Background(), &conf.Authorization{Type: "totally-bogus-engine"})
 	require.NotNil(t, eng)
 	assert.Equal(t, "noop", eng.Name())
-}
-
-// TestNewEngine_ZanzibarReturnsNil zanzibar 引擎尚未实现，必须返回 nil
-// 而不是误落到 noop。
-func TestNewEngine_ZanzibarReturnsNil(t *testing.T) {
-	a := newTestAuthorizer(&stubProvider{})
-	eng := a.newEngine(context.Background(), &conf.Authorization{Type: "zanzibar"})
-	assert.Nil(t, eng, "zanzibar 未实现，应返回 nil")
 }
 
 // TestNewEngine_NilConfigReturnsNil nil 配置必须返回 nil 引擎，不能构造默认引擎。
