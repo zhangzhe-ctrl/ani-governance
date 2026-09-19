@@ -1,6 +1,6 @@
 # 上游历史更新日志
 
-本文件保留 fork 来源的历史描述，包含当时的界面、目录、文档和版本安排。下方 `Unreleased` 是原记录的标签，不代表 ANI 当前发布计划；已删除的路径也不再是当前入口。现行维护说明见 [README.md](README.md) 与 [UPSTREAM.md](UPSTREAM.md)。
+本文件保留 fork 来源的历史描述，包含当时的界面、目录、文档和版本安排。下方 `Unreleased` 是原记录的标签，不代表 ANI 当前发布计划；已删除的路径也不再是当前入口。现行维护说明见 [README.md](README.md)，来源与许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 规范，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。

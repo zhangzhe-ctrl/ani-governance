@@ -12,9 +12,9 @@ gov=R/'work/governance'
 if (gov/'go.mod').is_file():
     # Explicit backend paths: never collect the whole repository after relocation.
     gov_scopes=['api','app','pkg','scripts','sql','tools','go.mod','go.sum',
-                'Makefile','app.mk','Dockerfile','docker-compose.yaml','docker-compose.libs.yaml',
+                'Makefile','app.mk','Dockerfile',
                 '.dockerignore','.gitignore','.golangci.yml','.markdownlint.yaml','.yamllint',
-                'AGENTS.md','CLAUDE.md','README.md','UPSTREAM.md']
+                'AGENTS.md','CLAUDE.md','README.md','THIRD_PARTY_NOTICES.md']
 elif (gov/'backend/go.mod').is_file():
     gov_scopes=['backend','UPSTREAM.md','docs/issues/model-list-first-slice.md','docs/model-catalog-bootstrap.md']
 else:

@@ -2,8 +2,6 @@
 
 ANI 独立维护的 Go 后端，基于 [go-wind-admin](https://github.com/tx7do/go-wind-admin) fork 演进。后续开发和发布由本仓库维护，不再跟随 go-wind-admin 主线。
 
-[English](README.en-US.md) · [日本語](README.ja-JP.md)
-
 仓库仅保留后端，Go 模块位于根目录。模块路径保持 `go-wind-admin`，运行服务名为 `ani-governance`。现有实现包括 admin 服务、认证授权、租户与套餐、审计、任务/SSE/脚本，以及 Model、Network 接入。现有代码不等于全部功能或 ANI 域迁移已经验收。
 
 ## 开发
@@ -29,14 +27,12 @@ make build_only
 
 配置样例在 `app/admin/service/configs/`；HTTP 默认 `7788`，可选 SSE `7789`。运行前配置数据库、Redis、密钥和领域服务地址，开发样例不作为生产参数。
 
-Docker 入口是根 `Dockerfile`、`docker-compose.yaml` 和 `docker-compose.libs.yaml`。部署脚本在 `scripts/docker/`，可选 PM2/SSE 代理在 `scripts/deploy/`，数据库备份脚本在 `scripts/backup/`。使用前核对目标环境和脚本范围。
+镜像构建入口是根 `Dockerfile`。运行所需的数据库、Redis 等依赖由目标环境提供；部署配置由对应环境维护。可选 PM2/SSE 代理在 `scripts/deploy/`，数据库备份脚本在 `scripts/backup/`，使用前核对目标环境和脚本范围。现有脚本见 [脚本指南](scripts/README.md)。
 
 启动自动迁移、空表播种、已有 Api 表登记分别处理；`SyncApis` 会清空重建，不能当作保留权限关联的无损升级。构建、测试、部署、恢复和生产切换分别提供证据，未执行的验收为 `not_verified`。
 
 ## 依赖与来源
 
 依赖由 `go.mod` / `go.sum` 管理。`third_party/tx7do/` 用于依赖源码备份，覆盖范围和校验信息以实际清单为准；备份不自动改变 Go 的依赖消费方式。
-
-[贡献指南](CONTRIBUTING.md) · [来源记录](UPSTREAM.md)
 
 原项目版权与 MIT 许可全文保留在 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。依赖源码中的许可声明也应随备份保留。

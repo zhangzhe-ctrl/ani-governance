@@ -1,9 +1,5 @@
 # Makefile for managing the Go microservices project
 
-ifeq ($(OS),Windows_NT)
-    IS_WINDOWS := 1
-endif
-
 # load environment variables from .env file if it exists
 ifneq (,$(wildcard .env))
     include .env
@@ -16,7 +12,7 @@ ROOT_DIR	:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 SRCS_MK		:= $(foreach dir, app, $(wildcard $(dir)/*/*/Makefile))
 
 .PHONY: help gen ent build api openapi init all vendor dep test cover vet lint docker \
-		register install-dev install-prod docker-up docker-down docker-libs pm2-deploy
+		register install-dev install-prod pm2-deploy
 
 # show environment variables
 env:
@@ -122,22 +118,6 @@ all:
       make app;\
     )
 
-# use docker compose to run backend services and all its dependency services like redis, mysql, etc.
-compose-up:
-	docker compose up -d --force-recreate
-
-# use docker compose to restart backend services and all its dependency services like redis, mysql, etc.
-compose-restart:
-	docker compose restart
-
-# use docker compose to down backend services and all its dependency services like redis, mysql, etc.
-compose-down:
-	docker compose down
-
-# use docker compose to run only dependency services like redis, mysql, etc. without backend services.
-compose-up-without-service:
-	docker compose -f `docker-compose-without-services.yaml` up -d
-
 # build docker image
 docker:
 	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
@@ -163,29 +143,6 @@ install-prod:
 install-golang:
 	echo "Installing Golang..."
 	bash scripts/env/install_golang.sh
-
-# start all services with docker compose (application + dependencies)
-docker-up:
-	echo "Starting all services (application + dependencies)..."
-ifdef IS_WINDOWS
-	powershell -ExecutionPolicy Bypass -File scripts/docker/full_deploy.ps1
-else
-	bash scripts/docker/full_deploy.sh
-endif
-
-# start only dependency services with docker compose (without application)
-docker-libs:
-	echo "Starting dependency services only..."
-ifdef IS_WINDOWS
-	powershell -ExecutionPolicy Bypass -File scripts/docker/libs_only.ps1
-else
-	bash scripts/docker/libs_only.sh
-endif
-
-# stop all docker compose services
-docker-down:
-	echo "Stopping all services..."
-	docker compose down
 
 # deploy services with PM2
 pm2-deploy:

@@ -1,6 +1,6 @@
 # AGENTS.md — ANI Governance 后端开发指南
 
-本仓库独立维护 ANI 后端，不再跟随或合并 go-wind-admin 主线。来源与许可见 [UPSTREAM.md](UPSTREAM.md) 和 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+本仓库独立维护 ANI 后端，不再跟随或合并 go-wind-admin 主线。来源与许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 ## 范围与布局
 
@@ -56,7 +56,7 @@ third_party/tx7do/                   依赖源码备份区域
 5. 不吞错；使用相应 Proto 错误码，保留原始错误上下文，日志不得泄露密钥、令牌或跨租户私有信息。
 6. `go-crud/entgo` 的 Repository 泛型顺序为 Query、Select、Create、CreateBulk、Update、UpdateOne、Delete、Predicate、DTO、Entity，共 **10 个参数**。按当前 `api_repo.go` 实现复制。
 7. DTO 映射注册 `copierutil.NewTimeStringConverterPair()` 与 `NewTimeTimestamppbConverterPair()`；枚举注册对应 `NewConverterPair()`。`ListWithPaging` 同时传 builder 和 Clone。
-8. FieldMask 与关联表更新有特殊语义，按 [CRUD skill](.zcode/skills/add-crud-module/SKILL.md) 处理。主表与关联修改保持同一事务，验证清空、重加和跨租户拒绝。
+8. FieldMask 与关联表更新参照当前 [RoleRepo.Update](app/admin/service/internal/data/role_repo.go)：区分未请求修改关联与显式清空关联，按关联字段是否出现在 mask 中决定是否更新；关联字段从通用标量更新 mask 中分离。主表与关联修改保持同一事务，验证清空、重加和跨租户拒绝。
 9. `tenant_id` 字段不等于隔离。新资源检查读取、写入、关联、异步任务、缓存和消息路径；租户关系还需租户一致性约束与负向验证。
 10. `wiring_ent.go` 按基础设施 → Repo → 认证授权 → Service → Server 单向装配；资源创建后登记 cleanup，失败和退出逆序释放。`make register` 仅覆盖标准构造函数，额外依赖手工补齐。
 
