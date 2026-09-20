@@ -6,9 +6,9 @@
   "go_sum_sha256": "a588a6771788d406b3f197f57e05b88dcd090f723e03903a3dc005242de633cc",
   "toolchain": "go version go1.26.7-X:nodwarf5 linux/amd64",
   "scope": "Selected application and pinned gow tool tx7do module graphs, deduplicated by module@version; other dependencies and toolchains are excluded.",
-  "application_module_count": 49,
+  "application_module_count": 46,
   "additional_tool_module_versions": 4,
-  "total_module_versions": 53,
+  "total_module_versions": 50,
   "verification": {
     "go_sum_match_application_modules": "pass",
     "zip_integrity": "pass",
@@ -292,125 +292,6 @@
       "license_files": [
         {
           "path": "github.com/tx7do/go-crud/viewer@v0.0.7/LICENSE",
-          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
-        }
-      ]
-    },
-    {
-      "module_path": "github.com/tx7do/go-scripts",
-      "version": "v0.0.8",
-      "scope": "application",
-      "used_by_gow": false,
-      "indirect": false,
-      "upstream_repository": "https://github.com/tx7do/go-scripts",
-      "origin": {
-        "VCS": "git",
-        "URL": "https://github.com/tx7do/go-scripts",
-        "Hash": "ffefa6844bbae82e272155cc79265cf52f77d496",
-        "Ref": "refs/tags/v0.0.8"
-      },
-      "sum": "h1:eH59OMDFfsIou4SGJoaFNbqS2NpFO0yJlYqw0zHGO08=",
-      "go_mod_sum": "h1:OxJCiXouVGS36CZd29UvDClyEQfOCTxHPJ2jSlMf/GI=",
-      "artifacts": {
-        "info": {
-          "path": "proxy/github.com/tx7do/go-scripts/@v/v0.0.8.info",
-          "sha256": "1d51daf7e3761b651a2ce4a60d1296fb72a8ec5db0cf9bb85cfaa30f5a1443f7",
-          "bytes": 192
-        },
-        "mod": {
-          "path": "proxy/github.com/tx7do/go-scripts/@v/v0.0.8.mod",
-          "sha256": "d61e6e937f3d32c89b8bcbf4bf322703d04a40e4b33a8905d6b87a7e466b3ee2",
-          "bytes": 238
-        },
-        "zip": {
-          "path": "proxy/github.com/tx7do/go-scripts/@v/v0.0.8.zip",
-          "sha256": "36bb127e6a0e1304453b7891083058bc3a58a2ca723b6affd8bb8a3f2980f88b",
-          "bytes": 82632
-        }
-      },
-      "license_files": [
-        {
-          "path": "github.com/tx7do/go-scripts@v0.0.8/LICENSE",
-          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
-        }
-      ]
-    },
-    {
-      "module_path": "github.com/tx7do/go-scripts/javascript",
-      "version": "v0.0.9",
-      "scope": "application",
-      "used_by_gow": false,
-      "indirect": false,
-      "upstream_repository": "https://github.com/tx7do/go-scripts",
-      "origin": {
-        "VCS": "git",
-        "URL": "https://github.com/tx7do/go-scripts",
-        "Subdir": "javascript",
-        "Hash": "cfa9d5641cc67e313cab2a6a8254b7d86b3a2e69",
-        "Ref": "refs/tags/javascript/v0.0.9"
-      },
-      "sum": "h1:j9Ks8DLdk0GGtmPBPmSQB20lGACLyQzcuyveD9HIGUg=",
-      "go_mod_sum": "h1:2yIMSwuF+hksX62dYK0LNuSIovI0ilRkuo4qABt/MSw=",
-      "artifacts": {
-        "info": {
-          "path": "proxy/github.com/tx7do/go-scripts/javascript/@v/v0.0.9.info",
-          "sha256": "e42e512983b69fa21b70528cb476b6dd4feb2ea97196d7047e749f46437f3717",
-          "bytes": 225
-        },
-        "mod": {
-          "path": "proxy/github.com/tx7do/go-scripts/javascript/@v/v0.0.9.mod",
-          "sha256": "aa0144dea1530db8bfbc9161f3a26972dfdec0a0be1c94be61f1a907b95f5b65",
-          "bytes": 687
-        },
-        "zip": {
-          "path": "proxy/github.com/tx7do/go-scripts/javascript/@v/v0.0.9.zip",
-          "sha256": "8d3f3e33af3cf05738f855a499b5bb841e76de1dbc05478a4c1415a755e08c9f",
-          "bytes": 29628
-        }
-      },
-      "license_files": [
-        {
-          "path": "github.com/tx7do/go-scripts/javascript@v0.0.9/LICENSE",
-          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
-        }
-      ]
-    },
-    {
-      "module_path": "github.com/tx7do/go-scripts/lua",
-      "version": "v0.0.9",
-      "scope": "application",
-      "used_by_gow": false,
-      "indirect": false,
-      "upstream_repository": "https://github.com/tx7do/go-scripts",
-      "origin": {
-        "VCS": "git",
-        "URL": "https://github.com/tx7do/go-scripts",
-        "Subdir": "lua",
-        "Hash": "ffefa6844bbae82e272155cc79265cf52f77d496",
-        "Ref": "refs/tags/lua/v0.0.9"
-      },
-      "sum": "h1:uhpXBF7ZWUzpdA1D0T090Go8ONmguZ1/XixV5T96+lY=",
-      "go_mod_sum": "h1:8oZpp2XdEurmDgxrsCGL/p+NepPKCvr6x8gxgmxdMi4=",
-      "artifacts": {
-        "info": {
-          "path": "proxy/github.com/tx7do/go-scripts/lua/@v/v0.0.9.info",
-          "sha256": "43ef0d371ba247e98697080c9c892dac7c4619793af2617f8aa4f740bbc9bfb9",
-          "bytes": 211
-        },
-        "mod": {
-          "path": "proxy/github.com/tx7do/go-scripts/lua/@v/v0.0.9.mod",
-          "sha256": "77aeefc096dc84085ead9b19f5ead5ed470063c74860c3059046852d65a8de2a",
-          "bytes": 1000
-        },
-        "zip": {
-          "path": "proxy/github.com/tx7do/go-scripts/lua/@v/v0.0.9.zip",
-          "sha256": "9cdbe39716a424cb86d5ebce07e2dbe57d9299e01866faea1f2f98a66939a679",
-          "bytes": 51401
-        }
-      },
-      "license_files": [
-        {
-          "path": "github.com/tx7do/go-scripts/lua@v0.0.9/LICENSE",
           "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
         }
       ]

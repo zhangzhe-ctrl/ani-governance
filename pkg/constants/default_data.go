@@ -897,21 +897,6 @@ var DefaultMenus = []*permissionV1.Menu{
 		},
 	},
 	{
-		Id:        trans.Ptr(uint32(67)),
-		ParentId:  trans.Ptr(uint32(60)),
-		Type:      permissionV1.Menu_MENU.Enum(),
-		Name:      trans.Ptr("ScriptManagement"),
-		Path:      trans.Ptr("scripts"),
-		Component: trans.Ptr("app/system/script/index.vue"),
-		CreatedAt: timeutil.TimeToTimestamppb(trans.Ptr(time.Now())),
-		Meta: &permissionV1.MenuMeta{
-			Title:     trans.Ptr("menu.system.scripts"),
-			Icon:      trans.Ptr("lucide:file-code-2"),
-			Order:     trans.Ptr(int32(11)),
-			Authority: []string{"sys:platform_admin"},
-		},
-	},
-	{
 		Id:        trans.Ptr(uint32(68)),
 		ParentId:  trans.Ptr(uint32(60)),
 		Type:      permissionV1.Menu_MENU.Enum(),

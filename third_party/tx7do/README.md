@@ -1,8 +1,9 @@
 # tx7do 源码备份
 
-本目录保存应用当前依赖图选定的 **49 个 tx7do Go module**，以及开发工具
+本目录保存应用当前依赖图选定的 **46 个 tx7do Go module**（脚本引擎相关
+module 已随功能移除而剔除），以及开发工具
 `github.com/tx7do/go-wind-toolkit/gowind@v1.0.3` 和它的 tx7do 依赖源码。
-两份依赖图合并去重后共 **53 个 module@version**（应用 49 项，工具补充 4 项）。
+两份依赖图合并去重后共 **50 个 module@version**（应用 46 项，工具补充 4 项）。
 同一仓库下的子 module 按各自版本保存，不使用仓库最新分支代替。
 
 - `proxy/`：原始 `.zip` 源码、`.mod`、`.info` 和版本列表，可用作 file-GOPROXY。
@@ -44,7 +45,7 @@ go mod download github.com/tx7do/go-crud/entgo@v0.0.55
 交付时，将它加入代理链。应用自身的 `go.mod`、`go.sum` 保持原样。
 
 备份时已在 Fedora 使用空 `GOMODCACHE`、只有本目录的 `file://` 代理且无网络回退，
-恢复全部 53 个 module@version 并逐项比较 Go `Sum` / `GoModSum`。恢复测试关闭外部 SumDB，
+恢复全部 50 个 module@version 并逐项比较 Go `Sum` / `GoModSum`。恢复测试关闭外部 SumDB，
 比较对象是采集时通过原项目 `go.sum` 核对的值；gow 及其独立依赖图是本次明确固定的工具快照。
 这证明这些归档可恢复，不代表整个项目已经实现离线构建或全部代码再生成。
 

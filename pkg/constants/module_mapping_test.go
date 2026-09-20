@@ -57,6 +57,9 @@ func TestServiceTagToBusinessModuleExactMapping(t *testing.T) {
 		"InternalMessageService":         identityV1.Module_INTERNAL_MESSAGE,
 		"InternalMessageCategoryService": identityV1.Module_INTERNAL_MESSAGE,
 		"InternalMessageRecipientService": identityV1.Module_INTERNAL_MESSAGE,
+
+		"ModelService":                   identityV1.Module_MODEL,
+		"NetworkService":                 identityV1.Module_NETWORK,
 	}
 	assert.Equal(t, expected, ServiceTagToBusinessModule,
 		"ServiceTagToBusinessModule 内容漂移；如为有意变更请同步更新本测试")
@@ -77,6 +80,8 @@ func TestServiceTagToBusinessModuleReverseMapping(t *testing.T) {
 		identityV1.Module_TENANT:            {"TenantService", "PlanService", "PlanQuotaService"},
 		identityV1.Module_LOG:               {"ApiAuditLogService", "LoginAuditLogService", "OperationAuditLogService", "DataAccessAuditLogService", "PermissionAuditLogService", "PolicyEvaluationLogService", "RedisCacheMonitorService"},
 		identityV1.Module_INTERNAL_MESSAGE:  {"InternalMessageService", "InternalMessageCategoryService", "InternalMessageRecipientService"},
+		identityV1.Module_MODEL:             {"ModelService"},
+		identityV1.Module_NETWORK:           {"NetworkService"},
 	}
 
 	actual := make(map[identityV1.Module][]string)

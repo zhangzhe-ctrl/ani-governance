@@ -169,9 +169,6 @@ func NewRestServer(
 	internalMessageCategoryService *service.InternalMessageCategoryService,
 	internalMessageRecipientService *service.InternalMessageRecipientService,
 
-	scriptService *service.ScriptService,
-	scriptLogService *service.ScriptLogService,
-
 	// register:param ── 新模块服务形参在此行后注册(make register 工具锚点,勿删)
 	accessKeyService *service.AccessKeyService,
 	configService *service.ConfigService,
@@ -247,9 +244,6 @@ func NewRestServer(
 	adminV1.RegisterInternalMessageServiceHTTPServer(srv, internalMessageService)
 	adminV1.RegisterInternalMessageCategoryServiceHTTPServer(srv, internalMessageCategoryService)
 	adminV1.RegisterInternalMessageRecipientServiceHTTPServer(srv, internalMessageRecipientService)
-
-	adminV1.RegisterScriptServiceHTTPServer(srv, scriptService)
-	adminV1.RegisterScriptLogServiceHTTPServer(srv, scriptLogService)
 
 	// register:route ── 新模块路由在此行后注册(make register 工具锚点,勿删)
 	adminV1.RegisterAccessKeyServiceHTTPServer(srv, accessKeyService)

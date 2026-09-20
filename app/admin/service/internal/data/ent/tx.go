@@ -88,10 +88,6 @@ type Tx struct {
 	RoleOrgUnit *RoleOrgUnitClient
 	// RolePermission is the client for interacting with the RolePermission builders.
 	RolePermission *RolePermissionClient
-	// Script is the client for interacting with the Script builders.
-	Script *ScriptClient
-	// ScriptLog is the client for interacting with the ScriptLog builders.
-	ScriptLog *ScriptLogClient
 	// SysConfig is the client for interacting with the SysConfig builders.
 	SysConfig *SysConfigClient
 	// Task is the client for interacting with the Task builders.
@@ -279,8 +275,6 @@ func (tx *Tx) init() {
 	tx.RoleMetadata = NewRoleMetadataClient(tx.config)
 	tx.RoleOrgUnit = NewRoleOrgUnitClient(tx.config)
 	tx.RolePermission = NewRolePermissionClient(tx.config)
-	tx.Script = NewScriptClient(tx.config)
-	tx.ScriptLog = NewScriptLogClient(tx.config)
 	tx.SysConfig = NewSysConfigClient(tx.config)
 	tx.Task = NewTaskClient(tx.config)
 	tx.Tenant = NewTenantClient(tx.config)

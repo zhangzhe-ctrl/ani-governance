@@ -10,17 +10,12 @@
 
 ## [Unreleased]
 
+### 移除（ANI）
+- 脚本系统（脚本级插件系统，Lua / JavaScript，含 Hook 插件、`sys_scripts` /
+  `sys_script_logs`、`/admin/v1/script*` 接口与 asynq 脚本任务桥）已整体移除，
+  ANI Governance 不再提供脚本扩展能力。
+
 ### 新增
-- 脚本系统（脚本级插件系统，Lua / JavaScript）：脚本以数据库为唯一事实源、
-  管理页增改即时生效；五类扩展点——实体生命周期钩子（before 同步可否决 /
-  after 异步旁路，覆盖 user / tenant / role / internal_message / notification_channel）、
-  定时任务（asynq 固定分发订阅 + 处理器代际清理）、事件订阅与发布、
-  HTTP 出站（域名白名单 fail-closed + 环回硬禁 + 重定向逐跳复检 + 体积/超时上限，
-  `SCRIPT_HTTP_ALLOWED_DOMAINS` 配置）、试运行（一次性隔离引擎）；
-  执行审计落 `sys_script_logs`（脚本/触发方式/版本/成败/耗时/错误），
-  管理页可查可清理；跨实例变更经 Redis pub/sub 自动重同步；
-  三端管理页齐备（Monaco 编辑器、钩子点自动补全、试运行对话框、执行日志抽屉）。
-  详见 `docs/script_system.md`。
 - 设计语言规范：`docs/design-language.md` 作为三端视觉唯一权威值表
   （颜色/圆角/布局尺寸），React 端主题偏好值已同步对齐。
 - 在线用户（会话管理）：登录 / 刷新轮换 / MFA 验证通过时在 Redis 记录会话元数据

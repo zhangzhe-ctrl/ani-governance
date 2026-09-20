@@ -44,8 +44,6 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/rolemetadata"
 	"go-wind-admin/app/admin/service/internal/data/ent/roleorgunit"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolepermission"
-	"go-wind-admin/app/admin/service/internal/data/ent/script"
-	"go-wind-admin/app/admin/service/internal/data/ent/scriptlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/sysconfig"
 	"go-wind-admin/app/admin/service/internal/data/ent/task"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
@@ -159,8 +157,6 @@ func checkColumn(t, c string) error {
 			rolemetadata.Table:             rolemetadata.ValidColumn,
 			roleorgunit.Table:              roleorgunit.ValidColumn,
 			rolepermission.Table:           rolepermission.ValidColumn,
-			script.Table:                   script.ValidColumn,
-			scriptlog.Table:                scriptlog.ValidColumn,
 			sysconfig.Table:                sysconfig.ValidColumn,
 			task.Table:                     task.ValidColumn,
 			tenant.Table:                   tenant.ValidColumn,

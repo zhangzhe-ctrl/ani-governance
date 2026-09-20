@@ -14,7 +14,6 @@ TRUNCATE TABLE public.sys_org_units,
                public.sys_plan_quotas,
                public.sys_plans,
                public.sys_notification_channels,
-               public.sys_scripts,
                public.sys_access_keys,
                public.internal_messages,
                public.internal_message_recipients,
@@ -326,13 +325,6 @@ INSERT INTO public.sys_notification_channels (status, name, type, smtp_host, smt
     ('ON', '运维告警邮箱', 'EMAIL', 'smtp.example.com', 465, 'ops@example.com', 'demo-pass-1', 'ops@example.com', 'SSL_TLS', '生产告警主通道'),
     ('ON', '市场活动通知', 'EMAIL', 'smtp.example.com', 587, 'mkt@example.com', 'demo-pass-2', 'mkt@example.com', 'START_TLS', '市场推广通知'),
     ('OFF', '备用邮箱通道', 'EMAIL', 'smtp.backup.com', 25, 'bak@example.com', 'demo-pass-3', 'bak@example.com', 'NONE', '灾备备用，停用中')
-;
-
--- 脚本（语言 tag：LUA/JAVASCRIPT；启用状态；关键脚本 tag）
-INSERT INTO public.sys_scripts (is_enabled, name, language, hook_point, source, priority, description, critical) VALUES
-    (true, '租户创建审计钩子', 'LUA', 'entity.after_create', 'function on_after_create(ctx) log("tenant created") end', 10, '租户创建后写审计日志', true),
-    (true, '用户敏感字段脱敏', 'JAVASCRIPT', 'entity.after_query', 'function afterQuery(ctx) { mask(ctx.user.mobile); }', 5, '查询返回前脱敏手机号', false),
-    (false, '订单校验规则（停用）', 'LUA', 'entity.before_update', 'function before_update(ctx) end', 0, '旧版校验规则，已停用', false)
 ;
 
 -- 访问密钥（状态 tag：ON/OFF；含过期时间演示）
