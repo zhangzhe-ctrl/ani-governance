@@ -164,3 +164,5 @@ psql -v ON_ERROR_STOP=1 -f sql/patches/20260921_tenant_logout.sql
 | 重启后权限表现不同 | 是否曾只改过某实例内存策略；CLI/SQL 更新后是否刷新所有实例 |
 
 “基础管理”套餐不包含 Network 等下游模块；需要时明确增加套餐模块和接口权限，并单独验收下游接线。进程启动、只读检查、真实登录、目标 API 成功分别记录，不能互相替代。
+
+当前 Ubuntu kind 的初始化、账号获取、NodePort 验收与恢复步骤见 [2026-09-21 kind 运行记录](deployment-kind-20260921.md)。

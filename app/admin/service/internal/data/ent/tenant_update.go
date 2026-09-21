@@ -398,6 +398,26 @@ func (_u *TenantUpdate) ClearUnsubscribeAt() *TenantUpdate {
 	return _u
 }
 
+// SetPlanID sets the "plan_id" field.
+func (_u *TenantUpdate) SetPlanID(v uint32) *TenantUpdate {
+	_u.mutation.SetPlanID(v)
+	return _u
+}
+
+// SetNillablePlanID sets the "plan_id" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillablePlanID(v *uint32) *TenantUpdate {
+	if v != nil {
+		_u.SetPlanID(*v)
+	}
+	return _u
+}
+
+// ClearPlanID clears the value of the "plan_id" field.
+func (_u *TenantUpdate) ClearPlanID() *TenantUpdate {
+	_u.mutation.ClearPlanID()
+	return _u
+}
+
 // SetSubscriptionPlan sets the "subscription_plan" field.
 func (_u *TenantUpdate) SetSubscriptionPlan(v string) *TenantUpdate {
 	_u.mutation.SetSubscriptionPlan(v)
@@ -435,20 +455,6 @@ func (_u *TenantUpdate) SetNillableExpiredAt(v *time.Time) *TenantUpdate {
 // ClearExpiredAt clears the value of the "expired_at" field.
 func (_u *TenantUpdate) ClearExpiredAt() *TenantUpdate {
 	_u.mutation.ClearExpiredAt()
-	return _u
-}
-
-// SetPlanID sets the "plan" edge to the Plan entity by ID.
-func (_u *TenantUpdate) SetPlanID(id uint32) *TenantUpdate {
-	_u.mutation.SetPlanID(id)
-	return _u
-}
-
-// SetNillablePlanID sets the "plan" edge to the Plan entity by ID if the given value is not nil.
-func (_u *TenantUpdate) SetNillablePlanID(id *uint32) *TenantUpdate {
-	if id != nil {
-		_u = _u.SetPlanID(*id)
-	}
 	return _u
 }
 
@@ -1091,6 +1097,26 @@ func (_u *TenantUpdateOne) ClearUnsubscribeAt() *TenantUpdateOne {
 	return _u
 }
 
+// SetPlanID sets the "plan_id" field.
+func (_u *TenantUpdateOne) SetPlanID(v uint32) *TenantUpdateOne {
+	_u.mutation.SetPlanID(v)
+	return _u
+}
+
+// SetNillablePlanID sets the "plan_id" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillablePlanID(v *uint32) *TenantUpdateOne {
+	if v != nil {
+		_u.SetPlanID(*v)
+	}
+	return _u
+}
+
+// ClearPlanID clears the value of the "plan_id" field.
+func (_u *TenantUpdateOne) ClearPlanID() *TenantUpdateOne {
+	_u.mutation.ClearPlanID()
+	return _u
+}
+
 // SetSubscriptionPlan sets the "subscription_plan" field.
 func (_u *TenantUpdateOne) SetSubscriptionPlan(v string) *TenantUpdateOne {
 	_u.mutation.SetSubscriptionPlan(v)
@@ -1128,20 +1154,6 @@ func (_u *TenantUpdateOne) SetNillableExpiredAt(v *time.Time) *TenantUpdateOne {
 // ClearExpiredAt clears the value of the "expired_at" field.
 func (_u *TenantUpdateOne) ClearExpiredAt() *TenantUpdateOne {
 	_u.mutation.ClearExpiredAt()
-	return _u
-}
-
-// SetPlanID sets the "plan" edge to the Plan entity by ID.
-func (_u *TenantUpdateOne) SetPlanID(id uint32) *TenantUpdateOne {
-	_u.mutation.SetPlanID(id)
-	return _u
-}
-
-// SetNillablePlanID sets the "plan" edge to the Plan entity by ID if the given value is not nil.
-func (_u *TenantUpdateOne) SetNillablePlanID(id *uint32) *TenantUpdateOne {
-	if id != nil {
-		_u = _u.SetPlanID(*id)
-	}
 	return _u
 }
 

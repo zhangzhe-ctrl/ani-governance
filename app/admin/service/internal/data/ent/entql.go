@@ -1199,6 +1199,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			tenant.FieldAuditStatus:      {Type: field.TypeEnum, Column: tenant.FieldAuditStatus},
 			tenant.FieldSubscriptionAt:   {Type: field.TypeTime, Column: tenant.FieldSubscriptionAt},
 			tenant.FieldUnsubscribeAt:    {Type: field.TypeTime, Column: tenant.FieldUnsubscribeAt},
+			tenant.FieldPlanID:           {Type: field.TypeUint32, Column: tenant.FieldPlanID},
 			tenant.FieldSubscriptionPlan: {Type: field.TypeString, Column: tenant.FieldSubscriptionPlan},
 			tenant.FieldExpiredAt:        {Type: field.TypeTime, Column: tenant.FieldExpiredAt},
 		},
@@ -6466,6 +6467,11 @@ func (f *TenantFilter) WhereSubscriptionAt(p entql.TimeP) {
 // WhereUnsubscribeAt applies the entql time.Time predicate on the unsubscribe_at field.
 func (f *TenantFilter) WhereUnsubscribeAt(p entql.TimeP) {
 	f.Where(p.Field(tenant.FieldUnsubscribeAt))
+}
+
+// WherePlanID applies the entql uint32 predicate on the plan_id field.
+func (f *TenantFilter) WherePlanID(p entql.Uint32P) {
+	f.Where(p.Field(tenant.FieldPlanID))
 }
 
 // WhereSubscriptionPlan applies the entql string predicate on the subscription_plan field.

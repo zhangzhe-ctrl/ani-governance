@@ -6,11 +6,11 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/stretchr/testify/require"
+	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	"github.com/tx7do/go-utils/mapper"
 	"github.com/tx7do/go-utils/trans"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
@@ -282,4 +282,38 @@ func TestResourceTenantUUIDPersistence(t *testing.T) {
 	if mapProtoModuleToEnt(identityV1.Module_MODEL) != planmodule.ModuleModel || mapApiBusinessModuleToProto(api.BusinessModuleModel) != identityV1.Module_MODEL {
 		t.Fatal("MODEL not recognized by tenant gate")
 	}
+}
+
+// PlanID is an existing Ent edge column and must survive DTO reads used by navigation.
+func TestTenantRepoSqlite_PlanIDRoundTrip(t *testing.T) {
+	repo := newTenantRepoSqlite(t)
+	ctx := enttest.NewSystemViewerCtx(context.Background())
+	first, err := repo.entClient.Client().Plan.Create().SetName("first").Save(ctx)
+	require.NoError(t, err)
+	second, err := repo.entClient.Client().Plan.Create().SetName("second").Save(ctx)
+	require.NoError(t, err)
+	bound, err := repo.entClient.Client().Tenant.Create().SetName("bound").SetCode("bound-plan").SetPlanID(first.ID).Save(ctx)
+	require.NoError(t, err)
+	unbound, err := repo.entClient.Client().Tenant.Create().SetName("unbound").SetCode("no-plan").Save(ctx)
+	require.NoError(t, err)
+	get := func(id uint32) *identityV1.Tenant {
+		v, err := repo.Get(ctx, &identityV1.GetTenantRequest{QueryBy: &identityV1.GetTenantRequest_Id{Id: id}})
+		require.NoError(t, err)
+		return v
+	}
+	require.Equal(t, first.ID, get(bound.ID).GetPlanId())
+	require.Nil(t, get(unbound.ID).PlanId)
+	listed, err := repo.List(ctx, &paginationV1.PagingRequest{NoPaging: trans.Ptr(true)})
+	require.NoError(t, err)
+	for _, item := range listed.Items {
+		if item.GetId() == bound.ID {
+			require.Equal(t, first.ID, item.GetPlanId())
+		}
+	}
+	_, err = repo.entClient.Client().Tenant.UpdateOneID(bound.ID).SetPlanID(second.ID).Save(ctx)
+	require.NoError(t, err)
+	require.Equal(t, second.ID, get(bound.ID).GetPlanId())
+	_, err = repo.entClient.Client().Tenant.UpdateOneID(bound.ID).ClearPlan().Save(ctx)
+	require.NoError(t, err)
+	require.Nil(t, get(bound.ID).PlanId)
 }

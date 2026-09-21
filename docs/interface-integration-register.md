@@ -92,6 +92,7 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 | ISSUE-02 | 原首次种子遗漏 `sys:tenant_manager` → `POST /api/v1/auth/logout` | 已补首次种子；旧库显式执行 [登出授权补丁](../sql/patches/20260921_tenant_logout.sql)，操作见 [部署流程](deployment.md)；仍保留租户状态、套餐与角色权限检查 | 实现完成；PostgreSQL 18 定向验证 PASS；用户环境尚未应用，HTTP 联调 not_verified |
 | ISSUE-03 | 认证路径为 `/api/v1/auth/*`，个人资料/初始化为 `/admin/v1/*`；字段也有 snake_case 与 camelCase 混用 | 累计记录差异，待用户指定批次与旧项目目标格式后统一调整 | 待指定 |
 | ISSUE-04 | 当前登出吊销用户全部后台会话，`jti` 仅审计用 | 用户指定保留全部登出还是改为当前会话 | 待指定 |
+| ISSUE-05 | kind 实际联调发现租户数据库已有套餐，但读取 DTO 丢失 `plan_id`，初始化菜单被误判为无套餐而清空 | 将现有 nullable 外键显式绑定为 Ent 字段；重新生成代码，租户详情与列表可返回套餐 ID；Atlas 确认与现有结构无差异，无需迁移 | 租户仓储、登录与租户服务回归 PASS；kind NodePort 平台/租户登录、非空菜单、权限、刷新、登出验收 PASS；详见 [运行记录](deployment-kind-20260921.md) |
 
 这些条目是现状与待讨论项，不表示已批准新增需求。既有数据库的数据变更必须显式执行；服务启动不迁移、不播种、不同步 API。
 
@@ -99,6 +100,7 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 
 | 日期 | 改动 | 验证 | 对接验收 |
 | --- | --- | --- | --- |
+| 2026-09-21 | 按用户要求重新初始化 Ubuntu kind Governance；保留旧库，新库 Atlas + 显式初始化；修复租户套餐 ID 映射导致的空菜单；不调整前端 | 后端 NodePort 登录、菜单权限、刷新、平台/租户登出及失效检查 PASS；重启后 17 张初始化/业务表不变，详见 [运行记录](deployment-kind-20260921.md) | 本轮后端 NodePort 验收通过；前端、公网 HTTPS 与邮件未验收，整体接口风格登记仍未结项 |
 | 2026-09-21 | 按用户要求取消两个密码登录入口的 AES/Base64 解码；同步 Proto、生成代码/OpenAPI 与部署说明；原 bcrypt 哈希及其他密码接口协议保留 | Ubuntu / Go 1.26.7：25 个 `TestAuthSvcSqlite_` 用例、2 个密码管理回归用例、`TestPasswordLoginAuditDoesNotPersistPassword` 与服务编译 PASS；含正确原始密码通过、旧 AES 报文拒绝、审计不记录密码；生成使用现有 buf 模板，Go 插件版本 v1.36.12 | 用户环境 HTTPS 配置、部署及前端联调 not_verified；需前后端同步发布；整体登记未结项 |
 | 2026-09-21 | 按用户要求补齐租户管理员登出授权：新库种子新增关联，旧库提供独立 SQL 补丁；密码协议未改 | Ubuntu / Go 1.26.7 / PostgreSQL 18，`TestBootstrapPostgres` PASS：新库授权存在、模拟旧库缺项可修复、重复执行数据及 ID 不变、缺 API 前置条件时失败且不改数据 | 未执行用户环境补丁；租户 HTTP 登出联调 not_verified；整体登记未结项 |
 | 2026-09-21 | 按用户澄清扩展为全功能登记，新增功能索引与待分批规则；登录组保留原编号 | 文档链接与差异检查通过，无运行代码变更 | 风格批次尚未指定，整体登记未结项 |

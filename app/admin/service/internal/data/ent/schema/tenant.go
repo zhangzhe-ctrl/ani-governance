@@ -116,6 +116,11 @@ func (Tenant) Fields() []ent.Field {
 			Optional().
 			Nillable(),
 
+		// Expose the existing nullable FK so tenant DTOs retain their subscribed plan.
+		field.Uint32("plan_id").
+			Optional().
+			Nillable(),
+
 		field.String("subscription_plan").
 			Comment("订阅套餐").
 			Optional().
@@ -133,6 +138,7 @@ func (Tenant) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("plan", Plan.Type).
 			Ref("tenants").
+			Field("plan_id").
 			Unique(),
 	}
 }

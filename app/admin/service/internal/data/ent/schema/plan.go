@@ -82,10 +82,9 @@ func (Plan) Mixin() []ent.Mixin {
 }
 
 // Edges of the Plan.
-	func (Plan) Edges() []ent.Edge {
+func (Plan) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("tenants", Tenant.Type).
-			StorageKey(edge.Column("plan_id")),
+		edge.To("tenants", Tenant.Type),
 
 		// quotas/modules 的 Required() 会导致 Plan Create 时 ent 报
 		// missing required edge——配额与模块白名单都是建套餐后单独维护的，不能必填

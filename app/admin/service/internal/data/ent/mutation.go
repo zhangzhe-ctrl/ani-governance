@@ -62331,6 +62331,55 @@ func (m *TenantMutation) ResetUnsubscribeAt() {
 	delete(m.clearedFields, tenant.FieldUnsubscribeAt)
 }
 
+// SetPlanID sets the "plan_id" field.
+func (m *TenantMutation) SetPlanID(u uint32) {
+	m.plan = &u
+}
+
+// PlanID returns the value of the "plan_id" field in the mutation.
+func (m *TenantMutation) PlanID() (r uint32, exists bool) {
+	v := m.plan
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPlanID returns the old "plan_id" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantMutation) OldPlanID(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPlanID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPlanID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPlanID: %w", err)
+	}
+	return oldValue.PlanID, nil
+}
+
+// ClearPlanID clears the value of the "plan_id" field.
+func (m *TenantMutation) ClearPlanID() {
+	m.plan = nil
+	m.clearedFields[tenant.FieldPlanID] = struct{}{}
+}
+
+// PlanIDCleared returns if the "plan_id" field was cleared in this mutation.
+func (m *TenantMutation) PlanIDCleared() bool {
+	_, ok := m.clearedFields[tenant.FieldPlanID]
+	return ok
+}
+
+// ResetPlanID resets all changes to the "plan_id" field.
+func (m *TenantMutation) ResetPlanID() {
+	m.plan = nil
+	delete(m.clearedFields, tenant.FieldPlanID)
+}
+
 // SetSubscriptionPlan sets the "subscription_plan" field.
 func (m *TenantMutation) SetSubscriptionPlan(s string) {
 	m.subscription_plan = &s
@@ -62429,27 +62478,15 @@ func (m *TenantMutation) ResetExpiredAt() {
 	delete(m.clearedFields, tenant.FieldExpiredAt)
 }
 
-// SetPlanID sets the "plan" edge to the Plan entity by id.
-func (m *TenantMutation) SetPlanID(id uint32) {
-	m.plan = &id
-}
-
 // ClearPlan clears the "plan" edge to the Plan entity.
 func (m *TenantMutation) ClearPlan() {
 	m.clearedplan = true
+	m.clearedFields[tenant.FieldPlanID] = struct{}{}
 }
 
 // PlanCleared reports if the "plan" edge to the Plan entity was cleared.
 func (m *TenantMutation) PlanCleared() bool {
-	return m.clearedplan
-}
-
-// PlanID returns the "plan" edge ID in the mutation.
-func (m *TenantMutation) PlanID() (id uint32, exists bool) {
-	if m.plan != nil {
-		return *m.plan, true
-	}
-	return
+	return m.PlanIDCleared() || m.clearedplan
 }
 
 // PlanIDs returns the "plan" edge IDs in the mutation.
@@ -62502,7 +62539,7 @@ func (m *TenantMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TenantMutation) Fields() []string {
-	fields := make([]string, 0, 21)
+	fields := make([]string, 0, 22)
 	if m.created_at != nil {
 		fields = append(fields, tenant.FieldCreatedAt)
 	}
@@ -62560,6 +62597,9 @@ func (m *TenantMutation) Fields() []string {
 	if m.unsubscribe_at != nil {
 		fields = append(fields, tenant.FieldUnsubscribeAt)
 	}
+	if m.plan != nil {
+		fields = append(fields, tenant.FieldPlanID)
+	}
 	if m.subscription_plan != nil {
 		fields = append(fields, tenant.FieldSubscriptionPlan)
 	}
@@ -62612,6 +62652,8 @@ func (m *TenantMutation) Field(name string) (ent.Value, bool) {
 		return m.SubscriptionAt()
 	case tenant.FieldUnsubscribeAt:
 		return m.UnsubscribeAt()
+	case tenant.FieldPlanID:
+		return m.PlanID()
 	case tenant.FieldSubscriptionPlan:
 		return m.SubscriptionPlan()
 	case tenant.FieldExpiredAt:
@@ -62663,6 +62705,8 @@ func (m *TenantMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldSubscriptionAt(ctx)
 	case tenant.FieldUnsubscribeAt:
 		return m.OldUnsubscribeAt(ctx)
+	case tenant.FieldPlanID:
+		return m.OldPlanID(ctx)
 	case tenant.FieldSubscriptionPlan:
 		return m.OldSubscriptionPlan(ctx)
 	case tenant.FieldExpiredAt:
@@ -62808,6 +62852,13 @@ func (m *TenantMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUnsubscribeAt(v)
+		return nil
+	case tenant.FieldPlanID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPlanID(v)
 		return nil
 	case tenant.FieldSubscriptionPlan:
 		v, ok := value.(string)
@@ -62958,6 +63009,9 @@ func (m *TenantMutation) ClearedFields() []string {
 	if m.FieldCleared(tenant.FieldUnsubscribeAt) {
 		fields = append(fields, tenant.FieldUnsubscribeAt)
 	}
+	if m.FieldCleared(tenant.FieldPlanID) {
+		fields = append(fields, tenant.FieldPlanID)
+	}
 	if m.FieldCleared(tenant.FieldSubscriptionPlan) {
 		fields = append(fields, tenant.FieldSubscriptionPlan)
 	}
@@ -63032,6 +63086,9 @@ func (m *TenantMutation) ClearField(name string) error {
 	case tenant.FieldUnsubscribeAt:
 		m.ClearUnsubscribeAt()
 		return nil
+	case tenant.FieldPlanID:
+		m.ClearPlanID()
+		return nil
 	case tenant.FieldSubscriptionPlan:
 		m.ClearSubscriptionPlan()
 		return nil
@@ -63102,6 +63159,9 @@ func (m *TenantMutation) ResetField(name string) error {
 		return nil
 	case tenant.FieldUnsubscribeAt:
 		m.ResetUnsubscribeAt()
+		return nil
+	case tenant.FieldPlanID:
+		m.ResetPlanID()
 		return nil
 	case tenant.FieldSubscriptionPlan:
 		m.ResetSubscriptionPlan()

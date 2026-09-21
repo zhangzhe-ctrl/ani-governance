@@ -57,6 +57,8 @@ type Tenant struct {
 	SubscriptionAt *time.Time `json:"subscription_at,omitempty"`
 	// 取消订阅时间
 	UnsubscribeAt *time.Time `json:"unsubscribe_at,omitempty"`
+	// PlanID holds the value of the "plan_id" field.
+	PlanID *uint32 `json:"plan_id,omitempty"`
 	// 订阅套餐
 	SubscriptionPlan *string `json:"subscription_plan,omitempty"`
 	// 租户有效期
@@ -64,7 +66,6 @@ type Tenant struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TenantQuery when eager-loading is set.
 	Edges        TenantEdges `json:"edges"`
-	plan_id      *uint32
 	selectValues sql.SelectValues
 }
 
@@ -93,14 +94,12 @@ func (*Tenant) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case tenant.FieldID, tenant.FieldCreatedBy, tenant.FieldUpdatedBy, tenant.FieldDeletedBy, tenant.FieldAdminUserID:
+		case tenant.FieldID, tenant.FieldCreatedBy, tenant.FieldUpdatedBy, tenant.FieldDeletedBy, tenant.FieldAdminUserID, tenant.FieldPlanID:
 			values[i] = new(sql.NullInt64)
 		case tenant.FieldRemark, tenant.FieldResourceTenantID, tenant.FieldName, tenant.FieldCode, tenant.FieldLogoURL, tenant.FieldDomain, tenant.FieldIndustry, tenant.FieldStatus, tenant.FieldType, tenant.FieldAuditStatus, tenant.FieldSubscriptionPlan:
 			values[i] = new(sql.NullString)
 		case tenant.FieldCreatedAt, tenant.FieldUpdatedAt, tenant.FieldDeletedAt, tenant.FieldSubscriptionAt, tenant.FieldUnsubscribeAt, tenant.FieldExpiredAt:
 			values[i] = new(sql.NullTime)
-		case tenant.ForeignKeys[0]: // plan_id
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -254,6 +253,13 @@ func (_m *Tenant) assignValues(columns []string, values []any) error {
 				_m.UnsubscribeAt = new(time.Time)
 				*_m.UnsubscribeAt = value.Time
 			}
+		case tenant.FieldPlanID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field plan_id", values[i])
+			} else if value.Valid {
+				_m.PlanID = new(uint32)
+				*_m.PlanID = uint32(value.Int64)
+			}
 		case tenant.FieldSubscriptionPlan:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field subscription_plan", values[i])
@@ -267,13 +273,6 @@ func (_m *Tenant) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ExpiredAt = new(time.Time)
 				*_m.ExpiredAt = value.Time
-			}
-		case tenant.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field plan_id", value)
-			} else if value.Valid {
-				_m.plan_id = new(uint32)
-				*_m.plan_id = uint32(value.Int64)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -407,6 +406,11 @@ func (_m *Tenant) String() string {
 	if v := _m.UnsubscribeAt; v != nil {
 		builder.WriteString("unsubscribe_at=")
 		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.PlanID; v != nil {
+		builder.WriteString("plan_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	if v := _m.SubscriptionPlan; v != nil {

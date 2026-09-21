@@ -135,6 +135,11 @@ func UnsubscribeAt(v time.Time) predicate.Tenant {
 	return predicate.Tenant(sql.FieldEQ(FieldUnsubscribeAt, v))
 }
 
+// PlanID applies equality check predicate on the "plan_id" field. It's identical to PlanIDEQ.
+func PlanID(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldPlanID, v))
+}
+
 // SubscriptionPlan applies equality check predicate on the "subscription_plan" field. It's identical to SubscriptionPlanEQ.
 func SubscriptionPlan(v string) predicate.Tenant {
 	return predicate.Tenant(sql.FieldEQ(FieldSubscriptionPlan, v))
@@ -1198,6 +1203,36 @@ func UnsubscribeAtIsNil() predicate.Tenant {
 // UnsubscribeAtNotNil applies the NotNil predicate on the "unsubscribe_at" field.
 func UnsubscribeAtNotNil() predicate.Tenant {
 	return predicate.Tenant(sql.FieldNotNull(FieldUnsubscribeAt))
+}
+
+// PlanIDEQ applies the EQ predicate on the "plan_id" field.
+func PlanIDEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldPlanID, v))
+}
+
+// PlanIDNEQ applies the NEQ predicate on the "plan_id" field.
+func PlanIDNEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldPlanID, v))
+}
+
+// PlanIDIn applies the In predicate on the "plan_id" field.
+func PlanIDIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldPlanID, vs...))
+}
+
+// PlanIDNotIn applies the NotIn predicate on the "plan_id" field.
+func PlanIDNotIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldPlanID, vs...))
+}
+
+// PlanIDIsNil applies the IsNil predicate on the "plan_id" field.
+func PlanIDIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldPlanID))
+}
+
+// PlanIDNotNil applies the NotNil predicate on the "plan_id" field.
+func PlanIDNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldPlanID))
 }
 
 // SubscriptionPlanEQ applies the EQ predicate on the "subscription_plan" field.

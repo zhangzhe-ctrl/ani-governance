@@ -507,7 +507,9 @@ func (_q *PlanQuery) loadTenants(ctx context.Context, query *TenantQuery, nodes 
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(tenant.FieldPlanID)
+	}
 	query.Where(predicate.Tenant(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(plan.TenantsColumn), fks...))
 	}))
@@ -516,7 +518,7 @@ func (_q *PlanQuery) loadTenants(ctx context.Context, query *TenantQuery, nodes 
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.plan_id
+		fk := n.PlanID
 		if fk == nil {
 			return fmt.Errorf(`foreign-key "plan_id" is nil for node %v`, n.ID)
 		}

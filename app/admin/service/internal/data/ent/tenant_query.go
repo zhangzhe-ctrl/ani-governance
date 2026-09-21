@@ -25,7 +25,6 @@ type TenantQuery struct {
 	inters     []Interceptor
 	predicates []predicate.Tenant
 	withPlan   *PlanQuery
-	withFKs    bool
 	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -373,18 +372,11 @@ func (_q *TenantQuery) prepareQuery(ctx context.Context) error {
 func (_q *TenantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tenant, error) {
 	var (
 		nodes       = []*Tenant{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
 			_q.withPlan != nil,
 		}
 	)
-	if _q.withPlan != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, tenant.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Tenant).scanValues(nil, columns)
 	}
@@ -419,10 +411,10 @@ func (_q *TenantQuery) loadPlan(ctx context.Context, query *PlanQuery, nodes []*
 	ids := make([]uint32, 0, len(nodes))
 	nodeids := make(map[uint32][]*Tenant)
 	for i := range nodes {
-		if nodes[i].plan_id == nil {
+		if nodes[i].PlanID == nil {
 			continue
 		}
-		fk := *nodes[i].plan_id
+		fk := *nodes[i].PlanID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -475,6 +467,9 @@ func (_q *TenantQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != tenant.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withPlan != nil {
+			_spec.Node.AddColumnOnce(tenant.FieldPlanID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

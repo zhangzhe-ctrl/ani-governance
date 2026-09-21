@@ -52,6 +52,8 @@ const (
 	FieldSubscriptionAt = "subscription_at"
 	// FieldUnsubscribeAt holds the string denoting the unsubscribe_at field in the database.
 	FieldUnsubscribeAt = "unsubscribe_at"
+	// FieldPlanID holds the string denoting the plan_id field in the database.
+	FieldPlanID = "plan_id"
 	// FieldSubscriptionPlan holds the string denoting the subscription_plan field in the database.
 	FieldSubscriptionPlan = "subscription_plan"
 	// FieldExpiredAt holds the string denoting the expired_at field in the database.
@@ -91,25 +93,15 @@ var Columns = []string{
 	FieldAuditStatus,
 	FieldSubscriptionAt,
 	FieldUnsubscribeAt,
+	FieldPlanID,
 	FieldSubscriptionPlan,
 	FieldExpiredAt,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "sys_tenants"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"plan_id",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -311,6 +303,11 @@ func BySubscriptionAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUnsubscribeAt orders the results by the unsubscribe_at field.
 func ByUnsubscribeAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUnsubscribeAt, opts...).ToFunc()
+}
+
+// ByPlanID orders the results by the plan_id field.
+func ByPlanID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPlanID, opts...).ToFunc()
 }
 
 // BySubscriptionPlan orders the results by the subscription_plan field.

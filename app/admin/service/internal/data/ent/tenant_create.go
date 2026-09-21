@@ -289,6 +289,20 @@ func (_c *TenantCreate) SetNillableUnsubscribeAt(v *time.Time) *TenantCreate {
 	return _c
 }
 
+// SetPlanID sets the "plan_id" field.
+func (_c *TenantCreate) SetPlanID(v uint32) *TenantCreate {
+	_c.mutation.SetPlanID(v)
+	return _c
+}
+
+// SetNillablePlanID sets the "plan_id" field if the given value is not nil.
+func (_c *TenantCreate) SetNillablePlanID(v *uint32) *TenantCreate {
+	if v != nil {
+		_c.SetPlanID(*v)
+	}
+	return _c
+}
+
 // SetSubscriptionPlan sets the "subscription_plan" field.
 func (_c *TenantCreate) SetSubscriptionPlan(v string) *TenantCreate {
 	_c.mutation.SetSubscriptionPlan(v)
@@ -320,20 +334,6 @@ func (_c *TenantCreate) SetNillableExpiredAt(v *time.Time) *TenantCreate {
 // SetID sets the "id" field.
 func (_c *TenantCreate) SetID(v uint32) *TenantCreate {
 	_c.mutation.SetID(v)
-	return _c
-}
-
-// SetPlanID sets the "plan" edge to the Plan entity by ID.
-func (_c *TenantCreate) SetPlanID(id uint32) *TenantCreate {
-	_c.mutation.SetPlanID(id)
-	return _c
-}
-
-// SetNillablePlanID sets the "plan" edge to the Plan entity by ID if the given value is not nil.
-func (_c *TenantCreate) SetNillablePlanID(id *uint32) *TenantCreate {
-	if id != nil {
-		_c = _c.SetPlanID(*id)
-	}
 	return _c
 }
 
@@ -562,7 +562,7 @@ func (_c *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.plan_id = &nodes[0]
+		_node.PlanID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -944,6 +944,24 @@ func (u *TenantUpsert) UpdateUnsubscribeAt() *TenantUpsert {
 // ClearUnsubscribeAt clears the value of the "unsubscribe_at" field.
 func (u *TenantUpsert) ClearUnsubscribeAt() *TenantUpsert {
 	u.SetNull(tenant.FieldUnsubscribeAt)
+	return u
+}
+
+// SetPlanID sets the "plan_id" field.
+func (u *TenantUpsert) SetPlanID(v uint32) *TenantUpsert {
+	u.Set(tenant.FieldPlanID, v)
+	return u
+}
+
+// UpdatePlanID sets the "plan_id" field to the value that was provided on create.
+func (u *TenantUpsert) UpdatePlanID() *TenantUpsert {
+	u.SetExcluded(tenant.FieldPlanID)
+	return u
+}
+
+// ClearPlanID clears the value of the "plan_id" field.
+func (u *TenantUpsert) ClearPlanID() *TenantUpsert {
+	u.SetNull(tenant.FieldPlanID)
 	return u
 }
 
@@ -1419,6 +1437,27 @@ func (u *TenantUpsertOne) UpdateUnsubscribeAt() *TenantUpsertOne {
 func (u *TenantUpsertOne) ClearUnsubscribeAt() *TenantUpsertOne {
 	return u.Update(func(s *TenantUpsert) {
 		s.ClearUnsubscribeAt()
+	})
+}
+
+// SetPlanID sets the "plan_id" field.
+func (u *TenantUpsertOne) SetPlanID(v uint32) *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetPlanID(v)
+	})
+}
+
+// UpdatePlanID sets the "plan_id" field to the value that was provided on create.
+func (u *TenantUpsertOne) UpdatePlanID() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdatePlanID()
+	})
+}
+
+// ClearPlanID clears the value of the "plan_id" field.
+func (u *TenantUpsertOne) ClearPlanID() *TenantUpsertOne {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearPlanID()
 	})
 }
 
@@ -2066,6 +2105,27 @@ func (u *TenantUpsertBulk) UpdateUnsubscribeAt() *TenantUpsertBulk {
 func (u *TenantUpsertBulk) ClearUnsubscribeAt() *TenantUpsertBulk {
 	return u.Update(func(s *TenantUpsert) {
 		s.ClearUnsubscribeAt()
+	})
+}
+
+// SetPlanID sets the "plan_id" field.
+func (u *TenantUpsertBulk) SetPlanID(v uint32) *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.SetPlanID(v)
+	})
+}
+
+// UpdatePlanID sets the "plan_id" field to the value that was provided on create.
+func (u *TenantUpsertBulk) UpdatePlanID() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.UpdatePlanID()
+	})
+}
+
+// ClearPlanID clears the value of the "plan_id" field.
+func (u *TenantUpsertBulk) ClearPlanID() *TenantUpsertBulk {
+	return u.Update(func(s *TenantUpsert) {
+		s.ClearPlanID()
 	})
 }
 
