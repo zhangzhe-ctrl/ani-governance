@@ -35,6 +35,12 @@ const (
 
 	ClaimFieldIsPlatformAdmin = "ipa" // 是否平台管理员
 	ClaimFieldIsTenantAdmin   = "ita" // 是否租户管理员
+
+	// ClaimFieldPermissions 权限码列表（登录期由多角色权限并集聚合）。
+	// 用途：服务层的"跨租户能力"判定无法只靠 API 级 authz 表达，
+	// 需要按能力（而非角色码）区分，例如"重置他人密码"/"替他人重置 MFA"
+	// 应各自独立授权，才能支撑平台只读、平台运维等多平台角色。
+	ClaimFieldPermissions = "pms"
 )
 
 const (
@@ -93,6 +99,9 @@ func NewUserTokenAuthClaims(
 
 	if len(tokenPayload.Roles) > 0 {
 		authClaims[ClaimFieldRoleCodes] = tokenPayload.Roles
+	}
+	if len(tokenPayload.Permissions) > 0 {
+		authClaims[ClaimFieldPermissions] = tokenPayload.Permissions
 	}
 	if tokenPayload.DeviceId != nil {
 		authClaims[ClaimFieldDeviceID] = tokenPayload.GetDeviceId()
@@ -195,6 +204,14 @@ func NewUserTokenPayloadWithClaims(claims *authn.AuthClaims) (*authenticationV1.
 	}
 	if roleCodes != nil {
 		payload.Roles = roleCodes
+	}
+
+	permissions, err := claims.GetStrings(ClaimFieldPermissions)
+	if err != nil {
+		bLogger.GetLogger().Error(context.Background(), fmt.Sprintf("GetStrings ClaimFieldPermissions failed: %v", err))
+	}
+	if permissions != nil {
+		payload.Permissions = permissions
 	}
 
 	dataScope, err := claims.GetString(ClaimFieldDataScope)
@@ -324,6 +341,25 @@ func NewUserTokenPayloadWithJwtMapClaims(claims jwt.MapClaims) (*authenticationV
 
 		default:
 			return nil, errors.New("invalid roleCodes type")
+		}
+	}
+
+	// 权限码列表：与 roleCodes 同款两值断言，类型不符即报错而非 panic。
+	permissions := claims[ClaimFieldPermissions]
+	if permissions != nil {
+		switch itf := permissions.(type) {
+		case []interface{}:
+			for _, p := range itf {
+				if pStr, pOk := p.(string); pOk {
+					payload.Permissions = append(payload.Permissions, pStr)
+				}
+			}
+
+		case []string:
+			payload.Permissions = itf
+
+		default:
+			return nil, errors.New("invalid permissions type")
 		}
 	}
 

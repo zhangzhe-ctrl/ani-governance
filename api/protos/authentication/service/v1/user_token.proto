@@ -99,6 +99,18 @@ message UserTokenPayload {
     }
   ]; // 是否租户管理员
 
+  // 权限码列表（登录期由多角色权限并集聚合）。
+  // 用途：服务层的"跨租户能力"判定需要按能力（而非角色码）区分，
+  // 例如"重置他人密码"/"替他人重置 MFA"应各自独立授权，
+  // 才能支撑平台只读、平台运维等多平台角色。
+  // 注意：权限码随定制化增长会推高 JWT 体积，当前请求不区分场景全量携带。
+  repeated string permissions = 22 [
+    json_name = "pms",
+    (gnostic.openapi.v3.property) = {
+      description: "权限码列表（多角色并集，登录期聚合）"
+    }
+  ]; // 权限码列表
+
   optional string jti = 100 [
     json_name = "jti",
     (gnostic.openapi.v3.property) = {

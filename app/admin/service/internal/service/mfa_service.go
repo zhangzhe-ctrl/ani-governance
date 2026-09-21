@@ -20,6 +20,7 @@ import (
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	ktransport "github.com/go-kratos/kratos/v2/transport"
 
+	"go-wind-admin/pkg/constants"
 	"go-wind-admin/pkg/middleware/auth"
 	"go-wind-admin/pkg/netutil"
 
@@ -332,7 +333,9 @@ func (s *MfaService) DisableMFA(ctx context.Context, req *authenticationV1.Disab
 
 	// 管理端救援路径：目标用户由因子行定位（凭 credential_id），或按 user_id+method 清空
 	if target := req.GetUserId(); target != 0 && target != operator.GetUserId() {
-		if !operator.GetIsPlatformAdmin() {
+		// 判据按能力权限而非 IsPlatformAdmin 布尔：使"平台运维可救援重置、
+		// 平台只读不可"这类多平台角色差异可表达。
+		if !hasPermission(operator, constants.SystemResetOthersMFAPermissionCode) {
 			return nil, authenticationV1.ErrorForbidden("only platform admin can reset mfa for others")
 		}
 

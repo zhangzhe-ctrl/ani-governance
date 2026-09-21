@@ -168,6 +168,23 @@ var DefaultPermissions = []*permissionV1.Permission{
 		Code:        trans.Ptr(SystemAuditLogsPermissionCode),
 		Status:      trans.Ptr(permissionV1.Permission_ON),
 	},
+	{
+		//Id:          trans.Ptr(uint32(6)),
+		// 归入"安全策略"组（GroupId=5），与账号安全策略同域。
+		GroupId:     trans.Ptr(uint32(5)),
+		Name:        trans.Ptr("重置他人密码"),
+		Description: trans.Ptr("允许跨租户重置其他用户的密码。多平台角色靠此权限区分能力：平台只读不应授予"),
+		Code:        trans.Ptr(SystemResetOthersCredentialPermissionCode),
+		Status:      trans.Ptr(permissionV1.Permission_ON),
+	},
+	{
+		//Id:          trans.Ptr(uint32(7)),
+		GroupId:     trans.Ptr(uint32(5)),
+		Name:        trans.Ptr("重置他人 MFA"),
+		Description: trans.Ptr("允许为其他用户重置 MFA 因子（认证器丢失时的救援重置）"),
+		Code:        trans.Ptr(SystemResetOthersMFAPermissionCode),
+		Status:      trans.Ptr(permissionV1.Permission_ON),
+	},
 }
 
 // DefaultRoles 系统初始化默认角色数据
@@ -181,7 +198,10 @@ var DefaultRoles = []*permissionV1.Role{
 		IsProtected: trans.Ptr(true),
 		Type:        trans.Ptr(permissionV1.Role_SYSTEM),
 		SortOrder:   trans.Ptr(uint32(1)),
-		Permissions: []uint32{1, 2, 4},
+		// 1=访问后台 2=平台管理员权限 4=管理租户 6=重置他人密码 7=重置他人 MFA。
+		// 末两项为本轮新增：把原先隐含在 platform:admin 角色码里的跨租户能力
+		// 显式化为权限，平台默认角色仍全量持有，行为与改动前一致。
+		Permissions: []uint32{1, 2, 4, 6, 7},
 	},
 	{
 		//Id:          trans.Ptr(uint32(2)),

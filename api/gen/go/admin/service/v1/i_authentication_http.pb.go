@@ -23,80 +23,134 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationAuthenticationServiceForgotPassword = "/admin.service.v1.AuthenticationService/ForgotPassword"
 const OperationAuthenticationServiceGenerateCaptcha = "/admin.service.v1.AuthenticationService/GenerateCaptcha"
-const OperationAuthenticationServiceLogin = "/admin.service.v1.AuthenticationService/Login"
-const OperationAuthenticationServiceLogout = "/admin.service.v1.AuthenticationService/Logout"
-const OperationAuthenticationServiceRefreshToken = "/admin.service.v1.AuthenticationService/RefreshToken"
+const OperationAuthenticationServicePasswordLogin = "/admin.service.v1.AuthenticationService/PasswordLogin"
+const OperationAuthenticationServicePlatformPasswordLogin = "/admin.service.v1.AuthenticationService/PlatformPasswordLogin"
+const OperationAuthenticationServiceRefreshAccessToken = "/admin.service.v1.AuthenticationService/RefreshAccessToken"
 const OperationAuthenticationServiceResetPasswordByCode = "/admin.service.v1.AuthenticationService/ResetPasswordByCode"
+const OperationAuthenticationServiceRevokeJti = "/admin.service.v1.AuthenticationService/RevokeJti"
 const OperationAuthenticationServiceVerifyCaptcha = "/admin.service.v1.AuthenticationService/VerifyCaptcha"
 
 type AuthenticationServiceHTTPServer interface {
 	// ForgotPassword 忘记密码：向已绑定邮箱的用户发送重置验证码（免鉴权；不泄露用户是否存在）
 	ForgotPassword(context.Context, *v1.ForgotPasswordRequest) (*emptypb.Empty, error)
-	// GenerateCaptcha 生成验证码
+	// GenerateCaptcha 生成验证码（免鉴权）
+	// ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
+	// 请求头传递，不进登录报文体内。
 	GenerateCaptcha(context.Context, *emptypb.Empty) (*v1.GenerateCaptchaResponse, error)
-	// Login 登录
-	Login(context.Context, *v1.LoginRequest) (*v1.LoginResponse, error)
-	// Logout 登出
-	Logout(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
-	// RefreshToken 刷新认证令牌
-	RefreshToken(context.Context, *v1.LoginRequest) (*v1.LoginResponse, error)
+	// PasswordLogin 租户账密登录（免鉴权）
+	PasswordLogin(context.Context, *v1.PasswordLoginRequest) (*v1.TokenPairResponse, error)
+	// PlatformPasswordLogin 平台账密登录（免鉴权）
+	// 与租户登录分为两端点：平台身份的爆破影响面是全局，独立端点便于施加更严的限流/审计。
+	PlatformPasswordLogin(context.Context, *v1.PlatformPasswordLoginRequest) (*v1.TokenPairResponse, error)
+	// RefreshAccessToken 刷新认证令牌（免鉴权）
+	// refresh token 经 HttpOnly Cookie 传输，请求体只承载可选的 client_id / device_id
+	// 用于延续审计留痕与会话元数据；cookie 缺失即拒绝。
+	RefreshAccessToken(context.Context, *v1.RefreshAccessTokenRequest) (*v1.TokenPairResponse, error)
 	// ResetPasswordByCode 凭验证码重置密码（免鉴权；重置后吊销该用户全部会话）
 	ResetPasswordByCode(context.Context, *v1.ResetPasswordByCodeRequest) (*emptypb.Empty, error)
-	// VerifyCaptcha 验证验证码
+	// RevokeJti 登出：吊销当前用户的全部会话（非仅当前 jti）
+	// jti 仅随请求上报用于审计留痕，不改变吊销范围。需携带有效访问令牌。
+	RevokeJti(context.Context, *v1.RevokeJtiRequest) (*v1.RevokeStatusResponse, error)
+	// VerifyCaptcha 验证验证码（免鉴权）
 	VerifyCaptcha(context.Context, *v1.VerifyCaptchaRequest) (*v1.VerifyCaptchaResponse, error)
 }
 
 func RegisterAuthenticationServiceHTTPServer(s *http.Server, srv AuthenticationServiceHTTPServer) {
 	r := s.Route("/")
-	r.POST("/admin/v1/login", _AuthenticationService_Login0_HTTP_Handler(srv))
-	r.POST("/admin/v1/logout", _AuthenticationService_Logout0_HTTP_Handler(srv))
-	r.POST("/admin/v1/forgot-password", _AuthenticationService_ForgotPassword0_HTTP_Handler(srv))
-	r.POST("/admin/v1/reset-password-by-code", _AuthenticationService_ResetPasswordByCode0_HTTP_Handler(srv))
-	r.POST("/admin/v1/refresh-token", _AuthenticationService_RefreshToken0_HTTP_Handler(srv))
-	r.GET("/admin/v1/captcha", _AuthenticationService_GenerateCaptcha0_HTTP_Handler(srv))
-	r.POST("/admin/v1/captcha/verify", _AuthenticationService_VerifyCaptcha0_HTTP_Handler(srv))
+	r.POST("/api/v1/auth/password/login", _AuthenticationService_PasswordLogin0_HTTP_Handler(srv))
+	r.POST("/api/v1/auth/platform/password/login", _AuthenticationService_PlatformPasswordLogin0_HTTP_Handler(srv))
+	r.POST("/api/v1/auth/logout", _AuthenticationService_RevokeJti0_HTTP_Handler(srv))
+	r.POST("/api/v1/auth/refresh", _AuthenticationService_RefreshAccessToken0_HTTP_Handler(srv))
+	r.POST("/api/v1/auth/forgot-password", _AuthenticationService_ForgotPassword0_HTTP_Handler(srv))
+	r.POST("/api/v1/auth/reset-password-by-code", _AuthenticationService_ResetPasswordByCode0_HTTP_Handler(srv))
+	r.GET("/api/v1/auth/captcha", _AuthenticationService_GenerateCaptcha0_HTTP_Handler(srv))
+	r.POST("/api/v1/auth/captcha/verify", _AuthenticationService_VerifyCaptcha0_HTTP_Handler(srv))
 }
 
-func _AuthenticationService_Login0_HTTP_Handler(srv AuthenticationServiceHTTPServer) func(ctx http.Context) error {
+func _AuthenticationService_PasswordLogin0_HTTP_Handler(srv AuthenticationServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in v1.LoginRequest
+		var in v1.PasswordLoginRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAuthenticationServiceLogin)
+		http.SetOperation(ctx, OperationAuthenticationServicePasswordLogin)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.Login(ctx, req.(*v1.LoginRequest))
+			return srv.PasswordLogin(ctx, req.(*v1.PasswordLoginRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.LoginResponse)
+		reply := out.(*v1.TokenPairResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _AuthenticationService_Logout0_HTTP_Handler(srv AuthenticationServiceHTTPServer) func(ctx http.Context) error {
+func _AuthenticationService_PlatformPasswordLogin0_HTTP_Handler(srv AuthenticationServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in emptypb.Empty
+		var in v1.PlatformPasswordLoginRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAuthenticationServiceLogout)
+		http.SetOperation(ctx, OperationAuthenticationServicePlatformPasswordLogin)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.Logout(ctx, req.(*emptypb.Empty))
+			return srv.PlatformPasswordLogin(ctx, req.(*v1.PlatformPasswordLoginRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*emptypb.Empty)
+		reply := out.(*v1.TokenPairResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AuthenticationService_RevokeJti0_HTTP_Handler(srv AuthenticationServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.RevokeJtiRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthenticationServiceRevokeJti)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RevokeJti(ctx, req.(*v1.RevokeJtiRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.RevokeStatusResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AuthenticationService_RefreshAccessToken0_HTTP_Handler(srv AuthenticationServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.RefreshAccessTokenRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthenticationServiceRefreshAccessToken)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RefreshAccessToken(ctx, req.(*v1.RefreshAccessTokenRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.TokenPairResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -145,28 +199,6 @@ func _AuthenticationService_ResetPasswordByCode0_HTTP_Handler(srv Authentication
 	}
 }
 
-func _AuthenticationService_RefreshToken0_HTTP_Handler(srv AuthenticationServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in v1.LoginRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationAuthenticationServiceRefreshToken)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.RefreshToken(ctx, req.(*v1.LoginRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*v1.LoginResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _AuthenticationService_GenerateCaptcha0_HTTP_Handler(srv AuthenticationServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -211,17 +243,25 @@ func _AuthenticationService_VerifyCaptcha0_HTTP_Handler(srv AuthenticationServic
 type AuthenticationServiceHTTPClient interface {
 	// ForgotPassword 忘记密码：向已绑定邮箱的用户发送重置验证码（免鉴权；不泄露用户是否存在）
 	ForgotPassword(ctx context.Context, req *v1.ForgotPasswordRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// GenerateCaptcha 生成验证码
+	// GenerateCaptcha 生成验证码（免鉴权）
+	// ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
+	// 请求头传递，不进登录报文体内。
 	GenerateCaptcha(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *v1.GenerateCaptchaResponse, err error)
-	// Login 登录
-	Login(ctx context.Context, req *v1.LoginRequest, opts ...http.CallOption) (rsp *v1.LoginResponse, err error)
-	// Logout 登出
-	Logout(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// RefreshToken 刷新认证令牌
-	RefreshToken(ctx context.Context, req *v1.LoginRequest, opts ...http.CallOption) (rsp *v1.LoginResponse, err error)
+	// PasswordLogin 租户账密登录（免鉴权）
+	PasswordLogin(ctx context.Context, req *v1.PasswordLoginRequest, opts ...http.CallOption) (rsp *v1.TokenPairResponse, err error)
+	// PlatformPasswordLogin 平台账密登录（免鉴权）
+	// 与租户登录分为两端点：平台身份的爆破影响面是全局，独立端点便于施加更严的限流/审计。
+	PlatformPasswordLogin(ctx context.Context, req *v1.PlatformPasswordLoginRequest, opts ...http.CallOption) (rsp *v1.TokenPairResponse, err error)
+	// RefreshAccessToken 刷新认证令牌（免鉴权）
+	// refresh token 经 HttpOnly Cookie 传输，请求体只承载可选的 client_id / device_id
+	// 用于延续审计留痕与会话元数据；cookie 缺失即拒绝。
+	RefreshAccessToken(ctx context.Context, req *v1.RefreshAccessTokenRequest, opts ...http.CallOption) (rsp *v1.TokenPairResponse, err error)
 	// ResetPasswordByCode 凭验证码重置密码（免鉴权；重置后吊销该用户全部会话）
 	ResetPasswordByCode(ctx context.Context, req *v1.ResetPasswordByCodeRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// VerifyCaptcha 验证验证码
+	// RevokeJti 登出：吊销当前用户的全部会话（非仅当前 jti）
+	// jti 仅随请求上报用于审计留痕，不改变吊销范围。需携带有效访问令牌。
+	RevokeJti(ctx context.Context, req *v1.RevokeJtiRequest, opts ...http.CallOption) (rsp *v1.RevokeStatusResponse, err error)
+	// VerifyCaptcha 验证验证码（免鉴权）
 	VerifyCaptcha(ctx context.Context, req *v1.VerifyCaptchaRequest, opts ...http.CallOption) (rsp *v1.VerifyCaptchaResponse, err error)
 }
 
@@ -236,7 +276,7 @@ func NewAuthenticationServiceHTTPClient(client *http.Client) AuthenticationServi
 // ForgotPassword 忘记密码：向已绑定邮箱的用户发送重置验证码（免鉴权；不泄露用户是否存在）
 func (c *AuthenticationServiceHTTPClientImpl) ForgotPassword(ctx context.Context, in *v1.ForgotPasswordRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/admin/v1/forgot-password"
+	pattern := "/api/v1/auth/forgot-password"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAuthenticationServiceForgotPassword))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -247,10 +287,12 @@ func (c *AuthenticationServiceHTTPClientImpl) ForgotPassword(ctx context.Context
 	return &out, nil
 }
 
-// GenerateCaptcha 生成验证码
+// GenerateCaptcha 生成验证码（免鉴权）
+// ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
+// 请求头传递，不进登录报文体内。
 func (c *AuthenticationServiceHTTPClientImpl) GenerateCaptcha(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*v1.GenerateCaptchaResponse, error) {
 	var out v1.GenerateCaptchaResponse
-	pattern := "/admin/v1/captcha"
+	pattern := "/api/v1/auth/captcha"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAuthenticationServiceGenerateCaptcha))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -261,12 +303,12 @@ func (c *AuthenticationServiceHTTPClientImpl) GenerateCaptcha(ctx context.Contex
 	return &out, nil
 }
 
-// Login 登录
-func (c *AuthenticationServiceHTTPClientImpl) Login(ctx context.Context, in *v1.LoginRequest, opts ...http.CallOption) (*v1.LoginResponse, error) {
-	var out v1.LoginResponse
-	pattern := "/admin/v1/login"
+// PasswordLogin 租户账密登录（免鉴权）
+func (c *AuthenticationServiceHTTPClientImpl) PasswordLogin(ctx context.Context, in *v1.PasswordLoginRequest, opts ...http.CallOption) (*v1.TokenPairResponse, error) {
+	var out v1.TokenPairResponse
+	pattern := "/api/v1/auth/password/login"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAuthenticationServiceLogin))
+	opts = append(opts, http.Operation(OperationAuthenticationServicePasswordLogin))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -275,12 +317,13 @@ func (c *AuthenticationServiceHTTPClientImpl) Login(ctx context.Context, in *v1.
 	return &out, nil
 }
 
-// Logout 登出
-func (c *AuthenticationServiceHTTPClientImpl) Logout(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/admin/v1/logout"
+// PlatformPasswordLogin 平台账密登录（免鉴权）
+// 与租户登录分为两端点：平台身份的爆破影响面是全局，独立端点便于施加更严的限流/审计。
+func (c *AuthenticationServiceHTTPClientImpl) PlatformPasswordLogin(ctx context.Context, in *v1.PlatformPasswordLoginRequest, opts ...http.CallOption) (*v1.TokenPairResponse, error) {
+	var out v1.TokenPairResponse
+	pattern := "/api/v1/auth/platform/password/login"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAuthenticationServiceLogout))
+	opts = append(opts, http.Operation(OperationAuthenticationServicePlatformPasswordLogin))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -289,12 +332,14 @@ func (c *AuthenticationServiceHTTPClientImpl) Logout(ctx context.Context, in *em
 	return &out, nil
 }
 
-// RefreshToken 刷新认证令牌
-func (c *AuthenticationServiceHTTPClientImpl) RefreshToken(ctx context.Context, in *v1.LoginRequest, opts ...http.CallOption) (*v1.LoginResponse, error) {
-	var out v1.LoginResponse
-	pattern := "/admin/v1/refresh-token"
+// RefreshAccessToken 刷新认证令牌（免鉴权）
+// refresh token 经 HttpOnly Cookie 传输，请求体只承载可选的 client_id / device_id
+// 用于延续审计留痕与会话元数据；cookie 缺失即拒绝。
+func (c *AuthenticationServiceHTTPClientImpl) RefreshAccessToken(ctx context.Context, in *v1.RefreshAccessTokenRequest, opts ...http.CallOption) (*v1.TokenPairResponse, error) {
+	var out v1.TokenPairResponse
+	pattern := "/api/v1/auth/refresh"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAuthenticationServiceRefreshToken))
+	opts = append(opts, http.Operation(OperationAuthenticationServiceRefreshAccessToken))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -306,7 +351,7 @@ func (c *AuthenticationServiceHTTPClientImpl) RefreshToken(ctx context.Context, 
 // ResetPasswordByCode 凭验证码重置密码（免鉴权；重置后吊销该用户全部会话）
 func (c *AuthenticationServiceHTTPClientImpl) ResetPasswordByCode(ctx context.Context, in *v1.ResetPasswordByCodeRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/admin/v1/reset-password-by-code"
+	pattern := "/api/v1/auth/reset-password-by-code"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAuthenticationServiceResetPasswordByCode))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -317,10 +362,25 @@ func (c *AuthenticationServiceHTTPClientImpl) ResetPasswordByCode(ctx context.Co
 	return &out, nil
 }
 
-// VerifyCaptcha 验证验证码
+// RevokeJti 登出：吊销当前用户的全部会话（非仅当前 jti）
+// jti 仅随请求上报用于审计留痕，不改变吊销范围。需携带有效访问令牌。
+func (c *AuthenticationServiceHTTPClientImpl) RevokeJti(ctx context.Context, in *v1.RevokeJtiRequest, opts ...http.CallOption) (*v1.RevokeStatusResponse, error) {
+	var out v1.RevokeStatusResponse
+	pattern := "/api/v1/auth/logout"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthenticationServiceRevokeJti))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// VerifyCaptcha 验证验证码（免鉴权）
 func (c *AuthenticationServiceHTTPClientImpl) VerifyCaptcha(ctx context.Context, in *v1.VerifyCaptchaRequest, opts ...http.CallOption) (*v1.VerifyCaptchaResponse, error) {
 	var out v1.VerifyCaptchaResponse
-	pattern := "/admin/v1/captcha/verify"
+	pattern := "/api/v1/auth/captcha/verify"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAuthenticationServiceVerifyCaptcha))
 	opts = append(opts, http.PathTemplate(pattern))

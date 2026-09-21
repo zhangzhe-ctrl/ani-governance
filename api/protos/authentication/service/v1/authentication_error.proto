@@ -23,6 +23,10 @@ enum AuthenticationErrorReason {
     INCORRECT_REFRESH_TOKEN = 105 [(errors.code) = 401];// 刷新令牌错误
     TOKEN_EXPIRED = 106 [(errors.code) = 401];// token过期
     TOKEN_NOT_EXIST = 107 [(errors.code) = 401];// token不存在
+    // 凭据无效（对齐 ANI 契约的 401 INVALID_CREDENTIALS）。
+    // 登录失败统一收敛到此码：用户不存在 / 账号冻结 / 口令错误 / 租户不存在
+    // 均返回同一码与同一文案，避免通过返回差异枚举用户名与有效租户编号。
+    INVALID_CREDENTIALS = 108 [(errors.code) = 401];// 用户名或口令错误
 
     // 402
     PAYMENT_REQUIRED = 200 [(errors.code) = 402]; // 需要支付

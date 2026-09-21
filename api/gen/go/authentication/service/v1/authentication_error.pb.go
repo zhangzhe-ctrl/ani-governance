@@ -40,6 +40,10 @@ const (
 	AuthenticationErrorReason_INCORRECT_REFRESH_TOKEN AuthenticationErrorReason = 105 // 刷新令牌错误
 	AuthenticationErrorReason_TOKEN_EXPIRED           AuthenticationErrorReason = 106 // token过期
 	AuthenticationErrorReason_TOKEN_NOT_EXIST         AuthenticationErrorReason = 107 // token不存在
+	// 凭据无效（对齐 ANI 契约的 401 INVALID_CREDENTIALS）。
+	// 登录失败统一收敛到此码：用户不存在 / 账号冻结 / 口令错误 / 租户不存在
+	// 均返回同一码与同一文案，避免通过返回差异枚举用户名与有效租户编号。
+	AuthenticationErrorReason_INVALID_CREDENTIALS AuthenticationErrorReason = 108 // 用户名或口令错误
 	// 402
 	AuthenticationErrorReason_PAYMENT_REQUIRED AuthenticationErrorReason = 200 // 需要支付
 	// 403
@@ -140,6 +144,7 @@ var (
 		105:  "INCORRECT_REFRESH_TOKEN",
 		106:  "TOKEN_EXPIRED",
 		107:  "TOKEN_NOT_EXIST",
+		108:  "INVALID_CREDENTIALS",
 		200:  "PAYMENT_REQUIRED",
 		300:  "FORBIDDEN",
 		400:  "NOT_FOUND",
@@ -197,6 +202,7 @@ var (
 		"INCORRECT_REFRESH_TOKEN":         105,
 		"TOKEN_EXPIRED":                   106,
 		"TOKEN_NOT_EXIST":                 107,
+		"INVALID_CREDENTIALS":             108,
 		"PAYMENT_REQUIRED":                200,
 		"FORBIDDEN":                       300,
 		"NOT_FOUND":                       400,
@@ -274,7 +280,7 @@ var File_authentication_service_v1_authentication_error_proto protoreflect.FileD
 
 const file_authentication_service_v1_authentication_error_proto_rawDesc = "" +
 	"\n" +
-	"4authentication/service/v1/authentication_error.proto\x12\x19authentication.service.v1\x1a\x13errors/errors.proto*\x96\r\n" +
+	"4authentication/service/v1/authentication_error.proto\x12\x19authentication.service.v1\x1a\x13errors/errors.proto*\xb5\r\n" +
 	"\x19AuthenticationErrorReason\x12\x15\n" +
 	"\vBAD_REQUEST\x10\x00\x1a\x04\xa8E\x90\x03\x12\x1c\n" +
 	"\x12INVALID_GRANT_TYPE\x10\x01\x1a\x04\xa8E\x90\x03\x12\x18\n" +
@@ -287,7 +293,8 @@ const file_authentication_service_v1_authentication_error_proto_rawDesc = "" +
 	"\x16INCORRECT_ACCESS_TOKEN\x10h\x1a\x04\xa8E\x91\x03\x12!\n" +
 	"\x17INCORRECT_REFRESH_TOKEN\x10i\x1a\x04\xa8E\x91\x03\x12\x17\n" +
 	"\rTOKEN_EXPIRED\x10j\x1a\x04\xa8E\x91\x03\x12\x19\n" +
-	"\x0fTOKEN_NOT_EXIST\x10k\x1a\x04\xa8E\x91\x03\x12\x1b\n" +
+	"\x0fTOKEN_NOT_EXIST\x10k\x1a\x04\xa8E\x91\x03\x12\x1d\n" +
+	"\x13INVALID_CREDENTIALS\x10l\x1a\x04\xa8E\x91\x03\x12\x1b\n" +
 	"\x10PAYMENT_REQUIRED\x10\xc8\x01\x1a\x04\xa8E\x92\x03\x12\x14\n" +
 	"\tFORBIDDEN\x10\xac\x02\x1a\x04\xa8E\x93\x03\x12\x14\n" +
 	"\tNOT_FOUND\x10\x90\x03\x1a\x04\xa8E\x94\x03\x12\x19\n" +

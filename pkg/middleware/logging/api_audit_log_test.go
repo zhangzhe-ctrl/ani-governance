@@ -57,7 +57,7 @@ func TestApiAuditLogHandleSkipsLoginOperationsDirect(t *testing.T) {
 	var written int
 	var op options
 	WithLoginOperation(
-		adminV1.OperationAuthenticationServiceLogin,
+		adminV1.OperationAuthenticationServicePasswordLogin,
 		adminV1.OperationMfaServiceVerifyMFAChallenge,
 	)(&op)
 	WithWriteApiLogFunc(func(ctx context.Context, d *auditV1.ApiAuditLog) error {
@@ -67,7 +67,7 @@ func TestApiAuditLogHandleSkipsLoginOperationsDirect(t *testing.T) {
 	mw := NewApiAuditLogMiddleware(&op)
 
 	for _, loginOp := range []string{
-		adminV1.OperationAuthenticationServiceLogin,
+		adminV1.OperationAuthenticationServicePasswordLogin,
 		adminV1.OperationMfaServiceVerifyMFAChallenge,
 	} {
 		tr := &khttp.Transport{}

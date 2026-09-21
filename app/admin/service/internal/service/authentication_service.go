@@ -14,6 +14,7 @@ import (
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent/privacy"
@@ -47,7 +48,7 @@ const CaptchaEnabled = true
 const (
 	refreshTokenCookieName = "refresh_token"
 	refreshExpCookieName   = "refresh_exp"
-	refreshCookiePath      = "/admin/v1/refresh-token"
+	refreshCookiePath      = "/api/v1/auth/refresh"
 )
 
 // resolveCookieSecure 按请求的实际传输层判断是否加 Secure 属性：
@@ -142,18 +143,66 @@ func clearRefreshCookies(ctx context.Context) {
 	}
 }
 
-// normalizeLoginVerifyError 将登录凭证校验的多种细分错误统一对外成 INVALID_PASSWORD，
-// 防止攻击者通过区分"用户不存在(404)/账号冻结(401)/密码错误(400)"来枚举有效用户名。
+// normalizeLoginVerifyError 将登录凭证校验的多种细分错误统一对外成 INVALID_CREDENTIALS，
+// 防止攻击者通过区分"用户不存在/账号冻结/密码错误"来枚举有效用户名。
 // 真实原因仍保留在服务端日志与审计中间件的 FailureReason 中，不影响可观测性。
+//
+// 选用 INVALID_CREDENTIALS（401）而非 INVALID_PASSWORD（400）：一是对齐 ANI 契约的
+// 401 INVALID_CREDENTIALS，二是"凭据无效"比"密码错误"更准确——用户不存在时并非密码错。
 func normalizeLoginVerifyError(err error) error {
 	switch {
 	case authenticationV1.IsUserNotFound(err),
 		authenticationV1.IsUserFreeze(err),
 		authenticationV1.IsInvalidPassword(err):
-		return authenticationV1.ErrorInvalidPassword("invalid username or password")
+		return authenticationV1.ErrorInvalidCredentials("invalid username or password")
 	default:
 		return err
 	}
+}
+
+// stripLocalIdentityPrefix 剥离 ANI 形态用户名可能携带的 "local:" 身份命名空间前缀。
+//
+// 本仓的凭证表是"多提供商"模型：provider / identity_type 是独立列
+// （sys_user_credentials 的 provider、identity_type，见 ent/schema/user_credential.go），
+// 裸用户名才是 identifier 的存储形态。ANI 用单列扁平 identifier，只能把提供商信息
+// 拼进字符串值里，故其契约描述"服务端自动拼接 local:<username>"。
+// 这里只做入参容错（带前缀则剥离、不带也接受），不迁移存储、不引入前缀，
+// 否则会把已有列的信息冗余进值里，并使 identifier 的等值索引失效。
+func stripLocalIdentityPrefix(username string) string {
+	const prefix = "local:"
+	if strings.HasPrefix(username, prefix) {
+		return strings.TrimPrefix(username, prefix)
+	}
+	return username
+}
+
+// buildTokenPairResponse 把内部登录引擎的 LoginResponse 映射为对外的 TokenPairResponse。
+//
+// refresh token 不在响应体中返回：本实现经 HttpOnly Cookie 下发（见 setRefreshCookies）。
+// 非浏览器客户端不走此端点，而用 AK/SK 换短期机器令牌
+// （AccessKeyService.IssueToken），其令牌本就没有 refresh。
+//
+// MFA 中间态：用户已绑定启用的 TOTP 因子时引擎不签发令牌，改为返回 operation_id。
+// 该中间态为 ANI 契约所无，属本仓扩展字段。
+func buildTokenPairResponse(resp *authenticationV1.LoginResponse) *authenticationV1.TokenPairResponse {
+	if resp == nil {
+		return nil
+	}
+
+	out := &authenticationV1.TokenPairResponse{
+		AccessToken: resp.GetAccessToken(),
+		ExpiresIn:   resp.GetExpiresIn(),
+		// 签发时间取响应组装时刻。引擎未回传 iat，此处存在毫秒级偏差，
+		// 仅作展示用途，不用于任何校验。
+		IssuedAt: timestamppb.Now(),
+	}
+
+	if opId := resp.GetMfaOperationId(); opId != "" {
+		out.MfaRequired = trans.Ptr(true)
+		out.MfaOperationId = trans.Ptr(opId)
+	}
+
+	return out
 }
 
 type AuthenticationService struct {
@@ -260,16 +309,22 @@ func (s *AuthenticationService) resetContextForLogin(ctx context.Context) contex
 	return ctx
 }
 
-// Login 登录
+// Login 登录（内部授权类型分发入口）。
+//
+// 注意：本方法已不是对外 HTTP 端点——对外入口是 PasswordLogin / PlatformPasswordLogin
+// （POST /api/v1/auth/password/login 与 /api/v1/auth/platform/password/login）。
+// 保留它是因为：（1）grant_type 分发仍是引擎的合法内部语义；
+// （2）doGrantTypePassword 是全部登录能力的唯一实现，适配层经由它复用；
+// （3）既有测试以它为引擎入口，删改会造成大面积无收益的测试改写。
 func (s *AuthenticationService) Login(ctx context.Context, req *authenticationV1.LoginRequest) (*authenticationV1.LoginResponse, error) {
 	switch req.GetGrantType() {
 	case authenticationV1.GrantType_password:
 		return s.doGrantTypePassword(ctx, req)
 
 	case authenticationV1.GrantType_refresh_token:
-		// refresh token 刷新已迁移到 /admin/v1/refresh-token 端点（HttpOnly Cookie 传输），
-		// login 端点不再处理 refresh_token grant type。
-		return nil, authenticationV1.ErrorInvalidGrantType("use /admin/v1/refresh-token for token refresh")
+		// refresh token 刷新已迁移到 /api/v1/auth/refresh 端点（HttpOnly Cookie 传输），
+		// 本入口不再处理 refresh_token grant type。
+		return nil, authenticationV1.ErrorInvalidGrantType("use /api/v1/auth/refresh for token refresh")
 
 	case authenticationV1.GrantType_client_credentials:
 		return s.doGrantTypeClientCredentials(ctx, req)
@@ -277,6 +332,80 @@ func (s *AuthenticationService) Login(ctx context.Context, req *authenticationV1
 	default:
 		return nil, authenticationV1.ErrorInvalidGrantType("invalid grant type")
 	}
+}
+
+// PasswordLogin 租户账密登录（ANI 契约形态，POST /api/v1/auth/password/login）。
+//
+// 本方法只做报文翻译，登录能力完全复用 doGrantTypePassword，不重复实现：
+// 强制验证码、IP+用户名限流、登录策略闸门、identifier 反查、bcrypt 校验、
+// MFA 闸门、会话元数据、权限聚合、令牌签发与 refresh Cookie 下发均沿用原实现。
+//
+// 租户标识：tenant_name 的值取 sys_tenants.code（"租户编号"）。这里不做预解析，
+// 直接透传给引擎——引擎内的租户解析已具备"查不到/非启用即拒绝"的语义，
+// 预解析只会多一次查询而不增加保障。
+func (s *AuthenticationService) PasswordLogin(ctx context.Context, req *authenticationV1.PasswordLoginRequest) (*authenticationV1.TokenPairResponse, error) {
+	if req == nil {
+		return nil, authenticationV1.ErrorBadRequest("invalid parameter")
+	}
+
+	// 显式闸门：tenant_name 为空必须拒绝。
+	// 引擎对"tenant_code 留空"的既有语义是解析为平台租户（tenantID=0），
+	// 若不在入口拦住，租户登录漏传租户名会静默降级为平台登录——
+	// 这正是把租户/平台拆成两个端点的理由，不能只靠 proto validate 单点保障。
+	tenantName := strings.TrimSpace(req.GetTenantName())
+	if tenantName == "" {
+		return nil, authenticationV1.ErrorBadRequest("tenant_name is required")
+	}
+
+	inner := &authenticationV1.LoginRequest{
+		GrantType:  authenticationV1.GrantType_password,
+		ClientType: authenticationV1.ClientType_admin.Enum(),
+		TenantCode: trans.Ptr(tenantName),
+		Password:   trans.Ptr(req.GetPassword()),
+	}
+	// identifier 是 proto3 oneof，Go 侧必须经包装类型赋值，不能直接写 inner.Username
+	inner.Identifier = &authenticationV1.LoginRequest_Username{
+		Username: stripLocalIdentityPrefix(req.GetUsername()),
+	}
+
+	resp, err := s.doGrantTypePassword(ctx, inner)
+	if err != nil {
+		return nil, err
+	}
+
+	return buildTokenPairResponse(resp), nil
+}
+
+// PlatformPasswordLogin 平台账密登录（ANI 契约形态，POST /api/v1/auth/platform/password/login）。
+//
+// 与租户登录拆为独立端点而非复用 tenant_name 留空，是为消除静默降级：
+// 单端点下"漏传租户"会被当成平台登录，无法区分"忘记传参"与"有意平台登录"；
+// 独立端点同时为平台登录单独施加风控/审计策略留出位置。
+//
+// 引擎语义：tenant_code 留空即 tenantID=0（平台作用域），这是 doGrantTypePassword 既有行为，
+// 故此处零新增逻辑。平台身份的准入校验在授权阶段完成
+// （见 authorizeAndEnrichUserTokenPayload 的平台角色闸门）。
+func (s *AuthenticationService) PlatformPasswordLogin(ctx context.Context, req *authenticationV1.PlatformPasswordLoginRequest) (*authenticationV1.TokenPairResponse, error) {
+	if req == nil {
+		return nil, authenticationV1.ErrorBadRequest("invalid parameter")
+	}
+
+	inner := &authenticationV1.LoginRequest{
+		GrantType:  authenticationV1.GrantType_password,
+		ClientType: authenticationV1.ClientType_admin.Enum(),
+		Password:   trans.Ptr(req.GetPassword()),
+	}
+	// 不设置 TenantCode：引擎据"留空"解析为平台租户（tenantID=0）
+	inner.Identifier = &authenticationV1.LoginRequest_Username{
+		Username: stripLocalIdentityPrefix(req.GetUsername()),
+	}
+
+	resp, err := s.doGrantTypePassword(ctx, inner)
+	if err != nil {
+		return nil, err
+	}
+
+	return buildTokenPairResponse(resp), nil
 }
 
 // containsPermission 检查权限代码列表中是否包含指定权限代码
@@ -342,7 +471,19 @@ func (s *AuthenticationService) authorizeAndEnrichUserTokenPayloadUserTenantRela
 		return authenticationV1.ErrorForbidden("insufficient authority")
 	}
 	tokenPayload.Roles = roleCodes
-	fillAdminFlags(tokenPayload, roleCodes)
+	// 权限码随令牌下发：服务层的"跨租户能力"判定无法只靠 API 级 authz 表达，
+	// 需按能力区分（见 UserService / MfaService 的 reset_others_* 检查）。
+	tokenPayload.Permissions = permissionCodes
+	fillAdminFlags(tokenPayload, permissionCodes)
+
+	// 平台登录闸门：tenantID == 0 表示该凭证处于平台作用域，必须是平台角色才放行。
+	// 判据用角色码前缀而非具体 platform:admin —— 多平台角色（平台运维、平台只读）
+	// 都应以平台身份登录，能力差异由权限矩阵决定，不靠登录入口区分。
+	// 放在此处而非函数开头：角色码要到这一步才取到。
+	if tenantID == 0 && !hasPlatformRole(roleCodes) {
+		s.log.Warnf(ctx, "platform login rejected for user [%d]: no platform role, roles=%v", userID, roleCodes)
+		return authenticationV1.ErrorForbidden("not a platform account")
+	}
 
 	// 聚合角色级数据范围配置进令牌（dss/dsu 轨道；语义见 aggregateDataScopes）。
 	s.aggregateDataScopes(ctx, tokenPayload.GetTenantId(), userID, roleIDs, tokenPayload)
@@ -375,6 +516,9 @@ func (s *AuthenticationService) authorizeAndEnrichUserTokenPayloadUserTenantRela
 
 	hasBackendAccess := false
 	var validRoleIDs []uint32
+	// 权限码并集：与 validRoleIDs 同步累积，只收"具备后台访问权限"的成员身份，
+	// 避免把无后台访问权身份的权限也带进令牌（最小权限）。
+	var allPermissionCodes []string
 	for _, m := range memberships {
 		if m.GetTenantId() > 0 {
 			// 检查租户状态
@@ -409,6 +553,7 @@ func (s *AuthenticationService) authorizeAndEnrichUserTokenPayloadUserTenantRela
 		if containsPermission(permissionCodes, constants.SystemAccessBackendPermissionCode) {
 			hasBackendAccess = true
 			validRoleIDs = append(validRoleIDs, roleIDs...)
+			allPermissionCodes = append(allPermissionCodes, permissionCodes...)
 		}
 	}
 
@@ -425,7 +570,10 @@ func (s *AuthenticationService) authorizeAndEnrichUserTokenPayloadUserTenantRela
 		return authenticationV1.ErrorForbidden("insufficient authority")
 	}
 	tokenPayload.Roles = roleCodes
-	fillAdminFlags(tokenPayload, roleCodes)
+	// 一对多模式下 tenantID == 0 表示"该用户的全部活跃成员身份"，属于跨租户聚合，
+	// 不是平台登录，因此这里不设平台角色闸门（闸门只作用于一对一的平台登录路径）。
+	tokenPayload.Permissions = dedupeStrings(allPermissionCodes)
+	fillAdminFlags(tokenPayload, allPermissionCodes)
 
 	// 聚合角色级数据范围配置进令牌（dss/dsu 轨道；语义见 aggregateDataScopes）。
 	s.aggregateDataScopes(ctx, tokenPayload.GetTenantId(), userID, validRoleIDs, tokenPayload)
@@ -495,9 +643,12 @@ func (s *AuthenticationService) doGrantTypePassword(ctx context.Context, req *au
 		tenant, _ := s.tenantRepo.Get(ctx, &identityV1.GetTenantRequest{
 			QueryBy: &identityV1.GetTenantRequest_Code{Code: code},
 		})
-		// 查不到、或租户非启用状态，统一返回同一文案，防止通过返回差异枚举有效租户编号
+		// 查不到、或租户非启用状态，统一并入登录失败文案与错误码。
+		// 不用 404 TENANT_NOT_FOUND：区分"租户不存在"会让攻击者据此枚举有效租户编号，
+		// 与 normalizeLoginVerifyError 的用户名防枚举取向必须一致。
 		if tenant == nil || tenant.GetStatus() != identityV1.Tenant_ON {
-			return nil, authenticationV1.ErrorBadRequest("invalid tenant")
+			s.log.Warnf(ctx, "login tenant resolve failed for tenant code [%s]", code)
+			return nil, authenticationV1.ErrorInvalidCredentials("invalid username or password")
 		}
 		tenantID = tenant.GetId()
 	}
@@ -553,7 +704,9 @@ func (s *AuthenticationService) doGrantTypePassword(ctx context.Context, req *au
 	if user.GetTenantId() != tenantID {
 		s.log.Errorf(ctx, "tenant mismatch for user [%d]: credential tenant [%d] vs user tenant [%d]",
 			matchedUserID, tenantID, user.GetTenantId())
-		return nil, authenticationV1.ErrorBadRequest("invalid tenant")
+		// 同样并入登录失败文案：凭证归属租户与用户归属租户不一致属异常数据，
+		// 对外不暴露"哪一侧不匹配"，避免成为租户探测信号。
+		return nil, authenticationV1.ErrorInvalidCredentials("invalid username or password")
 	}
 
 	// ===== 登录策略闸门（用户定向部分）：密码已通过、userId 已知， =====
@@ -658,18 +811,65 @@ func recordUserLastLogin(ctx context.Context, log *bLogger.Helper, userRepo data
 	}
 }
 
-// fillAdminFlags 按角色码填充 token 的平台/租户管理员标志。
+// fillAdminFlags 按权限码填充 token 的平台/租户管理员标志。
 // 该标志此前从未被赋值（全仓库仅消费无生产），导致下游
 // GetIsPlatformAdmin 判定（MFA 重置、用户管理越权校验等）形同虚设。
-func fillAdminFlags(tokenPayload *authenticationV1.UserTokenPayload, roleCodes []string) {
+//
+// 判据由"角色码 == platform:admin"改为"持有 sys:platform_admin 权限"：
+// 角色码是身份标识，权限才是能力。多平台角色（平台运维、平台只读）下，
+// 布尔标志无法表达能力差异，而权限矩阵可以；默认 platform:admin 角色
+// 已绑定该权限，故改动对既有部署行为一致。
+//
+// 注意：该标志仅用于展示与兼容，跨租户授权已改为按 reset_others_* 能力权限判定
+// （见 UserService / MfaService），不再依赖此布尔值。
+func fillAdminFlags(tokenPayload *authenticationV1.UserTokenPayload, permissionCodes []string) {
+	if containsPermission(permissionCodes, constants.SystemPlatformAdminPermissionCode) {
+		tokenPayload.IsPlatformAdmin = trans.Ptr(true)
+	}
+	if containsPermission(permissionCodes, constants.SystemTenantManagerPermissionCode) {
+		tokenPayload.IsTenantAdmin = trans.Ptr(true)
+	}
+}
+
+// hasPlatformRole 判断角色码列表中是否存在平台角色（platform: 前缀）。
+//
+// 用于平台登录闸门：区分"是不是平台身份"用角色码前缀，"能做什么"用权限矩阵。
+// 二者分层，避免为每类平台角色新增角色码判断分支。
+// 本函数接上了此前全仓无生产调用的 constants.IsPlatformRoleCode。
+func hasPlatformRole(roleCodes []string) bool {
 	for _, rc := range roleCodes {
-		if rc == constants.PlatformAdminRoleCode {
-			tokenPayload.IsPlatformAdmin = trans.Ptr(true)
-		}
-		if rc == constants.TenantAdminRoleCode {
-			tokenPayload.IsTenantAdmin = trans.Ptr(true)
+		if constants.IsPlatformRoleCode(rc) {
+			return true
 		}
 	}
+	return false
+}
+
+// hasPermission 判断令牌载荷中是否持有指定权限码。
+// 服务层的跨租户能力判定统一走此入口，不直接读 IsPlatformAdmin 布尔。
+func hasPermission(operator *authenticationV1.UserTokenPayload, permissionCode string) bool {
+	if operator == nil {
+		return false
+	}
+	return containsPermission(operator.GetPermissions(), permissionCode)
+}
+
+// dedupeStrings 去重并保持首次出现顺序。
+// 一对多模式下多个成员身份的权限码会重复，去重避免 JWT 体积无谓膨胀。
+func dedupeStrings(in []string) []string {
+	if len(in) == 0 {
+		return nil
+	}
+	seen := make(map[string]struct{}, len(in))
+	out := make([]string, 0, len(in))
+	for _, s := range in {
+		if _, ok := seen[s]; ok {
+			continue
+		}
+		seen[s] = struct{}{}
+		out = append(out, s)
+	}
+	return out
 }
 
 // verifyLoginCaptcha 校验登录请求携带的验证码。
@@ -777,12 +977,21 @@ func (s *AuthenticationService) doGrantTypeClientCredentials(_ context.Context, 
 	return nil, authenticationV1.ErrorInvalidGrantType("invalid grant type")
 }
 
-// Logout 登出
-func (s *AuthenticationService) Logout(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+// RevokeJti 登出（POST /api/v1/auth/logout）。
+//
+// 吊销范围是该用户的全部会话，而非请求上报的单个 jti：
+// 全域吊销比单令牌吊销更彻底（浏览器登出后其他设备/标签页的令牌一并失效），
+// 且与既有 authenticator.RevokeUserToken 的语义一致，故不改为按 jti 吊销。
+// jti 仅用于审计留痕——调用方从当前 AccessToken 的 claims 读取后上报。
+func (s *AuthenticationService) RevokeJti(ctx context.Context, req *authenticationV1.RevokeJtiRequest) (*authenticationV1.RevokeStatusResponse, error) {
 	// 获取操作人信息
 	operator, err := auth.FromContext(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	if jti := req.GetJti(); jti != "" {
+		s.log.Infof(ctx, "logout: user [%d] reported jti [%s]", operator.GetUserId(), jti)
 	}
 
 	if err = s.authenticator.RevokeUserToken(ctx, s.clientType, operator.GetUserId()); err != nil {
@@ -792,28 +1001,39 @@ func (s *AuthenticationService) Logout(ctx context.Context, _ *emptypb.Empty) (*
 	// 清除 refresh token 相关 cookie
 	clearRefreshCookies(ctx)
 
-	return &emptypb.Empty{}, nil
+	return &authenticationV1.RevokeStatusResponse{Status: "revoked"}, nil
 }
 
-// RefreshToken 刷新令牌
-// refresh token 现以 HttpOnly Cookie 传输，本接口已加入白名单（无需 access token）。
+// RefreshAccessToken 刷新认证令牌（POST /api/v1/auth/refresh）。
+// refresh token 以 HttpOnly Cookie 传输，本端点已加入白名单（无需 access token）。
 // refresh token 为自描述 JWT，VerifyRefreshToken 从中解析 uid/jti 完成独立鉴权。
-func (s *AuthenticationService) RefreshToken(ctx context.Context, req *authenticationV1.LoginRequest) (*authenticationV1.LoginResponse, error) {
-	// 校验授权类型
-	if req.GetGrantType() != authenticationV1.GrantType_refresh_token {
-		return nil, authenticationV1.ErrorInvalidGrantType("invalid grant type")
+//
+// 请求体的 client_id / device_id 为可选：用于让新令牌对延续审计留痕与会话元数据。
+// 二者均不参与鉴权判定，缺失只影响审计与会话列表的信息完整度。
+func (s *AuthenticationService) RefreshAccessToken(ctx context.Context, req *authenticationV1.RefreshAccessTokenRequest) (*authenticationV1.TokenPairResponse, error) {
+	if req == nil {
+		req = &authenticationV1.RefreshAccessTokenRequest{}
 	}
 
-	// refresh token 从 HttpOnly Cookie 读取，不再从请求体获取
+	// refresh token 从 HttpOnly Cookie 读取，不从请求体获取
 	refreshToken := netutil.CookieFromContext(ctx, refreshTokenCookieName)
 	if refreshToken == "" {
 		return nil, authenticationV1.ErrorIncorrectRefreshToken("refresh token cookie is missing")
 	}
 
-	// admin 客户端类型固定
-	req.ClientType = trans.Ptr(authenticationV1.ClientType_admin)
+	// admin 客户端类型固定；doGrantTypeRefreshToken 只用到 client_type 与 client_id/device_id
+	inner := &authenticationV1.LoginRequest{
+		ClientType: trans.Ptr(authenticationV1.ClientType_admin),
+		ClientId:   req.ClientId,
+		DeviceId:   req.DeviceId,
+	}
 
-	return s.doGrantTypeRefreshToken(ctx, req, refreshToken)
+	resp, err := s.doGrantTypeRefreshToken(ctx, inner, refreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return buildTokenPairResponse(resp), nil
 }
 
 // ValidateToken 验证令牌

@@ -23,10 +23,11 @@ type reqBodyKey struct{}
 // refresh-token 会被前端定时刷新器周期触发、login 已有专门的登录审计，
 // 记入操作/权限审计只是持续噪音。
 var sessionOnlyOperations = map[string]bool{
-	adminV1.OperationAuthenticationServiceLogin:        true,
-	adminV1.OperationAuthenticationServiceRefreshToken: true,
-	adminV1.OperationAuthenticationServiceLogout:       true,
-	adminV1.OperationMfaServiceVerifyMFAChallenge:      true,
+	adminV1.OperationAuthenticationServicePasswordLogin:         true,
+	adminV1.OperationAuthenticationServicePlatformPasswordLogin: true,
+	adminV1.OperationAuthenticationServiceRefreshAccessToken:    true,
+	adminV1.OperationAuthenticationServiceRevokeJti:             true,
+	adminV1.OperationMfaServiceVerifyMFAChallenge:               true,
 }
 
 // maxBodySnapshot 快照上限：CRUD JSON 体远小于此；超长时剩余部分透传原流。
@@ -81,12 +82,14 @@ func snapshotWriteBody(ctx context.Context, req *nethttp.Request) context.Contex
 func Server(opts ...Option) middleware.Middleware {
 	op := options{
 		loginOperations: []string{
-			adminV1.OperationAuthenticationServiceLogin,
+			adminV1.OperationAuthenticationServicePasswordLogin,
+			// 平台账密登录与租户登录同属登录事件，审计口径需一致。
+			adminV1.OperationAuthenticationServicePlatformPasswordLogin,
 			// MFA 登录挑战验证也按登录事件审计：它是登录流程的二次验证阶段，
 			// 审计 schema 已预埋 mfa_status / Status.PARTIAL 等字段支持此语义。
 			adminV1.OperationMfaServiceVerifyMFAChallenge,
 		},
-		logoutOperation: adminV1.OperationAuthenticationServiceLogout,
+		logoutOperation: adminV1.OperationAuthenticationServiceRevokeJti,
 	}
 	for _, o := range opts {
 		o(&op)

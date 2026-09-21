@@ -1,0 +1,181 @@
+syntax = "proto3";
+
+package authentication.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/field_behavior.proto";
+
+import "validate/validate.proto";
+
+import "redact/v1/redact.proto";
+
+// 本文件定义与 ANI Core OpenAPI 契约（api/openapi/v1.yaml）对齐的认证报文。
+//
+// 与既有 authentication.proto 的关系：
+//   - LoginRequest/LoginResponse 是 OAuth2 授权类型模型（grant_type + oneof identifier），
+//     仍被内部登录引擎 doGrantTypePassword 使用，保持不动。
+//   - 本文件的 PasswordLoginRequest/TokenPairResponse 是对外的 ANI 形态报文，
+//     由 BFF 适配层翻译成内部 LoginRequest 后复用同一引擎。
+//
+// 已知与 ANI 契约的差异（有意为之，非缺陷）：
+//   1. refresh_token 默认不下发到响应体，浏览器会话经 HttpOnly Cookie 承载；
+//      非浏览器客户端请改用 AK/SK 换短期 JWT（/admin/v1/access-keys/token）。
+//   2. 不提供 idempotency_key：其"同一 key 返回同一 TokenPair"语义与
+//      本仓 refresh token 轮换（一次一换 + 原子吊销旧对）互斥。
+//   3. 不区分 404 TENANT_NOT_FOUND：租户存在性归一化进 401，
+//      避免通过返回差异枚举有效租户。
+//   4. 验证码不在报文体内，经 X-Captcha-Id / X-Captcha-Value 请求头传递。
+//
+// 租户标识说明：tenant_name 的值取 sys_tenants.code（"租户编号"），
+// 而非 name。name 为自由文本且无唯一约束，不适宜作为对外 slug。
+
+// 租户账密登录 - 请求
+message PasswordLoginRequest {
+  optional string tenant_name = 1 [
+    json_name = "tenant_name",
+    (gnostic.openapi.v3.property) = {
+      description: "租户编号（sys_tenants.code），用于定位凭证所属租户"
+    },
+    (validate.rules).string = {min_len: 1, max_len: 64}
+  ]; // 租户编号
+
+  optional string username = 2 [
+    json_name = "username",
+    (gnostic.openapi.v3.property) = {
+      description: "登录用户名。可带 local: 前缀（ANI 形态），服务端会剥离后按裸用户名匹配"
+    },
+    (validate.rules).string = {min_len: 1, max_len: 64}
+  ]; // 登录用户名
+
+  optional string password = 3 [
+    (redact.value).string = "",
+    json_name = "password",
+    (gnostic.openapi.v3.property) = {
+      description: "登录口令。兼容 AES 密文（现状前端）与明文两种形态"
+    },
+    (validate.rules).string = {min_len: 1, max_len: 256}
+  ]; // 登录口令
+}
+
+// 平台账密登录 - 请求
+//
+// 与租户登录拆为独立端点而非复用 tenant_name 留空，是为消除静默降级：
+// 单端点下"漏传租户"会被当成平台登录，无法区分"忘记传参"与"有意平台登录"。
+// 独立端点同时为平台登录单独施加风控/审计策略留出位置。
+message PlatformPasswordLoginRequest {
+  optional string username = 1 [
+    json_name = "username",
+    (gnostic.openapi.v3.property) = {
+      description: "平台账号用户名。可带 local: 前缀，服务端会剥离"
+    },
+    (validate.rules).string = {min_len: 1, max_len: 64}
+  ]; // 平台账号用户名
+
+  optional string password = 2 [
+    (redact.value).string = "",
+    json_name = "password",
+    (gnostic.openapi.v3.property) = {
+      description: "登录口令。兼容 AES 密文与明文两种形态"
+    },
+    (validate.rules).string = {min_len: 1, max_len: 256}
+  ]; // 登录口令
+}
+
+// 刷新访问令牌 - 请求
+//
+// 与 ANI 契约的差异：refresh token 经 HttpOnly Cookie 传输，故请求体不含 refresh_token。
+// 两个字段为可选的客户端/设备标识，用于在刷新后延续审计留痕（client_id 进审计日志）
+// 与会话元数据（device_id 进在线会话列表）。缺失时新令牌对相应字段为空，不影响功能。
+message RefreshAccessTokenRequest {
+  optional string client_id = 1 [
+    json_name = "client_id",
+    (gnostic.openapi.v3.property) = {
+      description: "客户端标识，用于刷新后延续审计留痕"
+    }
+  ]; // 客户端标识
+
+  optional string device_id = 2 [
+    json_name = "device_id",
+    (gnostic.openapi.v3.property) = {
+      description: "设备唯一标识，用于刷新后延续会话元数据"
+    }
+  ]; // 设备唯一标识
+}
+
+// 令牌对 - 回应
+message TokenPairResponse {
+  string access_token = 1 [
+    json_name = "access_token",
+    (google.api.field_behavior) = REQUIRED,
+    (gnostic.openapi.v3.property) = {
+      description: "访问令牌（Bearer）"
+    }
+  ]; // 访问令牌
+
+  int64 expires_in = 2 [
+    json_name = "expires_in",
+    (google.api.field_behavior) = REQUIRED,
+    (gnostic.openapi.v3.property) = {
+      description: "访问令牌有效期（秒）"
+    }
+  ]; // 访问令牌有效期（秒）
+
+  // 刷新令牌。本实现默认经 HttpOnly Cookie 下发，故该字段通常为空；
+  // 保留字段以维持与 ANI 契约的报文兼容。
+  optional string refresh_token = 3 [
+    json_name = "refresh_token",
+    (gnostic.openapi.v3.property) = {
+      description: "刷新令牌。浏览器会话经 HttpOnly Cookie 下发，此字段通常为空；非浏览器客户端请使用 AK/SK 换取短期 JWT"
+    }
+  ]; // 刷新令牌（通常为空）
+
+  optional google.protobuf.Timestamp issued_at = 4 [
+    json_name = "issued_at",
+    (gnostic.openapi.v3.property) = {
+      description: "令牌签发时间"
+    }
+  ]; // 令牌签发时间
+
+  // MFA 中间态：该用户已绑定启用的 TOTP 因子时，不签发令牌，
+  // 改为返回 mfa_required=true 与 mfa_operation_id，前端据此跳转二次验证。
+  // 该规格为 ANI 契约所无，属本仓扩展（ANI 契约无法表达此中间态）。
+  optional bool mfa_required = 5 [
+    json_name = "mfa_required",
+    (gnostic.openapi.v3.property) = {
+      description: "是否需要二次验证。为 true 时 access_token 为空，需提交 mfa_operation_id 走 MFA 挑战"
+    }
+  ]; // 是否需要二次验证
+
+  optional string mfa_operation_id = 6 [
+    json_name = "mfa_operation_id",
+    (gnostic.openapi.v3.property) = {
+      description: "MFA 挑战操作标识。mfa_required 为 true 时返回"
+    }
+  ]; // MFA 挑战操作标识
+}
+
+// 登出 - 请求
+//
+// 命名说明：不叫 LogoutRequest，因 authentication.proto 已被内部登出报文占用该名。
+message RevokeJtiRequest {
+  optional string jti = 1 [
+    json_name = "jti",
+    (gnostic.openapi.v3.property) = {
+      description: "当前访问令牌的 JWT ID，用于审计留痕。注意：本实现的登出范围是吊销该用户全部会话，jti 不改变吊销范围"
+    }
+  ]; // JWT ID（仅审计用）
+}
+
+// 登出 - 回应
+message RevokeStatusResponse {
+  string status = 1 [
+    json_name = "status",
+    (google.api.field_behavior) = REQUIRED,
+    (gnostic.openapi.v3.property) = {
+      description: "吊销结果，固定为 revoked",
+      enum: [{yaml: "revoked"}]
+    }
+  ]; // 吊销结果
+}

@@ -53,7 +53,7 @@ func TestLoginAuditLogHandleNilGuards(t *testing.T) {
 
 	// 传输层为 nil。
 	var op options
-	WithLoginOperation(adminV1.OperationAuthenticationServiceLogin)(&op)
+	WithLoginOperation(adminV1.OperationAuthenticationServicePasswordLogin)(&op)
 	WithLogoutOperation("unused-logout-op")(&op)
 	WithWriteLoginLogFunc(stub)(&op)
 	mw := NewLoginAuditLogMiddleware(&op)
@@ -72,7 +72,7 @@ func TestLoginAuditLogHandleNilGuards(t *testing.T) {
 func TestLoginAuditLogHandleLoginOpWithToken(t *testing.T) {
 	env := newAuditServer(t)
 	env.fire(nethttp.MethodPost, "/case/5", map[string]string{
-		"X-Test-Operation": adminV1.OperationAuthenticationServiceLogin,
+		"X-Test-Operation": adminV1.OperationAuthenticationServicePasswordLogin,
 		"Content-Type":     "application/json",
 		"Authorization":    "Bearer " + mintTestToken(t),
 	}, `{"username":"bob","password":"x"}`, "127.0.0.1:1234")
@@ -170,7 +170,7 @@ func TestLoginAuditLogHandleMFAVerifyStatus(t *testing.T) {
 func TestLoginAuditLogHandleLogoutAction(t *testing.T) {
 	env := newAuditServer(t)
 	env.fire(nethttp.MethodPost, "/case/5", map[string]string{
-		"X-Test-Operation": adminV1.OperationAuthenticationServiceLogout,
+		"X-Test-Operation": adminV1.OperationAuthenticationServiceRevokeJti,
 	}, "", "127.0.0.1:1234")
 
 	require.Len(t, env.capture.login, 1)
@@ -186,7 +186,7 @@ func TestLoginAuditLogHandleLogoutAction(t *testing.T) {
 func TestLoginAuditLogHandleReplyHeaderFallbackUsername(t *testing.T) {
 	env := newAuditServer(t)
 	env.fire(nethttp.MethodPost, "/case/5", map[string]string{
-		"X-Test-Operation":   adminV1.OperationAuthenticationServiceLogin,
+		"X-Test-Operation":   adminV1.OperationAuthenticationServicePasswordLogin,
 		"X-Test-Reply-Username": "audit-user",
 	}, "", "8.8.8.8:1234")
 
@@ -208,7 +208,7 @@ func TestLoginAuditLogHandleReplyHeaderFallbackUsername(t *testing.T) {
 func TestLoginAuditLogHandleTokenUsernameFallback(t *testing.T) {
 	env := newAuditServer(t)
 	env.fire(nethttp.MethodPost, "/case/5", map[string]string{
-		"X-Test-Operation": adminV1.OperationAuthenticationServiceLogin,
+		"X-Test-Operation": adminV1.OperationAuthenticationServicePasswordLogin,
 		"Authorization":    "Bearer " + mintTestToken(t),
 	}, "", "127.0.0.1:1234")
 
@@ -233,7 +233,7 @@ func TestLoginAuditLogHandleNonLoginOperation(t *testing.T) {
 func TestLoginAuditLogHandleWriteFuncNil(t *testing.T) {
 	env := newAuditServer(t, WithWriteLoginLogFunc(nil))
 	env.fire(nethttp.MethodPost, "/case/5", map[string]string{
-		"X-Test-Operation": adminV1.OperationAuthenticationServiceLogin,
+		"X-Test-Operation": adminV1.OperationAuthenticationServicePasswordLogin,
 	}, "", "127.0.0.1:1234")
 	assert.Zero(t, env.capture.total(), "登录端点在空登录写入函数下不得有任何落库")
 }
@@ -247,7 +247,7 @@ func TestLoginAuditLogHandleDirectEmptySources(t *testing.T) {
 		var rec *auditV1.LoginAuditLog
 		var meta auditCallMeta
 		var op options
-		WithLoginOperation(adminV1.OperationAuthenticationServiceLogin)(&op)
+		WithLoginOperation(adminV1.OperationAuthenticationServicePasswordLogin)(&op)
 		WithWriteLoginLogFunc(func(ctx context.Context, d *auditV1.LoginAuditLog) error {
 			rec = d
 			meta = (&auditCapture{}).metaOf(ctx)
@@ -260,7 +260,7 @@ func TestLoginAuditLogHandleDirectEmptySources(t *testing.T) {
 
 		tr := &khttp.Transport{}
 		ctx := transport.NewServerContext(context.Background(), tr)
-		khttp.SetOperation(ctx, adminV1.OperationAuthenticationServiceLogin)
+		khttp.SetOperation(ctx, adminV1.OperationAuthenticationServicePasswordLogin)
 		mw.Handle(ctx, tr, nil)
 
 		require.NotNil(t, rec, "空来源路径仍应构造并落库记录")
@@ -292,7 +292,7 @@ func TestLoginAuditLogHandleDirectEmptySources(t *testing.T) {
 	t.Run("失败错误填充", func(t *testing.T) {
 		var rec *auditV1.LoginAuditLog
 		var op options
-		WithLoginOperation(adminV1.OperationAuthenticationServiceLogin)(&op)
+		WithLoginOperation(adminV1.OperationAuthenticationServicePasswordLogin)(&op)
 		WithWriteLoginLogFunc(func(ctx context.Context, d *auditV1.LoginAuditLog) error {
 			rec = d
 			return nil
@@ -301,7 +301,7 @@ func TestLoginAuditLogHandleDirectEmptySources(t *testing.T) {
 
 		tr := &khttp.Transport{}
 		ctx := transport.NewServerContext(context.Background(), tr)
-		khttp.SetOperation(ctx, adminV1.OperationAuthenticationServiceLogin)
+		khttp.SetOperation(ctx, adminV1.OperationAuthenticationServicePasswordLogin)
 		mw.Handle(ctx, tr, kerrors.New(403, "TEST_FORBIDDEN", "forbidden for test"))
 
 		require.NotNil(t, rec)

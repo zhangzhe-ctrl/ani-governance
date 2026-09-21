@@ -43,7 +43,10 @@ func (Tenant) Fields() []ent.Field {
 
 		field.String("code").
 			Comment("租户编号").
-			//Unique().
+			// 唯一约束：code 是对外租户标识（登录接口的 tenant_name 取值来源），
+			// 登录时按 code 解析租户，若允许重复则同一编号会命中多行、归属不确定。
+			// name 保持自由文本不加约束，仅作展示。
+			Unique().
 			NotEmpty().
 			Optional().
 			Nillable(),

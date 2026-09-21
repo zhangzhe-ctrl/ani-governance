@@ -168,8 +168,8 @@ func TestPermissionAuditLogHandleSkips(t *testing.T) {
 		op     string
 	}{
 		{"GET读请求", nethttp.MethodGet, "/demo.v1.GadgetService/Update"},
-		{"登录端点", nethttp.MethodPost, adminV1.OperationAuthenticationServiceLogin},
-		{"登出端点", nethttp.MethodPost, adminV1.OperationAuthenticationServiceLogout},
+		{"登录端点", nethttp.MethodPost, adminV1.OperationAuthenticationServicePasswordLogin},
+		{"登出端点", nethttp.MethodPost, adminV1.OperationAuthenticationServiceRevokeJti},
 		{"MFA验证端点", nethttp.MethodPost, adminV1.OperationMfaServiceVerifyMFAChallenge},
 		{"畸形operation", nethttp.MethodPost, "plain-bad-op"},
 		{"仅服务段", nethttp.MethodPost, "/demo.v1.GadgetService/"},

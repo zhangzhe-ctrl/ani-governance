@@ -30,6 +30,7 @@ import (
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/middleware/auth"
 	applogging "go-wind-admin/pkg/middleware/logging"
+	"go-wind-admin/pkg/middleware/requestid"
 )
 
 // NewRestMiddleware 创建中间件
@@ -49,6 +50,10 @@ func NewRestMiddleware(
 	// recovery 必须置于链首：任何中间件/handler 的 panic（如审计日志解析畸形 JWT）
 	// 兜底为 500，避免崩溃请求 goroutine、被用作未认证 DoS。
 	ms = append(ms, recovery.Recovery())
+	// request id 必须早于 logging 与审计中间件：两者都要读这个 ID
+	// （审计直接读 request header，日志从上下文取），挂晚了只能拿到空值。
+	// 同时它会把 ID 写进错误 metadata，对齐 ANI 契约要求的 request_id 字段。
+	ms = append(ms, requestid.Server())
 	// Login request String() includes the reversible password ciphertext.
 	// Keep operation/status/error evidence, but never log request bodies here.
 	ms = append(ms, logging.Server(log.NewFilter(bLogger.AsKratosLogger(ctx.GetLogger()), log.FilterKey("args"))))
@@ -80,13 +85,16 @@ func NewRestMiddleware(
 
 	// add white list for authentication.
 	rpc.AddWhiteList(
-		adminV1.OperationAuthenticationServiceLogin,
+		adminV1.OperationAuthenticationServicePasswordLogin,
+		// 平台账密登录免鉴权：与租户登录同属未认证入口，
+		// 平台身份的准入校验在授权阶段完成（平台角色闸门），不靠 access token 拦。
+		adminV1.OperationAuthenticationServicePlatformPasswordLogin,
 		adminV1.OperationAuthenticationServiceGenerateCaptcha,
 		adminV1.OperationAuthenticationServiceVerifyCaptcha,
 		// 刷新令牌接口免鉴权：refresh token 现以 HttpOnly Cookie 传输且为自描述 JWT，
 		// 可脱离 access token 独立鉴权。页面刷新后 access token 丢失时，前端凭
 		// refresh cookie 静默恢复会话，不再强制重新登录。
-		adminV1.OperationAuthenticationServiceRefreshToken,
+		adminV1.OperationAuthenticationServiceRefreshAccessToken,
 		// MFA 登录挑战验证免鉴权：operation_id 由登录流程签发，见 doGrantTypePassword 的 MFA 闸门。
 		// 仅此一个 MFA RPC 免鉴权；管理侧 RPC（GetMFAStatus 等）走正常 auth+authz。
 		adminV1.OperationMfaServiceVerifyMFAChallenge,

@@ -510,42 +510,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /admin/v1/captcha:
-        get:
-            tags:
-                - AuthenticationService
-            description: 生成验证码
-            operationId: AuthenticationService_GenerateCaptcha
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GenerateCaptchaResponse'
-            security:
-                - {}
-    /admin/v1/captcha/verify:
-        post:
-            tags:
-                - AuthenticationService
-            description: 验证验证码
-            operationId: AuthenticationService_VerifyCaptcha
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/VerifyCaptchaRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/VerifyCaptchaResponse'
-            security:
-                - {}
     /admin/v1/configs:
         get:
             tags:
@@ -1637,24 +1601,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /admin/v1/forgot-password:
-        post:
-            tags:
-                - AuthenticationService
-            description: 忘记密码：向已绑定邮箱的用户发送重置验证码（免鉴权；不泄露用户是否存在）
-            operationId: AuthenticationService_ForgotPassword
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/ForgotPasswordRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-            security:
-                - {}
     /admin/v1/initial-context:
         get:
             tags:
@@ -2126,27 +2072,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /admin/v1/login:
-        post:
-            tags:
-                - AuthenticationService
-            description: 登录
-            operationId: AuthenticationService_Login
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/LoginRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/LoginResponse'
-            security:
-                - {}
     /admin/v1/login-audit-logs:
         get:
             tags:
@@ -2402,20 +2327,6 @@ paths:
                   schema:
                     type: integer
                     format: uint32
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /admin/v1/logout:
-        post:
-            tags:
-                - AuthenticationService
-            description: 登出
-            operationId: AuthenticationService_Logout
-            requestBody:
-                content:
-                    application/json: {}
-                required: true
             responses:
                 "200":
                     description: OK
@@ -4531,43 +4442,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/RedisCacheMonitorInfo'
-    /admin/v1/refresh-token:
-        post:
-            tags:
-                - AuthenticationService
-            description: 刷新认证令牌
-            operationId: AuthenticationService_RefreshToken
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/LoginRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/LoginResponse'
-    /admin/v1/reset-password-by-code:
-        post:
-            tags:
-                - AuthenticationService
-            description: 凭验证码重置密码（免鉴权；重置后吊销该用户全部会话）
-            operationId: AuthenticationService_ResetPasswordByCode
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/ResetPasswordByCodeRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-            security:
-                - {}
     /admin/v1/roles:
         get:
             tags:
@@ -5525,6 +5399,170 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/UserExistsResponse'
+    /api/v1/auth/captcha:
+        get:
+            tags:
+                - AuthenticationService
+            description: |-
+                生成验证码（免鉴权）
+                 ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
+                 请求头传递，不进登录报文体内。
+            operationId: AuthenticationService_GenerateCaptcha
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenerateCaptchaResponse'
+            security:
+                - {}
+    /api/v1/auth/captcha/verify:
+        post:
+            tags:
+                - AuthenticationService
+            description: 验证验证码（免鉴权）
+            operationId: AuthenticationService_VerifyCaptcha
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/VerifyCaptchaRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/VerifyCaptchaResponse'
+            security:
+                - {}
+    /api/v1/auth/forgot-password:
+        post:
+            tags:
+                - AuthenticationService
+            description: 忘记密码：向已绑定邮箱的用户发送重置验证码（免鉴权；不泄露用户是否存在）
+            operationId: AuthenticationService_ForgotPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ForgotPasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+            security:
+                - {}
+    /api/v1/auth/logout:
+        post:
+            tags:
+                - AuthenticationService
+            description: |-
+                登出：吊销当前用户的全部会话（非仅当前 jti）
+                 jti 仅随请求上报用于审计留痕，不改变吊销范围。需携带有效访问令牌。
+            operationId: AuthenticationService_RevokeJti
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RevokeJtiRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RevokeStatusResponse'
+    /api/v1/auth/password/login:
+        post:
+            tags:
+                - AuthenticationService
+            description: 租户账密登录（免鉴权）
+            operationId: AuthenticationService_PasswordLogin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PasswordLoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TokenPairResponse'
+            security:
+                - {}
+    /api/v1/auth/platform/password/login:
+        post:
+            tags:
+                - AuthenticationService
+            description: |-
+                平台账密登录（免鉴权）
+                 与租户登录分为两端点：平台身份的爆破影响面是全局，独立端点便于施加更严的限流/审计。
+            operationId: AuthenticationService_PlatformPasswordLogin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PlatformPasswordLoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TokenPairResponse'
+            security:
+                - {}
+    /api/v1/auth/refresh:
+        post:
+            tags:
+                - AuthenticationService
+            description: |-
+                刷新认证令牌（免鉴权）
+                 refresh token 经 HttpOnly Cookie 传输，请求体只承载可选的 client_id / device_id
+                 用于延续审计留痕与会话元数据；cookie 缺失即拒绝。
+            operationId: AuthenticationService_RefreshAccessToken
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RefreshAccessTokenRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TokenPairResponse'
+            security:
+                - {}
+    /api/v1/auth/reset-password-by-code:
+        post:
+            tags:
+                - AuthenticationService
+            description: 凭验证码重置密码（免鉴权；重置后吊销该用户全部会话）
+            operationId: AuthenticationService_ResetPasswordByCode
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ResetPasswordByCodeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+            security:
+                - {}
     /api/v1/models:
         get:
             tags:
@@ -7743,73 +7781,6 @@ components:
                     description: 删除时间
                     format: date-time
             description: 登录策略
-        LoginRequest:
-            required:
-                - grant_type
-            type: object
-            properties:
-                grant_type:
-                    enum:
-                        - password
-                        - client_credentials
-                        - authorization_code
-                        - refresh_token
-                        - implicit
-                    type: string
-                    default: password
-                    description: 授权类型，此处的值固定为"password"，必选项。
-                    format: enum
-                client_id:
-                    type: string
-                    description: 客户端ID
-                client_secret:
-                    type: string
-                    description: 客户端密钥
-                scope:
-                    type: string
-                    description: 以空格分隔的用户授予范围列表。如果未提供，scope则授权任何范围，默认为空列表。
-                redirect_uri:
-                    type: string
-                    description: 跳转链接
-                user_id:
-                    type: integer
-                    description: 用户ID
-                    format: uint32
-                username:
-                    type: string
-                    description: 用户名
-                email:
-                    type: string
-                    description: 电子邮件地址
-                mobile:
-                    type: string
-                    description: 手机号
-                password:
-                    type: string
-                    description: 用户的密码
-                refresh_token:
-                    type: string
-                    description: 更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。
-                code:
-                    type: string
-                    description: 授权请求中收到的一次性验证/认证码。(当使用授权码模式时)
-                client_type:
-                    enum:
-                        - admin
-                        - app
-                    type: string
-                    description: 客户端类型
-                    format: enum
-                device_id:
-                    type: string
-                    description: 设备唯一标识（可选），用于设备绑定、推送、风控等
-                jti:
-                    type: string
-                    description: 建议客户端生成并提供 jti（JWT ID）作为唯一标识，服务端可据此防止重放攻击
-                tenant_code:
-                    type: string
-                    description: 租户编号，留空表示平台登录（平台超级管理员）；非空时按该编号解析对应租户
-            description: 用户后台登录 - 请求
         LoginResponse:
             type: object
             properties:
@@ -8465,6 +8436,19 @@ components:
                     description: 删除时间
                     format: date-time
             description: 组织单元
+        PasswordLoginRequest:
+            type: object
+            properties:
+                tenant_name:
+                    type: string
+                    description: 租户编号（sys_tenants.code），用于定位凭证所属租户
+                username:
+                    type: string
+                    description: '登录用户名。可带 local: 前缀（ANI 形态），服务端会剥离后按裸用户名匹配'
+                password:
+                    type: string
+                    description: 登录口令。兼容 AES 密文（现状前端）与明文两种形态
+            description: 租户账密登录 - 请求
         Permission:
             type: object
             properties:
@@ -8848,6 +8832,21 @@ components:
                     description: 删除时间
                     format: date-time
             description: 套餐配额
+        PlatformPasswordLoginRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                    description: '平台账号用户名。可带 local: 前缀，服务端会剥离'
+                password:
+                    type: string
+                    description: 登录口令。兼容 AES 密文与明文两种形态
+            description: |-
+                平台账密登录 - 请求
+
+                 与租户登录拆为独立端点而非复用 tenant_name 留空，是为消除静默降级：
+                 单端点下"漏传租户"会被当成平台登录，无法区分"忘记传参"与"有意平台登录"。
+                 独立端点同时为平台登录单独施加风控/审计策略留出位置。
         PolicyEvaluationLog:
             type: object
             properties:
@@ -9067,6 +9066,21 @@ components:
                     items:
                         $ref: '#/components/schemas/SlowLogEntry'
             description: Redis缓存监控信息
+        RefreshAccessTokenRequest:
+            type: object
+            properties:
+                client_id:
+                    type: string
+                    description: 客户端标识，用于刷新后延续审计留痕
+                device_id:
+                    type: string
+                    description: 设备唯一标识，用于刷新后延续会话元数据
+            description: |-
+                刷新访问令牌 - 请求
+
+                 与 ANI 契约的差异：refresh token 经 HttpOnly Cookie 传输，故请求体不含 refresh_token。
+                 两个字段为可选的客户端/设备标识，用于在刷新后延续审计留痕（client_id 进审计日志）
+                 与会话元数据（device_id 进在线会话列表）。缺失时新令牌对相应字段为空，不影响功能。
         ResetAccessKeySecretRequest:
             type: object
             properties:
@@ -9094,6 +9108,16 @@ components:
                     type: integer
                     format: int32
             description: 重启调度任务 - 回应
+        RevokeJtiRequest:
+            type: object
+            properties:
+                jti:
+                    type: string
+                    description: 当前访问令牌的 JWT ID，用于审计留痕。注意：本实现的登出范围是吊销该用户全部会话，jti 不改变吊销范围
+            description: |-
+                登出 - 请求
+
+                 命名说明：不叫 LogoutRequest，因 authentication.proto 已被内部登出报文占用该名。
         RevokeMessageRequest:
             type: object
             properties:
@@ -9123,6 +9147,17 @@ components:
             type: object
             properties: {}
             description: 当前用户强制下线自己的指定会话 - 回应
+        RevokeStatusResponse:
+            required:
+                - status
+            type: object
+            properties:
+                status:
+                    enum:
+                        - revoked
+                    type: string
+                    description: 吊销结果，固定为 revoked
+            description: 登出 - 回应
         Role:
             type: object
             properties:
@@ -9665,6 +9700,32 @@ components:
                         $ref: '#/components/schemas/QuotaUsage'
                     description: 配额上限列表
             description: 租户用量与配额
+        TokenPairResponse:
+            required:
+                - access_token
+                - expires_in
+            type: object
+            properties:
+                access_token:
+                    type: string
+                    description: 访问令牌（Bearer）
+                expires_in:
+                    type: string
+                    description: 访问令牌有效期（秒）
+                refresh_token:
+                    type: string
+                    description: 刷新令牌。浏览器会话经 HttpOnly Cookie 下发，此字段通常为空；非浏览器客户端请使用 AK/SK 换取短期 JWT
+                issued_at:
+                    type: string
+                    description: 令牌签发时间
+                    format: date-time
+                mfa_required:
+                    type: boolean
+                    description: 是否需要二次验证。为 true 时 access_token 为空，需提交 mfa_operation_id 走 MFA 挑战
+                mfa_operation_id:
+                    type: string
+                    description: MFA 挑战操作标识。mfa_required 为 true 时返回
+            description: 令牌对 - 回应
         TrendPoint:
             type: object
             properties:
@@ -10384,8 +10445,8 @@ components:
             type: oauth2
             flows:
                 password:
-                    tokenUrl: /admin/v1/login
-                    refreshUrl: /admin/v1/refresh-token
+                    tokenUrl: /api/v1/auth/password/login
+                    refreshUrl: /api/v1/auth/refresh
                     scopes: {}
 security:
     - OAuth2PasswordBearer: []
@@ -10399,7 +10460,12 @@ tags:
     - name: ApiService
       description: API资源管理服务
     - name: AuthenticationService
-      description: 用户后台登录认证服务
+      description: |-
+        用户后台登录认证服务
+
+         路径规范：本服务的路由统一挂 /api/v1/auth/*，与 ANI Core OpenAPI 契约
+         （api/openapi/v1.yaml，servers[0].url = https://{host}/api/v1）拼出的最终 URL 一致。
+         仓库内其余服务仍为 /admin/v1/*，两套前缀并存，按域逐步迁移。
     - name: ConfigService
       description: 系统参数管理服务
     - name: DashboardService

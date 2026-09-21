@@ -2594,7 +2594,7 @@ var (
 		{Name: "remark", Type: field.TypeString, Nullable: true, Comment: "备注"},
 		{Name: "resource_tenant_id", Type: field.TypeString, Unique: true},
 		{Name: "name", Type: field.TypeString, Nullable: true, Comment: "租户名称"},
-		{Name: "code", Type: field.TypeString, Nullable: true, Comment: "租户编号"},
+		{Name: "code", Type: field.TypeString, Unique: true, Nullable: true, Comment: "租户编号"},
 		{Name: "logo_url", Type: field.TypeString, Nullable: true, Comment: "租户logo地址"},
 		{Name: "domain", Type: field.TypeString, Nullable: true, Comment: "租户专属域名"},
 		{Name: "industry", Type: field.TypeString, Nullable: true, Comment: "所属行业"},

@@ -40,8 +40,11 @@ option (gnostic.openapi.v3.document) = {
               type: "oauth2";
               flows: {
                 password: {
-                  token_url: "/admin/v1/login";
-                  refresh_url: "/admin/v1/refresh-token";
+                  // OAuth2 password flow 只能表达单一 token 端点，取租户登录端点。
+                  // 平台登录为独立端点 /api/v1/auth/platform/password/login，
+                  // OAuth2 password flow 无法表达，仅在本文件注释中说明。
+                  token_url: "/api/v1/auth/password/login";
+                  refresh_url: "/api/v1/auth/refresh";
                   scopes: {}
                 }
               }

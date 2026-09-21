@@ -179,6 +179,24 @@ func ErrorTokenNotExist(format string, args ...interface{}) *errors.Error {
 	return errors.New(401, AuthenticationErrorReason_TOKEN_NOT_EXIST.String(), fmt.Sprintf(format, args...))
 }
 
+// 凭据无效（对齐 ANI 契约的 401 INVALID_CREDENTIALS）。
+// 登录失败统一收敛到此码：用户不存在 / 账号冻结 / 口令错误 / 租户不存在
+// 均返回同一码与同一文案，避免通过返回差异枚举用户名与有效租户编号。
+func IsInvalidCredentials(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AuthenticationErrorReason_INVALID_CREDENTIALS.String() && e.Code == 401
+}
+
+// 凭据无效（对齐 ANI 契约的 401 INVALID_CREDENTIALS）。
+// 登录失败统一收敛到此码：用户不存在 / 账号冻结 / 口令错误 / 租户不存在
+// 均返回同一码与同一文案，避免通过返回差异枚举用户名与有效租户编号。
+func ErrorInvalidCredentials(format string, args ...interface{}) *errors.Error {
+	return errors.New(401, AuthenticationErrorReason_INVALID_CREDENTIALS.String(), fmt.Sprintf(format, args...))
+}
+
 // 402
 func IsPaymentRequired(err error) bool {
 	if err == nil {

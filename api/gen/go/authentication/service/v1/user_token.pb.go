@@ -39,9 +39,15 @@ type UserTokenPayload struct {
 	HiddenFields     []string               `protobuf:"bytes,15,rep,name=hidden_fields,json=hfs,proto3" json:"hidden_fields,omitempty"`                                        // 字段权限隐藏字段集（"资源.字段" 串，多角色并集，登录期聚合）
 	IsPlatformAdmin  *bool                  `protobuf:"varint,20,opt,name=is_platform_admin,json=ipa,proto3,oneof" json:"is_platform_admin,omitempty"`                         // 是否平台超级管理员
 	IsTenantAdmin    *bool                  `protobuf:"varint,21,opt,name=is_tenant_admin,json=ita,proto3,oneof" json:"is_tenant_admin,omitempty"`                             // 是否租户管理员
-	Jti              *string                `protobuf:"bytes,100,opt,name=jti,proto3,oneof" json:"jti,omitempty"`                                                              // 令牌唯一标识(JWT ID)
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// 权限码列表（登录期由多角色权限并集聚合）。
+	// 用途：服务层的"跨租户能力"判定需要按能力（而非角色码）区分，
+	// 例如"重置他人密码"/"替他人重置 MFA"应各自独立授权，
+	// 才能支撑平台只读、平台运维等多平台角色。
+	// 注意：权限码随定制化增长会推高 JWT 体积，当前请求不区分场景全量携带。
+	Permissions   []string `protobuf:"bytes,22,rep,name=permissions,json=pms,proto3" json:"permissions,omitempty"` // 权限码列表
+	Jti           *string  `protobuf:"bytes,100,opt,name=jti,proto3,oneof" json:"jti,omitempty"`                   // 令牌唯一标识(JWT ID)
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UserTokenPayload) Reset() {
@@ -165,6 +171,13 @@ func (x *UserTokenPayload) GetIsTenantAdmin() bool {
 	return false
 }
 
+func (x *UserTokenPayload) GetPermissions() []string {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
 func (x *UserTokenPayload) GetJti() string {
 	if x != nil && x.Jti != nil {
 		return *x.Jti
@@ -176,7 +189,7 @@ var File_authentication_service_v1_user_token_proto protoreflect.FileDescriptor
 
 const file_authentication_service_v1_user_token_proto_rawDesc = "" +
 	"\n" +
-	"*authentication/service/v1/user_token.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1fidentity/service/v1/types.proto\"\x86\n" +
+	"*authentication/service/v1/user_token.proto\x12\x19authentication.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1fidentity/service/v1/types.proto\"\xde\n" +
 	"\n" +
 	"\x10UserTokenPayload\x12$\n" +
 	"\auser_id\x18\x01 \x01(\rB\x0e\xbaG\v\x92\x02\b用户IDR\x03uid\x12+\n" +
@@ -193,7 +206,8 @@ const file_authentication_service_v1_user_token_proto_rawDesc = "" +
 	"\x13data_scope_unit_ids\x18\x0e \x03(\x04BY\xbaGV\x92\x02SUNIT 类数据范围的组织单元目标集（多角色并集，登录期展开）R\x03dsu\x12\x9f\x01\n" +
 	"\rhidden_fields\x18\x0f \x03(\tB\x82\x01\xbaG\x7f\x92\x02|字段权限隐藏字段集（\"资源.字段\" 串，多角色并集，登录期聚合；命中字段读写两侧被剔除）R\x03hfs\x12F\n" +
 	"\x11is_platform_admin\x18\x14 \x01(\bB!\xbaG\x1e\x92\x02\x1b是否平台超级管理员H\x06R\x03ipa\x88\x01\x01\x12>\n" +
-	"\x0fis_tenant_admin\x18\x15 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否租户管理员H\aR\x03ita\x88\x01\x01\x127\n" +
+	"\x0fis_tenant_admin\x18\x15 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否租户管理员H\aR\x03ita\x88\x01\x01\x12V\n" +
+	"\vpermissions\x18\x16 \x03(\tB<\xbaG9\x92\x026权限码列表（多角色并集，登录期聚合）R\x03pms\x127\n" +
 	"\x03jti\x18d \x01(\tB \xbaG\x1d\x92\x02\x1a令牌唯一标识(JWT ID)H\bR\x03jti\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\f\n" +

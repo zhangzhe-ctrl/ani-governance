@@ -60,16 +60,25 @@ def check(name, condition, **evidence):
 
 def login(label, username, password, tenant=''):
     jar = http.cookiejar.CookieJar()
-    code, captcha, _, _ = request('/admin/v1/captcha', jar=jar)
+    code, captcha, _, _ = request('/api/v1/auth/captcha', jar=jar)
     if code != 200: raise RuntimeError('captcha: '+str((code,captcha)))
     cid = captcha['captchaId']
     answer = cluster(f'kubectl -n {NS} exec deploy/redis -- sh -c '+shlex.quote('REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli --raw get '+shlex.quote('gowind:captcha:'+cid))).strip()
     encoded = subprocess.check_output([str(R/'tools/probe'),'-encrypt'], input=password, text=True).strip()
-    code, body, _, headers = request('/admin/v1/login', data={'grant_type':'password','username':username,'password':encoded,'client_type':'admin','tenant_code':tenant}, headers={'X-Captcha-Id':cid,'X-Captcha-Value':answer}, jar=jar)
+    # 平台与租户登录已拆为两个端点：tenant 为空走平台端点（报文不含 tenant_name），
+    # 非空走租户端点并传 tenant_name（取值 sys_tenants.code）。
+    # 拆分的意义在于消除静默降级——单端点下漏传租户会被当成平台登录。
+    if tenant:
+        path = '/api/v1/auth/password/login'
+        payload = {'tenant_name':tenant,'username':username,'password':encoded}
+    else:
+        path = '/api/v1/auth/platform/password/login'
+        payload = {'username':username,'password':encoded}
+    code, body, _, headers = request(path, data=payload, headers={'X-Captcha-Id':cid,'X-Captcha-Value':answer}, jar=jar)
     if code != 200: raise RuntimeError('login '+label+': '+str((code,body)))
     token = body['access_token']
     cookies = [c for c in jar if c.name == 'refresh_token']
-    check('real-login-'+label, bool(token) and bool(cookies) and cookies[0].has_nonstandard_attr('HttpOnly'), http=code, http_only_refresh_cookie=bool(cookies), tenant_code=tenant)
+    check('real-login-'+label, bool(token) and bool(cookies) and cookies[0].has_nonstandard_attr('HttpOnly'), http=code, http_only_refresh_cookie=bool(cookies), tenant_name=tenant)
     S[label] = token
     save()
     return token
@@ -204,7 +213,7 @@ def refresh_forwards():
     deadline=time.monotonic()+20
     while True:
         try:
-            urllib.request.urlopen(BASE+'/admin/v1/captcha',timeout=2).close()
+            urllib.request.urlopen(BASE+'/api/v1/auth/captcha',timeout=2).close()
             urllib.request.urlopen('http://127.0.0.1:17991/readyz',timeout=2).close()
             return
         except (OSError,urllib.error.URLError):

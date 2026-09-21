@@ -16,6 +16,8 @@ func TestPermissionCodeConstants(t *testing.T) {
 	assert.Equal(t, "sys:audit_logs", SystemAuditLogsPermissionCode)
 	assert.Equal(t, "sys:platform_admin", SystemPlatformAdminPermissionCode)
 	assert.Equal(t, "sys:tenant_manager", SystemTenantManagerPermissionCode)
+	assert.Equal(t, "sys:reset_others_credential", SystemResetOthersCredentialPermissionCode)
+	assert.Equal(t, "sys:reset_others_mfa", SystemResetOthersMFAPermissionCode)
 
 	// 系统权限代码必须由统一前缀拼出，防止引入脱离前缀体系的平行常量
 	assert.Equal(t, SystemPermissionCodePrefix+"access_backend", SystemAccessBackendPermissionCode)
@@ -23,6 +25,8 @@ func TestPermissionCodeConstants(t *testing.T) {
 	assert.Equal(t, SystemPermissionCodePrefix+"audit_logs", SystemAuditLogsPermissionCode)
 	assert.Equal(t, SystemPermissionCodePrefix+"platform_admin", SystemPlatformAdminPermissionCode)
 	assert.Equal(t, SystemPermissionCodePrefix+"tenant_manager", SystemTenantManagerPermissionCode)
+	assert.Equal(t, SystemPermissionCodePrefix+"reset_others_credential", SystemResetOthersCredentialPermissionCode)
+	assert.Equal(t, SystemPermissionCodePrefix+"reset_others_mfa", SystemResetOthersMFAPermissionCode)
 
 	assert.Equal(t, "sys", SystemPermissionModule)
 	assert.Equal(t, "biz", DefaultBizPermissionModule)
@@ -39,6 +43,8 @@ func TestProtectedPermissionCodes(t *testing.T) {
 		SystemAuditLogsPermissionCode,
 		SystemPlatformAdminPermissionCode,
 		SystemTenantManagerPermissionCode,
+		SystemResetOthersCredentialPermissionCode,
+		SystemResetOthersMFAPermissionCode,
 	}
 	assert.ElementsMatch(t, expected, ProtectedPermissionCodes,
 		"受保护权限代码清单漂移；如有意变更请同步更新本测试")

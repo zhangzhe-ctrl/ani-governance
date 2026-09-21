@@ -186,7 +186,7 @@ func TestServerDispatchMatrix(t *testing.T) {
 		},
 		{
 			name: "登录端点仅登录审计", method: nethttp.MethodPost, path: "/case/5",
-			op: adminV1.OperationAuthenticationServiceLogin,
+			op: adminV1.OperationAuthenticationServicePasswordLogin,
 			expectLogin: 1,
 		},
 		{
@@ -196,7 +196,7 @@ func TestServerDispatchMatrix(t *testing.T) {
 		},
 		{
 			name: "登出端点进API与登录审计", method: nethttp.MethodPost, path: "/case/5",
-			op: adminV1.OperationAuthenticationServiceLogout,
+			op: adminV1.OperationAuthenticationServiceRevokeJti,
 			expectAPI: 1, expectLogin: 1,
 		},
 		{
@@ -308,7 +308,7 @@ func TestServerEmptyBodySnapshotBranch(t *testing.T) {
 func TestServerEmptyLoginOperationListOption(t *testing.T) {
 	env := newAuditServer(t, WithLoginOperation())
 	env.fire(nethttp.MethodPost, "/case/5", map[string]string{
-		"X-Test-Operation": adminV1.OperationAuthenticationServiceLogin,
+		"X-Test-Operation": adminV1.OperationAuthenticationServicePasswordLogin,
 	}, "", "127.0.0.1:1234")
 	assert.Empty(t, env.capture.login, "空名单下登录端点不进登录审计")
 	assert.Len(t, env.capture.api, 1, "空名单下 API 审计不再跳过登录端点")
@@ -335,7 +335,7 @@ func TestServerCustomLoginLogoutOperationOptions(t *testing.T) {
 	}
 	cases := []expect{
 		{"自定义登录端点进登录审计且API审计跳过", "custom.login", 0, 1, auditV1.LoginAuditLog_LOGIN},
-		{"默认登出端点被名单替换跳过登录审计", adminV1.OperationAuthenticationServiceLogout, 1, 0, 0},
+		{"默认登出端点被名单替换跳过登录审计", adminV1.OperationAuthenticationServiceRevokeJti, 1, 0, 0},
 		{"自定义登出端点生效", "custom.logout", 1, 1, auditV1.LoginAuditLog_LOGOUT},
 	}
 	for _, tc := range cases {

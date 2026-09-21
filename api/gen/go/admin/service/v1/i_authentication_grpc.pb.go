@@ -21,13 +21,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthenticationService_Login_FullMethodName               = "/admin.service.v1.AuthenticationService/Login"
-	AuthenticationService_Logout_FullMethodName              = "/admin.service.v1.AuthenticationService/Logout"
-	AuthenticationService_ForgotPassword_FullMethodName      = "/admin.service.v1.AuthenticationService/ForgotPassword"
-	AuthenticationService_ResetPasswordByCode_FullMethodName = "/admin.service.v1.AuthenticationService/ResetPasswordByCode"
-	AuthenticationService_RefreshToken_FullMethodName        = "/admin.service.v1.AuthenticationService/RefreshToken"
-	AuthenticationService_GenerateCaptcha_FullMethodName     = "/admin.service.v1.AuthenticationService/GenerateCaptcha"
-	AuthenticationService_VerifyCaptcha_FullMethodName       = "/admin.service.v1.AuthenticationService/VerifyCaptcha"
+	AuthenticationService_PasswordLogin_FullMethodName         = "/admin.service.v1.AuthenticationService/PasswordLogin"
+	AuthenticationService_PlatformPasswordLogin_FullMethodName = "/admin.service.v1.AuthenticationService/PlatformPasswordLogin"
+	AuthenticationService_RevokeJti_FullMethodName             = "/admin.service.v1.AuthenticationService/RevokeJti"
+	AuthenticationService_RefreshAccessToken_FullMethodName    = "/admin.service.v1.AuthenticationService/RefreshAccessToken"
+	AuthenticationService_ForgotPassword_FullMethodName        = "/admin.service.v1.AuthenticationService/ForgotPassword"
+	AuthenticationService_ResetPasswordByCode_FullMethodName   = "/admin.service.v1.AuthenticationService/ResetPasswordByCode"
+	AuthenticationService_GenerateCaptcha_FullMethodName       = "/admin.service.v1.AuthenticationService/GenerateCaptcha"
+	AuthenticationService_VerifyCaptcha_FullMethodName         = "/admin.service.v1.AuthenticationService/VerifyCaptcha"
 )
 
 // AuthenticationServiceClient is the client API for AuthenticationService service.
@@ -35,20 +36,32 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // 用户后台登录认证服务
+//
+// 路径规范：本服务的路由统一挂 /api/v1/auth/*，与 ANI Core OpenAPI 契约
+// （api/openapi/v1.yaml，servers[0].url = https://{host}/api/v1）拼出的最终 URL 一致。
+// 仓库内其余服务仍为 /admin/v1/*，两套前缀并存，按域逐步迁移。
 type AuthenticationServiceClient interface {
-	// 登录
-	Login(ctx context.Context, in *v1.LoginRequest, opts ...grpc.CallOption) (*v1.LoginResponse, error)
-	// 登出
-	Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 租户账密登录（免鉴权）
+	PasswordLogin(ctx context.Context, in *v1.PasswordLoginRequest, opts ...grpc.CallOption) (*v1.TokenPairResponse, error)
+	// 平台账密登录（免鉴权）
+	// 与租户登录分为两端点：平台身份的爆破影响面是全局，独立端点便于施加更严的限流/审计。
+	PlatformPasswordLogin(ctx context.Context, in *v1.PlatformPasswordLoginRequest, opts ...grpc.CallOption) (*v1.TokenPairResponse, error)
+	// 登出：吊销当前用户的全部会话（非仅当前 jti）
+	// jti 仅随请求上报用于审计留痕，不改变吊销范围。需携带有效访问令牌。
+	RevokeJti(ctx context.Context, in *v1.RevokeJtiRequest, opts ...grpc.CallOption) (*v1.RevokeStatusResponse, error)
+	// 刷新认证令牌（免鉴权）
+	// refresh token 经 HttpOnly Cookie 传输，请求体只承载可选的 client_id / device_id
+	// 用于延续审计留痕与会话元数据；cookie 缺失即拒绝。
+	RefreshAccessToken(ctx context.Context, in *v1.RefreshAccessTokenRequest, opts ...grpc.CallOption) (*v1.TokenPairResponse, error)
 	// 忘记密码：向已绑定邮箱的用户发送重置验证码（免鉴权；不泄露用户是否存在）
 	ForgotPassword(ctx context.Context, in *v1.ForgotPasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 凭验证码重置密码（免鉴权；重置后吊销该用户全部会话）
 	ResetPasswordByCode(ctx context.Context, in *v1.ResetPasswordByCodeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 刷新认证令牌
-	RefreshToken(ctx context.Context, in *v1.LoginRequest, opts ...grpc.CallOption) (*v1.LoginResponse, error)
-	// 生成验证码
+	// 生成验证码（免鉴权）
+	// ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
+	// 请求头传递，不进登录报文体内。
 	GenerateCaptcha(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*v1.GenerateCaptchaResponse, error)
-	// 验证验证码
+	// 验证验证码（免鉴权）
 	VerifyCaptcha(ctx context.Context, in *v1.VerifyCaptchaRequest, opts ...grpc.CallOption) (*v1.VerifyCaptchaResponse, error)
 }
 
@@ -60,20 +73,40 @@ func NewAuthenticationServiceClient(cc grpc.ClientConnInterface) AuthenticationS
 	return &authenticationServiceClient{cc}
 }
 
-func (c *authenticationServiceClient) Login(ctx context.Context, in *v1.LoginRequest, opts ...grpc.CallOption) (*v1.LoginResponse, error) {
+func (c *authenticationServiceClient) PasswordLogin(ctx context.Context, in *v1.PasswordLoginRequest, opts ...grpc.CallOption) (*v1.TokenPairResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.LoginResponse)
-	err := c.cc.Invoke(ctx, AuthenticationService_Login_FullMethodName, in, out, cOpts...)
+	out := new(v1.TokenPairResponse)
+	err := c.cc.Invoke(ctx, AuthenticationService_PasswordLogin_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authenticationServiceClient) Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *authenticationServiceClient) PlatformPasswordLogin(ctx context.Context, in *v1.PlatformPasswordLoginRequest, opts ...grpc.CallOption) (*v1.TokenPairResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, AuthenticationService_Logout_FullMethodName, in, out, cOpts...)
+	out := new(v1.TokenPairResponse)
+	err := c.cc.Invoke(ctx, AuthenticationService_PlatformPasswordLogin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authenticationServiceClient) RevokeJti(ctx context.Context, in *v1.RevokeJtiRequest, opts ...grpc.CallOption) (*v1.RevokeStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.RevokeStatusResponse)
+	err := c.cc.Invoke(ctx, AuthenticationService_RevokeJti_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authenticationServiceClient) RefreshAccessToken(ctx context.Context, in *v1.RefreshAccessTokenRequest, opts ...grpc.CallOption) (*v1.TokenPairResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.TokenPairResponse)
+	err := c.cc.Invoke(ctx, AuthenticationService_RefreshAccessToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,16 +127,6 @@ func (c *authenticationServiceClient) ResetPasswordByCode(ctx context.Context, i
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, AuthenticationService_ResetPasswordByCode_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *authenticationServiceClient) RefreshToken(ctx context.Context, in *v1.LoginRequest, opts ...grpc.CallOption) (*v1.LoginResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.LoginResponse)
-	err := c.cc.Invoke(ctx, AuthenticationService_RefreshToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -135,20 +158,32 @@ func (c *authenticationServiceClient) VerifyCaptcha(ctx context.Context, in *v1.
 // for forward compatibility.
 //
 // 用户后台登录认证服务
+//
+// 路径规范：本服务的路由统一挂 /api/v1/auth/*，与 ANI Core OpenAPI 契约
+// （api/openapi/v1.yaml，servers[0].url = https://{host}/api/v1）拼出的最终 URL 一致。
+// 仓库内其余服务仍为 /admin/v1/*，两套前缀并存，按域逐步迁移。
 type AuthenticationServiceServer interface {
-	// 登录
-	Login(context.Context, *v1.LoginRequest) (*v1.LoginResponse, error)
-	// 登出
-	Logout(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	// 租户账密登录（免鉴权）
+	PasswordLogin(context.Context, *v1.PasswordLoginRequest) (*v1.TokenPairResponse, error)
+	// 平台账密登录（免鉴权）
+	// 与租户登录分为两端点：平台身份的爆破影响面是全局，独立端点便于施加更严的限流/审计。
+	PlatformPasswordLogin(context.Context, *v1.PlatformPasswordLoginRequest) (*v1.TokenPairResponse, error)
+	// 登出：吊销当前用户的全部会话（非仅当前 jti）
+	// jti 仅随请求上报用于审计留痕，不改变吊销范围。需携带有效访问令牌。
+	RevokeJti(context.Context, *v1.RevokeJtiRequest) (*v1.RevokeStatusResponse, error)
+	// 刷新认证令牌（免鉴权）
+	// refresh token 经 HttpOnly Cookie 传输，请求体只承载可选的 client_id / device_id
+	// 用于延续审计留痕与会话元数据；cookie 缺失即拒绝。
+	RefreshAccessToken(context.Context, *v1.RefreshAccessTokenRequest) (*v1.TokenPairResponse, error)
 	// 忘记密码：向已绑定邮箱的用户发送重置验证码（免鉴权；不泄露用户是否存在）
 	ForgotPassword(context.Context, *v1.ForgotPasswordRequest) (*emptypb.Empty, error)
 	// 凭验证码重置密码（免鉴权；重置后吊销该用户全部会话）
 	ResetPasswordByCode(context.Context, *v1.ResetPasswordByCodeRequest) (*emptypb.Empty, error)
-	// 刷新认证令牌
-	RefreshToken(context.Context, *v1.LoginRequest) (*v1.LoginResponse, error)
-	// 生成验证码
+	// 生成验证码（免鉴权）
+	// ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
+	// 请求头传递，不进登录报文体内。
 	GenerateCaptcha(context.Context, *emptypb.Empty) (*v1.GenerateCaptchaResponse, error)
-	// 验证验证码
+	// 验证验证码（免鉴权）
 	VerifyCaptcha(context.Context, *v1.VerifyCaptchaRequest) (*v1.VerifyCaptchaResponse, error)
 	mustEmbedUnimplementedAuthenticationServiceServer()
 }
@@ -160,20 +195,23 @@ type AuthenticationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthenticationServiceServer struct{}
 
-func (UnimplementedAuthenticationServiceServer) Login(context.Context, *v1.LoginRequest) (*v1.LoginResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Login not implemented")
+func (UnimplementedAuthenticationServiceServer) PasswordLogin(context.Context, *v1.PasswordLoginRequest) (*v1.TokenPairResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PasswordLogin not implemented")
 }
-func (UnimplementedAuthenticationServiceServer) Logout(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method Logout not implemented")
+func (UnimplementedAuthenticationServiceServer) PlatformPasswordLogin(context.Context, *v1.PlatformPasswordLoginRequest) (*v1.TokenPairResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PlatformPasswordLogin not implemented")
+}
+func (UnimplementedAuthenticationServiceServer) RevokeJti(context.Context, *v1.RevokeJtiRequest) (*v1.RevokeStatusResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RevokeJti not implemented")
+}
+func (UnimplementedAuthenticationServiceServer) RefreshAccessToken(context.Context, *v1.RefreshAccessTokenRequest) (*v1.TokenPairResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RefreshAccessToken not implemented")
 }
 func (UnimplementedAuthenticationServiceServer) ForgotPassword(context.Context, *v1.ForgotPasswordRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method ForgotPassword not implemented")
 }
 func (UnimplementedAuthenticationServiceServer) ResetPasswordByCode(context.Context, *v1.ResetPasswordByCodeRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResetPasswordByCode not implemented")
-}
-func (UnimplementedAuthenticationServiceServer) RefreshToken(context.Context, *v1.LoginRequest) (*v1.LoginResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method RefreshToken not implemented")
 }
 func (UnimplementedAuthenticationServiceServer) GenerateCaptcha(context.Context, *emptypb.Empty) (*v1.GenerateCaptchaResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GenerateCaptcha not implemented")
@@ -202,38 +240,74 @@ func RegisterAuthenticationServiceServer(s grpc.ServiceRegistrar, srv Authentica
 	s.RegisterService(&AuthenticationService_ServiceDesc, srv)
 }
 
-func _AuthenticationService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v1.LoginRequest)
+func _AuthenticationService_PasswordLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.PasswordLoginRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthenticationServiceServer).Login(ctx, in)
+		return srv.(AuthenticationServiceServer).PasswordLogin(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthenticationService_Login_FullMethodName,
+		FullMethod: AuthenticationService_PasswordLogin_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthenticationServiceServer).Login(ctx, req.(*v1.LoginRequest))
+		return srv.(AuthenticationServiceServer).PasswordLogin(ctx, req.(*v1.PasswordLoginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthenticationService_Logout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+func _AuthenticationService_PlatformPasswordLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.PlatformPasswordLoginRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthenticationServiceServer).Logout(ctx, in)
+		return srv.(AuthenticationServiceServer).PlatformPasswordLogin(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthenticationService_Logout_FullMethodName,
+		FullMethod: AuthenticationService_PlatformPasswordLogin_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthenticationServiceServer).Logout(ctx, req.(*emptypb.Empty))
+		return srv.(AuthenticationServiceServer).PlatformPasswordLogin(ctx, req.(*v1.PlatformPasswordLoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthenticationService_RevokeJti_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.RevokeJtiRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthenticationServiceServer).RevokeJti(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthenticationService_RevokeJti_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthenticationServiceServer).RevokeJti(ctx, req.(*v1.RevokeJtiRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthenticationService_RefreshAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.RefreshAccessTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthenticationServiceServer).RefreshAccessToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthenticationService_RefreshAccessToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthenticationServiceServer).RefreshAccessToken(ctx, req.(*v1.RefreshAccessTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -270,24 +344,6 @@ func _AuthenticationService_ResetPasswordByCode_Handler(srv interface{}, ctx con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthenticationServiceServer).ResetPasswordByCode(ctx, req.(*v1.ResetPasswordByCodeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AuthenticationService_RefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v1.LoginRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthenticationServiceServer).RefreshToken(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AuthenticationService_RefreshToken_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthenticationServiceServer).RefreshToken(ctx, req.(*v1.LoginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -336,12 +392,20 @@ var AuthenticationService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AuthenticationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Login",
-			Handler:    _AuthenticationService_Login_Handler,
+			MethodName: "PasswordLogin",
+			Handler:    _AuthenticationService_PasswordLogin_Handler,
 		},
 		{
-			MethodName: "Logout",
-			Handler:    _AuthenticationService_Logout_Handler,
+			MethodName: "PlatformPasswordLogin",
+			Handler:    _AuthenticationService_PlatformPasswordLogin_Handler,
+		},
+		{
+			MethodName: "RevokeJti",
+			Handler:    _AuthenticationService_RevokeJti_Handler,
+		},
+		{
+			MethodName: "RefreshAccessToken",
+			Handler:    _AuthenticationService_RefreshAccessToken_Handler,
 		},
 		{
 			MethodName: "ForgotPassword",
@@ -350,10 +414,6 @@ var AuthenticationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ResetPasswordByCode",
 			Handler:    _AuthenticationService_ResetPasswordByCode_Handler,
-		},
-		{
-			MethodName: "RefreshToken",
-			Handler:    _AuthenticationService_RefreshToken_Handler,
 		},
 		{
 			MethodName: "GenerateCaptcha",

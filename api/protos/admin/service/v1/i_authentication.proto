@@ -7,13 +7,18 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 import "authentication/service/v1/authentication.proto";
+import "authentication/service/v1/ani_auth.proto";
 
 // 用户后台登录认证服务
+//
+// 路径规范：本服务的路由统一挂 /api/v1/auth/*，与 ANI Core OpenAPI 契约
+// （api/openapi/v1.yaml，servers[0].url = https://{host}/api/v1）拼出的最终 URL 一致。
+// 仓库内其余服务仍为 /admin/v1/*，两套前缀并存，按域逐步迁移。
 service AuthenticationService {
-  // 登录
-  rpc Login (authentication.service.v1.LoginRequest) returns (authentication.service.v1.LoginResponse) {
+  // 租户账密登录（免鉴权）
+  rpc PasswordLogin (authentication.service.v1.PasswordLoginRequest) returns (authentication.service.v1.TokenPairResponse) {
     option (google.api.http) = {
-      post: "/admin/v1/login"
+      post: "/api/v1/auth/password/login"
       body: "*"
     };
 
@@ -22,18 +27,46 @@ service AuthenticationService {
     };
   }
 
-  // 登出
-  rpc Logout (google.protobuf.Empty) returns (google.protobuf.Empty) {
+  // 平台账密登录（免鉴权）
+  // 与租户登录分为两端点：平台身份的爆破影响面是全局，独立端点便于施加更严的限流/审计。
+  rpc PlatformPasswordLogin (authentication.service.v1.PlatformPasswordLoginRequest) returns (authentication.service.v1.TokenPairResponse) {
     option (google.api.http) = {
-      post: "/admin/v1/logout"
+      post: "/api/v1/auth/platform/password/login"
       body: "*"
+    };
+
+    option(gnostic.openapi.v3.operation) = {
+      security: {}
+    };
+  }
+
+  // 登出：吊销当前用户的全部会话（非仅当前 jti）
+  // jti 仅随请求上报用于审计留痕，不改变吊销范围。需携带有效访问令牌。
+  rpc RevokeJti (authentication.service.v1.RevokeJtiRequest) returns (authentication.service.v1.RevokeStatusResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/logout"
+      body: "*"
+    };
+  }
+
+  // 刷新认证令牌（免鉴权）
+  // refresh token 经 HttpOnly Cookie 传输，请求体只承载可选的 client_id / device_id
+  // 用于延续审计留痕与会话元数据；cookie 缺失即拒绝。
+  rpc RefreshAccessToken (authentication.service.v1.RefreshAccessTokenRequest) returns (authentication.service.v1.TokenPairResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/refresh"
+      body: "*"
+    };
+
+    option(gnostic.openapi.v3.operation) = {
+      security: {}
     };
   }
 
   // 忘记密码：向已绑定邮箱的用户发送重置验证码（免鉴权；不泄露用户是否存在）
   rpc ForgotPassword (authentication.service.v1.ForgotPasswordRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/admin/v1/forgot-password"
+      post: "/api/v1/auth/forgot-password"
       body: "*"
     };
 
@@ -45,7 +78,7 @@ service AuthenticationService {
   // 凭验证码重置密码（免鉴权；重置后吊销该用户全部会话）
   rpc ResetPasswordByCode (authentication.service.v1.ResetPasswordByCodeRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/admin/v1/reset-password-by-code"
+      post: "/api/v1/auth/reset-password-by-code"
       body: "*"
     };
 
@@ -54,18 +87,12 @@ service AuthenticationService {
     };
   }
 
-  // 刷新认证令牌
-  rpc RefreshToken (authentication.service.v1.LoginRequest) returns (authentication.service.v1.LoginResponse) {
-    option (google.api.http) = {
-      post: "/admin/v1/refresh-token"
-      body: "*"
-    };
-  }
-
-  // 生成验证码
+  // 生成验证码（免鉴权）
+  // ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
+  // 请求头传递，不进登录报文体内。
   rpc GenerateCaptcha (google.protobuf.Empty) returns (authentication.service.v1.GenerateCaptchaResponse) {
     option (google.api.http) = {
-      get: "/admin/v1/captcha"
+      get: "/api/v1/auth/captcha"
     };
 
     option(gnostic.openapi.v3.operation) = {
@@ -73,10 +100,10 @@ service AuthenticationService {
     };
   }
 
-  // 验证验证码
+  // 验证验证码（免鉴权）
   rpc VerifyCaptcha (authentication.service.v1.VerifyCaptchaRequest) returns (authentication.service.v1.VerifyCaptchaResponse) {
     option (google.api.http) = {
-      post: "/admin/v1/captcha/verify"
+      post: "/api/v1/auth/captcha/verify"
       body: "*"
     };
 

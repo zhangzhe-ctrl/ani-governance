@@ -538,10 +538,12 @@ func (s *UserService) Update(ctx context.Context, req *identityV1.UpdateUserRequ
 	}
 
 	if len(req.GetPassword()) > 0 {
-		// 跨租户防护：非平台超级管理员重置密码前，校验目标用户真实租户
+		// 跨租户防护：不具备"重置他人密码"能力权限的操作者，重置前必须校验目标用户真实租户。
+		// 判据由 IsPlatformAdmin 布尔改为能力权限：多平台角色下布尔无法表达能力差异，
+		// 例如"平台只读"不应能重置他人密码，而"平台运维"可以。
 		// 注意：此处不能用 req.Data.GetTenantId()，因为上方已将其覆盖为操作者租户
 		var targetUsername string
-		if !operator.GetIsPlatformAdmin() {
+		if !hasPermission(operator, constants.SystemResetOthersCredentialPermissionCode) {
 			targetUser, gerr := s.userRepo.Get(ctx, &identityV1.GetUserRequest{
 				QueryBy: &identityV1.GetUserRequest_Id{Id: req.GetId()},
 			})
@@ -658,8 +660,8 @@ func (s *UserService) EditUserPassword(ctx context.Context, req *identityV1.Edit
 		return nil, err
 	}
 
-	// 跨租户防护：非平台超级管理员只能重置本租户用户的密码
-	if !operator.GetIsPlatformAdmin() && u.GetTenantId() != operator.GetTenantId() {
+	// 跨租户防护：不具备"重置他人密码"能力权限的操作者只能重置本租户用户的密码
+	if !hasPermission(operator, constants.SystemResetOthersCredentialPermissionCode) && u.GetTenantId() != operator.GetTenantId() {
 		s.log.Errorf(ctx, "operator [%d] (tenant %d) has no permission to reset password of cross-tenant user [%d] (tenant %d)",
 			operator.GetUserId(), operator.GetTenantId(), u.GetId(), u.GetTenantId())
 		return nil, adminV1.ErrorForbidden("no permission to reset password of user in other tenant")

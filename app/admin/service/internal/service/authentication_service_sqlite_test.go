@@ -246,6 +246,23 @@ func (e *authSvcEnv) seedBackendAccessPermission(t *testing.T) uint32 {
 	return permIDs[0]
 }
 
+// seedPermissionByCode 落库一条指定 code 的权限并按 code 反查 ID。
+// 用于为角色补齐"能力权限"，例如 sys:platform_admin（决定 IsPlatformAdmin 标志）。
+func (e *authSvcEnv) seedPermissionByCode(t *testing.T, code, name string) uint32 {
+	t.Helper()
+	require.NoError(t, e.svc.permissionRepo.Create(e.ctx, &permissionV1.CreatePermissionRequest{
+		Data: &permissionV1.Permission{
+			Name:   trans.Ptr(name),
+			Code:   trans.Ptr(code),
+			Status: permissionV1.Permission_ON.Enum(),
+		},
+	}))
+	permIDs, err := e.svc.permissionRepo.GetPermissionIDsByCodes(e.ctx, []string{code})
+	require.NoError(t, err)
+	require.Len(t, permIDs, 1, "权限 %s 应恰好落库一行", code)
+	return permIDs[0]
+}
+
 // seedRole 落库一个角色（可选绑定权限/数据范围/字段权限）并按 (tenant, code) 反查 ID。
 func (e *authSvcEnv) seedRole(
 	t *testing.T,
@@ -380,7 +397,7 @@ func TestAuthSvcSqlite_LoginGrantDispatch(t *testing.T) {
 
 // TestAuthSvcSqlite_LoginCaptchaGate 验证强制验证码闸门：
 // 无传输上下文（取不到头）、空验证码头、错误验证码值均 400 拒绝；
-// 正确验证码放行后进入后续凭证校验（此处以未播种凭证的 INVALID_PASSWORD 证明放行）。
+// 正确验证码放行后进入后续凭证校验（此处以未播种凭证的 INVALID_CREDENTIALS 证明放行）。
 func TestAuthSvcSqlite_LoginCaptchaGate(t *testing.T) {
 	e := newAuthenticationServiceForTest(t)
 	base := context.Background()
@@ -419,16 +436,17 @@ func TestAuthSvcSqlite_LoginCaptchaGate(t *testing.T) {
 	require.True(t, authenticationV1.IsBadRequest(err))
 	require.Nil(t, resp)
 
-	// 正确验证码：闸门放行，流程推进到凭证校验（凭证未播种 → 归一化的 INVALID_PASSWORD）。
+	// 正确验证码：闸门放行，流程推进到凭证校验（凭证未播种 → 归一化的 INVALID_CREDENTIALS）。
 	okCtx, okReq := e.loginHappyReq(t, base, "authsvc-nobody", constants.DefaultUserPassword)
 	resp, err = e.svc.Login(okCtx, okReq)
 	require.Error(t, err)
-	require.True(t, authenticationV1.IsInvalidPassword(err), "凭证未命中应归一化为 INVALID_PASSWORD")
+	require.True(t, authenticationV1.IsInvalidCredentials(err), "凭证未命中应归一化为 INVALID_CREDENTIALS")
 	require.Nil(t, resp)
 }
 
 // TestAuthSvcSqlite_LoginTenantResolution 验证租户解析：
-// 未知租户编号 / 非启用租户 / 凭证租户与用户租户不一致（纵深防御）均 400 invalid tenant。
+// 未知租户编号 / 非启用租户 / 凭证租户与用户租户不一致（纵深防御）
+// 均归一为 401 INVALID_CREDENTIALS，不通过返回差异暴露租户是否存在。
 func TestAuthSvcSqlite_LoginTenantResolution(t *testing.T) {
 	e := newAuthenticationServiceForTest(t)
 	base := context.Background()
@@ -445,7 +463,7 @@ func TestAuthSvcSqlite_LoginTenantResolution(t *testing.T) {
 	req1.TenantCode = trans.Ptr("AUTHSVC_TENANT_NO_SUCH")
 	resp, err := e.svc.Login(ctx1, req1)
 	require.Error(t, err)
-	require.True(t, authenticationV1.IsBadRequest(err), "未知租户编号应 400")
+	require.True(t, authenticationV1.IsInvalidCredentials(err), "未知租户编号应 401 INVALID_CREDENTIALS（与凭证失败同码防枚举）")
 	require.Nil(t, resp)
 
 	// 非启用租户。
@@ -453,7 +471,7 @@ func TestAuthSvcSqlite_LoginTenantResolution(t *testing.T) {
 	req2.TenantCode = trans.Ptr(authSvcTenantCodeOff)
 	resp, err = e.svc.Login(ctx2, req2)
 	require.Error(t, err)
-	require.True(t, authenticationV1.IsBadRequest(err), "停用租户应 400 且文案与未知租户一致")
+	require.True(t, authenticationV1.IsInvalidCredentials(err), "停用租户应 401 且文案与未知租户一致")
 	require.Nil(t, resp)
 
 	// 凭证租户（=解析出的租户）与用户行租户不一致。
@@ -463,7 +481,7 @@ func TestAuthSvcSqlite_LoginTenantResolution(t *testing.T) {
 	req3.TenantCode = trans.Ptr(authSvcTenantCode)
 	resp, err = e.svc.Login(ctx3, req3)
 	require.Error(t, err)
-	require.True(t, authenticationV1.IsBadRequest(err), "凭证/用户租户不一致应 400 invalid tenant")
+	require.True(t, authenticationV1.IsInvalidCredentials(err), "凭证/用户租户不一致应 401 且不暴露哪一侧不匹配")
 	require.Nil(t, resp)
 }
 
@@ -490,12 +508,12 @@ func TestAuthSvcSqlite_LoginPolicyGate(t *testing.T) {
 	require.True(t, authenticationV1.IsForbidden(err), "全局 DEVICE 黑名单应 403")
 	require.Nil(t, resp)
 
-	// 不命中设备号的同一策略：放行到后续凭证校验（未播种凭证 → INVALID_PASSWORD）。
+	// 不命中设备号的同一策略：放行到后续凭证校验（未播种凭证 → INVALID_CREDENTIALS）。
 	ctx2, req2 := e.loginHappyReq(t, base, authSvcTestUsername, constants.DefaultUserPassword)
 	req2.DeviceId = trans.Ptr("authsvc-good-device")
 	resp, err = e.svc.Login(ctx2, req2)
 	require.Error(t, err)
-	require.True(t, authenticationV1.IsInvalidPassword(err), "未命中策略但凭证未播种，应归一化 INVALID_PASSWORD")
+	require.True(t, authenticationV1.IsInvalidCredentials(err), "未命中策略但凭证未播种，应归一化 INVALID_CREDENTIALS")
 	require.Nil(t, resp)
 
 	// 用户定向 TIME 黑名单（任意时刻窗口全覆盖）。
@@ -521,7 +539,7 @@ func TestAuthSvcSqlite_LoginPolicyGate(t *testing.T) {
 
 // TestAuthSvcSqlite_LoginCredentialFailures 验证凭证校验的防枚举归一：
 // 凭证不存在 / 密码错误 / email 标识符（GetUsername 为空）/ 凭证停用 / 用户行缺失，
-// 一律对外归一为 INVALID_PASSWORD（真实原因仅留服务端日志）。
+// 一律对外归一为 INVALID_CREDENTIALS（真实原因仅留服务端日志）。
 func TestAuthSvcSqlite_LoginCredentialFailures(t *testing.T) {
 	e := newAuthenticationServiceForTest(t)
 	base := context.Background()
@@ -530,7 +548,7 @@ func TestAuthSvcSqlite_LoginCredentialFailures(t *testing.T) {
 	ctx1, req1 := e.loginHappyReq(t, base, "authsvc-ghost", constants.DefaultUserPassword)
 	resp, err := e.svc.Login(ctx1, req1)
 	require.Error(t, err)
-	require.True(t, authenticationV1.IsInvalidPassword(err))
+	require.True(t, authenticationV1.IsInvalidCredentials(err))
 	require.Nil(t, resp)
 
 	// 凭证存在但密码错误。
@@ -541,7 +559,7 @@ func TestAuthSvcSqlite_LoginCredentialFailures(t *testing.T) {
 	ctx2, req2 := e.loginHappyReq(t, base, authSvcTestUsername, "WrongP@ss9999")
 	resp, err = e.svc.Login(ctx2, req2)
 	require.Error(t, err)
-	require.True(t, authenticationV1.IsInvalidPassword(err), "错误密码应归一化为 INVALID_PASSWORD")
+	require.True(t, authenticationV1.IsInvalidCredentials(err), "错误密码应归一化为 INVALID_CREDENTIALS")
 	require.Nil(t, resp)
 
 	// email 标识符：doGrantTypePassword 只读 Username 维度，email oneof 下
@@ -550,7 +568,7 @@ func TestAuthSvcSqlite_LoginCredentialFailures(t *testing.T) {
 	req3.Identifier = &authenticationV1.LoginRequest_Email{Email: "someone@example.com"}
 	resp, err = e.svc.Login(ctx3, req3)
 	require.Error(t, err)
-	require.True(t, authenticationV1.IsInvalidPassword(err))
+	require.True(t, authenticationV1.IsInvalidCredentials(err))
 	require.Nil(t, resp)
 
 	// 凭证停用（ENABLED 之外的状态按不存在处理）。
@@ -559,7 +577,7 @@ func TestAuthSvcSqlite_LoginCredentialFailures(t *testing.T) {
 	ctx4, req4 := e.loginHappyReq(t, base, "authsvc-disabled-cred", constants.DefaultUserPassword)
 	resp, err = e.svc.Login(ctx4, req4)
 	require.Error(t, err)
-	require.True(t, authenticationV1.IsInvalidPassword(err), "停用凭证应与不存在同文案")
+	require.True(t, authenticationV1.IsInvalidCredentials(err), "停用凭证应与不存在同文案")
 	require.Nil(t, resp)
 
 	// 凭证校验通过但用户行缺失（stub 不回放该用户）→ 错误原样透传。
@@ -579,7 +597,10 @@ func TestAuthSvcSqlite_LoginFullPlatformChain(t *testing.T) {
 	base := context.Background()
 
 	permID := e.seedBackendAccessPermission(t)
-	roleID := e.seedRole(t, nil, permissionV1.Role_SYSTEM, constants.PlatformAdminRoleCode, []uint32{permID}, nil, nil)
+	// IsPlatformAdmin 标志的判据已由角色码改为 sys:platform_admin 权限，
+	// 故平台管理角色必须同时绑定该权限，标志才会置位。
+	platformAdminPermID := e.seedPermissionByCode(t, constants.SystemPlatformAdminPermissionCode, "AuthSvc 平台管理员权限")
+	roleID := e.seedRole(t, nil, permissionV1.Role_SYSTEM, constants.PlatformAdminRoleCode, []uint32{permID, platformAdminPermID}, nil, nil)
 	e.seedCredential(t, nil, authSvcTestUserID, authSvcTestUsername, authenticationV1.UserCredential_ENABLED)
 	e.seedStubUser(authSvcTestUserID, nil, authSvcTestUsername, identityV1.User_NORMAL, []uint32{roleID})
 
@@ -648,7 +669,7 @@ func TestAuthSvcSqlite_LoginRateLimiterLockout(t *testing.T) {
 		ctx, req := e.loginHappyReq(t, base, authSvcTestUsername, "WrongP@ss9999")
 		resp, err := e.svc.Login(ctx, req)
 		require.Error(t, err, "第 %d 次错误密码应报错", i+1)
-		require.True(t, authenticationV1.IsInvalidPassword(err), "第 %d 次错误密码应归一化 INVALID_PASSWORD", i+1)
+		require.True(t, authenticationV1.IsInvalidCredentials(err), "第 %d 次错误密码应归一化 INVALID_CREDENTIALS", i+1)
 		require.Nil(t, resp)
 	}
 	usrCnt, usrErr := e.mr.Get("gowind:login:fail:user:" + authSvcTestUsername)
@@ -703,12 +724,14 @@ func TestAuthSvcSqlite_TenantLoginChain(t *testing.T) {
 
 	tenantID := e.seedTenant(t, "AuthSvc 租户链租户", authSvcTenantCode, identityV1.Tenant_ON)
 	permID := e.seedBackendAccessPermission(t)
+	// IsTenantAdmin 标志的判据已由角色码改为 sys:tenant_manager 权限。
+	tenantManagerPermID := e.seedPermissionByCode(t, constants.SystemTenantManagerPermissionCode, "AuthSvc 租户管理员权限")
 	tenantRoleID := e.seedRole(
 		t,
 		trans.Ptr(tenantID),
 		permissionV1.Role_TENANT,
 		constants.TenantAdminRoleCode,
-		[]uint32{permID},
+		[]uint32{permID, tenantManagerPermID},
 		identityV1.DataScope_SELF.Enum(),
 		[]*permissionV1.RoleFieldPermission{
 			{Resource: "User", HiddenFields: []string{"email", "mobile"}},
@@ -795,10 +818,9 @@ func TestAuthSvcSqlite_DisabledTenantViaRefresh(t *testing.T) {
 	_, refreshToken, err := e.svc.authenticator.CreateUserToken(base, authenticationV1.ClientType_admin, payload)
 	require.NoError(t, err)
 
-	req := &authenticationV1.LoginRequest{GrantType: authenticationV1.GrantType_refresh_token}
 	header := http.Header{}
 	header.Set("Cookie", "refresh_token="+refreshToken)
-	resp, err := e.svc.RefreshToken(headerCtx(base, header), req)
+	resp, err := e.svc.RefreshAccessToken(headerCtx(base, header), &authenticationV1.RefreshAccessTokenRequest{})
 	require.Error(t, err)
 	require.True(t, authenticationV1.IsForbidden(err), "停用租户的刷新应 403")
 	require.Nil(t, resp)
@@ -832,14 +854,15 @@ func TestAuthSvcSqlite_LogoutAndRevocation(t *testing.T) {
 	require.True(t, valResp.GetIsValid(), "登出前令牌应有效")
 
 	// 无操作人上下文：401。
-	_, err = e.svc.Logout(base, &emptypb.Empty{})
+	_, err = e.svc.RevokeJti(base, &authenticationV1.RevokeJtiRequest{})
 	require.Error(t, err)
-	require.True(t, authenticationV1.IsUnauthorized(err), "无操作人的 Logout 应 401")
+	require.True(t, authenticationV1.IsUnauthorized(err), "无操作人的登出应 401")
 
 	// 有操作人上下文：吊销该用户 admin 客户端类型的全部令牌。
 	opCtx := auth.NewContext(base, &authenticationV1.UserTokenPayload{UserId: authSvcTestUserID})
-	_, err = e.svc.Logout(opCtx, &emptypb.Empty{})
-	require.NoError(t, err, "Logout 应成功吊销并返回空响应")
+	revokeResp, err := e.svc.RevokeJti(opCtx, &authenticationV1.RevokeJtiRequest{Jti: trans.Ptr("test-jti")})
+	require.NoError(t, err, "登出应成功吊销")
+	require.Equal(t, "revoked", revokeResp.GetStatus())
 
 	valResp, err = e.svc.ValidateToken(base, valReq)
 	require.Error(t, err, "登出后令牌应失效")
@@ -848,30 +871,25 @@ func TestAuthSvcSqlite_LogoutAndRevocation(t *testing.T) {
 }
 
 // TestAuthSvcSqlite_RefreshTokenFlow 验证刷新令牌轮换全链路：
-// 缺 cookie / 错误 grant / 垃圾 token 均 401；合法 refresh token（HttpOnly cookie 注入）
+// 缺 cookie / 垃圾 token 均 401；合法 refresh token（HttpOnly cookie 注入）
 // 轮换出新令牌对（旧会话元数据登录时间被继承），旧令牌对原子吊销不可复用。
+//
+// 注：原「错误 grant_type 应 400」用例已删除——/api/v1/auth/refresh 不再接收
+// grant_type（客户端类型固定 admin），该分支已不存在。
 func TestAuthSvcSqlite_RefreshTokenFlow(t *testing.T) {
 	e := newAuthenticationServiceForTest(t)
 	base := context.Background()
 
 	// 无 cookie：401。
-	resp, err := e.svc.RefreshToken(base, &authenticationV1.LoginRequest{GrantType: authenticationV1.GrantType_refresh_token})
+	resp, err := e.svc.RefreshAccessToken(base, &authenticationV1.RefreshAccessTokenRequest{})
 	require.Error(t, err)
 	require.True(t, authenticationV1.IsIncorrectRefreshToken(err), "缺 cookie 应 401")
-	require.Nil(t, resp)
-
-	// 非 refresh_token 授权类型：400。
-	headerOnly := http.Header{}
-	headerOnly.Set("Cookie", "refresh_token=whatever")
-	resp, err = e.svc.RefreshToken(headerCtx(base, headerOnly), &authenticationV1.LoginRequest{GrantType: authenticationV1.GrantType_password})
-	require.Error(t, err)
-	require.True(t, authenticationV1.IsInvalidGrantType(err), "错误授权类型应 400")
 	require.Nil(t, resp)
 
 	// 垃圾 refresh token：验签失败 401。
 	garbage := http.Header{}
 	garbage.Set("Cookie", "refresh_token=not-a-jwt")
-	resp, err = e.svc.RefreshToken(headerCtx(base, garbage), &authenticationV1.LoginRequest{GrantType: authenticationV1.GrantType_refresh_token})
+	resp, err = e.svc.RefreshAccessToken(headerCtx(base, garbage), &authenticationV1.RefreshAccessTokenRequest{})
 	require.Error(t, err)
 	require.True(t, authenticationV1.IsIncorrectRefreshToken(err), "垃圾 refresh token 应 401")
 	require.Nil(t, resp)
@@ -893,7 +911,7 @@ func TestAuthSvcSqlite_RefreshTokenFlow(t *testing.T) {
 
 	rotHeader := http.Header{}
 	rotHeader.Set("Cookie", "refresh_token="+oldRefresh)
-	rotResp, err := e.svc.RefreshToken(headerCtx(base, rotHeader), &authenticationV1.LoginRequest{GrantType: authenticationV1.GrantType_refresh_token})
+	rotResp, err := e.svc.RefreshAccessToken(headerCtx(base, rotHeader), &authenticationV1.RefreshAccessTokenRequest{})
 	require.NoError(t, err, "合法 refresh token 应轮换成功")
 	require.NotEmpty(t, rotResp.GetAccessToken(), "轮换应签发新 access token")
 	require.Positive(t, rotResp.GetExpiresIn())
@@ -918,7 +936,7 @@ func TestAuthSvcSqlite_RefreshTokenFlow(t *testing.T) {
 	require.True(t, authenticationV1.IsUnauthorized(err))
 	require.False(t, oldValResp.GetIsValid())
 
-	reuseResp, err := e.svc.RefreshToken(headerCtx(base, rotHeader), &authenticationV1.LoginRequest{GrantType: authenticationV1.GrantType_refresh_token})
+	reuseResp, err := e.svc.RefreshAccessToken(headerCtx(base, rotHeader), &authenticationV1.RefreshAccessTokenRequest{})
 	require.Error(t, err, "旧 refresh token 不可复用")
 	require.True(t, authenticationV1.IsIncorrectRefreshToken(err))
 	require.Nil(t, reuseResp)
@@ -1025,7 +1043,7 @@ func TestAuthSvcSqlite_GenerateAndVerifyCaptcha(t *testing.T) {
 }
 
 // TestAuthSvcSqlite_NormalizeLoginVerifyError 验证登录凭证错误的防枚举归一：
-// USER_NOT_FOUND / USER_FREEZE / INVALID_PASSWORD 统一归一为 INVALID_PASSWORD，
+// 源侧 USER_NOT_FOUND / USER_FREEZE / INVALID_PASSWORD 统一归一为 INVALID_CREDENTIALS，
 // 其他错误原样透传。
 func TestAuthSvcSqlite_NormalizeLoginVerifyError(t *testing.T) {
 	specials := []error{
@@ -1036,7 +1054,7 @@ func TestAuthSvcSqlite_NormalizeLoginVerifyError(t *testing.T) {
 	for _, in := range specials {
 		out := normalizeLoginVerifyError(in)
 		require.Error(t, out)
-		require.True(t, authenticationV1.IsInvalidPassword(out), "应归一化为 INVALID_PASSWORD")
+		require.True(t, authenticationV1.IsInvalidCredentials(out), "应归一化为 INVALID_CREDENTIALS")
 	}
 
 	other := fmt.Errorf("some other error")
@@ -1051,17 +1069,146 @@ func TestAuthSvcSqlite_ContainsPermission(t *testing.T) {
 	require.False(t, containsPermission([]string{"a"}, ""))
 }
 
-// TestAuthSvcSqlite_FillAdminFlags 验证按角色码填充平台/租户管理员标志。
+// TestAuthSvcSqlite_FillAdminFlags 验证按权限码填充平台/租户管理员标志。
+// 判据已由角色码改为权限：角色码本身不再置位任何标志。
 func TestAuthSvcSqlite_FillAdminFlags(t *testing.T) {
 	payload := &authenticationV1.UserTokenPayload{}
-	fillAdminFlags(payload, []string{constants.PlatformAdminRoleCode, constants.TenantAdminRoleCode})
-	require.True(t, payload.GetIsPlatformAdmin(), "平台管理员角色码应置位平台管理员标志")
-	require.True(t, payload.GetIsTenantAdmin(), "租户管理员角色码应置位租户管理员标志")
+	fillAdminFlags(payload, []string{constants.SystemPlatformAdminPermissionCode, constants.SystemTenantManagerPermissionCode})
+	require.True(t, payload.GetIsPlatformAdmin(), "持有 sys:platform_admin 权限应置位平台管理员标志")
+	require.True(t, payload.GetIsTenantAdmin(), "持有 sys:tenant_manager 权限应置位租户管理员标志")
 
 	plain := &authenticationV1.UserTokenPayload{}
-	fillAdminFlags(plain, []string{"some_role", "another_role"})
+	fillAdminFlags(plain, []string{"sys:some_other", "sys:another"})
 	require.False(t, plain.GetIsPlatformAdmin())
 	require.False(t, plain.GetIsTenantAdmin())
+
+	// 回归护栏：仅持角色码而无对应权限时，标志必须保持未置位——
+	// 这是本轮从"角色码判据"迁移到"权限判据"的核心语义。
+	roleOnly := &authenticationV1.UserTokenPayload{}
+	fillAdminFlags(roleOnly, []string{constants.PlatformAdminRoleCode, constants.TenantAdminRoleCode})
+	require.False(t, roleOnly.GetIsPlatformAdmin(), "角色码本身不应置位平台管理员标志")
+	require.False(t, roleOnly.GetIsTenantAdmin(), "角色码本身不应置位租户管理员标志")
+}
+
+// TestAuthSvcSqlite_HasPlatformRole 验证平台登录闸门的前缀判据。
+func TestAuthSvcSqlite_HasPlatformRole(t *testing.T) {
+	require.True(t, hasPlatformRole([]string{constants.PlatformAdminRoleCode}))
+	require.True(t, hasPlatformRole([]string{"tenant:manager", "platform:ops"}), "平台运维等其它平台角色也应放行")
+	require.True(t, hasPlatformRole([]string{"platform:readonly"}))
+	require.False(t, hasPlatformRole([]string{"tenant:manager"}))
+	require.False(t, hasPlatformRole([]string{"some_role"}))
+	require.False(t, hasPlatformRole(nil))
+}
+
+// TestAuthSvcSqlite_HasPermission 验证服务层能力权限判定的容错。
+func TestAuthSvcSqlite_HasPermission(t *testing.T) {
+	op := &authenticationV1.UserTokenPayload{Permissions: []string{constants.SystemResetOthersMFAPermissionCode}}
+	require.True(t, hasPermission(op, constants.SystemResetOthersMFAPermissionCode))
+	require.False(t, hasPermission(op, constants.SystemResetOthersCredentialPermissionCode))
+	require.False(t, hasPermission(&authenticationV1.UserTokenPayload{}, constants.SystemResetOthersMFAPermissionCode))
+	require.False(t, hasPermission(nil, constants.SystemResetOthersMFAPermissionCode), "nil 载荷应安全返回 false")
+}
+
+// TestAuthSvcSqlite_DedupeStrings 验证权限码并集去重。
+func TestAuthSvcSqlite_DedupeStrings(t *testing.T) {
+	require.Nil(t, dedupeStrings(nil))
+	require.Equal(t, []string{"a", "b"}, dedupeStrings([]string{"a", "b", "a", "b"}))
+	require.Equal(t, []string{"a", "b"}, dedupeStrings([]string{"a", "b"}), "应保持首次出现顺序")
+}
+
+// TestAuthSvcSqlite_PasswordLoginAdapter 验证 ANI 形态租户登录适配层：
+// tenant_name 空值必须 400（不得静默降级为平台登录）、报文映射、
+// local: 前缀容错、refresh token 不进响应体。
+func TestAuthSvcSqlite_PasswordLoginAdapter(t *testing.T) {
+	e := newAuthenticationServiceForTest(t)
+	base := context.Background()
+
+	tenantID := e.seedTenant(t, "AuthSvc 适配层租户", authSvcTenantCode, identityV1.Tenant_ON)
+	permID := e.seedBackendAccessPermission(t)
+	roleID := e.seedRole(t, trans.Ptr(tenantID), permissionV1.Role_TENANT, constants.TenantAdminRoleCode, []uint32{permID}, nil, nil)
+	e.seedCredential(t, trans.Ptr(tenantID), 7801, "authsvc-adapter-user", authenticationV1.UserCredential_ENABLED)
+	e.seedStubUser(7801, trans.Ptr(tenantID), "authsvc-adapter-user", identityV1.User_NORMAL, []uint32{roleID})
+
+	// 核心护栏：tenant_name 为空/空白必须拒绝。
+	// 引擎对"tenant_code 留空"的语义是解析为平台租户，若适配层不拦，
+	// 漏传租户名会静默降级成平台登录——这是拆两个端点的全部意义所在。
+	//
+	// 断言必须锁到具体原因：登录链路还有其它 BAD_REQUEST（如凭据格式错误），
+	// 只判 IsBadRequest 会让用例"因错误的原因通过"。
+	for _, blank := range []string{"", "   "} {
+		resp, err := e.svc.PasswordLogin(e.freshCaptchaCtx(t, base), &authenticationV1.PasswordLoginRequest{
+			TenantName: trans.Ptr(blank),
+			Username:   trans.Ptr("authsvc-adapter-user"),
+			Password:   trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+		})
+		require.Error(t, err, "tenant_name=%q 应拒绝", blank)
+		require.True(t, authenticationV1.IsBadRequest(err), "tenant_name=%q 应 400", blank)
+		require.Contains(t, err.Error(), "tenant_name", "拒绝原因必须是缺租户名，而非其它 BAD_REQUEST")
+		require.Nil(t, resp)
+	}
+
+	// nil 请求体。
+	nilResp, err := e.svc.PasswordLogin(base, nil)
+	require.Error(t, err)
+	require.Nil(t, nilResp)
+
+	// 正常租户登录：报文映射为 TokenPairResponse。
+	resp, err := e.svc.PasswordLogin(e.freshCaptchaCtx(t, base), &authenticationV1.PasswordLoginRequest{
+		TenantName: trans.Ptr(authSvcTenantCode),
+		Username:   trans.Ptr("authsvc-adapter-user"),
+		Password:   trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, resp.GetAccessToken(), "应签发 access token")
+	require.Positive(t, resp.GetExpiresIn(), "应回填有效期")
+	require.NotNil(t, resp.GetIssuedAt(), "应回填签发时间")
+	require.False(t, resp.GetMfaRequired(), "未绑定 TOTP 不应进入 MFA 中间态")
+	require.Empty(t, resp.GetMfaOperationId())
+	require.Empty(t, resp.GetRefreshToken(), "refresh token 经 HttpOnly Cookie 下发，不进响应体")
+
+	// local: 前缀容错：ANI 形态客户端可能带前缀，剥离后应正常登录。
+	prefixed, err := e.svc.PasswordLogin(e.freshCaptchaCtx(t, base), &authenticationV1.PasswordLoginRequest{
+		TenantName: trans.Ptr(authSvcTenantCode),
+		Username:   trans.Ptr("local:authsvc-adapter-user"),
+		Password:   trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+	})
+	require.NoError(t, err, "带 local: 前缀应剥离后正常登录")
+	require.NotEmpty(t, prefixed.GetAccessToken())
+}
+
+// TestAuthSvcSqlite_PlatformPasswordLoginGate 验证平台登录端点的角色闸门：
+// 平台角色放行，非平台角色即使在 tenant 0 且具备后台访问权限也必须 403。
+func TestAuthSvcSqlite_PlatformPasswordLoginGate(t *testing.T) {
+	e := newAuthenticationServiceForTest(t)
+	base := context.Background()
+
+	permID := e.seedBackendAccessPermission(t)
+
+	// 平台角色：platform: 前缀 → 放行。
+	platformRoleID := e.seedRole(t, nil, permissionV1.Role_SYSTEM, constants.PlatformAdminRoleCode, []uint32{permID}, nil, nil)
+	e.seedCredential(t, nil, 7811, "authsvc-platform-user", authenticationV1.UserCredential_ENABLED)
+	e.seedStubUser(7811, nil, "authsvc-platform-user", identityV1.User_NORMAL, []uint32{platformRoleID})
+
+	resp, err := e.svc.PlatformPasswordLogin(e.freshCaptchaCtx(t, base), &authenticationV1.PlatformPasswordLoginRequest{
+		Username: trans.Ptr("authsvc-platform-user"),
+		Password: trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+	})
+	require.NoError(t, err, "平台角色应允许平台登录")
+	require.NotEmpty(t, resp.GetAccessToken())
+
+	// 非平台角色：同为 tenant 0 且具备后台访问权限，但角色码无 platform: 前缀 → 403。
+	// 这是闸门的核心价值：防止 tenant 0 的普通角色借平台入口登录。
+	tenantRoleID := e.seedRole(t, nil, permissionV1.Role_SYSTEM, constants.TenantAdminRoleCode, []uint32{permID}, nil, nil)
+	e.seedCredential(t, nil, 7812, "authsvc-nonplatform-user", authenticationV1.UserCredential_ENABLED)
+	e.seedStubUser(7812, nil, "authsvc-nonplatform-user", identityV1.User_NORMAL, []uint32{tenantRoleID})
+
+	denied, err := e.svc.PlatformPasswordLogin(e.freshCaptchaCtx(t, base), &authenticationV1.PlatformPasswordLoginRequest{
+		Username: trans.Ptr("authsvc-nonplatform-user"),
+		Password: trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+	})
+	require.Error(t, err, "非平台角色不应允许平台登录")
+	require.True(t, authenticationV1.IsForbidden(err), "非平台角色应 403")
+	require.Nil(t, denied)
 }
 
 // TestAuthSvcSqlite_CookieHelperGuards 验证 cookie 助手与记录函数的无传输守卫段：

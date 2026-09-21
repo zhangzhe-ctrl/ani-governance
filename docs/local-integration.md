@@ -202,7 +202,7 @@ governance 的闸门是层层串联的，**每一层都要有数据**，缺一�
 
 1. **登录免不了验证码**：`CaptchaEnabled=true` 是硬编码（H5 闸门），
    验证码答案存在 Redis `gowind:captcha:<id>`，联调脚本里直接
-   `GET /admin/v1/captcha` 拿 id 后从 Redis 读答案再带
+   `GET /api/v1/auth/captcha` 拿 id 后从 Redis 读答案再带
    `X-Captcha-Id`/`X-Captcha-Value` 头登录。登录密码是
    `base64(AES-CBC(明文, DefaultAESKey, iv=key))`，`DefaultAESKey` 在
    tx7do/go-utils/crypto 里，明文 `Abcd@1234` 加密后是
@@ -225,8 +225,11 @@ governance 的闸门是层层串联的，**每一层都要有数据**，缺一�
    business_module='NETWORK'）。参照
    [scripts/bootstrap-network-access.sql](../scripts/bootstrap-network-access.sql)。
    这一步漏了就是"access denied"，一步对齐一层 403 就会消失。
-7. **登录请求必须带 `tenant_code`**（body 里），否则按平台租户解析，
-   永远找不到你的租户用户。
+7. **租户登录必须带 `tenant_name`**（body 里，取值 `sys_tenants.code`），
+   端点为 `POST /api/v1/auth/password/login`；平台管理员走
+   `POST /api/v1/auth/platform/password/login`（报文不含 `tenant_name`）。
+   两者已拆为独立端点：租户端点漏传 `tenant_name` 直接 400，
+   **不会**静默降级为平台登录。验证码仍经 `X-Captcha-Id`/`X-Captcha-Value` 请求头传递。
 
 ## 6. 验证命令（逐层收敛）
 

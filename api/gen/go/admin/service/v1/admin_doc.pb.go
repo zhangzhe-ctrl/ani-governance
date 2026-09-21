@@ -25,10 +25,10 @@ var File_admin_service_v1_admin_doc_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_admin_doc_proto_rawDesc = "" +
 	"\n" +
-	" admin/service/v1/admin_doc.proto\x12\x10admin.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\xb0\x06\xbaG\xf2\x04\x12\xba\x01\n" +
+	" admin/service/v1/admin_doc.proto\x12\x10admin.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\xb9\x06\xbaG\xfb\x04\x12\xba\x01\n" +
 	"\x10GoWind Admin API\x12\x10GoWind Admin API\"D\n" +
 	"\x05tx7do\x12&https://github.com/tx7do/go-wind-admin\x1a\x13yanglinbo@gmail.com*I\n" +
-	"\vMIT License\x12:https://github.com/tx7do/go-wind-admin/blob/master/LICENSE2\x031.0*\x96\x03\n" +
+	"\vMIT License\x12:https://github.com/tx7do/go-wind-admin/blob/master/LICENSE2\x031.0*\x9f\x03\n" +
 	"\xd4\x01\n" +
 	"\xd1\x01\n" +
 	"\fKratosStatus\x12\xc0\x01\n" +
@@ -52,11 +52,11 @@ const file_admin_service_v1_admin_doc_proto_rawDesc = "" +
 	";\n" +
 	"\x10application/json\x12'\n" +
 	"%\x12#\n" +
-	"!#/components/schemas/KratosStatus:T\n" +
-	"R\n" +
-	"\x14OAuth2PasswordBearer\x12:\n" +
-	"8\n" +
-	"\x06oauth2:.\x12,\x12\x0f/admin/v1/login\x1a\x17/admin/v1/refresh-token\"\x002\x1a\n" +
+	"!#/components/schemas/KratosStatus:]\n" +
+	"[\n" +
+	"\x14OAuth2PasswordBearer\x12C\n" +
+	"A\n" +
+	"\x06oauth2:7\x125\x12\x1b/api/v1/auth/password/login\x1a\x14/api/v1/auth/refresh\"\x002\x1a\n" +
 	"\x18\n" +
 	"\x14OAuth2PasswordBearer\x12\x00\n" +
 	"\x14com.admin.service.v1B\rAdminDocProtoP\x01Z1go-wind-admin/api/gen/go/admin/service/v1;adminpb\xa2\x02\x03ASX\xaa\x02\x10Admin.Service.V1\xca\x02\x10Admin\\Service\\V1\xe2\x02\x1cAdmin\\Service\\V1\\GPBMetadata\xea\x02\x12Admin::Service::V1b\x06proto3"
