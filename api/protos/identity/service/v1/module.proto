@@ -16,7 +16,6 @@ enum Module {
   PERMISSION = 6;       // 权限管理
   LOG = 7;              // 日志审计
   INTERNAL_MESSAGE = 8; // 内部消息
-  FILE = 9;             // 文件管理
   TASK = 10;            // 任务管理
   NETWORK = 12;         // 网络资源
   MODEL = 11;           // 模型目录

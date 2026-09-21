@@ -229,7 +229,6 @@ func TestPlanModuleRepoSqlite_ModuleReadView(t *testing.T) {
 		{identityV1.Module_PERMISSION, planmodule.ModulePermission},
 		{identityV1.Module_LOG, planmodule.ModuleLog},
 		{identityV1.Module_INTERNAL_MESSAGE, planmodule.ModuleInternalMessage},
-		{identityV1.Module_FILE, planmodule.ModuleFile},
 		{identityV1.Module_TASK, planmodule.ModuleTask},
 	}
 

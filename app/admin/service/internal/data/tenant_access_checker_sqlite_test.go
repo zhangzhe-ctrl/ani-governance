@@ -111,8 +111,8 @@ func TestTenantAccessCheckerDecisionMatrix(t *testing.T) {
 		p := client.Plan.Create().SetExpiryPolicy(plan.ExpiryPolicyReadonly).SaveX(sysCtx)
 		tid := client.Tenant.Create().SetName("t-nowhitelist").SetStatus(tenant.StatusOn).SetPlanID(p.ID).SaveX(sysCtx).ID
 		_ = client.Api.Create().SetPath("/t/nowhitelist").SetMethod("GET").SetBusinessModule(api.BusinessModuleDict).SaveX(sysCtx)
-		// 套餐白名单只挂 FILE，请求 DICT 模块 → 拒绝
-		_ = client.PlanModule.Create().SetPlanID(p.ID).SetModule(planmodule.ModuleFile).SaveX(sysCtx)
+		// 套餐白名单只挂 TASK，请求 DICT 模块 → 拒绝
+		_ = client.PlanModule.Create().SetPlanID(p.ID).SetModule(planmodule.ModuleTask).SaveX(sysCtx)
 		err := checker.CheckTenantAccess(context.Background(), tid, "/t/nowhitelist", "GET")
 		require.Contains(t, forbiddenMessage(t, err), "module not allowed")
 	})
@@ -143,8 +143,8 @@ func TestTenantAccessCheckerDecisionMatrix(t *testing.T) {
 			SetNillableExpiredAt(&pastTime).SetPlanID(p.ID).SaveX(sysCtx).ID
 		_ = client.Api.Create().SetPath("/t/readonlyget").SetMethod("GET").SetBusinessModule(api.BusinessModuleDict).SaveX(sysCtx)
 		_ = client.PlanModule.Create().SetPlanID(p.ID).SetModule(planmodule.ModuleDict).SaveX(sysCtx)
-		// 只读放行但仍过白名单：白名单未挂 FILE → FILE 模块即便 GET 也拒绝
-		_ = client.Api.Create().SetPath("/t/readonlyget2").SetMethod("GET").SetBusinessModule(api.BusinessModuleFile).SaveX(sysCtx)
+		// 只读放行但仍过白名单：白名单未挂 TASK → TASK 模块即便 GET 也拒绝
+		_ = client.Api.Create().SetPath("/t/readonlyget2").SetMethod("GET").SetBusinessModule(api.BusinessModuleTask).SaveX(sysCtx)
 		require.NoError(t, checker.CheckTenantAccess(context.Background(), tid, "/t/readonlyget", "GET"))
 		err := checker.CheckTenantAccess(context.Background(), tid, "/t/readonlyget2", "GET")
 		require.Contains(t, forbiddenMessage(t, err), "module not allowed")
@@ -173,7 +173,7 @@ func TestTenantAccessCheckerDecisionMatrix(t *testing.T) {
 	})
 }
 
-// TestModuleMapping 全量枚举 proto↔ent 模块映射：九个业务模块双向一致，
+// TestModuleMapping 全量枚举 proto↔ent 模块映射：各业务模块双向一致，
 // UNSPECIFIED / 未知值 / 空串各自落到默认分支。
 func TestModuleMapping(t *testing.T) {
 	pairs := map[identityV1.Module]struct {
@@ -188,7 +188,6 @@ func TestModuleMapping(t *testing.T) {
 		identityV1.Module_PERMISSION:       {planmodule.ModulePermission, api.BusinessModulePermission},
 		identityV1.Module_LOG:              {planmodule.ModuleLog, api.BusinessModuleLog},
 		identityV1.Module_INTERNAL_MESSAGE: {planmodule.ModuleInternalMessage, api.BusinessModuleInternalMessage},
-		identityV1.Module_FILE:             {planmodule.ModuleFile, api.BusinessModuleFile},
 		identityV1.Module_TASK:             {planmodule.ModuleTask, api.BusinessModuleTask},
 	}
 

@@ -15,7 +15,6 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
 	"go-wind-admin/app/admin/service/internal/data/ent/dicttype"
-	"go-wind-admin/app/admin/service/internal/data/ent/file"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessage"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessagecategory"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessagerecipient"
@@ -115,20 +114,9 @@ func (r *TenantUsageRepo) GetUsage(ctx context.Context, tenantId uint32) (*ident
 	}
 	usage.UserCount = uint64(userCount)
 
-	// 4. 存储占用统计（SUM size，用 Scan 聚合）
-	storageSum := uint64(0)
-	var storageRows []struct {
-		Total uint64 `sql:"total"`
-	}
-	if serr := r.entClient.Client().File.Query().
-		Where(file.TenantIDEQ(tenantId)).
-		Aggregate(ent.As(ent.Sum(file.FieldSize), "total")).
-		Scan(sysCtx, &storageRows); serr != nil {
-		r.log.Errorf(ctx, "get usage: sum file size failed: %v", serr)
-	} else if len(storageRows) > 0 {
-		storageSum = storageRows[0].Total
-	}
-	usage.StorageUsedBytes = storageSum
+	// 4. 存储占用统计：文件管理已下线（2026-09-21，存储能力由独立服务承接），
+	// 管控面不再持有文件表，此处固定为 0。
+	usage.StorageUsedBytes = 0
 
 	// 5. API 调用量统计
 	apiCount, aerr := r.entClient.Client().ApiAuditLog.Query().
@@ -183,7 +171,7 @@ func (r *TenantUsageRepo) CleanupTenantData(ctx context.Context, tenantId uint32
 	}
 
 	// 以下每个闭包删除一张带 tenant_id 的业务表。
-	// 列表对齐 ent.Client/Tx 中所有拥有 TenantIDEQ 谓词的包（共 29 张表）。
+	// 列表对齐 ent.Client/Tx 中所有拥有 TenantIDEQ 谓词的包（共 28 张表）。
 	// 注意：Tx 层的 Delete.Exec 返回 (int, error)，需丢弃 int 仅返回 error。
 	deleteFns := []func() error{
 		func() error { _, e := tx.ApiAuditLog.Delete().Where(apiauditlog.TenantIDEQ(tenantId)).Exec(sysCtx); return e },
@@ -191,7 +179,6 @@ func (r *TenantUsageRepo) CleanupTenantData(ctx context.Context, tenantId uint32
 		func() error { _, e := tx.DictEntry.Delete().Where(dictentry.TenantIDEQ(tenantId)).Exec(sysCtx); return e },
 		func() error { _, e := tx.DictEntryI18n.Delete().Where(dictentryi18n.TenantIDEQ(tenantId)).Exec(sysCtx); return e },
 		func() error { _, e := tx.DictType.Delete().Where(dicttype.TenantIDEQ(tenantId)).Exec(sysCtx); return e },
-		func() error { _, e := tx.File.Delete().Where(file.TenantIDEQ(tenantId)).Exec(sysCtx); return e },
 		func() error { _, e := tx.InternalMessage.Delete().Where(internalmessage.TenantIDEQ(tenantId)).Exec(sysCtx); return e },
 		func() error { _, e := tx.InternalMessageCategory.Delete().Where(internalmessagecategory.TenantIDEQ(tenantId)).Exec(sysCtx); return e },
 		func() error { _, e := tx.InternalMessageRecipient.Delete().Where(internalmessagerecipient.TenantIDEQ(tenantId)).Exec(sysCtx); return e },

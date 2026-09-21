@@ -27,8 +27,6 @@ var ServiceTagToBusinessModule = map[string]identityV1.Module{
 	"DictTypeService":     identityV1.Module_DICT,
 	"DictEntryService":    identityV1.Module_DICT,
 	"LanguageService":     identityV1.Module_SYSTEM,
-	"FileService":         identityV1.Module_FILE,
-	"FileTransferService": identityV1.Module_FILE,
 	"TaskService":         identityV1.Module_TASK,
 	"LoginPolicyService":  identityV1.Module_SYSTEM,
 	"ConfigService":       identityV1.Module_SYSTEM,

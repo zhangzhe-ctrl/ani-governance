@@ -27,9 +27,6 @@ type DictEntryI18n func(*sql.Selector)
 // DictType is the predicate function for dicttype builders.
 type DictType func(*sql.Selector)
 
-// File is the predicate function for file builders.
-type File func(*sql.Selector)
-
 // InternalMessage is the predicate function for internalmessage builders.
 type InternalMessage func(*sql.Selector)
 

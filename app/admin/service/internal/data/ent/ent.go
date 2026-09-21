@@ -13,7 +13,6 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
 	"go-wind-admin/app/admin/service/internal/data/ent/dicttype"
-	"go-wind-admin/app/admin/service/internal/data/ent/file"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessage"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessagecategory"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessagerecipient"
@@ -126,7 +125,6 @@ func checkColumn(t, c string) error {
 			dictentry.Table:                dictentry.ValidColumn,
 			dictentryi18n.Table:            dictentryi18n.ValidColumn,
 			dicttype.Table:                 dicttype.ValidColumn,
-			file.Table:                     file.ValidColumn,
 			internalmessage.Table:          internalmessage.ValidColumn,
 			internalmessagecategory.Table:  internalmessagecategory.ValidColumn,
 			internalmessagerecipient.Table: internalmessagerecipient.ValidColumn,

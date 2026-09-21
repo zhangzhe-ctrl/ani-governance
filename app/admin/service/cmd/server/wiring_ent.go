@@ -64,8 +64,6 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 
-	minioClient := data.NewMinIoClient(ctx)
-
 	// 认证基建:令牌缓存 → 认证器 → 访问令牌校验器。
 	clientType := data.NewClientType()
 	passwordCrypto := data.NewPasswordCrypto()
@@ -132,10 +130,8 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	planQuotaRepo := data.NewPlanQuotaRepo(ctx, entClient)
 	planModuleRepo := data.NewPlanModuleRepo(ctx, entClient)
 
-	// 任务 / 文件 / 运维观测
+	// 任务 / 运维观测
 	taskRepo := data.NewTaskRepo(ctx, entClient)
-	backupRepo := data.NewBackupRepo(ctx, entClient)
-	fileRepo := data.NewFileRepo(ctx, entClient)
 	redisCacheMonitorRepo := data.NewRedisCacheMonitorRepo(ctx, redisClient)
 	serverMonitorRepo := data.NewServerMonitorRepo(ctx, entClient)
 	notificationChannelRepo := data.NewNotificationChannelRepo(ctx, entClient)
@@ -164,7 +160,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 	// 身份与组织
 	userService := service.NewUserService(ctx, userRepo, roleRepo, userCredentialRepo, positionRepo, orgUnitRepo, tenantRepo, membershipRepo, authenticator, notificationChannelRepo)
-	userProfileService := service.NewUserProfileService(ctx, userRepo, roleRepo, userCredentialRepo, authenticator, notificationChannelRepo, vcodeCache, minioClient)
+	userProfileService := service.NewUserProfileService(ctx, userRepo, roleRepo, userCredentialRepo, authenticator, notificationChannelRepo, vcodeCache)
 	positionService := service.NewPositionService(ctx, positionRepo, orgUnitRepo)
 	orgUnitService := service.NewOrgUnitService(ctx, orgUnitRepo, userRepo)
 
@@ -186,10 +182,8 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	dictEntryService := service.NewDictEntryService(ctx, dictEntryRepo)
 	languageService := service.NewLanguageService(ctx, languageRepo)
 
-	// 文件与任务
-	fileService := service.NewFileService(ctx, fileRepo, minioClient)
-	fileTransferService := service.NewFileTransferService(ctx, minioClient, fileRepo)
-	taskService := service.NewTaskService(ctx, taskRepo, userRepo, backupRepo, tenantUsageRepo, auditLogArchiveRepo, minioClient)
+	// 任务
+	taskService := service.NewTaskService(ctx, taskRepo, userRepo, tenantUsageRepo, auditLogArchiveRepo)
 
 	// 审计日志
 	loginAuditLogService := service.NewLoginAuditLogService(ctx, loginAuditLogRepo)
@@ -240,7 +234,6 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	restServer, err := server.NewRestServer(ctx, restMiddlewares, authz,
 		authenticationService, mfaService, loginPolicyService,
 		adminPortalService, taskService,
-		fileService, fileTransferService,
 		dictTypeService, dictEntryService, languageService,
 		tenantService, planService, planQuotaService, planModuleService,
 		userService, userProfileService, roleService, positionService, orgUnitService,

@@ -4,10 +4,7 @@
 //   - GetUser：角色码回填（经真实 RoleRepo.ListRoleCodesByRoleIds 查询已落库角色）、
 //     stub 查询 ID 必为操作人本人、无角色声明时角色列表为空、用户查询失败与
 //     缺操作人声明的报错分支。
-//   - UpdateUser / DeleteAvatar / UploadAvatar(ImageUrl)：操作人 ID 注入
-//     （req.Id / req.Data.Id 一律盖为操作人）、字段掩码仅含 avatar、
-//     url 头像路径的原样写入与回显；以及 UploadAvatar 的全部校验分支
-//     （非 base64 / 空 / 非图片 / 超限 / 无来源 / 缺操作人声明）。
+//   - UpdateUser：操作人 ID 注入（req.Id / req.Data.Id 一律盖为操作人）。
 //   - ChangePassword：AES+base64 密文解密链路（go-utils crypto 默认密钥）、
 //     旧口令 bcrypt 校验、新口令复杂度（过短/弱口令）拒绝、改密成功后凭证哈希
 //     更新与等保历史口令记录、以及 RevokeUserTokenAllClientTypes 经 miniredis
@@ -18,8 +15,6 @@
 // 跳过项：
 //   - vcodeCache：生产构造器签名取 *bLogger.Context（跨包不可构造），且该字段
 //     不被任何被测路径触碰，构造时置 nil。
-//   - mc（MinIOClient）：需真实 MinIO 实例，头像 base64 直传的落 OSS 分支
-//     （校验通过后的 UploadFile 调用）跳过；其前的全部本地校验分支均已覆盖。
 package service
 
 import (
@@ -49,7 +44,6 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/usercredential"
 	"go-wind-admin/app/admin/service/internal/data/enttest"
 	"go-wind-admin/pkg/middleware/auth"
-	"go-wind-admin/pkg/oss"
 )
 
 // userProfileUserRepoStub 是 UserProfileService 专用的 data.UserRepo 桩：
@@ -124,7 +118,6 @@ func newUserProfileServiceForTest(t *testing.T) userProfileServiceTestEnv {
 		authenticator:      authenticator,
 		notificationRepo:   data.NewNotificationChannelRepoForTest(entClient),
 		vcodeCache:         nil,
-		mc:                 nil,
 	}
 	return userProfileServiceTestEnv{svc: svc, stub: stub, entClient: entClient, tokenCache: tokenCache}
 }
@@ -245,92 +238,6 @@ func TestUserProfileServiceSqlite_UpdateUser_OperatorInjection(t *testing.T) {
 	})
 	require.Error(t, err, "缺操作人声明的更新应被拒绝")
 	require.Len(t, env.stub.capturedUpdates, 1, "被拒绝的更新不应触达仓储层")
-}
-
-// TestUserProfileServiceSqlite_DeleteAvatar_ClearsAvatar 验证 DeleteAvatar
-// 透传的更新：掩码仅含 avatar、头像值清空、目标 ID 为操作人；
-// 缺操作人声明报错且不触达仓储层。
-func TestUserProfileServiceSqlite_DeleteAvatar_ClearsAvatar(t *testing.T) {
-	env := newUserProfileServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
-	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 4242})
-
-	_, err := env.svc.DeleteAvatar(opCtx, &emptypb.Empty{})
-	require.NoError(t, err)
-	require.Len(t, env.stub.capturedUpdates, 1)
-	captured := env.stub.capturedUpdates[0]
-	require.Equal(t, uint32(4242), captured.Data.GetId(), "目标 ID 应为操作人")
-	require.Empty(t, captured.Data.GetAvatar(), "头像值应被清空")
-	require.NotNil(t, captured.UpdateMask, "更新应携带 avatar 掩码")
-	require.Equal(t, []string{"avatar"}, captured.UpdateMask.GetPaths(), "掩码应仅含 avatar")
-
-	_, err = env.svc.DeleteAvatar(ctx, &emptypb.Empty{})
-	require.Error(t, err, "缺操作人声明的删除应被拒绝")
-	require.Len(t, env.stub.capturedUpdates, 1, "被拒绝的删除不应触达仓储层")
-}
-
-// TestUserProfileServiceSqlite_UploadAvatar_UrlPathAndValidation 验证
-// ImageUrl 路径的原样写入回显，与全部本地校验分支
-// （非 base64 / 空 / 非图片 / 超限 / 无来源 / 缺操作人声明）。
-func TestUserProfileServiceSqlite_UploadAvatar_UrlPathAndValidation(t *testing.T) {
-	env := newUserProfileServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
-	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 4242})
-
-	// ImageUrl 路径：不触碰 OSS，原样写入并回显。
-	const avatarURL = "https://cdn.example.test/avatar.png"
-	resp, err := env.svc.UploadAvatar(opCtx, &identityV1.UploadAvatarRequest{
-		Source: &identityV1.UploadAvatarRequest_ImageUrl{ImageUrl: avatarURL},
-	})
-	require.NoError(t, err)
-	require.Equal(t, avatarURL, resp.GetUrl(), "url 路径应原样回显")
-	require.Len(t, env.stub.capturedUpdates, 1)
-	captured := env.stub.capturedUpdates[0]
-	require.Equal(t, uint32(4242), captured.Data.GetId(), "目标 ID 应为操作人")
-	require.Equal(t, avatarURL, captured.Data.GetAvatar(), "url 路径的头像值应原样写入")
-	require.Equal(t, []string{"avatar"}, captured.UpdateMask.GetPaths(), "掩码应仅含 avatar")
-
-	// 非法 base64。
-	_, err = env.svc.UploadAvatar(opCtx, &identityV1.UploadAvatarRequest{
-		Source: &identityV1.UploadAvatarRequest_ImageBase64{ImageBase64: "%%%not-base64%%%"},
-	})
-	require.Error(t, err, "非 base64 数据应被拒绝")
-	require.Contains(t, err.Error(), "invalid avatar base64 data")
-
-	// 空 base64（解码为 0 字节）。
-	_, err = env.svc.UploadAvatar(opCtx, &identityV1.UploadAvatarRequest{
-		Source: &identityV1.UploadAvatarRequest_ImageBase64{ImageBase64: ""},
-	})
-	require.Error(t, err, "空头像数据应被拒绝")
-	require.Contains(t, err.Error(), "empty avatar data")
-
-	// 可解码但非图片内容（嗅探为 text/plain）。
-	_, err = env.svc.UploadAvatar(opCtx, &identityV1.UploadAvatarRequest{
-		Source: &identityV1.UploadAvatarRequest_ImageBase64{ImageBase64: base64.StdEncoding.EncodeToString([]byte("plain text, definitely not an image"))},
-	})
-	require.Error(t, err, "非图片 MIME 应被拒绝")
-	require.Contains(t, err.Error(), "only image files are allowed for avatar")
-
-	// 超过上传上限（50 MiB）。
-	_, err = env.svc.UploadAvatar(opCtx, &identityV1.UploadAvatarRequest{
-		Source: &identityV1.UploadAvatarRequest_ImageBase64{ImageBase64: base64.StdEncoding.EncodeToString(make([]byte, oss.MaxUploadSize+1))},
-	})
-	require.Error(t, err, "超限头像应被拒绝")
-	require.Contains(t, err.Error(), "avatar exceeds max size")
-
-	// 无来源（oneof 未置）。
-	_, err = env.svc.UploadAvatar(opCtx, &identityV1.UploadAvatarRequest{})
-	require.Error(t, err, "无来源的头像上传应被拒绝")
-	require.Contains(t, err.Error(), "invalid avatar source")
-
-	// 缺操作人声明。
-	_, err = env.svc.UploadAvatar(ctx, &identityV1.UploadAvatarRequest{
-		Source: &identityV1.UploadAvatarRequest_ImageUrl{ImageUrl: avatarURL},
-	})
-	require.Error(t, err, "缺操作人声明的上传应被拒绝")
-
-	// 以上校验失败分支均不应触达仓储层。
-	require.Len(t, env.stub.capturedUpdates, 1, "校验失败分支不应透传更新")
 }
 
 // TestUserProfileServiceSqlite_ChangePassword_HappyPath 验证改密全链路：

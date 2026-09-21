@@ -512,7 +512,6 @@ func (r *userRepo) CreateWithTx(ctx context.Context, tx *ent.Tx, data *identityV
 		SetNillableUsername(data.Username).
 		SetNillableNickname(data.Nickname).
 		SetNillableRealname(data.Realname).
-		SetNillableAvatar(data.Avatar).
 		SetNillableEmail(data.Email).
 		SetNillableMobile(data.Mobile).
 		SetNillableTelephone(data.Telephone).
@@ -698,7 +697,6 @@ func (r *userRepo) Update(ctx context.Context, req *identityV1.UpdateUserRequest
 			builder.
 				SetNillableNickname(req.Data.Nickname).
 				SetNillableRealname(req.Data.Realname).
-				SetNillableAvatar(req.Data.Avatar).
 				SetNillableEmail(req.Data.Email).
 				SetNillableMobile(req.Data.Mobile).
 				SetNillableTelephone(req.Data.Telephone).

@@ -3,7 +3,7 @@
 // 覆盖目标：
 //   - 调度器未配置守卫：ListTaskTypeName 返回空、NewTask 报错、
 //     StopAllTask 不 panic、startTask/stopTask 报"未配置"、
-//     AsyncTenantExpiryScan / AsyncAuditLogArchive / AsyncBackup 的依赖未配置报错。
+//     AsyncTenantExpiryScan / AsyncAuditLogArchive 的依赖未配置报错。
 //   - Create：nil Data / 未注册 typeName / 调度器未配置拒绝；注册 typeName 下
 //     禁用任务只落库不进调度器；启用任务按类型进 PERIODIC / DELAY /
 //     WAIT_RESULT 调度入口；操作人盖章。
@@ -15,19 +15,14 @@
 //     停止语义拒绝。
 //   - StartAllTask/RestartAllTask：跨租户同名 PERIODIC 去重、DELAY 一次性投递、
 //     系统级常驻任务（到期扫描 + 审计归档）注册；StopAllTask 全量注销。
-//   - 纯函数：convertTaskOption（载荷 JSON 解析/空载荷兜底/选项转换）、
-//     tableNamesOf、gzipBytes 往返。
+//   - 纯函数：convertTaskOption（载荷 JSON 解析/空载荷兜底/选项转换）。
 //
 // 跳过项：真实 asynq 调度器与 Redis 队列（调度器全部走本地桩）、
-// AsyncBackup 全链路（依赖 MinIO 客户端）、AsyncAuditLogArchive 全链路
-// （auditLogArchiveRepo 无 testkit 构造器，仅测未配置守卫）。
+// AsyncAuditLogArchive 全链路（auditLogArchiveRepo 无 testkit 构造器，仅测未配置守卫）。
 package service
 
 import (
-	"bytes"
-	"compress/gzip"
 	"context"
-	"io"
 	"testing"
 	"time"
 
@@ -106,10 +101,8 @@ func newTaskServiceForTest(t *testing.T, scheduler TaskScheduler, withTenantUsag
 		log:                bLogger.NewHelper(bLogger.NopLogger()),
 		taskRepo:           data.NewTaskRepoForTest(entClient),
 		userRepo:           nil,
-		backupRepo:         nil,
 		tenantUsageRepo:    nil,
 		auditLogArchiveRepo: nil,
-		mc:                 nil,
 	}
 	if withTenantUsage {
 		svc.tenantUsageRepo = data.NewTenantUsageRepoForTest(entClient, nil)
@@ -161,8 +154,6 @@ func TestTaskService_NoSchedulerGuards(t *testing.T) {
 
 	require.EqualError(t, svc.AsyncAuditLogArchive(task.AuditLogArchiveTaskType, &task.AuditLogArchiveTaskData{}),
 		"audit log archive repo is not configured")
-	require.EqualError(t, svc.AsyncBackup(task.BackupTaskType, &task.BackupTaskData{}),
-		"backup dependencies not configured (backupRepo or minio is nil)")
 	require.EqualError(t, svc.AsyncTenantExpiryScan(task.TenantExpiryScanTaskType, &task.TenantExpiryScanTaskData{}),
 		"tenantUsageRepo is not configured")
 }
@@ -548,26 +539,3 @@ func TestTaskService_ConvertTaskOption(t *testing.T) {
 	require.Len(t, opts, 9, "全部 9 个任务选项都应转换为 asynq 选项")
 }
 
-// TestTaskService_TableNamesOf 验证 tableNamesOf 返回 map 键集合。
-func TestTaskService_TableNamesOf(t *testing.T) {
-	require.ElementsMatch(t, []string{"a", "b"}, tableNamesOf(map[string]any{"a": 1, "b": 2}))
-	require.Empty(t, tableNamesOf(map[string]any{}))
-}
-
-// TestTaskService_GzipBytesRoundTrip 验证 gzip 压缩往返与空输入。
-func TestTaskService_GzipBytesRoundTrip(t *testing.T) {
-	src := []byte("task service gzip round trip payload 0123456789")
-	compressed, err := gzipBytes(src)
-	require.NoError(t, err)
-	require.NotEqual(t, src, compressed, "压缩产物应不同于原文")
-
-	r, err := gzip.NewReader(bytes.NewReader(compressed))
-	require.NoError(t, err)
-	decompressed, err := io.ReadAll(r)
-	require.NoError(t, err)
-	require.Equal(t, src, decompressed, "解压后应还原原文")
-
-	empty, err := gzipBytes([]byte{})
-	require.NoError(t, err)
-	require.NotEmpty(t, empty, "空输入的 gzip 空流也是合法产物")
-}

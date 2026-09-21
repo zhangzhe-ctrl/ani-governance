@@ -106,9 +106,6 @@ func NewRestMiddleware(
 		adminV1.OperationAuthenticationServiceForgotPassword,
 		adminV1.OperationAuthenticationServiceResetPasswordByCode,
 		adminV1.OperationAuthenticationServiceAcceptInvitation,
-		//OperationFileTransferServiceDownloadFile,
-		//OperationFileTransferServicePostUploadFile,
-		//OperationFileTransferServicePutUploadFile,
 	)
 
 	ms = append(ms, selector.Server(
@@ -140,9 +137,6 @@ func NewRestServer(
 
 	portalService *service.AdminPortalService,
 	taskService *service.TaskService,
-
-	fileService *service.FileService,
-	fileTransferService *service.FileTransferService,
 
 	dictTypeService *service.DictTypeService,
 	dictEntryService *service.DictEntryService,
@@ -243,13 +237,6 @@ func NewRestServer(
 	adminV1.RegisterNotificationChannelServiceHTTPServer(srv, notificationChannelService)
 	adminV1.RegisterOnlineSessionServiceHTTPServer(srv, onlineSessionService)
 	adminV1.RegisterDashboardServiceHTTPServer(srv, dashboardService)
-
-	adminV1.RegisterFileServiceHTTPServer(srv, fileService)
-
-	// 注册文件传输服务，用于处理文件上传下载等功能
-	// TODO 它不能够使用代码生成器生成的Handler，需要手动注册。代码生成器生成的Handler无法处理文件上传下载的请求。
-	// 但，代码生成器生成代码可以提供给OpenAPI使用。
-	registerFileTransferServiceHandler(srv, fileTransferService)
 
 	adminV1.RegisterInternalMessageServiceHTTPServer(srv, internalMessageService)
 	adminV1.RegisterInternalMessageCategoryServiceHTTPServer(srv, internalMessageCategoryService)

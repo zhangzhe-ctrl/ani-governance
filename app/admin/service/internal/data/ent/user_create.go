@@ -218,20 +218,6 @@ func (_c *UserCreate) SetNillableTelephone(v *string) *UserCreate {
 	return _c
 }
 
-// SetAvatar sets the "avatar" field.
-func (_c *UserCreate) SetAvatar(v string) *UserCreate {
-	_c.mutation.SetAvatar(v)
-	return _c
-}
-
-// SetNillableAvatar sets the "avatar" field if the given value is not nil.
-func (_c *UserCreate) SetNillableAvatar(v *string) *UserCreate {
-	if v != nil {
-		_c.SetAvatar(*v)
-	}
-	return _c
-}
-
 // SetAddress sets the "address" field.
 func (_c *UserCreate) SetAddress(v string) *UserCreate {
 	_c.mutation.SetAddress(v)
@@ -549,10 +535,6 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldTelephone, field.TypeString, value)
 		_node.Telephone = &value
 	}
-	if value, ok := _c.mutation.Avatar(); ok {
-		_spec.SetField(user.FieldAvatar, field.TypeString, value)
-		_node.Avatar = &value
-	}
 	if value, ok := _c.mutation.Address(); ok {
 		_spec.SetField(user.FieldAddress, field.TypeString, value)
 		_node.Address = &value
@@ -850,24 +832,6 @@ func (u *UserUpsert) UpdateTelephone() *UserUpsert {
 // ClearTelephone clears the value of the "telephone" field.
 func (u *UserUpsert) ClearTelephone() *UserUpsert {
 	u.SetNull(user.FieldTelephone)
-	return u
-}
-
-// SetAvatar sets the "avatar" field.
-func (u *UserUpsert) SetAvatar(v string) *UserUpsert {
-	u.Set(user.FieldAvatar, v)
-	return u
-}
-
-// UpdateAvatar sets the "avatar" field to the value that was provided on create.
-func (u *UserUpsert) UpdateAvatar() *UserUpsert {
-	u.SetExcluded(user.FieldAvatar)
-	return u
-}
-
-// ClearAvatar clears the value of the "avatar" field.
-func (u *UserUpsert) ClearAvatar() *UserUpsert {
-	u.SetNull(user.FieldAvatar)
 	return u
 }
 
@@ -1321,27 +1285,6 @@ func (u *UserUpsertOne) UpdateTelephone() *UserUpsertOne {
 func (u *UserUpsertOne) ClearTelephone() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearTelephone()
-	})
-}
-
-// SetAvatar sets the "avatar" field.
-func (u *UserUpsertOne) SetAvatar(v string) *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.SetAvatar(v)
-	})
-}
-
-// UpdateAvatar sets the "avatar" field to the value that was provided on create.
-func (u *UserUpsertOne) UpdateAvatar() *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateAvatar()
-	})
-}
-
-// ClearAvatar clears the value of the "avatar" field.
-func (u *UserUpsertOne) ClearAvatar() *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.ClearAvatar()
 	})
 }
 
@@ -1985,27 +1928,6 @@ func (u *UserUpsertBulk) UpdateTelephone() *UserUpsertBulk {
 func (u *UserUpsertBulk) ClearTelephone() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearTelephone()
-	})
-}
-
-// SetAvatar sets the "avatar" field.
-func (u *UserUpsertBulk) SetAvatar(v string) *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.SetAvatar(v)
-	})
-}
-
-// UpdateAvatar sets the "avatar" field to the value that was provided on create.
-func (u *UserUpsertBulk) UpdateAvatar() *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateAvatar()
-	})
-}
-
-// ClearAvatar clears the value of the "avatar" field.
-func (u *UserUpsertBulk) ClearAvatar() *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.ClearAvatar()
 	})
 }
 

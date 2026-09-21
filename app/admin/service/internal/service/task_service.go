@@ -1,12 +1,9 @@
 package service
 
 import (
-	"bytes"
-	"compress/gzip"
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -25,7 +22,6 @@ import (
 
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/middleware/auth"
-	"go-wind-admin/pkg/oss"
 	"go-wind-admin/pkg/task"
 )
 
@@ -42,9 +38,6 @@ type TaskScheduler interface {
 	RemoveAllPeriodicTask()
 }
 
-// backupBucket 备份文件存放的 OSS 桶名。
-const backupBucket = "backups"
-
 // TaskService 任务服务
 type TaskService struct {
 	adminV1.TaskServiceHTTPServer
@@ -55,29 +48,23 @@ type TaskService struct {
 
 	userRepo        data.UserRepo
 	taskRepo        *data.TaskRepo
-	backupRepo      *data.BackupRepo
 	tenantUsageRepo *data.TenantUsageRepo
 	auditLogArchiveRepo *data.AuditLogArchiveRepo
-	mc              *oss.MinIOClient
 }
 
 func NewTaskService(
 	ctx *bootstrap.Context,
 	taskRepo *data.TaskRepo,
 	userRepo data.UserRepo,
-	backupRepo *data.BackupRepo,
 	tenantUsageRepo *data.TenantUsageRepo,
 	auditLogArchiveRepo *data.AuditLogArchiveRepo,
-	mc *oss.MinIOClient,
 ) *TaskService {
 	svc := &TaskService{
 		log:             ctx.NewLoggerHelper("task/service/admin-service"),
 		taskRepo:        taskRepo,
 		userRepo:        userRepo,
-		backupRepo:      backupRepo,
 		tenantUsageRepo: tenantUsageRepo,
 		auditLogArchiveRepo: auditLogArchiveRepo,
-		mc:              mc,
 	}
 
 	return svc
@@ -550,98 +537,6 @@ func (s *TaskService) AsyncAuditLogArchive(taskType string, taskData *task.Audit
 		s.log.Infof(ctx, "audit log archived: %s -> %d rows (dir=%s)", table, n, outDir)
 	}
 	return nil
-}
-
-// AsyncBackup 异步备份任务的实际执行逻辑。
-//
-// H8：实现真正的备份——导出核心业务表为 JSON，gzip 压缩后上传到 OSS 的 backups 桶。
-// 纯 Go 实现，跨数据库驱动（MySQL/PostgreSQL/SQLite）。
-// 当前覆盖核心身份/权限/组织表；审计日志等大体量表暂不纳入（可按需扩展 BackupRepo.ExportCoreTables）。
-func (s *TaskService) AsyncBackup(taskType string, taskData *task.BackupTaskData) error {
-	// taskData 可能为 nil（下方有判空分支），直接解引用 taskData.Name 会在 nil 时 panic
-	backupName := ""
-	if taskData != nil {
-		backupName = taskData.Name
-	}
-	s.log.Infof(context.Background(), "AsyncBackup [%s] [%+v] [%s]", taskType, taskData, backupName)
-
-	// 用 SystemViewerContext 包裹：备份需要导出全部租户的核心表，
-	// 而 TenantPrivacy 在 viewer 缺失时会返回 error 导致带 tenant_id 的表全部查询失败。
-	// SystemViewer 的 IsSystemContext()==true，使 TenantPrivacy.EvalQuery 放行全量数据。
-	ctx := appViewer.NewSystemViewerContext(context.Background())
-	if backupName == "" {
-		backupName = fmt.Sprintf("backup-%s", time.Now().UTC().Format("20060102-150405"))
-	}
-
-	if s.backupRepo == nil || !s.backupRepo.IsConfigured() || s.mc == nil {
-		return fmt.Errorf("backup dependencies not configured (backupRepo or minio is nil)")
-	}
-
-	// 1. 导出核心表（ent 访问收敛在 data 层的 BackupRepo 内）
-	tables, err := s.backupRepo.ExportCoreTables(ctx)
-	if err != nil {
-		return fmt.Errorf("export core tables failed: %w", err)
-	}
-
-	// 2. 序列化为 JSON
-	jsonBytes, err := json.MarshalIndent(map[string]any{
-		"_meta": map[string]any{
-			"exportedAt": time.Now().UTC().Format(time.RFC3339),
-			"name":       backupName,
-			"tables":     tableNamesOf(tables),
-		},
-		"data": tables,
-	}, "", "  ")
-	if err != nil {
-		return fmt.Errorf("marshal backup json failed: %w", err)
-	}
-
-	// 3. gzip 压缩
-	compressed, err := gzipBytes(jsonBytes)
-	if err != nil {
-		return fmt.Errorf("gzip backup failed: %w", err)
-	}
-
-	// 4. 上传到 OSS
-	objectName := fmt.Sprintf("%s/%s-%s.json.gz",
-		time.Now().UTC().Format("2006/01/02"),
-		backupName,
-		time.Now().UTC().Format("150405"),
-	)
-
-	s.log.Infof(context.Background(), "backup: uploading %s (%d bytes raw, %d bytes compressed) to bucket %q",
-		objectName, len(jsonBytes), len(compressed), backupBucket)
-
-	if _, _, _, err = s.mc.UploadFile(ctx, backupBucket, objectName, "application/gzip", compressed); err != nil {
-		s.log.Errorf(context.Background(), "backup: upload to oss failed: %s", err.Error())
-		return fmt.Errorf("upload backup to oss failed: %w", err)
-	}
-
-	s.log.Infof(context.Background(), "backup: completed successfully, object=%s", objectName)
-	return nil
-}
-
-// tableNamesOf 返回 map 的键列表（用于备份元信息）。
-func tableNamesOf(tables map[string]any) []string {
-	names := make([]string, 0, len(tables))
-	for k := range tables {
-		names = append(names, k)
-	}
-	return names
-}
-
-// gzipBytes 使用标准库 gzip 压缩字节切片。
-func gzipBytes(data []byte) ([]byte, error) {
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-	if _, err := gz.Write(data); err != nil {
-		_ = gz.Close()
-		return nil, err
-	}
-	if err := gz.Close(); err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
 }
 
 // AsyncTenantExpiryScan 租户到期扫描任务的实际执行逻辑。

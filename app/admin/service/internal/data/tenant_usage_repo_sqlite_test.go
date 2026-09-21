@@ -96,19 +96,16 @@ func TestTenantUsageRepoSqlite_GetUsageWithPlanAndData(t *testing.T) {
 		"建 API_CALL 配额应成功")
 	require.NoError(t, client.User.Create().SetUsername("sqlite_usage_user_a1").SetTenantID(tenantA.ID).Exec(ctx))
 	require.NoError(t, client.User.Create().SetUsername("sqlite_usage_user_a2").SetTenantID(tenantA.ID).Exec(ctx))
-	require.NoError(t, client.File.Create().SetCreatedAt(now).SetTenantID(tenantA.ID).SetSize(uint64(100)).Exec(ctx))
-	require.NoError(t, client.File.Create().SetCreatedAt(now).SetTenantID(tenantA.ID).SetSize(uint64(200)).Exec(ctx))
 	require.NoError(t, client.ApiAuditLog.Create().SetCreatedAt(now).SetTenantID(tenantA.ID).Exec(ctx))
 	require.NoError(t, client.ApiAuditLog.Create().SetCreatedAt(now).SetTenantID(tenantA.ID).Exec(ctx))
 
-	// 租户 B：无套餐，带 1 用户 / 1 文件(50) / 1 条 API 审计（验证聚合按租户隔离）
+	// 租户 B：无套餐，带 1 用户 / 1 条 API 审计（验证聚合按租户隔离）
 	tenantB, err := client.Tenant.Create().
 		SetName("sqlite_usage_tenant_b").
 		SetCode("SQLITE_USAGE_TENANT_B").
 		Save(ctx)
 	require.NoError(t, err)
 	require.NoError(t, client.User.Create().SetUsername("sqlite_usage_user_b1").SetTenantID(tenantB.ID).Exec(ctx))
-	require.NoError(t, client.File.Create().SetCreatedAt(now).SetTenantID(tenantB.ID).SetSize(uint64(50)).Exec(ctx))
 	require.NoError(t, client.ApiAuditLog.Create().SetCreatedAt(now).SetTenantID(tenantB.ID).Exec(ctx))
 
 	// 租户 A 的用量：套餐与配额回填 + 本租户聚合计数
@@ -128,7 +125,7 @@ func TestTenantUsageRepoSqlite_GetUsageWithPlanAndData(t *testing.T) {
 		int32(identityV1.PlanQuota_API_CALL):   30,
 	}, quotaByType, "配额上限应按 quota_type 映射回填（USER_LIMIT/STORAGE/API_CALL）")
 	require.Equal(t, uint64(2), usageA.GetUserCount(), "租户 A 的用户计数应为 2")
-	require.Equal(t, uint64(300), usageA.GetStorageUsedBytes(), "租户 A 的存储字节数应为 100+200=300")
+	require.Zero(t, usageA.GetStorageUsedBytes(), "文件管理已下线，存储字节数恒为 0")
 	require.Equal(t, uint64(2), usageA.GetApiCallCount(), "租户 A 的 API 调用计数应为 2")
 
 	// 租户 B 的用量：无套餐回填，聚合只含本租户数据（不串入 A 的数据）
@@ -138,7 +135,7 @@ func TestTenantUsageRepoSqlite_GetUsageWithPlanAndData(t *testing.T) {
 	require.Zero(t, usageB.GetPlanId(), "租户 B 无套餐，PlanId 不应回填")
 	require.Empty(t, usageB.GetQuotas(), "租户 B 无套餐，Quotas 应为空")
 	require.Equal(t, uint64(1), usageB.GetUserCount(), "租户 B 的用户计数应只统计本租户的 1 个")
-	require.Equal(t, uint64(50), usageB.GetStorageUsedBytes(), "租户 B 的存储字节数应只统计本租户的 50")
+	require.Zero(t, usageB.GetStorageUsedBytes(), "文件管理已下线，存储字节数恒为 0")
 	require.Equal(t, uint64(1), usageB.GetApiCallCount(), "租户 B 的 API 调用计数应只统计本租户的 1 条")
 }
 
@@ -158,8 +155,7 @@ func TestTenantUsageRepoSqlite_CleanupTenantData(t *testing.T) {
 	require.NoError(t, err)
 	tid := tenantRow.ID
 
-	// 给该租户播种带 tenant_id 的数据（跨文件/审计/用户表）
-	require.NoError(t, client.File.Create().SetCreatedAt(now).SetTenantID(tid).SetSize(uint64(11)).Exec(ctx))
+	// 给该租户播种带 tenant_id 的数据（跨审计/用户表）
 	require.NoError(t, client.ApiAuditLog.Create().SetCreatedAt(now).SetTenantID(tid).Exec(ctx))
 	require.NoError(t, client.OperationAuditLog.Create().SetCreatedAt(now).SetTenantID(tid).Exec(ctx))
 	require.NoError(t, client.User.Create().SetUsername("sqlite_usage_user_cleanup").SetTenantID(tid).Exec(ctx))
@@ -170,20 +166,9 @@ func TestTenantUsageRepoSqlite_CleanupTenantData(t *testing.T) {
 		SetCode("SQLITE_USAGE_TENANT_KEEP").
 		Save(ctx)
 	require.NoError(t, err)
-	require.NoError(t, client.File.Create().SetCreatedAt(now).SetTenantID(otherTenant.ID).SetSize(uint64(7)).Exec(ctx))
+	require.NoError(t, client.User.Create().SetUsername("sqlite_usage_user_keep").SetTenantID(otherTenant.ID).Exec(ctx))
 
 	require.NoError(t, repo.CleanupTenantData(ctx, tid), "清理租户数据应成功")
-
-	fileCountByTenant := map[uint32]int{}
-	fileRows, err := client.File.Query().All(ctx)
-	require.NoError(t, err)
-	for _, f := range fileRows {
-		if f.TenantID != nil {
-			fileCountByTenant[*f.TenantID]++
-		}
-	}
-	require.Zero(t, fileCountByTenant[tid], "被清理租户的文件应全部删除")
-	require.Equal(t, 1, fileCountByTenant[otherTenant.ID], "其它租户的文件应保留")
 
 	apiCount, err := client.ApiAuditLog.Query().Count(ctx)
 	require.NoError(t, err)
@@ -193,7 +178,7 @@ func TestTenantUsageRepoSqlite_CleanupTenantData(t *testing.T) {
 	require.Zero(t, opCount, "操作审计表中该租户的行应被删除")
 	userCount, err := client.User.Query().Count(ctx)
 	require.NoError(t, err)
-	require.Zero(t, userCount, "该租户的用户行应被删除")
+	require.Equal(t, 1, userCount, "被清理租户的用户行应删除、其它租户的用户应保留")
 
 	after, err := client.Tenant.Query().Where(entTenant.IDEQ(tid)).Only(ctx)
 	require.NoError(t, err)

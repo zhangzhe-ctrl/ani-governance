@@ -58,7 +58,7 @@ var (
 		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "描述"},
 		{Name: "module", Type: field.TypeString, Nullable: true, Comment: "所属业务模块"},
 		{Name: "module_description", Type: field.TypeString, Nullable: true, Comment: "业务模块描述"},
-		{Name: "business_module", Type: field.TypeEnum, Nullable: true, Comment: "所属业务功能模块（用于套餐白名单过滤）", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "FILE", "TASK", "MODEL", "NETWORK"}},
+		{Name: "business_module", Type: field.TypeEnum, Nullable: true, Comment: "所属业务功能模块（用于套餐白名单过滤）", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "TASK", "MODEL", "NETWORK"}},
 		{Name: "operation", Type: field.TypeString, Nullable: true, Comment: "接口操作名"},
 		{Name: "path", Type: field.TypeString, Nullable: true, Comment: "接口路径"},
 		{Name: "method", Type: field.TypeString, Nullable: true, Comment: "请求方法"},
@@ -459,83 +459,6 @@ var (
 				Name:    "idx_sys_dict_types_sort_order",
 				Unique:  false,
 				Columns: []*schema.Column{SysDictTypesColumns[8]},
-			},
-		},
-	}
-	// FilesColumns holds the columns for the "files" table.
-	FilesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
-		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
-		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
-		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
-		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
-		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
-		{Name: "remark", Type: field.TypeString, Nullable: true, Comment: "备注"},
-		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
-		{Name: "provider", Type: field.TypeEnum, Nullable: true, Comment: "OSS供应商", Enums: []string{"UNKNOWN", "MINIO", "ALIYUN", "QINIU", "TENCENT", "AWS", "GOOGLE", "AZURE", "BAIDU", "HUAWEI", "LOCAL"}, Default: "MINIO"},
-		{Name: "bucket_name", Type: field.TypeString, Nullable: true, Comment: "存储桶名称"},
-		{Name: "file_directory", Type: field.TypeString, Nullable: true, Comment: "文件目录"},
-		{Name: "file_guid", Type: field.TypeString, Nullable: true, Comment: "文件Guid"},
-		{Name: "save_file_name", Type: field.TypeString, Nullable: true, Comment: "实际存储文件名"},
-		{Name: "file_name", Type: field.TypeString, Nullable: true, Comment: "原始文件名"},
-		{Name: "extension", Type: field.TypeString, Nullable: true, Comment: "文件扩展名"},
-		{Name: "size", Type: field.TypeUint64, Nullable: true, Comment: "文件长度，单位：字节"},
-		{Name: "size_format", Type: field.TypeString, Nullable: true, Comment: "格式化后的文件长度字符串"},
-		{Name: "link_url", Type: field.TypeString, Nullable: true, Comment: "链接地址"},
-		{Name: "content_hash", Type: field.TypeString, Nullable: true, Comment: "文件内容hash值，防止上传重复文件"},
-	}
-	// FilesTable holds the schema information for the "files" table.
-	FilesTable = &schema.Table{
-		Name:       "files",
-		Comment:    "文件表",
-		Columns:    FilesColumns,
-		PrimaryKey: []*schema.Column{FilesColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "idx_files_tenant_id",
-				Unique:  false,
-				Columns: []*schema.Column{FilesColumns[8]},
-			},
-			{
-				Name:    "uix_files_tenant_file_guid",
-				Unique:  true,
-				Columns: []*schema.Column{FilesColumns[8], FilesColumns[12]},
-			},
-			{
-				Name:    "idx_files_tenant_content_hash",
-				Unique:  false,
-				Columns: []*schema.Column{FilesColumns[8], FilesColumns[19]},
-			},
-			{
-				Name:    "idx_files_content_hash",
-				Unique:  false,
-				Columns: []*schema.Column{FilesColumns[19]},
-			},
-			{
-				Name:    "idx_files_bucket_name",
-				Unique:  false,
-				Columns: []*schema.Column{FilesColumns[10]},
-			},
-			{
-				Name:    "idx_files_file_name",
-				Unique:  false,
-				Columns: []*schema.Column{FilesColumns[14]},
-			},
-			{
-				Name:    "idx_files_extension",
-				Unique:  false,
-				Columns: []*schema.Column{FilesColumns[15]},
-			},
-			{
-				Name:    "idx_files_size",
-				Unique:  false,
-				Columns: []*schema.Column{FilesColumns[16]},
-			},
-			{
-				Name:    "idx_files_created_at",
-				Unique:  false,
-				Columns: []*schema.Column{FilesColumns[1]},
 			},
 		},
 	}
@@ -1289,7 +1212,7 @@ var (
 		{Name: "name", Type: field.TypeString, Nullable: true, Comment: "路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。"},
 		{Name: "component", Type: field.TypeString, Nullable: true, Comment: "前端页面组件", Default: ""},
 		{Name: "meta", Type: field.TypeJSON, Nullable: true, Comment: "路由元信息"},
-		{Name: "module", Type: field.TypeEnum, Nullable: true, Comment: "所属业务功能模块（用于套餐白名单过滤）", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "FILE", "TASK"}},
+		{Name: "module", Type: field.TypeEnum, Nullable: true, Comment: "所属业务功能模块（用于套餐白名单过滤）", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "TASK"}},
 		{Name: "parent_id", Type: field.TypeUint32, Nullable: true, Comment: "父节点ID"},
 	}
 	// SysMenusTable holds the schema information for the "sys_menus" table.
@@ -1953,7 +1876,7 @@ var (
 		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
 		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
 		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
-		{Name: "module", Type: field.TypeEnum, Nullable: true, Comment: "功能模块", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "FILE", "TASK", "MODEL", "NETWORK"}},
+		{Name: "module", Type: field.TypeEnum, Nullable: true, Comment: "功能模块", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "TASK", "MODEL", "NETWORK"}},
 		{Name: "plan_id", Type: field.TypeUint32, Nullable: true},
 	}
 	// SysPlanModulesTable holds the schema information for the "sys_plan_modules" table.
@@ -2692,7 +2615,6 @@ var (
 		{Name: "email", Type: field.TypeString, Nullable: true, Size: 320, Comment: "电子邮箱"},
 		{Name: "mobile", Type: field.TypeString, Nullable: true, Size: 255, Comment: "手机号码", Default: ""},
 		{Name: "telephone", Type: field.TypeString, Nullable: true, Size: 255, Comment: "座机号码", Default: ""},
-		{Name: "avatar", Type: field.TypeString, Nullable: true, Comment: "头像"},
 		{Name: "address", Type: field.TypeString, Nullable: true, Comment: "地址", Default: ""},
 		{Name: "region", Type: field.TypeString, Nullable: true, Comment: "国家地区", Default: ""},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 1023, Comment: "个人说明"},
@@ -2727,12 +2649,12 @@ var (
 			{
 				Name:    "idx_sys_user_tenant_last_login_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysUsersColumns[8], SysUsersColumns[20]},
+				Columns: []*schema.Column{SysUsersColumns[8], SysUsersColumns[19]},
 			},
 			{
 				Name:    "idx_sys_user_tenant_last_login_ip",
 				Unique:  false,
-				Columns: []*schema.Column{SysUsersColumns[8], SysUsersColumns[21]},
+				Columns: []*schema.Column{SysUsersColumns[8], SysUsersColumns[20]},
 			},
 			{
 				Name:    "idx_sys_user_tenant_created_by",
@@ -3138,7 +3060,6 @@ var (
 		SysDictEntriesTable,
 		SysDictEntryI18nTable,
 		SysDictTypesTable,
-		FilesTable,
 		InternalMessagesTable,
 		InternalMessageCategoriesTable,
 		InternalMessageRecipientsTable,
@@ -3216,11 +3137,6 @@ func init() {
 	}
 	SysDictTypesTable.Annotation = &entsql.Annotation{
 		Table:     "sys_dict_types",
-		Charset:   "utf8mb4",
-		Collation: "utf8mb4_bin",
-	}
-	FilesTable.Annotation = &entsql.Annotation{
-		Table:     "files",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
 	}

@@ -12,7 +12,6 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
 	"go-wind-admin/app/admin/service/internal/data/ent/dicttype"
-	"go-wind-admin/app/admin/service/internal/data/ent/file"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessage"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessagecategory"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessagerecipient"
@@ -269,30 +268,6 @@ func init() {
 	dicttypeDescID := dicttypeMixinFields0[0].Descriptor()
 	// dicttype.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	dicttype.IDValidator = dicttypeDescID.Validators[0].(func(uint32) error)
-	fileMixin := schema.File{}.Mixin()
-	file.Policy = privacy.NewPolicies(fileMixin[4], schema.File{})
-	file.Hooks[0] = func(next ent.Mutator) ent.Mutator {
-		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-			if err := file.Policy.EvalMutation(ctx, m); err != nil {
-				return nil, err
-			}
-			return next.Mutate(ctx, m)
-		})
-	}
-	fileMixinFields0 := fileMixin[0].Fields()
-	_ = fileMixinFields0
-	fileMixinFields4 := fileMixin[4].Fields()
-	_ = fileMixinFields4
-	fileFields := schema.File{}.Fields()
-	_ = fileFields
-	// fileDescTenantID is the schema descriptor for tenant_id field.
-	fileDescTenantID := fileMixinFields4[0].Descriptor()
-	// file.DefaultTenantID holds the default value on creation for the tenant_id field.
-	file.DefaultTenantID = fileDescTenantID.Default.(uint32)
-	// fileDescID is the schema descriptor for id field.
-	fileDescID := fileMixinFields0[0].Descriptor()
-	// file.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	file.IDValidator = fileDescID.Validators[0].(func(uint32) error)
 	internalmessageMixin := schema.InternalMessage{}.Mixin()
 	internalmessage.Policy = privacy.NewPolicies(internalmessageMixin[3], schema.InternalMessage{})
 	internalmessage.Hooks[0] = func(next ent.Mutator) ent.Mutator {
@@ -1171,15 +1146,15 @@ func init() {
 	// user.TelephoneValidator is a validator for the "telephone" field. It is called by the builders before save.
 	user.TelephoneValidator = userDescTelephone.Validators[0].(func(string) error)
 	// userDescAddress is the schema descriptor for address field.
-	userDescAddress := userFields[7].Descriptor()
+	userDescAddress := userFields[6].Descriptor()
 	// user.DefaultAddress holds the default value on creation for the address field.
 	user.DefaultAddress = userDescAddress.Default.(string)
 	// userDescRegion is the schema descriptor for region field.
-	userDescRegion := userFields[8].Descriptor()
+	userDescRegion := userFields[7].Descriptor()
 	// user.DefaultRegion holds the default value on creation for the region field.
 	user.DefaultRegion = userDescRegion.Default.(string)
 	// userDescDescription is the schema descriptor for description field.
-	userDescDescription := userFields[9].Descriptor()
+	userDescDescription := userFields[8].Descriptor()
 	// user.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	user.DescriptionValidator = userDescDescription.Validators[0].(func(string) error)
 	// userDescID is the schema descriptor for id field.

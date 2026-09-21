@@ -1249,132 +1249,6 @@ func (x *ChangePasswordRequest) GetNewPassword() string {
 	return ""
 }
 
-type UploadAvatarRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to Source:
-	//
-	//	*UploadAvatarRequest_ImageBase64
-	//	*UploadAvatarRequest_ImageUrl
-	Source        isUploadAvatarRequest_Source `protobuf_oneof:"source"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UploadAvatarRequest) Reset() {
-	*x = UploadAvatarRequest{}
-	mi := &file_identity_service_v1_user_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UploadAvatarRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UploadAvatarRequest) ProtoMessage() {}
-
-func (x *UploadAvatarRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_service_v1_user_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UploadAvatarRequest.ProtoReflect.Descriptor instead.
-func (*UploadAvatarRequest) Descriptor() ([]byte, []int) {
-	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *UploadAvatarRequest) GetSource() isUploadAvatarRequest_Source {
-	if x != nil {
-		return x.Source
-	}
-	return nil
-}
-
-func (x *UploadAvatarRequest) GetImageBase64() string {
-	if x != nil {
-		if x, ok := x.Source.(*UploadAvatarRequest_ImageBase64); ok {
-			return x.ImageBase64
-		}
-	}
-	return ""
-}
-
-func (x *UploadAvatarRequest) GetImageUrl() string {
-	if x != nil {
-		if x, ok := x.Source.(*UploadAvatarRequest_ImageUrl); ok {
-			return x.ImageUrl
-		}
-	}
-	return ""
-}
-
-type isUploadAvatarRequest_Source interface {
-	isUploadAvatarRequest_Source()
-}
-
-type UploadAvatarRequest_ImageBase64 struct {
-	ImageBase64 string `protobuf:"bytes,1,opt,name=image_base64,json=imageBase64,proto3,oneof"` // 图片的Base64编码
-}
-
-type UploadAvatarRequest_ImageUrl struct {
-	ImageUrl string `protobuf:"bytes,2,opt,name=image_url,json=imageUrl,proto3,oneof"` // 图片的URL地址
-}
-
-func (*UploadAvatarRequest_ImageBase64) isUploadAvatarRequest_Source() {}
-
-func (*UploadAvatarRequest_ImageUrl) isUploadAvatarRequest_Source() {}
-
-type UploadAvatarResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UploadAvatarResponse) Reset() {
-	*x = UploadAvatarResponse{}
-	mi := &file_identity_service_v1_user_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UploadAvatarResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UploadAvatarResponse) ProtoMessage() {}
-
-func (x *UploadAvatarResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_service_v1_user_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UploadAvatarResponse.ProtoReflect.Descriptor instead.
-func (*UploadAvatarResponse) Descriptor() ([]byte, []int) {
-	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *UploadAvatarResponse) GetUrl() string {
-	if x != nil {
-		return x.Url
-	}
-	return ""
-}
-
 type BindContactRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Contact:
@@ -1388,7 +1262,7 @@ type BindContactRequest struct {
 
 func (x *BindContactRequest) Reset() {
 	*x = BindContactRequest{}
-	mi := &file_identity_service_v1_user_proto_msgTypes[15]
+	mi := &file_identity_service_v1_user_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1400,7 +1274,7 @@ func (x *BindContactRequest) String() string {
 func (*BindContactRequest) ProtoMessage() {}
 
 func (x *BindContactRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_service_v1_user_proto_msgTypes[15]
+	mi := &file_identity_service_v1_user_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1413,7 +1287,7 @@ func (x *BindContactRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindContactRequest.ProtoReflect.Descriptor instead.
 func (*BindContactRequest) Descriptor() ([]byte, []int) {
-	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{15}
+	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *BindContactRequest) GetContact() isBindContactRequest_Contact {
@@ -1467,7 +1341,7 @@ type BindPhoneRequest struct {
 
 func (x *BindPhoneRequest) Reset() {
 	*x = BindPhoneRequest{}
-	mi := &file_identity_service_v1_user_proto_msgTypes[16]
+	mi := &file_identity_service_v1_user_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1479,7 +1353,7 @@ func (x *BindPhoneRequest) String() string {
 func (*BindPhoneRequest) ProtoMessage() {}
 
 func (x *BindPhoneRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_service_v1_user_proto_msgTypes[16]
+	mi := &file_identity_service_v1_user_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1492,7 +1366,7 @@ func (x *BindPhoneRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindPhoneRequest.ProtoReflect.Descriptor instead.
 func (*BindPhoneRequest) Descriptor() ([]byte, []int) {
-	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{16}
+	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *BindPhoneRequest) GetPhone() string {
@@ -1519,7 +1393,7 @@ type BindEmailRequest struct {
 
 func (x *BindEmailRequest) Reset() {
 	*x = BindEmailRequest{}
-	mi := &file_identity_service_v1_user_proto_msgTypes[17]
+	mi := &file_identity_service_v1_user_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1531,7 +1405,7 @@ func (x *BindEmailRequest) String() string {
 func (*BindEmailRequest) ProtoMessage() {}
 
 func (x *BindEmailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_service_v1_user_proto_msgTypes[17]
+	mi := &file_identity_service_v1_user_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1544,7 +1418,7 @@ func (x *BindEmailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindEmailRequest.ProtoReflect.Descriptor instead.
 func (*BindEmailRequest) Descriptor() ([]byte, []int) {
-	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{17}
+	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *BindEmailRequest) GetEmail() string {
@@ -1576,7 +1450,7 @@ type VerifyContactRequest struct {
 
 func (x *VerifyContactRequest) Reset() {
 	*x = VerifyContactRequest{}
-	mi := &file_identity_service_v1_user_proto_msgTypes[18]
+	mi := &file_identity_service_v1_user_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1588,7 +1462,7 @@ func (x *VerifyContactRequest) String() string {
 func (*VerifyContactRequest) ProtoMessage() {}
 
 func (x *VerifyContactRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_service_v1_user_proto_msgTypes[18]
+	mi := &file_identity_service_v1_user_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1601,7 +1475,7 @@ func (x *VerifyContactRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyContactRequest.ProtoReflect.Descriptor instead.
 func (*VerifyContactRequest) Descriptor() ([]byte, []int) {
-	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{18}
+	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *VerifyContactRequest) GetContact() isVerifyContactRequest_Contact {
@@ -1663,7 +1537,7 @@ type PhoneVerification struct {
 
 func (x *PhoneVerification) Reset() {
 	*x = PhoneVerification{}
-	mi := &file_identity_service_v1_user_proto_msgTypes[19]
+	mi := &file_identity_service_v1_user_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1675,7 +1549,7 @@ func (x *PhoneVerification) String() string {
 func (*PhoneVerification) ProtoMessage() {}
 
 func (x *PhoneVerification) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_service_v1_user_proto_msgTypes[19]
+	mi := &file_identity_service_v1_user_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1688,7 +1562,7 @@ func (x *PhoneVerification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PhoneVerification.ProtoReflect.Descriptor instead.
 func (*PhoneVerification) Descriptor() ([]byte, []int) {
-	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{19}
+	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *PhoneVerification) GetPhone() string {
@@ -1716,7 +1590,7 @@ type EmailVerification struct {
 
 func (x *EmailVerification) Reset() {
 	*x = EmailVerification{}
-	mi := &file_identity_service_v1_user_proto_msgTypes[20]
+	mi := &file_identity_service_v1_user_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1728,7 +1602,7 @@ func (x *EmailVerification) String() string {
 func (*EmailVerification) ProtoMessage() {}
 
 func (x *EmailVerification) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_service_v1_user_proto_msgTypes[20]
+	mi := &file_identity_service_v1_user_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1741,7 +1615,7 @@ func (x *EmailVerification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EmailVerification.ProtoReflect.Descriptor instead.
 func (*EmailVerification) Descriptor() ([]byte, []int) {
-	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{20}
+	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *EmailVerification) GetEmail() string {
@@ -1767,7 +1641,7 @@ type CountUserResponse struct {
 
 func (x *CountUserResponse) Reset() {
 	*x = CountUserResponse{}
-	mi := &file_identity_service_v1_user_proto_msgTypes[21]
+	mi := &file_identity_service_v1_user_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1779,7 +1653,7 @@ func (x *CountUserResponse) String() string {
 func (*CountUserResponse) ProtoMessage() {}
 
 func (x *CountUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_identity_service_v1_user_proto_msgTypes[21]
+	mi := &file_identity_service_v1_user_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1792,7 +1666,7 @@ func (x *CountUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CountUserResponse.ProtoReflect.Descriptor instead.
 func (*CountUserResponse) Descriptor() ([]byte, []int) {
-	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{21}
+	return file_identity_service_v1_user_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *CountUserResponse) GetCount() uint64 {
@@ -1956,13 +1830,7 @@ const file_identity_service_v1_user_proto_rawDesc = "" +
 	"\fnew_password\x18\x02 \x01(\tB\x19\xfaB\ar\x05\x10\b\x18\x80\x01\xbaG\f\x92\x02\t新密码R\vnewPassword\"\x91\x01\n" +
 	"\x15ChangePasswordRequest\x12:\n" +
 	"\fold_password\x18\x01 \x01(\tB\x17\xfaB\x05r\x03\x18\x80\x01\xbaG\f\x92\x02\t旧密码R\voldPassword\x12<\n" +
-	"\fnew_password\x18\x02 \x01(\tB\x19\xfaB\ar\x05\x10\b\x18\x80\x01\xbaG\f\x92\x02\t新密码R\vnewPassword\"\x9a\x01\n" +
-	"\x13UploadAvatarRequest\x12@\n" +
-	"\fimage_base64\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15图片的Base64编码H\x00R\vimageBase64\x127\n" +
-	"\timage_url\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12图片的URL地址H\x00R\bimageUrlB\b\n" +
-	"\x06source\"(\n" +
-	"\x14UploadAvatarResponse\x12\x10\n" +
-	"\x03url\x18\x01 \x01(\tR\x03url\"\x9d\x01\n" +
+	"\fnew_password\x18\x02 \x01(\tB\x19\xfaB\ar\x05\x10\b\x18\x80\x01\xbaG\f\x92\x02\t新密码R\vnewPassword\"\x9d\x01\n" +
 	"\x12BindContactRequest\x12=\n" +
 	"\x05phone\x18\x01 \x01(\v2%.identity.service.v1.BindPhoneRequestH\x00R\x05phone\x12=\n" +
 	"\x05email\x18\x02 \x01(\v2%.identity.service.v1.BindEmailRequestH\x00R\x05emailB\t\n" +
@@ -2016,7 +1884,7 @@ func file_identity_service_v1_user_proto_rawDescGZIP() []byte {
 }
 
 var file_identity_service_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_identity_service_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_identity_service_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_identity_service_v1_user_proto_goTypes = []any{
 	(ActivationMode)(0),              // 0: identity.service.v1.ActivationMode
 	(User_Gender)(0),                 // 1: identity.service.v1.User.Gender
@@ -2034,41 +1902,39 @@ var file_identity_service_v1_user_proto_goTypes = []any{
 	(*GetUsersByIdsRequest)(nil),     // 13: identity.service.v1.GetUsersByIdsRequest
 	(*EditUserPasswordRequest)(nil),  // 14: identity.service.v1.EditUserPasswordRequest
 	(*ChangePasswordRequest)(nil),    // 15: identity.service.v1.ChangePasswordRequest
-	(*UploadAvatarRequest)(nil),      // 16: identity.service.v1.UploadAvatarRequest
-	(*UploadAvatarResponse)(nil),     // 17: identity.service.v1.UploadAvatarResponse
-	(*BindContactRequest)(nil),       // 18: identity.service.v1.BindContactRequest
-	(*BindPhoneRequest)(nil),         // 19: identity.service.v1.BindPhoneRequest
-	(*BindEmailRequest)(nil),         // 20: identity.service.v1.BindEmailRequest
-	(*VerifyContactRequest)(nil),     // 21: identity.service.v1.VerifyContactRequest
-	(*PhoneVerification)(nil),        // 22: identity.service.v1.PhoneVerification
-	(*EmailVerification)(nil),        // 23: identity.service.v1.EmailVerification
-	(*CountUserResponse)(nil),        // 24: identity.service.v1.CountUserResponse
-	(*timestamppb.Timestamp)(nil),    // 25: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),    // 26: google.protobuf.FieldMask
-	(*v1.PagingRequest)(nil),         // 27: pagination.PagingRequest
-	(*emptypb.Empty)(nil),            // 28: google.protobuf.Empty
+	(*BindContactRequest)(nil),       // 16: identity.service.v1.BindContactRequest
+	(*BindPhoneRequest)(nil),         // 17: identity.service.v1.BindPhoneRequest
+	(*BindEmailRequest)(nil),         // 18: identity.service.v1.BindEmailRequest
+	(*VerifyContactRequest)(nil),     // 19: identity.service.v1.VerifyContactRequest
+	(*PhoneVerification)(nil),        // 20: identity.service.v1.PhoneVerification
+	(*EmailVerification)(nil),        // 21: identity.service.v1.EmailVerification
+	(*CountUserResponse)(nil),        // 22: identity.service.v1.CountUserResponse
+	(*timestamppb.Timestamp)(nil),    // 23: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),    // 24: google.protobuf.FieldMask
+	(*v1.PagingRequest)(nil),         // 25: pagination.PagingRequest
+	(*emptypb.Empty)(nil),            // 26: google.protobuf.Empty
 }
 var file_identity_service_v1_user_proto_depIdxs = []int32{
 	1,  // 0: identity.service.v1.User.gender:type_name -> identity.service.v1.User.Gender
-	25, // 1: identity.service.v1.User.last_login_at:type_name -> google.protobuf.Timestamp
+	23, // 1: identity.service.v1.User.last_login_at:type_name -> google.protobuf.Timestamp
 	2,  // 2: identity.service.v1.User.status:type_name -> identity.service.v1.User.Status
-	25, // 3: identity.service.v1.User.locked_until:type_name -> google.protobuf.Timestamp
-	25, // 4: identity.service.v1.User.created_at:type_name -> google.protobuf.Timestamp
-	25, // 5: identity.service.v1.User.updated_at:type_name -> google.protobuf.Timestamp
-	25, // 6: identity.service.v1.User.deleted_at:type_name -> google.protobuf.Timestamp
+	23, // 3: identity.service.v1.User.locked_until:type_name -> google.protobuf.Timestamp
+	23, // 4: identity.service.v1.User.created_at:type_name -> google.protobuf.Timestamp
+	23, // 5: identity.service.v1.User.updated_at:type_name -> google.protobuf.Timestamp
+	23, // 6: identity.service.v1.User.deleted_at:type_name -> google.protobuf.Timestamp
 	3,  // 7: identity.service.v1.ListUserResponse.items:type_name -> identity.service.v1.User
-	26, // 8: identity.service.v1.GetUserRequest.view_mask:type_name -> google.protobuf.FieldMask
+	24, // 8: identity.service.v1.GetUserRequest.view_mask:type_name -> google.protobuf.FieldMask
 	3,  // 9: identity.service.v1.CreateUserRequest.data:type_name -> identity.service.v1.User
 	0,  // 10: identity.service.v1.CreateUserRequest.activation_mode:type_name -> identity.service.v1.ActivationMode
 	3,  // 11: identity.service.v1.UpdateUserRequest.data:type_name -> identity.service.v1.User
-	26, // 12: identity.service.v1.UpdateUserRequest.update_mask:type_name -> google.protobuf.FieldMask
+	24, // 12: identity.service.v1.UpdateUserRequest.update_mask:type_name -> google.protobuf.FieldMask
 	3,  // 13: identity.service.v1.BatchCreateUsersRequest.items:type_name -> identity.service.v1.User
-	19, // 14: identity.service.v1.BindContactRequest.phone:type_name -> identity.service.v1.BindPhoneRequest
-	20, // 15: identity.service.v1.BindContactRequest.email:type_name -> identity.service.v1.BindEmailRequest
-	22, // 16: identity.service.v1.VerifyContactRequest.phone:type_name -> identity.service.v1.PhoneVerification
-	23, // 17: identity.service.v1.VerifyContactRequest.email:type_name -> identity.service.v1.EmailVerification
-	27, // 18: identity.service.v1.UserService.List:input_type -> pagination.PagingRequest
-	27, // 19: identity.service.v1.UserService.Count:input_type -> pagination.PagingRequest
+	17, // 14: identity.service.v1.BindContactRequest.phone:type_name -> identity.service.v1.BindPhoneRequest
+	18, // 15: identity.service.v1.BindContactRequest.email:type_name -> identity.service.v1.BindEmailRequest
+	20, // 16: identity.service.v1.VerifyContactRequest.phone:type_name -> identity.service.v1.PhoneVerification
+	21, // 17: identity.service.v1.VerifyContactRequest.email:type_name -> identity.service.v1.EmailVerification
+	25, // 18: identity.service.v1.UserService.List:input_type -> pagination.PagingRequest
+	25, // 19: identity.service.v1.UserService.Count:input_type -> pagination.PagingRequest
 	5,  // 20: identity.service.v1.UserService.Get:input_type -> identity.service.v1.GetUserRequest
 	6,  // 21: identity.service.v1.UserService.Create:input_type -> identity.service.v1.CreateUserRequest
 	11, // 22: identity.service.v1.UserService.BatchCreate:input_type -> identity.service.v1.BatchCreateUsersRequest
@@ -2076,12 +1942,12 @@ var file_identity_service_v1_user_proto_depIdxs = []int32{
 	8,  // 24: identity.service.v1.UserService.Delete:input_type -> identity.service.v1.DeleteUserRequest
 	9,  // 25: identity.service.v1.UserService.UserExists:input_type -> identity.service.v1.UserExistsRequest
 	4,  // 26: identity.service.v1.UserService.List:output_type -> identity.service.v1.ListUserResponse
-	24, // 27: identity.service.v1.UserService.Count:output_type -> identity.service.v1.CountUserResponse
+	22, // 27: identity.service.v1.UserService.Count:output_type -> identity.service.v1.CountUserResponse
 	3,  // 28: identity.service.v1.UserService.Get:output_type -> identity.service.v1.User
-	28, // 29: identity.service.v1.UserService.Create:output_type -> google.protobuf.Empty
+	26, // 29: identity.service.v1.UserService.Create:output_type -> google.protobuf.Empty
 	12, // 30: identity.service.v1.UserService.BatchCreate:output_type -> identity.service.v1.BatchCreateUsersResponse
-	28, // 31: identity.service.v1.UserService.Update:output_type -> google.protobuf.Empty
-	28, // 32: identity.service.v1.UserService.Delete:output_type -> google.protobuf.Empty
+	26, // 31: identity.service.v1.UserService.Update:output_type -> google.protobuf.Empty
+	26, // 32: identity.service.v1.UserService.Delete:output_type -> google.protobuf.Empty
 	10, // 33: identity.service.v1.UserService.UserExists:output_type -> identity.service.v1.UserExistsResponse
 	26, // [26:34] is the sub-list for method output_type
 	18, // [18:26] is the sub-list for method input_type
@@ -2111,15 +1977,11 @@ func file_identity_service_v1_user_proto_init() {
 		(*UserExistsRequest_Username)(nil),
 	}
 	file_identity_service_v1_user_proto_msgTypes[13].OneofWrappers = []any{
-		(*UploadAvatarRequest_ImageBase64)(nil),
-		(*UploadAvatarRequest_ImageUrl)(nil),
-	}
-	file_identity_service_v1_user_proto_msgTypes[15].OneofWrappers = []any{
 		(*BindContactRequest_Phone)(nil),
 		(*BindContactRequest_Email)(nil),
 	}
-	file_identity_service_v1_user_proto_msgTypes[17].OneofWrappers = []any{}
-	file_identity_service_v1_user_proto_msgTypes[18].OneofWrappers = []any{
+	file_identity_service_v1_user_proto_msgTypes[15].OneofWrappers = []any{}
+	file_identity_service_v1_user_proto_msgTypes[16].OneofWrappers = []any{
 		(*VerifyContactRequest_Phone)(nil),
 		(*VerifyContactRequest_Email)(nil),
 	}
@@ -2129,7 +1991,7 @@ func file_identity_service_v1_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_identity_service_v1_user_proto_rawDesc), len(file_identity_service_v1_user_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   22,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

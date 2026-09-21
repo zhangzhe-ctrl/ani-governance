@@ -34,12 +34,6 @@ func NewAsynqServer(ctx *bootstrap.Context, taskService *service.TaskService, in
 
 	var err error
 
-	// 注册任务
-	if err = asynqServer.RegisterSubscriber(srv, task.BackupTaskType, taskService.AsyncBackup); err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
 	// 注册租户到期扫描任务（系统级常驻任务，不写入 sys_tasks 表）。
 	// 该任务每小时整点扫描 status==ON 且 expired_at<=now 的租户，按套餐 expiry_policy 修改状态并吊销令牌。
 	// READONLY 策略的即时读写拦截由 TenantAccessChecker 中间件承担，不依赖本扫描任务。

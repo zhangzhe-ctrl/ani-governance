@@ -68,11 +68,6 @@ func (User) Fields() []ent.Field {
 			Optional().
 			Nillable(),
 
-		field.String("avatar").
-			Comment("头像").
-			Optional().
-			Nillable(),
-
 		field.String("address").
 			Comment("地址").
 			Default("").

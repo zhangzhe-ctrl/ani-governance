@@ -416,28 +416,6 @@ func (x *ChangePasswordRequest) Redact() {
 	// Safe field: NewPassword
 }
 
-// Ensure UploadAvatarRequest implements the Redactor interface at compile time.
-var _ redact.Redactor = (*UploadAvatarRequest)(nil)
-
-// Redact method implementation for UploadAvatarRequest
-func (x *UploadAvatarRequest) Redact() {
-	if x == nil {
-		return
-	}
-}
-
-// Ensure UploadAvatarResponse implements the Redactor interface at compile time.
-var _ redact.Redactor = (*UploadAvatarResponse)(nil)
-
-// Redact method implementation for UploadAvatarResponse
-func (x *UploadAvatarResponse) Redact() {
-	if x == nil {
-		return
-	}
-
-	// Safe field: Url
-}
-
 // Ensure BindContactRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*BindContactRequest)(nil)
 

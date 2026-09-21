@@ -319,8 +319,6 @@ func ComponentToModule(component string) identityV1.Module {
 		return identityV1.Module_LOG
 	case len(component) >= 21 && component[:21] == "app/internal_message/":
 		return identityV1.Module_INTERNAL_MESSAGE
-	case len(component) >= 9 && component[:9] == "app/file/":
-		return identityV1.Module_FILE
 	case len(component) >= 9 && component[:9] == "app/task/":
 		return identityV1.Module_TASK
 	default:
@@ -823,21 +821,6 @@ var DefaultMenus = []*permissionV1.Menu{
 			Icon:      trans.Ptr("lucide:library-big"),
 			Order:     trans.Ptr(int32(3)),
 			Authority: []string{"sys:platform_admin"},
-		},
-	},
-	{
-		Id:        trans.Ptr(uint32(62)),
-		ParentId:  trans.Ptr(uint32(60)),
-		Type:      permissionV1.Menu_MENU.Enum(),
-		Name:      trans.Ptr("FileManagement"),
-		Path:      trans.Ptr("files"),
-		Component: trans.Ptr("app/system/file/index.vue"),
-		CreatedAt: timeutil.TimeToTimestamppb(trans.Ptr(time.Now())),
-		Meta: &permissionV1.MenuMeta{
-			Title:     trans.Ptr("menu.system.file"),
-			Icon:      trans.Ptr("lucide:file-search"),
-			Order:     trans.Ptr(int32(4)),
-			Authority: []string{"sys:platform_admin", "sys:tenant_manager"},
 		},
 	},
 	{

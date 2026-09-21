@@ -338,8 +338,6 @@ func mapEntModuleToProto(m planmodule.Module) identityV1.Module {
 		return identityV1.Module_LOG
 	case planmodule.ModuleInternalMessage:
 		return identityV1.Module_INTERNAL_MESSAGE
-	case planmodule.ModuleFile:
-		return identityV1.Module_FILE
 	case planmodule.ModuleTask:
 		return identityV1.Module_TASK
 	default:

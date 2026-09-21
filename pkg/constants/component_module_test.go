@@ -33,7 +33,6 @@ func TestComponentToModule(t *testing.T) {
 		{"log bare prefix", "app/log/", identityV1.Module_LOG},
 		{"internal message page", "app/internal_message/inbox/index.vue", identityV1.Module_INTERNAL_MESSAGE},
 		{"internal message bare prefix", "app/internal_message/", identityV1.Module_INTERNAL_MESSAGE},
-		{"file page", "app/file/list/index.vue", identityV1.Module_FILE},
 		{"task page", "app/task/list/index.vue", identityV1.Module_TASK},
 
 		// 复合前缀：switch 顺序决定归入 system 而非 dict/file/task

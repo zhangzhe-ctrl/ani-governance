@@ -131,7 +131,7 @@ func TestPlanModuleServiceSqlite_Get(t *testing.T) {
 
 	_, err = svc.Create(opCtx, &identityV1.CreatePlanModuleRequest{
 		Data: &identityV1.PlanModule{
-			Module: identityV1.Module_FILE.Enum(),
+			Module: identityV1.Module_TASK.Enum(),
 			PlanId: &parent.ID,
 		},
 	})
@@ -146,7 +146,7 @@ func TestPlanModuleServiceSqlite_Get(t *testing.T) {
 		QueryBy: &identityV1.GetPlanModuleRequest_Id{Id: createdID},
 	})
 	require.NoError(t, err, "按已存在主键查询应命中")
-	require.Equal(t, identityV1.Module_FILE, got.GetModule(), "module 应经转换器回读")
+	require.Equal(t, identityV1.Module_TASK, got.GetModule(), "module 应经转换器回读")
 
 	_, err = svc.Get(ctx, &identityV1.GetPlanModuleRequest{
 		QueryBy: &identityV1.GetPlanModuleRequest_Id{Id: 9999999},

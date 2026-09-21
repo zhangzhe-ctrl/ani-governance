@@ -17,7 +17,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0
 	github.com/lib/pq v1.12.3
 	github.com/mileusna/useragent v1.3.5
-	github.com/minio/minio-go/v7 v7.3.0
 	github.com/pquerna/otp v1.5.0
 	github.com/redis/go-redis/v9 v9.22.0
 	github.com/stretchr/testify v1.12.1
@@ -47,7 +46,6 @@ require (
 	github.com/tx7do/kratos-bootstrap/cache/redis v0.1.2
 	github.com/tx7do/kratos-bootstrap/database/ent v0.1.6
 	github.com/tx7do/kratos-bootstrap/logger v0.1.3
-	github.com/tx7do/kratos-bootstrap/oss/minio v0.1.3
 	github.com/tx7do/kratos-bootstrap/rpc v0.1.3
 	github.com/tx7do/kratos-bootstrap/transport/asynq v0.0.7
 	github.com/tx7do/kratos-bootstrap/transport/sse v0.0.5
@@ -64,6 +62,7 @@ require (
 )
 
 require (
+	github.com/dlclark/regexp2 v1.12.0 // indirect
 	github.com/tx7do/go-wind v0.0.2 // indirect
 	github.com/yuin/gopher-lua v1.1.2 // indirect
 )
@@ -125,7 +124,6 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/klauspost/compress v1.20.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
-	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.4 // indirect
 	github.com/lestrrat-go/dsig v1.2.1 // indirect
 	github.com/lestrrat-go/dsig-secp256k1 v1.0.0 // indirect
@@ -139,8 +137,6 @@ require (
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.28 // indirect
 	github.com/mattn/go-sqlite3 v1.14.52 // indirect
-	github.com/minio/crc64nvme v1.1.1 // indirect
-	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mojocn/base64Captcha v1.3.8 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
@@ -154,7 +150,6 @@ require (
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
 	github.com/oschwald/geoip2-golang v1.13.0 // indirect
 	github.com/oschwald/maxminddb-golang v1.13.1 // indirect
-	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20260805114148-88456608a4f6 // indirect
 	github.com/prometheus/client_model v0.6.3 // indirect
@@ -178,7 +173,6 @@ require (
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/swaggest/swgui v1.8.5 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.3 // indirect
-	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/tklauser/go-sysconf v0.4.0 // indirect
 	github.com/tklauser/numcpus v0.12.0 // indirect
@@ -203,7 +197,6 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zclconf/go-cty v1.19.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.2.0 // indirect
-	github.com/zeebo/xxh3 v1.1.0 // indirect
 	github.com/zhangzhe-ctrl/ani-network-service v0.0.0-20260917165536-66f787bd3013
 	go.einride.tech/aip v0.86.3 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.9.0 // indirect
@@ -220,7 +213,7 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/crypto v0.56.0 // indirect
+	golang.org/x/crypto v0.56.0
 	golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa // indirect
 	golang.org/x/image v0.40.0 // indirect
 	golang.org/x/mod v0.40.0 // indirect
@@ -231,7 +224,6 @@ require (
 	golang.org/x/tools v0.49.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260908043556-f8649ddbbfe6 // indirect
 	gopkg.in/cenkalti/backoff.v1 v1.1.0 // indirect
-	gopkg.in/ini.v1 v1.67.3 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.75.7 // indirect
 	modernc.org/mathutil v1.7.1 // indirect

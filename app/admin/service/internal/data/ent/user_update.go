@@ -270,26 +270,6 @@ func (_u *UserUpdate) ClearTelephone() *UserUpdate {
 	return _u
 }
 
-// SetAvatar sets the "avatar" field.
-func (_u *UserUpdate) SetAvatar(v string) *UserUpdate {
-	_u.mutation.SetAvatar(v)
-	return _u
-}
-
-// SetNillableAvatar sets the "avatar" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableAvatar(v *string) *UserUpdate {
-	if v != nil {
-		_u.SetAvatar(*v)
-	}
-	return _u
-}
-
-// ClearAvatar clears the value of the "avatar" field.
-func (_u *UserUpdate) ClearAvatar() *UserUpdate {
-	_u.mutation.ClearAvatar()
-	return _u
-}
-
 // SetAddress sets the "address" field.
 func (_u *UserUpdate) SetAddress(v string) *UserUpdate {
 	_u.mutation.SetAddress(v)
@@ -619,12 +599,6 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.TelephoneCleared() {
 		_spec.ClearField(user.FieldTelephone, field.TypeString)
 	}
-	if value, ok := _u.mutation.Avatar(); ok {
-		_spec.SetField(user.FieldAvatar, field.TypeString, value)
-	}
-	if _u.mutation.AvatarCleared() {
-		_spec.ClearField(user.FieldAvatar, field.TypeString)
-	}
 	if value, ok := _u.mutation.Address(); ok {
 		_spec.SetField(user.FieldAddress, field.TypeString, value)
 	}
@@ -933,26 +907,6 @@ func (_u *UserUpdateOne) SetNillableTelephone(v *string) *UserUpdateOne {
 // ClearTelephone clears the value of the "telephone" field.
 func (_u *UserUpdateOne) ClearTelephone() *UserUpdateOne {
 	_u.mutation.ClearTelephone()
-	return _u
-}
-
-// SetAvatar sets the "avatar" field.
-func (_u *UserUpdateOne) SetAvatar(v string) *UserUpdateOne {
-	_u.mutation.SetAvatar(v)
-	return _u
-}
-
-// SetNillableAvatar sets the "avatar" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableAvatar(v *string) *UserUpdateOne {
-	if v != nil {
-		_u.SetAvatar(*v)
-	}
-	return _u
-}
-
-// ClearAvatar clears the value of the "avatar" field.
-func (_u *UserUpdateOne) ClearAvatar() *UserUpdateOne {
-	_u.mutation.ClearAvatar()
 	return _u
 }
 
@@ -1314,12 +1268,6 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if _u.mutation.TelephoneCleared() {
 		_spec.ClearField(user.FieldTelephone, field.TypeString)
-	}
-	if value, ok := _u.mutation.Avatar(); ok {
-		_spec.SetField(user.FieldAvatar, field.TypeString, value)
-	}
-	if _u.mutation.AvatarCleared() {
-		_spec.ClearField(user.FieldAvatar, field.TypeString)
 	}
 	if value, ok := _u.mutation.Address(); ok {
 		_spec.SetField(user.FieldAddress, field.TypeString, value)

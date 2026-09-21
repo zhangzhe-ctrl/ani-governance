@@ -42,8 +42,6 @@ const (
 	FieldMobile = "mobile"
 	// FieldTelephone holds the string denoting the telephone field in the database.
 	FieldTelephone = "telephone"
-	// FieldAvatar holds the string denoting the avatar field in the database.
-	FieldAvatar = "avatar"
 	// FieldAddress holds the string denoting the address field in the database.
 	FieldAddress = "address"
 	// FieldRegion holds the string denoting the region field in the database.
@@ -81,7 +79,6 @@ var Columns = []string{
 	FieldEmail,
 	FieldMobile,
 	FieldTelephone,
-	FieldAvatar,
 	FieldAddress,
 	FieldRegion,
 	FieldDescription,
@@ -267,11 +264,6 @@ func ByMobile(opts ...sql.OrderTermOption) OrderOption {
 // ByTelephone orders the results by the telephone field.
 func ByTelephone(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTelephone, opts...).ToFunc()
-}
-
-// ByAvatar orders the results by the avatar field.
-func ByAvatar(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAvatar, opts...).ToFunc()
 }
 
 // ByAddress orders the results by the address field.

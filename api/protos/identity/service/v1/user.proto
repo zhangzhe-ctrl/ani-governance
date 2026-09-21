@@ -377,27 +377,6 @@ message ChangePasswordRequest {
   ]; // 新密码
 }
 
-message UploadAvatarRequest {
-  oneof source {
-    string image_base64 = 1 [
-      json_name = "imageBase64",
-      (gnostic.openapi.v3.property) = {
-        description: "图片的Base64编码"
-      }
-    ]; // 图片的Base64编码
-
-    string image_url = 2 [
-      json_name = "imageUrl",
-      (gnostic.openapi.v3.property) = {
-        description: "图片的URL地址"
-      }
-    ]; // 图片的URL地址
-  }
-}
-message UploadAvatarResponse {
-  string url = 1;
-}
-
 message BindContactRequest {
   oneof contact {
     BindPhoneRequest phone = 1;

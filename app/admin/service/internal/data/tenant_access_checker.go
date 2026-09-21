@@ -153,8 +153,6 @@ func mapProtoModuleToEnt(m identityV1.Module) planmodule.Module {
 		return planmodule.ModuleLog
 	case identityV1.Module_INTERNAL_MESSAGE:
 		return planmodule.ModuleInternalMessage
-	case identityV1.Module_FILE:
-		return planmodule.ModuleFile
 	case identityV1.Module_TASK:
 		return planmodule.ModuleTask
 	case identityV1.Module_NETWORK:
@@ -186,8 +184,6 @@ func mapApiBusinessModuleToProto(m api.BusinessModule) identityV1.Module {
 		return identityV1.Module_LOG
 	case api.BusinessModuleInternalMessage:
 		return identityV1.Module_INTERNAL_MESSAGE
-	case api.BusinessModuleFile:
-		return identityV1.Module_FILE
 	case api.BusinessModuleTask:
 		return identityV1.Module_TASK
 	case api.BusinessModuleNetwork:

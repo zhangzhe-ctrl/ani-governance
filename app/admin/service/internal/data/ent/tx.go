@@ -26,8 +26,6 @@ type Tx struct {
 	DictEntryI18n *DictEntryI18nClient
 	// DictType is the client for interacting with the DictType builders.
 	DictType *DictTypeClient
-	// File is the client for interacting with the File builders.
-	File *FileClient
 	// InternalMessage is the client for interacting with the InternalMessage builders.
 	InternalMessage *InternalMessageClient
 	// InternalMessageCategory is the client for interacting with the InternalMessageCategory builders.
@@ -244,7 +242,6 @@ func (tx *Tx) init() {
 	tx.DictEntry = NewDictEntryClient(tx.config)
 	tx.DictEntryI18n = NewDictEntryI18nClient(tx.config)
 	tx.DictType = NewDictTypeClient(tx.config)
-	tx.File = NewFileClient(tx.config)
 	tx.InternalMessage = NewInternalMessageClient(tx.config)
 	tx.InternalMessageCategory = NewInternalMessageCategoryClient(tx.config)
 	tx.InternalMessageRecipient = NewInternalMessageRecipientClient(tx.config)

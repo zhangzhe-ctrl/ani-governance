@@ -14,7 +14,6 @@ import (
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 
-	"go-wind-admin/pkg/oss"
 	"go-wind-admin/pkg/serviceid"
 )
 
@@ -38,10 +37,6 @@ func NewRedisClient(ctx *bootstrap.Context) (*redis.Client, func(), error) {
 			l.Error(ctx.Context(), err.Error())
 		}
 	}, nil
-}
-
-func NewMinIoClient(ctx *bootstrap.Context) *oss.MinIOClient {
-	return oss.NewMinIoClient(ctx.GetConfig(), ctx.GetLogger())
 }
 
 func NewPasswordCrypto() password.Crypto {

@@ -42,7 +42,6 @@ func (PlanModule) Fields() []ent.Field {
 				"Permission", "PERMISSION",
 				"Log", "LOG",
 				"InternalMessage", "INTERNAL_MESSAGE",
-				"File", "FILE",
 				"Task", "TASK",
 				"Model", "MODEL",
 				"Network", "NETWORK",
