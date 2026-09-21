@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/redis/go-redis/v9"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 )
@@ -146,21 +146,24 @@ func (r *UserTokenCache) GetRefreshTokens(ctx context.Context, clientType authen
 
 // RevokeToken 移除所有令牌（含会话元数据）
 func (r *UserTokenCache) RevokeToken(ctx context.Context, clientType authenticationV1.ClientType, userId uint32) error {
-	var err error
-	if err = r.RevokeUserAllAccessToken(ctx, clientType, userId); err != nil {
+	var errs []error
+	if err := r.RevokeUserAllAccessToken(ctx, clientType, userId); err != nil {
 		r.log.Errorf(ctx, "remove user access token failed: [%v]", err)
+		errs = append(errs, err)
 	}
 
-	if err = r.RevokeUserAllRefreshToken(ctx, clientType, userId); err != nil {
+	if err := r.RevokeUserAllRefreshToken(ctx, clientType, userId); err != nil {
 		r.log.Errorf(ctx, "remove user refresh token failed: [%v]", err)
+		errs = append(errs, err)
 	}
 
 	// 会话元数据随令牌一并清理，保持「无令牌即无会话记录」的一致性
-	if err = r.DeleteUserSessionMetas(ctx, clientType, userId); err != nil {
+	if err := r.DeleteUserSessionMetas(ctx, clientType, userId); err != nil {
 		r.log.Errorf(ctx, "remove user session metas failed: [%v]", err)
+		errs = append(errs, err)
 	}
 
-	return err
+	return errors.Join(errs...)
 }
 
 func (r *UserTokenCache) RevokeTokenByJti(ctx context.Context, clientType authenticationV1.ClientType, userId uint32, jti string) error {

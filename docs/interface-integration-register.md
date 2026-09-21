@@ -11,6 +11,10 @@
 | 功能组 | 接口编号 | 排查进度 | 风格改动批次 |
 | --- | --- | --- | --- |
 | 登录、登出及登录后初始化 | AUTH-01～AUTH-08；相关可选接口 AUTH-09～AUTH-14 | 已排查；已按单独要求去掉登录图形验证码 | 待用户分批，尚未统一改风格 |
+| 租户管理 | TENANT-01～TENANT-09 | 已核对 HTTP、Service、Repository 和首次种子；本轮未做运行验收 | 待指定 |
+| 租户管理员管理 | 复用 TENANT-06、ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-01/12 | 复用用户和租户角色；用户明确不做主管理员移交 | 待指定 |
+| 套餐管理 | PLAN-01～PLAN-14；复用 TENANT-04/08 | 模块限制已有接线；数量配额只配置和统计 | 待指定 |
+| 平台运营账号管理 | 复用 ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-02/12；SESSION-01/02 | 支持多个平台账号；运营/只读角色模板待 API 接入后再加 | 待指定 |
 
 ## 风格改动批次
 
@@ -115,3 +119,108 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 - [认证业务与 Cookie](../app/admin/service/internal/service/authentication_service.go)、[密码解码与凭证校验](../app/admin/service/internal/data/user_credential_repo.go)
 - [HTTP 鉴权装配](../app/admin/service/internal/server/rest_server.go)、[租户套餐检查](../app/admin/service/internal/data/tenant_access_checker.go)、[初始化权限 SQL](../sql/bootstrap/001_initial.sql)
 - [定向测试](../app/admin/service/internal/service/authentication_service_sqlite_test.go)、[部署与初始化流程](deployment.md)
+
+
+## 功能组：租户、管理员、套餐与平台运营账号
+
+排查日期：2026-09-21，首次基于 `39008e4` 排查，随后与最新 `main`（`11fa857`，移除文件管理及对象存储）整合。首次排查只登记功能与接口。后续用户授权小范围修复账号停用/删除的会话吊销；不修改密码重置、接口风格或运行数据。上一轮 kind 验收覆盖租户及首管理员创建、平台/租户登录、菜单、套餐读取与登出；本表其余操作的本轮运行验收为 `not_verified`。
+
+### 能力与身份边界
+
+| 功能 | 已有实现 | 当前限制 |
+| --- | --- | --- |
+| 租户管理 | 列表/详情/查重、创建/编辑/删除；同时创建首管理员；设置套餐、有效期、启停/冻结状态；人数与用量查询；显式清理 Governance 本地数据 | 普通创建不自动建管理员；审核仅为状态字段；删除租户记录与清理数据是不同操作，没有下游资源统一销毁流程 |
+| 租户管理员 | 开租户时复制管理员角色模板并绑定首管理员；也可通过用户接口增加本租户管理员、编辑资料/角色/状态、删除账号、重置密码；立即激活或邮件邀请 | `adminUserId` 是租户记录的主管理员指针，用户持有管理员角色是另一件事；用户已明确产品不提供主管理员移交，不再列为待实现项；现有源码未发现最后一个管理员保护 |
+| 套餐 | 套餐增删改查；免费/标准/企业版本字段；模块白名单管理；用户数/存储/API 调用量配额配置；到期策略及数据保留天数字段 | 模块白名单已用于 API 和导航控制；没有统一的超配额拒绝逻辑；保留天数未找到自动清理消费方；不是订单/支付系统 |
+| 平台运营账号 | 用户增删改查、分配系统角色、自定义角色及权限、状态修改、密码重置、在线会话查询与指定会话下线；默认管理员和本人有删除保护 | 账号 `tenantId=0`，角色类型 `SYSTEM`，平台登录要求至少一个 `platform:` 前缀角色并具有后台访问权限；种子只预置 `platform:admin`，无运营/只读角色模板 |
+
+用户列表为共用接口：平台运营账号列表需明确筛选 `tenant_id=0`；租户管理员列表需筛选目标租户并结合管理员角色，不能把该租户所有用户都当管理员。租户登录上下文的创建操作会强制采用当前租户；平台上下文可指定目标租户。默认租户管理员授权包括用户管理和角色读取，不包括角色增删改及套餐/租户平台管理。
+
+新增自定义平台角色可复用 `ROLE-*` 的 `permissions` 字段关联权限点；权限点里的 `menuIds`、`apiIds` 决定菜单与 API 授权。具体运营权限矩阵尚未指定，不能直接用 `sys:platform_admin` 充当“只读”。
+
+### 用户确认的范围（2026-09-21）
+
+- 主管理员更换：产品不提供，不新增入口或移交流程；本轮也不借此删除现有字段或改写通用更新合同。
+- 平台账号：允许多个不同用户名的 `tenantId=0` 账号，共享同一平台角色或分配不同系统角色；默认管理员的删除保护不限制创建其他账号。
+- 运营/只读角色模板：等待后期 API 都接入后，再确定权限矩阵并补充种子；本轮不新增角色或授权。
+- 密码重置：AES 协议与路径登记不一致只记录，暂不修复。
+- 套餐扩展：可创建多个套餐并组合现有模块、配额值；当前模块来自固定 `Module` 枚举，数量配额类型只有 `USER_LIMIT`、`STORAGE`、`API_CALL`，不是界面新增名称就能得到新统计能力。
+- 跨服务配额：另行讨论。建议先列实际需要的配额项，再逐项确定单位、租户维度、累计/当前占用口径、来源服务、统计更新方式以及是否需要超限拦截。Governance 维护套餐限额，各资源服务提供其实际用量；需要强制限额时再明确创建/释放资源中的额度校验与并发处理。本轮不扩展配额模型，也未自动创建新任务。
+
+### 接口及报文
+
+以下均需 Bearer 和相应 API 授权；租户上下文还受租户状态与套餐模块限制。普通新增传 `{data:{...}}`，更新传 `{data:{...},updateMask:...}`；列表使用 `pagination.PagingRequest` 并返回 `{items,total}`，详情直接返回对象，普通写操作返回 `google.protobuf.Empty`。新增租户连同管理员使用专用报文。所有目标风格均为“待指定”。
+
+| 编号 | 方法与路径 | 请求或用途 |
+| --- | --- | --- |
+| TENANT-01 | `GET /admin/v1/tenants` | 分页、过滤租户；返回人数及主管理员名称 |
+| TENANT-02 | `GET /admin/v1/tenants/{id}` | 租户详情 |
+| TENANT-03 | `POST /admin/v1/tenants` | `data`；只创建租户记录 |
+| TENANT-04 | `PUT /admin/v1/tenants/{id}` | `data`、`updateMask`；含 `planId`、`expiredAt`、`status` 等 |
+| TENANT-05 | `DELETE /admin/v1/tenants/{id}` | 删除租户记录 |
+| TENANT-06 | `POST /admin/v1/tenants:with-admin` | `{tenant:{...},user:{...},password,activationMode}`；租户、管理员、角色和凭证在同一事务创建 |
+| TENANT-07 | `GET /admin/v1/tenants:exists` | `code` / `name` 查重，返回 `exist` |
+| TENANT-08 | `GET /admin/v1/tenants/{id}/usage` | 用户数、API 审计记录数、套餐及配额；文件管理移除后 `storageUsedBytes` 固定为 0，不代表外部存储真实用量；不是计费周期用量 |
+| TENANT-09 | `POST /admin/v1/tenants/{id}/cleanup` | 显式删除实现所列 Governance 租户数据，保留租户并置 OFF；不等于清理下游资源或对象存储文件 |
+| ACCOUNT-01 | `GET /admin/v1/users` | 用户分页；按租户、角色等过滤 |
+| ACCOUNT-02 | `GET /admin/v1/users/{id}` | 用户详情 |
+| ACCOUNT-03 | `POST /admin/v1/users` | `{data:{tenantId,username,roleIds,...},password,activationMode}`；角色必须与目标租户/系统类型匹配 |
+| ACCOUNT-04 | `PUT /admin/v1/users/{id}` | `data`、`updateMask`，可另传 `password`；当前 Service 即使只改资料/状态也要求传有效角色 |
+| ACCOUNT-05 | `DELETE /admin/v1/users/{id}` | 删除用户；拒绝删除默认平台管理员或操作者本人 |
+| ACCOUNT-06 | `GET /admin/v1/users:exists` | 用户存在性查询 |
+| ACCOUNT-07 | `POST /admin/v1/users/{user_id}/password` | `newPassword`；当前仍要求 AES 编码，与登录不同；路径目录问题见 MGMT-05 |
+| ACCOUNT-08 | `GET /admin/v1/users/username/{username}` | 用户名读取别名；同名账号可能跨租户，平台管理优先使用 ID |
+| ACCOUNT-09 | `DELETE /admin/v1/users/username/{username}` | 已注册的旧别名；Service 删除保护按 ID 查目标，不能据路由存在认定此别名可用，见 MGMT-06 |
+| ROLE-01 | `GET /admin/v1/roles` | 按租户与 `type` 读取角色 |
+| ROLE-02 | `GET /admin/v1/roles/{id}` | 角色详情与权限 ID |
+| ROLE-03 | `POST /admin/v1/roles` | `data`，包含角色代码、类型和 `permissions` |
+| ROLE-04 | `PUT /admin/v1/roles/{id}` | 修改角色及权限关联；受保护角色的类型、代码、状态等禁止修改 |
+| ROLE-05 | `DELETE /admin/v1/roles/{id}` | 删除角色；受保护角色禁止删除 |
+| PLAN-01 | `GET /admin/v1/plans` | 套餐列表 |
+| PLAN-02 | `GET /admin/v1/plans/{id}` | 套餐详情 |
+| PLAN-03 | `POST /admin/v1/plans` | `data`，含名称、版本、到期策略、保留天数 |
+| PLAN-04 | `PUT /admin/v1/plans/{id}` | `data`、`updateMask` |
+| PLAN-05 | `DELETE /admin/v1/plans?id=...` | ID 在查询参数，未使用详情路径 |
+| PLAN-06 | `GET /admin/v1/plan-modules` | 按 `plan_id` 查模块白名单 |
+| PLAN-07 | `GET /admin/v1/plan-modules/{id}` | 单条模块配置 |
+| PLAN-08 | `POST /admin/v1/plan-modules` | `data`，关联套餐与模块 |
+| PLAN-09 | `PUT /admin/v1/plan-modules/{id}` | `data`、`updateMask` |
+| PLAN-10 | `DELETE /admin/v1/plan-modules?id=...` | 删除单条模块配置 |
+| PLAN-11 | `GET /admin/v1/plan-quotas` | 配额列表；BFF 没有注册单条 GET |
+| PLAN-12 | `POST /admin/v1/plan-quotas` | `data`，含 `planId`、`quotaType`、`quotaValue` |
+| PLAN-13 | `PUT /admin/v1/plan-quotas/{id}` | `data`、`updateMask` |
+| PLAN-14 | `DELETE /admin/v1/plan-quotas?id=...` | 删除配额项 |
+| SESSION-01 | `GET /admin/v1/online-session/sessions` | `page`、`pageSize`、`keyword`；返回在线会话 |
+| SESSION-02 | `POST /admin/v1/online-session/force-logout` | `userId`、`jti`、`clientType`；吊销指定会话，返回空对象 |
+
+登录/登出复用 AUTH-01～04，邮件接受邀请复用 AUTH-12。`activationMode=IMMEDIATE`（默认）不需要 SMTP；`EMAIL_INVITATION` 需邮件通道及邀请入口配置，不接受预设密码，账号待激活，邀请有效期 24 小时。当前无邀请重发/撤销管理 HTTP 接口。权限点、菜单和 API 目录的独立管理待对应功能对接时详细登记，本轮未操作其同步接口。
+
+### 已发现的限制与对接问题
+
+| 编号 | 已核对的事实及影响 | 状态 |
+| --- | --- | --- |
+| MGMT-01 | 源领域 Proto 有 `AssignTenantAdmin`，但 admin BFF 无该路由，TenantService 无对应方法；通用更新可写 `adminUserId`，却不会同步角色或校验完整移交条件 | 2026-09-21 用户明确产品不需要；作为不实现项关闭，不新增移交功能 |
+| MGMT-02 | 按用户授权补齐：状态实际写成非 NORMAL、或删除用户成功后，调用现有全客户端会话吊销；清理访问令牌、刷新令牌及在线会话；FieldMask 排除状态时不误踢；吊销失败明确报错，共用缓存清理不再覆盖前序错误。角色变更不在本轮修复范围 | 实现及定向回归 PASS；尚未部署，kind 验收 not_verified |
+| MGMT-03 | 用户数和 API 调用量有本地统计；STORAGE 配额类型保留，但文件管理移除后存储用量固定返回 0，尚未接入外部服务统计。未找到创建资源时的超限拦截；数据保留天数未找到自动清理消费方 | 用户要求扩展配额；建议另开任务确定各配额类型、统计口径、来源服务及超限处理，本轮只登记 |
+| MGMT-04 | 到期 READONLY 在请求时判断；BLOCK_LOGIN/FREEZE 由每小时扫描修改状态，依赖 Asynq 调度与执行；延长有效期不会自动把已冻结/过期状态改回 ON | 实现已存在；本轮到期运行验收 not_verified |
+| MGMT-05 | 用户密码路由注册为 `{user_id}`，嵌入 OpenAPI/首次种子登记为 `{userId}`；TenantAccessChecker 对路径模板做精确匹配，租户直调该接口可能在业务执行前被拒；密码更新/重置仍需 AES，登录已改原始密码 | 用户明确暂不修复，只登记；HTTP 复现 not_verified |
+| MGMT-06 | 用户名删除路由虽已注册，UserService.Delete 总是先按 `req.GetId()` 查目标，用户名路由未提供该 ID；平台管理应使用 ACCOUNT-05 | 源码缺口；别名 HTTP 验收 not_verified |
+| MGMT-07 | UserService.Update 无论 updateMask 是否涉及角色都校验非空 roleIds；创建普通用户的立即激活分支先提交用户，再创建密码凭证，后者失败不自动回滚已建用户 | 接入限制已确认；待指定修复，未修改 |
+
+### MGMT-02 修复及验证边界
+
+复用现有 `RevokeUserTokenAllClientTypes`，不新增接口、表、迁移或依赖。状态更新后读取实际持久化状态，避免请求带 `status` 但 FieldMask 排除它时误踢用户；删除仅在仓储成功后吊销目标账号。访问令牌、刷新令牌及会话元数据均清理，其他用户保持原会话。
+
+数据库修改与 Redis 吊销不是同一事务。吊销失败返回明确错误，不谎报成功：状态更新失败提示可重试同一状态更新；已删除账号应通过在线会话管理清理残留会话。本次不新增分布式事务或并发登录/刷新栅栏，相关并发竞态未验收。密码重置协议、用户名删除别名、角色变更后的即时权限更新均不在本次修改范围。
+
+验证使用 Ubuntu 独立源码目录、Go 1.26.7、SQLite 和 miniredis；使用独立源码快照，不覆盖远端工作区，不修改 kind 运行实例。验证记录：
+
+- 在未修复源码上运行新增回归：成功复现停用/锁定/删除后旧令牌仍有效，以及缓存部分清理错误被覆盖。
+- 修复后执行 `go test ./app/admin/service/internal/data ./app/admin/service/internal/service -run '^(TestUserTokenCache|TestUserService|TestAuthSvcSqlite_)' -count=1`：PASS。
+- 新增用例覆盖平台/租户账号停用与删除、锁定、多会话和两类客户端缓存清理、其他账号不受影响、资料修改不踢人、FieldMask 排除状态、受保护账号删除拒绝、Redis 故障明确报错；共用缓存测试验证前序错误不被后续成功覆盖。后台令牌使用真实签名和校验；app 端仅覆盖现有缓存清理，不声称已有 app 签发实现。
+- 服务入口 `go build ./app/admin/service/cmd/server` 编译：PASS。未重新部署，真实 PostgreSQL/Redis HTTP 验收为 `not_verified`。
+- 远端证据目录：`/home/ubuntu/Workspace/.codex-runs/governance-account-sessions-20260921/`（`baseline.log`、`regression.log`、`build.log`）。
+
+源码入口：[租户业务](../app/admin/service/internal/service/tenant_service.go)、[用户业务](../app/admin/service/internal/service/user_service.go)、[角色业务](../app/admin/service/internal/service/role_service.go)、[套餐业务](../app/admin/service/internal/service/plan_service.go)、[租户模块检查](../app/admin/service/internal/data/tenant_access_checker.go)、[用量与到期任务](../app/admin/service/internal/data/tenant_usage_repo.go)、[首次种子](../sql/bootstrap/001_initial.sql)、[HTTP 装配](../app/admin/service/internal/server/rest_server.go)。
+
+整合记录：已拉取 `11fa857`，源码改动无文本冲突；原未跟踪的 `docs/onboarding-invite-audit.md` 与远端新增版本内容一致，保留远端跟踪版本。同步修正文件管理移除后存储用量固定返回 0 的登记说明；整合后的相同定向回归与服务入口编译均 PASS（Go 1.26.7）；证据目录为 Ubuntu `/home/ubuntu/Workspace/.codex-runs/governance-account-main-20260921/`，包含 `regression.log` 和 `build.log`。未部署到 kind。

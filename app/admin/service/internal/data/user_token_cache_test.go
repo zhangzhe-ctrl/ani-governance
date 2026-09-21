@@ -2,19 +2,57 @@ package data
 
 import (
 	"context"
+	"errors"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 
 	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 )
+
+// Inject a failure in access-token deletion while allowing the later refresh
+// and session cleanup to succeed; the earlier error must still be returned.
+type accessTokenDeleteErrorHook struct{ err error }
+
+func (h accessTokenDeleteErrorHook) DialHook(next redis.DialHook) redis.DialHook { return next }
+func (h accessTokenDeleteErrorHook) ProcessPipelineHook(next redis.ProcessPipelineHook) redis.ProcessPipelineHook {
+	return next
+}
+func (h accessTokenDeleteErrorHook) ProcessHook(next redis.ProcessHook) redis.ProcessHook {
+	return func(ctx context.Context, cmd redis.Cmder) error {
+		if cmd.Name() == "del" && strings.HasPrefix(cmd.Args()[1].(string), "at:") {
+			return h.err
+		}
+		return next(ctx, cmd)
+	}
+}
+
+func TestUserTokenCache_RevokeTokenPreservesPartialFailure(t *testing.T) {
+	mr := miniredis.RunT(t)
+	rdb := redis.NewClient(&redis.Options{Addr: mr.Addr(), MaxRetries: -1})
+	t.Cleanup(func() { _ = rdb.Close() })
+	cache := NewUserTokenCacheForTest(rdb)
+	ctx := context.Background()
+	ct := authenticationV1.ClientType_admin
+	assert.NoError(t, cache.AddTokenPair(ctx, ct, 7, "session", "access", "refresh", time.Hour, time.Hour))
+	assert.NoError(t, cache.SaveSessionMeta(ctx, ct, 7, "session", &SessionMeta{}, time.Hour))
+	wantErr := errors.New("access-token deletion failed")
+	rdb.AddHook(accessTokenDeleteErrorHook{err: wantErr})
+	assert.ErrorIs(t, cache.RevokeToken(ctx, ct, 7), wantErr)
+	assert.Equal(t, []string{"access"}, cache.GetAccessTokens(ctx, ct, 7))
+	assert.Empty(t, cache.GetRefreshTokens(ctx, ct, 7))
+	meta, err := cache.GetSessionMeta(ctx, ct, 7, "session")
+	assert.NoError(t, err)
+	assert.Nil(t, meta)
+}
 
 func TestUserTokenCache_BasicOperations(t *testing.T) {
 	// 启动内存 redis

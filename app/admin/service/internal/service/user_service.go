@@ -458,7 +458,7 @@ func (s *UserService) Create(ctx context.Context, req *identityV1.CreateUserRequ
 }
 
 func (s *UserService) Update(ctx context.Context, req *identityV1.UpdateUserRequest) (*emptypb.Empty, error) {
-	if req.Data == nil {
+	if req == nil || req.Data == nil {
 		return nil, adminV1.ErrorBadRequest("invalid parameter")
 	}
 
@@ -540,6 +540,22 @@ func (s *UserService) Update(ctx context.Context, req *identityV1.UpdateUserRequ
 	if err = s.userRepo.Update(ctx, req); err != nil {
 		s.log.Error(ctx, err.Error())
 		return nil, err
+	}
+
+	if req.Data.Status != nil && req.Data.GetStatus() != identityV1.User_NORMAL {
+		// Read the persisted status: update_mask may exclude the supplied status.
+		updated, getErr := s.userRepo.Get(ctx, &identityV1.GetUserRequest{
+			QueryBy: &identityV1.GetUserRequest_Id{Id: req.GetId()},
+		})
+		if getErr != nil {
+			return nil, getErr
+		}
+		if updated.GetStatus() != identityV1.User_NORMAL {
+			if err = s.authenticator.RevokeUserTokenAllClientTypes(ctx, req.GetId()); err != nil {
+				s.log.Errorf(ctx, "revoke sessions after disabling user [%d] failed: %v", req.GetId(), err)
+				return nil, adminV1.ErrorInternalServerError("user updated, but session revocation failed; retry the status update")
+			}
+		}
 	}
 
 	if len(req.GetPassword()) > 0 {
@@ -638,9 +654,15 @@ func (s *UserService) Delete(ctx context.Context, req *identityV1.DeleteUserRequ
 	}
 
 	// 删除用户
-	err = s.userRepo.Delete(ctx, req)
+	if err = s.userRepo.Delete(ctx, req); err != nil {
+		return nil, err
+	}
+	if err = s.authenticator.RevokeUserTokenAllClientTypes(ctx, target.GetId()); err != nil {
+		s.log.Errorf(ctx, "revoke sessions after deleting user [%d] failed: %v", target.GetId(), err)
+		return nil, adminV1.ErrorInternalServerError("user deleted, but session revocation failed; revoke remaining sessions")
+	}
 
-	return &emptypb.Empty{}, err
+	return &emptypb.Empty{}, nil
 }
 
 func (s *UserService) UserExists(ctx context.Context, req *identityV1.UserExistsRequest) (*identityV1.UserExistsResponse, error) {
