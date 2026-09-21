@@ -32,15 +32,60 @@ export PATH=/home/ubuntu/go/bin:/usr/local/go/bin:$PATH
 # 工具
 go1.26.7 install github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3
 go1.26.7 install entgo.io/ent/cmd/ent@v0.14.6        # 与 go.mod 的 entgo 版本一致
-go1.26.7 install github.com/bufbuild/buf/cmd/buf@v1.50.0
-go1.26.7 install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12
-go1.26.7 install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-go1.26.7 install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest
-go1.26.7 install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
-go1.26.7 install github.com/google/gnostic/cmd/protoc-gen-openapi@latest   # openapi 生成会缺它
+go1.26.7 install github.com/bufbuild/buf/cmd/buf@v1.60.0
+# 注意 buf 版本必须为 1.60.0：scripts/generate-model-slice.sh 与
+# generate-network-slice.sh 会断言 `buf --version` 等于 1.60.0，不匹配直接退出。
+# 该约束是切片脚本的钉版纪律，不是 buf 的能力要求 —— 全量生成路径上旧版产物
+# 实测一致，详见下方"旧版 buf 会怎样"。
+# （third_party/tx7do/buf/ 里记录的 v1.57.2 是那批模块备份的下载证据，
+#  不是本仓生成链的要求，两者不要混用。）
+go1.26.7 install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+go1.26.7 install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
+go1.26.7 install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@v2.0.0-20260404020628-f149714c1d54
+go1.26.7 install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@v2.0.0-20251205160234-b9fab9a5a5ab
+go1.26.7 install github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1   # openapi 生成会缺它
+# 注意 protoc-gen-openapi 版本必须为 v0.7.1：scripts/generate-model-slice.sh 与
+# generate-network-slice.sh 各自钉的就是 v0.7.1，且 go.mod 亦为 v0.7.1。
+# 装 @latest 会让脚本与文档用不同版本产出内嵌 OpenAPI。
 go1.26.7 install github.com/envoyproxy/protoc-gen-validate@v1.3.3
 go1.26.7 install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2
 ```
+
+> **上面各插件版本的来源与可信度不同，不要一概当作"权威钉版"**
+>
+> - `buf@v1.60.0`、`protoc-gen-openapi@v0.7.1`：**有权威出处** ——
+>   `scripts/generate-{model,network}-slice.sh` 自己就这么钉，`go.mod` 亦为 `v0.7.1`。
+> - `protoc-gen-go@v1.36.11`、`protoc-gen-go-grpc@v1.6.2`：**有据可查** ——
+>   既有生成产物的版本头直接写明（如 `api/gen/go/**/*.pb.go` 顶部的
+>   `protoc-gen-go v1.36.11` 与 `protoc-gen-go-grpc v1.6.2`）。
+> - `protoc-gen-go-http/v2@v2.0.0-20260404020628-f149714c1d54`、
+>   `protoc-gen-go-errors/v2@v2.0.0-20251205160234-b9fab9a5a5ab`：**实测反推，无版本头**。
+>   go-http 的产物版本头写的是 `protoc-gen-go-http v2.9.2`，那是**所依赖的
+>   kratos 库版本**而非插件模块版本；go-errors 的产物完全没有版本头。
+>   这两项是通过"逐一试装并比对生成产物差异"反推出来的。
+> - `protoc-gen-validate@v1.3.3`、`protoc-gen-go-redact@v0.0.0-20260831125122…`：
+>   与 `go.mod` 中的依赖版本一致。
+>
+> **旧版 buf 会怎样（2026-09-21 实测，非推测）**
+>
+> 结论：**旧版 buf 的问题不是技术不兼容，而是切片脚本自设的版本门槛。**
+>
+> - **全量生成路径**（`buf.gen.yaml`，即 `make api` / `make openapi`）：
+>   实测 `1.50.0`、`1.57.2`、`1.60.0` 三者的产物**逐字节完全一致**
+>   （`api/gen/go/**/*.go` 全部文件的 sha256 相同）。
+>   旧版在这条路径上**不会报错、也不会产生额外漂移**，`buf build` 与
+>   `buf lint` 亦均可正常运行。
+> - **切片路径**（`scripts/generate-{model,network}-slice.sh`）：
+>   脚本内有 `test "$("$BUF" --version)" = 1.60.0`，配合 `set -euo pipefail`，
+>   版本不符会**立即退出**且不生成任何文件。这是唯一真正会"断开"的地方。
+> - 因此 `1.60.0` 这个约束的性质是**钉版纪律**（保证生成链可复现、可追责），
+>   而非 buf 本身的能力要求。不要因为"旧版也能跑"就绕过脚本的断言。
+
+> **本仓生成链并未真正锁定**：`api/gen/go/` 的产物继承自上游 fork，其原始
+> 工具链没有记录（见 `AGENTS.md` 关于"发布复现需记录工具版本"的说明）。
+> 上面这些版本只保证"装上去不会让产物大面积漂移"，**不等于**能逐字节复现既有产物。
+> 需要严格复现时，请用 `scripts/generate-*-slice.sh` 的方式，并同时执行
+> `scripts/post-generate-clean.sh` 抹平残余噪声。
 
 ### 1.1 私有模块校验和不匹配（必踩坑）
 

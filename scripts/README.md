@@ -11,6 +11,7 @@
 | `deploy/sse/` | 可选 SSE 反向代理，按目标网络配置后端地址。 |
 | [backup/README.md](backup/README.md) | PostgreSQL 备份及恢复说明。 |
 | `generate-model-slice.sh`、`generate-network-slice.sh` | 固定范围的 API 生成脚本。 |
+| [post-generate-clean.sh](post-generate-clean.sh) | 全量 `make api` / `make openapi` 后的噪声清理：还原与本次改动无关的版本/命名漂移文件、删除仓库中原本不存在的空壳 `*.pb.validate.go`。仅抹平必然噪声，不替代切片生成脚本。 |
 | `package-model-contract.py`、`package-network-contract.py` | 固定版本的领域 Go API 模块交付。 |
 | `bootstrap-model-access.sql`、`bootstrap-network-access.sql` | 专项权限登记，按脚本前提使用，不是通用种子。 |
 | [../docs/service-integration.md](../docs/service-integration.md) | 业务服务接入指南：mTLS 出站、身份 header 契约、装配锚点、Api 登记与验收清单。 |
