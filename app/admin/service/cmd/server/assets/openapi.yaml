@@ -5405,8 +5405,7 @@ paths:
                 - AuthenticationService
             description: |-
                 生成验证码（免鉴权）
-                 ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
-                 请求头传递，不进登录报文体内。
+                 保留的独立验证码接口；密码登录不再调用或依赖此接口。
             operationId: AuthenticationService_GenerateCaptcha
             responses:
                 "200":
@@ -5449,6 +5448,24 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/ForgotPasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+            security:
+                - {}
+    /api/v1/auth/invitations/accept:
+        post:
+            tags:
+                - AuthenticationService
+            description: 接受邀请（免登录；以一次性邀请令牌证明身份）。
+            operationId: AuthenticationService_AcceptInvitation
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AcceptInvitationRequest'
                 required: true
             responses:
                 "200":
@@ -5597,6 +5614,14 @@ paths:
                     description: Connected Network call timed out
 components:
     schemas:
+        AcceptInvitationRequest:
+            type: object
+            properties:
+                token:
+                    type: string
+                password:
+                    type: string
+            description: 令牌来自邀请邮件；身份、租户和角色均由服务端记录确定。
         AccessKey:
             type: object
             properties:
@@ -6142,6 +6167,12 @@ components:
                     $ref: '#/components/schemas/User'
                 password:
                     type: string
+                activationMode:
+                    enum:
+                        - IMMEDIATE
+                        - EMAIL_INVITATION
+                    type: string
+                    format: enum
             description: 创建租户及管理员用户 - 请求
         CreateUserRequest:
             type: object
@@ -6152,6 +6183,12 @@ components:
                     readOnly: true
                     type: string
                     description: 用户登录密码
+                activationMode:
+                    enum:
+                        - IMMEDIATE
+                        - EMAIL_INVITATION
+                    type: string
+                    format: enum
             description: 创建用户 - 请求
         DashboardOverviewResponse:
             type: object
@@ -8387,7 +8424,7 @@ components:
                     description: '登录用户名。可带 local: 前缀（ANI 形态），服务端会剥离后按裸用户名匹配'
                 password:
                     type: string
-                    description: 登录口令。兼容 AES 密文（现状前端）与明文两种形态
+                    description: 用户输入的原始密码，经 HTTPS 提交；不要进行 AES、Base64 或 bcrypt 编码
             description: 租户账密登录 - 请求
         Permission:
             type: object
@@ -8780,7 +8817,7 @@ components:
                     description: '平台账号用户名。可带 local: 前缀，服务端会剥离'
                 password:
                     type: string
-                    description: 登录口令。兼容 AES 密文与明文两种形态
+                    description: 用户输入的原始密码，经 HTTPS 提交；不要进行 AES、Base64 或 bcrypt 编码
             description: |-
                 平台账密登录 - 请求
 

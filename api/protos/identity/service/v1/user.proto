@@ -243,6 +243,12 @@ message GetUserRequest {
   ]; // 视图字段过滤器，用于控制返回的字段
 }
 
+// 开通方式；省略时沿用立即激活流程。
+enum ActivationMode {
+  IMMEDIATE = 0;
+  EMAIL_INVITATION = 1;
+}
+
 // 创建用户 - 请求
 message CreateUserRequest {
   User data = 1;
@@ -251,6 +257,7 @@ message CreateUserRequest {
     (gnostic.openapi.v3.property) = {description: "用户登录密码", read_only: true},
     json_name = "password"
   ]; // 用户登录密码
+  ActivationMode activation_mode = 3 [json_name = "activationMode"];
 }
 
 // 更新用户 - 请求

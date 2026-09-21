@@ -60,14 +60,16 @@ third_party/tx7do/                   依赖源码备份区域
 9. `tenant_id` 字段不等于隔离。新资源检查读取、写入、关联、异步任务、缓存和消息路径；租户关系还需租户一致性约束与负向验证。
 10. `wiring_ent.go` 按基础设施 → Repo → 认证授权 → Service → Server 单向装配；资源创建后登记 cleanup，失败和退出逆序释放。`make register` 仅覆盖标准构造函数，额外依赖手工补齐。
 
+所有功能对接与接口风格调整持续登记在 [docs/interface-integration-register.md](docs/interface-integration-register.md)。每次对接新功能先排查并追加涉及的接口、报文、鉴权条件和现有问题，复用接口引用已有编号。累计登记后，待用户指定批次与目标格式再统一修改风格，不因排查自动改接口；用户明确要求的即时修复单独记录。始终维护同一文件，整体登记仅在用户确认后结项。
+
 ## 数据与运行边界
 
 配置样例位于 `app/admin/service/configs/`，HTTP 默认 `7788`，可选 SSE `7789`。按环境配置数据库、Redis、密钥、领域地址和 mTLS 材料，不能把开发样例当生产参数。
 
-开发配置 `migrate: true` 会在启动时执行 Ent `Schema.Create`，不是生产升级/回滚证据。schema 改动要说明已有数据库的升级、恢复和验证方式。
+服务禁止启动时迁移，配置必须为 `migrate: false`；旧配置 `true` 明确报错。结构迁移在 `migrations/`，通过 `scripts/atlas.sh` 单独执行 Atlas。schema 改动要说明已有数据库的升级、恢复和验证方式。
 
-系统默认数据来自 `pkg/constants/default_data.go` 与各 Service 的启动守卫；多处只在表为空时播种。`sql/` 是演示数据；`scripts/bootstrap-*-access.sql` 是专项接入脚本，按前提使用。
+服务构造函数不访问数据库、不播种。首次初始化由 `bin/admin init` 在单个事务内执行 `sql/bootstrap/001_initial.sql`，密码通过文件传入；重复执行保留已有数据。`pkg/constants/default_data.go` 的旧默认数据仅供既有测试等代码引用，不是部署种子来源。`sql/` 中其他文件为历史演示数据；专项接入脚本按前提使用。新版本数据变更独立审查，不重跑首次种子。
 
-已有 Api 表不会因新增 Proto 自动补齐。新增接口明确登记 `(path, method)`、权限和套餐关系，否则租户闸门 fail-closed。`SyncApis` 清空后全量重建，不是无损增量登记；需保留已有 ID 与关联并验证升级授权链。
+已有 Api 表不会因新增 Proto 自动补齐。通过 `admin sync-apis --dry-run` 预览，再显式增量同步；`SyncApis` 使用同一实现，保留 ID、启停状态和权限关联，删除的路由只提示复核。新增接口明确登记 `(path, method)`、权限和套餐关系，否则租户闸门 fail-closed。同步目录不自动授权，CLI/SQL 修改后刷新服务实例的内存策略。完整流程见 `docs/deployment.md`。
 
 Go 依赖仍由 `go.mod` / `go.sum` 管理。固定版本的领域 API 模块（如 `ani-network-service`）直接依赖上游 GitHub 固定版本；`GOPROXY` 需把 `proxy.golang.org` 放在前面或走 `direct`（`goproxy.cn` 对这些模块可能返回 `not found`），不要自建 file-GOPROXY 打包交付（交付 zip 丢点文件会导致与 go.sum 校验和不一致）。`third_party/tx7do/` 备份的版本、覆盖范围与校验信息以实际清单为准；源码备份不自动切换模块解析，也不等于已完成离线构建。依赖升级与漏洞修复由本仓独立维护。

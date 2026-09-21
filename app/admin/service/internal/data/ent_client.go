@@ -16,7 +16,6 @@ import (
 	entBootstrap "github.com/tx7do/kratos-bootstrap/database/ent"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/ent/migrate"
 	_ "go-wind-admin/app/admin/service/internal/data/ent/runtime"
 )
 
@@ -25,9 +24,13 @@ func NewEntClient(ctx *bootstrap.Context) (*entCrud.EntClient[*ent.Client], func
 	l := ctx.NewLoggerHelper("ent/data/admin-service")
 
 	cfg := ctx.GetConfig()
-	if cfg == nil || cfg.Data == nil {
+	if cfg == nil || cfg.Data == nil || cfg.Data.Database == nil {
 		l.Errorf(context.Background(), "[ENT] failed getting config")
-		panic("[ENT] failed getting config")
+		return nil, nil, fmt.Errorf("[ENT] failed getting config")
+	}
+
+	if cfg.Data.Database.GetMigrate() {
+		return nil, nil, fmt.Errorf("data.database.migrate=true is no longer supported: apply schema migrations with Atlas before starting ani-governance")
 	}
 
 	cli, err := entBootstrap.NewEntClient(cfg, func(drv *sql.Driver) *ent.Client {
@@ -42,24 +45,16 @@ func NewEntClient(ctx *bootstrap.Context) (*entCrud.EntClient[*ent.Client], func
 			panic("[ENT] failed creating ent client")
 		}
 
-		// run the auto migration tool
-		if cfg.Data.Database.GetMigrate() {
-			if err := client.Schema.Create(ctx.Context(), migrate.WithForeignKeys(true)); err != nil {
-				l.Errorf(context.Background(), "[ENT] failed creating schema resources: %v", err)
-				panic("[ENT] failed creating schema resources")
-			}
-		}
-
 		return client
 	})
 	if err != nil {
 		l.Errorf(context.Background(), "[ENT] failed creating ent client: %v", err)
-		panic("[ENT] failed creating ent client")
+		return nil, nil, fmt.Errorf("[ENT] failed creating ent client: %w", err)
 	}
 
 	return cli, func() {
-			if cleanErr := cli.Close(); cleanErr != nil {
-				l.Errorf(context.Background(), "[ENT] failed closing ent client: %v", cleanErr)
-			}
+		if cleanErr := cli.Close(); cleanErr != nil {
+			l.Errorf(context.Background(), "[ENT] failed closing ent client: %v", cleanErr)
+		}
 	}, nil
 }

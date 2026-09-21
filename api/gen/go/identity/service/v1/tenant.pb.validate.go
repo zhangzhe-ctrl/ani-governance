@@ -1662,6 +1662,8 @@ func (m *CreateTenantWithAdminUserRequest) validate(all bool) error {
 
 	// no validation rules for Password
 
+	// no validation rules for ActivationMode
+
 	if len(errors) > 0 {
 		return CreateTenantWithAdminUserRequestMultiError(errors)
 	}

@@ -747,6 +747,8 @@ func (m *CreateUserRequest) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for ActivationMode
+
 	if m.Password != nil {
 		// no validation rules for Password
 	}

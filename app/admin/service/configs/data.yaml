@@ -4,7 +4,7 @@ data:
     source: "host=postgres port=5432 user=postgres password=*Abcd123456 dbname=gwa sslmode=disable"
 #    driver: "mysql"
 #    source: "root:*Abcd123456@tcp(localhost:3306)/gwa?parseTime=true&charset=utf8mb4&loc=Asia%2FShanghai"
-    migrate: true
+    migrate: false # Schema changes are applied separately with Atlas.
     debug: false
     enable_trace: false
     enable_metrics: false

@@ -46,7 +46,7 @@ func (roleServiceAuthProviderStub) ProvidePolicies(context.Context) (authorizer.
 
 // newRoleServiceForTest 白盒复刻 NewRoleService 的字段初始化：
 // log 换 NopLogger，repo 用 testkit 构造器，authorizer 用 noop 引擎最小桩；
-// 并复刻生产构造器的 svc.init()（空表时播种 constants.DefaultRoles）。
+// 并复刻生产构造器的 svc.seedFixture()（空表时播种 constants.DefaultRoles）。
 func newRoleServiceForTest(t *testing.T) *RoleService {
 	t.Helper()
 	entClient := enttest.NewEntClientForTest(t)
@@ -59,7 +59,7 @@ func newRoleServiceForTest(t *testing.T) *RoleService {
 		roleRepo:   data.NewRoleRepoForTest(entClient),
 		tenantRepo: data.NewTenantRepoForTest(entClient),
 	}
-	svc.init()
+	svc.seedFixture()
 	return svc
 }
 

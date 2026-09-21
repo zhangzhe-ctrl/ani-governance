@@ -24,16 +24,30 @@ import (
 )
 
 type AdminPortalService struct {
-	adminV1.AdminPortalServiceHTTPServer
-
 	log *bLogger.Helper
 
-	menuRepo        *data.MenuRepo
-	roleRepo        *data.RoleRepo
-	userRepo        data.UserRepo
-	permissionRepo  *data.PermissionRepo
-	planModuleRepo  *data.PlanModuleRepo
-	tenantRepo      *data.TenantRepo
+	menuRepo       *data.MenuRepo
+	roleRepo       *data.RoleRepo
+	userRepo       data.UserRepo
+	permissionRepo *data.PermissionRepo
+	planModuleRepo *data.PlanModuleRepo
+	tenantRepo     *data.TenantRepo
+}
+
+// GetInitialContext reuses the same permission and plan-filtered navigation
+// queries as the separate endpoints, including their authenticated context.
+func (s *AdminPortalService) GetInitialContext(ctx context.Context, req *emptypb.Empty) (*adminV1.InitialContextResponse, error) {
+	permissions, err := s.GetMyPermissionCode(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	navigation, err := s.GetNavigation(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &adminV1.InitialContextResponse{
+		Menus: navigation.GetItems(), Permissions: permissions.GetCodes(), HiddenFields: permissions.GetHiddenFields(),
+	}, nil
 }
 
 func NewAdminPortalService(
@@ -52,7 +66,7 @@ func NewAdminPortalService(
 		userRepo:       userRepo,
 		permissionRepo: permissionRepo,
 		planModuleRepo: planModuleRepo,
-		tenantRepo:      tenantRepo,
+		tenantRepo:     tenantRepo,
 	}
 }
 

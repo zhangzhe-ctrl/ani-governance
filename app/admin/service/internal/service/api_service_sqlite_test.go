@@ -14,7 +14,6 @@ import (
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	entCrud "github.com/tx7do/go-crud/entgo"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
@@ -72,32 +71,6 @@ func newApiServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.Client
 		authorizer:  authz,
 		routeWalker: nil,
 	}
-}
-
-// TestApiServiceSqlite_InitSeedsApiTableFromOpenAPI 空表上调用 init() 应从内嵌
-// OpenAPI 文档同步出全部接口资源（count==0 守卫的正分支）；表非空时再次 init()
-// 不应重复同步；List 应返回同步后的全量行。
-func TestApiServiceSqlite_InitSeedsApiTableFromOpenAPI(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
-	svc := newApiServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
-
-	svc.init()
-
-	cnt, err := entClient.Client().Api.Query().Count(ctx)
-	require.NoError(t, err)
-	require.Greater(t, cnt, 0, "init() 后 api 表应从 OpenAPI 文档同步出接口资源")
-
-	listResp, err := svc.List(ctx, &paginationV1.PagingRequest{})
-	require.NoError(t, err)
-	require.Equal(t, uint64(cnt), listResp.Total, "List 应统计全部已同步行")
-	require.Len(t, listResp.Items, cnt, "List 应返回全部已同步行")
-
-	// 表非空：再次 init() 不应重复同步（守卫负分支）
-	svc.init()
-	cnt2, err := entClient.Client().Api.Query().Count(ctx)
-	require.NoError(t, err)
-	require.Equal(t, cnt, cnt2, "非空表上重复 init() 不应追加或重置行")
 }
 
 // TestApiServiceSqlite_GetWalkRouteData 验证 GetWalkRouteData 把 RouteWalker

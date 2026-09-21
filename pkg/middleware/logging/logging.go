@@ -117,7 +117,7 @@ func Server(opts ...Option) middleware.Middleware {
 			// pre-handler 快照 JSON 写请求体（重置为可重放流），post-handler
 			// 权限审计从中提取目标名称。
 			if tr, ok := transport.FromServerContext(ctx); ok {
-				if htr, ok := tr.(*http.Transport); ok {
+				if htr, ok := tr.(*http.Transport); ok && htr.Operation() != adminV1.OperationAuthenticationServiceAcceptInvitation {
 					ctx = snapshotWriteBody(ctx, htr.Request())
 				}
 			}

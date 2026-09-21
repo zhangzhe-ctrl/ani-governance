@@ -95,6 +95,17 @@ func (s *redactedAuthenticationServiceServer) ResetPasswordByCode(ctx context.Co
 	return res, err
 }
 
+// AcceptInvitation is the redacted wrapper for the actual AuthenticationServiceServer.AcceptInvitation method
+// Unary RPC
+func (s *redactedAuthenticationServiceServer) AcceptInvitation(ctx context.Context, in *AcceptInvitationRequest) (*emptypb.Empty, error) {
+	res, err := s.srv.AcceptInvitation(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
+	}
+	return res, err
+}
+
 // RefreshToken is the redacted wrapper for the actual AuthenticationServiceServer.RefreshToken method
 // Unary RPC
 func (s *redactedAuthenticationServiceServer) RefreshToken(ctx context.Context, in *LoginRequest) (*LoginResponse, error) {
@@ -192,6 +203,22 @@ func (s *redactedAuthenticationServiceServer) VerifyCaptcha(ctx context.Context,
 		redact.Apply(res)
 	}
 	return res, err
+}
+
+// Ensure AcceptInvitationRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*AcceptInvitationRequest)(nil)
+
+// Redact method implementation for AcceptInvitationRequest
+func (x *AcceptInvitationRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Redacting field: Token
+	x.Token = `*`
+
+	// Redacting field: Password
+	x.Password = `*`
 }
 
 // Ensure LoginRequest implements the Redactor interface at compile time.

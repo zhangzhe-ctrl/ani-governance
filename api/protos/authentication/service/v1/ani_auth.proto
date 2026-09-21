@@ -26,7 +26,7 @@ import "redact/v1/redact.proto";
 //      本仓 refresh token 轮换（一次一换 + 原子吊销旧对）互斥。
 //   3. 不区分 404 TENANT_NOT_FOUND：租户存在性归一化进 401，
 //      避免通过返回差异枚举有效租户。
-//   4. 验证码不在报文体内，经 X-Captcha-Id / X-Captcha-Value 请求头传递。
+// 密码登录不要求图形验证码，也不读取 X-Captcha-Id / X-Captcha-Value 请求头。
 //
 // 租户标识说明：tenant_name 的值取 sys_tenants.code（"租户编号"），
 // 而非 name。name 为自由文本且无唯一约束，不适宜作为对外 slug。
@@ -53,7 +53,7 @@ message PasswordLoginRequest {
     (redact.value).string = "",
     json_name = "password",
     (gnostic.openapi.v3.property) = {
-      description: "登录口令。兼容 AES 密文（现状前端）与明文两种形态"
+      description: "用户输入的原始密码，经 HTTPS 提交；不要进行 AES、Base64 或 bcrypt 编码"
     },
     (validate.rules).string = {min_len: 1, max_len: 256}
   ]; // 登录口令
@@ -77,7 +77,7 @@ message PlatformPasswordLoginRequest {
     (redact.value).string = "",
     json_name = "password",
     (gnostic.openapi.v3.property) = {
-      description: "登录口令。兼容 AES 密文与明文两种形态"
+      description: "用户输入的原始密码，经 HTTPS 提交；不要进行 AES、Base64 或 bcrypt 编码"
     },
     (validate.rules).string = {min_len: 1, max_len: 256}
   ]; // 登录口令

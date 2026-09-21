@@ -296,6 +296,8 @@ func (x *CreateUserRequest) Redact() {
 	// Safe field: Data
 
 	// Safe field: Password
+
+	// Safe field: ActivationMode
 }
 
 // Ensure UpdateUserRequest implements the Redactor interface at compile time.

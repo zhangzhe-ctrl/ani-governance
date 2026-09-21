@@ -53,5 +53,7 @@ var ServiceTagToBusinessModule = map[string]identityV1.Module{
 	"InternalMessageCategoryService":  identityV1.Module_INTERNAL_MESSAGE,
 	"InternalMessageRecipientService": identityV1.Module_INTERNAL_MESSAGE,
 
+	"MfaService":            identityV1.Module_SYSTEM,
+	"PlanModuleService":     identityV1.Module_TENANT,
 	"AuthenticationService": identityV1.Module_DASHBOARD,
 }

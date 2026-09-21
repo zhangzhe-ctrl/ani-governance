@@ -270,6 +270,7 @@ message CreateTenantWithAdminUserRequest {
   identity.service.v1.Tenant tenant = 1;
   identity.service.v1.User user = 2;
   string password = 3;
+  ActivationMode activation_mode = 4 [json_name = "activationMode"];
 }
 
 message CountTenantResponse {

@@ -167,3 +167,8 @@ help:
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
 .DEFAULT_GOAL := help
+
+# Build the PostgreSQL-only data initialization and API catalog tool (no generation).
+.PHONY: build_admin
+build_admin:
+	go build -o bin/admin ./app/admin/service/cmd/admin

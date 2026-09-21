@@ -15,6 +15,7 @@ import (
 	"github.com/tx7do/go-utils/trans"
 	"google.golang.org/protobuf/proto"
 
+	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"
 
 	appViewer "go-wind-admin/pkg/entgo/viewer"
@@ -47,7 +48,13 @@ func (a *ApiAuditLogMiddleware) Handle(ctx context.Context, htr *http.Transport,
 	clientIp := getClientRealIP(htr.Request())
 	referer, _ := url.QueryUnescape(htr.RequestHeader().Get(HeaderKeyReferer))
 	requestUri, _ := url.QueryUnescape(htr.Request().RequestURI)
-	bodyBytes, _ := io.ReadAll(htr.Request().Body)
+	var bodyBytes []byte
+	if htr.Operation() == adminV1.OperationAuthenticationServiceAcceptInvitation {
+		referer, requestUri = "", htr.Request().URL.Path
+		bodyBytes = []byte("[redacted]")
+	} else {
+		bodyBytes, _ = io.ReadAll(htr.Request().Body)
+	}
 
 	apiAuditLog.HttpMethod = trans.Ptr(htr.Request().Method)
 	apiAuditLog.ApiOperation = trans.Ptr(htr.Operation())

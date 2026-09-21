@@ -29,24 +29,22 @@ import (
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
+	"github.com/tx7do/kratos-bootstrap/bootstrap"
 
-	"go-wind-admin/app/admin/service/cmd/server/assets"
+	crudViewer "github.com/tx7do/go-crud/viewer"
+	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
+	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
+	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/enttest"
-	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
-	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
-	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
-	"go-wind-admin/pkg/constants"
-	crudViewer "github.com/tx7do/go-crud/viewer"
-	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/authorizer"
+	"go-wind-admin/pkg/constants"
+	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/middleware/auth"
 	"go-wind-admin/pkg/utils/converter"
 )
-
 
 // newPermissionServiceForTest 白盒构造 PermissionService，逐字段对齐
 // NewPermissionService 的装配（log 用 NopLogger helper；除 PermissionRepo 外
@@ -86,81 +84,6 @@ func seedPermissionGroups(t *testing.T, svc *PermissionService, ctx context.Cont
 		})
 		require.NoError(t, err, "落占位权限组 %d 应成功", i)
 	}
-}
-
-// TestPermissionService_InitSeeding 验证 init() 的默认权限播种：
-// 空表播种全部默认权限（关联资源缺失不中止——关联表无外键强制、
-// CleanNotExist 与批量插入对缺失资源静默无操作），非空表二次 init 不重复播种。
-func TestPermissionService_InitSeeding(t *testing.T) {
-	svc, client := newPermissionServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
-
-	svc.init()
-	cnt, err := client.Permission.Query().Count(ctx)
-	require.NoError(t, err)
-	require.Equal(t, len(constants.DefaultPermissions), int(cnt),
-		"init() 空表应把全部默认权限落库")
-
-	svc.init()
-	cnt2, err := client.Permission.Query().Count(ctx)
-	require.NoError(t, err)
-	require.Equal(t, cnt, cnt2, "非空表二次 init 不应重复播种")
-}
-
-// TestPermissionService_InitSkipsSyncWhenNoApisOrMenus 验证 init() 的
-// SyncPermissions 触发条件：api 表或菜单表为空时（此例两表皆空）
-// 即使权限表为空播种后也不触发同步（menusCount==0 分支）。
-func TestPermissionService_InitSkipsSyncWhenNoApisOrMenus(t *testing.T) {
-	svc, client := newPermissionServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
-	seedPermissionGroups(t, svc, ctx, 5)
-
-	svc.init()
-
-	groupCnt, err := client.PermissionGroup.Query().Count(ctx)
-	require.NoError(t, err)
-	require.Equal(t, 5, groupCnt, "占位组应保持 5 条（SyncPermissions 未触发，未追加未分类组）")
-}
-
-// TestPermissionService_syncWithOpenAPI_EmptyPaths（原空壳测试的实装）：
-// 无 paths 键的文档 → "paths is nil" 内部错误且接口表不落行；
-// 空 paths 对象 → 同步空集成功不落行；真实内嵌文档 → SyncApis 播种接口表。
-func TestPermissionService_syncWithOpenAPI_EmptyPaths(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
-	apiSvc := newApiServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
-
-	orig := assets.OpenApiData
-	defer func() { assets.OpenApiData = orig }()
-
-	// 无 paths 键：加载成功但 Paths==nil → 内部错误
-	assets.OpenApiData = []byte("openapi: 3.0.0\ninfo:\n  title: empty-paths-test\n  version: \"1.0\"\n")
-	err := apiSvc.syncWithOpenAPI(ctx)
-	require.Error(t, err, "无 paths 键的文档应触发 paths is nil 内部错误")
-	require.True(t, adminV1.IsInternalServerError(err))
-	require.ErrorContains(t, err, "paths is nil", "应命中 Paths==nil 分支")
-	cnt, qerr := entClient.Client().Api.Query().Count(ctx)
-	require.NoError(t, qerr)
-	require.Zero(t, cnt, "失败分支不应落任何接口行")
-
-	// 空 paths 对象：同步空集成功
-	assets.OpenApiData = []byte("openapi: 3.0.0\ninfo:\n  title: empty-paths-test\n  version: \"1.0\"\npaths: {}\n")
-	require.NoError(t, apiSvc.syncWithOpenAPI(ctx), "空 paths 对象应同步空集成功")
-	cnt, qerr = entClient.Client().Api.Query().Count(ctx)
-	require.NoError(t, qerr)
-	require.Zero(t, cnt, "空集同步不应落行")
-
-	// 真实内嵌文档：SyncApis 全链路播种接口表
-	assets.OpenApiData = orig
-	_, err = apiSvc.SyncApis(ctx, &emptypb.Empty{})
-	require.NoError(t, err, "真实文档的 SyncApis 应成功")
-	cnt, qerr = entClient.Client().Api.Query().Count(ctx)
-	require.NoError(t, qerr)
-	require.Greater(t, cnt, 0, "SyncApis 应从内嵌文档播种接口表")
-	listResp, lerr := apiSvc.List(ctx, &paginationV1.PagingRequest{})
-	require.NoError(t, lerr)
-	require.Equal(t, uint64(cnt), listResp.GetTotal(), "List 应返回同步后的全量行")
-	require.Len(t, listResp.GetItems(), cnt)
 }
 
 // TestPermissionService_SyncPermissions_MenuAndApiDerived 验证权限同步的
@@ -255,7 +178,7 @@ func TestPermissionService_ListAndGetTenantScoping(t *testing.T) {
 	svc, _ := newPermissionServiceForTest(t)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 	seedPermissionGroups(t, svc, ctx, 5)
-	svc.init()
+	svc.seedFixture()
 	platformCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 	// 租户操作人：查看器须与令牌租户一致（生产由认证中间件成对注入）
 	tenantCtx := auth.NewContext(

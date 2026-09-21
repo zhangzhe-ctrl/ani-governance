@@ -1,3 +1,4 @@
+// Legacy fixture data. Deployment seeds are frozen in sql/bootstrap/001_initial.sql.
 package constants
 
 import (
@@ -17,12 +18,10 @@ import (
 )
 
 const (
-	// DefaultAdminUserName 系统初始化默认管理员用户名
+	// DefaultAdminUserName 兼容旧测试的管理员用户名；正式初始化使用 admin init 参数
 	DefaultAdminUserName = "admin"
 
-	// DefaultUserPassword 系统初始化默认密码（管理员与普通用户统一，须满足
-	// pkg/password 复杂度策略：≥8位且至少3类字符——种子凭证经 prepareCredential
-	// 入库时会做复杂度校验，不达标会被拒、初始化半途而废，admin 从此无法登录）
+	// DefaultUserPassword 仅供旧测试/兼容代码使用；部署种子不使用固定密码。
 	DefaultUserPassword = "Abcd@1234"
 
 	// PlatformTenantID 平台管理员租户ID

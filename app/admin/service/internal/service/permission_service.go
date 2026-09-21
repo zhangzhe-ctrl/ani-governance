@@ -5,9 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"entgo.io/ent/dialect/sql"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/tx7do/go-utils/aggregator"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
@@ -22,7 +21,7 @@ import (
 
 	"go-wind-admin/pkg/authorizer"
 	"go-wind-admin/pkg/constants"
-	appViewer "go-wind-admin/pkg/entgo/viewer"
+
 	"go-wind-admin/pkg/middleware/auth"
 	"go-wind-admin/pkg/utils/converter"
 )
@@ -67,25 +66,9 @@ func NewPermissionService(
 		apiPermissionConverter:  converter.NewApiPermissionConverter(),
 	}
 
-	svc.init()
+	// Database initialization is an explicit deployment step; constructors never seed data.
 
 	return svc
-}
-
-func (s *PermissionService) init() {
-	ctx := appViewer.NewSystemViewerContext(context.Background())
-	if count, _ := s.permissionRepo.Count(ctx, nil); count.Count == 0 {
-		_ = s.createDefaultPermissions(ctx)
-
-		apiCount, _ := s.apiRepo.Count(ctx, nil)
-
-		var menusCount int
-		menusCount, _ = s.menuRepo.Count(ctx, []func(s *sql.Selector){})
-
-		if apiCount.Count > 0 && menusCount > 0 {
-			_, _ = s.SyncPermissions(ctx, &emptypb.Empty{})
-		}
-	}
 }
 
 func (s *PermissionService) extractRelationIDs(
@@ -525,19 +508,4 @@ func (s *PermissionService) SyncPermissions(ctx context.Context, _ *emptypb.Empt
 	}
 
 	return &emptypb.Empty{}, nil
-}
-
-func (s *PermissionService) createDefaultPermissions(ctx context.Context) error {
-	var err error
-
-	for _, d := range constants.DefaultPermissions {
-		if err = s.permissionRepo.Create(ctx, &permissionV1.CreatePermissionRequest{
-			Data: d,
-		}); err != nil {
-			s.log.Errorf(ctx, "create default permission %s failed: %v", d.GetCode(), err)
-			return err
-		}
-	}
-
-	return nil
 }

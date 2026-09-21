@@ -4,6 +4,7 @@
 package mailer
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"net"
@@ -25,6 +26,11 @@ type SmtpConfig struct {
 // SendMail 通过 SMTP 发送一封纯文本邮件。
 // to 可为多个收件人。
 func SendMail(cfg SmtpConfig, to []string, subject, body string) error {
+	return SendMailContext(context.Background(), cfg, to, subject, body)
+}
+
+// SendMailContext bounds the entire SMTP exchange, including server greetings.
+func SendMailContext(ctx context.Context, cfg SmtpConfig, to []string, subject, body string) error {
 	if cfg.Host == "" || cfg.Port == 0 {
 		return fmt.Errorf("smtp host/port is not configured")
 	}
@@ -35,27 +41,20 @@ func SendMail(cfg SmtpConfig, to []string, subject, body string) error {
 		cfg.From = cfg.Username
 	}
 
-	addr := cfg.Host + ":" + strconv.Itoa(int(cfg.Port))
+	addr := net.JoinHostPort(cfg.Host, strconv.Itoa(int(cfg.Port)))
 	from := strings.TrimSpace(cfg.From)
 
 	msg := buildMessage(from, to, subject, body)
 
-	var client *smtp.Client
-	var err error
-
-	switch strings.ToUpper(cfg.TlsMode) {
-	case "SSL":
-		client, err = dialSSL(addr, cfg.Host)
-	case "NONE", "START_TLS", "":
-		// NONE：明文连接（内网调试 SMTP 常见）；服务器支持 STARTTLS 时自动升级
-		client, err = dialStartTLS(addr, cfg.Host)
-	default:
+	mode := strings.ToUpper(cfg.TlsMode)
+	if mode != "SSL" && mode != "NONE" && mode != "START_TLS" && mode != "" {
 		return fmt.Errorf("unsupported tls mode: %s", cfg.TlsMode)
 	}
+	client, closeConnection, err := dialContext(ctx, addr, cfg.Host, mode)
 	if err != nil {
 		return fmt.Errorf("connect smtp server failed: %w", err)
 	}
-	defer client.Close()
+	defer closeConnection()
 
 	if cfg.Username != "" {
 		auth := smtp.PlainAuth("", cfg.Username, cfg.Password, cfg.Host)
@@ -86,32 +85,40 @@ func SendMail(cfg SmtpConfig, to []string, subject, body string) error {
 	return client.Quit()
 }
 
-func dialSSL(addr, host string) (*smtp.Client, error) {
-	conn, err := tls.Dial("tcp", addr, &tls.Config{ServerName: host})
-	if err != nil {
-		return nil, err
+func dialContext(ctx context.Context, addr, host, mode string) (*smtp.Client, func(), error) {
+	var conn net.Conn
+	var err error
+	if mode == "SSL" {
+		dialer := tls.Dialer{Config: &tls.Config{ServerName: host}}
+		conn, err = dialer.DialContext(ctx, "tcp", addr)
+	} else {
+		conn, err = (&net.Dialer{}).DialContext(ctx, "tcp", addr)
 	}
-	return smtp.NewClient(conn, host)
-}
-
-func dialStartTLS(addr, host string) (*smtp.Client, error) {
-	conn, err := net.Dial("tcp", addr)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+	stop := context.AfterFunc(ctx, func() { _ = conn.Close() })
+	cleanup := func() { stop(); _ = conn.Close() }
+	if deadline, ok := ctx.Deadline(); ok {
+		if err := conn.SetDeadline(deadline); err != nil {
+			cleanup()
+			return nil, nil, err
+		}
 	}
 	client, err := smtp.NewClient(conn, host)
 	if err != nil {
-		_ = conn.Close()
-		return nil, err
+		cleanup()
+		return nil, nil, err
 	}
-	if ok, _ := client.Extension("STARTTLS"); ok {
-		if err = client.StartTLS(&tls.Config{ServerName: host}); err != nil {
-			_ = client.Close()
-			return nil, fmt.Errorf("STARTTLS failed: %w", err)
+	if mode != "SSL" {
+		if ok, _ := client.Extension("STARTTLS"); ok {
+			if err = client.StartTLS(&tls.Config{ServerName: host}); err != nil {
+				cleanup()
+				return nil, nil, fmt.Errorf("STARTTLS failed: %w", err)
+			}
 		}
 	}
-	// 服务器不支持 STARTTLS 时按明文继续（内网调试 SMTP 常见）
-	return client, nil
+	return client, cleanup, nil
 }
 
 func buildMessage(from string, to []string, subject, body string) []byte {

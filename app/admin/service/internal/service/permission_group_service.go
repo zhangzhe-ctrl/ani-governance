@@ -3,11 +3,10 @@ package service
 import (
 	"context"
 
-	"entgo.io/ent/dialect/sql"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"
@@ -15,8 +14,6 @@ import (
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 
-	"go-wind-admin/pkg/constants"
-	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -40,16 +37,9 @@ func NewPermissionGroupService(
 		permissionRepo:      permissionRepo,
 	}
 
-	svc.init()
+	// Database initialization is an explicit deployment step; constructors never seed data.
 
 	return svc
-}
-
-func (s *PermissionGroupService) init() {
-	ctx := appViewer.NewSystemViewerContext(context.Background())
-	if count, _ := s.permissionGroupRepo.Count(ctx, []func(s *sql.Selector){}); count == 0 {
-		_ = s.createDefaultPermissionGroups(ctx)
-	}
 }
 
 func (s *PermissionGroupService) List(ctx context.Context, req *paginationV1.PagingRequest) (*permissionV1.ListPermissionGroupResponse, error) {
@@ -121,18 +111,4 @@ func (s *PermissionGroupService) Delete(ctx context.Context, req *permissionV1.D
 	}
 
 	return &emptypb.Empty{}, nil
-}
-
-func (s *PermissionGroupService) createDefaultPermissionGroups(ctx context.Context) error {
-	var err error
-	for _, d := range constants.DefaultPermissionGroups {
-		if _, err = s.permissionGroupRepo.Create(ctx, &permissionV1.CreatePermissionGroupRequest{
-			Data: d,
-		}); err != nil {
-			s.log.Errorf(ctx, "create default permission group error: %v", err)
-			return err
-		}
-	}
-
-	return nil
 }

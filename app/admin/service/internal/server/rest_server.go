@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware"
@@ -54,7 +55,7 @@ func NewRestMiddleware(
 	// （审计直接读 request header，日志从上下文取），挂晚了只能拿到空值。
 	// 同时它会把 ID 写进错误 metadata，对齐 ANI 契约要求的 request_id 字段。
 	ms = append(ms, requestid.Server())
-	// Login request String() includes the reversible password ciphertext.
+	// Login request String() may include the submitted password.
 	// Keep operation/status/error evidence, but never log request bodies here.
 	ms = append(ms, logging.Server(log.NewFilter(bLogger.AsKratosLogger(ctx.GetLogger()), log.FilterKey("args"))))
 
@@ -104,6 +105,7 @@ func NewRestMiddleware(
 		adminV1.OperationAccessKeyServiceIssueToken,
 		adminV1.OperationAuthenticationServiceForgotPassword,
 		adminV1.OperationAuthenticationServiceResetPasswordByCode,
+		adminV1.OperationAuthenticationServiceAcceptInvitation,
 		//OperationFileTransferServiceDownloadFile,
 		//OperationFileTransferServicePostUploadFile,
 		//OperationFileTransferServicePutUploadFile,
@@ -198,6 +200,7 @@ func NewRestServer(
 	apiService.RegisterRouteWalker(srv)
 
 	adminV1.RegisterAuthenticationServiceHTTPServer(srv, authenticationService)
+	registerInvitationPage(srv)
 
 	adminV1.RegisterMfaServiceHTTPServer(srv, mfaService)
 
@@ -267,7 +270,7 @@ func NewRestServer(
 
 	if authorizer != nil {
 		if err = authorizer.ResetPolicies(appViewer.NewSystemViewerContext(ctx.Context())); err != nil {
-			log.Errorf("reset policies error: %v", err)
+			return nil, fmt.Errorf("load authorization policies: %w", err)
 		}
 	}
 

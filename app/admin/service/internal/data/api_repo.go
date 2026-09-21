@@ -1,6 +1,8 @@
 package data
 
 import (
+	dbbootstrap "go-wind-admin/sql/bootstrap"
+
 	"context"
 
 	"time"
@@ -351,4 +353,21 @@ func (r *ApiRepo) Truncate(ctx context.Context) error {
 		return permissionV1.ErrorInternalServerError("truncate failed")
 	}
 	return nil
+}
+
+// SyncOpenAPI is an explicit PostgreSQL metadata operation. IDs and grants survive.
+func (r *ApiRepo) SyncOpenAPI(ctx context.Context, document []byte) error {
+	catalog, err := dbbootstrap.Catalog(document)
+	if err != nil {
+		return err
+	}
+	tx, err := r.entClient.DB().BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, err = dbbootstrap.SyncAPIs(ctx, tx, catalog, false); err != nil {
+		return err
+	}
+	return tx.Commit()
 }

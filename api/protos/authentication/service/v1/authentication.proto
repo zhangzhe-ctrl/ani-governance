@@ -33,6 +33,9 @@ service AuthenticationService {
   // 凭验证码重置密码（免鉴权；重置后吊销该用户全部会话）
   rpc ResetPasswordByCode (ResetPasswordByCodeRequest) returns (google.protobuf.Empty) {}
 
+  // 用一次性邀请令牌设置密码并激活账号。
+  rpc AcceptInvitation (AcceptInvitationRequest) returns (google.protobuf.Empty) {}
+
 
   // 刷新认证令牌
   rpc RefreshToken (LoginRequest) returns (LoginResponse) {}
@@ -62,6 +65,12 @@ service AuthenticationService {
 
   // 验证验证码
   rpc VerifyCaptcha (VerifyCaptchaRequest) returns (VerifyCaptchaResponse) {}
+}
+
+// 令牌来自邀请邮件；身份、租户和角色均由服务端记录确定。
+message AcceptInvitationRequest {
+  string token = 1 [(redact.value).string = "*"];
+  string password = 2 [(redact.value).string = "*"];
 }
 
 // 授权类型

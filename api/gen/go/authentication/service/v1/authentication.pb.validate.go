@@ -35,6 +35,112 @@ var (
 	_ = sort.Sort
 )
 
+// Validate checks the field values on AcceptInvitationRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AcceptInvitationRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AcceptInvitationRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AcceptInvitationRequestMultiError, or nil if none found.
+func (m *AcceptInvitationRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AcceptInvitationRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Token
+
+	// no validation rules for Password
+
+	if len(errors) > 0 {
+		return AcceptInvitationRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AcceptInvitationRequestMultiError is an error wrapping multiple validation
+// errors returned by AcceptInvitationRequest.ValidateAll() if the designated
+// constraints aren't met.
+type AcceptInvitationRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AcceptInvitationRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AcceptInvitationRequestMultiError) AllErrors() []error { return m }
+
+// AcceptInvitationRequestValidationError is the validation error returned by
+// AcceptInvitationRequest.Validate if the designated constraints aren't met.
+type AcceptInvitationRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AcceptInvitationRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AcceptInvitationRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AcceptInvitationRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AcceptInvitationRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AcceptInvitationRequestValidationError) ErrorName() string {
+	return "AcceptInvitationRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AcceptInvitationRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAcceptInvitationRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AcceptInvitationRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AcceptInvitationRequestValidationError{}
+
 // Validate checks the field values on LoginRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.

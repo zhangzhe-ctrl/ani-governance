@@ -3,11 +3,10 @@ package service
 import (
 	"context"
 
-	"entgo.io/ent/dialect/sql"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"
@@ -15,8 +14,6 @@ import (
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	dictV1 "go-wind-admin/api/gen/go/dict/service/v1"
 
-	"go-wind-admin/pkg/constants"
-	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -37,16 +34,9 @@ func NewLanguageService(
 		languageRepo: languageRepo,
 	}
 
-	svc.init()
+	// Database initialization is an explicit deployment step; constructors never seed data.
 
 	return svc
-}
-
-func (s *LanguageService) init() {
-	ctx := appViewer.NewSystemViewerContext(context.Background())
-	if count, _ := s.languageRepo.Count(ctx, []func(s *sql.Selector){}); count == 0 {
-		_ = s.createDefaultLanguage(ctx)
-	}
 }
 
 func (s *LanguageService) List(ctx context.Context, req *paginationV1.PagingRequest) (*dictV1.ListLanguageResponse, error) {
@@ -118,18 +108,4 @@ func (s *LanguageService) Delete(ctx context.Context, req *dictV1.DeleteLanguage
 	}
 
 	return &emptypb.Empty{}, nil
-}
-
-// createDefaultLanguage 创建默认语言
-func (s *LanguageService) createDefaultLanguage(ctx context.Context) (err error) {
-	for _, user := range constants.DefaultLanguages {
-		if err = s.languageRepo.Create(ctx, &dictV1.CreateLanguageRequest{
-			Data: user,
-		}); err != nil {
-			s.log.Errorf(ctx, "create default language err: %v", err)
-			return err
-		}
-	}
-
-	return err
 }

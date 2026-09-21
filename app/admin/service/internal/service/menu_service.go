@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"
@@ -14,8 +14,6 @@ import (
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 
-	"go-wind-admin/pkg/constants"
-	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -33,16 +31,9 @@ func NewMenuService(ctx *bootstrap.Context, menuRepo *data.MenuRepo) *MenuServic
 		menuRepo: menuRepo,
 	}
 
-	svc.init()
+	// Database initialization is an explicit deployment step; constructors never seed data.
 
 	return svc
-}
-
-func (s *MenuService) init() {
-	ctx := appViewer.NewSystemViewerContext(context.Background())
-	if count, _ := s.menuRepo.Count(ctx, nil); count == 0 {
-		_ = s.createDefaultMenus(ctx)
-	}
 }
 
 func (s *MenuService) List(ctx context.Context, req *paginationV1.PagingRequest) (*permissionV1.ListMenuResponse, error) {
@@ -149,15 +140,4 @@ func (s *MenuService) SyncMenus(ctx context.Context, req *permissionV1.SyncMenus
 	s.log.Infof(ctx, "sync menus success, mode: %s, total: %d", req.GetMode().String(), count)
 
 	return &emptypb.Empty{}, nil
-}
-
-func (s *MenuService) createDefaultMenus(ctx context.Context) error {
-	for _, m := range constants.DefaultMenus {
-		m.Module = trans.Ptr(constants.ComponentToModule(m.GetComponent()))
-		if err := s.menuRepo.Create(ctx, &permissionV1.CreateMenuRequest{Data: m}); err != nil {
-			s.log.Errorf(ctx, "create default menu err: %v", err)
-			return err
-		}
-	}
-	return nil
 }

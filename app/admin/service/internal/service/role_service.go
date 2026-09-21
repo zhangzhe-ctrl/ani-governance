@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	"github.com/tx7do/go-utils/aggregator"
 	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"
@@ -17,8 +17,7 @@ import (
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 
 	"go-wind-admin/pkg/authorizer"
-	"go-wind-admin/pkg/constants"
-	appViewer "go-wind-admin/pkg/entgo/viewer"
+
 	"go-wind-admin/pkg/middleware/auth"
 	"go-wind-admin/pkg/utils"
 )
@@ -47,16 +46,9 @@ func NewRoleService(
 		tenantRepo: tenantRepo,
 	}
 
-	svc.init()
+	// Database initialization is an explicit deployment step; constructors never seed data.
 
 	return svc
-}
-
-func (s *RoleService) init() {
-	ctx := appViewer.NewSystemViewerContext(context.Background())
-	if count, _ := s.roleRepo.Count(ctx, nil); count == 0 {
-		_ = s.createDefaultRoles(ctx)
-	}
 }
 
 func (s *RoleService) extractRelationIDs(
@@ -293,20 +285,4 @@ func (s *RoleService) GetRolesByRoleIds(ctx context.Context, req *permissionV1.G
 		Items: roles,
 		Total: uint64(len(roles)),
 	}, nil
-}
-
-// createDefaultRoles 创建默认角色(包括超级管理员)
-func (s *RoleService) createDefaultRoles(ctx context.Context) error {
-	var err error
-
-	for _, d := range constants.DefaultRoles {
-		err = s.roleRepo.Create(ctx, &permissionV1.CreateRoleRequest{
-			Data: d,
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

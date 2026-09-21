@@ -27,6 +27,7 @@ const (
 	AuthenticationService_RefreshAccessToken_FullMethodName    = "/admin.service.v1.AuthenticationService/RefreshAccessToken"
 	AuthenticationService_ForgotPassword_FullMethodName        = "/admin.service.v1.AuthenticationService/ForgotPassword"
 	AuthenticationService_ResetPasswordByCode_FullMethodName   = "/admin.service.v1.AuthenticationService/ResetPasswordByCode"
+	AuthenticationService_AcceptInvitation_FullMethodName      = "/admin.service.v1.AuthenticationService/AcceptInvitation"
 	AuthenticationService_GenerateCaptcha_FullMethodName       = "/admin.service.v1.AuthenticationService/GenerateCaptcha"
 	AuthenticationService_VerifyCaptcha_FullMethodName         = "/admin.service.v1.AuthenticationService/VerifyCaptcha"
 )
@@ -57,9 +58,10 @@ type AuthenticationServiceClient interface {
 	ForgotPassword(ctx context.Context, in *v1.ForgotPasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 凭验证码重置密码（免鉴权；重置后吊销该用户全部会话）
 	ResetPasswordByCode(ctx context.Context, in *v1.ResetPasswordByCodeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 接受邀请（免登录；以一次性邀请令牌证明身份）。
+	AcceptInvitation(ctx context.Context, in *v1.AcceptInvitationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 生成验证码（免鉴权）
-	// ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
-	// 请求头传递，不进登录报文体内。
+	// 保留的独立验证码接口；密码登录不再调用或依赖此接口。
 	GenerateCaptcha(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*v1.GenerateCaptchaResponse, error)
 	// 验证验证码（免鉴权）
 	VerifyCaptcha(ctx context.Context, in *v1.VerifyCaptchaRequest, opts ...grpc.CallOption) (*v1.VerifyCaptchaResponse, error)
@@ -133,6 +135,16 @@ func (c *authenticationServiceClient) ResetPasswordByCode(ctx context.Context, i
 	return out, nil
 }
 
+func (c *authenticationServiceClient) AcceptInvitation(ctx context.Context, in *v1.AcceptInvitationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AuthenticationService_AcceptInvitation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *authenticationServiceClient) GenerateCaptcha(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*v1.GenerateCaptchaResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(v1.GenerateCaptchaResponse)
@@ -179,9 +191,10 @@ type AuthenticationServiceServer interface {
 	ForgotPassword(context.Context, *v1.ForgotPasswordRequest) (*emptypb.Empty, error)
 	// 凭验证码重置密码（免鉴权；重置后吊销该用户全部会话）
 	ResetPasswordByCode(context.Context, *v1.ResetPasswordByCodeRequest) (*emptypb.Empty, error)
+	// 接受邀请（免登录；以一次性邀请令牌证明身份）。
+	AcceptInvitation(context.Context, *v1.AcceptInvitationRequest) (*emptypb.Empty, error)
 	// 生成验证码（免鉴权）
-	// ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
-	// 请求头传递，不进登录报文体内。
+	// 保留的独立验证码接口；密码登录不再调用或依赖此接口。
 	GenerateCaptcha(context.Context, *emptypb.Empty) (*v1.GenerateCaptchaResponse, error)
 	// 验证验证码（免鉴权）
 	VerifyCaptcha(context.Context, *v1.VerifyCaptchaRequest) (*v1.VerifyCaptchaResponse, error)
@@ -212,6 +225,9 @@ func (UnimplementedAuthenticationServiceServer) ForgotPassword(context.Context, 
 }
 func (UnimplementedAuthenticationServiceServer) ResetPasswordByCode(context.Context, *v1.ResetPasswordByCodeRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResetPasswordByCode not implemented")
+}
+func (UnimplementedAuthenticationServiceServer) AcceptInvitation(context.Context, *v1.AcceptInvitationRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method AcceptInvitation not implemented")
 }
 func (UnimplementedAuthenticationServiceServer) GenerateCaptcha(context.Context, *emptypb.Empty) (*v1.GenerateCaptchaResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GenerateCaptcha not implemented")
@@ -348,6 +364,24 @@ func _AuthenticationService_ResetPasswordByCode_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthenticationService_AcceptInvitation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.AcceptInvitationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthenticationServiceServer).AcceptInvitation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthenticationService_AcceptInvitation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthenticationServiceServer).AcceptInvitation(ctx, req.(*v1.AcceptInvitationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AuthenticationService_GenerateCaptcha_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -414,6 +448,10 @@ var AuthenticationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ResetPasswordByCode",
 			Handler:    _AuthenticationService_ResetPasswordByCode_Handler,
+		},
+		{
+			MethodName: "AcceptInvitation",
+			Handler:    _AuthenticationService_AcceptInvitation_Handler,
 		},
 		{
 			MethodName: "GenerateCaptcha",

@@ -9,7 +9,6 @@ import (
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	entCrud "github.com/tx7do/go-crud/entgo"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
@@ -31,78 +30,6 @@ func newLanguageServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.C
 	}
 }
 
-// TestLanguageServiceSqlite_InitSeedsDefaultsOnEmptyTable 空表上调用 init() 应播种
-// constants.DefaultLanguages 全部默认语言（count==0 守卫的正分支），List 应全部返回；
-// 其中 zh-CN 应是唯一默认语言。
-func TestLanguageServiceSqlite_InitSeedsDefaultsOnEmptyTable(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
-	svc := newLanguageServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
-
-	svc.init()
-
-	cnt, err := entClient.Client().Language.Query().Count(ctx)
-	require.NoError(t, err)
-	require.Equal(t, len(constants.DefaultLanguages), cnt, "init() 后应播种全部默认语言")
-
-	listResp, err := svc.List(ctx, &paginationV1.PagingRequest{})
-	require.NoError(t, err)
-	require.Equal(t, uint64(len(constants.DefaultLanguages)), listResp.Total, "List 应统计全部已播种语言")
-	require.Len(t, listResp.Items, len(constants.DefaultLanguages), "List 应返回全部已播种语言")
-
-	zhFound := false
-	for _, item := range listResp.Items {
-		if item.GetLanguageCode() == "zh-CN" {
-			zhFound = true
-			require.True(t, item.GetIsDefault(), "zh-CN 应是默认语言")
-			require.True(t, item.GetIsEnabled(), "zh-CN 应处于启用状态")
-		} else {
-			require.False(t, item.GetIsDefault(), "除 zh-CN 外不应有其他默认语言")
-		}
-	}
-	require.True(t, zhFound, "播种结果中应存在 zh-CN")
-}
-
-// TestLanguageServiceSqlite_InitGuardSkipsReseedWhenNonEmpty 表非空时再次调用 init()
-// 不应重复播种（count==0 守卫的负分支）。同时覆盖服务层 Create：操作人 ID 盖入 created_by。
-func TestLanguageServiceSqlite_InitGuardSkipsReseedWhenNonEmpty(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
-	svc := newLanguageServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
-	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
-
-	svc.init()
-	seeded := len(constants.DefaultLanguages)
-
-	_, err := svc.Create(opCtx, &dictV1.CreateLanguageRequest{
-		Data: &dictV1.Language{
-			LanguageName: trans.Ptr("服务层新增语言"),
-			LanguageCode: trans.Ptr("tst-SVCX"),
-			NativeName:   trans.Ptr("native-svcx"),
-		},
-	})
-	require.NoError(t, err, "服务层 Create 应成功")
-
-	rows, err := entClient.Client().Language.Query().All(ctx)
-	require.NoError(t, err)
-	require.Len(t, rows, seeded+1, "播种后再加一条自定义语言")
-	var customFound bool
-	for _, r := range rows {
-		if r.LanguageCode != nil && *r.LanguageCode == "tst-SVCX" {
-			customFound = true
-			require.NotNil(t, r.CreatedBy, "created_by 应被服务层盖入操作人 ID")
-			require.Equal(t, uint32(7), *r.CreatedBy, "created_by 应等于令牌声明中的操作人 ID")
-		}
-	}
-	require.True(t, customFound, "自定义语言行应存在")
-
-	// 表非空：再次 init() 不应重新播种
-	svc.init()
-	cnt, err := entClient.Client().Language.Query().Count(ctx)
-	require.NoError(t, err)
-	require.Equal(t, seeded+1, cnt, "非空表上重复 init() 不应追加或重置语言行")
-}
-
 // TestLanguageServiceSqlite_Get_ByIdAndByCode 验证服务层 Get 按主键与按语言代码
 // 查询的命中与未命中。
 func TestLanguageServiceSqlite_Get_ByIdAndByCode(t *testing.T) {
@@ -110,7 +37,7 @@ func TestLanguageServiceSqlite_Get_ByIdAndByCode(t *testing.T) {
 	svc := newLanguageServiceForTest(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 
-	svc.init()
+	svc.seedFixture()
 
 	rows, err := entClient.Client().Language.Query().All(ctx)
 	require.NoError(t, err)
@@ -157,7 +84,7 @@ func TestLanguageServiceSqlite_Update_OnlyMaskedFields(t *testing.T) {
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
-	svc.init()
+	svc.seedFixture()
 
 	rows, err := entClient.Client().Language.Query().All(ctx)
 	require.NoError(t, err)
@@ -198,7 +125,7 @@ func TestLanguageServiceSqlite_Delete(t *testing.T) {
 	svc := newLanguageServiceForTest(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 
-	svc.init()
+	svc.seedFixture()
 
 	rows, err := entClient.Client().Language.Query().All(ctx)
 	require.NoError(t, err)

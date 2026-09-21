@@ -35,16 +35,16 @@ func newPermissionGroupServiceForTest(t *testing.T, entClient *entCrud.EntClient
 	}
 }
 
-// TestPermissionGroupServiceSqlite_InitSeedsDefaultTree_AndListAssemblesTree
+// TestPermissionGroupServiceSqlite_ListAssemblesTree
 // 空表上调用 init() 应播种 constants.DefaultPermissionGroups（一棵 1+4 的树）；
 // 服务层 List 走 treeTravel=true：响应只含根节点，全部子节点组装进根的 Children，
 // Total 统计全部行。
-func TestPermissionGroupServiceSqlite_InitSeedsDefaultTree_AndListAssemblesTree(t *testing.T) {
+func TestPermissionGroupServiceSqlite_ListAssemblesTree(t *testing.T) {
 	entClient := enttest.NewEntClientForTest(t)
 	svc := newPermissionGroupServiceForTest(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 
-	svc.init()
+	svc.seedFixture()
 
 	cnt, err := entClient.Client().PermissionGroup.Query().Count(ctx)
 	require.NoError(t, err)
@@ -78,7 +78,7 @@ func TestPermissionGroupServiceSqlite_CreateAndGet(t *testing.T) {
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
-	svc.init()
+	svc.seedFixture()
 
 	rootID := uint32(0)
 	rows, err := entClient.Client().PermissionGroup.Query().All(ctx)

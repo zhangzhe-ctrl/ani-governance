@@ -21,6 +21,7 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationAuthenticationServiceAcceptInvitation = "/admin.service.v1.AuthenticationService/AcceptInvitation"
 const OperationAuthenticationServiceForgotPassword = "/admin.service.v1.AuthenticationService/ForgotPassword"
 const OperationAuthenticationServiceGenerateCaptcha = "/admin.service.v1.AuthenticationService/GenerateCaptcha"
 const OperationAuthenticationServicePasswordLogin = "/admin.service.v1.AuthenticationService/PasswordLogin"
@@ -31,11 +32,12 @@ const OperationAuthenticationServiceRevokeJti = "/admin.service.v1.Authenticatio
 const OperationAuthenticationServiceVerifyCaptcha = "/admin.service.v1.AuthenticationService/VerifyCaptcha"
 
 type AuthenticationServiceHTTPServer interface {
+	// AcceptInvitation 接受邀请（免登录；以一次性邀请令牌证明身份）。
+	AcceptInvitation(context.Context, *v1.AcceptInvitationRequest) (*emptypb.Empty, error)
 	// ForgotPassword 忘记密码：向已绑定邮箱的用户发送重置验证码（免鉴权；不泄露用户是否存在）
 	ForgotPassword(context.Context, *v1.ForgotPasswordRequest) (*emptypb.Empty, error)
 	// GenerateCaptcha 生成验证码（免鉴权）
-	// ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
-	// 请求头传递，不进登录报文体内。
+	// 保留的独立验证码接口；密码登录不再调用或依赖此接口。
 	GenerateCaptcha(context.Context, *emptypb.Empty) (*v1.GenerateCaptchaResponse, error)
 	// PasswordLogin 租户账密登录（免鉴权）
 	PasswordLogin(context.Context, *v1.PasswordLoginRequest) (*v1.TokenPairResponse, error)
@@ -63,6 +65,7 @@ func RegisterAuthenticationServiceHTTPServer(s *http.Server, srv AuthenticationS
 	r.POST("/api/v1/auth/refresh", _AuthenticationService_RefreshAccessToken0_HTTP_Handler(srv))
 	r.POST("/api/v1/auth/forgot-password", _AuthenticationService_ForgotPassword0_HTTP_Handler(srv))
 	r.POST("/api/v1/auth/reset-password-by-code", _AuthenticationService_ResetPasswordByCode0_HTTP_Handler(srv))
+	r.POST("/api/v1/auth/invitations/accept", _AuthenticationService_AcceptInvitation0_HTTP_Handler(srv))
 	r.GET("/api/v1/auth/captcha", _AuthenticationService_GenerateCaptcha0_HTTP_Handler(srv))
 	r.POST("/api/v1/auth/captcha/verify", _AuthenticationService_VerifyCaptcha0_HTTP_Handler(srv))
 }
@@ -199,6 +202,28 @@ func _AuthenticationService_ResetPasswordByCode0_HTTP_Handler(srv Authentication
 	}
 }
 
+func _AuthenticationService_AcceptInvitation0_HTTP_Handler(srv AuthenticationServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.AcceptInvitationRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthenticationServiceAcceptInvitation)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AcceptInvitation(ctx, req.(*v1.AcceptInvitationRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _AuthenticationService_GenerateCaptcha0_HTTP_Handler(srv AuthenticationServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -241,11 +266,12 @@ func _AuthenticationService_VerifyCaptcha0_HTTP_Handler(srv AuthenticationServic
 }
 
 type AuthenticationServiceHTTPClient interface {
+	// AcceptInvitation 接受邀请（免登录；以一次性邀请令牌证明身份）。
+	AcceptInvitation(ctx context.Context, req *v1.AcceptInvitationRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// ForgotPassword 忘记密码：向已绑定邮箱的用户发送重置验证码（免鉴权；不泄露用户是否存在）
 	ForgotPassword(ctx context.Context, req *v1.ForgotPasswordRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GenerateCaptcha 生成验证码（免鉴权）
-	// ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
-	// 请求头传递，不进登录报文体内。
+	// 保留的独立验证码接口；密码登录不再调用或依赖此接口。
 	GenerateCaptcha(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *v1.GenerateCaptchaResponse, err error)
 	// PasswordLogin 租户账密登录（免鉴权）
 	PasswordLogin(ctx context.Context, req *v1.PasswordLoginRequest, opts ...http.CallOption) (rsp *v1.TokenPairResponse, err error)
@@ -273,6 +299,20 @@ func NewAuthenticationServiceHTTPClient(client *http.Client) AuthenticationServi
 	return &AuthenticationServiceHTTPClientImpl{client}
 }
 
+// AcceptInvitation 接受邀请（免登录；以一次性邀请令牌证明身份）。
+func (c *AuthenticationServiceHTTPClientImpl) AcceptInvitation(ctx context.Context, in *v1.AcceptInvitationRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/auth/invitations/accept"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthenticationServiceAcceptInvitation))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // ForgotPassword 忘记密码：向已绑定邮箱的用户发送重置验证码（免鉴权；不泄露用户是否存在）
 func (c *AuthenticationServiceHTTPClientImpl) ForgotPassword(ctx context.Context, in *v1.ForgotPasswordRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
@@ -288,8 +328,7 @@ func (c *AuthenticationServiceHTTPClientImpl) ForgotPassword(ctx context.Context
 }
 
 // GenerateCaptcha 生成验证码（免鉴权）
-// ANI 契约无验证码概念，属本仓扩展；验证码经 X-Captcha-Id / X-Captcha-Value
-// 请求头传递，不进登录报文体内。
+// 保留的独立验证码接口；密码登录不再调用或依赖此接口。
 func (c *AuthenticationServiceHTTPClientImpl) GenerateCaptcha(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*v1.GenerateCaptchaResponse, error) {
 	var out v1.GenerateCaptchaResponse
 	pattern := "/api/v1/auth/captcha"

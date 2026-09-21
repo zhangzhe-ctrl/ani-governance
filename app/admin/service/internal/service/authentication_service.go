@@ -32,16 +32,6 @@ import (
 	"go-wind-admin/pkg/netutil"
 )
 
-// 验证码相关请求头（H5：登录强制验证码，通过 header 传递以避免改动 proto 与三套前端生成代码）。
-const (
-	headerCaptchaID    = "X-Captcha-Id"
-	headerCaptchaValue = "X-Captcha-Value"
-)
-
-// CaptchaEnabled 控制登录是否强制校验验证码。
-// 开发/无 Redis 等环境可改为 false 跳过验证码校验，避免登录被 400 invalid or missing captcha 阻断。
-const CaptchaEnabled = true
-
 // refresh token cookie 相关常量。
 // refresh token 以 HttpOnly Cookie 传输，Path 收窄到刷新端点，SameSite=Lax 阻断跨站 POST。
 // refresh_exp 为非 HttpOnly 的过期时间戳 cookie，供前端定时器读取以调度主动刷新。
@@ -283,7 +273,7 @@ func NewAuthenticationService(
 // checkLoginPolicies 拉取租户登录策略并按当前上下文匹配。
 // userId 传 0 时只匹配全局条目（target_id 为空）；密码校验前与取到 user 后各调用一次。
 // 匹配逻辑见 data.MatchLoginPolicy（纯函数，含单测）。
-// 策略查询失败时 fail-open（仅告警）——登录可用性优先于策略拦截，与验证码开关的容错取向一致。
+// 策略查询失败时 fail-open（仅告警）——登录可用性优先于策略拦截。
 func (s *AuthenticationService) checkLoginPolicies(ctx context.Context, tenantID, userId uint32, clientIP, deviceId string) (bool, string) {
 	policies, err := s.loginPolicyRepo.ListForLogin(ctx, tenantID)
 	if err != nil {
@@ -337,7 +327,7 @@ func (s *AuthenticationService) Login(ctx context.Context, req *authenticationV1
 // PasswordLogin 租户账密登录（ANI 契约形态，POST /api/v1/auth/password/login）。
 //
 // 本方法只做报文翻译，登录能力完全复用 doGrantTypePassword，不重复实现：
-// 强制验证码、IP+用户名限流、登录策略闸门、identifier 反查、bcrypt 校验、
+// IP+用户名限流、登录策略闸门、identifier 反查、bcrypt 校验、
 // MFA 闸门、会话元数据、权限聚合、令牌签发与 refresh Cookie 下发均沿用原实现。
 //
 // 租户标识：tenant_name 的值取 sys_tenants.code（"租户编号"）。这里不做预解析，
@@ -631,11 +621,6 @@ func (s *AuthenticationService) doGrantTypePassword(ctx context.Context, req *au
 		}
 	}
 
-	// ===== H5 闸门 2：强制验证码（始终启用；通过 HTTP Header 传递，避免改动 proto/前端生成代码）=====
-	if !s.verifyLoginCaptcha(ctx) {
-		return nil, authenticationV1.ErrorBadRequest("invalid or missing captcha")
-	}
-
 	// ===== 租户解析：tenant_code 留空视为平台（tenant 0），非空则按编号定位租户 =====
 	// 解析后的 tenantID 限定后续凭证查询范围，消除同名 identifier 跨租户歧义。
 	var tenantID uint32 = 0
@@ -673,10 +658,11 @@ func (s *AuthenticationService) doGrantTypePassword(ctx context.Context, req *au
 	}
 
 	// ===== 凭证校验：在解析出的 tenant 范围内查单条凭证并校验密码 =====
+	// password 是经 HTTPS 提交的原始密码；登录不再进行 AES/Base64 解码。
 	// 注意用解析后的 username 局部变量（可能是 email/mobile 反查所得），而非 req 原始输入
 	var matchedUserID uint32
 	var err error
-	matchedUserID, err = s.userCredentialRepo.FindUserCredential(ctx, tenantID, authenticationV1.UserCredential_USERNAME, username, req.GetPassword(), true)
+	matchedUserID, err = s.userCredentialRepo.FindUserCredential(ctx, tenantID, authenticationV1.UserCredential_USERNAME, username, req.GetPassword(), false)
 	if err != nil {
 		// 服务端日志保留真实原因（USER_NOT_FOUND / USER_FREEZE / INVALID_PASSWORD），便于运维排查
 		s.log.Errorf(ctx, "verify user credential failed for username [%s]: %s", username, err.Error())
@@ -870,36 +856,6 @@ func dedupeStrings(in []string) []string {
 		out = append(out, s)
 	}
 	return out
-}
-
-// verifyLoginCaptcha 校验登录请求携带的验证码。
-// 验证码 id/value 通过 HTTP Header（X-Captcha-Id / X-Captcha-Value）传递。
-// captchaClient.Verify 已是 verify-and-delete 单次有效语义。
-// 注意：refresh_token / client_credentials 等非密码授权不走此校验（仅 doGrantTypePassword 调用）。
-func (s *AuthenticationService) verifyLoginCaptcha(ctx context.Context) bool {
-	if !CaptchaEnabled {
-		// 验证码开关关闭，跳过校验
-		return true
-	}
-	if s.captchaClient == nil {
-		// captcha 未配置时 fail-open（仅记录告警），避免影响登录基本功能
-		return true
-	}
-	header := netutil.HeaderFromContext(ctx)
-	if header == nil {
-		return false
-	}
-	captchaID := strings.TrimSpace(header.Get(headerCaptchaID))
-	captchaValue := strings.TrimSpace(header.Get(headerCaptchaValue))
-	if captchaID == "" || captchaValue == "" {
-		return false
-	}
-	ok, err := s.captchaClient.Verify(ctx, captchaID, captchaValue)
-	if err != nil {
-		s.log.Errorf(ctx, "verify captcha failed: %s", err.Error())
-		return false
-	}
-	return ok
 }
 
 // doGrantTypeRefreshToken 处理授权类型 - 刷新令牌

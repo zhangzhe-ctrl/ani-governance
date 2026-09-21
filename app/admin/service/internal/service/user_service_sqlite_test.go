@@ -28,10 +28,10 @@ package service
 import (
 	"context"
 	"fmt"
-	"testing"
-
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
+	"testing"
+
 	"github.com/stretchr/testify/require"
 	"github.com/tx7do/go-utils/password"
 	"github.com/tx7do/go-utils/trans"
@@ -120,7 +120,7 @@ type userServiceEnv struct {
 // newUserServiceForTest 白盒复刻 NewUserService 的字段初始化：log 换 NopLogger，
 // ent 仓储用 repo_testkit 构造器，authenticator 经 miniredis + 测试密钥构造，
 // userRepo 用本文件桩；membershipRepo 仅 OneToMany 分支（编译期死代码）使用，置 nil。
-// 注意：不经 NewUserService 构造，svc.init()（默认数据播种）仅在专门测试中显式调用。
+// 注意：不经 NewUserService 构造，svc.seedFixture()（默认数据播种）仅在专门测试中显式调用。
 func newUserServiceForTest(t *testing.T) *userServiceEnv {
 	t.Helper()
 	entClient := enttest.NewEntClientForTest(t)
@@ -747,52 +747,4 @@ func TestUserServiceSqlite_DeleteGuards(t *testing.T) {
 	_, err = e.svc.Delete(platformOp, &identityV1.DeleteUserRequest{QueryBy: &identityV1.DeleteUserRequest_Id{Id: 10701}})
 	require.NoError(t, err)
 	require.Equal(t, []uint32{10701}, e.stub.deletes, "删除调用应被记录")
-}
-
-// TestUserServiceSqlite_InitSeedsEmptyDB 验证空库初始化播种：
-// DefaultUsers 经 userRepo.Create 落创建记录、DefaultUserCredentials 经真实
-// userCredentialRepo 落凭证行（绑定 Create 返回的用户 ID）、DefaultUserRoles
-// 经 AssignUserRole 落角色关联记录（OneToOne 分支）。
-func TestUserServiceSqlite_InitSeedsEmptyDB(t *testing.T) {
-	e := newUserServiceForTest(t)
-	require.Equal(t, 0, e.credentialCount(t))
-
-	e.svc.init()
-
-	require.Len(t, e.stub.creates, len(constants.DefaultUsers), "默认用户应逐一经仓储创建")
-	require.Len(t, e.stub.assignedRoles, len(constants.DefaultUserRoles), "OneToOne 分支应落默认用户角色关联记录")
-	require.Equal(t, 1, e.credentialCount(t), "默认凭证应落库一行")
-	matched, ferr := e.findCred(t, 0, "admin", constants.DefaultUserPassword)
-	require.NoError(t, ferr, "播种凭证应可经默认口令校验")
-	require.Equal(t, uint32(66001), matched, "播种凭证应绑定 Create 返回的用户 ID（overrideUserID）")
-}
-
-// TestUserServiceSqlite_InitReseedsMissingCredentials 验证凭证自愈补种：
-// 用户表非空而凭证表为空（历史半初始化故障特征）时，init 重建默认凭证
-// 并绑定种子内的 UserId。
-func TestUserServiceSqlite_InitReseedsMissingCredentials(t *testing.T) {
-	e := newUserServiceForTest(t)
-	e.stub.count = 1 // 用户表非空：跳过 createDefaultUser
-	e.stub.usersByID[1] = &identityV1.User{Id: trans.Ptr(uint32(1))}
-
-	e.svc.init()
-
-	require.Empty(t, e.stub.creates, "用户表非空不应再建默认用户")
-	require.Empty(t, e.stub.assignedRoles, "不应再落默认用户角色关联记录")
-	require.Equal(t, 1, e.credentialCount(t), "自愈补种应重建默认凭证")
-	matched, ferr := e.findCred(t, 0, "admin", constants.DefaultUserPassword)
-	require.NoError(t, ferr)
-	require.Equal(t, uint32(1), matched, "补种凭证应保留种子内的 UserId（overrideUserID=0 路径）")
-}
-
-// TestUserServiceSqlite_CreateDefaultUserCredentialsOverride 验证
-// createDefaultUserCredentials 的 overrideUserID 绑定语义：
-// 显式传入的用户 ID 覆盖种子内的 UserId。
-func TestUserServiceSqlite_CreateDefaultUserCredentialsOverride(t *testing.T) {
-	e := newUserServiceForTest(t)
-	require.NoError(t, e.svc.createDefaultUserCredentials(e.ctx, 2002))
-	require.Equal(t, 1, e.credentialCount(t))
-	matched, ferr := e.findCred(t, 0, "admin", constants.DefaultUserPassword)
-	require.NoError(t, ferr)
-	require.Equal(t, uint32(2002), matched, "凭证应绑定显式传入的 overrideUserID")
 }

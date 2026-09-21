@@ -15,9 +15,8 @@ WORKDIR /src
 # 复制项目源代码到工作目录
 COPY . /src
 
-# 下载依赖，国内代理链：首选 goproxy.cn，备选 direct（直接下载）
-# 增加 GOSUMDB 配置避免校验服务器访问失败
-RUN GOPROXY=https://goproxy.cn,direct GOSUMDB=off go mod download
+# 固定版本的领域模块使用官方代理优先，保留校验。
+RUN GOPROXY=https://proxy.golang.org,direct go mod download
 
 # 编译可执行文件（使用WORKDIR和相对路径，而不是cd）
 RUN CGO_ENABLED=0 \
@@ -25,6 +24,8 @@ RUN CGO_ENABLED=0 \
     GOARCH=amd64 \
     go build -ldflags "-X main.version=$APP_VERSION" \
     -o /src/bin/${SERVICE_NAME}-server ./app/${SERVICE_NAME}/service/cmd/server/
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /src/bin/admin ./app/admin/service/cmd/admin/
 
 # 复制配置文件到统一目录
 RUN mkdir -p /src/bin/configs && \
@@ -39,7 +40,7 @@ RUN mkdir -p /src/bin/configs && \
 # 使用 Alpine 作为基础镜像，因为它非常轻量级
 FROM docker.io/alpine:latest
 
-ARG SERVICE_NAME=app
+ARG SERVICE_NAME=admin
 
 # 安装必要的证书（如果应用程序需要进行 HTTPS 请求）
 RUN apk --no-cache add ca-certificates
@@ -49,6 +50,7 @@ WORKDIR /app
 
 # 从第一阶段的构建结果中复制可执行文件到当前工作目录
 COPY --from=builder /src/bin/${SERVICE_NAME}-server /app/bin/server
+COPY --from=builder /src/bin/admin /app/bin/admin
 
 # 拷贝配置文件
 COPY --from=builder /src/bin/configs/ /app/configs/

@@ -1,6 +1,8 @@
 package main
 
 import (
+	dbbootstrap "go-wind-admin/sql/bootstrap"
+
 	"fmt"
 
 	"github.com/go-kratos/kratos/v2"
@@ -57,6 +59,10 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	cleanups = append(cleanups, cleanupEnt)
+	if err = dbbootstrap.Check(ctx.Context(), entClient.DB()); err != nil {
+		rollback()
+		return nil, nil, err
+	}
 
 	minioClient := data.NewMinIoClient(ctx)
 
@@ -157,7 +163,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	loginPolicyService := service.NewLoginPolicyService(ctx, loginPolicyRepo)
 
 	// 身份与组织
-	userService := service.NewUserService(ctx, userRepo, roleRepo, userCredentialRepo, positionRepo, orgUnitRepo, tenantRepo, membershipRepo, authenticator)
+	userService := service.NewUserService(ctx, userRepo, roleRepo, userCredentialRepo, positionRepo, orgUnitRepo, tenantRepo, membershipRepo, authenticator, notificationChannelRepo)
 	userProfileService := service.NewUserProfileService(ctx, userRepo, roleRepo, userCredentialRepo, authenticator, notificationChannelRepo, vcodeCache, minioClient)
 	positionService := service.NewPositionService(ctx, positionRepo, orgUnitRepo)
 	orgUnitService := service.NewOrgUnitService(ctx, orgUnitRepo, userRepo)
@@ -170,7 +176,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	permissionGroupService := service.NewPermissionGroupService(ctx, permissionGroupRepo, permissionRepo)
 
 	// 租户与套餐
-	tenantService := service.NewTenantService(ctx, tenantRepo, tenantUsageRepo, userRepo, userCredentialRepo, roleRepo, authz)
+	tenantService := service.NewTenantService(ctx, tenantRepo, tenantUsageRepo, userRepo, userCredentialRepo, roleRepo, authz, notificationChannelRepo)
 	planService := service.NewPlanService(ctx, planRepo)
 	planQuotaService := service.NewPlanQuotaService(ctx, planQuotaRepo)
 	planModuleService := service.NewPlanModuleService(ctx, planModuleRepo)

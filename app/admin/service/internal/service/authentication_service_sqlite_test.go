@@ -13,7 +13,7 @@
 //     （netutil.HeaderFromContext / CookieFromContext 走接口断言可命中）。
 //
 // 覆盖目标：authentication_service.go 的 Login / doGrantTypePassword（限流预检、
-// 验证码闸门、租户解析、登录策略双段闸门、凭证校验与防枚举归一、租户纵深校验、
+// 无验证码登录、租户解析、登录策略双段闸门、凭证校验与防枚举归一、租户纵深校验、
 // 授权链（角色→权限→后台访问→角色码/管理员标志）、数据范围与字段权限聚合（协作文件）、
 // MFA 闸门、令牌签发、会话元数据、最后登录记录、限流清零）、Logout、RefreshToken
 // （cookie 注入 + 轮换 + 旧令牌对失效 + 会话元数据继承）、ValidateToken、WhoAmI、
@@ -24,8 +24,7 @@
 //   - resolveCookieSecure 与 setRefreshCookies / clearRefreshCookies 的写头段：
 //     需具体 *khttp.Transport（kratos 内部类型、字段全私有无导出构造器），
 //     接口桩无法命中其具体类型断言，只测守卫段；
-//   - 各仓储/redis 的故障分支（DB/Redis 故障不可注入）、CaptchaEnabled 关闭分支
-//     （编译期常量 true）。
+//   - 各仓储/redis 的故障分支（DB/Redis 故障不可注入）
 package service
 
 import (
@@ -334,22 +333,8 @@ func (e *authSvcEnv) seedStubUser(userID uint32, tenantID *uint32, username stri
 	e.stub.roleIDsByUser[userID] = roleIDs
 }
 
-// freshCaptchaCtx 生成一对单次有效验证码并以 X-Captcha-Id / X-Captcha-Value 头注入
-// 上下文（登录强制验证码闸门的通过路径用）。verifyLoginCaptcha 走 verify-and-delete，
-// 每次登录消费一对新验证码。
-func (e *authSvcEnv) freshCaptchaCtx(t *testing.T, ctx context.Context) context.Context {
-	t.Helper()
-	id, _, answer, err := e.captchaClient.Generate()
-	require.NoError(t, err)
-	require.NoError(t, e.captchaClient.Save(ctx, id, answer))
-	header := http.Header{}
-	header.Set("X-Captcha-Id", id)
-	header.Set("X-Captcha-Value", answer)
-	return headerCtx(ctx, header)
-}
-
-// encryptLoginPassword 按 Login 前端契约加密密码：base64(AES(明文))。
-// doGrantTypePassword 以 needDecrypt=true 调 FindUserCredential，配套此编码。
+// encryptLoginPassword 构造历史 AES 密码报文，供尚未修改协议的密码管理测试
+// 及登录拒绝旧编码的回归测试使用。正常登录直接传原始密码。
 func encryptLoginPassword(t *testing.T, plain string) string {
 	t.Helper()
 	enc, err := utilCrypto.AesEncrypt([]byte(plain), utilCrypto.DefaultAESKey, nil)
@@ -358,19 +343,19 @@ func encryptLoginPassword(t *testing.T, plain string) string {
 }
 
 // loginReq 构造密码登录请求。
-func loginReq(username, encryptedPassword string) *authenticationV1.LoginRequest {
+func loginReq(username, plainPassword string) *authenticationV1.LoginRequest {
 	return &authenticationV1.LoginRequest{
 		GrantType:  authenticationV1.GrantType_password,
 		Identifier: &authenticationV1.LoginRequest_Username{Username: username},
-		Password:   trans.Ptr(encryptedPassword),
+		Password:   trans.Ptr(plainPassword),
 		ClientType: authenticationV1.ClientType_admin.Enum(),
 	}
 }
 
-// loginHappyReq 直接以明文密码构造带验证码上下文的完整登录请求。
+// loginHappyReq 直接以明文密码构造无需验证码的完整登录请求。
 func (e *authSvcEnv) loginHappyReq(t *testing.T, ctx context.Context, username, plainPassword string) (context.Context, *authenticationV1.LoginRequest) {
 	t.Helper()
-	return e.freshCaptchaCtx(t, ctx), loginReq(username, encryptLoginPassword(t, plainPassword))
+	return ctx, loginReq(username, plainPassword)
 }
 
 // TestAuthSvcSqlite_LoginGrantDispatch 验证 Login 的授权类型派发：
@@ -395,53 +380,31 @@ func TestAuthSvcSqlite_LoginGrantDispatch(t *testing.T) {
 	}
 }
 
-// TestAuthSvcSqlite_LoginCaptchaGate 验证强制验证码闸门：
-// 无传输上下文（取不到头）、空验证码头、错误验证码值均 400 拒绝；
-// 正确验证码放行后进入后续凭证校验（此处以未播种凭证的 INVALID_CREDENTIALS 证明放行）。
-func TestAuthSvcSqlite_LoginCaptchaGate(t *testing.T) {
-	e := newAuthenticationServiceForTest(t)
-	base := context.Background()
-	req := loginReq("authsvc-nobody", encryptLoginPassword(t, constants.DefaultUserPassword))
-
-	// 无传输上下文：HeaderFromContext 取不到头 → 闸门拒绝。
-	resp, err := e.svc.Login(base, req)
-	require.Error(t, err)
-	require.True(t, authenticationV1.IsBadRequest(err))
-	require.Nil(t, resp)
-
-	// 有传输上下文但无验证码头。
-	resp, err = e.svc.Login(headerCtx(base, http.Header{}), req)
-	require.Error(t, err)
-	require.True(t, authenticationV1.IsBadRequest(err))
-	require.Nil(t, resp)
-
-	// 有传输上下文、验证码头为空白值。
-	blank := http.Header{}
-	blank.Set("X-Captcha-Id", "  ")
-	blank.Set("X-Captcha-Value", "  ")
-	resp, err = e.svc.Login(headerCtx(base, blank), req)
-	require.Error(t, err)
-	require.True(t, authenticationV1.IsBadRequest(err))
-	require.Nil(t, resp)
-
-	// 错误验证码值：通过闸门头存在性检查后 Verify 比对失败。
-	id, _, _, gerr := e.captchaClient.Generate()
-	require.NoError(t, gerr)
-	require.NoError(t, e.captchaClient.Save(base, id, "RIGHTANSWER"))
-	wrong := http.Header{}
-	wrong.Set("X-Captcha-Id", id)
-	wrong.Set("X-Captcha-Value", "WRONGANSWER")
-	resp, err = e.svc.Login(headerCtx(base, wrong), req)
-	require.Error(t, err)
-	require.True(t, authenticationV1.IsBadRequest(err))
-	require.Nil(t, resp)
-
-	// 正确验证码：闸门放行，流程推进到凭证校验（凭证未播种 → 归一化的 INVALID_CREDENTIALS）。
-	okCtx, okReq := e.loginHappyReq(t, base, "authsvc-nobody", constants.DefaultUserPassword)
-	resp, err = e.svc.Login(okCtx, okReq)
-	require.Error(t, err)
-	require.True(t, authenticationV1.IsInvalidCredentials(err), "凭证未命中应归一化为 INVALID_CREDENTIALS")
-	require.Nil(t, resp)
+// TestAuthSvcSqlite_LoginWithoutCaptcha 验证未带验证码或带旧验证码头均直接进入凭证校验。
+// fixture 保持验证码后端已配置，防止仅在 captchaClient 为 nil 时偶然通过。
+func TestAuthSvcSqlite_LoginWithoutCaptcha(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		header http.Header
+	}{
+		{name: "no_transport"},
+		{name: "no_captcha_headers", header: http.Header{}},
+		{name: "blank_legacy_headers", header: http.Header{"X-Captcha-Id": {"  "}, "X-Captcha-Value": {"  "}}},
+		{name: "invalid_legacy_headers", header: http.Header{"X-Captcha-Id": {"obsolete-id"}, "X-Captcha-Value": {"wrong-answer"}}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			e := newAuthenticationServiceForTest(t)
+			require.NotNil(t, e.captchaClient)
+			ctx := context.Background()
+			if tc.header != nil {
+				ctx = headerCtx(ctx, tc.header)
+			}
+			resp, err := e.svc.Login(ctx, loginReq("authsvc-nobody", constants.DefaultUserPassword))
+			require.Error(t, err)
+			require.True(t, authenticationV1.IsInvalidCredentials(err), "未命中凭证应返回 INVALID_CREDENTIALS，不应被验证码拦截")
+			require.Nil(t, resp)
+		})
+	}
 }
 
 // TestAuthSvcSqlite_LoginTenantResolution 验证租户解析：
@@ -654,7 +617,7 @@ func TestAuthSvcSqlite_LoginFullPlatformChain(t *testing.T) {
 }
 
 // TestAuthSvcSqlite_LoginRateLimiterLockout 验证登录限流的锁定窗口：
-// 连续 5 次密码错误后，第 6 次在预检阶段即被 400 拒绝（先于验证码与凭证校验），
+// 连续 5 次密码错误后，第 6 次在预检阶段即被 400 拒绝（先于凭证校验），
 // 双维度计数均达到阈值。
 func TestAuthSvcSqlite_LoginRateLimiterLockout(t *testing.T) {
 	e := newAuthenticationServiceForTest(t)
@@ -676,7 +639,7 @@ func TestAuthSvcSqlite_LoginRateLimiterLockout(t *testing.T) {
 	require.Equal(t, "5", usrCnt, "五次失败后用户名维度计数应为阈值 5")
 	require.NoError(t, usrErr)
 
-	// 第 6 次：即使密码与验证码都正确，也在限流预检阶段被拒。
+	// 第 6 次：即使密码正确，也在限流预检阶段被拒。
 	ctx, req := e.loginHappyReq(t, base, authSvcTestUsername, constants.DefaultUserPassword)
 	resp, err := e.svc.Login(ctx, req)
 	require.Error(t, err)
@@ -1136,10 +1099,10 @@ func TestAuthSvcSqlite_PasswordLoginAdapter(t *testing.T) {
 	// 断言必须锁到具体原因：登录链路还有其它 BAD_REQUEST（如凭据格式错误），
 	// 只判 IsBadRequest 会让用例"因错误的原因通过"。
 	for _, blank := range []string{"", "   "} {
-		resp, err := e.svc.PasswordLogin(e.freshCaptchaCtx(t, base), &authenticationV1.PasswordLoginRequest{
+		resp, err := e.svc.PasswordLogin(base, &authenticationV1.PasswordLoginRequest{
 			TenantName: trans.Ptr(blank),
 			Username:   trans.Ptr("authsvc-adapter-user"),
-			Password:   trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+			Password:   trans.Ptr(constants.DefaultUserPassword),
 		})
 		require.Error(t, err, "tenant_name=%q 应拒绝", blank)
 		require.True(t, authenticationV1.IsBadRequest(err), "tenant_name=%q 应 400", blank)
@@ -1152,11 +1115,11 @@ func TestAuthSvcSqlite_PasswordLoginAdapter(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, nilResp)
 
-	// 正常租户登录：报文映射为 TokenPairResponse。
-	resp, err := e.svc.PasswordLogin(e.freshCaptchaCtx(t, base), &authenticationV1.PasswordLoginRequest{
+	// 正常租户登录：不生成或提交验证码，报文映射为 TokenPairResponse。
+	resp, err := e.svc.PasswordLogin(base, &authenticationV1.PasswordLoginRequest{
 		TenantName: trans.Ptr(authSvcTenantCode),
 		Username:   trans.Ptr("authsvc-adapter-user"),
-		Password:   trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+		Password:   trans.Ptr(constants.DefaultUserPassword),
 	})
 	require.NoError(t, err)
 	require.NotEmpty(t, resp.GetAccessToken(), "应签发 access token")
@@ -1166,11 +1129,19 @@ func TestAuthSvcSqlite_PasswordLoginAdapter(t *testing.T) {
 	require.Empty(t, resp.GetMfaOperationId())
 	require.Empty(t, resp.GetRefreshToken(), "refresh token 经 HttpOnly Cookie 下发，不进响应体")
 
+	legacy, err := e.svc.PasswordLogin(base, &authenticationV1.PasswordLoginRequest{
+		TenantName: trans.Ptr(authSvcTenantCode),
+		Username:   trans.Ptr("authsvc-adapter-user"),
+		Password:   trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+	})
+	require.True(t, authenticationV1.IsInvalidCredentials(err), "登录不应再解密历史 AES 报文")
+	require.Nil(t, legacy)
+
 	// local: 前缀容错：ANI 形态客户端可能带前缀，剥离后应正常登录。
-	prefixed, err := e.svc.PasswordLogin(e.freshCaptchaCtx(t, base), &authenticationV1.PasswordLoginRequest{
+	prefixed, err := e.svc.PasswordLogin(base, &authenticationV1.PasswordLoginRequest{
 		TenantName: trans.Ptr(authSvcTenantCode),
 		Username:   trans.Ptr("local:authsvc-adapter-user"),
-		Password:   trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+		Password:   trans.Ptr(constants.DefaultUserPassword),
 	})
 	require.NoError(t, err, "带 local: 前缀应剥离后正常登录")
 	require.NotEmpty(t, prefixed.GetAccessToken())
@@ -1184,17 +1155,24 @@ func TestAuthSvcSqlite_PlatformPasswordLoginGate(t *testing.T) {
 
 	permID := e.seedBackendAccessPermission(t)
 
-	// 平台角色：platform: 前缀 → 放行。
+	// 平台角色：不生成或提交验证码，platform: 前缀 → 放行。
 	platformRoleID := e.seedRole(t, nil, permissionV1.Role_SYSTEM, constants.PlatformAdminRoleCode, []uint32{permID}, nil, nil)
 	e.seedCredential(t, nil, 7811, "authsvc-platform-user", authenticationV1.UserCredential_ENABLED)
 	e.seedStubUser(7811, nil, "authsvc-platform-user", identityV1.User_NORMAL, []uint32{platformRoleID})
 
-	resp, err := e.svc.PlatformPasswordLogin(e.freshCaptchaCtx(t, base), &authenticationV1.PlatformPasswordLoginRequest{
+	resp, err := e.svc.PlatformPasswordLogin(base, &authenticationV1.PlatformPasswordLoginRequest{
 		Username: trans.Ptr("authsvc-platform-user"),
-		Password: trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+		Password: trans.Ptr(constants.DefaultUserPassword),
 	})
 	require.NoError(t, err, "平台角色应允许平台登录")
 	require.NotEmpty(t, resp.GetAccessToken())
+
+	legacy, err := e.svc.PlatformPasswordLogin(base, &authenticationV1.PlatformPasswordLoginRequest{
+		Username: trans.Ptr("authsvc-platform-user"),
+		Password: trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+	})
+	require.True(t, authenticationV1.IsInvalidCredentials(err), "平台登录不应再解密历史 AES 报文")
+	require.Nil(t, legacy)
 
 	// 非平台角色：同为 tenant 0 且具备后台访问权限，但角色码无 platform: 前缀 → 403。
 	// 这是闸门的核心价值：防止 tenant 0 的普通角色借平台入口登录。
@@ -1202,9 +1180,9 @@ func TestAuthSvcSqlite_PlatformPasswordLoginGate(t *testing.T) {
 	e.seedCredential(t, nil, 7812, "authsvc-nonplatform-user", authenticationV1.UserCredential_ENABLED)
 	e.seedStubUser(7812, nil, "authsvc-nonplatform-user", identityV1.User_NORMAL, []uint32{tenantRoleID})
 
-	denied, err := e.svc.PlatformPasswordLogin(e.freshCaptchaCtx(t, base), &authenticationV1.PlatformPasswordLoginRequest{
+	denied, err := e.svc.PlatformPasswordLogin(base, &authenticationV1.PlatformPasswordLoginRequest{
 		Username: trans.Ptr("authsvc-nonplatform-user"),
-		Password: trans.Ptr(encryptLoginPassword(t, constants.DefaultUserPassword)),
+		Password: trans.Ptr(constants.DefaultUserPassword),
 	})
 	require.Error(t, err, "非平台角色不应允许平台登录")
 	require.True(t, authenticationV1.IsForbidden(err), "非平台角色应 403")

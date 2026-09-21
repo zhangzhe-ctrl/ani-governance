@@ -4,16 +4,17 @@ import (
 	"context"
 	"fmt"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	"github.com/tx7do/go-utils/aggregator"
 	"github.com/tx7do/go-utils/sliceutil"
 	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	"google.golang.org/protobuf/proto"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"
+	"go-wind-admin/app/admin/service/internal/data/ent"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
@@ -21,7 +22,7 @@ import (
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 
 	"go-wind-admin/pkg/constants"
-	appViewer "go-wind-admin/pkg/entgo/viewer"
+
 	"go-wind-admin/pkg/middleware/auth"
 	"go-wind-admin/pkg/utils"
 )
@@ -41,7 +42,8 @@ type UserService struct {
 
 	membershipRepo *data.MembershipRepo
 
-	authenticator *data.Authenticator
+	authenticator        *data.Authenticator
+	notificationChannels *data.NotificationChannelRepo
 }
 
 func NewUserService(
@@ -54,43 +56,24 @@ func NewUserService(
 	tenantRepo *data.TenantRepo,
 	membershipRepo *data.MembershipRepo,
 	authenticator *data.Authenticator,
+	notificationChannels *data.NotificationChannelRepo,
 ) *UserService {
 	svc := &UserService{
-		log:                ctx.NewLoggerHelper("user/service/admin-service"),
-		userRepo:           userRepo,
-		roleRepo:           roleRepo,
-		userCredentialRepo: userCredentialRepo,
-		positionRepo:       positionRepo,
-		orgUnitRepo:        orgUnitRepo,
-		tenantRepo:         tenantRepo,
-		membershipRepo:     membershipRepo,
-		authenticator:      authenticator,
+		log:                  ctx.NewLoggerHelper("user/service/admin-service"),
+		userRepo:             userRepo,
+		roleRepo:             roleRepo,
+		userCredentialRepo:   userCredentialRepo,
+		positionRepo:         positionRepo,
+		orgUnitRepo:          orgUnitRepo,
+		tenantRepo:           tenantRepo,
+		membershipRepo:       membershipRepo,
+		authenticator:        authenticator,
+		notificationChannels: notificationChannels,
 	}
 
-	svc.init()
+	// Database initialization is an explicit deployment step; constructors never seed data.
 
 	return svc
-}
-
-func (s *UserService) init() {
-	ctx := appViewer.NewSystemViewerContext(context.Background())
-
-	if count, _ := s.userRepo.Count(ctx, nil); count == 0 {
-		if err := s.createDefaultUser(ctx); err != nil {
-			s.log.Errorf(ctx, "init default user data failed: %v", err)
-		}
-		return
-	}
-
-	// 自愈历史缺陷：空库部署时默认凭证曾因 admin 不满足等保口令复杂度被拒
-	// （issue #58），初始化半途而废——用户行已建、凭证行缺失且错误被吞，
-	// admin 从此无法登录。正常路径下每个用户创建时必带凭证，凭证表为空
-	// 只可能是初始化半途失败所致；彼时 admin 是空表首行，id 必为 1，按种子补种。
-	if count, _ := s.userCredentialRepo.Count(ctx, nil); count == 0 {
-		if err := s.createDefaultUserCredentials(ctx, 0); err != nil {
-			s.log.Errorf(ctx, "reseed default user credentials failed: %v", err)
-		}
-	}
 }
 
 func (s *UserService) extractRelationIDs(
@@ -346,7 +329,7 @@ func (s *UserService) Get(ctx context.Context, req *identityV1.GetUserRequest) (
 }
 
 func (s *UserService) Create(ctx context.Context, req *identityV1.CreateUserRequest) (*emptypb.Empty, error) {
-	if req.Data == nil {
+	if req == nil || req.Data == nil {
 		return nil, adminV1.ErrorBadRequest("invalid parameter")
 	}
 
@@ -417,6 +400,28 @@ func (s *UserService) Create(ctx context.Context, req *identityV1.CreateUserRequ
 
 	req.Data.RoleId = nil
 	req.Data.RoleIds = roleIds
+
+	invitation, err := prepareAccountInvitation(ctx, s.notificationChannels, req.GetActivationMode(), req.Data, req.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+	if invitation != nil {
+		req.Data.TenantId = trans.Ptr(req.Data.GetTenantId())
+		err = s.userCredentialRepo.InTransaction(ctx, func(tx *ent.Tx) error {
+			invited, err := s.userRepo.CreateWithTx(ctx, tx, req.Data)
+			if err != nil {
+				return err
+			}
+			if err = s.userCredentialRepo.CreateInvitationWithTx(ctx, tx, invited.GetId(), invited.GetTenantId(), req.Data.GetUsername(), invitation.email, invitation.token, invitation.expires); err != nil {
+				return err
+			}
+			return invitation.send(ctx, req.Data.GetUsername())
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &emptypb.Empty{}, nil
+	}
 
 	// 创建用户
 	var user *identityV1.User
@@ -683,72 +688,4 @@ func (s *UserService) EditUserPassword(ctx context.Context, req *identityV1.Edit
 	}
 
 	return &emptypb.Empty{}, nil
-}
-
-// createDefaultUser 创建默认用户，即超级用户
-func (s *UserService) createDefaultUser(ctx context.Context) error {
-	var err error
-
-	// 创建默认用户
-	var defaultUserID uint32
-	for _, user := range constants.DefaultUsers {
-		var created *identityV1.User
-		if created, err = s.userRepo.Create(ctx, &identityV1.CreateUserRequest{
-			Data: user,
-		}); err != nil {
-			s.log.Errorf(ctx, "create default user err: %v", err)
-			return err
-		}
-		if created.GetId() > 0 {
-			defaultUserID = created.GetId()
-		}
-	}
-
-	// 创建默认用户凭证（绑定实际生成的用户 ID，auto_increment 不保证首行是 1）
-	if err = s.createDefaultUserCredentials(ctx, defaultUserID); err != nil {
-		return err
-	}
-
-	switch constants.DefaultUserTenantRelationType {
-	default:
-		fallthrough
-	case constants.UserTenantRelationOneToOne:
-		// 创建默认用户角色关联关系
-		for _, userRole := range constants.DefaultUserRoles {
-			if err = s.userRepo.AssignUserRole(ctx, userRole); err != nil {
-				s.log.Errorf(ctx, "create default user role relation err: %v", err)
-				return err
-			}
-		}
-
-	case constants.UserTenantRelationOneToMany:
-		// 创建默认用户租户关联关系
-		for _, membership := range constants.DefaultMemberships {
-			if err = s.membershipRepo.AssignTenantMembershipWith(ctx, membership); err != nil {
-				s.log.Errorf(ctx, "create default user membership err: %v", err)
-				return err
-			}
-		}
-	}
-
-	return err
-}
-
-// createDefaultUserCredentials 种入默认用户凭证。
-// overrideUserID > 0 时覆盖种子里的 UserId（初始化路径绑定实际生成的用户 ID）；
-// 为 0 时保留种子原值（自愈补种路径，此时 admin 即空表首行 id=1）。
-func (s *UserService) createDefaultUserCredentials(ctx context.Context, overrideUserID uint32) error {
-	for _, userCredential := range constants.DefaultUserCredentials {
-		credential := proto.Clone(userCredential).(*authenticationV1.UserCredential)
-		if overrideUserID > 0 {
-			credential.UserId = trans.Ptr(overrideUserID)
-		}
-		if err := s.userCredentialRepo.Create(ctx, &authenticationV1.CreateUserCredentialRequest{
-			Data: credential,
-		}); err != nil {
-			s.log.Errorf(ctx, "create default user credential err: %v", err)
-			return err
-		}
-	}
-	return nil
 }

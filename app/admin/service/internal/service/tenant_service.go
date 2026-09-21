@@ -3,19 +3,19 @@ package service
 import (
 	"context"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	"github.com/tx7do/go-utils/aggregator"
 	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"
+	"go-wind-admin/app/admin/service/internal/data/ent"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
-	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 
 	"go-wind-admin/pkg/authorizer"
 	"go-wind-admin/pkg/middleware/auth"
@@ -32,7 +32,8 @@ type TenantService struct {
 	userCredentialsRepo *data.UserCredentialRepo
 	roleRepo            *data.RoleRepo
 
-	authorizer *authorizer.Authorizer
+	authorizer           *authorizer.Authorizer
+	notificationChannels *data.NotificationChannelRepo
 }
 
 func NewTenantService(
@@ -43,15 +44,17 @@ func NewTenantService(
 	userCredentialsRepo *data.UserCredentialRepo,
 	roleRepo *data.RoleRepo,
 	authorizer *authorizer.Authorizer,
+	notificationChannels *data.NotificationChannelRepo,
 ) *TenantService {
 	return &TenantService{
-		log:                 ctx.NewLoggerHelper("tenant/service/admin-service"),
-		tenantRepo:          tenantRepo,
-		tenantUsageRepo:     tenantUsageRepo,
-		userRepo:            userRepo,
-		userCredentialsRepo: userCredentialsRepo,
-		roleRepo:            roleRepo,
-		authorizer:          authorizer,
+		log:                  ctx.NewLoggerHelper("tenant/service/admin-service"),
+		tenantRepo:           tenantRepo,
+		tenantUsageRepo:      tenantUsageRepo,
+		userRepo:             userRepo,
+		userCredentialsRepo:  userCredentialsRepo,
+		roleRepo:             roleRepo,
+		authorizer:           authorizer,
+		notificationChannels: notificationChannels,
 	}
 }
 
@@ -229,8 +232,7 @@ func (s *TenantService) TenantExists(ctx context.Context, req *identityV1.Tenant
 
 // CreateTenantWithAdminUser 创建租户及其管理员用户
 func (s *TenantService) CreateTenantWithAdminUser(ctx context.Context, req *identityV1.CreateTenantWithAdminUserRequest) (*emptypb.Empty, error) {
-	if req.Tenant == nil || req.User == nil {
-		s.log.Error(ctx, "invalid parameter: tenant or user is nil", req)
+	if req == nil || req.Tenant == nil || req.User == nil {
 		return nil, adminV1.ErrorBadRequest("invalid parameter")
 	}
 
@@ -242,6 +244,15 @@ func (s *TenantService) CreateTenantWithAdminUser(ctx context.Context, req *iden
 
 	req.Tenant.CreatedBy = trans.Ptr(operator.UserId)
 	req.User.CreatedBy = trans.Ptr(operator.UserId)
+	// Creating a tenant is a platform operation; never derive that authority
+	// from a requested tenant/user/role field.
+	if operator.GetTenantId() != 0 {
+		return nil, adminV1.ErrorForbidden("platform context is required to create a tenant")
+	}
+	invitation, err := prepareAccountInvitation(ctx, s.notificationChannels, req.GetActivationMode(), req.User, req.GetPassword())
+	if err != nil {
+		return nil, err
+	}
 
 	// Check if tenant code or name already exists
 	// 此前只检查 err、丢弃 Exist：重复 code/name 不会被拦，直到 DB 唯一约束报原始 500。
@@ -262,65 +273,50 @@ func (s *TenantService) CreateTenantWithAdminUser(ctx context.Context, req *iden
 	// 不同租户允许使用相同 username。此前按 username 跨租户全局查重会误判冲突、
 	// 且在平台上下文(tid=0)下跨租户泄露用户名存在性。租户内唯一性由 DB 唯一索引保证。
 
-	tx, cleanup, err := s.tenantRepo.BeginTx(ctx)
+	err = s.userCredentialsRepo.InTransaction(ctx, func(tx *ent.Tx) error {
+		tenant, err := s.tenantRepo.CreateWithTx(ctx, tx, req.Tenant)
+		if err != nil {
+			return err
+		}
+		req.User.TenantId = tenant.Id
+		role, err := s.roleRepo.CreateTenantRoleFromTemplate(ctx, tx, tenant.GetId(), operator.GetUserId())
+		if err != nil {
+			return err
+		}
+		// Only the role instantiated for this new tenant may be assigned.
+		req.User.RoleId, req.User.RoleIds = role.Id, nil
+		adminUser, err := s.userRepo.CreateWithTx(ctx, tx, req.User)
+		if err != nil {
+			return err
+		}
+		if invitation != nil {
+			err = s.userCredentialsRepo.CreateInvitationWithTx(ctx, tx, adminUser.GetId(), tenant.GetId(), adminUser.GetUsername(), invitation.email, invitation.token, invitation.expires)
+		} else {
+			err = s.userCredentialsRepo.CreateWithTx(ctx, tx, &authenticationV1.UserCredential{
+				UserId: adminUser.Id, TenantId: tenant.Id,
+				IdentityType: authenticationV1.UserCredential_USERNAME.Enum(), Identifier: adminUser.Username,
+				CredentialType: authenticationV1.UserCredential_PASSWORD_HASH.Enum(), Credential: trans.Ptr(req.GetPassword()),
+				IsPrimary: trans.Ptr(true), Status: authenticationV1.UserCredential_ENABLED.Enum(),
+			})
+		}
+		if err != nil {
+			return err
+		}
+		if err = s.tenantRepo.AssignTenantAdmin(ctx, tx, tenant.GetId(), adminUser.GetId()); err != nil {
+			return err
+		}
+		if invitation != nil {
+			return invitation.send(ctx, adminUser.GetUsername())
+		}
+		return nil
+	})
 	if err != nil {
-		s.log.Errorf(ctx, "begin tx err: %v", err)
 		return nil, err
 	}
-	defer func() {
-		if cleanup != nil {
-			cleanup()
+	if s.authorizer != nil {
+		if err = s.authorizer.ResetPolicies(ctx); err != nil {
+			return nil, err
 		}
-
-		if err == nil {
-			_ = s.authorizer.ResetPolicies(ctx)
-		}
-	}()
-
-	// Create tenant
-	var tenant *identityV1.Tenant
-	if tenant, err = s.tenantRepo.CreateWithTx(ctx, tx, req.Tenant); err != nil {
-		s.log.Errorf(ctx, "create tenant err: %v", err)
-		return nil, err
-	}
-
-	req.User.TenantId = tenant.Id
-
-	// copy tenant manager role to tenant
-	var role *permissionV1.Role
-	if role, err = s.roleRepo.CreateTenantRoleFromTemplate(ctx, tx, tenant.GetId(), operator.GetUserId()); err != nil {
-		s.log.Errorf(ctx, "copy tenant admin role template to tenant err: %v", err)
-		return nil, err
-	}
-
-	// Create tenant admin user
-	var adminUser *identityV1.User
-	req.User.RoleId = role.Id
-	//req.User.Status = identityV1.User_NORMAL.Enum()
-	if adminUser, err = s.userRepo.CreateWithTx(ctx, tx, req.User); err != nil {
-		s.log.Errorf(ctx, "create tenant admin user err: %v", err)
-		return nil, err
-	}
-
-	// Create user credential
-	if err = s.userCredentialsRepo.CreateWithTx(ctx, tx, &authenticationV1.UserCredential{
-		UserId:         adminUser.Id,
-		TenantId:       tenant.Id,
-		IdentityType:   authenticationV1.UserCredential_USERNAME.Enum(),
-		Identifier:     adminUser.Username,
-		CredentialType: authenticationV1.UserCredential_PASSWORD_HASH.Enum(),
-		Credential:     trans.Ptr(req.GetPassword()),
-		IsPrimary:      trans.Ptr(true),
-		Status:         authenticationV1.UserCredential_ENABLED.Enum(),
-	}); err != nil {
-		s.log.Errorf(ctx, "create tenant admin user credential err: %v", err)
-		return nil, err
-	}
-
-	// assign admin user id to tenant
-	if err = s.tenantRepo.AssignTenantAdmin(ctx, tx, *tenant.Id, *adminUser.Id); err != nil {
-		s.log.Errorf(ctx, "assign admin user id to tenant err: %v", err)
-		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
