@@ -204,8 +204,7 @@ require (
 	github.com/zclconf/go-cty v1.19.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.2.0 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
-	github.com/zhangzhe-ctrl/ani-model-service v0.0.0-20260916025225-474f37a1df63
-	github.com/zhangzhe-ctrl/ani-network-service v0.0.0-20260910092741-e481e968d3cc
+	github.com/zhangzhe-ctrl/ani-network-service v0.0.0-20260917165536-66f787bd3013
 	go.einride.tech/aip v0.86.3 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.9.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect

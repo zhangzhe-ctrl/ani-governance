@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/google/uuid"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/stretchr/testify/require"
@@ -14,6 +15,8 @@ import (
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
+	"go-wind-admin/app/admin/service/internal/data/ent/api"
+	"go-wind-admin/app/admin/service/internal/data/ent/planmodule"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
 	"go-wind-admin/app/admin/service/internal/data/enttest"
 )
@@ -233,4 +236,50 @@ func TestTenantRepoSqlite_Delete(t *testing.T) {
 		QueryBy: &identityV1.DeleteTenantRequest_Id{Id: 99999},
 	})
 	require.Error(t, err, "删除不存在的记录应返回错误")
+}
+
+// TestResourceTenantUUIDPersistence 校验 resource tenant UUID 的持久化不变量：
+// 创建即生成、租户间不重复、不可通过 update_mask 改写、平台租户(0)拒绝映射，
+// 以及租户闸门仍能识别 MODULE_MODEL 这个模块值。
+// 原先放在 model_client_test.go 中，因 model 接入暂摘而迁到此处。
+func TestResourceTenantUUIDPersistence(t *testing.T) {
+	client := enttest.NewEntClientForTest(t)
+	ctx := enttest.NewSystemViewerCtx(context.Background())
+	a, err := client.Client().Tenant.Create().SetName("a").SetCode("a").Save(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := client.Client().Tenant.Create().SetName("b").SetCode("b").Save(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a.ResourceTenantID == b.ResourceTenantID {
+		t.Fatal("duplicate resource identity")
+	}
+	if _, err = uuid.Parse(a.ResourceTenantID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = client.Client().Tenant.UpdateOneID(a.ID).SetName("renamed").Save(ctx); err != nil {
+		t.Fatal(err)
+	}
+	row, err := client.Client().Tenant.Get(ctx, a.ID)
+	if err != nil || row.ResourceTenantID != a.ResourceTenantID {
+		t.Fatalf("identity changed: %v %v", row, err)
+	}
+	repo := &TenantRepo{entClient: client}
+	if err := repo.Update(ctx, &identityV1.UpdateTenantRequest{Id: a.ID, Data: &identityV1.Tenant{}, UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"resource_tenant_id"}}}); err == nil {
+		t.Fatal("immutable identity mask accepted")
+	}
+	if got, err := repo.ResourceTenantID(ctx, a.ID); err != nil || got != a.ResourceTenantID {
+		t.Fatalf("mapping: %q %v", got, err)
+	}
+	if _, err := repo.ResourceTenantID(ctx, 0); err == nil {
+		t.Fatal("platform mapping accepted")
+	}
+	if _, err = client.Client().Tenant.Create().SetResourceTenantID(a.ResourceTenantID).Save(ctx); err == nil {
+		t.Fatal("duplicate UUID inserted")
+	}
+	if mapProtoModuleToEnt(identityV1.Module_MODEL) != planmodule.ModuleModel || mapApiBusinessModuleToProto(api.BusinessModuleModel) != identityV1.Module_MODEL {
+		t.Fatal("MODEL not recognized by tenant gate")
+	}
 }

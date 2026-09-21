@@ -30,9 +30,9 @@ import (
 //   - 本文件只做构造与传参,不写业务逻辑。
 //     Construction and parameter passing only; no business logic in this file.
 func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
-	// Model queries must never run with the upstream development noop authorizer.
+	// Downstream catalog queries must never run with the upstream development noop authorizer.
 	if ctx.GetConfig() == nil || ctx.GetConfig().GetAuthz() == nil || ctx.GetConfig().GetAuthz().GetType() != "casbin" {
-		return nil, nil, fmt.Errorf("ani-governance model catalog requires tenant-domain casbin authorization")
+		return nil, nil, fmt.Errorf("ani-governance downstream catalog access requires tenant-domain casbin authorization")
 	}
 	// cleanup 注册表:rollback 时逆序执行。
 	// Cleanup registry; rollback runs entries in reverse order.
@@ -209,18 +209,6 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	// ── register:service ── 新模块服务在此行后注册(make register 工具锚点,勿删)
 	accessKeyService := service.NewAccessKeyService(ctx, accessKeyRepo, authenticator, loginRateLimiter)
 	configService := service.NewConfigService(ctx, configRepo)
-	modelConfig, err := data.ModelConfigFromEnv()
-	if err != nil {
-		rollback()
-		return nil, nil, err
-	}
-	modelClient, cleanupModel, err := data.NewModelClient(modelConfig)
-	if err != nil {
-		rollback()
-		return nil, nil, err
-	}
-	cleanups = append(cleanups, cleanupModel)
-	modelService := service.NewModelService(modelClient, tenantRepo)
 	networkConfig, err := data.NetworkConfigFromEnv()
 	if err != nil {
 		rollback()
@@ -259,7 +247,6 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		// register:rest-arg ── 新模块服务实参在此行后追加(make register 工具锚点,勿删)
 		accessKeyService,
 		configService,
-		modelService,
 		networkService,
 	)
 	if err != nil {

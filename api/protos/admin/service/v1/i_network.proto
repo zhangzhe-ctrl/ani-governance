@@ -9,7 +9,7 @@ service NetworkService {
    option (google.api.http) = { get: "/api/v1/networks/vpcs/{vpc_id}" };
    option (gnostic.openapi.v3.operation) = {
      summary: "Get a VPC in the authenticated tenant"
-     description: "Requires login, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters are rejected. Public identity headers are ignored. The persisted tenant UUID is reused from Model access. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed."
+     description: "Requires login, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters are rejected. Public identity headers are ignored. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed."
      responses: { response_or_reference: [
        { name: "400" value: { response: { description: "Invalid VPC ID or unsupported query" } } },
        { name: "401" value: { response: { description: "Missing, invalid or revoked login" } } },

@@ -3,16 +3,16 @@
 #
 # 用法（仓库根目录执行——本脚本只写文件，不做生成/构建）：
 #   scripts/new-service-scaffold.sh \
-#     -n Model -d catalog -m MODEL \
-#     -r github.com/zhangzhe-ctrl/ani-model-service/api/model/v1 \
-#     -p /api/v1/models -s ani-model-service
+#     -n Network -d catalog -m NETWORK \
+#     -r github.com/zhangzhe-ctrl/ani-network-service/api/network/v1 \
+#     -p '/api/v1/networks/vpcs/{vpc_id}' -s ani-network-service
 #
-#   -n  服务名，PascalCase（如 Model、Network）
+#   -n  服务名，PascalCase（如 Network）
 #   -d  领域包段：proto package 与 api/gen/go 子目录（如 catalog）
-#   -m  identityV1.Module 枚举后缀（如 MODEL）
-#   -r  下游 Go API import 路径（如 github.com/zhangzhe-ctrl/ani-model-service/api/model/v1）
-#   -p  HTTP 路由（如 /api/v1/models）
-#   -s  下游 mTLS ServerName（下游证书 DNS SAN，如 ani-model-service）
+#   -m  identityV1.Module 枚举后缀（如 NETWORK）
+#   -r  下游 Go API import 路径（如 github.com/zhangzhe-ctrl/ani-network-service/api/network/v1）
+#   -p  HTTP 路由（如 /api/v1/networks/vpcs/{vpc_id}）
+#   -s  下游 mTLS ServerName（下游证书 DNS SAN，如 ani-network-service）
 #
 # 生成四个骨架文件（已存在则拒绝覆盖）：
 #   api/protos/<d>/service/v1/<entity>.proto        领域消息（无 HTTP 注解）
@@ -54,10 +54,10 @@ if ! [[ "$ROUTE" =~ ^/[a-zA-Z0-9/._-]*$ ]]; then
   echo "error: -p must look like /api/v1/things (got '$ROUTE')" >&2; exit 2
 fi
 
-entity="$(echo "${NAME:0:1}" | tr 'A-Z' 'a-z')${NAME:1}"      # model
-ENTITY_UPPER="$(echo "$entity" | tr 'a-z' 'A-Z')"              # MODEL
+entity="$(echo "${NAME:0:1}" | tr 'A-Z' 'a-z')${NAME:1}"      # network
+ENTITY_UPPER="$(echo "$entity" | tr 'a-z' 'A-Z')"              # NETWORK
 DOMAINV1="${DOMAIN}v1"                                         # catalogv1
-# 下游包别名：import 路径倒数第二段 + v1（github.com/org/ani-model-service/api/model/v1 → modelv1）
+# 下游包别名：import 路径倒数第二段 + v1（github.com/org/ani-network-service/api/network/v1 → networkv1）
 ALIAS="$(basename "$(dirname "$DOWNSTREAM")")v1"
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -82,7 +82,7 @@ package ${DOMAIN}.service.v1;
 import "gnostic/openapi/v3/annotations.proto";
 
 // TODO: 按下游真实合同收窄。治理侧只声明需要转发的消息与边界，
-// 参照 api/protos/catalog/service/v1/model.proto 的有界列表先例。
+// 参照 api/protos/catalog/service/v1/vpc.proto 的有界读先例。
 message List${NAME}sRequest {
   optional uint32 limit = 1 [json_name = "limit", (gnostic.openapi.v3.property) = {minimum: 1 maximum: 100 default: {number: 100}}];
 }
@@ -107,7 +107,7 @@ service ${NAME}Service {
     option (gnostic.openapi.v3.operation) = {
       summary: "List the authenticated tenant's ${entity} catalog"
       // TODO: 写明鉴权、订阅（Module_${MODULE}）、拒绝语义与错误码；
-      // 模板见 api/protos/admin/service/v1/i_model.proto。
+      // 模板见 api/protos/admin/service/v1/i_network.proto。
       responses: { response_or_reference: [
         { name: "400" value: { response: { description: "Invalid or unsupported query parameter" } } },
         { name: "401" value: { response: { description: "Missing, invalid or revoked login" } } },
@@ -205,7 +205,7 @@ func ${NAME}ConfigFromEnv() (${NAME}ClientConfig, error) {
 	return ${NAME}ClientConfig{Address: os.Getenv("ANI_${ENTITY_UPPER}_ADDR"), CAFile: os.Getenv("ANI_${ENTITY_UPPER}_CA"), CertFile: os.Getenv("ANI_${ENTITY_UPPER}_CERT"), KeyFile: os.Getenv("ANI_${ENTITY_UPPER}_KEY"), Timeout: timeout}, nil
 }
 
-// TODO: 按下游真实 RPC 调整方法名与请求/响应字段（先例见 model_client.go.ListModels）。
+// TODO: 按下游真实 RPC 调整方法名与请求/响应字段（先例见 network_client.go.GetVPC）。
 func (c *${NAME}Client) List${NAME}s(ctx context.Context, tenant string, user uint32, limit uint32) (*${ALIAS}.List${NAME}sResponse, error) {
 	id, err := uuid.Parse(tenant)
 	if err != nil || id == uuid.Nil || id.String() != tenant || user == 0 {
@@ -246,7 +246,7 @@ import (
 type ${NAME}Lister interface {
 	List${NAME}s(context.Context, string, uint32, uint32) (*${ALIAS}.List${NAME}sResponse, error)
 }
-// ResourceTenantResolver 已在包内定义（model_service.go），复用勿重复声明。
+// ResourceTenantResolver 已在包内定义（network_service.go），复用勿重复声明。
 type ${NAME}Service struct {
 	adminv1.Unimplemented${NAME}ServiceServer
 	client  ${NAME}Lister
@@ -258,7 +258,7 @@ func New${NAME}Service(client ${NAME}Lister, tenants ResourceTenantResolver) *${
 }
 
 // TODO: 按下游合同实现严格白名单校验——未知/重复/空参数一律拒绝
-//（先例见 model_service.go.validateModelQuery）。
+//（先例见 network_service.go 的查询参数与路径参数校验）。
 func (s *${NAME}Service) List${NAME}s(ctx context.Context, req *${DOMAINV1}.List${NAME}sRequest) (*${DOMAINV1}.List${NAME}sResponse, error) {
 	operator, err := auth.FromContext(ctx)
 	if err != nil || operator == nil {
@@ -293,7 +293,7 @@ func (s *${NAME}Service) List${NAME}s(ctx context.Context, req *${DOMAINV1}.List
 		if m == nil {
 			return nil, errors.ServiceUnavailable("${ENTITY_UPPER}_INVALID_RESPONSE", "invalid ${entity} catalog response")
 		}
-		// TODO: 逐字段映射领域消息（先例见 model_service.go.ListModels）。
+		// TODO: 逐字段映射领域消息（先例见 network_service.go.GetVPC）。
 		out.${NAME}s = append(out.${NAME}s, &${DOMAINV1}.${NAME}{Id: m.Id})
 	}
 	return out, nil
@@ -326,7 +326,7 @@ echo "  2. rest_server.go:175 register:param 锚点后：${entity}Service *servi
 echo "  3. rest_server.go:254 register:route 锚点后：adminV1.Register${NAME}ServiceHTTPServer(srv, ${entity}Service)"
 echo "  4. wiring_ent.go:297 register:rest-arg 锚点后：${entity}Service,"
 echo "  5. pkg/constants/module_mapping.go：\"${NAME}Service\": identityV1.Module_${MODULE}"
-echo "  6. Api 表登记 (path=${ROUTE}, method=GET) + 权限 + 套餐（参照 scripts/bootstrap-model-access.sql 写专项脚本）"
+echo "  6. Api 表登记 (path=${ROUTE}, method=GET) + 权限 + 套餐（参照 scripts/bootstrap-network-access.sql 写专项脚本）"
 echo
 echo "生成与编译（在约定的执行环境运行，见 AGENTS.md）："
 echo "  gow api && make build_only"

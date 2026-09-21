@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# 已暂停（2026-09-21）：model 接入暂摘，i_model.proto 与 catalog/model.proto 已删除，
+# 本脚本在重接前不可运行（buf generate 会因找不到输入文件失败）。保留作为重接基线。
 # Run on Fedora only. gow api traverses unrelated contracts; use its underlying
 # Buf/Ent generators for this bounded backend closure, without clean or TS output.
 export GOWORK=off GOMAXPROCS=2 GOFLAGS=-p=2

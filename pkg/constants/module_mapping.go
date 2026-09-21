@@ -10,7 +10,6 @@ import (
 // 租户白名单过滤会把 UNSPECIFIED 视为"不在任何白名单内"而拒绝访问。
 var ServiceTagToBusinessModule = map[string]identityV1.Module{
 	"NetworkService":     identityV1.Module_NETWORK,
-	"ModelService":       identityV1.Module_MODEL,
 	"AdminPortalService": identityV1.Module_DASHBOARD,
 	"DashboardService":   identityV1.Module_DASHBOARD,
 

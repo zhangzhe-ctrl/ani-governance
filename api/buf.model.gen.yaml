@@ -1,3 +1,6 @@
+# 已暂停（2026-09-21）：model 接入暂摘，protos/admin/service/v1/i_model.proto 与
+# protos/catalog/service/v1/model.proto 已从仓库删除，本模板在重接前不可运行。
+# 保留作为重接基线；重接时恢复这两个 proto 与 scripts/generate-model-slice.sh 的调用。
 version: v2
 clean: false
 managed:

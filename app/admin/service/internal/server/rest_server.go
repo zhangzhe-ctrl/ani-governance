@@ -180,7 +180,6 @@ func NewRestServer(
 	// register:param ── 新模块服务形参在此行后注册(make register 工具锚点,勿删)
 	accessKeyService *service.AccessKeyService,
 	configService *service.ConfigService,
-	modelService *service.ModelService,
 	networkService *service.NetworkService,
 ) (*http.Server, error) {
 	cfg := ctx.GetConfig()
@@ -256,7 +255,6 @@ func NewRestServer(
 	// register:route ── 新模块路由在此行后注册(make register 工具锚点,勿删)
 	adminV1.RegisterAccessKeyServiceHTTPServer(srv, accessKeyService)
 	adminV1.RegisterConfigServiceHTTPServer(srv, configService)
-	adminV1.RegisterModelServiceHTTPServer(srv, modelService)
 	adminV1.RegisterNetworkServiceHTTPServer(srv, networkService)
 
 	if cfg.GetServer().GetRest().GetEnableSwagger() {

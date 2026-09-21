@@ -3,7 +3,7 @@
 ## 开发
 
 1. 阅读根 [AGENTS.md](../AGENTS.md)，确定改动范围及执行环境。
-2. 使用 Go 1.26.7、gow v1.0.3；按 [README.md](../README.md) 配置 Model/Network 固定 API 模块的交付代理。
+2. 使用 Go 1.26.7、gow v1.0.3；固定版本的领域 API 模块（如 `ani-network-service`）直接依赖上游 GitHub 固定版本，`GOPROXY` 需 `proxy.golang.org` 在前或走 `direct`，不要自建 file-GOPROXY 交付。
 3. 在目标环境准备数据库、Redis 及所需领域服务，配置 `app/admin/service/configs/` 和 mTLS 材料。
 4. 修改源码；只有 Proto 或 schema 改变时执行对应生成，再编译受影响入口并运行定向测试。
 
@@ -17,4 +17,4 @@
 
 ## 实验与证据
 
-Model/Network lab 脚本绑定历史环境、输入和基线；先读对应 README，不把它们当作通用部署命令。新提交的构建、测试和运行证据分别记录，未执行项目标记 `not_verified`。
+Model/Network lab 脚本绑定历史环境、输入和基线；先读对应 README，不把它们当作通用部署命令。model 接入已于 2026-09-21 暂摘，`scripts/model-lab/` 保留作重接基线，重接前不可运行。新提交的构建、测试和运行证据分别记录，未执行项目标记 `not_verified`。

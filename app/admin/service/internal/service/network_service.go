@@ -16,6 +16,12 @@ import (
 	"strings"
 )
 
+// ResourceTenantResolver 把治理中心 uint32 租户主键换为下游服务的 resource tenant UUID。
+// 原先定义在已删除的 model_service.go 中，现随 Network 接入保留在此；
+// 后续其他下游接入复用本接口，勿重复声明。
+type ResourceTenantResolver interface {
+	ResourceTenantID(context.Context, uint32) (string, error)
+}
 type VPCGetter interface {
 	GetVPC(context.Context, string, uint32, string) (*networkv1.GetVPCResponse, error)
 }

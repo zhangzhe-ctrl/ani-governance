@@ -29,6 +29,18 @@ func (p *vpcProbe) GetVPC(_ context.Context, tenant string, user uint32, id stri
 	}
 	return &networkv1.GetVPCResponse{Vpc: &networkv1.VPC{Id: id, TenantId: tenant, Name: "vpc", State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}, p.err
 }
+
+// tenantProbe 原先定义在已删除的 model_service_test.go 中，是 package service
+// 共用的 ResourceTenantResolver 测试替身。
+type tenantProbe struct{ calls int }
+
+func (p *tenantProbe) ResourceTenantID(_ context.Context, id uint32) (string, error) {
+	p.calls++
+	if id != 5 {
+		return "", errors.Forbidden("BAD_TENANT", "unexpected tenant")
+	}
+	return "11111111-1111-4111-8111-111111111111", nil
+}
 func TestNetworkTrustedScope(t *testing.T) {
 	p, resolver := &vpcProbe{}, &tenantProbe{}
 	s := NewNetworkService(p, resolver)

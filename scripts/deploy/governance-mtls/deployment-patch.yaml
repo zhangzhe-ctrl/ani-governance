@@ -1,27 +1,16 @@
-# Strategic merge patch: preserve image, Model address, Network and other settings.
+# Strategic merge patch: preserve image, Network and other settings.
+# (The ANI_MODEL_* env and model-trust volume were removed when the model
+# integration was detached on 2026-09-21; re-add them when re-wiring model.)
 spec:
   template:
     spec:
       containers:
         - name: governance
-          env:
-            - name: ANI_MODEL_CA
-              value: /model-trust/ca.crt
-            - name: ANI_MODEL_CERT
-              value: /service-identity/tls.crt
-            - name: ANI_MODEL_KEY
-              value: /service-identity/tls.key
           volumeMounts:
             - name: service-identity
               mountPath: /service-identity
-              readOnly: true
-            - name: model-trust
-              mountPath: /model-trust
               readOnly: true
       volumes:
         - name: service-identity
           secret:
             secretName: governance-client-tls
-        - name: model-trust
-          configMap:
-            name: governance-model-ca

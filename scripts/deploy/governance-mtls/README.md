@@ -1,9 +1,14 @@
 # Governance 入口网关的 mTLS 配置
 
 Governance 兼任所有服务的外部入口网关：验证用户登录、租户、套餐和接口权限，
-再用自己的服务身份调用对应领域服务。现有 Model 客户端与业务代码全部复用。
+再用自己的服务身份调用对应领域服务。现有 Network 客户端与业务代码全部复用。
 本目录统一维护 Governance 的客户端证书申请与部署挂载，目前已接入
-Governance → Model，不表示其他服务已经全部接入。
+Governance → Network，不表示其他服务已经全部接入。
+
+> **Model 已于 2026-09-21 暂摘**：`ANI_MODEL_*` 环境变量与 `model-trust` 卷已从
+> `deployment-patch.yaml` 移除，`GET /api/v1/models` 下线。本文档与下方
+> "本次实际验证"保留 Model 时期的历史记录；重接 Model 时恢复对应环境变量、
+> 信任根 ConfigMap 与 [model-lab](../../model-lab/) 夹具。
 
 保留一份 `certificate.yaml` 和一份 `deployment-patch.yaml`。以后接入更多服务，
 在同一份部署补丁中补充客户端配置；同一信任体系下复用证书和 CA 挂载，
@@ -12,25 +17,28 @@ Governance → Model，不表示其他服务已经全部接入。
 ## 部署
 
 在远程 Kubernetes 管理节点执行；本地不编译、不运行集群命令。
-前提是 cert-manager 已安装，命名空间内存在 Model 所信任 CA 对应的
+前提是 cert-manager 已安装，命名空间内存在下游领域服务所信任 CA 对应的
 `Issuer/ani-internal-ca`。公共签发机构由基础设施部署（ani-installer）负责，
 本目录不安装 cert-manager、不生成或携带 CA 私钥。
 若平台提供 ClusterIssuer，修改 certificate.yaml 的 issuerRef 名称及 kind 即可。
 
 配置适配现有 Deployment/governance 和容器 governance；其他部署名需对应调整。
-`ANI_MODEL_ADDR` 保留当前配置，新部署应先设置为 Model 的集群服务地址和端口。
-进入 `scripts/deploy/governance-mtls/`，把平台提供的 **Model 信任根公钥 PEM**
+下游服务地址（如 `ANI_NETWORK_ADDR`）按各服务的接入说明配置。
+进入 `scripts/deploy/governance-mtls/`，把平台提供的**下游信任根公钥 PEM**
 保存为 ca.pem 后执行：
 
 ```sh
-NS=gov-model-20260919-01  # 替换为目标命名空间
-kubectl -n "$NS" create configmap governance-model-ca \
+NS=gov-network-20260919-01  # 替换为目标命名空间
+kubectl -n "$NS" create configmap governance-downstream-ca \
   --from-file=ca.crt=ca.pem --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n "$NS" apply -f certificate.yaml
 kubectl -n "$NS" wait --for=condition=Ready certificate/governance-client --timeout=60s
 kubectl -n "$NS" patch deployment governance --type=strategic --patch-file deployment-patch.yaml
 kubectl -n "$NS" rollout status deployment/governance --timeout=60s
 ```
+
+> 历史记录（Model 时期）使用的是 `governance-model-ca` ConfigMap 与
+> `gov-model-20260919-01` 命名空间；ConfigMap 名称与命名空间按目标下游调整。
 
 这两份声明应随 Governance 部署保留；重放旧 model-lab 部署脚本后必须重新应用此
 补丁，或将补丁合入实际部署清单，否则旧脚本会恢复旧证书路径。
@@ -40,15 +48,17 @@ kubectl -n "$NS" rollout status deployment/governance --timeout=60s
 证书自动续期不延长根 CA 的寿命；短期实验 CA 不作为正式环境长期签发机构。
 机制参考：https://cert-manager.io/docs/usage/certificate/
 
-## 一次请求如何走
+## 一次请求如何走（以 Network 为例）
 
-1. 浏览器/外部客户端调用 Governance 的 `GET /api/v1/models`。
+1. 浏览器/外部客户端调用 Governance 的 `GET /api/v1/networks/vpcs/{vpc_id}`。
 2. Governance 完成登录、租户、套餐及接口权限检查，从可信上下文获取用户与租户。
-3. 现有 ModelClient 用 `ani-governance` 客户端证书连接 Model，验证 Model
-   的 CA 和固定身份 `ani-model-service`；重新构造内部用户/租户 metadata，
+3. NetworkClient 用 `ani-governance` 客户端证书连接 Network，验证下游
+   的 CA 和固定身份；重新构造内部用户/租户 metadata，
    不透传外部伪造身份头。
-4. Model 验证客户端证书、调用方身份和允许的 RPC，然后按可信租户读取自己的数据库。
+4. Network 验证客户端证书、调用方身份和允许的 RPC，然后按可信租户读取自己的数据库。
 5. Governance 将结果转换成已有 HTTP 返回格式交给客户端。
+
+（Model 时期的原文描述 `GET /api/v1/models` 链路，机制完全相同，仅下游不同。）
 
 证书证明调用者是哪个服务，不代替用户权限和租户数据隔离。
 外部 HTTPS 使用的服务端证书与这里的内部客户端证书是两件事。

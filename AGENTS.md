@@ -43,7 +43,7 @@ third_party/tx7do/                   依赖源码备份区域
 | 全量测试（任务需要时） | `make test` |
 | 静态检查 | `make lint` |
 
-`make build` 会生成文件。其他生成工具以 Makefile 和专项脚本的实际版本为准；发布复现需记录工具版本，不能仅凭 go.mod 固定就声称整个生成链已锁定。Model/Network 的 `scripts/generate-*-slice.sh` 按各自版本、范围与执行环境使用。
+`make build` 会生成文件。其他生成工具以 Makefile 和专项脚本的实际版本为准；发布复现需记录工具版本，不能仅凭 go.mod 固定就声称整个生成链已锁定。Network 的 `scripts/generate-network-slice.sh` 按其版本、范围与执行环境使用；model 接入已暂摘（2026-09-21），`generate-model-slice.sh` 与 `api/buf.model.gen.yaml` 保留作重接基线，重接前不可运行。
 
 验证对应改动风险：受影响入口编译、定向测试、必要的真实链路检查。隔离、鉴权、持久化、故障恢复不能由 HTTP 200 或静态检查代替；未执行的验收写 `not_verified`。文档和目录调整不自动要求全量测试。
 
@@ -70,4 +70,4 @@ third_party/tx7do/                   依赖源码备份区域
 
 已有 Api 表不会因新增 Proto 自动补齐。新增接口明确登记 `(path, method)`、权限和套餐关系，否则租户闸门 fail-closed。`SyncApis` 清空后全量重建，不是无损增量登记；需保留已有 ID 与关联并验证升级授权链。
 
-Go 依赖仍由 `go.mod` / `go.sum` 管理。固定版本的 Model/Network API 模块需要匹配的既有模块交付与 file-GOPROXY 配置；先核对交付及消费方式。`third_party/tx7do/` 备份的版本、覆盖范围与校验信息以实际清单为准；源码备份不自动切换模块解析，也不等于已完成离线构建。依赖升级与漏洞修复由本仓独立维护。
+Go 依赖仍由 `go.mod` / `go.sum` 管理。固定版本的领域 API 模块（如 `ani-network-service`）直接依赖上游 GitHub 固定版本；`GOPROXY` 需把 `proxy.golang.org` 放在前面或走 `direct`（`goproxy.cn` 对这些模块可能返回 `not found`），不要自建 file-GOPROXY 打包交付（交付 zip 丢点文件会导致与 go.sum 校验和不一致）。`third_party/tx7do/` 备份的版本、覆盖范围与校验信息以实际清单为准；源码备份不自动切换模块解析，也不等于已完成离线构建。依赖升级与漏洞修复由本仓独立维护。

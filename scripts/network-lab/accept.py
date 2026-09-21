@@ -47,7 +47,7 @@ def deploy():
 
 def setup():
  # Create a dedicated plan so changing this entitlement cannot affect other tenants.
- sql('governance',"INSERT INTO sys_plans(name,version,expiry_policy) VALUES('ANI Network Read Lab','FREE','READONLY') ON CONFLICT(name) DO NOTHING; INSERT INTO sys_plan_modules(plan_id,module) SELECT id,m FROM sys_plans CROSS JOIN (VALUES('MODEL'),('NETWORK')) t(m) WHERE name='ANI Network Read Lab' AND NOT EXISTS(SELECT 1 FROM sys_plan_modules pm WHERE pm.plan_id=sys_plans.id AND pm.module=m);")
+  sql('governance',"INSERT INTO sys_plans(name,version,expiry_policy) VALUES('ANI Network Read Lab','FREE','READONLY') ON CONFLICT(name) DO NOTHING; INSERT INTO sys_plan_modules(plan_id,module) SELECT id,m FROM sys_plans CROSS JOIN (VALUES('NETWORK')) t(m) WHERE name='ANI Network Read Lab' AND NOT EXISTS(SELECT 1 FROM sys_plan_modules pm WHERE pm.plan_id=sys_plans.id AND pm.module=m);")
  for label in ['a','b','denied']:
   t=S['tenants'][label]
   sql('governance',f"UPDATE sys_tenants SET plan_id=(SELECT id FROM sys_plans WHERE name='ANI Network Read Lab') WHERE id={t['id']};")
@@ -117,9 +117,6 @@ def contract():
  rpc('N08-other-rpc','PermissionDenied',rpc='DeleteVPC')
  rpc('N08-no-cert','Unavailable',cert='');forward()
  rpc('N08-wrong-cert','Unavailable',cert='wrong-service');forward()
- for label in ['a','b']:
-  code,body,_,_=m.request('/api/v1/models',S[label]);expected=m.expected(label)
-  check('N09-same-session-model-'+label,code==200 and body=={'models':expected},http=code,count=len(body.get('models',[])))
 
 def recovery():
  for deployment in ['network','network-db']:
@@ -127,7 +124,6 @@ def recovery():
   cluster(f'kubectl -n {NS} wait --for=delete pod -l app={deployment} --timeout=90s')
   try:
    get('N10-'+deployment+'-unavailable',want=503)
-   code,body,_,_=m.request('/api/v1/models',S['a']);check('N10-model-unaffected-'+deployment,code==200 and len(body.get('models',[]))>0,http=code)
    if deployment=='network-db':
     try:urllib.request.urlopen('http://127.0.0.1:18991/readyz',timeout=3);status=200
     except urllib.error.HTTPError as e:status=e.code
@@ -165,7 +161,6 @@ def revoke():
  cluster(f'kubectl -n {NS} rollout restart deployment/governance');ready('governance');forward()
  try:
   get('N11-permission-revoked',want=403,early=True)
-  code,body,_,_=m.request('/api/v1/models',S['a']);check('N11-model-permission-retained',code==200, http=code)
  finally:
   sql('governance',(LAB.parent/'bootstrap-network-access.sql').read_text(),f'-v tenant_id={tid} -v role_id={rid}')
   cluster(f'kubectl -n {NS} rollout restart deployment/governance');ready('governance');forward()

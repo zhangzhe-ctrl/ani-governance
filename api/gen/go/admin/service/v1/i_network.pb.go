@@ -27,9 +27,9 @@ var File_admin_service_v1_i_network_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"\n" +
-	" admin/service/v1/i_network.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1ccatalog/service/v1/vpc.proto\x1a$gnostic/openapi/v3/annotations.proto2\xc7\x06\n" +
-	"\x0eNetworkService\x12\xb4\x06\n" +
-	"\x06GetVPC\x12!.catalog.service.v1.GetVPCRequest\x1a\".catalog.service.v1.GetVPCResponse\"\xe2\x05\xbaG\xb8\x05\x12%Get a VPC in the authenticated tenant\x1a\xe2\x02Requires login, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters are rejected. Public identity headers are ignored. The persisted tenant UUID is reused from Model access. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed.B\xa9\x02\x12.\n" +
+	" admin/service/v1/i_network.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1ccatalog/service/v1/vpc.proto\x1a$gnostic/openapi/v3/annotations.proto2\xf3\x06\n" +
+	"\x0eNetworkService\x12\xe0\x06\n" +
+	"\x06GetVPC\x12!.catalog.service.v1.GetVPCRequest\x1a\".catalog.service.v1.GetVPCResponse\"\x8e\x06\xbaG\xe4\x05\x12%Get a VPC in the authenticated tenant\x1a\x8e\x03Requires login, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters are rejected. Public identity headers are ignored. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed.B\xa9\x02\x12.\n" +
 	"\x03400\x12'\n" +
 	"%\n" +
 	"#Invalid VPC ID or unsupported query\x12,\n" +

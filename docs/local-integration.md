@@ -4,7 +4,7 @@
 远程 Ubuntu-24 机器上做真实双进程联调的**完整踩坑路径**。所有环境差异、
 启动门槛、数据种子逐条落在纸面上，后来者照做即可，不必重新逆向。
 
-联调验证的业务链路（以 Network 的 GetVPC 为例，Model 同理）：
+联调验证的业务链路（以 Network 的 GetVPC 为例）：
 
 ```text
 HTTP 客户端
@@ -18,7 +18,7 @@ HTTP 客户端
 | 项 | 实测值 |
 |---|---|
 | Go | 系统是 1.26.4，**本仓库要求 1.26.7**；用 `golang.org/dl` 包装器装 1.26.7：`go install golang.org/dl/go1.26.7@latest && go1.26.7 download`，之后所有 go 命令用 `go1.26.7` 调用，且 `GOTOOLCHAIN=local` 防止它回退到 1.26.4 |
-| 私有模块 | `GOPRIVATE=github.com/zhangzhe-ctrl/*`；`goproxy.cn` 缓存的 zip 哈希与 go.sum 可能不一致，见 §1 |
+| 私有模块 | `zhangzhe-ctrl/*` 在 GitHub 公开可取；`goproxy.cn` 对其返回 `not found`，GOPROXY 需 `proxy.golang.org` 在前或走 `direct`，见 §1.1 |
 | Postgres | 机器上无常驻 PG，联调用 docker 起（见 §2）；机器自带的 `lb02-*` 容器是别的业务，别动 |
 | Redis | 同上，docker 起 |
 | kind 集群 | kc062（control-plane + 2 worker），kubeconfig 在 `/home/ubuntu/.kube/config`，可给需要 K8s CR watch 的服务用 |
@@ -33,8 +33,8 @@ export PATH=/home/ubuntu/go/bin:/usr/local/go/bin:$PATH
 go1.26.7 install github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3
 go1.26.7 install entgo.io/ent/cmd/ent@v0.14.6        # 与 go.mod 的 entgo 版本一致
 go1.26.7 install github.com/bufbuild/buf/cmd/buf@v1.60.0
-# 注意 buf 版本必须为 1.60.0：scripts/generate-model-slice.sh 与
-# generate-network-slice.sh 会断言 `buf --version` 等于 1.60.0，不匹配直接退出。
+# 注意 buf 版本必须为 1.60.0：scripts/generate-network-slice.sh 会断言
+# `buf --version` 等于 1.60.0，不匹配直接退出。
 # 该约束是切片脚本的钉版纪律，不是 buf 的能力要求 —— 全量生成路径上旧版产物
 # 实测一致，详见下方"旧版 buf 会怎样"。
 # （third_party/tx7do/buf/ 里记录的 v1.57.2 是那批模块备份的下载证据，
@@ -44,8 +44,8 @@ go1.26.7 install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
 go1.26.7 install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@v2.0.0-20260404020628-f149714c1d54
 go1.26.7 install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@v2.0.0-20251205160234-b9fab9a5a5ab
 go1.26.7 install github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1   # openapi 生成会缺它
-# 注意 protoc-gen-openapi 版本必须为 v0.7.1：scripts/generate-model-slice.sh 与
-# generate-network-slice.sh 各自钉的就是 v0.7.1，且 go.mod 亦为 v0.7.1。
+# 注意 protoc-gen-openapi 版本必须为 v0.7.1：scripts/generate-network-slice.sh
+# 钉的就是 v0.7.1，且 go.mod 亦为 v0.7.1。
 # 装 @latest 会让脚本与文档用不同版本产出内嵌 OpenAPI。
 go1.26.7 install github.com/envoyproxy/protoc-gen-validate@v1.3.3
 go1.26.7 install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2
@@ -54,7 +54,7 @@ go1.26.7 install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20
 > **上面各插件版本的来源与可信度不同，不要一概当作"权威钉版"**
 >
 > - `buf@v1.60.0`、`protoc-gen-openapi@v0.7.1`：**有权威出处** ——
->   `scripts/generate-{model,network}-slice.sh` 自己就这么钉，`go.mod` 亦为 `v0.7.1`。
+>   `scripts/generate-network-slice.sh` 自己就这么钉，`go.mod` 亦为 `v0.7.1`。
 > - `protoc-gen-go@v1.36.11`、`protoc-gen-go-grpc@v1.6.2`：**有据可查** ——
 >   既有生成产物的版本头直接写明（如 `api/gen/go/**/*.pb.go` 顶部的
 >   `protoc-gen-go v1.36.11` 与 `protoc-gen-go-grpc v1.6.2`）。
@@ -75,7 +75,7 @@ go1.26.7 install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20
 >   （`api/gen/go/**/*.go` 全部文件的 sha256 相同）。
 >   旧版在这条路径上**不会报错、也不会产生额外漂移**，`buf build` 与
 >   `buf lint` 亦均可正常运行。
-> - **切片路径**（`scripts/generate-{model,network}-slice.sh`）：
+> - **切片路径**（`scripts/generate-network-slice.sh`）：
 >   脚本内有 `test "$("$BUF" --version)" = 1.60.0`，配合 `set -euo pipefail`，
 >   版本不符会**立即退出**且不生成任何文件。这是唯一真正会"断开"的地方。
 > - 因此 `1.60.0` 这个约束的性质是**钉版纪律**（保证生成链可复现、可追责），
@@ -87,19 +87,27 @@ go1.26.7 install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20
 > 需要严格复现时，请用 `scripts/generate-*-slice.sh` 的方式，并同时执行
 > `scripts/post-generate-clean.sh` 抹平残余噪声。
 
-### 1.1 私有模块校验和不匹配（必踩坑）
+### 1.1 私有模块校验和不匹配（已定位根因，2026-09-21）
 
 `go mod download` 报 `SECURITY ERROR ... checksum mismatch`（如
-`zhangzhe-ctrl/ani-network-service`）。原因：goproxy.cn 缓存的 zip 与
-本机 go.sum 记录的哈希不一致（私有模块曾经/正在被重复打 tag 推送）。
+`zhangzhe-ctrl/ani-network-service`）。
 
-**处理**：把 go.sum 里 `zhangzhe-ctrl/*` 的 4 行删掉，重跑下载，让它按
-proxy 返回值重建（前提：你确认来源就是 goproxy.cn 而非被劫持，私有仓库
-按 commit 重新解析后哈希稳定）。首次 `go mod tidy` 同样需要：
+**根因（已实测定案）**：不是上游代码差异，而是历史上用 file-GOPROXY 交付的
+模块 zip **丢掉了点文件**（`.gitignore`、`.gitattributes` 等，network 还丢了
+`.github/workflows/ci.yml` 与 `.gitleaks.toml`）；共有文件内容逐字节一致。
+Go 的 `h1:` 是整棵目录树的 dirhash，少一个文件即变。上游仓库在 GitHub 上是
+好的，直接从公共源取即可。
+
+**现在的正确做法**：直接 `go get` 上游固定版本，`GOPROXY` 把
+`proxy.golang.org` 放在前面或走 `direct`（`goproxy.cn` 对这些模块返回
+`not found`，不要把它排在最前）。**不要再用自建 file-GOPROXY 打包交付**。
+
+**遗留环境的临时绕行**（仅当仍持有旧交付且无法联网核对时）：把 go.sum 里
+`zhangzhe-ctrl/*` 对应行删掉，重跑下载，让它按 proxy 返回值重建：
 
 ```sh
-export GOFLAGS=-mod=mod GOPROXY=https://goproxy.cn,direct \
-       GOPRIVATE='github.com/zhangzhe-ctrl/*' GOSUMDB=off GOTOOLCHAIN=local
+export GOFLAGS=-mod=mod GOPROXY=https://proxy.golang.org,https://goproxy.cn,direct \
+       GOTOOLCHAIN=local
 go1.26.7 mod tidy && go1.26.7 mod download all
 ```
 
@@ -178,7 +186,6 @@ export ANI_NETWORK_CURSOR_SIGNING_KEY="dGVzdC1zaWduaW5nLWtleS0wMTIzNDU2Nzg5YWJjZ
 #   "failed to merge config source: unsupported key: ca.pem format: pem" 直接 panic
 export ANI_NETWORK_ADDR=127.0.0.1:19090
 export ANI_NETWORK_CA=... ANI_NETWORK_CERT=... ANI_NETWORK_KEY=...
-export ANI_MODEL_ADDR=127.0.0.1:19091    # Model 客户端是 fail-closed，不给直接 panic
 ./ani-governance -c <配置目录>
 ```
 

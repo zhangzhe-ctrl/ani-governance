@@ -5563,46 +5563,12 @@ paths:
                     content: {}
             security:
                 - {}
-    /api/v1/models:
-        get:
-            tags:
-                - ModelService
-            summary: List the authenticated tenant's model catalog
-            description: Requires login, MODEL subscription and model:catalog:list permission. limit defaults to 100 and must be 1-100. status may be pending, downloading, ready or error. Unknown, empty or repeated query parameters, identity overrides, cursor, keyword, source and capability are rejected. Results are ordered by created_at DESC, id DESC; this is a bounded list without pagination metadata. Platform tenant 0 is denied. Public identity headers are ignored.
-            operationId: ModelService_ListModels
-            parameters:
-                - name: limit
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: status
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListModelsResponse'
-                "400":
-                    description: Invalid or unsupported query parameter
-                "401":
-                    description: Missing, invalid or revoked login
-                "403":
-                    description: Permission, tenant or subscription denied
-                "503":
-                    description: Model transport, PostgreSQL or internal credentials unavailable
-                "504":
-                    description: Connected Model call exceeded the deadline
     /api/v1/networks/vpcs/{vpc_id}:
         get:
             tags:
                 - NetworkService
             summary: Get a VPC in the authenticated tenant
-            description: Requires login, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters are rejected. Public identity headers are ignored. The persisted tenant UUID is reused from Model access. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed.
+            description: Requires login, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters are rejected. Public identity headers are ignored. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed.
             operationId: NetworkService_GetVPC
             parameters:
                 - name: vpc_id
@@ -7402,13 +7368,6 @@ components:
                 total:
                     type: string
             description: 查询菜单列表 - 回应
-        ListModelsResponse:
-            type: object
-            properties:
-                models:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/Model'
         ListNotificationChannelResponse:
             type: object
             properties:
@@ -8064,25 +8023,6 @@ components:
                 meta:
                     $ref: '#/components/schemas/MenuMeta'
             description: 路由项
-        Model:
-            type: object
-            properties:
-                id:
-                    type: string
-                model_id:
-                    type: string
-                name:
-                    type: string
-                display_name:
-                    type: string
-                source:
-                    type: string
-                capabilities:
-                    type: array
-                    items:
-                        type: string
-                status:
-                    type: string
         NotificationChannel:
             type: object
             properties:
@@ -10500,8 +10440,6 @@ tags:
          管理侧 RPC（GetMFAStatus/ListEnrolledMethods/StartEnrollMethod/ConfirmEnrollMethod/
          DisableMFA/RevokeMFADevice）需登录态，走正常 auth+authz 中间件，不加 security:{}。
          登录挑战侧 RPC（VerifyMFAChallenge）免鉴权，加 security:{} 并加入 rest_server 白名单。
-    - name: ModelService
-      description: Model catalog queries through Governance authentication and authorization.
     - name: NetworkService
     - name: NotificationChannelService
       description: 通知渠道管理服务（平台级配置）
