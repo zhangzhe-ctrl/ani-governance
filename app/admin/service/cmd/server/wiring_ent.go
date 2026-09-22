@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 
 	"go-wind-admin/app/admin/service/internal/data"
@@ -135,6 +136,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	planRepo := data.NewPlanRepo(ctx, entClient)
 	planQuotaRepo := data.NewPlanQuotaRepo(ctx, entClient)
 	planModuleRepo := data.NewPlanModuleRepo(ctx, entClient)
+	quotaAdminRepo := data.NewQuotaAdminRepo(ctx, entClient)
 
 	// 任务 / 运维观测
 	taskRepo := data.NewTaskRepo(ctx, entClient)
@@ -150,6 +152,11 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 	// ── register:repo ── 新模块仓储在此行后注册(make register 工具锚点,勿删)
 	accessKeyRepo := data.NewAccessKeyRepo(ctx, entClient, accessKeyCipher)
+
+	// 配额账本与持久化转发（QUOTA-GPU-LOCAL-01）
+	quotaLedgerRepo := data.NewQuotaLedgerRepo(ctx, entClient)
+	quotaRegistry, quotaRegistryCleanup := newQuotaAdapterRegistry(ctx)
+	quotaWorker := service.NewQuotaDispatchWorker(ctx, quotaLedgerRepo, quotaRegistry)
 
 	// ═══════════════════════ 三、认证与鉴权 ═══════════════════════
 
@@ -182,6 +189,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	planService := service.NewPlanService(ctx, planRepo)
 	planQuotaService := service.NewPlanQuotaService(ctx, planQuotaRepo)
 	planModuleService := service.NewPlanModuleService(ctx, planModuleRepo)
+	quotaAdminService := service.NewQuotaAdminService(ctx, quotaAdminRepo)
 
 	// 字典与多语言
 	dictTypeService := service.NewDictTypeService(ctx, dictTypeRepo)
@@ -234,14 +242,33 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 	// ═══════════════════════ 五、传输层(internal/server) ═══════════════════════
 
+	// 内部退额 mTLS listener（QUOTA-03）：默认 disabled；enabled 缺凭据启动失败。
+	quotaInternalCfg := server.QuotaInternalConfigFromEnv()
+	quotaInternalCfg.CertOwnerMap = quotaInternalOwnerMap()
+	quotaInternalServer, err := server.NewQuotaInternalServer(quotaInternalCfg, quotaLedgerRepo)
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	if quotaInternalServer != nil {
+		cleanups = append(cleanups, func() { _ = quotaInternalServer.Stop(ctx.Context()) })
+	}
+
 	restMiddlewares := server.NewRestMiddleware(ctx, accessTokenChecker, accessKeyRepo, tenantAccessChecker, authz,
 		apiAuditLogRepo, loginAuditLogRepo, operationAuditLogRepo, permissionAuditLogRepo, dataAccessAuditLogRepo, policyEvaluationLogRepo)
+
+	quotaControl, quotaControlCleanup := newGovernanceControl(ctx, quotaWorker, quotaLedgerRepo)
+	if quotaControl != nil {
+		cleanups = append(cleanups, quotaControlCleanup)
+	}
+
+	quotaLabRoutes := quotaLabRouteRegistrar(ctx, quotaLedgerRepo, quotaRegistry, quotaWorker, tenantRepo)
 
 	restServer, err := server.NewRestServer(ctx, restMiddlewares, authz,
 		authenticationService, mfaService, loginPolicyService,
 		adminPortalService, taskService,
 		dictTypeService, dictEntryService, languageService,
-		tenantService, planService, planQuotaService, planModuleService,
+		tenantService, planService, planQuotaService, quotaAdminService, planModuleService,
 		userService, userProfileService, roleService, positionService, orgUnitService,
 		menuService, apiService, permissionService, permissionGroupService,
 		permissionAuditLogService, policyEvaluationLogService,
@@ -253,6 +280,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		accessKeyService,
 		configService,
 		networkService,
+		quotaLabRoutes,
 	)
 	if err != nil {
 		rollback()
@@ -267,5 +295,13 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 	sseServer := server.NewSseServer(ctx, internalMessageService)
 
-	return newApp(ctx, restServer, asynqServer, sseServer), rollback, nil
+	cleanups = append(cleanups, quotaRegistryCleanup)
+
+	// disabled 时 quotaInternalServer 为 nil：typed-nil 不能进入 transport.Server
+	// 接口切片，否则 Start 空指针崩溃。
+	extraServers := []transport.Server{quotaWorker}
+	if quotaInternalServer != nil {
+		extraServers = append(extraServers, quotaInternalServer)
+	}
+	return newApp(ctx, restServer, asynqServer, sseServer, extraServers...), rollback, nil
 }

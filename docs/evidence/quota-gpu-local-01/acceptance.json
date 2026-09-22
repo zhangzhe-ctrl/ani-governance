@@ -1,0 +1,422 @@
+{
+  "CFG-01": {
+    "status": "pass",
+    "detail": "set gpu.count=8 st=409",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "CFG-02": {
+    "status": "pass",
+    "detail": "two tenants bound to same plan (setup fixture); per-tenant accounts independent by UNIQUE(tenant_id,quota_code)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "CFG-03": {
+    "status": "pass",
+    "detail": "legacy/new code mapping covered by TestQuotaCodeMap_Mappings and TestPlanQuotaRepoSqlite_QuotaCodeCompat",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "CFG-04": {
+    "status": "pass",
+    "detail": "duplicate code / invalid masked update rejected (TestPlanQuotaRepoSqlite_DuplicateCodeRejected, QuotaCodeCompat)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "CFG-05": {
+    "status": "pass",
+    "detail": "definitions st=200 items=4",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "DB-01": {
+    "status": "pass",
+    "detail": "empty-db ordered migration via atlas apply 1x3 + data script (see logs)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "DB-02": {
+    "status": "pass",
+    "detail": "legacy rows upgraded with id/plan/value preserved (p2-db02-*.txt diff clean)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "DB-03": {
+    "status": "pass",
+    "detail": "bad fixture rejected, data unchanged (p2-db03-summary.md)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "DB-04": {
+    "status": "pass",
+    "detail": "composite FK rejects cross-tenant charge (TestQuotaPostgresCompositeFK)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "DB-05": {
+    "status": "pass",
+    "detail": "runtime account DDL denied; startup runs no migration (db05-db06-evidence.log)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "DB-06": {
+    "status": "pass",
+    "detail": "pg_dump restore to second task db verified (db05-db06-evidence.log)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "DB-07": {
+    "status": "pass",
+    "detail": "gpu.count insert then data-script rerun no-op (p2-db07-* evidence)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FLOW-01": {
+    "status": "pass",
+    "detail": "create 2 accepted op=d2a65daf-86a4-4af5-8f2f-a5aefbb5aea8",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FLOW-02": {
+    "status": "pass",
+    "detail": "dispatch_state=ACKED occupied=2",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FLOW-03": {
+    "status": "pass",
+    "detail": "20 GETs ok=True occupied=2",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FLOW-04": {
+    "status": "pass",
+    "detail": "re-delete st=202 facts 2->2",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "AUTH-01": {
+    "status": "pass",
+    "detail": "anonymous st=401",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "AUTH-02": {
+    "status": "pass",
+    "detail": "cross-tenant GET st=404",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "AUTH-03": {
+    "status": "pass",
+    "detail": "platform create st=403",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "AUTH-04": {
+    "status": "pass",
+    "detail": "no-policy -> 403 QUOTA_NOT_CONFIGURED; zero-limit -> 409 QUOTA_EXCEEDED (suite_normal API scenario + TestQuotaPostgresZeroLimit)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "AUTH-05": {
+    "status": "pass",
+    "detail": "no cert / wrong CA / same-CA other SAN rejected; valid owner unknown charge -> NotFound (TestSimPG_AUTH05_CertNegatives)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "AUTH-06": {
+    "status": "pass",
+    "detail": "public forged identity headers st=401",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "AUTH-07": {
+    "status": "pass",
+    "detail": "AK/SK signature headers rejected (no Authorization)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "CON-01": {
+    "status": "pass",
+    "detail": "20 concurrent of 1: accepted_202=7 occupied=8 limit=8",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "CON-02": {
+    "status": "pass",
+    "detail": "same-key 10 concurrent: 202_count=1 occupied 0->1",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "CON-03": {
+    "status": "pass",
+    "detail": "first=202 second=409",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "CON-04": {
+    "status": "pass",
+    "detail": "multi-quota vector second item insufficient rolls back first (TestQuotaPostgresMultiVector)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "CON-05": {
+    "status": "pass",
+    "detail": "two repo instances x 20 concurrent on shared PG accept exactly 8 (TestQuotaPostgresTwoInstances)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "CON-06": {
+    "status": "pass",
+    "detail": "3 concurrent deletes + abort fence: one release fact per ordinal, full refund (TestSimPG_CON06)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "POL-01": {
+    "status": "pass",
+    "detail": "limit lowered below occupied: available=0, new rejected, no auto eviction (TestQuotaPostgresPolicyChanges)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "POL-02": {
+    "status": "pass",
+    "detail": "concurrent limit change vs occupy serialized by plan locks; invariant holds (TestQuotaPostgresPolicyChanges)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "POL-03": {
+    "status": "pass",
+    "detail": "plan switch keeps balance; new policy rejects; deleted policy item -> QUOTA_NOT_CONFIGURED (TestQuotaPostgresPolicyChanges)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "POL-04": {
+    "status": "pass",
+    "detail": "expired tenant immediate reject covered by TestQuotaPostgresExpiredTenant",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "POL-05": {
+    "status": "pass",
+    "detail": "release after expiry succeeds; occupy denied (TestQuotaPostgresReleaseAfterExpiry)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "POL-06": {
+    "status": "pass",
+    "detail": "tenant delete protection covered by TestQuotaPostgresTenantDeleteProtection (409 QUOTA_HISTORY_PRESENT)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-01": {
+    "status": "pass",
+    "detail": "occupy tx rollback covered by TestQuotaPostgres* (constraint errors roll back, no downstream call)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-02": {
+    "status": "pass",
+    "detail": "barrier pause -> occupy -> SIGKILL -> restart -> same op ACKED (suite_normal)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-03": {
+    "status": "pass",
+    "detail": "ack lost -> retry same id converges, units not duplicated (TestSimPG_FAIL03)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-04": {
+    "status": "pass",
+    "detail": "provider committed / owner open -> Recover completes without re-allocation (TestSimPG_FAIL04)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-05": {
+    "status": "pass",
+    "detail": "unit2 create fail + unit1 cleanup fail: facts=0, charge kept, command open (TestSimPG_FAIL05_06)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-06": {
+    "status": "pass",
+    "detail": "injection removed -> replay converges: unit freed, aborted, notify total=1 (TestSimPG_FAIL05_06)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-07": {
+    "status": "pass",
+    "detail": "fence closes provider op; late allocation rejected at commit point (allocateOneUnit closed check; fence cross in TestSimPG_CON06)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-08": {
+    "status": "pass",
+    "detail": "partial unit release: 2->1 occupied; replay completes to 0 (TestSimPG_FAIL08_09_16)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-09": {
+    "status": "pass",
+    "detail": "notify kept pending on unreachable governance, delivered after recovery (TestSimPG_FAIL08_09_16)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-10": {
+    "status": "pass",
+    "detail": "cumulative release covered by TestQuotaPostgresReleaseCumulative (2 then 1 keeps 2; repeat no-op)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-11": {
+    "status": "pass",
+    "detail": "same eventId different payload conflict covered by TestQuotaPostgresReleaseCumulative",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-12": {
+    "status": "pass",
+    "detail": "released_total>original/unknown charge rejected covered by TestQuotaPostgresReleaseCumulative",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-13": {
+    "status": "pass",
+    "detail": "release before ACK processed; late ACK does not revive occupation (TestQuotaPostgresReleaseBeforeAck)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-14": {
+    "status": "pass",
+    "detail": "replay old create after full release hits terminal state, no re-allocation (TestSimPG_FAIL14)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-15": {
+    "status": "pass",
+    "detail": "cancel vs claim race only yields cancel-unsent (refunded) or claimed (attempt>=1) (TestQuotaPostgresCancelClaimRace)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-16": {
+    "status": "pass",
+    "detail": "occupy on dead DB -> 503 no forward; notify kept pending (TestQuotaPostgresStorageUnavailable + FAIL-08/09)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-17": {
+    "status": "pass",
+    "detail": "permanent conflict blocks with charge; ResumeDispatch + corrected owner run completes to zero (TestSimPG_FAIL17)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FAIL-18": {
+    "status": "pass",
+    "detail": "stale generation writeback rejected; takeover ACK succeeds (TestQuotaPostgresLeaseGenerationGuard)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "EXT-01": {
+    "status": "pass",
+    "detail": "synthetic CONCURRENT item 'test.synthetic' through the same ledger path (TestQuotaPostgresSyntheticItem)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "BOUND-01": {
+    "status": "pass",
+    "detail": "prod build lab path st=404 (auth runs first; not 202)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "BOUND-02": {
+    "status": "pass",
+    "detail": "go list -deps contains quotalab=False",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "BOUND-03": {
+    "status": "pass",
+    "detail": "enabled-without-credentials exit=2",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "BOUND-04": {
+    "status": "pass",
+    "detail": "regen exit=0; generated files list stable (see git status)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "INV-01": {
+    "status": "pass",
+    "detail": "invariant recompute covered by TestQuotaPostgresInvariants + suite-end SQL recompute below",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "INV-02": {
+    "status": "pass",
+    "detail": "provider drained after delete flow (see FLOW-01-release)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "REAL-GPU": {
+    "status": "not_verified",
+    "detail": "真实 GPU 服务接入和真实硬件分配：本批仅本地持久模拟器，固定 not_verified",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "SETUP-05": {
+    "status": "pass",
+    "detail": "two tenants bound to plan, tenant logins ok",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "INV-01-final": {
+    "status": "pass",
+    "detail": "violation_count=0",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "SETUP-00": {
+    "status": "pass",
+    "detail": "fixture sql + casbin policy reload done",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "SETUP-06": {
+    "status": "pass",
+    "detail": "plan 2 grants TENANT module",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FLOW-01-occupied": {
+    "status": "pass",
+    "detail": "occupied=2",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FLOW-01-provider": {
+    "status": "pass",
+    "detail": "units=2",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FLOW-01-delete": {
+    "status": "pass",
+    "detail": "delete accepted op=210c0c4e-8e0c-4092-b9a6-d1a7e0d65cf3",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "FLOW-01-release": {
+    "status": "pass",
+    "detail": "units=0 facts=2 occupied=0",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  },
+  "QUOTA-02": {
+    "status": "pass",
+    "detail": "accounts st=200 (404 = tenant id mapping, see log)",
+    "evidence": [],
+    "ended_at": "2026-09-22T23:47:56+0800"
+  }
+}

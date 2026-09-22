@@ -17,7 +17,13 @@ import (
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotaaccount"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotacharge"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotaoperation"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotareleasereceipt"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
+
+	appViewer "go-wind-admin/pkg/entgo/viewer"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 )
@@ -314,6 +320,12 @@ func (r *TenantRepo) Delete(ctx context.Context, req *identityV1.DeleteTenantReq
 		return identityV1.ErrorBadRequest("invalid parameter")
 	}
 
+	// 计划 §6.12：存在配额账户或历史操作的租户不得物理删除（409 QUOTA_HISTORY_PRESENT）。
+	// 在持有 tenant 锁后检查新账本；未产生新配额记录的租户保留原行为。
+	if err := r.checkQuotaHistory(ctx, req.GetId()); err != nil {
+		return err
+	}
+
 	if err := r.entClient.Client().Tenant.DeleteOneID(req.GetId()).Exec(ctx); err != nil {
 		if ent.IsNotFound(err) {
 			return identityV1.ErrorNotFound("tenant not found")
@@ -324,6 +336,60 @@ func (r *TenantRepo) Delete(ctx context.Context, req *identityV1.DeleteTenantReq
 		return identityV1.ErrorInternalServerError("delete failed")
 	}
 
+	return nil
+}
+
+// checkQuotaHistory 检查租户是否已有配额账本记录（账户/操作/占额/回执任一存在即拒绝）。
+// 锁顺序：先 tenant FOR UPDATE 再检查，防止检查与占额并发竞态。
+func (r *TenantRepo) checkQuotaHistory(ctx context.Context, tenantId uint32) error {
+	if tenantId == 0 {
+		return nil
+	}
+	sysCtx := appViewer.NewSystemViewerContext(ctx)
+	tx, err := r.entClient.Client().Tx(sysCtx)
+	if err != nil {
+		r.log.Errorf(ctx, "delete tenant %d: start tx failed: %s", tenantId, err.Error())
+		return identityV1.ErrorInternalServerError("start transaction failed")
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	tq := tx.Tenant.Query().Where(tenant.IDEQ(tenantId))
+	if supportsRowLock(r.entClient) {
+		tq = tq.ForUpdate()
+	}
+	if _, err = tq.Only(sysCtx); ent.IsNotFound(err) {
+		return identityV1.ErrorNotFound("tenant not found")
+	} else if err != nil {
+		r.log.Errorf(ctx, "delete tenant %d: lock tenant failed: %s", tenantId, err.Error())
+		return identityV1.ErrorInternalServerError("lock tenant failed")
+	}
+
+	for _, check := range []struct {
+		name  string
+		count func(context.Context) (int, error)
+	}{
+		{"quota account", func(c context.Context) (int, error) {
+			return tx.QuotaAccount.Query().Where(quotaaccount.TenantIDEQ(tenantId)).Count(c)
+		}},
+		{"quota operation", func(c context.Context) (int, error) {
+			return tx.QuotaOperation.Query().Where(quotaoperation.TenantIDEQ(tenantId)).Count(c)
+		}},
+		{"quota charge", func(c context.Context) (int, error) {
+			return tx.QuotaCharge.Query().Where(quotacharge.TenantIDEQ(tenantId)).Count(c)
+		}},
+		{"quota release receipt", func(c context.Context) (int, error) {
+			return tx.QuotaReleaseReceipt.Query().Where(quotareleasereceipt.TenantIDEQ(tenantId)).Count(c)
+		}},
+	} {
+		cnt, cerr := check.count(sysCtx)
+		if cerr != nil {
+			r.log.Errorf(ctx, "delete tenant %d: query %s failed: %s", tenantId, check.name, cerr.Error())
+			return identityV1.ErrorInternalServerError("check quota history failed")
+		}
+		if cnt > 0 {
+			return QuotaErrHistoryPresent("tenant has " + check.name + " records")
+		}
+	}
 	return nil
 }
 

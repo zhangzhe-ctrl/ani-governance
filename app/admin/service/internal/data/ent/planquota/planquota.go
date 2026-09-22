@@ -26,6 +26,8 @@ const (
 	FieldUpdatedBy = "updated_by"
 	// FieldDeletedBy holds the string denoting the deleted_by field in the database.
 	FieldDeletedBy = "deleted_by"
+	// FieldQuotaCode holds the string denoting the quota_code field in the database.
+	FieldQuotaCode = "quota_code"
 	// FieldQuotaType holds the string denoting the quota_type field in the database.
 	FieldQuotaType = "quota_type"
 	// FieldQuotaValue holds the string denoting the quota_value field in the database.
@@ -52,6 +54,7 @@ var Columns = []string{
 	FieldCreatedBy,
 	FieldUpdatedBy,
 	FieldDeletedBy,
+	FieldQuotaCode,
 	FieldQuotaType,
 	FieldQuotaValue,
 }
@@ -78,6 +81,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// QuotaCodeValidator is a validator for the "quota_code" field. It is called by the builders before save.
+	QuotaCodeValidator func(string) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(uint32) error
 )
@@ -142,6 +147,11 @@ func ByUpdatedBy(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedBy orders the results by the deleted_by field.
 func ByDeletedBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedBy, opts...).ToFunc()
+}
+
+// ByQuotaCode orders the results by the quota_code field.
+func ByQuotaCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldQuotaCode, opts...).ToFunc()
 }
 
 // ByQuotaType orders the results by the quota_type field.

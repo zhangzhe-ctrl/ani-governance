@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -13,9 +14,13 @@ import (
 
 	"github.com/tx7do/go-utils/copierutil"
 	"github.com/tx7do/go-utils/mapper"
+	"github.com/tx7do/go-utils/trans"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
+	"go-wind-admin/app/admin/service/internal/data/ent/plan"
 	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
+
+	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
@@ -112,6 +117,7 @@ func (r *PlanQuotaRepo) List(ctx context.Context, req *paginationV1.PagingReques
 		if entity.Edges.Plan != nil {
 			dto.PlanId = &entity.Edges.Plan.ID
 		}
+		projectQuotaCompatFields(dto, entity)
 		dtos = append(dtos, dto)
 	}
 
@@ -159,9 +165,29 @@ func (r *PlanQuotaRepo) Get(ctx context.Context, req *identityV1.GetPlanQuotaReq
 	return dto, err
 }
 
+// projectQuotaCompatFields 统一读取投影：quota_code 权威；quota_type 仅旧三项
+// 保持一致旧枚举，gpu.count 等新项不输出旧枚举（nil→JSON 省略/UNSPECIFIED）。
+func projectQuotaCompatFields(dto *identityV1.PlanQuota, entity *ent.PlanQuota) {
+	dto.QuotaCode = trans.Ptr(entity.QuotaCode)
+	dto.QuotaType = ProjectLegacyTypeForRead(entity.QuotaCode)
+}
+
 func (r *PlanQuotaRepo) Create(ctx context.Context, req *identityV1.CreatePlanQuotaRequest) (err error) {
 	if req == nil || req.Data == nil {
 		return identityV1.ErrorBadRequest("invalid parameter")
+	}
+
+	// 计划 §5.2/§5.3：plan_id、quota_code、quota_value 必填；
+	// code/type 兼容解析集中在本映射文件，冲突/缺失回 400。
+	quotaCode, ok := ResolveQuotaCodeForWrite(req.Data.QuotaCode, req.Data.QuotaType)
+	if !ok {
+		return QuotaErrInvalid("quota_code is required and must be consistent with legacy quota_type")
+	}
+	if req.Data.PlanId == nil || *req.Data.PlanId == 0 {
+		return QuotaErrInvalid("plan_id is required")
+	}
+	if req.Data.QuotaValue == nil {
+		return QuotaErrInvalid("quota_value is required")
 	}
 
 	var tx *ent.Tx
@@ -183,13 +209,32 @@ func (r *PlanQuotaRepo) Create(ctx context.Context, req *identityV1.CreatePlanQu
 		}
 	}()
 
+	// §7.1：套餐配额变更先 plan 行 FOR UPDATE，再写该 plan 的 quota 行；
+	// 不得反向再锁 tenant/account。占额路径对 plan 为 FOR SHARE，与此串行化。
+	// SQLite（单写者测试库）不支持行锁，按方言跳过。
+	sysCtx := appViewer.NewSystemViewerContext(ctx)
+	pq := tx.Plan.Query().Where(plan.IDEQ(*req.Data.PlanId))
+	if supportsRowLock(r.entClient) {
+		pq = pq.ForUpdate()
+	}
+	if _, err = pq.Only(sysCtx); ent.IsNotFound(err) {
+		return QuotaErrInvalid("plan not found")
+	} else if err != nil {
+		r.log.Errorf(ctx, "lock plan failed: %s", err.Error())
+		return identityV1.ErrorInternalServerError("lock plan failed")
+	}
+
 	builder := tx.PlanQuota.Create().
-		SetNillableQuotaType(r.quotaTypeConv.ToEntity(req.Data.QuotaType)).
+		SetQuotaCode(quotaCode).
 		SetNillableQuotaValue(req.Data.QuotaValue).
 		SetNillableCreatedBy(req.Data.CreatedBy).
 		SetCreatedAt(time.Now())
 
-	// 原条件写反（== nil 时才 Set），导致请求带 planId 也落库为 NULL
+	// 旧三项保持旧枚举一致投影；gpu.count 等新项不写旧枚举（NULL 合法）。
+	if legacyType, ok := CodeToLegacyEntType(quotaCode); ok && req.Data.QuotaType != nil {
+		builder.SetQuotaType(legacyType)
+	}
+
 	if req.Data.PlanId != nil {
 		builder.SetPlanID(*req.Data.PlanId)
 	}
@@ -200,6 +245,10 @@ func (r *PlanQuotaRepo) Create(ctx context.Context, req *identityV1.CreatePlanQu
 
 	if _, err = builder.Save(ctx); err != nil {
 		r.log.Errorf(ctx, "insert plan quota failed: %s", err.Error())
+		// 同套餐同 code 唯一冲突（含并发提交时数据库约束兜底）。
+		if ent.IsConstraintError(err) {
+			return QuotaErrIdempotencyConflict("plan already has a quota item with this quota_code")
+		}
 		return identityV1.ErrorInternalServerError("insert plan quota failed")
 	}
 
@@ -213,19 +262,35 @@ func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQu
 	if req.GetId() == 0 {
 		return identityV1.ErrorBadRequest("id is required")
 	}
-
-	// 如果不存在则创建
+	// 计划 §5.3：Update 必须非空 updateMask；不允许 allowMissing 隐式创建
+	// 或改 planId。allowMissing 在 Service 层拒绝，这里再兜底。
 	if req.GetAllowMissing() {
-		var exist bool
-		exist, err = r.IsExist(ctx, req.GetId())
-		if err != nil {
-			return err
+		return QuotaErrInvalid("allow_missing is not allowed for plan quotas")
+	}
+
+	// 变更 code/type 的 mask 兼容处理集中实现：两者同时出现仍须映射一致。
+	// mask 路径兼容 snake_case 与 lowerCamel（FieldMask JSON 合同为 lowerCamel）。
+	mask := req.GetUpdateMask().GetPaths()
+	has := func(name string) bool {
+		norm := strings.ReplaceAll(strings.ToLower(name), "_", "")
+		for _, p := range mask {
+			if strings.ReplaceAll(strings.ToLower(p), "_", "") == norm {
+				return true
+			}
 		}
-		if !exist {
-			createReq := &identityV1.CreatePlanQuotaRequest{Data: req.Data}
-			createReq.Data.CreatedBy = createReq.Data.UpdatedBy
-			createReq.Data.UpdatedBy = nil
-			return r.Create(ctx, createReq)
+		return false
+	}
+	hasCode := has("quotaCode") || has("quotaType")
+	hasValue := has("quotaValue")
+	if has("planId") {
+		return QuotaErrInvalid("plan_id cannot be changed")
+	}
+	var resolvedCode string
+	var codeChanged bool
+	if hasCode {
+		resolvedCode, codeChanged = ResolveQuotaCodeForWrite(req.Data.QuotaCode, req.Data.QuotaType)
+		if !codeChanged {
+			return QuotaErrInvalid("quota_code is required and must be consistent with legacy quota_type")
 		}
 	}
 
@@ -251,9 +316,19 @@ func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQu
 	builder := tx.PlanQuota.UpdateOneID(req.GetId())
 	_, err = r.repository.UpdateOne(ctx, builder, req.Data, req.GetUpdateMask(),
 		func(dto *identityV1.PlanQuota) {
+			if codeChanged {
+				builder.SetQuotaCode(resolvedCode)
+				// 旧三项保持旧枚举一致投影；改为新项目时清掉旧枚举（NULL 合法）。
+				if legacyType, ok := CodeToLegacyEntType(resolvedCode); ok {
+					builder.SetQuotaType(legacyType)
+				} else {
+					builder.ClearQuotaType()
+				}
+			}
+			if hasValue {
+				builder.SetNillableQuotaValue(req.Data.QuotaValue)
+			}
 			builder.
-				SetNillableQuotaType(r.quotaTypeConv.ToEntity(req.Data.QuotaType)).
-				SetNillableQuotaValue(req.Data.QuotaValue).
 				SetNillableUpdatedBy(req.Data.UpdatedBy).
 				SetUpdatedAt(time.Now())
 		},
@@ -263,6 +338,9 @@ func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQu
 	)
 	if err != nil {
 		r.log.Errorf(ctx, "update plan quota failed: %s", err.Error())
+		if ent.IsConstraintError(err) {
+			return QuotaErrIdempotencyConflict("plan already has a quota item with this quota_code")
+		}
 		return identityV1.ErrorInternalServerError("update plan quota failed")
 	}
 

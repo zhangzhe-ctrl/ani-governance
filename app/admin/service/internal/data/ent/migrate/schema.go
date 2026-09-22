@@ -1913,7 +1913,8 @@ var (
 		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
 		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
 		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
-		{Name: "quota_type", Type: field.TypeEnum, Nullable: true, Comment: "配额类型", Enums: []string{"USER_LIMIT", "STORAGE", "API_CALL"}},
+		{Name: "quota_code", Type: field.TypeString, Comment: "配额编码"},
+		{Name: "quota_type", Type: field.TypeEnum, Nullable: true, Comment: "配额类型（deprecated：仅旧三项兼容投影）", Enums: []string{"USER_LIMIT", "STORAGE", "API_CALL"}},
 		{Name: "quota_value", Type: field.TypeUint64, Nullable: true, Comment: "配额值"},
 		{Name: "plan_id", Type: field.TypeUint32, Nullable: true},
 	}
@@ -1926,7 +1927,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "sys_plan_quotas_sys_plans_quotas",
-				Columns:    []*schema.Column{SysPlanQuotasColumns[9]},
+				Columns:    []*schema.Column{SysPlanQuotasColumns[10]},
 				RefColumns: []*schema.Column{SysPlansColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -1936,6 +1937,11 @@ var (
 				Name:    "idx_sys_plan_quotas_created_at",
 				Unique:  false,
 				Columns: []*schema.Column{SysPlanQuotasColumns[1]},
+			},
+			{
+				Name:    "uix_sys_plan_quotas_plan_id_quota_code",
+				Unique:  true,
+				Columns: []*schema.Column{SysPlanQuotasColumns[7], SysPlanQuotasColumns[10]},
 			},
 		},
 	}
@@ -2151,6 +2157,176 @@ var (
 				Name:    "idx_sys_positions_tenant_id",
 				Unique:  false,
 				Columns: []*schema.Column{SysPositionsColumns[9]},
+			},
+		},
+	}
+	// SysQuotaAccountsColumns holds the columns for the "sys_quota_accounts" table.
+	SysQuotaAccountsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "quota_code", Type: field.TypeString, Comment: "配额编码"},
+		{Name: "occupied_units", Type: field.TypeInt64, Comment: "当前占用数量", Default: 0},
+		{Name: "version", Type: field.TypeInt64, Comment: "版本号", Default: 0},
+	}
+	// SysQuotaAccountsTable holds the schema information for the "sys_quota_accounts" table.
+	SysQuotaAccountsTable = &schema.Table{
+		Name:       "sys_quota_accounts",
+		Comment:    "租户配额账户表",
+		Columns:    SysQuotaAccountsColumns,
+		PrimaryKey: []*schema.Column{SysQuotaAccountsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_quota_accounts_tenant_id_quota_code",
+				Unique:  true,
+				Columns: []*schema.Column{SysQuotaAccountsColumns[4], SysQuotaAccountsColumns[5]},
+			},
+		},
+	}
+	// SysQuotaChargesColumns holds the columns for the "sys_quota_charges" table.
+	SysQuotaChargesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "charge_id", Type: field.TypeString, Unique: true, Comment: "占额明细ID（UUID）"},
+		{Name: "operation_id", Type: field.TypeString, Comment: "原创建操作ID（UUID）"},
+		{Name: "quota_code", Type: field.TypeString, Comment: "配额编码"},
+		{Name: "original_units", Type: field.TypeInt64, Comment: "原始占额数量"},
+		{Name: "released_units", Type: field.TypeInt64, Comment: "累计已释放数量", Default: 0},
+	}
+	// SysQuotaChargesTable holds the schema information for the "sys_quota_charges" table.
+	SysQuotaChargesTable = &schema.Table{
+		Name:       "sys_quota_charges",
+		Comment:    "配额占额明细表",
+		Columns:    SysQuotaChargesColumns,
+		PrimaryKey: []*schema.Column{SysQuotaChargesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_quota_charges_tenant_id_charge_id",
+				Unique:  true,
+				Columns: []*schema.Column{SysQuotaChargesColumns[4], SysQuotaChargesColumns[5]},
+			},
+			{
+				Name:    "uix_sys_quota_charges_tenant_operation_code",
+				Unique:  true,
+				Columns: []*schema.Column{SysQuotaChargesColumns[4], SysQuotaChargesColumns[6], SysQuotaChargesColumns[7]},
+			},
+			{
+				Name:    "idx_sys_quota_charges_quota_code",
+				Unique:  false,
+				Columns: []*schema.Column{SysQuotaChargesColumns[7]},
+			},
+		},
+	}
+	// SysQuotaDefinitionsColumns holds the columns for the "sys_quota_definitions" table.
+	SysQuotaDefinitionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "code", Type: field.TypeString, Unique: true, Comment: "稳定配额编码（如 gpu.count）"},
+		{Name: "display_name", Type: field.TypeString, Comment: "展示名"},
+		{Name: "unit", Type: field.TypeString, Comment: "单位（user/byte/request/gpu）"},
+		{Name: "accounting_kind", Type: field.TypeEnum, Comment: "计数模型", Enums: []string{"CONCURRENT", "COUNTER"}},
+	}
+	// SysQuotaDefinitionsTable holds the schema information for the "sys_quota_definitions" table.
+	SysQuotaDefinitionsTable = &schema.Table{
+		Name:       "sys_quota_definitions",
+		Comment:    "配额目录表",
+		Columns:    SysQuotaDefinitionsColumns,
+		PrimaryKey: []*schema.Column{SysQuotaDefinitionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "quotadefinition_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{SysQuotaDefinitionsColumns[1]},
+			},
+		},
+	}
+	// SysQuotaOperationsColumns holds the columns for the "sys_quota_operations" table.
+	SysQuotaOperationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "operation_id", Type: field.TypeString, Unique: true, Comment: "操作ID（UUID）"},
+		{Name: "resource_tenant_id", Type: field.TypeString, Comment: "下游资源租户UUID"},
+		{Name: "resource_id", Type: field.TypeString, Comment: "资源ID（UUID）"},
+		{Name: "create_operation_id", Type: field.TypeString, Nullable: true, Comment: "原创建操作ID（DELETE 必填）"},
+		{Name: "actor_type", Type: field.TypeString, Comment: "操作主体类型（user/access_key）"},
+		{Name: "actor_id", Type: field.TypeString, Comment: "操作主体ID"},
+		{Name: "owner_service", Type: field.TypeString, Comment: "owner 服务标识（如 ani-gpu-simulator）"},
+		{Name: "action", Type: field.TypeString, Comment: "业务动作（adapter 注册表键）"},
+		{Name: "idempotency_key", Type: field.TypeString, Comment: "幂等键（UUID）"},
+		{Name: "request_hash", Type: field.TypeString, Comment: "规范请求哈希"},
+		{Name: "canonical_request", Type: field.TypeString, Size: 2147483647, Comment: "规范请求（schema_version=1）"},
+		{Name: "dispatch_state", Type: field.TypeEnum, Comment: "投递状态", Enums: []string{"QUEUED", "DISPATCHING", "UNKNOWN", "ACKED", "CANCELED_UNSENT"}, Default: "QUEUED"},
+		{Name: "attempt_count", Type: field.TypeInt, Comment: "已尝试发送次数", Default: 0},
+		{Name: "lease_generation", Type: field.TypeInt64, Comment: "领取代次", Default: 0},
+		{Name: "retry_blocked", Type: field.TypeBool, Comment: "永久合同错误暂停自动重试", Default: false},
+		{Name: "last_error_code", Type: field.TypeString, Nullable: true, Comment: "最近错误码"},
+		{Name: "next_attempt_at", Type: field.TypeTime, Nullable: true, Comment: "下次尝试时间（退避）"},
+		{Name: "lease_owner", Type: field.TypeString, Nullable: true, Comment: "当前租约持有者"},
+		{Name: "lease_until", Type: field.TypeTime, Nullable: true, Comment: "租约到期时间"},
+		{Name: "ack_json", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "ACK 响应（JSON）"},
+	}
+	// SysQuotaOperationsTable holds the schema information for the "sys_quota_operations" table.
+	SysQuotaOperationsTable = &schema.Table{
+		Name:       "sys_quota_operations",
+		Comment:    "配额操作与持久化转发记录表",
+		Columns:    SysQuotaOperationsColumns,
+		PrimaryKey: []*schema.Column{SysQuotaOperationsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_quota_operations_tenant_id_operation_id",
+				Unique:  true,
+				Columns: []*schema.Column{SysQuotaOperationsColumns[4], SysQuotaOperationsColumns[5]},
+			},
+			{
+				Name:    "uix_sys_quota_operations_idempotency",
+				Unique:  true,
+				Columns: []*schema.Column{SysQuotaOperationsColumns[4], SysQuotaOperationsColumns[9], SysQuotaOperationsColumns[10], SysQuotaOperationsColumns[12], SysQuotaOperationsColumns[13]},
+			},
+			{
+				Name:    "idx_sys_quota_operations_dispatch",
+				Unique:  false,
+				Columns: []*schema.Column{SysQuotaOperationsColumns[16], SysQuotaOperationsColumns[21]},
+			},
+			{
+				Name:    "uix_sys_quota_operations_create_resource",
+				Unique:  true,
+				Columns: []*schema.Column{SysQuotaOperationsColumns[4], SysQuotaOperationsColumns[11], SysQuotaOperationsColumns[7]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "create_operation_id IS NULL",
+				},
+			},
+		},
+	}
+	// SysQuotaReleaseReceiptsColumns holds the columns for the "sys_quota_release_receipts" table.
+	SysQuotaReleaseReceiptsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "receipt_id", Type: field.TypeString, Unique: true, Comment: "回执ID（UUID）"},
+		{Name: "owner_service", Type: field.TypeString, Comment: "owner 服务标识（来自证书精确 SAN）"},
+		{Name: "release_event_id", Type: field.TypeString, Comment: "释放事件ID（UUID，重试不变）"},
+		{Name: "payload_hash", Type: field.TypeString, Comment: "批次负载哈希"},
+		{Name: "payload_json", Type: field.TypeString, Size: 2147483647, Comment: "批次负载原文"},
+	}
+	// SysQuotaReleaseReceiptsTable holds the schema information for the "sys_quota_release_receipts" table.
+	SysQuotaReleaseReceiptsTable = &schema.Table{
+		Name:       "sys_quota_release_receipts",
+		Comment:    "配额退额回执表",
+		Columns:    SysQuotaReleaseReceiptsColumns,
+		PrimaryKey: []*schema.Column{SysQuotaReleaseReceiptsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_quota_release_receipts_owner_event",
+				Unique:  true,
+				Columns: []*schema.Column{SysQuotaReleaseReceiptsColumns[4], SysQuotaReleaseReceiptsColumns[5]},
 			},
 		},
 	}
@@ -3093,6 +3269,11 @@ var (
 		SysPlanQuotasTable,
 		SysPolicyEvaluationLogsTable,
 		SysPositionsTable,
+		SysQuotaAccountsTable,
+		SysQuotaChargesTable,
+		SysQuotaDefinitionsTable,
+		SysQuotaOperationsTable,
+		SysQuotaReleaseReceiptsTable,
 		SysRolesTable,
 		SysRoleFieldPermissionsTable,
 		SysRoleMetadataTable,
@@ -3271,6 +3452,9 @@ func init() {
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
 	}
+	SysPlanQuotasTable.Annotation.Checks = map[string]string{
+		"sys_plan_quotas_quota_value_nonnegative_ck": "quota_value >= 0",
+	}
 	SysPolicyEvaluationLogsTable.Annotation = &entsql.Annotation{
 		Table:     "sys_policy_evaluation_logs",
 		Charset:   "utf8mb4",
@@ -3280,6 +3464,46 @@ func init() {
 		Table:     "sys_positions",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
+	}
+	SysQuotaAccountsTable.Annotation = &entsql.Annotation{
+		Table:     "sys_quota_accounts",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	SysQuotaAccountsTable.Annotation.Checks = map[string]string{
+		"sys_quota_accounts_occupied_nonnegative_ck": "occupied_units >= 0",
+		"sys_quota_accounts_tenant_positive_ck":      "tenant_id > 0",
+	}
+	SysQuotaChargesTable.Annotation = &entsql.Annotation{
+		Table:     "sys_quota_charges",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	SysQuotaChargesTable.Annotation.Checks = map[string]string{
+		"sys_quota_charges_original_positive_ck": "original_units >= 0",
+		"sys_quota_charges_release_range_ck":     "released_units >= 0 AND released_units <= original_units",
+		"sys_quota_charges_tenant_positive_ck":   "tenant_id > 0",
+	}
+	SysQuotaDefinitionsTable.Annotation = &entsql.Annotation{
+		Table:     "sys_quota_definitions",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	SysQuotaOperationsTable.Annotation = &entsql.Annotation{
+		Table:     "sys_quota_operations",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	SysQuotaOperationsTable.Annotation.Checks = map[string]string{
+		"sys_quota_operations_tenant_positive_ck": "tenant_id > 0",
+	}
+	SysQuotaReleaseReceiptsTable.Annotation = &entsql.Annotation{
+		Table:     "sys_quota_release_receipts",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	SysQuotaReleaseReceiptsTable.Annotation.Checks = map[string]string{
+		"sys_quota_release_receipts_tenant_positive_ck": "tenant_id > 0",
 	}
 	SysRolesTable.Annotation = &entsql.Annotation{
 		Table:     "sys_roles",

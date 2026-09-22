@@ -392,6 +392,66 @@ func (f PositionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PositionMutation", m)
 }
 
+// The QuotaAccountFunc type is an adapter to allow the use of ordinary
+// function as QuotaAccount mutator.
+type QuotaAccountFunc func(context.Context, *ent.QuotaAccountMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f QuotaAccountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.QuotaAccountMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QuotaAccountMutation", m)
+}
+
+// The QuotaChargeFunc type is an adapter to allow the use of ordinary
+// function as QuotaCharge mutator.
+type QuotaChargeFunc func(context.Context, *ent.QuotaChargeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f QuotaChargeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.QuotaChargeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QuotaChargeMutation", m)
+}
+
+// The QuotaDefinitionFunc type is an adapter to allow the use of ordinary
+// function as QuotaDefinition mutator.
+type QuotaDefinitionFunc func(context.Context, *ent.QuotaDefinitionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f QuotaDefinitionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.QuotaDefinitionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QuotaDefinitionMutation", m)
+}
+
+// The QuotaOperationFunc type is an adapter to allow the use of ordinary
+// function as QuotaOperation mutator.
+type QuotaOperationFunc func(context.Context, *ent.QuotaOperationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f QuotaOperationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.QuotaOperationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QuotaOperationMutation", m)
+}
+
+// The QuotaReleaseReceiptFunc type is an adapter to allow the use of ordinary
+// function as QuotaReleaseReceipt mutator.
+type QuotaReleaseReceiptFunc func(context.Context, *ent.QuotaReleaseReceiptMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f QuotaReleaseReceiptFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.QuotaReleaseReceiptMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QuotaReleaseReceiptMutation", m)
+}
+
 // The RoleFunc type is an adapter to allow the use of ordinary
 // function as Role mutator.
 type RoleFunc func(context.Context, *ent.RoleMutation) (ent.Value, error)

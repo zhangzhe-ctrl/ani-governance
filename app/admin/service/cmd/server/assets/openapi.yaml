@@ -3937,6 +3937,84 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /admin/v1/quota-definitions:
+        get:
+            tags:
+                - QuotaAdminService
+            description: 查询配额目录（QUOTA-01）
+            operationId: QuotaAdminService_ListQuotaDefinitions
+            parameters:
+                - name: page
+                  in: query
+                  description: 当前页码（从1开始，默认1）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  description: 每页条数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: offset
+                  in: query
+                  description: 跳过的记录数（从0开始，默认0）
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  description: 最多返回的记录数（默认10，建议设置上限如100）
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: token
+                  in: query
+                  description: 上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）
+                  schema:
+                    type: string
+                - name: noPaging
+                  in: query
+                  description: 是否不分页，如果为true，则page和pageSize参数无效。
+                  schema:
+                    type: boolean
+                - name: query
+                  in: query
+                  description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: Google AIP规范字符串过滤条件
+                  schema:
+                    type: string
+                - name: filterExpr.type
+                  in: query
+                  description: 过滤表达式类型
+                  schema:
+                    enum:
+                        - EXPR_TYPE_UNSPECIFIED
+                        - AND
+                        - OR
+                    type: string
+                    format: enum
+                - name: orderBy
+                  in: query
+                  description: 排序条件
+                  schema:
+                    type: string
+                - name: fieldMask
+                  in: query
+                  description: 字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT *。
+                  schema:
+                    type: string
+                    format: field-mask
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListQuotaDefinitionsResponse'
     /admin/v1/redis-cache-monitor:
         get:
             tags:
@@ -4590,6 +4668,27 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /admin/v1/tenants/{id}/quota-accounts:
+        get:
+            tags:
+                - QuotaAdminService
+            description: 查询指定租户配额账户（QUOTA-02）
+            operationId: QuotaAdminService_ListTenantQuotaAccounts
+            parameters:
+                - name: id
+                  in: path
+                  description: 路径参数；平台管理读取。租户身份不能通过修改 path id 查询他人账户。
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListTenantQuotaAccountsResponse'
     /admin/v1/tenants/{id}/usage:
         get:
             tags:
@@ -7818,6 +7917,15 @@ components:
                 total:
                     type: string
             description: 获取职位列表 - 答复
+        ListQuotaDefinitionsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/QuotaDefinition'
+                total:
+                    type: string
         ListRoleResponse:
             type: object
             properties:
@@ -7855,6 +7963,16 @@ components:
                         type: string
                     description: 类型名称列表
             description: 任务类型名称列表 - 回应
+        ListTenantQuotaAccountsResponse:
+            type: object
+            properties:
+                tenantId:
+                    type: integer
+                    format: uint32
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/QuotaAccountView'
         ListTenantResponse:
             type: object
             properties:
@@ -9351,11 +9469,14 @@ components:
                         - STORAGE
                         - API_CALL
                     type: string
-                    description: 配额类型
+                    description: 配额类型（deprecated：仅兼容旧三项 USER_LIMIT/STORAGE/API_CALL，新业务使用 quota_code）
                     format: enum
                 quotaValue:
                     type: string
                     description: 配额值
+                quotaCode:
+                    type: string
+                    description: 配额编码
                 createdBy:
                     type: integer
                     description: 创建者用户ID
@@ -9578,6 +9699,53 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/NamedSchemaOrReference'
+        QuotaAccountView:
+            type: object
+            properties:
+                quotaCode:
+                    type: string
+                unit:
+                    type: string
+                limit:
+                    type: string
+                occupied:
+                    type: string
+                available:
+                    type: string
+                overLimit:
+                    type: boolean
+                enforcement:
+                    enum:
+                        - ENFORCEMENT_UNSPECIFIED
+                        - LEGACY_CONFIG_ONLY
+                        - LAB_ONLY
+                    type: string
+                    format: enum
+            description: 租户配额账户快照（只读投影，不含 tenant_id 之外的账本内部状态）
+        QuotaDefinition:
+            type: object
+            properties:
+                code:
+                    type: string
+                displayName:
+                    type: string
+                unit:
+                    type: string
+                accountingKind:
+                    enum:
+                        - ACCOUNTING_KIND_UNSPECIFIED
+                        - CONCURRENT
+                        - COUNTER
+                    type: string
+                    format: enum
+                enforcement:
+                    enum:
+                        - ENFORCEMENT_UNSPECIFIED
+                        - LEGACY_CONFIG_ONLY
+                        - LAB_ONLY
+                    type: string
+                    format: enum
+            description: 配额目录项
         QuotaUsage:
             type: object
             properties:
@@ -9588,11 +9756,14 @@ components:
                         - STORAGE
                         - API_CALL
                     type: string
-                    description: 配额类型
+                    description: 配额类型（deprecated：旧三项兼容投影）
                     format: enum
                 quotaValue:
                     type: string
                     description: 配额上限值
+                quotaCode:
+                    type: string
+                    description: 配额编码
             description: 配额用量项
         RedisCacheMonitorInfo:
             type: object
@@ -11270,6 +11441,10 @@ tags:
       description: 策略评估日志服务
     - name: PositionService
       description: 职位管理服务
+    - name: QuotaAdminService
+      description: |-
+        配额目录与租户账户读取服务（QUOTA-01/02）。
+         仅平台管理权限；读取沿用现有分页与成功 JSON 风格，不加全局 code/data envelope。
     - name: RedisCacheMonitorService
       description: Redis缓存监控管理服务（只读）
     - name: RoleService

@@ -86,13 +86,13 @@ func TestTenantUsageRepoSqlite_GetUsageWithPlanAndData(t *testing.T) {
 		Save(ctx)
 	require.NoError(t, err, "建套餐并挂租户 A 应成功")
 	require.NoError(t, client.PlanQuota.Create().SetPlanID(planA.ID).
-		SetQuotaType(entPlanQuota.QuotaTypeUserLimit).SetQuotaValue(uint64(10)).Exec(ctx),
+		SetQuotaType(entPlanQuota.QuotaTypeUserLimit).SetQuotaCode("user.count").SetQuotaValue(uint64(10)).Exec(ctx),
 		"建 USER_LIMIT 配额应成功")
 	require.NoError(t, client.PlanQuota.Create().SetPlanID(planA.ID).
-		SetQuotaType(entPlanQuota.QuotaTypeStorage).SetQuotaValue(uint64(20)).Exec(ctx),
+		SetQuotaType(entPlanQuota.QuotaTypeStorage).SetQuotaCode("storage.bytes").SetQuotaValue(uint64(20)).Exec(ctx),
 		"建 STORAGE 配额应成功")
 	require.NoError(t, client.PlanQuota.Create().SetPlanID(planA.ID).
-		SetQuotaType(entPlanQuota.QuotaTypeApiCall).SetQuotaValue(uint64(30)).Exec(ctx),
+		SetQuotaType(entPlanQuota.QuotaTypeApiCall).SetQuotaCode("api.calls").SetQuotaValue(uint64(30)).Exec(ctx),
 		"建 API_CALL 配额应成功")
 	require.NoError(t, client.User.Create().SetUsername("sqlite_usage_user_a1").SetTenantID(tenantA.ID).Exec(ctx))
 	require.NoError(t, client.User.Create().SetUsername("sqlite_usage_user_a2").SetTenantID(tenantA.ID).Exec(ctx))

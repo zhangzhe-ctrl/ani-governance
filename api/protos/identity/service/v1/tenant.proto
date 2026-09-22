@@ -301,13 +301,20 @@ message GetTenantUsageRequest {
 message QuotaUsage {
   PlanQuota.QuotaType quota_type = 1 [
     json_name = "quotaType",
-    (gnostic.openapi.v3.property) = {description: "配额类型"}
-  ]; // 配额类型
+    deprecated = true,
+    (gnostic.openapi.v3.property) = {description: "配额类型（deprecated：旧三项兼容投影）"}
+  ]; // 配额类型（deprecated）
 
   uint64 quota_value = 2 [
     json_name = "quotaValue",
     (gnostic.openapi.v3.property) = {description: "配额上限值"}
   ]; // 配额上限值
+
+  // 稳定配额编码；GPU 等新项目只有本字段，旧枚举投影为 UNSPECIFIED。
+  string quota_code = 3 [
+    json_name = "quotaCode",
+    (gnostic.openapi.v3.property) = {description: "配额编码"}
+  ]; // 配额编码
 }
 
 // 租户用量与配额

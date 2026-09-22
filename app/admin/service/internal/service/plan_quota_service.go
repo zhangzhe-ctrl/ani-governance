@@ -66,6 +66,13 @@ func (s *PlanQuotaService) Update(ctx context.Context, req *identityV1.UpdatePla
 	if req == nil || req.Data == nil {
 		return nil, adminV1.ErrorBadRequest("invalid parameter")
 	}
+	// 计划 §5.3：Update 必须非空 updateMask；不允许 allowMissing 隐式创建。
+	if req.GetUpdateMask() == nil || len(req.GetUpdateMask().GetPaths()) == 0 {
+		return nil, data.QuotaErrInvalid("update_mask is required")
+	}
+	if req.GetAllowMissing() {
+		return nil, data.QuotaErrInvalid("allow_missing is not allowed for plan quotas")
+	}
 
 	// 获取操作人信息
 	operator, err := auth.FromContext(ctx)

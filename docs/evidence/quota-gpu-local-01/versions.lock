@@ -1,0 +1,19 @@
+# QUOTA-GPU-LOCAL-01 versions.lock（2026-09-22 冻结）
+go: 1.26.7
+gow: v1.0.3
+buf: v1.60.0  # /home/ubuntu/.local/quota-lab-tools-01/buf
+ent_generator: v0.14.6  # go run entgo.io/ent/cmd/ent@v0.14.6（定向脚本）
+atlas_cli: v1.3.0  # go install ariga.io/atlas/cmd/atlas@v1.3.0 → /home/ubuntu/.local/quota-lab-tools-01/atlas
+protoc-gen-go: v1.36.11  # buf 模板内 go run 固定
+protoc-gen-go-grpc: v1.6.0  # buf 模板内 go run 固定
+protoc-gen-go-http: v2.0.0-20251205160234-b9fab9a5a5ab  # buf 模板内 go run 固定
+protoc-gen-validate: v1.3.3
+protoc-gen-openapi: v0.7.1  # go run 固定（openapi 模板既有）
+postgres_image: postgres:16@sha256:a3b7f434b2dc57ce85a67e171163eb8ab1a1ebcb39d27484661f26b1dfbe30d6
+redis_image: redis:7@sha256:c6eabf748fc7a61dbb5a705c78bcf3d6377b1127a97d0ce965c11c44ba46896f
+docker_server: 29.6.1  # 本地 unix socket，context=default，DOCKER_HOST 未设置
+python: 3.12.3
+baseline_head: 5c2dd57bbaebd2e2f69105104825763807ca61b1
+business_source_baseline: 5a5d0d80e1cf350f250dc65cbb34ae9bc2b65ab9
+baseline_note: HEAD 相对业务核对基线仅多出计划文档提交（docs: add detailed local GPU quota execution plan），无业务源码差异
+baseline_tests: p0-baseline-data-tests.log / p0-baseline-service-tests.log / p0-baseline-auth-tests.log 均通过（退出码 0）

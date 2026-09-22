@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package quota_lab.service.v1;
+
+import "google/api/annotations.proto";
+
+import "quota_lab/service/v1/quota_lab.proto";
+
+// 仅实验构建的 GPU 用户入口（QUOTA-LAB-01～04）。
+// 接受真实用户 JWT；不支持 AK/SK 写签名。路由由 quota_lab 装配注册，
+// 不进入正式 OpenAPI。
+service QuotaLabService {
+  rpc CreateGpuAllocation (CreateGpuAllocationRequest) returns (CreateGpuAllocationResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/quota-lab/gpu-allocations"
+      body: "*"
+    };
+  }
+
+  rpc GetGpuAllocation (GetGpuAllocationRequest) returns (GetGpuAllocationResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/quota-lab/gpu-allocations/{resource_id}"
+    };
+  }
+
+  rpc DeleteGpuAllocation (DeleteGpuAllocationRequest) returns (DeleteGpuAllocationResponse) {
+    option (google.api.http) = {
+      delete: "/api/v1/quota-lab/gpu-allocations/{resource_id}"
+    };
+  }
+
+  rpc GetQuotaOperation (GetQuotaOperationRequest) returns (GetQuotaOperationResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/quota-lab/operations/{operation_id}"
+    };
+  }
+}

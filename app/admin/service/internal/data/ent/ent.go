@@ -38,6 +38,11 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
 	"go-wind-admin/app/admin/service/internal/data/ent/policyevaluationlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/position"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotaaccount"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotacharge"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotadefinition"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotaoperation"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotareleasereceipt"
 	"go-wind-admin/app/admin/service/internal/data/ent/role"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolefieldpermission"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolemetadata"
@@ -150,6 +155,11 @@ func checkColumn(t, c string) error {
 			planquota.Table:                planquota.ValidColumn,
 			policyevaluationlog.Table:      policyevaluationlog.ValidColumn,
 			position.Table:                 position.ValidColumn,
+			quotaaccount.Table:             quotaaccount.ValidColumn,
+			quotacharge.Table:              quotacharge.ValidColumn,
+			quotadefinition.Table:          quotadefinition.ValidColumn,
+			quotaoperation.Table:           quotaoperation.ValidColumn,
+			quotareleasereceipt.Table:      quotareleasereceipt.ValidColumn,
 			role.Table:                     role.ValidColumn,
 			rolefieldpermission.Table:      rolefieldpermission.ValidColumn,
 			rolemetadata.Table:             rolemetadata.ValidColumn,

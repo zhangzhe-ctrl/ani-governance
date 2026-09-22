@@ -95,9 +95,12 @@ func (r *TenantUsageRepo) GetUsage(ctx context.Context, tenantId uint32) (*ident
 			usage.PlanName = t.Edges.Plan.Name
 		}
 		for _, q := range t.Edges.Plan.Edges.Quotas {
-			if q.QuotaType != nil && q.QuotaValue != nil {
+			if q.QuotaValue != nil {
 				usage.Quotas = append(usage.Quotas, &identityV1.QuotaUsage{
-					QuotaType:  mapEntQuotaTypeToProto(*q.QuotaType),
+					// quota_code 权威；旧三项保持旧枚举一致投影，gpu.count 等新项
+					// 旧枚举为 UNSPECIFIED，绝不冒充旧值。
+					QuotaType:  LegacyEntTypeToProto(mapStringToEntQuotaType(q)),
+					QuotaCode:  q.QuotaCode,
 					QuotaValue: *q.QuotaValue,
 				})
 			}
@@ -131,18 +134,13 @@ func (r *TenantUsageRepo) GetUsage(ctx context.Context, tenantId uint32) (*ident
 	return usage, nil
 }
 
-// mapEntQuotaTypeToProto 将 ent planquota.QuotaType 字符串枚举映射到 proto PlanQuota_QuotaType。
-func mapEntQuotaTypeToProto(qt planquota.QuotaType) identityV1.PlanQuota_QuotaType {
-	switch qt {
-	case planquota.QuotaTypeUserLimit:
-		return identityV1.PlanQuota_USER_LIMIT
-	case planquota.QuotaTypeStorage:
-		return identityV1.PlanQuota_STORAGE
-	case planquota.QuotaTypeApiCall:
-		return identityV1.PlanQuota_API_CALL
-	default:
-		return identityV1.PlanQuota_PLAN_QUOTA_TYPE_UNSPECIFIED
+// mapStringToEntQuotaType 将 ent 行的旧枚举字符串转换为其 ent 类型；
+// 兼容投影统一走 LegacyEntTypeToProto（本文件不再单独维护映射 switch）。
+func mapStringToEntQuotaType(q *ent.PlanQuota) planquota.QuotaType {
+	if q.QuotaType == nil {
+		return ""
 	}
+	return *q.QuotaType
 }
 
 // CleanupTenantData 手动清理指定租户的全部业务数据。

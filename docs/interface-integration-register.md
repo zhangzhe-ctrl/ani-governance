@@ -20,8 +20,8 @@
 | 平台运营账号管理 | 复用 ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-02/12；AUTH-15～AUTH-18；SESSION-01～SESSION-04；PERM-01～PERM-06、PERMGROUP-01～PERMGROUP-05 | 支持多个平台账号；运营/只读角色模板待 API 接入后再加；自助会话与权限点/权限组接口本轮补登，缺口见 MGMT-08～MGMT-15 | 待指定 |
 | API Key / AK-SK | AK-01～AK-07 | 签名、角色绑定、加密与可信审计已完成，真实 VPC 闭环 PASS | AKSK-VPC-20260922 已完成本批 |
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
-| Network 租户面读写对接（GOV-RESOURCE-20260922） | NET-02～NET-11；复用 AK-*、AUTH-* | BFF 路由/客户端/Service 已实现并编译、定向测试通过；全链路验收待执行 | GOV-RESOURCE-20260922 进行中 |
-| 通用配额与 GPU 本地模拟 | QUOTA-01～03、QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 已完成执行计划，尚未实现/验收；真实 GPU 未接入 | QUOTA-GPU-LOCAL-01，仅计划 |
+| Network 租户面读写对接（GOV-RESOURCE-20260922） | NET-02～NET-11；复用 AK-*、AUTH-* | BFF 路由/客户端/Service 已实现，17/17 全链路验收 PASS | GOV-RESOURCE-20260922 完成 |
+| 通用配额与 GPU 本地模拟 | QUOTA-01～03、QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 本地模拟闭环已实现并通过指定验收；正式构建无 GPU 路由；真实 GPU 未接入 | QUOTA-GPU-LOCAL-01，本地验收完成（真实 GPU not_verified） |
 
 ## 风格改动批次
 
@@ -819,6 +819,8 @@ x-ani-authz:
 
 2026-09-22 用户要求制定详细、强约束的执行计划；本轮只写计划，不实施功能。执行入口为 [本地执行计划](quota-gpu-local-execution-plan.md)，批次 QUOTA-GPU-LOCAL-01。**这批次所有的工作都可以在本地完成**，真实 GPU 服务尚未准备好，使用独立进程、真实 PostgreSQL 和持久 GPU 模拟器验收；不能将模拟结果标成真实 GPU 接入成功。
 
+2026-09-22（同日第二批）：QUOTA-GPU-LOCAL-01 已按计划 P0～P8 本地执行完成：目录/账本/单次占额/累计退额/持久化转发与恢复/内部 mTLS 退额/本地 GPU 模拟闭环实现并通过指定验收（见 [验收证据](evidence/quota-gpu-local-01/README.md)）；QUOTA-01/02/03、QUOTA-LAB-01～04 标记为已实现（lab 路由仅 quota_lab 构建）。真实 GPU 服务接入与真实硬件分配仍为 not_verified，未标成接入成功。
+
 用户确定：Governance 是统一入口，在转发前一次占额；成功不再实扣。资源服务只上报可退额事实，Governance 配额模块不维护资源运行状态。请求超时/操作失败本身不导致退额；只有确定创建已封闭且没有对应资源，或资源实际释放，才归还。计划采用累计 released_total 防重复/乱序多退。
 
 ### 计划接口与鉴权
@@ -827,13 +829,13 @@ x-ani-authz:
 
 | 编号 | 方法/路径 | 报文与职责 | 鉴权、套餐关系、状态 |
 | --- | --- | --- | --- |
-| QUOTA-01 | GET /admin/v1/quota-definitions | 配额目录 code/name/unit/kind/enforcement；沿用分页 | 平台管理读权限，TENANT 模块；仅计划 |
-| QUOTA-02 | GET /admin/v1/tenants/{id}/quota-accounts | 指定租户 limit/occupied/available/overLimit；占额不等于 Running GPU | 平台管理读权限，TENANT 模块；仅计划 |
-| QUOTA-03 | gRPC /quota.service.v1.QuotaReleaseService/ReportQuotaRelease | event ID、原 operation、charge 与累计释放量、原因；没有公共 HTTP 映射 | 独立 listener、精确 owner mTLS 身份、账本归属校验；内部退额不受套餐到期阻断；仅计划 |
-| QUOTA-LAB-01 | POST /api/v1/quota-lab/gpu-allocations | data.name/gpuCount，Idempotency-Key；202 与稳定操作/占额/资源 ID | 仅 quota_lab 构建；真实用户 JWT、角色与套餐检查，实验目录归 TENANT；仅计划 |
-| QUOTA-LAB-02 | GET /api/v1/quota-lab/gpu-allocations/{resource_id} | 经 Governance 查询模拟资源，不扣额 | 同上，限本租户；仅计划 |
-| QUOTA-LAB-03 | DELETE /api/v1/quota-lab/gpu-allocations/{resource_id} | 幂等转发删除，接受删除不立即退额 | 同上，限本租户；仅计划 |
-| QUOTA-LAB-04 | GET /api/v1/quota-lab/operations/{operation_id} | 投递状态与账本标识，不维护资源 Running 状态 | 同上，限本租户与操作主体；仅计划 |
+| QUOTA-01 | GET /admin/v1/quota-definitions | 配额目录 code/name/unit/kind/enforcement；沿用分页 | 平台管理读权限，TENANT 模块；已实现（本地验收通过） |
+| QUOTA-02 | GET /admin/v1/tenants/{id}/quota-accounts | 指定租户 limit/occupied/available/overLimit；占额不等于 Running GPU | 平台管理读权限，TENANT 模块；已实现（本地验收通过） |
+| QUOTA-03 | gRPC /quota.service.v1.QuotaReleaseService/ReportQuotaRelease | event ID、原 operation、charge 与累计释放量、原因；没有公共 HTTP 映射 | 独立 listener、精确 owner mTLS 身份、账本归属校验；内部退额不受套餐到期阻断；已实现（本地验收通过） |
+| QUOTA-LAB-01 | POST /api/v1/quota-lab/gpu-allocations | data.name/gpuCount，Idempotency-Key；202 与稳定操作/占额/资源 ID | 仅 quota_lab 构建；真实用户 JWT、角色与套餐检查，实验目录归 TENANT；已实现（本地验收通过） |
+| QUOTA-LAB-02 | GET /api/v1/quota-lab/gpu-allocations/{resource_id} | 经 Governance 查询模拟资源，不扣额 | 同上，限本租户；已实现（本地验收通过） |
+| QUOTA-LAB-03 | DELETE /api/v1/quota-lab/gpu-allocations/{resource_id} | 幂等转发删除，接受删除不立即退额 | 同上，限本租户；已实现（本地验收通过） |
+| QUOTA-LAB-04 | GET /api/v1/quota-lab/operations/{operation_id} | 投递状态与账本标识，不维护资源 Running 状态 | 同上，限本租户与操作主体；已实现（本地验收通过） |
 | 复用 PLAN-11～14 | 现有套餐配额 CRUD | 拟增加 quotaCode、唯一/必填/数值范围约束；旧枚举本批 deprecated 兼容 | 沿用平台套餐管理权限；未改现有接口 |
 | 复用 TENANT-04/08 | 现有租户绑定与 usage | 绑定/到期复用；旧 QuotaUsage 仅补 code，旧统计能力不扩大 | 未改现有接口 |
 

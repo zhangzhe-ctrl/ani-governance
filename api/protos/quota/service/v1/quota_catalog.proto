@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package quota.service.v1;
+
+// 配额目录：平台配置元数据，没有 tenant_id。
+// 目录只提供读取；新增目录项使用显式版本数据脚本，
+// 不开放任意创建/修改 code、unit 或执行能力的公共 CRUD。
+// 计数模型：CONCURRENT 表示并发占用量，COUNTER 表示累计计数。
+enum AccountingKind {
+  ACCOUNTING_KIND_UNSPECIFIED = 0; // 未指定
+  CONCURRENT = 1;                  // 并发占用（余额=当前占用）
+  COUNTER = 2;                     // 累计计数
+}
+
+// 执行能力：目录项在本批的强制执行级别。
+// 正式构建对 LAB_ONLY 项没有生产执行器；不得对外谎报 production enforcement enabled。
+enum Enforcement {
+  ENFORCEMENT_UNSPECIFIED = 0;   // 未指定
+  LEGACY_CONFIG_ONLY = 1;        // 仅套餐配置/统计，不强制拦截
+  LAB_ONLY = 2;                  // 仅实验构建可执行（如 gpu.count）
+}
+
+// 配额目录项
+message QuotaDefinition {
+  string code = 1;         // 稳定配额编码，唯一主键（如 gpu.count）
+  string display_name = 2; // 展示名
+  string unit = 3;         // 单位（user/byte/request/gpu）
+  AccountingKind accounting_kind = 4; // 计数模型
+  Enforcement enforcement = 5;        // 执行能力
+}
+
+// 租户配额账户快照（只读投影，不含 tenant_id 之外的账本内部状态）
+message QuotaAccountView {
+  string quota_code = 1;      // 配额编码
+  string unit = 2;            // 单位（来自目录）
+  string limit = 3;           // 当前套餐上限（十进制字符串，uint64）；未配置=0
+  string occupied = 4;        // 当前占用（十进制字符串，uint64）
+  string available = 5;       // max(limit-occupied,0)（十进制字符串）
+  bool over_limit = 6;        // occupied>limit（降额后允许出现）
+  Enforcement enforcement = 7; // 执行能力
+}
