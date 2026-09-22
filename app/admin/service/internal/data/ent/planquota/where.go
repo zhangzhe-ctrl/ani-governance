@@ -85,6 +85,11 @@ func DeletedBy(v uint32) predicate.PlanQuota {
 	return predicate.PlanQuota(sql.FieldEQ(FieldDeletedBy, v))
 }
 
+// QuotaCode applies equality check predicate on the "quota_code" field. It's identical to QuotaCodeEQ.
+func QuotaCode(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldEQ(FieldQuotaCode, v))
+}
+
 // QuotaValue applies equality check predicate on the "quota_value" field. It's identical to QuotaValueEQ.
 func QuotaValue(v uint64) predicate.PlanQuota {
 	return predicate.PlanQuota(sql.FieldEQ(FieldQuotaValue, v))
@@ -388,6 +393,71 @@ func DeletedByIsNil() predicate.PlanQuota {
 // DeletedByNotNil applies the NotNil predicate on the "deleted_by" field.
 func DeletedByNotNil() predicate.PlanQuota {
 	return predicate.PlanQuota(sql.FieldNotNull(FieldDeletedBy))
+}
+
+// QuotaCodeEQ applies the EQ predicate on the "quota_code" field.
+func QuotaCodeEQ(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldEQ(FieldQuotaCode, v))
+}
+
+// QuotaCodeNEQ applies the NEQ predicate on the "quota_code" field.
+func QuotaCodeNEQ(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldNEQ(FieldQuotaCode, v))
+}
+
+// QuotaCodeIn applies the In predicate on the "quota_code" field.
+func QuotaCodeIn(vs ...string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldIn(FieldQuotaCode, vs...))
+}
+
+// QuotaCodeNotIn applies the NotIn predicate on the "quota_code" field.
+func QuotaCodeNotIn(vs ...string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldNotIn(FieldQuotaCode, vs...))
+}
+
+// QuotaCodeGT applies the GT predicate on the "quota_code" field.
+func QuotaCodeGT(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldGT(FieldQuotaCode, v))
+}
+
+// QuotaCodeGTE applies the GTE predicate on the "quota_code" field.
+func QuotaCodeGTE(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldGTE(FieldQuotaCode, v))
+}
+
+// QuotaCodeLT applies the LT predicate on the "quota_code" field.
+func QuotaCodeLT(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldLT(FieldQuotaCode, v))
+}
+
+// QuotaCodeLTE applies the LTE predicate on the "quota_code" field.
+func QuotaCodeLTE(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldLTE(FieldQuotaCode, v))
+}
+
+// QuotaCodeContains applies the Contains predicate on the "quota_code" field.
+func QuotaCodeContains(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldContains(FieldQuotaCode, v))
+}
+
+// QuotaCodeHasPrefix applies the HasPrefix predicate on the "quota_code" field.
+func QuotaCodeHasPrefix(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldHasPrefix(FieldQuotaCode, v))
+}
+
+// QuotaCodeHasSuffix applies the HasSuffix predicate on the "quota_code" field.
+func QuotaCodeHasSuffix(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldHasSuffix(FieldQuotaCode, v))
+}
+
+// QuotaCodeEqualFold applies the EqualFold predicate on the "quota_code" field.
+func QuotaCodeEqualFold(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldEqualFold(FieldQuotaCode, v))
+}
+
+// QuotaCodeContainsFold applies the ContainsFold predicate on the "quota_code" field.
+func QuotaCodeContainsFold(v string) predicate.PlanQuota {
+	return predicate.PlanQuota(sql.FieldContainsFold(FieldQuotaCode, v))
 }
 
 // QuotaTypeEQ applies the EQ predicate on the "quota_type" field.

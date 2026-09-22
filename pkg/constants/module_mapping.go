@@ -54,4 +54,9 @@ var ServiceTagToBusinessModule = map[string]identityV1.Module{
 	"MfaService":            identityV1.Module_SYSTEM,
 	"PlanModuleService":     identityV1.Module_TENANT,
 	"AuthenticationService": identityV1.Module_DASHBOARD,
+
+	// QUOTA-GPU-LOCAL-01：配额管理读取与实验入口均登记为 TENANT 模块
+	//（§10.1/§10.2；实验路由仅 quota_lab 构建的 OpenAPI 之外手动登记）。
+	"QuotaAdminService": identityV1.Module_TENANT,
+	"QuotaLabService":   identityV1.Module_TENANT,
 }

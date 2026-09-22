@@ -40,6 +40,8 @@ func TestServiceTagToBusinessModuleExactMapping(t *testing.T) {
 		"AccessKeyService":    identityV1.Module_SYSTEM,
 
 		"TenantService":    identityV1.Module_TENANT,
+		"QuotaAdminService": identityV1.Module_TENANT,
+		"QuotaLabService":   identityV1.Module_TENANT,
 		"PlanService":      identityV1.Module_TENANT,
 		"PlanQuotaService": identityV1.Module_TENANT,
 
@@ -75,7 +77,7 @@ func TestServiceTagToBusinessModuleReverseMapping(t *testing.T) {
 		identityV1.Module_DICT:             {"DictTypeService", "DictEntryService"},
 		identityV1.Module_SYSTEM:           {"MfaService", "LanguageService", "LoginPolicyService", "ConfigService", "AccessKeyService", "ServerMonitorService", "NotificationChannelService", "OnlineSessionService"},
 		identityV1.Module_TASK:             {"TaskService"},
-		identityV1.Module_TENANT:           {"TenantService", "PlanService", "PlanQuotaService", "PlanModuleService"},
+		identityV1.Module_TENANT:           {"TenantService", "PlanService", "PlanQuotaService", "PlanModuleService", "QuotaAdminService", "QuotaLabService"},
 		identityV1.Module_LOG:              {"ApiAuditLogService", "LoginAuditLogService", "OperationAuditLogService", "DataAccessAuditLogService", "PermissionAuditLogService", "PolicyEvaluationLogService", "RedisCacheMonitorService"},
 		identityV1.Module_INTERNAL_MESSAGE: {"InternalMessageService", "InternalMessageCategoryService", "InternalMessageRecipientService"},
 		identityV1.Module_NETWORK:          {"NetworkService"},

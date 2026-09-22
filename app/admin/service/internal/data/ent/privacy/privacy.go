@@ -879,6 +879,126 @@ func (f PositionMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutati
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.PositionMutation", m)
 }
 
+// The QuotaAccountQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type QuotaAccountQueryRuleFunc func(context.Context, *ent.QuotaAccountQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f QuotaAccountQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.QuotaAccountQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.QuotaAccountQuery", q)
+}
+
+// The QuotaAccountMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type QuotaAccountMutationRuleFunc func(context.Context, *ent.QuotaAccountMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f QuotaAccountMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.QuotaAccountMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.QuotaAccountMutation", m)
+}
+
+// The QuotaChargeQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type QuotaChargeQueryRuleFunc func(context.Context, *ent.QuotaChargeQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f QuotaChargeQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.QuotaChargeQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.QuotaChargeQuery", q)
+}
+
+// The QuotaChargeMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type QuotaChargeMutationRuleFunc func(context.Context, *ent.QuotaChargeMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f QuotaChargeMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.QuotaChargeMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.QuotaChargeMutation", m)
+}
+
+// The QuotaDefinitionQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type QuotaDefinitionQueryRuleFunc func(context.Context, *ent.QuotaDefinitionQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f QuotaDefinitionQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.QuotaDefinitionQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.QuotaDefinitionQuery", q)
+}
+
+// The QuotaDefinitionMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type QuotaDefinitionMutationRuleFunc func(context.Context, *ent.QuotaDefinitionMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f QuotaDefinitionMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.QuotaDefinitionMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.QuotaDefinitionMutation", m)
+}
+
+// The QuotaOperationQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type QuotaOperationQueryRuleFunc func(context.Context, *ent.QuotaOperationQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f QuotaOperationQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.QuotaOperationQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.QuotaOperationQuery", q)
+}
+
+// The QuotaOperationMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type QuotaOperationMutationRuleFunc func(context.Context, *ent.QuotaOperationMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f QuotaOperationMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.QuotaOperationMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.QuotaOperationMutation", m)
+}
+
+// The QuotaReleaseReceiptQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type QuotaReleaseReceiptQueryRuleFunc func(context.Context, *ent.QuotaReleaseReceiptQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f QuotaReleaseReceiptQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.QuotaReleaseReceiptQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.QuotaReleaseReceiptQuery", q)
+}
+
+// The QuotaReleaseReceiptMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type QuotaReleaseReceiptMutationRuleFunc func(context.Context, *ent.QuotaReleaseReceiptMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f QuotaReleaseReceiptMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.QuotaReleaseReceiptMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.QuotaReleaseReceiptMutation", m)
+}
+
 // The RoleQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type RoleQueryRuleFunc func(context.Context, *ent.RoleQuery) error
@@ -1314,6 +1434,16 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.PositionQuery:
 		return q.Filter(), nil
+	case *ent.QuotaAccountQuery:
+		return q.Filter(), nil
+	case *ent.QuotaChargeQuery:
+		return q.Filter(), nil
+	case *ent.QuotaDefinitionQuery:
+		return q.Filter(), nil
+	case *ent.QuotaOperationQuery:
+		return q.Filter(), nil
+	case *ent.QuotaReleaseReceiptQuery:
+		return q.Filter(), nil
 	case *ent.RoleQuery:
 		return q.Filter(), nil
 	case *ent.RoleFieldPermissionQuery:
@@ -1412,6 +1542,16 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.PolicyEvaluationLogMutation:
 		return m.Filter(), nil
 	case *ent.PositionMutation:
+		return m.Filter(), nil
+	case *ent.QuotaAccountMutation:
+		return m.Filter(), nil
+	case *ent.QuotaChargeMutation:
+		return m.Filter(), nil
+	case *ent.QuotaDefinitionMutation:
+		return m.Filter(), nil
+	case *ent.QuotaOperationMutation:
+		return m.Filter(), nil
+	case *ent.QuotaReleaseReceiptMutation:
 		return m.Filter(), nil
 	case *ent.RoleMutation:
 		return m.Filter(), nil

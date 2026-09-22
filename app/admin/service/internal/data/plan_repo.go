@@ -16,6 +16,9 @@ import (
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/plan"
+	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
+
+	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
@@ -279,6 +282,35 @@ func (r *PlanRepo) Delete(ctx context.Context, id uint32) error {
 	if id == 0 {
 		return identityV1.ErrorBadRequest("invalid parameter")
 	}
+
+	// 计划 §6.13：删除套餐必须保护绑定租户，不得级联删除租户账本。
+	// 先锁 plan 再检查绑定（锁顺序：plan 行 FOR UPDATE）。
+	sysCtx := appViewer.NewSystemViewerContext(ctx)
+	tx, err := r.entClient.Client().Tx(sysCtx)
+	if err != nil {
+		r.log.Errorf(ctx, "delete plan %d: start tx failed: %s", id, err.Error())
+		return identityV1.ErrorInternalServerError("start transaction failed")
+	}
+	defer func() { _ = tx.Rollback() }()
+	plq := tx.Plan.Query().Where(plan.IDEQ(id))
+	if supportsRowLock(r.entClient) {
+		plq = plq.ForUpdate()
+	}
+	if _, err = plq.Only(sysCtx); ent.IsNotFound(err) {
+		return identityV1.ErrorNotFound("plan not found")
+	} else if err != nil {
+		r.log.Errorf(ctx, "delete plan %d: lock plan failed: %s", id, err.Error())
+		return identityV1.ErrorInternalServerError("lock plan failed")
+	}
+	bound, err := tx.Tenant.Query().Where(tenant.PlanIDEQ(id)).Exist(sysCtx)
+	if err != nil {
+		r.log.Errorf(ctx, "delete plan %d: check bound tenants failed: %s", id, err.Error())
+		return identityV1.ErrorInternalServerError("check plan tenants failed")
+	}
+	if bound {
+		return identityV1.ErrorConflict("plan is bound to tenants")
+	}
+	_ = tx.Rollback() // 只读检查，删除仍走原路径
 
 	if err := r.entClient.Client().Plan.DeleteOneID(id).Exec(ctx); err != nil {
 		if ent.IsNotFound(err) {

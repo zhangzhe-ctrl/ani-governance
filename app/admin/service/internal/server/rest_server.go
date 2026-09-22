@@ -145,6 +145,7 @@ func NewRestServer(
 	tenantService *service.TenantService,
 	planService *service.PlanService,
 	planQuotaService *service.PlanQuotaService,
+	quotaAdminService *service.QuotaAdminService,
 	planModuleService *service.PlanModuleService,
 	userService *service.UserService,
 	userProfileService *service.UserProfileService,
@@ -177,6 +178,8 @@ func NewRestServer(
 	accessKeyService *service.AccessKeyService,
 	configService *service.ConfigService,
 	networkService *service.NetworkService,
+	// extraRouteRegistrar 仅 lab 构建传入（实验路由注册钩子）；正式构建为 nil。
+	extraRouteRegistrar func(*http.Server),
 ) (*http.Server, error) {
 	cfg := ctx.GetConfig()
 
@@ -227,6 +230,7 @@ func NewRestServer(
 	adminV1.RegisterPlanServiceHTTPServer(srv, planService)
 	adminV1.RegisterPlanQuotaServiceHTTPServer(srv, planQuotaService)
 	adminV1.RegisterPlanModuleServiceHTTPServer(srv, planModuleService)
+	adminV1.RegisterQuotaAdminServiceHTTPServer(srv, quotaAdminService)
 
 	adminV1.RegisterLoginAuditLogServiceHTTPServer(srv, loginAuditLogService)
 	adminV1.RegisterApiAuditLogServiceHTTPServer(srv, apiAuditLogService)
@@ -253,6 +257,11 @@ func NewRestServer(
 			swaggerUI.WithTitle("GoWind Admin"),
 			swaggerUI.WithMemoryData(assets.OpenApiData, "yaml"),
 		)
+	}
+
+	// 仅 lab 构建注册实验路由；正式构建 registrar 为 nil（BOUND-01）。
+	if extraRouteRegistrar != nil {
+		extraRouteRegistrar(srv)
 	}
 
 	if authorizer != nil {

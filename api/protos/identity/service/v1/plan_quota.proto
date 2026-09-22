@@ -58,13 +58,21 @@ message PlanQuota {
 
   optional QuotaType quota_type = 3 [
     json_name = "quotaType",
-    (gnostic.openapi.v3.property) = {description: "配额类型"}
-  ]; // 配额类型
+    deprecated = true,
+    (gnostic.openapi.v3.property) = {description: "配额类型（deprecated：仅兼容旧三项 USER_LIMIT/STORAGE/API_CALL，新业务使用 quota_code）"}
+  ]; // 配额类型（deprecated：旧枚举，仅供旧客户端兼容读取）
 
   optional uint64 quota_value = 4 [
     json_name = "quotaValue",
     (gnostic.openapi.v3.property) = {description: "配额值"}
   ]; // 配额值
+
+  // 稳定配额编码（如 user.count/storage.bytes/api.calls/gpu.count），
+  // 是权威业务字段；quota_type 仅作为旧三项的兼容投影保留。
+  optional string quota_code = 5 [
+    json_name = "quotaCode",
+    (gnostic.openapi.v3.property) = {description: "配额编码"}
+  ]; // 配额编码
 
   optional uint32 created_by = 100 [json_name = "createdBy", (gnostic.openapi.v3.property) = {description: "创建者用户ID"}]; // 创建者用户ID
   optional uint32 updated_by = 101 [json_name = "updatedBy", (gnostic.openapi.v3.property) = {description: "更新者用户ID"}]; // 更新者用户ID

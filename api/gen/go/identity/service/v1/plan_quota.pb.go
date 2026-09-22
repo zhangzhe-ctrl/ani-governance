@@ -81,17 +81,21 @@ func (PlanQuota_QuotaType) EnumDescriptor() ([]byte, []int) {
 
 // 套餐配额
 type PlanQuota struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            *uint32                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`                                                                             // 配额项ID
-	PlanId        *uint32                `protobuf:"varint,2,opt,name=plan_id,json=planId,proto3,oneof" json:"plan_id,omitempty"`                                                       // 所属套餐ID
-	QuotaType     *PlanQuota_QuotaType   `protobuf:"varint,3,opt,name=quota_type,json=quotaType,proto3,enum=identity.service.v1.PlanQuota_QuotaType,oneof" json:"quota_type,omitempty"` // 配额类型
-	QuotaValue    *uint64                `protobuf:"varint,4,opt,name=quota_value,json=quotaValue,proto3,oneof" json:"quota_value,omitempty"`                                           // 配额值
-	CreatedBy     *uint32                `protobuf:"varint,100,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`                                            // 创建者用户ID
-	UpdatedBy     *uint32                `protobuf:"varint,101,opt,name=updated_by,json=updatedBy,proto3,oneof" json:"updated_by,omitempty"`                                            // 更新者用户ID
-	DeletedBy     *uint32                `protobuf:"varint,102,opt,name=deleted_by,json=deletedBy,proto3,oneof" json:"deleted_by,omitempty"`                                            // 删除者用户ID
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`                                             // 创建时间
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`                                             // 更新时间
-	DeletedAt     *timestamppb.Timestamp `protobuf:"bytes,202,opt,name=deleted_at,json=deletedAt,proto3,oneof" json:"deleted_at,omitempty"`                                             // 删除时间
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Id     *uint32                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`                       // 配额项ID
+	PlanId *uint32                `protobuf:"varint,2,opt,name=plan_id,json=planId,proto3,oneof" json:"plan_id,omitempty"` // 所属套餐ID
+	// Deprecated: Marked as deprecated in identity/service/v1/plan_quota.proto.
+	QuotaType  *PlanQuota_QuotaType `protobuf:"varint,3,opt,name=quota_type,json=quotaType,proto3,enum=identity.service.v1.PlanQuota_QuotaType,oneof" json:"quota_type,omitempty"` // 配额类型（deprecated：旧枚举，仅供旧客户端兼容读取）
+	QuotaValue *uint64              `protobuf:"varint,4,opt,name=quota_value,json=quotaValue,proto3,oneof" json:"quota_value,omitempty"`                                           // 配额值
+	// 稳定配额编码（如 user.count/storage.bytes/api.calls/gpu.count），
+	// 是权威业务字段；quota_type 仅作为旧三项的兼容投影保留。
+	QuotaCode     *string                `protobuf:"bytes,5,opt,name=quota_code,json=quotaCode,proto3,oneof" json:"quota_code,omitempty"`    // 配额编码
+	CreatedBy     *uint32                `protobuf:"varint,100,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"` // 创建者用户ID
+	UpdatedBy     *uint32                `protobuf:"varint,101,opt,name=updated_by,json=updatedBy,proto3,oneof" json:"updated_by,omitempty"` // 更新者用户ID
+	DeletedBy     *uint32                `protobuf:"varint,102,opt,name=deleted_by,json=deletedBy,proto3,oneof" json:"deleted_by,omitempty"` // 删除者用户ID
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`  // 创建时间
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`  // 更新时间
+	DeletedAt     *timestamppb.Timestamp `protobuf:"bytes,202,opt,name=deleted_at,json=deletedAt,proto3,oneof" json:"deleted_at,omitempty"`  // 删除时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -140,6 +144,7 @@ func (x *PlanQuota) GetPlanId() uint32 {
 	return 0
 }
 
+// Deprecated: Marked as deprecated in identity/service/v1/plan_quota.proto.
 func (x *PlanQuota) GetQuotaType() PlanQuota_QuotaType {
 	if x != nil && x.QuotaType != nil {
 		return *x.QuotaType
@@ -152,6 +157,13 @@ func (x *PlanQuota) GetQuotaValue() uint64 {
 		return *x.QuotaValue
 	}
 	return 0
+}
+
+func (x *PlanQuota) GetQuotaCode() string {
+	if x != nil && x.QuotaCode != nil {
+		return *x.QuotaCode
+	}
+	return ""
 }
 
 func (x *PlanQuota) GetCreatedBy() uint32 {
@@ -553,26 +565,29 @@ var File_identity_service_v1_plan_quota_proto protoreflect.FileDescriptor
 
 const file_identity_service_v1_plan_quota_proto_rawDesc = "" +
 	"\n" +
-	"$identity/service/v1/plan_quota.proto\x12\x13identity.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1epagination/v1/pagination.proto\"\x9b\a\n" +
+	"$identity/service/v1/plan_quota.proto\x12\x13identity.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1epagination/v1/pagination.proto\"\xc3\b\n" +
 	"\tPlanQuota\x12&\n" +
 	"\x02id\x18\x01 \x01(\rB\x11\xbaG\x0e\x92\x02\v配额项IDH\x00R\x02id\x88\x01\x01\x122\n" +
-	"\aplan_id\x18\x02 \x01(\rB\x14\xbaG\x11\x92\x02\x0e所属套餐IDH\x01R\x06planId\x88\x01\x01\x12`\n" +
+	"\aplan_id\x18\x02 \x01(\rB\x14\xbaG\x11\x92\x02\x0e所属套餐IDH\x01R\x06planId\x88\x01\x01\x12\xc0\x01\n" +
 	"\n" +
-	"quota_type\x18\x03 \x01(\x0e2(.identity.service.v1.PlanQuota.QuotaTypeB\x12\xbaG\x0f\x92\x02\f配额类型H\x02R\tquotaType\x88\x01\x01\x125\n" +
+	"quota_type\x18\x03 \x01(\x0e2(.identity.service.v1.PlanQuota.QuotaTypeBr\xbaGm\x92\x02j配额类型（deprecated：仅兼容旧三项 USER_LIMIT/STORAGE/API_CALL，新业务使用 quota_code）\x18\x01H\x02R\tquotaType\x88\x01\x01\x125\n" +
 	"\vquota_value\x18\x04 \x01(\x04B\x0f\xbaG\f\x92\x02\t配额值H\x03R\n" +
-	"quotaValue\x88\x01\x01\x12;\n" +
+	"quotaValue\x88\x01\x01\x126\n" +
 	"\n" +
-	"created_by\x18d \x01(\rB\x17\xbaG\x14\x92\x02\x11创建者用户IDH\x04R\tcreatedBy\x88\x01\x01\x12;\n" +
+	"quota_code\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f配额编码H\x04R\tquotaCode\x88\x01\x01\x12;\n" +
 	"\n" +
-	"updated_by\x18e \x01(\rB\x17\xbaG\x14\x92\x02\x11更新者用户IDH\x05R\tupdatedBy\x88\x01\x01\x12;\n" +
+	"created_by\x18d \x01(\rB\x17\xbaG\x14\x92\x02\x11创建者用户IDH\x05R\tcreatedBy\x88\x01\x01\x12;\n" +
 	"\n" +
-	"deleted_by\x18f \x01(\rB\x17\xbaG\x14\x92\x02\x11删除者用户IDH\x06R\tdeletedBy\x88\x01\x01\x12S\n" +
+	"updated_by\x18e \x01(\rB\x17\xbaG\x14\x92\x02\x11更新者用户IDH\x06R\tupdatedBy\x88\x01\x01\x12;\n" +
 	"\n" +
-	"created_at\x18\xc8\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f创建时间H\aR\tcreatedAt\x88\x01\x01\x12S\n" +
+	"deleted_by\x18f \x01(\rB\x17\xbaG\x14\x92\x02\x11删除者用户IDH\aR\tdeletedBy\x88\x01\x01\x12S\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间H\bR\tupdatedAt\x88\x01\x01\x12S\n" +
+	"created_at\x18\xc8\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f创建时间H\bR\tcreatedAt\x88\x01\x01\x12S\n" +
 	"\n" +
-	"deleted_at\x18\xca\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f删除时间H\tR\tdeletedAt\x88\x01\x01\"W\n" +
+	"updated_at\x18\xc9\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间H\tR\tupdatedAt\x88\x01\x01\x12S\n" +
+	"\n" +
+	"deleted_at\x18\xca\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f删除时间H\n" +
+	"R\tdeletedAt\x88\x01\x01\"W\n" +
 	"\tQuotaType\x12\x1f\n" +
 	"\x1bPLAN_QUOTA_TYPE_UNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +
@@ -584,6 +599,7 @@ const file_identity_service_v1_plan_quota_proto_rawDesc = "" +
 	"\b_plan_idB\r\n" +
 	"\v_quota_typeB\x0e\n" +
 	"\f_quota_valueB\r\n" +
+	"\v_quota_codeB\r\n" +
 	"\v_created_byB\r\n" +
 	"\v_updated_byB\r\n" +
 	"\v_deleted_byB\r\n" +

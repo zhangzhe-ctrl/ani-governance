@@ -36,6 +36,11 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/policyevaluationlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/position"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotaaccount"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotacharge"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotadefinition"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotaoperation"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotareleasereceipt"
 	"go-wind-admin/app/admin/service/internal/data/ent/role"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolefieldpermission"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolemetadata"
@@ -59,7 +64,7 @@ import (
 
 // schemaGraph holds a representation of ent/schema at runtime.
 var schemaGraph = func() *sqlgraph.Schema {
-	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 46)}
+	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 51)}
 	graph.Nodes[0] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   accesskey.Table,
@@ -891,6 +896,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			planquota.FieldCreatedBy:  {Type: field.TypeUint32, Column: planquota.FieldCreatedBy},
 			planquota.FieldUpdatedBy:  {Type: field.TypeUint32, Column: planquota.FieldUpdatedBy},
 			planquota.FieldDeletedBy:  {Type: field.TypeUint32, Column: planquota.FieldDeletedBy},
+			planquota.FieldQuotaCode:  {Type: field.TypeString, Column: planquota.FieldQuotaCode},
 			planquota.FieldQuotaType:  {Type: field.TypeEnum, Column: planquota.FieldQuotaType},
 			planquota.FieldQuotaValue: {Type: field.TypeUint64, Column: planquota.FieldQuotaValue},
 		},
@@ -962,6 +968,123 @@ var schemaGraph = func() *sqlgraph.Schema {
 	}
 	graph.Nodes[32] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
+			Table:   quotaaccount.Table,
+			Columns: quotaaccount.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUint32,
+				Column: quotaaccount.FieldID,
+			},
+		},
+		Type: "QuotaAccount",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			quotaaccount.FieldCreatedAt:     {Type: field.TypeTime, Column: quotaaccount.FieldCreatedAt},
+			quotaaccount.FieldUpdatedAt:     {Type: field.TypeTime, Column: quotaaccount.FieldUpdatedAt},
+			quotaaccount.FieldDeletedAt:     {Type: field.TypeTime, Column: quotaaccount.FieldDeletedAt},
+			quotaaccount.FieldTenantID:      {Type: field.TypeUint32, Column: quotaaccount.FieldTenantID},
+			quotaaccount.FieldQuotaCode:     {Type: field.TypeString, Column: quotaaccount.FieldQuotaCode},
+			quotaaccount.FieldOccupiedUnits: {Type: field.TypeInt64, Column: quotaaccount.FieldOccupiedUnits},
+			quotaaccount.FieldVersion:       {Type: field.TypeInt64, Column: quotaaccount.FieldVersion},
+		},
+	}
+	graph.Nodes[33] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   quotacharge.Table,
+			Columns: quotacharge.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUint32,
+				Column: quotacharge.FieldID,
+			},
+		},
+		Type: "QuotaCharge",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			quotacharge.FieldCreatedAt:     {Type: field.TypeTime, Column: quotacharge.FieldCreatedAt},
+			quotacharge.FieldUpdatedAt:     {Type: field.TypeTime, Column: quotacharge.FieldUpdatedAt},
+			quotacharge.FieldDeletedAt:     {Type: field.TypeTime, Column: quotacharge.FieldDeletedAt},
+			quotacharge.FieldTenantID:      {Type: field.TypeUint32, Column: quotacharge.FieldTenantID},
+			quotacharge.FieldChargeID:      {Type: field.TypeString, Column: quotacharge.FieldChargeID},
+			quotacharge.FieldOperationID:   {Type: field.TypeString, Column: quotacharge.FieldOperationID},
+			quotacharge.FieldQuotaCode:     {Type: field.TypeString, Column: quotacharge.FieldQuotaCode},
+			quotacharge.FieldOriginalUnits: {Type: field.TypeInt64, Column: quotacharge.FieldOriginalUnits},
+			quotacharge.FieldReleasedUnits: {Type: field.TypeInt64, Column: quotacharge.FieldReleasedUnits},
+		},
+	}
+	graph.Nodes[34] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   quotadefinition.Table,
+			Columns: quotadefinition.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUint32,
+				Column: quotadefinition.FieldID,
+			},
+		},
+		Type: "QuotaDefinition",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			quotadefinition.FieldCreatedAt:      {Type: field.TypeTime, Column: quotadefinition.FieldCreatedAt},
+			quotadefinition.FieldCode:           {Type: field.TypeString, Column: quotadefinition.FieldCode},
+			quotadefinition.FieldDisplayName:    {Type: field.TypeString, Column: quotadefinition.FieldDisplayName},
+			quotadefinition.FieldUnit:           {Type: field.TypeString, Column: quotadefinition.FieldUnit},
+			quotadefinition.FieldAccountingKind: {Type: field.TypeEnum, Column: quotadefinition.FieldAccountingKind},
+		},
+	}
+	graph.Nodes[35] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   quotaoperation.Table,
+			Columns: quotaoperation.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUint32,
+				Column: quotaoperation.FieldID,
+			},
+		},
+		Type: "QuotaOperation",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			quotaoperation.FieldCreatedAt:         {Type: field.TypeTime, Column: quotaoperation.FieldCreatedAt},
+			quotaoperation.FieldUpdatedAt:         {Type: field.TypeTime, Column: quotaoperation.FieldUpdatedAt},
+			quotaoperation.FieldDeletedAt:         {Type: field.TypeTime, Column: quotaoperation.FieldDeletedAt},
+			quotaoperation.FieldTenantID:          {Type: field.TypeUint32, Column: quotaoperation.FieldTenantID},
+			quotaoperation.FieldOperationID:       {Type: field.TypeString, Column: quotaoperation.FieldOperationID},
+			quotaoperation.FieldResourceTenantID:  {Type: field.TypeString, Column: quotaoperation.FieldResourceTenantID},
+			quotaoperation.FieldResourceID:        {Type: field.TypeString, Column: quotaoperation.FieldResourceID},
+			quotaoperation.FieldCreateOperationID: {Type: field.TypeString, Column: quotaoperation.FieldCreateOperationID},
+			quotaoperation.FieldActorType:         {Type: field.TypeString, Column: quotaoperation.FieldActorType},
+			quotaoperation.FieldActorID:           {Type: field.TypeString, Column: quotaoperation.FieldActorID},
+			quotaoperation.FieldOwnerService:      {Type: field.TypeString, Column: quotaoperation.FieldOwnerService},
+			quotaoperation.FieldAction:            {Type: field.TypeString, Column: quotaoperation.FieldAction},
+			quotaoperation.FieldIdempotencyKey:    {Type: field.TypeString, Column: quotaoperation.FieldIdempotencyKey},
+			quotaoperation.FieldRequestHash:       {Type: field.TypeString, Column: quotaoperation.FieldRequestHash},
+			quotaoperation.FieldCanonicalRequest:  {Type: field.TypeString, Column: quotaoperation.FieldCanonicalRequest},
+			quotaoperation.FieldDispatchState:     {Type: field.TypeEnum, Column: quotaoperation.FieldDispatchState},
+			quotaoperation.FieldAttemptCount:      {Type: field.TypeInt, Column: quotaoperation.FieldAttemptCount},
+			quotaoperation.FieldLeaseGeneration:   {Type: field.TypeInt64, Column: quotaoperation.FieldLeaseGeneration},
+			quotaoperation.FieldRetryBlocked:      {Type: field.TypeBool, Column: quotaoperation.FieldRetryBlocked},
+			quotaoperation.FieldLastErrorCode:     {Type: field.TypeString, Column: quotaoperation.FieldLastErrorCode},
+			quotaoperation.FieldNextAttemptAt:     {Type: field.TypeTime, Column: quotaoperation.FieldNextAttemptAt},
+			quotaoperation.FieldLeaseOwner:        {Type: field.TypeString, Column: quotaoperation.FieldLeaseOwner},
+			quotaoperation.FieldLeaseUntil:        {Type: field.TypeTime, Column: quotaoperation.FieldLeaseUntil},
+			quotaoperation.FieldAckJSON:           {Type: field.TypeString, Column: quotaoperation.FieldAckJSON},
+		},
+	}
+	graph.Nodes[36] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   quotareleasereceipt.Table,
+			Columns: quotareleasereceipt.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUint32,
+				Column: quotareleasereceipt.FieldID,
+			},
+		},
+		Type: "QuotaReleaseReceipt",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			quotareleasereceipt.FieldCreatedAt:      {Type: field.TypeTime, Column: quotareleasereceipt.FieldCreatedAt},
+			quotareleasereceipt.FieldTenantID:       {Type: field.TypeUint32, Column: quotareleasereceipt.FieldTenantID},
+			quotareleasereceipt.FieldReceiptID:      {Type: field.TypeString, Column: quotareleasereceipt.FieldReceiptID},
+			quotareleasereceipt.FieldOwnerService:   {Type: field.TypeString, Column: quotareleasereceipt.FieldOwnerService},
+			quotareleasereceipt.FieldReleaseEventID: {Type: field.TypeString, Column: quotareleasereceipt.FieldReleaseEventID},
+			quotareleasereceipt.FieldPayloadHash:    {Type: field.TypeString, Column: quotareleasereceipt.FieldPayloadHash},
+			quotareleasereceipt.FieldPayloadJSON:    {Type: field.TypeString, Column: quotareleasereceipt.FieldPayloadJSON},
+		},
+	}
+	graph.Nodes[37] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
 			Table:   role.Table,
 			Columns: role.Columns,
 			ID: &sqlgraph.FieldSpec{
@@ -989,7 +1112,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			role.FieldDataScope:   {Type: field.TypeEnum, Column: role.FieldDataScope},
 		},
 	}
-	graph.Nodes[33] = &sqlgraph.Node{
+	graph.Nodes[38] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   rolefieldpermission.Table,
 			Columns: rolefieldpermission.Columns,
@@ -1012,7 +1135,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			rolefieldpermission.FieldFieldName: {Type: field.TypeString, Column: rolefieldpermission.FieldFieldName},
 		},
 	}
-	graph.Nodes[34] = &sqlgraph.Node{
+	graph.Nodes[39] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   rolemetadata.Table,
 			Columns: rolemetadata.Columns,
@@ -1041,7 +1164,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			rolemetadata.FieldCustomOverrides:   {Type: field.TypeJSON, Column: rolemetadata.FieldCustomOverrides},
 		},
 	}
-	graph.Nodes[35] = &sqlgraph.Node{
+	graph.Nodes[40] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   roleorgunit.Table,
 			Columns: roleorgunit.Columns,
@@ -1063,7 +1186,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			roleorgunit.FieldOrgUnitID: {Type: field.TypeUint32, Column: roleorgunit.FieldOrgUnitID},
 		},
 	}
-	graph.Nodes[36] = &sqlgraph.Node{
+	graph.Nodes[41] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   rolepermission.Table,
 			Columns: rolepermission.Columns,
@@ -1088,7 +1211,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			rolepermission.FieldPriority:     {Type: field.TypeInt32, Column: rolepermission.FieldPriority},
 		},
 	}
-	graph.Nodes[37] = &sqlgraph.Node{
+	graph.Nodes[42] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   sysconfig.Table,
 			Columns: sysconfig.Columns,
@@ -1112,7 +1235,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			sysconfig.FieldIsBuiltIn: {Type: field.TypeBool, Column: sysconfig.FieldIsBuiltIn},
 		},
 	}
-	graph.Nodes[38] = &sqlgraph.Node{
+	graph.Nodes[43] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   task.Table,
 			Columns: task.Columns,
@@ -1139,7 +1262,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			task.FieldEnable:      {Type: field.TypeBool, Column: task.FieldEnable},
 		},
 	}
-	graph.Nodes[39] = &sqlgraph.Node{
+	graph.Nodes[44] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   tenant.Table,
 			Columns: tenant.Columns,
@@ -1174,7 +1297,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			tenant.FieldExpiredAt:        {Type: field.TypeTime, Column: tenant.FieldExpiredAt},
 		},
 	}
-	graph.Nodes[40] = &sqlgraph.Node{
+	graph.Nodes[45] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   user.Table,
 			Columns: user.Columns,
@@ -1209,7 +1332,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			user.FieldStatus:      {Type: field.TypeEnum, Column: user.FieldStatus},
 		},
 	}
-	graph.Nodes[41] = &sqlgraph.Node{
+	graph.Nodes[46] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   usercredential.Table,
 			Columns: usercredential.Columns,
@@ -1242,7 +1365,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			usercredential.FieldResetTokenUsedAt:       {Type: field.TypeTime, Column: usercredential.FieldResetTokenUsedAt},
 		},
 	}
-	graph.Nodes[42] = &sqlgraph.Node{
+	graph.Nodes[47] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   usermfafactor.Table,
 			Columns: usermfafactor.Columns,
@@ -1265,7 +1388,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			usermfafactor.FieldLastUsedAt:  {Type: field.TypeTime, Column: usermfafactor.FieldLastUsedAt},
 		},
 	}
-	graph.Nodes[43] = &sqlgraph.Node{
+	graph.Nodes[48] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   userorgunit.Table,
 			Columns: userorgunit.Columns,
@@ -1295,7 +1418,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			userorgunit.FieldStatus:     {Type: field.TypeEnum, Column: userorgunit.FieldStatus},
 		},
 	}
-	graph.Nodes[44] = &sqlgraph.Node{
+	graph.Nodes[49] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   userposition.Table,
 			Columns: userposition.Columns,
@@ -1324,7 +1447,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			userposition.FieldStatus:     {Type: field.TypeEnum, Column: userposition.FieldStatus},
 		},
 	}
-	graph.Nodes[45] = &sqlgraph.Node{
+	graph.Nodes[50] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   userrole.Table,
 			Columns: userrole.Columns,
@@ -5164,6 +5287,11 @@ func (f *PlanQuotaFilter) WhereDeletedBy(p entql.Uint32P) {
 	f.Where(p.Field(planquota.FieldDeletedBy))
 }
 
+// WhereQuotaCode applies the entql string predicate on the quota_code field.
+func (f *PlanQuotaFilter) WhereQuotaCode(p entql.StringP) {
+	f.Where(p.Field(planquota.FieldQuotaCode))
+}
+
 // WhereQuotaType applies the entql string predicate on the quota_type field.
 func (f *PlanQuotaFilter) WhereQuotaType(p entql.StringP) {
 	f.Where(p.Field(planquota.FieldQuotaType))
@@ -5464,6 +5592,466 @@ func (f *PositionFilter) WhereEndAt(p entql.TimeP) {
 }
 
 // addPredicate implements the predicateAdder interface.
+func (_q *QuotaAccountQuery) addPredicate(pred func(s *sql.Selector)) {
+	_q.predicates = append(_q.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the QuotaAccountQuery builder.
+func (_q *QuotaAccountQuery) Filter() *QuotaAccountFilter {
+	return &QuotaAccountFilter{config: _q.config, predicateAdder: _q}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *QuotaAccountMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the QuotaAccountMutation builder.
+func (m *QuotaAccountMutation) Filter() *QuotaAccountFilter {
+	return &QuotaAccountFilter{config: m.config, predicateAdder: m}
+}
+
+// QuotaAccountFilter provides a generic filtering capability at runtime for QuotaAccountQuery.
+type QuotaAccountFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *QuotaAccountFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[32].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *QuotaAccountFilter) WhereID(p entql.Uint32P) {
+	f.Where(p.Field(quotaaccount.FieldID))
+}
+
+// WhereCreatedAt applies the entql time.Time predicate on the created_at field.
+func (f *QuotaAccountFilter) WhereCreatedAt(p entql.TimeP) {
+	f.Where(p.Field(quotaaccount.FieldCreatedAt))
+}
+
+// WhereUpdatedAt applies the entql time.Time predicate on the updated_at field.
+func (f *QuotaAccountFilter) WhereUpdatedAt(p entql.TimeP) {
+	f.Where(p.Field(quotaaccount.FieldUpdatedAt))
+}
+
+// WhereDeletedAt applies the entql time.Time predicate on the deleted_at field.
+func (f *QuotaAccountFilter) WhereDeletedAt(p entql.TimeP) {
+	f.Where(p.Field(quotaaccount.FieldDeletedAt))
+}
+
+// WhereTenantID applies the entql uint32 predicate on the tenant_id field.
+func (f *QuotaAccountFilter) WhereTenantID(p entql.Uint32P) {
+	f.Where(p.Field(quotaaccount.FieldTenantID))
+}
+
+// WhereQuotaCode applies the entql string predicate on the quota_code field.
+func (f *QuotaAccountFilter) WhereQuotaCode(p entql.StringP) {
+	f.Where(p.Field(quotaaccount.FieldQuotaCode))
+}
+
+// WhereOccupiedUnits applies the entql int64 predicate on the occupied_units field.
+func (f *QuotaAccountFilter) WhereOccupiedUnits(p entql.Int64P) {
+	f.Where(p.Field(quotaaccount.FieldOccupiedUnits))
+}
+
+// WhereVersion applies the entql int64 predicate on the version field.
+func (f *QuotaAccountFilter) WhereVersion(p entql.Int64P) {
+	f.Where(p.Field(quotaaccount.FieldVersion))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (_q *QuotaChargeQuery) addPredicate(pred func(s *sql.Selector)) {
+	_q.predicates = append(_q.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the QuotaChargeQuery builder.
+func (_q *QuotaChargeQuery) Filter() *QuotaChargeFilter {
+	return &QuotaChargeFilter{config: _q.config, predicateAdder: _q}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *QuotaChargeMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the QuotaChargeMutation builder.
+func (m *QuotaChargeMutation) Filter() *QuotaChargeFilter {
+	return &QuotaChargeFilter{config: m.config, predicateAdder: m}
+}
+
+// QuotaChargeFilter provides a generic filtering capability at runtime for QuotaChargeQuery.
+type QuotaChargeFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *QuotaChargeFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[33].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *QuotaChargeFilter) WhereID(p entql.Uint32P) {
+	f.Where(p.Field(quotacharge.FieldID))
+}
+
+// WhereCreatedAt applies the entql time.Time predicate on the created_at field.
+func (f *QuotaChargeFilter) WhereCreatedAt(p entql.TimeP) {
+	f.Where(p.Field(quotacharge.FieldCreatedAt))
+}
+
+// WhereUpdatedAt applies the entql time.Time predicate on the updated_at field.
+func (f *QuotaChargeFilter) WhereUpdatedAt(p entql.TimeP) {
+	f.Where(p.Field(quotacharge.FieldUpdatedAt))
+}
+
+// WhereDeletedAt applies the entql time.Time predicate on the deleted_at field.
+func (f *QuotaChargeFilter) WhereDeletedAt(p entql.TimeP) {
+	f.Where(p.Field(quotacharge.FieldDeletedAt))
+}
+
+// WhereTenantID applies the entql uint32 predicate on the tenant_id field.
+func (f *QuotaChargeFilter) WhereTenantID(p entql.Uint32P) {
+	f.Where(p.Field(quotacharge.FieldTenantID))
+}
+
+// WhereChargeID applies the entql string predicate on the charge_id field.
+func (f *QuotaChargeFilter) WhereChargeID(p entql.StringP) {
+	f.Where(p.Field(quotacharge.FieldChargeID))
+}
+
+// WhereOperationID applies the entql string predicate on the operation_id field.
+func (f *QuotaChargeFilter) WhereOperationID(p entql.StringP) {
+	f.Where(p.Field(quotacharge.FieldOperationID))
+}
+
+// WhereQuotaCode applies the entql string predicate on the quota_code field.
+func (f *QuotaChargeFilter) WhereQuotaCode(p entql.StringP) {
+	f.Where(p.Field(quotacharge.FieldQuotaCode))
+}
+
+// WhereOriginalUnits applies the entql int64 predicate on the original_units field.
+func (f *QuotaChargeFilter) WhereOriginalUnits(p entql.Int64P) {
+	f.Where(p.Field(quotacharge.FieldOriginalUnits))
+}
+
+// WhereReleasedUnits applies the entql int64 predicate on the released_units field.
+func (f *QuotaChargeFilter) WhereReleasedUnits(p entql.Int64P) {
+	f.Where(p.Field(quotacharge.FieldReleasedUnits))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (_q *QuotaDefinitionQuery) addPredicate(pred func(s *sql.Selector)) {
+	_q.predicates = append(_q.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the QuotaDefinitionQuery builder.
+func (_q *QuotaDefinitionQuery) Filter() *QuotaDefinitionFilter {
+	return &QuotaDefinitionFilter{config: _q.config, predicateAdder: _q}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *QuotaDefinitionMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the QuotaDefinitionMutation builder.
+func (m *QuotaDefinitionMutation) Filter() *QuotaDefinitionFilter {
+	return &QuotaDefinitionFilter{config: m.config, predicateAdder: m}
+}
+
+// QuotaDefinitionFilter provides a generic filtering capability at runtime for QuotaDefinitionQuery.
+type QuotaDefinitionFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *QuotaDefinitionFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[34].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *QuotaDefinitionFilter) WhereID(p entql.Uint32P) {
+	f.Where(p.Field(quotadefinition.FieldID))
+}
+
+// WhereCreatedAt applies the entql time.Time predicate on the created_at field.
+func (f *QuotaDefinitionFilter) WhereCreatedAt(p entql.TimeP) {
+	f.Where(p.Field(quotadefinition.FieldCreatedAt))
+}
+
+// WhereCode applies the entql string predicate on the code field.
+func (f *QuotaDefinitionFilter) WhereCode(p entql.StringP) {
+	f.Where(p.Field(quotadefinition.FieldCode))
+}
+
+// WhereDisplayName applies the entql string predicate on the display_name field.
+func (f *QuotaDefinitionFilter) WhereDisplayName(p entql.StringP) {
+	f.Where(p.Field(quotadefinition.FieldDisplayName))
+}
+
+// WhereUnit applies the entql string predicate on the unit field.
+func (f *QuotaDefinitionFilter) WhereUnit(p entql.StringP) {
+	f.Where(p.Field(quotadefinition.FieldUnit))
+}
+
+// WhereAccountingKind applies the entql string predicate on the accounting_kind field.
+func (f *QuotaDefinitionFilter) WhereAccountingKind(p entql.StringP) {
+	f.Where(p.Field(quotadefinition.FieldAccountingKind))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (_q *QuotaOperationQuery) addPredicate(pred func(s *sql.Selector)) {
+	_q.predicates = append(_q.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the QuotaOperationQuery builder.
+func (_q *QuotaOperationQuery) Filter() *QuotaOperationFilter {
+	return &QuotaOperationFilter{config: _q.config, predicateAdder: _q}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *QuotaOperationMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the QuotaOperationMutation builder.
+func (m *QuotaOperationMutation) Filter() *QuotaOperationFilter {
+	return &QuotaOperationFilter{config: m.config, predicateAdder: m}
+}
+
+// QuotaOperationFilter provides a generic filtering capability at runtime for QuotaOperationQuery.
+type QuotaOperationFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *QuotaOperationFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[35].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *QuotaOperationFilter) WhereID(p entql.Uint32P) {
+	f.Where(p.Field(quotaoperation.FieldID))
+}
+
+// WhereCreatedAt applies the entql time.Time predicate on the created_at field.
+func (f *QuotaOperationFilter) WhereCreatedAt(p entql.TimeP) {
+	f.Where(p.Field(quotaoperation.FieldCreatedAt))
+}
+
+// WhereUpdatedAt applies the entql time.Time predicate on the updated_at field.
+func (f *QuotaOperationFilter) WhereUpdatedAt(p entql.TimeP) {
+	f.Where(p.Field(quotaoperation.FieldUpdatedAt))
+}
+
+// WhereDeletedAt applies the entql time.Time predicate on the deleted_at field.
+func (f *QuotaOperationFilter) WhereDeletedAt(p entql.TimeP) {
+	f.Where(p.Field(quotaoperation.FieldDeletedAt))
+}
+
+// WhereTenantID applies the entql uint32 predicate on the tenant_id field.
+func (f *QuotaOperationFilter) WhereTenantID(p entql.Uint32P) {
+	f.Where(p.Field(quotaoperation.FieldTenantID))
+}
+
+// WhereOperationID applies the entql string predicate on the operation_id field.
+func (f *QuotaOperationFilter) WhereOperationID(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldOperationID))
+}
+
+// WhereResourceTenantID applies the entql string predicate on the resource_tenant_id field.
+func (f *QuotaOperationFilter) WhereResourceTenantID(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldResourceTenantID))
+}
+
+// WhereResourceID applies the entql string predicate on the resource_id field.
+func (f *QuotaOperationFilter) WhereResourceID(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldResourceID))
+}
+
+// WhereCreateOperationID applies the entql string predicate on the create_operation_id field.
+func (f *QuotaOperationFilter) WhereCreateOperationID(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldCreateOperationID))
+}
+
+// WhereActorType applies the entql string predicate on the actor_type field.
+func (f *QuotaOperationFilter) WhereActorType(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldActorType))
+}
+
+// WhereActorID applies the entql string predicate on the actor_id field.
+func (f *QuotaOperationFilter) WhereActorID(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldActorID))
+}
+
+// WhereOwnerService applies the entql string predicate on the owner_service field.
+func (f *QuotaOperationFilter) WhereOwnerService(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldOwnerService))
+}
+
+// WhereAction applies the entql string predicate on the action field.
+func (f *QuotaOperationFilter) WhereAction(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldAction))
+}
+
+// WhereIdempotencyKey applies the entql string predicate on the idempotency_key field.
+func (f *QuotaOperationFilter) WhereIdempotencyKey(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldIdempotencyKey))
+}
+
+// WhereRequestHash applies the entql string predicate on the request_hash field.
+func (f *QuotaOperationFilter) WhereRequestHash(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldRequestHash))
+}
+
+// WhereCanonicalRequest applies the entql string predicate on the canonical_request field.
+func (f *QuotaOperationFilter) WhereCanonicalRequest(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldCanonicalRequest))
+}
+
+// WhereDispatchState applies the entql string predicate on the dispatch_state field.
+func (f *QuotaOperationFilter) WhereDispatchState(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldDispatchState))
+}
+
+// WhereAttemptCount applies the entql int predicate on the attempt_count field.
+func (f *QuotaOperationFilter) WhereAttemptCount(p entql.IntP) {
+	f.Where(p.Field(quotaoperation.FieldAttemptCount))
+}
+
+// WhereLeaseGeneration applies the entql int64 predicate on the lease_generation field.
+func (f *QuotaOperationFilter) WhereLeaseGeneration(p entql.Int64P) {
+	f.Where(p.Field(quotaoperation.FieldLeaseGeneration))
+}
+
+// WhereRetryBlocked applies the entql bool predicate on the retry_blocked field.
+func (f *QuotaOperationFilter) WhereRetryBlocked(p entql.BoolP) {
+	f.Where(p.Field(quotaoperation.FieldRetryBlocked))
+}
+
+// WhereLastErrorCode applies the entql string predicate on the last_error_code field.
+func (f *QuotaOperationFilter) WhereLastErrorCode(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldLastErrorCode))
+}
+
+// WhereNextAttemptAt applies the entql time.Time predicate on the next_attempt_at field.
+func (f *QuotaOperationFilter) WhereNextAttemptAt(p entql.TimeP) {
+	f.Where(p.Field(quotaoperation.FieldNextAttemptAt))
+}
+
+// WhereLeaseOwner applies the entql string predicate on the lease_owner field.
+func (f *QuotaOperationFilter) WhereLeaseOwner(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldLeaseOwner))
+}
+
+// WhereLeaseUntil applies the entql time.Time predicate on the lease_until field.
+func (f *QuotaOperationFilter) WhereLeaseUntil(p entql.TimeP) {
+	f.Where(p.Field(quotaoperation.FieldLeaseUntil))
+}
+
+// WhereAckJSON applies the entql string predicate on the ack_json field.
+func (f *QuotaOperationFilter) WhereAckJSON(p entql.StringP) {
+	f.Where(p.Field(quotaoperation.FieldAckJSON))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (_q *QuotaReleaseReceiptQuery) addPredicate(pred func(s *sql.Selector)) {
+	_q.predicates = append(_q.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the QuotaReleaseReceiptQuery builder.
+func (_q *QuotaReleaseReceiptQuery) Filter() *QuotaReleaseReceiptFilter {
+	return &QuotaReleaseReceiptFilter{config: _q.config, predicateAdder: _q}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *QuotaReleaseReceiptMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the QuotaReleaseReceiptMutation builder.
+func (m *QuotaReleaseReceiptMutation) Filter() *QuotaReleaseReceiptFilter {
+	return &QuotaReleaseReceiptFilter{config: m.config, predicateAdder: m}
+}
+
+// QuotaReleaseReceiptFilter provides a generic filtering capability at runtime for QuotaReleaseReceiptQuery.
+type QuotaReleaseReceiptFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *QuotaReleaseReceiptFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[36].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *QuotaReleaseReceiptFilter) WhereID(p entql.Uint32P) {
+	f.Where(p.Field(quotareleasereceipt.FieldID))
+}
+
+// WhereCreatedAt applies the entql time.Time predicate on the created_at field.
+func (f *QuotaReleaseReceiptFilter) WhereCreatedAt(p entql.TimeP) {
+	f.Where(p.Field(quotareleasereceipt.FieldCreatedAt))
+}
+
+// WhereTenantID applies the entql uint32 predicate on the tenant_id field.
+func (f *QuotaReleaseReceiptFilter) WhereTenantID(p entql.Uint32P) {
+	f.Where(p.Field(quotareleasereceipt.FieldTenantID))
+}
+
+// WhereReceiptID applies the entql string predicate on the receipt_id field.
+func (f *QuotaReleaseReceiptFilter) WhereReceiptID(p entql.StringP) {
+	f.Where(p.Field(quotareleasereceipt.FieldReceiptID))
+}
+
+// WhereOwnerService applies the entql string predicate on the owner_service field.
+func (f *QuotaReleaseReceiptFilter) WhereOwnerService(p entql.StringP) {
+	f.Where(p.Field(quotareleasereceipt.FieldOwnerService))
+}
+
+// WhereReleaseEventID applies the entql string predicate on the release_event_id field.
+func (f *QuotaReleaseReceiptFilter) WhereReleaseEventID(p entql.StringP) {
+	f.Where(p.Field(quotareleasereceipt.FieldReleaseEventID))
+}
+
+// WherePayloadHash applies the entql string predicate on the payload_hash field.
+func (f *QuotaReleaseReceiptFilter) WherePayloadHash(p entql.StringP) {
+	f.Where(p.Field(quotareleasereceipt.FieldPayloadHash))
+}
+
+// WherePayloadJSON applies the entql string predicate on the payload_json field.
+func (f *QuotaReleaseReceiptFilter) WherePayloadJSON(p entql.StringP) {
+	f.Where(p.Field(quotareleasereceipt.FieldPayloadJSON))
+}
+
+// addPredicate implements the predicateAdder interface.
 func (_q *RoleQuery) addPredicate(pred func(s *sql.Selector)) {
 	_q.predicates = append(_q.predicates, pred)
 }
@@ -5492,7 +6080,7 @@ type RoleFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *RoleFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[32].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[37].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -5612,7 +6200,7 @@ type RoleFieldPermissionFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *RoleFieldPermissionFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[33].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[38].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -5702,7 +6290,7 @@ type RoleMetadataFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *RoleMetadataFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[34].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[39].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -5822,7 +6410,7 @@ type RoleOrgUnitFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *RoleOrgUnitFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[35].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[40].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -5907,7 +6495,7 @@ type RolePermissionFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *RolePermissionFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[36].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[41].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -6007,7 +6595,7 @@ type SysConfigFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *SysConfigFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[37].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[42].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -6102,7 +6690,7 @@ type TaskFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *TaskFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[38].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[43].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -6212,7 +6800,7 @@ type TenantFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *TenantFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[39].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[44].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -6376,7 +6964,7 @@ type UserFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[40].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[45].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -6526,7 +7114,7 @@ type UserCredentialFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserCredentialFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[41].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[46].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -6666,7 +7254,7 @@ type UserMfaFactorFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserMfaFactorFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[42].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[47].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -6756,7 +7344,7 @@ type UserOrgUnitFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserOrgUnitFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[43].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[48].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -6881,7 +7469,7 @@ type UserPositionFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserPositionFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[44].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[49].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -7001,7 +7589,7 @@ type UserRoleFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *UserRoleFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[45].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[50].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})

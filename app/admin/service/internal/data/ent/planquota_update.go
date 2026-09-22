@@ -151,6 +151,20 @@ func (_u *PlanQuotaUpdate) ClearDeletedBy() *PlanQuotaUpdate {
 	return _u
 }
 
+// SetQuotaCode sets the "quota_code" field.
+func (_u *PlanQuotaUpdate) SetQuotaCode(v string) *PlanQuotaUpdate {
+	_u.mutation.SetQuotaCode(v)
+	return _u
+}
+
+// SetNillableQuotaCode sets the "quota_code" field if the given value is not nil.
+func (_u *PlanQuotaUpdate) SetNillableQuotaCode(v *string) *PlanQuotaUpdate {
+	if v != nil {
+		_u.SetQuotaCode(*v)
+	}
+	return _u
+}
+
 // SetQuotaType sets the "quota_type" field.
 func (_u *PlanQuotaUpdate) SetQuotaType(v planquota.QuotaType) *PlanQuotaUpdate {
 	_u.mutation.SetQuotaType(v)
@@ -257,6 +271,11 @@ func (_u *PlanQuotaUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PlanQuotaUpdate) check() error {
+	if v, ok := _u.mutation.QuotaCode(); ok {
+		if err := planquota.QuotaCodeValidator(v); err != nil {
+			return &ValidationError{Name: "quota_code", err: fmt.Errorf(`ent: validator failed for field "PlanQuota.quota_code": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.QuotaType(); ok {
 		if err := planquota.QuotaTypeValidator(v); err != nil {
 			return &ValidationError{Name: "quota_type", err: fmt.Errorf(`ent: validator failed for field "PlanQuota.quota_type": %w`, err)}
@@ -324,6 +343,9 @@ func (_u *PlanQuotaUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DeletedByCleared() {
 		_spec.ClearField(planquota.FieldDeletedBy, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.QuotaCode(); ok {
+		_spec.SetField(planquota.FieldQuotaCode, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.QuotaType(); ok {
 		_spec.SetField(planquota.FieldQuotaType, field.TypeEnum, value)
@@ -512,6 +534,20 @@ func (_u *PlanQuotaUpdateOne) ClearDeletedBy() *PlanQuotaUpdateOne {
 	return _u
 }
 
+// SetQuotaCode sets the "quota_code" field.
+func (_u *PlanQuotaUpdateOne) SetQuotaCode(v string) *PlanQuotaUpdateOne {
+	_u.mutation.SetQuotaCode(v)
+	return _u
+}
+
+// SetNillableQuotaCode sets the "quota_code" field if the given value is not nil.
+func (_u *PlanQuotaUpdateOne) SetNillableQuotaCode(v *string) *PlanQuotaUpdateOne {
+	if v != nil {
+		_u.SetQuotaCode(*v)
+	}
+	return _u
+}
+
 // SetQuotaType sets the "quota_type" field.
 func (_u *PlanQuotaUpdateOne) SetQuotaType(v planquota.QuotaType) *PlanQuotaUpdateOne {
 	_u.mutation.SetQuotaType(v)
@@ -631,6 +667,11 @@ func (_u *PlanQuotaUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PlanQuotaUpdateOne) check() error {
+	if v, ok := _u.mutation.QuotaCode(); ok {
+		if err := planquota.QuotaCodeValidator(v); err != nil {
+			return &ValidationError{Name: "quota_code", err: fmt.Errorf(`ent: validator failed for field "PlanQuota.quota_code": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.QuotaType(); ok {
 		if err := planquota.QuotaTypeValidator(v); err != nil {
 			return &ValidationError{Name: "quota_type", err: fmt.Errorf(`ent: validator failed for field "PlanQuota.quota_type": %w`, err)}
@@ -715,6 +756,9 @@ func (_u *PlanQuotaUpdateOne) sqlSave(ctx context.Context) (_node *PlanQuota, er
 	}
 	if _u.mutation.DeletedByCleared() {
 		_spec.ClearField(planquota.FieldDeletedBy, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.QuotaCode(); ok {
+		_spec.SetField(planquota.FieldQuotaCode, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.QuotaType(); ok {
 		_spec.SetField(planquota.FieldQuotaType, field.TypeEnum, value)

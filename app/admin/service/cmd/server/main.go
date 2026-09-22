@@ -51,6 +51,7 @@ func newApp(
 	hs *http.Server,
 	as *asynq.Server,
 	ss *sse.Server,
+	extraServers ...transport.Server,
 ) *kratos.App {
 	// asynq / sse 在配置缺失时返回 nil（typed-nil）。
 	// kratos 的 app.Run() 会对每个 server 调 Start()/Stop()，
@@ -62,6 +63,11 @@ func newApp(
 	}
 	if ss != nil {
 		servers = append(servers, ss)
+	}
+	for _, s := range extraServers {
+		if s != nil {
+			servers = append(servers, s)
+		}
 	}
 	return bootstrap.NewApp(ctx, servers...)
 }

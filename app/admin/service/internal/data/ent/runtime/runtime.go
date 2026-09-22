@@ -37,6 +37,11 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
 	"go-wind-admin/app/admin/service/internal/data/ent/policyevaluationlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/position"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotaaccount"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotacharge"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotadefinition"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotaoperation"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotareleasereceipt"
 	"go-wind-admin/app/admin/service/internal/data/ent/role"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolefieldpermission"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolemetadata"
@@ -807,6 +812,10 @@ func init() {
 	_ = planquotaMixinFields0
 	planquotaFields := schema.PlanQuota{}.Fields()
 	_ = planquotaFields
+	// planquotaDescQuotaCode is the schema descriptor for quota_code field.
+	planquotaDescQuotaCode := planquotaFields[0].Descriptor()
+	// planquota.QuotaCodeValidator is a validator for the "quota_code" field. It is called by the builders before save.
+	planquota.QuotaCodeValidator = planquotaDescQuotaCode.Validators[0].(func(string) error)
 	// planquotaDescID is the schema descriptor for id field.
 	planquotaDescID := planquotaMixinFields0[0].Descriptor()
 	// planquota.IDValidator is a validator for the "id" field. It is called by the builders before save.
@@ -887,6 +896,235 @@ func init() {
 	positionDescID := positionMixinFields0[0].Descriptor()
 	// position.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	position.IDValidator = positionDescID.Validators[0].(func(uint32) error)
+	quotaaccountMixin := schema.QuotaAccount{}.Mixin()
+	quotaaccount.Policy = privacy.NewPolicies(quotaaccountMixin[2], schema.QuotaAccount{})
+	quotaaccount.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := quotaaccount.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	quotaaccountMixinFields0 := quotaaccountMixin[0].Fields()
+	_ = quotaaccountMixinFields0
+	quotaaccountMixinFields2 := quotaaccountMixin[2].Fields()
+	_ = quotaaccountMixinFields2
+	quotaaccountFields := schema.QuotaAccount{}.Fields()
+	_ = quotaaccountFields
+	// quotaaccountDescTenantID is the schema descriptor for tenant_id field.
+	quotaaccountDescTenantID := quotaaccountMixinFields2[0].Descriptor()
+	// quotaaccount.DefaultTenantID holds the default value on creation for the tenant_id field.
+	quotaaccount.DefaultTenantID = quotaaccountDescTenantID.Default.(uint32)
+	// quotaaccountDescQuotaCode is the schema descriptor for quota_code field.
+	quotaaccountDescQuotaCode := quotaaccountFields[0].Descriptor()
+	// quotaaccount.QuotaCodeValidator is a validator for the "quota_code" field. It is called by the builders before save.
+	quotaaccount.QuotaCodeValidator = quotaaccountDescQuotaCode.Validators[0].(func(string) error)
+	// quotaaccountDescOccupiedUnits is the schema descriptor for occupied_units field.
+	quotaaccountDescOccupiedUnits := quotaaccountFields[1].Descriptor()
+	// quotaaccount.DefaultOccupiedUnits holds the default value on creation for the occupied_units field.
+	quotaaccount.DefaultOccupiedUnits = quotaaccountDescOccupiedUnits.Default.(int64)
+	// quotaaccountDescVersion is the schema descriptor for version field.
+	quotaaccountDescVersion := quotaaccountFields[2].Descriptor()
+	// quotaaccount.DefaultVersion holds the default value on creation for the version field.
+	quotaaccount.DefaultVersion = quotaaccountDescVersion.Default.(int64)
+	// quotaaccountDescID is the schema descriptor for id field.
+	quotaaccountDescID := quotaaccountMixinFields0[0].Descriptor()
+	// quotaaccount.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	quotaaccount.IDValidator = quotaaccountDescID.Validators[0].(func(uint32) error)
+	quotachargeMixin := schema.QuotaCharge{}.Mixin()
+	quotacharge.Policy = privacy.NewPolicies(quotachargeMixin[2], schema.QuotaCharge{})
+	quotacharge.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := quotacharge.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	quotachargeMixinFields0 := quotachargeMixin[0].Fields()
+	_ = quotachargeMixinFields0
+	quotachargeMixinFields2 := quotachargeMixin[2].Fields()
+	_ = quotachargeMixinFields2
+	quotachargeFields := schema.QuotaCharge{}.Fields()
+	_ = quotachargeFields
+	// quotachargeDescTenantID is the schema descriptor for tenant_id field.
+	quotachargeDescTenantID := quotachargeMixinFields2[0].Descriptor()
+	// quotacharge.DefaultTenantID holds the default value on creation for the tenant_id field.
+	quotacharge.DefaultTenantID = quotachargeDescTenantID.Default.(uint32)
+	// quotachargeDescChargeID is the schema descriptor for charge_id field.
+	quotachargeDescChargeID := quotachargeFields[0].Descriptor()
+	// quotacharge.ChargeIDValidator is a validator for the "charge_id" field. It is called by the builders before save.
+	quotacharge.ChargeIDValidator = quotachargeDescChargeID.Validators[0].(func(string) error)
+	// quotachargeDescOperationID is the schema descriptor for operation_id field.
+	quotachargeDescOperationID := quotachargeFields[1].Descriptor()
+	// quotacharge.OperationIDValidator is a validator for the "operation_id" field. It is called by the builders before save.
+	quotacharge.OperationIDValidator = quotachargeDescOperationID.Validators[0].(func(string) error)
+	// quotachargeDescQuotaCode is the schema descriptor for quota_code field.
+	quotachargeDescQuotaCode := quotachargeFields[2].Descriptor()
+	// quotacharge.QuotaCodeValidator is a validator for the "quota_code" field. It is called by the builders before save.
+	quotacharge.QuotaCodeValidator = quotachargeDescQuotaCode.Validators[0].(func(string) error)
+	// quotachargeDescReleasedUnits is the schema descriptor for released_units field.
+	quotachargeDescReleasedUnits := quotachargeFields[4].Descriptor()
+	// quotacharge.DefaultReleasedUnits holds the default value on creation for the released_units field.
+	quotacharge.DefaultReleasedUnits = quotachargeDescReleasedUnits.Default.(int64)
+	// quotachargeDescID is the schema descriptor for id field.
+	quotachargeDescID := quotachargeMixinFields0[0].Descriptor()
+	// quotacharge.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	quotacharge.IDValidator = quotachargeDescID.Validators[0].(func(uint32) error)
+	quotadefinitionMixin := schema.QuotaDefinition{}.Mixin()
+	quotadefinitionMixinFields0 := quotadefinitionMixin[0].Fields()
+	_ = quotadefinitionMixinFields0
+	quotadefinitionFields := schema.QuotaDefinition{}.Fields()
+	_ = quotadefinitionFields
+	// quotadefinitionDescCode is the schema descriptor for code field.
+	quotadefinitionDescCode := quotadefinitionFields[0].Descriptor()
+	// quotadefinition.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	quotadefinition.CodeValidator = quotadefinitionDescCode.Validators[0].(func(string) error)
+	// quotadefinitionDescDisplayName is the schema descriptor for display_name field.
+	quotadefinitionDescDisplayName := quotadefinitionFields[1].Descriptor()
+	// quotadefinition.DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
+	quotadefinition.DisplayNameValidator = quotadefinitionDescDisplayName.Validators[0].(func(string) error)
+	// quotadefinitionDescUnit is the schema descriptor for unit field.
+	quotadefinitionDescUnit := quotadefinitionFields[2].Descriptor()
+	// quotadefinition.UnitValidator is a validator for the "unit" field. It is called by the builders before save.
+	quotadefinition.UnitValidator = quotadefinitionDescUnit.Validators[0].(func(string) error)
+	// quotadefinitionDescID is the schema descriptor for id field.
+	quotadefinitionDescID := quotadefinitionMixinFields0[0].Descriptor()
+	// quotadefinition.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	quotadefinition.IDValidator = quotadefinitionDescID.Validators[0].(func(uint32) error)
+	quotaoperationMixin := schema.QuotaOperation{}.Mixin()
+	quotaoperation.Policy = privacy.NewPolicies(quotaoperationMixin[2], schema.QuotaOperation{})
+	quotaoperation.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := quotaoperation.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	quotaoperationMixinFields0 := quotaoperationMixin[0].Fields()
+	_ = quotaoperationMixinFields0
+	quotaoperationMixinFields2 := quotaoperationMixin[2].Fields()
+	_ = quotaoperationMixinFields2
+	quotaoperationFields := schema.QuotaOperation{}.Fields()
+	_ = quotaoperationFields
+	// quotaoperationDescTenantID is the schema descriptor for tenant_id field.
+	quotaoperationDescTenantID := quotaoperationMixinFields2[0].Descriptor()
+	// quotaoperation.DefaultTenantID holds the default value on creation for the tenant_id field.
+	quotaoperation.DefaultTenantID = quotaoperationDescTenantID.Default.(uint32)
+	// quotaoperationDescOperationID is the schema descriptor for operation_id field.
+	quotaoperationDescOperationID := quotaoperationFields[0].Descriptor()
+	// quotaoperation.OperationIDValidator is a validator for the "operation_id" field. It is called by the builders before save.
+	quotaoperation.OperationIDValidator = quotaoperationDescOperationID.Validators[0].(func(string) error)
+	// quotaoperationDescResourceTenantID is the schema descriptor for resource_tenant_id field.
+	quotaoperationDescResourceTenantID := quotaoperationFields[1].Descriptor()
+	// quotaoperation.ResourceTenantIDValidator is a validator for the "resource_tenant_id" field. It is called by the builders before save.
+	quotaoperation.ResourceTenantIDValidator = quotaoperationDescResourceTenantID.Validators[0].(func(string) error)
+	// quotaoperationDescResourceID is the schema descriptor for resource_id field.
+	quotaoperationDescResourceID := quotaoperationFields[2].Descriptor()
+	// quotaoperation.ResourceIDValidator is a validator for the "resource_id" field. It is called by the builders before save.
+	quotaoperation.ResourceIDValidator = quotaoperationDescResourceID.Validators[0].(func(string) error)
+	// quotaoperationDescCreateOperationID is the schema descriptor for create_operation_id field.
+	quotaoperationDescCreateOperationID := quotaoperationFields[3].Descriptor()
+	// quotaoperation.CreateOperationIDValidator is a validator for the "create_operation_id" field. It is called by the builders before save.
+	quotaoperation.CreateOperationIDValidator = quotaoperationDescCreateOperationID.Validators[0].(func(string) error)
+	// quotaoperationDescActorType is the schema descriptor for actor_type field.
+	quotaoperationDescActorType := quotaoperationFields[4].Descriptor()
+	// quotaoperation.ActorTypeValidator is a validator for the "actor_type" field. It is called by the builders before save.
+	quotaoperation.ActorTypeValidator = quotaoperationDescActorType.Validators[0].(func(string) error)
+	// quotaoperationDescActorID is the schema descriptor for actor_id field.
+	quotaoperationDescActorID := quotaoperationFields[5].Descriptor()
+	// quotaoperation.ActorIDValidator is a validator for the "actor_id" field. It is called by the builders before save.
+	quotaoperation.ActorIDValidator = quotaoperationDescActorID.Validators[0].(func(string) error)
+	// quotaoperationDescOwnerService is the schema descriptor for owner_service field.
+	quotaoperationDescOwnerService := quotaoperationFields[6].Descriptor()
+	// quotaoperation.OwnerServiceValidator is a validator for the "owner_service" field. It is called by the builders before save.
+	quotaoperation.OwnerServiceValidator = quotaoperationDescOwnerService.Validators[0].(func(string) error)
+	// quotaoperationDescAction is the schema descriptor for action field.
+	quotaoperationDescAction := quotaoperationFields[7].Descriptor()
+	// quotaoperation.ActionValidator is a validator for the "action" field. It is called by the builders before save.
+	quotaoperation.ActionValidator = quotaoperationDescAction.Validators[0].(func(string) error)
+	// quotaoperationDescIdempotencyKey is the schema descriptor for idempotency_key field.
+	quotaoperationDescIdempotencyKey := quotaoperationFields[8].Descriptor()
+	// quotaoperation.IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
+	quotaoperation.IdempotencyKeyValidator = quotaoperationDescIdempotencyKey.Validators[0].(func(string) error)
+	// quotaoperationDescRequestHash is the schema descriptor for request_hash field.
+	quotaoperationDescRequestHash := quotaoperationFields[9].Descriptor()
+	// quotaoperation.RequestHashValidator is a validator for the "request_hash" field. It is called by the builders before save.
+	quotaoperation.RequestHashValidator = quotaoperationDescRequestHash.Validators[0].(func(string) error)
+	// quotaoperationDescCanonicalRequest is the schema descriptor for canonical_request field.
+	quotaoperationDescCanonicalRequest := quotaoperationFields[10].Descriptor()
+	// quotaoperation.CanonicalRequestValidator is a validator for the "canonical_request" field. It is called by the builders before save.
+	quotaoperation.CanonicalRequestValidator = quotaoperationDescCanonicalRequest.Validators[0].(func(string) error)
+	// quotaoperationDescAttemptCount is the schema descriptor for attempt_count field.
+	quotaoperationDescAttemptCount := quotaoperationFields[12].Descriptor()
+	// quotaoperation.DefaultAttemptCount holds the default value on creation for the attempt_count field.
+	quotaoperation.DefaultAttemptCount = quotaoperationDescAttemptCount.Default.(int)
+	// quotaoperationDescLeaseGeneration is the schema descriptor for lease_generation field.
+	quotaoperationDescLeaseGeneration := quotaoperationFields[13].Descriptor()
+	// quotaoperation.DefaultLeaseGeneration holds the default value on creation for the lease_generation field.
+	quotaoperation.DefaultLeaseGeneration = quotaoperationDescLeaseGeneration.Default.(int64)
+	// quotaoperationDescRetryBlocked is the schema descriptor for retry_blocked field.
+	quotaoperationDescRetryBlocked := quotaoperationFields[14].Descriptor()
+	// quotaoperation.DefaultRetryBlocked holds the default value on creation for the retry_blocked field.
+	quotaoperation.DefaultRetryBlocked = quotaoperationDescRetryBlocked.Default.(bool)
+	// quotaoperationDescLastErrorCode is the schema descriptor for last_error_code field.
+	quotaoperationDescLastErrorCode := quotaoperationFields[15].Descriptor()
+	// quotaoperation.LastErrorCodeValidator is a validator for the "last_error_code" field. It is called by the builders before save.
+	quotaoperation.LastErrorCodeValidator = quotaoperationDescLastErrorCode.Validators[0].(func(string) error)
+	// quotaoperationDescLeaseOwner is the schema descriptor for lease_owner field.
+	quotaoperationDescLeaseOwner := quotaoperationFields[17].Descriptor()
+	// quotaoperation.LeaseOwnerValidator is a validator for the "lease_owner" field. It is called by the builders before save.
+	quotaoperation.LeaseOwnerValidator = quotaoperationDescLeaseOwner.Validators[0].(func(string) error)
+	// quotaoperationDescID is the schema descriptor for id field.
+	quotaoperationDescID := quotaoperationMixinFields0[0].Descriptor()
+	// quotaoperation.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	quotaoperation.IDValidator = quotaoperationDescID.Validators[0].(func(uint32) error)
+	quotareleasereceiptMixin := schema.QuotaReleaseReceipt{}.Mixin()
+	quotareleasereceipt.Policy = privacy.NewPolicies(quotareleasereceiptMixin[2], schema.QuotaReleaseReceipt{})
+	quotareleasereceipt.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := quotareleasereceipt.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	quotareleasereceiptMixinFields0 := quotareleasereceiptMixin[0].Fields()
+	_ = quotareleasereceiptMixinFields0
+	quotareleasereceiptMixinFields2 := quotareleasereceiptMixin[2].Fields()
+	_ = quotareleasereceiptMixinFields2
+	quotareleasereceiptFields := schema.QuotaReleaseReceipt{}.Fields()
+	_ = quotareleasereceiptFields
+	// quotareleasereceiptDescTenantID is the schema descriptor for tenant_id field.
+	quotareleasereceiptDescTenantID := quotareleasereceiptMixinFields2[0].Descriptor()
+	// quotareleasereceipt.DefaultTenantID holds the default value on creation for the tenant_id field.
+	quotareleasereceipt.DefaultTenantID = quotareleasereceiptDescTenantID.Default.(uint32)
+	// quotareleasereceiptDescReceiptID is the schema descriptor for receipt_id field.
+	quotareleasereceiptDescReceiptID := quotareleasereceiptFields[0].Descriptor()
+	// quotareleasereceipt.ReceiptIDValidator is a validator for the "receipt_id" field. It is called by the builders before save.
+	quotareleasereceipt.ReceiptIDValidator = quotareleasereceiptDescReceiptID.Validators[0].(func(string) error)
+	// quotareleasereceiptDescOwnerService is the schema descriptor for owner_service field.
+	quotareleasereceiptDescOwnerService := quotareleasereceiptFields[1].Descriptor()
+	// quotareleasereceipt.OwnerServiceValidator is a validator for the "owner_service" field. It is called by the builders before save.
+	quotareleasereceipt.OwnerServiceValidator = quotareleasereceiptDescOwnerService.Validators[0].(func(string) error)
+	// quotareleasereceiptDescReleaseEventID is the schema descriptor for release_event_id field.
+	quotareleasereceiptDescReleaseEventID := quotareleasereceiptFields[2].Descriptor()
+	// quotareleasereceipt.ReleaseEventIDValidator is a validator for the "release_event_id" field. It is called by the builders before save.
+	quotareleasereceipt.ReleaseEventIDValidator = quotareleasereceiptDescReleaseEventID.Validators[0].(func(string) error)
+	// quotareleasereceiptDescPayloadHash is the schema descriptor for payload_hash field.
+	quotareleasereceiptDescPayloadHash := quotareleasereceiptFields[3].Descriptor()
+	// quotareleasereceipt.PayloadHashValidator is a validator for the "payload_hash" field. It is called by the builders before save.
+	quotareleasereceipt.PayloadHashValidator = quotareleasereceiptDescPayloadHash.Validators[0].(func(string) error)
+	// quotareleasereceiptDescPayloadJSON is the schema descriptor for payload_json field.
+	quotareleasereceiptDescPayloadJSON := quotareleasereceiptFields[4].Descriptor()
+	// quotareleasereceipt.PayloadJSONValidator is a validator for the "payload_json" field. It is called by the builders before save.
+	quotareleasereceipt.PayloadJSONValidator = quotareleasereceiptDescPayloadJSON.Validators[0].(func(string) error)
+	// quotareleasereceiptDescID is the schema descriptor for id field.
+	quotareleasereceiptDescID := quotareleasereceiptMixinFields0[0].Descriptor()
+	// quotareleasereceipt.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	quotareleasereceipt.IDValidator = quotareleasereceiptDescID.Validators[0].(func(uint32) error)
 	roleMixin := schema.Role{}.Mixin()
 	role.Policy = privacy.NewPolicies(roleMixin[6], schema.Role{})
 	role.Hooks[0] = func(next ent.Mutator) ent.Mutator {

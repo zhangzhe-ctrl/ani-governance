@@ -102,6 +102,21 @@ type PolicyEvaluationLog func(*sql.Selector)
 // Position is the predicate function for position builders.
 type Position func(*sql.Selector)
 
+// QuotaAccount is the predicate function for quotaaccount builders.
+type QuotaAccount func(*sql.Selector)
+
+// QuotaCharge is the predicate function for quotacharge builders.
+type QuotaCharge func(*sql.Selector)
+
+// QuotaDefinition is the predicate function for quotadefinition builders.
+type QuotaDefinition func(*sql.Selector)
+
+// QuotaOperation is the predicate function for quotaoperation builders.
+type QuotaOperation func(*sql.Selector)
+
+// QuotaReleaseReceipt is the predicate function for quotareleasereceipt builders.
+type QuotaReleaseReceipt func(*sql.Selector)
+
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
 

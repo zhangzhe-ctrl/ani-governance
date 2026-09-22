@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package quota.service.v1;
+
+// 内部退额协议：资源 owner 只上报"对应数量已不再占用且不会迟到创建"的累计事实。
+// 不带 HTTP 注解、不进入 admin BFF、公共 Swagger 或登录白名单。
+// 请求不包含可作为身份依据的 tenant_id 或 owner_service：
+// 租户/owner 从 charge 及已验证 mTLS 证书精确 DNS SAN 取出。
+service QuotaReleaseService {
+  // 上报累计释放事实（幂等）。
+  rpc ReportQuotaRelease (ReportQuotaReleaseRequest) returns (ReportQuotaReleaseResponse);
+}
+
+// 释放原因：仅限以下两种。
+enum ReleaseReason {
+  RELEASE_REASON_UNSPECIFIED = 0; // 未指定（拒绝）
+  ABORTED_CLEANED = 1;            // 已封闭且确认无残留资源后的清理退额
+  RESOURCE_RELEASED = 2;          // 资源已确认释放
+}
+
+// 单笔释放项：released_total 是该 charge 自创建以来累计可退还数量，
+// 不是本次随意扣减；0 允许作为 no-op。
+message QuotaReleaseItem {
+  string charge_id = 1;   // 原创建占额明细 ID（UUID）
+  string quota_code = 2;  // 计量编码，必须与原 charge 一致
+  int64 released_total = 3; // 累计释放总量，0<=x<=original_units
+}
+
+// 释放事实涉及的模拟资源标识，仅审计，不用于推导可信租户。
+message QuotaResourceRef {
+  string resource_id = 1; // 资源 ID（UUID）
+}
+
+message ReportQuotaReleaseRequest {
+  string release_event_id = 1;  // UUID；同一逻辑通知重试保持不变
+  string operation_id = 2;      // 原创建 operation_id（UUID）
+  repeated QuotaReleaseItem items = 3; // 非空，最多 16 项；同租户同 owner 同原创建操作
+  ReleaseReason reason = 4;
+  repeated QuotaResourceRef resource_refs = 5; // 最多 64 项，仅审计
+}
+
+message QuotaReleaseResult {
+  string charge_id = 1;     // 对应 charge
+  int64 applied_delta = 2;  // 本次实际新释放的数量（no-op 为 0）
+  int64 released_total = 3; // 当前权威累计释放量
+}
+
+message ReportQuotaReleaseResponse {
+  repeated QuotaReleaseResult items = 1;
+}

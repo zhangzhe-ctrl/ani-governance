@@ -31,7 +31,9 @@ type PlanQuota struct {
 	UpdatedBy *uint32 `json:"updated_by,omitempty"`
 	// 删除者ID
 	DeletedBy *uint32 `json:"deleted_by,omitempty"`
-	// 配额类型
+	// 配额编码
+	QuotaCode string `json:"quota_code,omitempty"`
+	// 配额类型（deprecated：仅旧三项兼容投影）
 	QuotaType *planquota.QuotaType `json:"quota_type,omitempty"`
 	// 配额值
 	QuotaValue *uint64 `json:"quota_value,omitempty"`
@@ -69,7 +71,7 @@ func (*PlanQuota) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case planquota.FieldID, planquota.FieldCreatedBy, planquota.FieldUpdatedBy, planquota.FieldDeletedBy, planquota.FieldQuotaValue:
 			values[i] = new(sql.NullInt64)
-		case planquota.FieldQuotaType:
+		case planquota.FieldQuotaCode, planquota.FieldQuotaType:
 			values[i] = new(sql.NullString)
 		case planquota.FieldCreatedAt, planquota.FieldUpdatedAt, planquota.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -137,6 +139,12 @@ func (_m *PlanQuota) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedBy = new(uint32)
 				*_m.DeletedBy = uint32(value.Int64)
+			}
+		case planquota.FieldQuotaCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field quota_code", values[i])
+			} else if value.Valid {
+				_m.QuotaCode = value.String
 			}
 		case planquota.FieldQuotaType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -229,6 +237,9 @@ func (_m *PlanQuota) String() string {
 		builder.WriteString("deleted_by=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("quota_code=")
+	builder.WriteString(_m.QuotaCode)
 	builder.WriteString(", ")
 	if v := _m.QuotaType; v != nil {
 		builder.WriteString("quota_type=")

@@ -107,6 +107,12 @@ func (_c *PlanQuotaCreate) SetNillableDeletedBy(v *uint32) *PlanQuotaCreate {
 	return _c
 }
 
+// SetQuotaCode sets the "quota_code" field.
+func (_c *PlanQuotaCreate) SetQuotaCode(v string) *PlanQuotaCreate {
+	_c.mutation.SetQuotaCode(v)
+	return _c
+}
+
 // SetQuotaType sets the "quota_type" field.
 func (_c *PlanQuotaCreate) SetQuotaType(v planquota.QuotaType) *PlanQuotaCreate {
 	_c.mutation.SetQuotaType(v)
@@ -194,6 +200,14 @@ func (_c *PlanQuotaCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *PlanQuotaCreate) check() error {
+	if _, ok := _c.mutation.QuotaCode(); !ok {
+		return &ValidationError{Name: "quota_code", err: errors.New(`ent: missing required field "PlanQuota.quota_code"`)}
+	}
+	if v, ok := _c.mutation.QuotaCode(); ok {
+		if err := planquota.QuotaCodeValidator(v); err != nil {
+			return &ValidationError{Name: "quota_code", err: fmt.Errorf(`ent: validator failed for field "PlanQuota.quota_code": %w`, err)}
+		}
+	}
 	if v, ok := _c.mutation.QuotaType(); ok {
 		if err := planquota.QuotaTypeValidator(v); err != nil {
 			return &ValidationError{Name: "quota_type", err: fmt.Errorf(`ent: validator failed for field "PlanQuota.quota_type": %w`, err)}
@@ -260,6 +274,10 @@ func (_c *PlanQuotaCreate) createSpec() (*PlanQuota, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DeletedBy(); ok {
 		_spec.SetField(planquota.FieldDeletedBy, field.TypeUint32, value)
 		_node.DeletedBy = &value
+	}
+	if value, ok := _c.mutation.QuotaCode(); ok {
+		_spec.SetField(planquota.FieldQuotaCode, field.TypeString, value)
+		_node.QuotaCode = value
 	}
 	if value, ok := _c.mutation.QuotaType(); ok {
 		_spec.SetField(planquota.FieldQuotaType, field.TypeEnum, value)
@@ -443,6 +461,18 @@ func (u *PlanQuotaUpsert) AddDeletedBy(v uint32) *PlanQuotaUpsert {
 // ClearDeletedBy clears the value of the "deleted_by" field.
 func (u *PlanQuotaUpsert) ClearDeletedBy() *PlanQuotaUpsert {
 	u.SetNull(planquota.FieldDeletedBy)
+	return u
+}
+
+// SetQuotaCode sets the "quota_code" field.
+func (u *PlanQuotaUpsert) SetQuotaCode(v string) *PlanQuotaUpsert {
+	u.Set(planquota.FieldQuotaCode, v)
+	return u
+}
+
+// UpdateQuotaCode sets the "quota_code" field to the value that was provided on create.
+func (u *PlanQuotaUpsert) UpdateQuotaCode() *PlanQuotaUpsert {
+	u.SetExcluded(planquota.FieldQuotaCode)
 	return u
 }
 
@@ -662,6 +692,20 @@ func (u *PlanQuotaUpsertOne) UpdateDeletedBy() *PlanQuotaUpsertOne {
 func (u *PlanQuotaUpsertOne) ClearDeletedBy() *PlanQuotaUpsertOne {
 	return u.Update(func(s *PlanQuotaUpsert) {
 		s.ClearDeletedBy()
+	})
+}
+
+// SetQuotaCode sets the "quota_code" field.
+func (u *PlanQuotaUpsertOne) SetQuotaCode(v string) *PlanQuotaUpsertOne {
+	return u.Update(func(s *PlanQuotaUpsert) {
+		s.SetQuotaCode(v)
+	})
+}
+
+// UpdateQuotaCode sets the "quota_code" field to the value that was provided on create.
+func (u *PlanQuotaUpsertOne) UpdateQuotaCode() *PlanQuotaUpsertOne {
+	return u.Update(func(s *PlanQuotaUpsert) {
+		s.UpdateQuotaCode()
 	})
 }
 
@@ -1053,6 +1097,20 @@ func (u *PlanQuotaUpsertBulk) UpdateDeletedBy() *PlanQuotaUpsertBulk {
 func (u *PlanQuotaUpsertBulk) ClearDeletedBy() *PlanQuotaUpsertBulk {
 	return u.Update(func(s *PlanQuotaUpsert) {
 		s.ClearDeletedBy()
+	})
+}
+
+// SetQuotaCode sets the "quota_code" field.
+func (u *PlanQuotaUpsertBulk) SetQuotaCode(v string) *PlanQuotaUpsertBulk {
+	return u.Update(func(s *PlanQuotaUpsert) {
+		s.SetQuotaCode(v)
+	})
+}
+
+// UpdateQuotaCode sets the "quota_code" field to the value that was provided on create.
+func (u *PlanQuotaUpsertBulk) UpdateQuotaCode() *PlanQuotaUpsertBulk {
+	return u.Update(func(s *PlanQuotaUpsert) {
+		s.UpdateQuotaCode()
 	})
 }
 

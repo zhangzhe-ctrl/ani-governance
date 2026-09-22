@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package quota_lab.service.v1;
+
+// 仅实验构建（quota_lab）的 GPU 模拟消息；不进入正式 OpenAPI/首次种子。
+// 独立于现有 Model/Network Proto；不是正式 GPU API。
+
+// 创建请求业务参数（POST /api/v1/quota-lab/gpu-allocations 的 data）。
+message GpuAllocationData {
+  string name = 1;      // 长度 1～64，去除首尾空白后不能为空
+  int32 gpu_count = 2;  // 1～16 的整数
+}
+
+message CreateGpuAllocationRequest {
+  GpuAllocationData data = 1;
+}
+
+// 202：治理侧持久接受；不代表 GPU 创建完成。
+message CreateGpuAllocationResponse {
+  string operation_id = 1 [json_name = "operationId"];
+  string charge_id = 2 [json_name = "chargeId"];
+  string resource_id = 3 [json_name = "resourceId"];
+}
+
+message GetGpuAllocationRequest {
+  string resource_id = 1 [json_name = "resourceId"];
+}
+
+// 经 Governance 转发查询 simulator；不触发占额和资源状态推进。
+// simulator_status 是模拟器内部状态，不是正式资源状态同步。
+message GetGpuAllocationResponse {
+  string resource_id = 1 [json_name = "resourceId"];
+  string name = 2;
+  int32 gpu_count = 3 [json_name = "gpuCount"];
+  string simulator_status = 4 [json_name = "simulatorStatus"];
+  int32 unit_count = 5 [json_name = "unitCount"];
+}
+
+message DeleteGpuAllocationRequest {
+  string resource_id = 1 [json_name = "resourceId"];
+}
+
+// 202：删除操作已持久接受；不立即退额。
+message DeleteGpuAllocationResponse {
+  string operation_id = 1 [json_name = "operationId"];
+}
+
+message GetQuotaOperationRequest {
+  string operation_id = 1 [json_name = "operationId"];
+}
+
+// 只返回本用户操作的投递状态和账本标识；不写数据库状态。
+message GetQuotaOperationResponse {
+  string operation_id = 1 [json_name = "operationId"];
+  string action = 2;
+  string dispatch_state = 3 [json_name = "dispatchState"];
+  int32 attempt_count = 4 [json_name = "attemptCount"];
+  string resource_id = 5 [json_name = "resourceId"];
+  string charge_id = 6 [json_name = "chargeId"];
+  string owner_service = 7 [json_name = "ownerService"];
+}

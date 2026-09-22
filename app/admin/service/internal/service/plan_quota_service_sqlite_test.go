@@ -128,10 +128,16 @@ func TestPlanQuotaServiceSqlite_Get(t *testing.T) {
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
-	_, err := svc.Create(opCtx, &identityV1.CreatePlanQuotaRequest{
+	parent, err := entClient.Client().Plan.Create().
+		SetName("父套餐-查询").
+		Save(ctx)
+	require.NoError(t, err, "直建父 plan 应成功")
+
+	_, err = svc.Create(opCtx, &identityV1.CreatePlanQuotaRequest{
 		Data: &identityV1.PlanQuota{
 			QuotaType:  identityV1.PlanQuota_USER_LIMIT.Enum(),
 			QuotaValue: trans.Ptr(uint64(3)),
+			PlanId:     &parent.ID,
 		},
 	})
 	require.NoError(t, err)
@@ -161,10 +167,16 @@ func TestPlanQuotaServiceSqlite_Update(t *testing.T) {
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
-	_, err := svc.Create(opCtx, &identityV1.CreatePlanQuotaRequest{
+	parent, err := entClient.Client().Plan.Create().
+		SetName("父套餐-更新").
+		Save(ctx)
+	require.NoError(t, err, "直建父 plan 应成功")
+
+	_, err = svc.Create(opCtx, &identityV1.CreatePlanQuotaRequest{
 		Data: &identityV1.PlanQuota{
 			QuotaType:  identityV1.PlanQuota_STORAGE.Enum(),
 			QuotaValue: trans.Ptr(uint64(11)),
+			PlanId:     &parent.ID,
 		},
 	})
 	require.NoError(t, err)
@@ -194,10 +206,16 @@ func TestPlanQuotaServiceSqlite_Delete(t *testing.T) {
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
-	_, err := svc.Create(opCtx, &identityV1.CreatePlanQuotaRequest{
+	parent, err := entClient.Client().Plan.Create().
+		SetName("父套餐-删除").
+		Save(ctx)
+	require.NoError(t, err, "直建父 plan 应成功")
+
+	_, err = svc.Create(opCtx, &identityV1.CreatePlanQuotaRequest{
 		Data: &identityV1.PlanQuota{
 			QuotaType:  identityV1.PlanQuota_API_CALL.Enum(),
 			QuotaValue: trans.Ptr(uint64(1)),
+			PlanId:     &parent.ID,
 		},
 	})
 	require.NoError(t, err)

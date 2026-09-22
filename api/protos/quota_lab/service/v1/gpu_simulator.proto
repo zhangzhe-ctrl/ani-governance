@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package quota_lab.service.v1;
+
+// 冻结的下游实验 RPC（计划 §11.3）：仅 quota_lab 构建使用。
+// 无 HTTP 注解；Governance → simulator 使用 TLS 1.3 双向证书验证，
+// simulator 只接受精确身份 ani-governance。
+service GpuSimulatorService {
+  // 持久化接受创建命令；同 operation_id 同规范请求只返回原接受结果。
+  rpc AcceptCreate (AcceptCreateRequest) returns (AcceptCreateResponse);
+  // 持久化接受删除命令；原创建记录必须属于同租户和资源。
+  rpc AcceptDelete (AcceptDeleteRequest) returns (AcceptDeleteResponse);
+  // 纯读取资源及模拟状态/单元数量；不推进创建/清理。
+  rpc GetResource (GetResourceRequest) returns (GetResourceResponse);
+}
+
+message AcceptCreateRequest {
+  string operation_id = 1 [json_name = "operationId"];
+  string resource_id = 2 [json_name = "resourceId"];
+  string tenant_id = 3 [json_name = "tenantId"]; // 持久 resource_tenant_id（UUID）
+  string actor = 4;
+  string request_hash = 5 [json_name = "requestHash"];
+  string name = 6;
+  int32 gpu_count = 7 [json_name = "gpuCount"];
+  string charge_id = 8 [json_name = "chargeId"];
+  string quota_code = 9 [json_name = "quotaCode"];
+  int64 charged_units = 10 [json_name = "chargedUnits"];
+}
+
+message AcceptCreateResponse {
+  string operation_id = 1 [json_name = "operationId"];
+  string resource_id = 2 [json_name = "resourceId"];
+  bool accepted = 3;
+}
+
+message AcceptDeleteRequest {
+  string operation_id = 1 [json_name = "operationId"]; // 删除操作 ID
+  string create_operation_id = 2 [json_name = "createOperationId"]; // 原创建操作 ID
+  string resource_id = 3 [json_name = "resourceId"];
+  string tenant_id = 4 [json_name = "tenantId"];
+  string actor = 5;
+  string request_hash = 6 [json_name = "requestHash"];
+  string charge_id = 7 [json_name = "chargeId"]; // 原 charge
+}
+
+message AcceptDeleteResponse {
+  string operation_id = 1 [json_name = "operationId"];
+  string resource_id = 2 [json_name = "resourceId"];
+  bool accepted = 3;
+}
+
+message GetResourceRequest {
+  string tenant_id = 1 [json_name = "tenantId"];
+  string resource_id = 2 [json_name = "resourceId"];
+}
+
+message GetResourceResponse {
+  string resource_id = 1 [json_name = "resourceId"];
+  string tenant_id = 2 [json_name = "tenantId"];
+  string name = 3;
+  int32 gpu_count = 4 [json_name = "gpuCount"];
+  string status = 5;   // 模拟状态（CREATING/CREATED/DELETING/DELETED/ABORTED）
+  int32 unit_count = 6 [json_name = "unitCount"];
+}

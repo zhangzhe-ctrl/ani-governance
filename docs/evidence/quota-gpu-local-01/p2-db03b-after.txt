@@ -1,0 +1,6 @@
+ id | plan_id | quota_type | quota_value | quota_code 
+----+---------+------------+-------------+------------
+  1 |       1 | USER_LIMIT |          10 | 
+  2 |       1 | USER_LIMIT |          20 | 
+(2 rows)
+

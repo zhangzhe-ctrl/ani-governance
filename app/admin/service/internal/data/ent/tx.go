@@ -76,6 +76,16 @@ type Tx struct {
 	PolicyEvaluationLog *PolicyEvaluationLogClient
 	// Position is the client for interacting with the Position builders.
 	Position *PositionClient
+	// QuotaAccount is the client for interacting with the QuotaAccount builders.
+	QuotaAccount *QuotaAccountClient
+	// QuotaCharge is the client for interacting with the QuotaCharge builders.
+	QuotaCharge *QuotaChargeClient
+	// QuotaDefinition is the client for interacting with the QuotaDefinition builders.
+	QuotaDefinition *QuotaDefinitionClient
+	// QuotaOperation is the client for interacting with the QuotaOperation builders.
+	QuotaOperation *QuotaOperationClient
+	// QuotaReleaseReceipt is the client for interacting with the QuotaReleaseReceipt builders.
+	QuotaReleaseReceipt *QuotaReleaseReceiptClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// RoleFieldPermission is the client for interacting with the RoleFieldPermission builders.
@@ -267,6 +277,11 @@ func (tx *Tx) init() {
 	tx.PlanQuota = NewPlanQuotaClient(tx.config)
 	tx.PolicyEvaluationLog = NewPolicyEvaluationLogClient(tx.config)
 	tx.Position = NewPositionClient(tx.config)
+	tx.QuotaAccount = NewQuotaAccountClient(tx.config)
+	tx.QuotaCharge = NewQuotaChargeClient(tx.config)
+	tx.QuotaDefinition = NewQuotaDefinitionClient(tx.config)
+	tx.QuotaOperation = NewQuotaOperationClient(tx.config)
+	tx.QuotaReleaseReceipt = NewQuotaReleaseReceiptClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.RoleFieldPermission = NewRoleFieldPermissionClient(tx.config)
 	tx.RoleMetadata = NewRoleMetadataClient(tx.config)
