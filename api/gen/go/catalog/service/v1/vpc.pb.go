@@ -251,6 +251,1481 @@ func (x *GetVPCResponse) GetVpc() *VPC {
 	return nil
 }
 
+type ListVPCsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	State         string                 `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        string                 `protobuf:"bytes,4,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListVPCsRequest) Reset() {
+	*x = ListVPCsRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListVPCsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListVPCsRequest) ProtoMessage() {}
+
+func (x *ListVPCsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListVPCsRequest.ProtoReflect.Descriptor instead.
+func (*ListVPCsRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ListVPCsRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ListVPCsRequest) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *ListVPCsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListVPCsRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+type ListVPCsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*VPC                 `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	NextCursor    string                 `protobuf:"bytes,2,opt,name=next_cursor,proto3" json:"next_cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListVPCsResponse) Reset() {
+	*x = ListVPCsResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListVPCsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListVPCsResponse) ProtoMessage() {}
+
+func (x *ListVPCsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListVPCsResponse.ProtoReflect.Descriptor instead.
+func (*ListVPCsResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ListVPCsResponse) GetItems() []*VPC {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *ListVPCsResponse) GetNextCursor() string {
+	if x != nil {
+		return x.NextCursor
+	}
+	return ""
+}
+
+type CreateVPCRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Cidr           string                 `protobuf:"bytes,2,opt,name=cidr,proto3" json:"cidr,omitempty"`
+	Description    string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	IdempotencyKey string                 `protobuf:"bytes,4,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CreateVPCRequest) Reset() {
+	*x = CreateVPCRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVPCRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVPCRequest) ProtoMessage() {}
+
+func (x *CreateVPCRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVPCRequest.ProtoReflect.Descriptor instead.
+func (*CreateVPCRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CreateVPCRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateVPCRequest) GetCidr() string {
+	if x != nil {
+		return x.Cidr
+	}
+	return ""
+}
+
+func (x *CreateVPCRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CreateVPCRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+type CreateVPCResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Vpc           *VPC                   `protobuf:"bytes,1,opt,name=vpc,proto3" json:"vpc,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVPCResponse) Reset() {
+	*x = CreateVPCResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVPCResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVPCResponse) ProtoMessage() {}
+
+func (x *CreateVPCResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVPCResponse.ProtoReflect.Descriptor instead.
+func (*CreateVPCResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CreateVPCResponse) GetVpc() *VPC {
+	if x != nil {
+		return x.Vpc
+	}
+	return nil
+}
+
+type DeleteVPCRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	VpcId         string                 `protobuf:"bytes,1,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteVPCRequest) Reset() {
+	*x = DeleteVPCRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteVPCRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteVPCRequest) ProtoMessage() {}
+
+func (x *DeleteVPCRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteVPCRequest.ProtoReflect.Descriptor instead.
+func (*DeleteVPCRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *DeleteVPCRequest) GetVpcId() string {
+	if x != nil {
+		return x.VpcId
+	}
+	return ""
+}
+
+type DeleteVPCResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Vpc           *VPC                   `protobuf:"bytes,1,opt,name=vpc,proto3" json:"vpc,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteVPCResponse) Reset() {
+	*x = DeleteVPCResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteVPCResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteVPCResponse) ProtoMessage() {}
+
+func (x *DeleteVPCResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteVPCResponse.ProtoReflect.Descriptor instead.
+func (*DeleteVPCResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *DeleteVPCResponse) GetVpc() *VPC {
+	if x != nil {
+		return x.Vpc
+	}
+	return nil
+}
+
+type GetOperationRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OperationId   string                 `protobuf:"bytes,1,opt,name=operation_id,proto3" json:"operation_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOperationRequest) Reset() {
+	*x = GetOperationRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOperationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOperationRequest) ProtoMessage() {}
+
+func (x *GetOperationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOperationRequest.ProtoReflect.Descriptor instead.
+func (*GetOperationRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetOperationRequest) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
+// Public operation fields only; attribution stays internal.
+type Operation struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ResourceId    string                 `protobuf:"bytes,2,opt,name=resource_id,proto3" json:"resource_id,omitempty"`
+	ResourceType  string                 `protobuf:"bytes,3,opt,name=resource_type,proto3" json:"resource_type,omitempty"`
+	Kind          string                 `protobuf:"bytes,4,opt,name=kind,proto3" json:"kind,omitempty"`
+	State         string                 `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
+	Reason        string                 `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,proto3" json:"updated_at,omitempty"`
+	CompletedAt   *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=completed_at,proto3" json:"completed_at,omitempty"`
+	NextAttemptAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=next_attempt_at,proto3" json:"next_attempt_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Operation) Reset() {
+	*x = Operation{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Operation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Operation) ProtoMessage() {}
+
+func (x *Operation) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Operation.ProtoReflect.Descriptor instead.
+func (*Operation) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *Operation) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Operation) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
+}
+
+func (x *Operation) GetResourceType() string {
+	if x != nil {
+		return x.ResourceType
+	}
+	return ""
+}
+
+func (x *Operation) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *Operation) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *Operation) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *Operation) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Operation) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *Operation) GetCompletedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CompletedAt
+	}
+	return nil
+}
+
+func (x *Operation) GetNextAttemptAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.NextAttemptAt
+	}
+	return nil
+}
+
+type GetOperationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Operation     *Operation             `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOperationResponse) Reset() {
+	*x = GetOperationResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOperationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOperationResponse) ProtoMessage() {}
+
+func (x *GetOperationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOperationResponse.ProtoReflect.Descriptor instead.
+func (*GetOperationResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetOperationResponse) GetOperation() *Operation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
+// Public product fields only; binding internals mirror the EIP record.
+type EIP struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description      string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	State            string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	Reason           string                 `protobuf:"bytes,5,opt,name=reason,proto3" json:"reason,omitempty"`
+	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,proto3" json:"created_at,omitempty"`
+	UpdatedAt        *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,proto3" json:"updated_at,omitempty"`
+	Version          int64                  `protobuf:"varint,8,opt,name=version,proto3" json:"version,omitempty"`
+	ObservedAt       *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=observed_at,proto3" json:"observed_at,omitempty"`
+	ObservationStale bool                   `protobuf:"varint,10,opt,name=observation_stale,proto3" json:"observation_stale,omitempty"`
+	LastOperationId  string                 `protobuf:"bytes,11,opt,name=last_operation_id,proto3" json:"last_operation_id,omitempty"`
+	Address          string                 `protobuf:"bytes,12,opt,name=address,proto3" json:"address,omitempty"`
+	BindingId        string                 `protobuf:"bytes,13,opt,name=binding_id,proto3" json:"binding_id,omitempty"`
+	BindingState     string                 `protobuf:"bytes,14,opt,name=binding_state,proto3" json:"binding_state,omitempty"`
+	Scope            string                 `protobuf:"bytes,15,opt,name=scope,proto3" json:"scope,omitempty"`
+	ManagedBy        string                 `protobuf:"bytes,16,opt,name=managed_by,proto3" json:"managed_by,omitempty"`
+	BindingTarget    *EIPBindingTarget      `protobuf:"bytes,17,opt,name=binding_target,proto3" json:"binding_target,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *EIP) Reset() {
+	*x = EIP{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EIP) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EIP) ProtoMessage() {}
+
+func (x *EIP) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EIP.ProtoReflect.Descriptor instead.
+func (*EIP) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *EIP) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *EIP) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *EIP) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *EIP) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *EIP) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *EIP) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *EIP) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *EIP) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *EIP) GetObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAt
+	}
+	return nil
+}
+
+func (x *EIP) GetObservationStale() bool {
+	if x != nil {
+		return x.ObservationStale
+	}
+	return false
+}
+
+func (x *EIP) GetLastOperationId() string {
+	if x != nil {
+		return x.LastOperationId
+	}
+	return ""
+}
+
+func (x *EIP) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *EIP) GetBindingId() string {
+	if x != nil {
+		return x.BindingId
+	}
+	return ""
+}
+
+func (x *EIP) GetBindingState() string {
+	if x != nil {
+		return x.BindingState
+	}
+	return ""
+}
+
+func (x *EIP) GetScope() string {
+	if x != nil {
+		return x.Scope
+	}
+	return ""
+}
+
+func (x *EIP) GetManagedBy() string {
+	if x != nil {
+		return x.ManagedBy
+	}
+	return ""
+}
+
+func (x *EIP) GetBindingTarget() *EIPBindingTarget {
+	if x != nil {
+		return x.BindingTarget
+	}
+	return nil
+}
+
+type EIPBindingTarget struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Kind          string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	State         string                 `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EIPBindingTarget) Reset() {
+	*x = EIPBindingTarget{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EIPBindingTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EIPBindingTarget) ProtoMessage() {}
+
+func (x *EIPBindingTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EIPBindingTarget.ProtoReflect.Descriptor instead.
+func (*EIPBindingTarget) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *EIPBindingTarget) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *EIPBindingTarget) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *EIPBindingTarget) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+type GetEIPRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EipId         string                 `protobuf:"bytes,1,opt,name=eip_id,proto3" json:"eip_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEIPRequest) Reset() {
+	*x = GetEIPRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEIPRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEIPRequest) ProtoMessage() {}
+
+func (x *GetEIPRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEIPRequest.ProtoReflect.Descriptor instead.
+func (*GetEIPRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetEIPRequest) GetEipId() string {
+	if x != nil {
+		return x.EipId
+	}
+	return ""
+}
+
+type GetEIPResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Eip           *EIP                   `protobuf:"bytes,1,opt,name=eip,proto3" json:"eip,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEIPResponse) Reset() {
+	*x = GetEIPResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEIPResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEIPResponse) ProtoMessage() {}
+
+func (x *GetEIPResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEIPResponse.ProtoReflect.Descriptor instead.
+func (*GetEIPResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetEIPResponse) GetEip() *EIP {
+	if x != nil {
+		return x.Eip
+	}
+	return nil
+}
+
+type ListEIPsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	State         string                 `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        string                 `protobuf:"bytes,4,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListEIPsRequest) Reset() {
+	*x = ListEIPsRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListEIPsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListEIPsRequest) ProtoMessage() {}
+
+func (x *ListEIPsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListEIPsRequest.ProtoReflect.Descriptor instead.
+func (*ListEIPsRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ListEIPsRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ListEIPsRequest) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *ListEIPsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListEIPsRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+type ListEIPsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*EIP                 `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	NextCursor    string                 `protobuf:"bytes,2,opt,name=next_cursor,proto3" json:"next_cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListEIPsResponse) Reset() {
+	*x = ListEIPsResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListEIPsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListEIPsResponse) ProtoMessage() {}
+
+func (x *ListEIPsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListEIPsResponse.ProtoReflect.Descriptor instead.
+func (*ListEIPsResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ListEIPsResponse) GetItems() []*EIP {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *ListEIPsResponse) GetNextCursor() string {
+	if x != nil {
+		return x.NextCursor
+	}
+	return ""
+}
+
+type CreateEIPRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description    string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	IdempotencyKey string                 `protobuf:"bytes,3,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CreateEIPRequest) Reset() {
+	*x = CreateEIPRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateEIPRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateEIPRequest) ProtoMessage() {}
+
+func (x *CreateEIPRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateEIPRequest.ProtoReflect.Descriptor instead.
+func (*CreateEIPRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *CreateEIPRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateEIPRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CreateEIPRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+type CreateEIPResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Eip           *EIP                   `protobuf:"bytes,1,opt,name=eip,proto3" json:"eip,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateEIPResponse) Reset() {
+	*x = CreateEIPResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateEIPResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateEIPResponse) ProtoMessage() {}
+
+func (x *CreateEIPResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateEIPResponse.ProtoReflect.Descriptor instead.
+func (*CreateEIPResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *CreateEIPResponse) GetEip() *EIP {
+	if x != nil {
+		return x.Eip
+	}
+	return nil
+}
+
+type DeleteEIPRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EipId         string                 `protobuf:"bytes,1,opt,name=eip_id,proto3" json:"eip_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteEIPRequest) Reset() {
+	*x = DeleteEIPRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteEIPRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteEIPRequest) ProtoMessage() {}
+
+func (x *DeleteEIPRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteEIPRequest.ProtoReflect.Descriptor instead.
+func (*DeleteEIPRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *DeleteEIPRequest) GetEipId() string {
+	if x != nil {
+		return x.EipId
+	}
+	return ""
+}
+
+type DeleteEIPResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Eip           *EIP                   `protobuf:"bytes,1,opt,name=eip,proto3" json:"eip,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteEIPResponse) Reset() {
+	*x = DeleteEIPResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteEIPResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteEIPResponse) ProtoMessage() {}
+
+func (x *DeleteEIPResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteEIPResponse.ProtoReflect.Descriptor instead.
+func (*DeleteEIPResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *DeleteEIPResponse) GetEip() *EIP {
+	if x != nil {
+		return x.Eip
+	}
+	return nil
+}
+
+type GetVPCSnatRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	VpcId         string                 `protobuf:"bytes,1,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVPCSnatRequest) Reset() {
+	*x = GetVPCSnatRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVPCSnatRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVPCSnatRequest) ProtoMessage() {}
+
+func (x *GetVPCSnatRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVPCSnatRequest.ProtoReflect.Descriptor instead.
+func (*GetVPCSnatRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *GetVPCSnatRequest) GetVpcId() string {
+	if x != nil {
+		return x.VpcId
+	}
+	return ""
+}
+
+// Public product fields only.
+type VPCSnat struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	VpcId          string                 `protobuf:"bytes,2,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
+	EipId          string                 `protobuf:"bytes,3,opt,name=eip_id,proto3" json:"eip_id,omitempty"`
+	EipAddress     string                 `protobuf:"bytes,4,opt,name=eip_address,proto3" json:"eip_address,omitempty"`
+	State          string                 `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
+	Reason         string                 `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,proto3" json:"created_at,omitempty"`
+	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,proto3" json:"updated_at,omitempty"`
+	Version        int64                  `protobuf:"varint,9,opt,name=version,proto3" json:"version,omitempty"`
+	DesiredEnabled bool                   `protobuf:"varint,10,opt,name=desired_enabled,proto3" json:"desired_enabled,omitempty"`
+	AppliedEnabled bool                   `protobuf:"varint,11,opt,name=applied_enabled,proto3" json:"applied_enabled,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *VPCSnat) Reset() {
+	*x = VPCSnat{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VPCSnat) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VPCSnat) ProtoMessage() {}
+
+func (x *VPCSnat) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VPCSnat.ProtoReflect.Descriptor instead.
+func (*VPCSnat) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *VPCSnat) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *VPCSnat) GetVpcId() string {
+	if x != nil {
+		return x.VpcId
+	}
+	return ""
+}
+
+func (x *VPCSnat) GetEipId() string {
+	if x != nil {
+		return x.EipId
+	}
+	return ""
+}
+
+func (x *VPCSnat) GetEipAddress() string {
+	if x != nil {
+		return x.EipAddress
+	}
+	return ""
+}
+
+func (x *VPCSnat) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *VPCSnat) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *VPCSnat) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *VPCSnat) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *VPCSnat) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *VPCSnat) GetDesiredEnabled() bool {
+	if x != nil {
+		return x.DesiredEnabled
+	}
+	return false
+}
+
+func (x *VPCSnat) GetAppliedEnabled() bool {
+	if x != nil {
+		return x.AppliedEnabled
+	}
+	return false
+}
+
+type GetVPCSnatResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Snat          *VPCSnat               `protobuf:"bytes,1,opt,name=snat,proto3" json:"snat,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVPCSnatResponse) Reset() {
+	*x = GetVPCSnatResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVPCSnatResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVPCSnatResponse) ProtoMessage() {}
+
+func (x *GetVPCSnatResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVPCSnatResponse.ProtoReflect.Descriptor instead.
+func (*GetVPCSnatResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *GetVPCSnatResponse) GetSnat() *VPCSnat {
+	if x != nil {
+		return x.Snat
+	}
+	return nil
+}
+
+type BindVPCSnatRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	VpcId          string                 `protobuf:"bytes,1,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
+	EipId          string                 `protobuf:"bytes,2,opt,name=eip_id,proto3" json:"eip_id,omitempty"`
+	IdempotencyKey string                 `protobuf:"bytes,3,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *BindVPCSnatRequest) Reset() {
+	*x = BindVPCSnatRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BindVPCSnatRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BindVPCSnatRequest) ProtoMessage() {}
+
+func (x *BindVPCSnatRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BindVPCSnatRequest.ProtoReflect.Descriptor instead.
+func (*BindVPCSnatRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *BindVPCSnatRequest) GetVpcId() string {
+	if x != nil {
+		return x.VpcId
+	}
+	return ""
+}
+
+func (x *BindVPCSnatRequest) GetEipId() string {
+	if x != nil {
+		return x.EipId
+	}
+	return ""
+}
+
+func (x *BindVPCSnatRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+type BindVPCSnatResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Snat          *VPCSnat               `protobuf:"bytes,1,opt,name=snat,proto3" json:"snat,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BindVPCSnatResponse) Reset() {
+	*x = BindVPCSnatResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BindVPCSnatResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BindVPCSnatResponse) ProtoMessage() {}
+
+func (x *BindVPCSnatResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BindVPCSnatResponse.ProtoReflect.Descriptor instead.
+func (*BindVPCSnatResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *BindVPCSnatResponse) GetSnat() *VPCSnat {
+	if x != nil {
+		return x.Snat
+	}
+	return nil
+}
+
 var File_catalog_service_v1_vpc_proto protoreflect.FileDescriptor
 
 const file_catalog_service_v1_vpc_proto_rawDesc = "" +
@@ -278,7 +1753,126 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x11last_operation_id\x18\f \x01(\tR\x11last_operation_id\x12\"\n" +
 	"\fsubnet_count\x18\r \x01(\x03R\fsubnet_count\";\n" +
 	"\x0eGetVPCResponse\x12)\n" +
-	"\x03vpc\x18\x01 \x01(\v2\x17.catalog.service.v1.VPCR\x03vpcB\xc3\x01\n" +
+	"\x03vpc\x18\x01 \x01(\v2\x17.catalog.service.v1.VPCR\x03vpc\"i\n" +
+	"\x0fListVPCsRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\tR\x05state\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"c\n" +
+	"\x10ListVPCsResponse\x12-\n" +
+	"\x05items\x18\x01 \x03(\v2\x17.catalog.service.v1.VPCR\x05items\x12 \n" +
+	"\vnext_cursor\x18\x02 \x01(\tR\vnext_cursor\"\x86\x01\n" +
+	"\x10CreateVPCRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
+	"\x04cidr\x18\x02 \x01(\tR\x04cidr\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12(\n" +
+	"\x0fidempotency_key\x18\x04 \x01(\tR\x0fidempotency_key\">\n" +
+	"\x11CreateVPCResponse\x12)\n" +
+	"\x03vpc\x18\x01 \x01(\v2\x17.catalog.service.v1.VPCR\x03vpc\"*\n" +
+	"\x10DeleteVPCRequest\x12\x16\n" +
+	"\x06vpc_id\x18\x01 \x01(\tR\x06vpc_id\">\n" +
+	"\x11DeleteVPCResponse\x12)\n" +
+	"\x03vpc\x18\x01 \x01(\v2\x17.catalog.service.v1.VPCR\x03vpc\"9\n" +
+	"\x13GetOperationRequest\x12\"\n" +
+	"\foperation_id\x18\x01 \x01(\tR\foperation_id\"\xa3\x03\n" +
+	"\tOperation\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12 \n" +
+	"\vresource_id\x18\x02 \x01(\tR\vresource_id\x12$\n" +
+	"\rresource_type\x18\x03 \x01(\tR\rresource_type\x12\x12\n" +
+	"\x04kind\x18\x04 \x01(\tR\x04kind\x12\x14\n" +
+	"\x05state\x18\x05 \x01(\tR\x05state\x12\x16\n" +
+	"\x06reason\x18\x06 \x01(\tR\x06reason\x12:\n" +
+	"\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"created_at\x12:\n" +
+	"\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"updated_at\x12>\n" +
+	"\fcompleted_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\fcompleted_at\x12D\n" +
+	"\x0fnext_attempt_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x0fnext_attempt_at\"S\n" +
+	"\x14GetOperationResponse\x12;\n" +
+	"\toperation\x18\x01 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation\"\x89\x05\n" +
+	"\x03EIP\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x14\n" +
+	"\x05state\x18\x04 \x01(\tR\x05state\x12\x16\n" +
+	"\x06reason\x18\x05 \x01(\tR\x06reason\x12:\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"created_at\x12:\n" +
+	"\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"updated_at\x12\x18\n" +
+	"\aversion\x18\b \x01(\x03R\aversion\x12<\n" +
+	"\vobserved_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\vobserved_at\x12,\n" +
+	"\x11observation_stale\x18\n" +
+	" \x01(\bR\x11observation_stale\x12,\n" +
+	"\x11last_operation_id\x18\v \x01(\tR\x11last_operation_id\x12\x18\n" +
+	"\aaddress\x18\f \x01(\tR\aaddress\x12\x1e\n" +
+	"\n" +
+	"binding_id\x18\r \x01(\tR\n" +
+	"binding_id\x12$\n" +
+	"\rbinding_state\x18\x0e \x01(\tR\rbinding_state\x12\x14\n" +
+	"\x05scope\x18\x0f \x01(\tR\x05scope\x12\x1e\n" +
+	"\n" +
+	"managed_by\x18\x10 \x01(\tR\n" +
+	"managed_by\x12L\n" +
+	"\x0ebinding_target\x18\x11 \x01(\v2$.catalog.service.v1.EIPBindingTargetR\x0ebinding_target\"L\n" +
+	"\x10EIPBindingTarget\x12\x12\n" +
+	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x12\x14\n" +
+	"\x05state\x18\x03 \x01(\tR\x05state\"'\n" +
+	"\rGetEIPRequest\x12\x16\n" +
+	"\x06eip_id\x18\x01 \x01(\tR\x06eip_id\";\n" +
+	"\x0eGetEIPResponse\x12)\n" +
+	"\x03eip\x18\x01 \x01(\v2\x17.catalog.service.v1.EIPR\x03eip\"i\n" +
+	"\x0fListEIPsRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\tR\x05state\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"c\n" +
+	"\x10ListEIPsResponse\x12-\n" +
+	"\x05items\x18\x01 \x03(\v2\x17.catalog.service.v1.EIPR\x05items\x12 \n" +
+	"\vnext_cursor\x18\x02 \x01(\tR\vnext_cursor\"r\n" +
+	"\x10CreateEIPRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12(\n" +
+	"\x0fidempotency_key\x18\x03 \x01(\tR\x0fidempotency_key\">\n" +
+	"\x11CreateEIPResponse\x12)\n" +
+	"\x03eip\x18\x01 \x01(\v2\x17.catalog.service.v1.EIPR\x03eip\"*\n" +
+	"\x10DeleteEIPRequest\x12\x16\n" +
+	"\x06eip_id\x18\x01 \x01(\tR\x06eip_id\">\n" +
+	"\x11DeleteEIPResponse\x12)\n" +
+	"\x03eip\x18\x01 \x01(\v2\x17.catalog.service.v1.EIPR\x03eip\"+\n" +
+	"\x11GetVPCSnatRequest\x12\x16\n" +
+	"\x06vpc_id\x18\x01 \x01(\tR\x06vpc_id\"\xff\x02\n" +
+	"\aVPCSnat\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"\x06vpc_id\x18\x02 \x01(\tR\x06vpc_id\x12\x16\n" +
+	"\x06eip_id\x18\x03 \x01(\tR\x06eip_id\x12 \n" +
+	"\veip_address\x18\x04 \x01(\tR\veip_address\x12\x14\n" +
+	"\x05state\x18\x05 \x01(\tR\x05state\x12\x16\n" +
+	"\x06reason\x18\x06 \x01(\tR\x06reason\x12:\n" +
+	"\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"created_at\x12:\n" +
+	"\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"updated_at\x12\x18\n" +
+	"\aversion\x18\t \x01(\x03R\aversion\x12(\n" +
+	"\x0fdesired_enabled\x18\n" +
+	" \x01(\bR\x0fdesired_enabled\x12(\n" +
+	"\x0fapplied_enabled\x18\v \x01(\bR\x0fapplied_enabled\"E\n" +
+	"\x12GetVPCSnatResponse\x12/\n" +
+	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"n\n" +
+	"\x12BindVPCSnatRequest\x12\x16\n" +
+	"\x06vpc_id\x18\x01 \x01(\tR\x06vpc_id\x12\x16\n" +
+	"\x06eip_id\x18\x02 \x01(\tR\x06eip_id\x12(\n" +
+	"\x0fidempotency_key\x18\x03 \x01(\tR\x0fidempotency_key\"F\n" +
+	"\x13BindVPCSnatResponse\x12/\n" +
+	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snatB\xc3\x01\n" +
 	"\x16com.catalog.service.v1B\bVpcProtoP\x01Z5go-wind-admin/api/gen/go/catalog/service/v1;servicev1\xa2\x02\x03CSX\xaa\x02\x12Catalog.Service.V1\xca\x02\x12Catalog\\Service\\V1\xe2\x02\x1eCatalog\\Service\\V1\\GPBMetadata\xea\x02\x14Catalog::Service::V1b\x06proto3"
 
 var (
@@ -293,23 +1887,67 @@ func file_catalog_service_v1_vpc_proto_rawDescGZIP() []byte {
 	return file_catalog_service_v1_vpc_proto_rawDescData
 }
 
-var file_catalog_service_v1_vpc_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_catalog_service_v1_vpc_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_catalog_service_v1_vpc_proto_goTypes = []any{
 	(*GetVPCRequest)(nil),         // 0: catalog.service.v1.GetVPCRequest
 	(*VPC)(nil),                   // 1: catalog.service.v1.VPC
 	(*GetVPCResponse)(nil),        // 2: catalog.service.v1.GetVPCResponse
-	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
+	(*ListVPCsRequest)(nil),       // 3: catalog.service.v1.ListVPCsRequest
+	(*ListVPCsResponse)(nil),      // 4: catalog.service.v1.ListVPCsResponse
+	(*CreateVPCRequest)(nil),      // 5: catalog.service.v1.CreateVPCRequest
+	(*CreateVPCResponse)(nil),     // 6: catalog.service.v1.CreateVPCResponse
+	(*DeleteVPCRequest)(nil),      // 7: catalog.service.v1.DeleteVPCRequest
+	(*DeleteVPCResponse)(nil),     // 8: catalog.service.v1.DeleteVPCResponse
+	(*GetOperationRequest)(nil),   // 9: catalog.service.v1.GetOperationRequest
+	(*Operation)(nil),             // 10: catalog.service.v1.Operation
+	(*GetOperationResponse)(nil),  // 11: catalog.service.v1.GetOperationResponse
+	(*EIP)(nil),                   // 12: catalog.service.v1.EIP
+	(*EIPBindingTarget)(nil),      // 13: catalog.service.v1.EIPBindingTarget
+	(*GetEIPRequest)(nil),         // 14: catalog.service.v1.GetEIPRequest
+	(*GetEIPResponse)(nil),        // 15: catalog.service.v1.GetEIPResponse
+	(*ListEIPsRequest)(nil),       // 16: catalog.service.v1.ListEIPsRequest
+	(*ListEIPsResponse)(nil),      // 17: catalog.service.v1.ListEIPsResponse
+	(*CreateEIPRequest)(nil),      // 18: catalog.service.v1.CreateEIPRequest
+	(*CreateEIPResponse)(nil),     // 19: catalog.service.v1.CreateEIPResponse
+	(*DeleteEIPRequest)(nil),      // 20: catalog.service.v1.DeleteEIPRequest
+	(*DeleteEIPResponse)(nil),     // 21: catalog.service.v1.DeleteEIPResponse
+	(*GetVPCSnatRequest)(nil),     // 22: catalog.service.v1.GetVPCSnatRequest
+	(*VPCSnat)(nil),               // 23: catalog.service.v1.VPCSnat
+	(*GetVPCSnatResponse)(nil),    // 24: catalog.service.v1.GetVPCSnatResponse
+	(*BindVPCSnatRequest)(nil),    // 25: catalog.service.v1.BindVPCSnatRequest
+	(*BindVPCSnatResponse)(nil),   // 26: catalog.service.v1.BindVPCSnatResponse
+	(*timestamppb.Timestamp)(nil), // 27: google.protobuf.Timestamp
 }
 var file_catalog_service_v1_vpc_proto_depIdxs = []int32{
-	3, // 0: catalog.service.v1.VPC.created_at:type_name -> google.protobuf.Timestamp
-	3, // 1: catalog.service.v1.VPC.updated_at:type_name -> google.protobuf.Timestamp
-	3, // 2: catalog.service.v1.VPC.observed_at:type_name -> google.protobuf.Timestamp
-	1, // 3: catalog.service.v1.GetVPCResponse.vpc:type_name -> catalog.service.v1.VPC
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	27, // 0: catalog.service.v1.VPC.created_at:type_name -> google.protobuf.Timestamp
+	27, // 1: catalog.service.v1.VPC.updated_at:type_name -> google.protobuf.Timestamp
+	27, // 2: catalog.service.v1.VPC.observed_at:type_name -> google.protobuf.Timestamp
+	1,  // 3: catalog.service.v1.GetVPCResponse.vpc:type_name -> catalog.service.v1.VPC
+	1,  // 4: catalog.service.v1.ListVPCsResponse.items:type_name -> catalog.service.v1.VPC
+	1,  // 5: catalog.service.v1.CreateVPCResponse.vpc:type_name -> catalog.service.v1.VPC
+	1,  // 6: catalog.service.v1.DeleteVPCResponse.vpc:type_name -> catalog.service.v1.VPC
+	27, // 7: catalog.service.v1.Operation.created_at:type_name -> google.protobuf.Timestamp
+	27, // 8: catalog.service.v1.Operation.updated_at:type_name -> google.protobuf.Timestamp
+	27, // 9: catalog.service.v1.Operation.completed_at:type_name -> google.protobuf.Timestamp
+	27, // 10: catalog.service.v1.Operation.next_attempt_at:type_name -> google.protobuf.Timestamp
+	10, // 11: catalog.service.v1.GetOperationResponse.operation:type_name -> catalog.service.v1.Operation
+	27, // 12: catalog.service.v1.EIP.created_at:type_name -> google.protobuf.Timestamp
+	27, // 13: catalog.service.v1.EIP.updated_at:type_name -> google.protobuf.Timestamp
+	27, // 14: catalog.service.v1.EIP.observed_at:type_name -> google.protobuf.Timestamp
+	13, // 15: catalog.service.v1.EIP.binding_target:type_name -> catalog.service.v1.EIPBindingTarget
+	12, // 16: catalog.service.v1.GetEIPResponse.eip:type_name -> catalog.service.v1.EIP
+	12, // 17: catalog.service.v1.ListEIPsResponse.items:type_name -> catalog.service.v1.EIP
+	12, // 18: catalog.service.v1.CreateEIPResponse.eip:type_name -> catalog.service.v1.EIP
+	12, // 19: catalog.service.v1.DeleteEIPResponse.eip:type_name -> catalog.service.v1.EIP
+	27, // 20: catalog.service.v1.VPCSnat.created_at:type_name -> google.protobuf.Timestamp
+	27, // 21: catalog.service.v1.VPCSnat.updated_at:type_name -> google.protobuf.Timestamp
+	23, // 22: catalog.service.v1.GetVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	23, // 23: catalog.service.v1.BindVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	24, // [24:24] is the sub-list for method output_type
+	24, // [24:24] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_catalog_service_v1_vpc_proto_init() }
@@ -323,7 +1961,7 @@ func file_catalog_service_v1_vpc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_catalog_service_v1_vpc_proto_rawDesc), len(file_catalog_service_v1_vpc_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

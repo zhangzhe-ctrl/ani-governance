@@ -20,15 +20,45 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationNetworkServiceBindVPCSnat = "/admin.service.v1.NetworkService/BindVPCSnat"
+const OperationNetworkServiceCreateEIP = "/admin.service.v1.NetworkService/CreateEIP"
+const OperationNetworkServiceCreateVPC = "/admin.service.v1.NetworkService/CreateVPC"
+const OperationNetworkServiceDeleteEIP = "/admin.service.v1.NetworkService/DeleteEIP"
+const OperationNetworkServiceDeleteVPC = "/admin.service.v1.NetworkService/DeleteVPC"
+const OperationNetworkServiceGetEIP = "/admin.service.v1.NetworkService/GetEIP"
+const OperationNetworkServiceGetOperation = "/admin.service.v1.NetworkService/GetOperation"
 const OperationNetworkServiceGetVPC = "/admin.service.v1.NetworkService/GetVPC"
+const OperationNetworkServiceGetVPCSnat = "/admin.service.v1.NetworkService/GetVPCSnat"
+const OperationNetworkServiceListEIPs = "/admin.service.v1.NetworkService/ListEIPs"
+const OperationNetworkServiceListVPCs = "/admin.service.v1.NetworkService/ListVPCs"
 
 type NetworkServiceHTTPServer interface {
+	BindVPCSnat(context.Context, *v1.BindVPCSnatRequest) (*v1.BindVPCSnatResponse, error)
+	CreateEIP(context.Context, *v1.CreateEIPRequest) (*v1.CreateEIPResponse, error)
+	CreateVPC(context.Context, *v1.CreateVPCRequest) (*v1.CreateVPCResponse, error)
+	DeleteEIP(context.Context, *v1.DeleteEIPRequest) (*v1.DeleteEIPResponse, error)
+	DeleteVPC(context.Context, *v1.DeleteVPCRequest) (*v1.DeleteVPCResponse, error)
+	GetEIP(context.Context, *v1.GetEIPRequest) (*v1.GetEIPResponse, error)
+	GetOperation(context.Context, *v1.GetOperationRequest) (*v1.GetOperationResponse, error)
 	GetVPC(context.Context, *v1.GetVPCRequest) (*v1.GetVPCResponse, error)
+	GetVPCSnat(context.Context, *v1.GetVPCSnatRequest) (*v1.GetVPCSnatResponse, error)
+	ListEIPs(context.Context, *v1.ListEIPsRequest) (*v1.ListEIPsResponse, error)
+	ListVPCs(context.Context, *v1.ListVPCsRequest) (*v1.ListVPCsResponse, error)
 }
 
 func RegisterNetworkServiceHTTPServer(s *http.Server, srv NetworkServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/api/v1/networks/vpcs/{vpc_id}", _NetworkService_GetVPC0_HTTP_Handler(srv))
+	r.GET("/api/v1/networks/vpcs", _NetworkService_ListVPCs0_HTTP_Handler(srv))
+	r.POST("/api/v1/networks/vpcs", _NetworkService_CreateVPC0_HTTP_Handler(srv))
+	r.DELETE("/api/v1/networks/vpcs/{vpc_id}", _NetworkService_DeleteVPC0_HTTP_Handler(srv))
+	r.GET("/api/v1/networks/operations/{operation_id}", _NetworkService_GetOperation0_HTTP_Handler(srv))
+	r.GET("/api/v1/networks/eips/{eip_id}", _NetworkService_GetEIP0_HTTP_Handler(srv))
+	r.GET("/api/v1/networks/eips", _NetworkService_ListEIPs0_HTTP_Handler(srv))
+	r.POST("/api/v1/networks/eips", _NetworkService_CreateEIP0_HTTP_Handler(srv))
+	r.DELETE("/api/v1/networks/eips/{eip_id}", _NetworkService_DeleteEIP0_HTTP_Handler(srv))
+	r.GET("/api/v1/networks/vpcs/{vpc_id}/snat", _NetworkService_GetVPCSnat0_HTTP_Handler(srv))
+	r.POST("/api/v1/networks/vpcs/{vpc_id}/snat/bindings", _NetworkService_BindVPCSnat0_HTTP_Handler(srv))
 }
 
 func _NetworkService_GetVPC0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
@@ -53,8 +83,235 @@ func _NetworkService_GetVPC0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx
 	}
 }
 
+func _NetworkService_ListVPCs0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.ListVPCsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceListVPCs)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListVPCs(ctx, req.(*v1.ListVPCsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.ListVPCsResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_CreateVPC0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.CreateVPCRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceCreateVPC)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateVPC(ctx, req.(*v1.CreateVPCRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.CreateVPCResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_DeleteVPC0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.DeleteVPCRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceDeleteVPC)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteVPC(ctx, req.(*v1.DeleteVPCRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.DeleteVPCResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_GetOperation0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.GetOperationRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceGetOperation)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetOperation(ctx, req.(*v1.GetOperationRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.GetOperationResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_GetEIP0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.GetEIPRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceGetEIP)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetEIP(ctx, req.(*v1.GetEIPRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.GetEIPResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_ListEIPs0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.ListEIPsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceListEIPs)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListEIPs(ctx, req.(*v1.ListEIPsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.ListEIPsResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_CreateEIP0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.CreateEIPRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceCreateEIP)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateEIP(ctx, req.(*v1.CreateEIPRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.CreateEIPResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_DeleteEIP0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.DeleteEIPRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceDeleteEIP)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteEIP(ctx, req.(*v1.DeleteEIPRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.DeleteEIPResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_GetVPCSnat0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.GetVPCSnatRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceGetVPCSnat)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetVPCSnat(ctx, req.(*v1.GetVPCSnatRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.GetVPCSnatResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_BindVPCSnat0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.BindVPCSnatRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceBindVPCSnat)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.BindVPCSnat(ctx, req.(*v1.BindVPCSnatRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.BindVPCSnatResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type NetworkServiceHTTPClient interface {
+	BindVPCSnat(ctx context.Context, req *v1.BindVPCSnatRequest, opts ...http.CallOption) (rsp *v1.BindVPCSnatResponse, err error)
+	CreateEIP(ctx context.Context, req *v1.CreateEIPRequest, opts ...http.CallOption) (rsp *v1.CreateEIPResponse, err error)
+	CreateVPC(ctx context.Context, req *v1.CreateVPCRequest, opts ...http.CallOption) (rsp *v1.CreateVPCResponse, err error)
+	DeleteEIP(ctx context.Context, req *v1.DeleteEIPRequest, opts ...http.CallOption) (rsp *v1.DeleteEIPResponse, err error)
+	DeleteVPC(ctx context.Context, req *v1.DeleteVPCRequest, opts ...http.CallOption) (rsp *v1.DeleteVPCResponse, err error)
+	GetEIP(ctx context.Context, req *v1.GetEIPRequest, opts ...http.CallOption) (rsp *v1.GetEIPResponse, err error)
+	GetOperation(ctx context.Context, req *v1.GetOperationRequest, opts ...http.CallOption) (rsp *v1.GetOperationResponse, err error)
 	GetVPC(ctx context.Context, req *v1.GetVPCRequest, opts ...http.CallOption) (rsp *v1.GetVPCResponse, err error)
+	GetVPCSnat(ctx context.Context, req *v1.GetVPCSnatRequest, opts ...http.CallOption) (rsp *v1.GetVPCSnatResponse, err error)
+	ListEIPs(ctx context.Context, req *v1.ListEIPsRequest, opts ...http.CallOption) (rsp *v1.ListEIPsResponse, err error)
+	ListVPCs(ctx context.Context, req *v1.ListVPCsRequest, opts ...http.CallOption) (rsp *v1.ListVPCsResponse, err error)
 }
 
 type NetworkServiceHTTPClientImpl struct {
@@ -65,11 +322,141 @@ func NewNetworkServiceHTTPClient(client *http.Client) NetworkServiceHTTPClient {
 	return &NetworkServiceHTTPClientImpl{client}
 }
 
+func (c *NetworkServiceHTTPClientImpl) BindVPCSnat(ctx context.Context, in *v1.BindVPCSnatRequest, opts ...http.CallOption) (*v1.BindVPCSnatResponse, error) {
+	var out v1.BindVPCSnatResponse
+	pattern := "/api/v1/networks/vpcs/{vpc_id}/snat/bindings"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationNetworkServiceBindVPCSnat))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) CreateEIP(ctx context.Context, in *v1.CreateEIPRequest, opts ...http.CallOption) (*v1.CreateEIPResponse, error) {
+	var out v1.CreateEIPResponse
+	pattern := "/api/v1/networks/eips"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationNetworkServiceCreateEIP))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) CreateVPC(ctx context.Context, in *v1.CreateVPCRequest, opts ...http.CallOption) (*v1.CreateVPCResponse, error) {
+	var out v1.CreateVPCResponse
+	pattern := "/api/v1/networks/vpcs"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationNetworkServiceCreateVPC))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) DeleteEIP(ctx context.Context, in *v1.DeleteEIPRequest, opts ...http.CallOption) (*v1.DeleteEIPResponse, error) {
+	var out v1.DeleteEIPResponse
+	pattern := "/api/v1/networks/eips/{eip_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceDeleteEIP))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) DeleteVPC(ctx context.Context, in *v1.DeleteVPCRequest, opts ...http.CallOption) (*v1.DeleteVPCResponse, error) {
+	var out v1.DeleteVPCResponse
+	pattern := "/api/v1/networks/vpcs/{vpc_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceDeleteVPC))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) GetEIP(ctx context.Context, in *v1.GetEIPRequest, opts ...http.CallOption) (*v1.GetEIPResponse, error) {
+	var out v1.GetEIPResponse
+	pattern := "/api/v1/networks/eips/{eip_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceGetEIP))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) GetOperation(ctx context.Context, in *v1.GetOperationRequest, opts ...http.CallOption) (*v1.GetOperationResponse, error) {
+	var out v1.GetOperationResponse
+	pattern := "/api/v1/networks/operations/{operation_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceGetOperation))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *NetworkServiceHTTPClientImpl) GetVPC(ctx context.Context, in *v1.GetVPCRequest, opts ...http.CallOption) (*v1.GetVPCResponse, error) {
 	var out v1.GetVPCResponse
 	pattern := "/api/v1/networks/vpcs/{vpc_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationNetworkServiceGetVPC))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) GetVPCSnat(ctx context.Context, in *v1.GetVPCSnatRequest, opts ...http.CallOption) (*v1.GetVPCSnatResponse, error) {
+	var out v1.GetVPCSnatResponse
+	pattern := "/api/v1/networks/vpcs/{vpc_id}/snat"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceGetVPCSnat))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) ListEIPs(ctx context.Context, in *v1.ListEIPsRequest, opts ...http.CallOption) (*v1.ListEIPsResponse, error) {
+	var out v1.ListEIPsResponse
+	pattern := "/api/v1/networks/eips"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceListEIPs))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) ListVPCs(ctx context.Context, in *v1.ListVPCsRequest, opts ...http.CallOption) (*v1.ListVPCsResponse, error) {
+	var out v1.ListVPCsResponse
+	pattern := "/api/v1/networks/vpcs"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceListVPCs))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -20,7 +20,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	NetworkService_GetVPC_FullMethodName = "/admin.service.v1.NetworkService/GetVPC"
+	NetworkService_GetVPC_FullMethodName       = "/admin.service.v1.NetworkService/GetVPC"
+	NetworkService_ListVPCs_FullMethodName     = "/admin.service.v1.NetworkService/ListVPCs"
+	NetworkService_CreateVPC_FullMethodName    = "/admin.service.v1.NetworkService/CreateVPC"
+	NetworkService_DeleteVPC_FullMethodName    = "/admin.service.v1.NetworkService/DeleteVPC"
+	NetworkService_GetOperation_FullMethodName = "/admin.service.v1.NetworkService/GetOperation"
+	NetworkService_GetEIP_FullMethodName       = "/admin.service.v1.NetworkService/GetEIP"
+	NetworkService_ListEIPs_FullMethodName     = "/admin.service.v1.NetworkService/ListEIPs"
+	NetworkService_CreateEIP_FullMethodName    = "/admin.service.v1.NetworkService/CreateEIP"
+	NetworkService_DeleteEIP_FullMethodName    = "/admin.service.v1.NetworkService/DeleteEIP"
+	NetworkService_GetVPCSnat_FullMethodName   = "/admin.service.v1.NetworkService/GetVPCSnat"
+	NetworkService_BindVPCSnat_FullMethodName  = "/admin.service.v1.NetworkService/BindVPCSnat"
 )
 
 // NetworkServiceClient is the client API for NetworkService service.
@@ -28,6 +38,16 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NetworkServiceClient interface {
 	GetVPC(ctx context.Context, in *v1.GetVPCRequest, opts ...grpc.CallOption) (*v1.GetVPCResponse, error)
+	ListVPCs(ctx context.Context, in *v1.ListVPCsRequest, opts ...grpc.CallOption) (*v1.ListVPCsResponse, error)
+	CreateVPC(ctx context.Context, in *v1.CreateVPCRequest, opts ...grpc.CallOption) (*v1.CreateVPCResponse, error)
+	DeleteVPC(ctx context.Context, in *v1.DeleteVPCRequest, opts ...grpc.CallOption) (*v1.DeleteVPCResponse, error)
+	GetOperation(ctx context.Context, in *v1.GetOperationRequest, opts ...grpc.CallOption) (*v1.GetOperationResponse, error)
+	GetEIP(ctx context.Context, in *v1.GetEIPRequest, opts ...grpc.CallOption) (*v1.GetEIPResponse, error)
+	ListEIPs(ctx context.Context, in *v1.ListEIPsRequest, opts ...grpc.CallOption) (*v1.ListEIPsResponse, error)
+	CreateEIP(ctx context.Context, in *v1.CreateEIPRequest, opts ...grpc.CallOption) (*v1.CreateEIPResponse, error)
+	DeleteEIP(ctx context.Context, in *v1.DeleteEIPRequest, opts ...grpc.CallOption) (*v1.DeleteEIPResponse, error)
+	GetVPCSnat(ctx context.Context, in *v1.GetVPCSnatRequest, opts ...grpc.CallOption) (*v1.GetVPCSnatResponse, error)
+	BindVPCSnat(ctx context.Context, in *v1.BindVPCSnatRequest, opts ...grpc.CallOption) (*v1.BindVPCSnatResponse, error)
 }
 
 type networkServiceClient struct {
@@ -48,11 +68,121 @@ func (c *networkServiceClient) GetVPC(ctx context.Context, in *v1.GetVPCRequest,
 	return out, nil
 }
 
+func (c *networkServiceClient) ListVPCs(ctx context.Context, in *v1.ListVPCsRequest, opts ...grpc.CallOption) (*v1.ListVPCsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ListVPCsResponse)
+	err := c.cc.Invoke(ctx, NetworkService_ListVPCs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) CreateVPC(ctx context.Context, in *v1.CreateVPCRequest, opts ...grpc.CallOption) (*v1.CreateVPCResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.CreateVPCResponse)
+	err := c.cc.Invoke(ctx, NetworkService_CreateVPC_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) DeleteVPC(ctx context.Context, in *v1.DeleteVPCRequest, opts ...grpc.CallOption) (*v1.DeleteVPCResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.DeleteVPCResponse)
+	err := c.cc.Invoke(ctx, NetworkService_DeleteVPC_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) GetOperation(ctx context.Context, in *v1.GetOperationRequest, opts ...grpc.CallOption) (*v1.GetOperationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.GetOperationResponse)
+	err := c.cc.Invoke(ctx, NetworkService_GetOperation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) GetEIP(ctx context.Context, in *v1.GetEIPRequest, opts ...grpc.CallOption) (*v1.GetEIPResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.GetEIPResponse)
+	err := c.cc.Invoke(ctx, NetworkService_GetEIP_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) ListEIPs(ctx context.Context, in *v1.ListEIPsRequest, opts ...grpc.CallOption) (*v1.ListEIPsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ListEIPsResponse)
+	err := c.cc.Invoke(ctx, NetworkService_ListEIPs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) CreateEIP(ctx context.Context, in *v1.CreateEIPRequest, opts ...grpc.CallOption) (*v1.CreateEIPResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.CreateEIPResponse)
+	err := c.cc.Invoke(ctx, NetworkService_CreateEIP_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) DeleteEIP(ctx context.Context, in *v1.DeleteEIPRequest, opts ...grpc.CallOption) (*v1.DeleteEIPResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.DeleteEIPResponse)
+	err := c.cc.Invoke(ctx, NetworkService_DeleteEIP_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) GetVPCSnat(ctx context.Context, in *v1.GetVPCSnatRequest, opts ...grpc.CallOption) (*v1.GetVPCSnatResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.GetVPCSnatResponse)
+	err := c.cc.Invoke(ctx, NetworkService_GetVPCSnat_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) BindVPCSnat(ctx context.Context, in *v1.BindVPCSnatRequest, opts ...grpc.CallOption) (*v1.BindVPCSnatResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.BindVPCSnatResponse)
+	err := c.cc.Invoke(ctx, NetworkService_BindVPCSnat_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NetworkServiceServer is the server API for NetworkService service.
 // All implementations must embed UnimplementedNetworkServiceServer
 // for forward compatibility.
 type NetworkServiceServer interface {
 	GetVPC(context.Context, *v1.GetVPCRequest) (*v1.GetVPCResponse, error)
+	ListVPCs(context.Context, *v1.ListVPCsRequest) (*v1.ListVPCsResponse, error)
+	CreateVPC(context.Context, *v1.CreateVPCRequest) (*v1.CreateVPCResponse, error)
+	DeleteVPC(context.Context, *v1.DeleteVPCRequest) (*v1.DeleteVPCResponse, error)
+	GetOperation(context.Context, *v1.GetOperationRequest) (*v1.GetOperationResponse, error)
+	GetEIP(context.Context, *v1.GetEIPRequest) (*v1.GetEIPResponse, error)
+	ListEIPs(context.Context, *v1.ListEIPsRequest) (*v1.ListEIPsResponse, error)
+	CreateEIP(context.Context, *v1.CreateEIPRequest) (*v1.CreateEIPResponse, error)
+	DeleteEIP(context.Context, *v1.DeleteEIPRequest) (*v1.DeleteEIPResponse, error)
+	GetVPCSnat(context.Context, *v1.GetVPCSnatRequest) (*v1.GetVPCSnatResponse, error)
+	BindVPCSnat(context.Context, *v1.BindVPCSnatRequest) (*v1.BindVPCSnatResponse, error)
 	mustEmbedUnimplementedNetworkServiceServer()
 }
 
@@ -65,6 +195,36 @@ type UnimplementedNetworkServiceServer struct{}
 
 func (UnimplementedNetworkServiceServer) GetVPC(context.Context, *v1.GetVPCRequest) (*v1.GetVPCResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetVPC not implemented")
+}
+func (UnimplementedNetworkServiceServer) ListVPCs(context.Context, *v1.ListVPCsRequest) (*v1.ListVPCsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListVPCs not implemented")
+}
+func (UnimplementedNetworkServiceServer) CreateVPC(context.Context, *v1.CreateVPCRequest) (*v1.CreateVPCResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateVPC not implemented")
+}
+func (UnimplementedNetworkServiceServer) DeleteVPC(context.Context, *v1.DeleteVPCRequest) (*v1.DeleteVPCResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteVPC not implemented")
+}
+func (UnimplementedNetworkServiceServer) GetOperation(context.Context, *v1.GetOperationRequest) (*v1.GetOperationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetOperation not implemented")
+}
+func (UnimplementedNetworkServiceServer) GetEIP(context.Context, *v1.GetEIPRequest) (*v1.GetEIPResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEIP not implemented")
+}
+func (UnimplementedNetworkServiceServer) ListEIPs(context.Context, *v1.ListEIPsRequest) (*v1.ListEIPsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListEIPs not implemented")
+}
+func (UnimplementedNetworkServiceServer) CreateEIP(context.Context, *v1.CreateEIPRequest) (*v1.CreateEIPResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateEIP not implemented")
+}
+func (UnimplementedNetworkServiceServer) DeleteEIP(context.Context, *v1.DeleteEIPRequest) (*v1.DeleteEIPResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteEIP not implemented")
+}
+func (UnimplementedNetworkServiceServer) GetVPCSnat(context.Context, *v1.GetVPCSnatRequest) (*v1.GetVPCSnatResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetVPCSnat not implemented")
+}
+func (UnimplementedNetworkServiceServer) BindVPCSnat(context.Context, *v1.BindVPCSnatRequest) (*v1.BindVPCSnatResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BindVPCSnat not implemented")
 }
 func (UnimplementedNetworkServiceServer) mustEmbedUnimplementedNetworkServiceServer() {}
 func (UnimplementedNetworkServiceServer) testEmbeddedByValue()                        {}
@@ -105,6 +265,186 @@ func _NetworkService_GetVPC_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NetworkService_ListVPCs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ListVPCsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).ListVPCs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_ListVPCs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).ListVPCs(ctx, req.(*v1.ListVPCsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_CreateVPC_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.CreateVPCRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).CreateVPC(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_CreateVPC_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).CreateVPC(ctx, req.(*v1.CreateVPCRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_DeleteVPC_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.DeleteVPCRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).DeleteVPC(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_DeleteVPC_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).DeleteVPC(ctx, req.(*v1.DeleteVPCRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_GetOperation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.GetOperationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).GetOperation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_GetOperation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).GetOperation(ctx, req.(*v1.GetOperationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_GetEIP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.GetEIPRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).GetEIP(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_GetEIP_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).GetEIP(ctx, req.(*v1.GetEIPRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_ListEIPs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ListEIPsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).ListEIPs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_ListEIPs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).ListEIPs(ctx, req.(*v1.ListEIPsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_CreateEIP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.CreateEIPRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).CreateEIP(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_CreateEIP_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).CreateEIP(ctx, req.(*v1.CreateEIPRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_DeleteEIP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.DeleteEIPRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).DeleteEIP(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_DeleteEIP_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).DeleteEIP(ctx, req.(*v1.DeleteEIPRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_GetVPCSnat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.GetVPCSnatRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).GetVPCSnat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_GetVPCSnat_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).GetVPCSnat(ctx, req.(*v1.GetVPCSnatRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_BindVPCSnat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.BindVPCSnatRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).BindVPCSnat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_BindVPCSnat_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).BindVPCSnat(ctx, req.(*v1.BindVPCSnatRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NetworkService_ServiceDesc is the grpc.ServiceDesc for NetworkService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -115,6 +455,46 @@ var NetworkService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetVPC",
 			Handler:    _NetworkService_GetVPC_Handler,
+		},
+		{
+			MethodName: "ListVPCs",
+			Handler:    _NetworkService_ListVPCs_Handler,
+		},
+		{
+			MethodName: "CreateVPC",
+			Handler:    _NetworkService_CreateVPC_Handler,
+		},
+		{
+			MethodName: "DeleteVPC",
+			Handler:    _NetworkService_DeleteVPC_Handler,
+		},
+		{
+			MethodName: "GetOperation",
+			Handler:    _NetworkService_GetOperation_Handler,
+		},
+		{
+			MethodName: "GetEIP",
+			Handler:    _NetworkService_GetEIP_Handler,
+		},
+		{
+			MethodName: "ListEIPs",
+			Handler:    _NetworkService_ListEIPs_Handler,
+		},
+		{
+			MethodName: "CreateEIP",
+			Handler:    _NetworkService_CreateEIP_Handler,
+		},
+		{
+			MethodName: "DeleteEIP",
+			Handler:    _NetworkService_DeleteEIP_Handler,
+		},
+		{
+			MethodName: "GetVPCSnat",
+			Handler:    _NetworkService_GetVPCSnat_Handler,
+		},
+		{
+			MethodName: "BindVPCSnat",
+			Handler:    _NetworkService_BindVPCSnat_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

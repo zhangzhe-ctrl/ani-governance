@@ -35,6 +35,77 @@ func (p *vpcProbe) GetVPC(_ context.Context, tenant string, actor string, id str
 	return &networkv1.GetVPCResponse{Vpc: &networkv1.VPC{Id: id, TenantId: tenant, Name: "vpc", State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}, p.err
 }
 
+// panicTenant panics on any unexpected replayed tenant/actor; it keeps the
+// untrusted-scope assertion shared across every additional probe method.
+func panicTenant(tenant, actor string) {
+	if actor != "governance:user:7" && actor != "governance:access-key:42" {
+		panic("untrusted scope")
+	}
+	if tenant != "11111111-1111-4111-8111-111111111111" {
+		panic("untrusted scope")
+	}
+}
+
+func (p *vpcProbe) ListVPCs(_ context.Context, tenant, actor string, _ string, _ string, _ int32, _ string) (*networkv1.ListVPCsResponse, error) {
+	p.calls++
+	panicTenant(tenant, actor)
+	return &networkv1.ListVPCsResponse{Items: []*networkv1.VPC{{Id: "vpc_11111111111111111111111111111111", TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}}, p.err
+}
+
+func (p *vpcProbe) CreateVPC(_ context.Context, tenant, actor string, _, _, _, _ string) (*networkv1.CreateVPCResponse, error) {
+	p.calls++
+	panicTenant(tenant, actor)
+	return &networkv1.CreateVPCResponse{Vpc: &networkv1.VPC{Id: "vpc_11111111111111111111111111111111", TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_PROVISIONING}}, p.err
+}
+
+func (p *vpcProbe) DeleteVPC(_ context.Context, tenant, actor, id string) (*networkv1.DeleteVPCResponse, error) {
+	p.calls++
+	panicTenant(tenant, actor)
+	return &networkv1.DeleteVPCResponse{Vpc: &networkv1.VPC{Id: id, TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_DELETED}}, p.err
+}
+
+func (p *vpcProbe) GetOperation(_ context.Context, tenant, actor, id string) (*networkv1.GetOperationResponse, error) {
+	p.calls++
+	panicTenant(tenant, actor)
+	return &networkv1.GetOperationResponse{Operation: &networkv1.Operation{Id: id, TenantId: tenant, State: networkv1.OperationState_OPERATION_STATE_SUCCEEDED}}, p.err
+}
+
+func (p *vpcProbe) GetEIP(_ context.Context, tenant, actor, id string) (*networkv1.GetEIPResponse, error) {
+	p.calls++
+	panicTenant(tenant, actor)
+	return &networkv1.GetEIPResponse{Eip: &networkv1.EIP{Id: id, TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}, p.err
+}
+
+func (p *vpcProbe) ListEIPs(_ context.Context, tenant, actor string, _ string, _ string, _ int32, _ string) (*networkv1.ListEIPsResponse, error) {
+	p.calls++
+	panicTenant(tenant, actor)
+	return &networkv1.ListEIPsResponse{Items: []*networkv1.EIP{{Id: "eip_11111111111111111111111111111111", TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}}, p.err
+}
+
+func (p *vpcProbe) CreateEIP(_ context.Context, tenant, actor string, _, _, _ string) (*networkv1.CreateEIPResponse, error) {
+	p.calls++
+	panicTenant(tenant, actor)
+	return &networkv1.CreateEIPResponse{Eip: &networkv1.EIP{Id: "eip_11111111111111111111111111111111", TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_PROVISIONING}}, p.err
+}
+
+func (p *vpcProbe) DeleteEIP(_ context.Context, tenant, actor, id string) (*networkv1.DeleteEIPResponse, error) {
+	p.calls++
+	panicTenant(tenant, actor)
+	return &networkv1.DeleteEIPResponse{Eip: &networkv1.EIP{Id: id, TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_DELETED}}, p.err
+}
+
+func (p *vpcProbe) GetVPCSnat(_ context.Context, tenant, actor, vpcID string) (*networkv1.GetVPCSnatResponse, error) {
+	p.calls++
+	panicTenant(tenant, actor)
+	return &networkv1.GetVPCSnatResponse{Binding: &networkv1.VPCSnatBinding{Id: "snat_1", TenantId: tenant, VpcId: vpcID, State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}, p.err
+}
+
+func (p *vpcProbe) BindVPCSnat(_ context.Context, tenant, actor, vpcID, _, _ string) (*networkv1.BindVPCSnatResponse, error) {
+	p.calls++
+	panicTenant(tenant, actor)
+	return &networkv1.BindVPCSnatResponse{Binding: &networkv1.VPCSnatBinding{Id: "snat_1", TenantId: tenant, VpcId: vpcID, State: networkv1.ResourceState_RESOURCE_STATE_PROVISIONING}}, p.err
+}
+
 // tenantProbe 原先定义在已删除的 model_service_test.go 中，是 package service
 // 共用的 ResourceTenantResolver 测试替身。
 type tenantProbe struct{ calls int }

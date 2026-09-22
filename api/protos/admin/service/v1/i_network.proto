@@ -28,4 +28,230 @@ service NetworkService {
      ] }
    };
  }
+ rpc ListVPCs(catalog.service.v1.ListVPCsRequest) returns (catalog.service.v1.ListVPCsResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/vpcs" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "List VPCs in the authenticated tenant"
+     description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:list permission. Cursor pagination; limit is 1..100. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. System-managed Intranet resources are excluded downstream."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid cursor, limit or state filter" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
+ rpc CreateVPC(catalog.service.v1.CreateVPCRequest) returns (catalog.service.v1.CreateVPCResponse) {
+   option (google.api.http) = { post: "/api/v1/networks/vpcs" body: "*" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "Create a VPC in the authenticated tenant"
+     description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:create permission. The VPC is created asynchronously; the response carries the persisted record and an operation id. Retries with the same idempotency_key replay the original result."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid name, CIDR or idempotency key" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
+ rpc DeleteVPC(catalog.service.v1.DeleteVPCRequest) returns (catalog.service.v1.DeleteVPCResponse) {
+   option (google.api.http) = { delete: "/api/v1/networks/vpcs/{vpc_id}" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "Delete a VPC in the authenticated tenant"
+     description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:delete permission. Deletion is asynchronous; the response carries the final record state and an operation id. Cross-tenant and missing VPCs both return 404."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid VPC ID" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "VPC not found in this tenant" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
+ rpc GetOperation(catalog.service.v1.GetOperationRequest) returns (catalog.service.v1.GetOperationResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/operations/{operation_id}" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "Get a network operation result"
+     description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:operation:get permission. Returns the processing result of one tenant-owned operation; cross-tenant and missing operations both return 404."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid operation ID" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Operation not found in this tenant" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
+ rpc GetEIP(catalog.service.v1.GetEIPRequest) returns (catalog.service.v1.GetEIPResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/eips/{eip_id}" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "Get an EIP in the authenticated tenant"
+     description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:get permission. Only tenant-managed Public EIPs are visible; System-managed Intranet addresses are excluded including guessed IDs. Cross-tenant and missing EIPs both return 404."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid EIP ID" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "EIP not found in this tenant" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
+ rpc ListEIPs(catalog.service.v1.ListEIPsRequest) returns (catalog.service.v1.ListEIPsResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/eips" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "List EIPs in the authenticated tenant"
+     description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:list permission. Cursor pagination; limit is 1..100. Only tenant-managed Public EIPs are listed."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid cursor, limit or state filter" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
+ rpc CreateEIP(catalog.service.v1.CreateEIPRequest) returns (catalog.service.v1.CreateEIPResponse) {
+   option (google.api.http) = { post: "/api/v1/networks/eips" body: "*" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "Allocate a public EIP for the authenticated tenant"
+     description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:create permission. Allocation is asynchronous; retries with the same idempotency_key replay the original result. Only Public addresses are allocatable."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid name, description or idempotency key" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "503" value: { response: { description: "Network dependency, trusted identity or public address pool unavailable" } } },
+       { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
+ rpc DeleteEIP(catalog.service.v1.DeleteEIPRequest) returns (catalog.service.v1.DeleteEIPResponse) {
+   option (google.api.http) = { delete: "/api/v1/networks/eips/{eip_id}" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "Release an EIP in the authenticated tenant"
+     description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:delete permission. Release is asynchronous; a bound EIP must be unbound first. Cross-tenant and missing EIPs both return 404."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid EIP ID" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "EIP not found in this tenant" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
+ rpc GetVPCSnat(catalog.service.v1.GetVPCSnatRequest) returns (catalog.service.v1.GetVPCSnatResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/vpcs/{vpc_id}/snat" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "Get the SNAT binding of a VPC"
+     description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:snat:get permission. Returns the tenant-owned VPC's outbound SNAT binding state. Cross-tenant and missing VPCs both return 404."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid VPC ID" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "VPC not found in this tenant" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
+ rpc BindVPCSnat(catalog.service.v1.BindVPCSnatRequest) returns (catalog.service.v1.BindVPCSnatResponse) {
+   option (google.api.http) = { post: "/api/v1/networks/vpcs/{vpc_id}/snat/bindings" body: "*" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "Bind a public EIP as a VPC's SNAT egress"
+     description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:snat:bind permission. Binding is asynchronous and exclusive; retries with the same idempotency_key replay the original result."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid VPC or EIP ID" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "VPC or EIP not found in this tenant" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
 }

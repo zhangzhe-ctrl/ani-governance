@@ -20,3 +20,114 @@ message VPC {
  int64 subnet_count = 13 [json_name = "subnet_count"];
 }
 message GetVPCResponse { VPC vpc = 1 [json_name = "vpc"]; }
+
+message ListVPCsRequest {
+ string name = 1 [json_name = "name"];
+ string state = 2 [json_name = "state"];
+ int32 limit = 3 [json_name = "limit"];
+ string cursor = 4 [json_name = "cursor"];
+}
+message ListVPCsResponse {
+ repeated VPC items = 1 [json_name = "items"];
+ string next_cursor = 2 [json_name = "next_cursor"];
+}
+
+message CreateVPCRequest {
+ string name = 1 [json_name = "name"];
+ string cidr = 2 [json_name = "cidr"];
+ string description = 3 [json_name = "description"];
+ string idempotency_key = 4 [json_name = "idempotency_key"];
+}
+message CreateVPCResponse { VPC vpc = 1 [json_name = "vpc"]; }
+
+message DeleteVPCRequest { string vpc_id = 1 [json_name = "vpc_id"]; }
+message DeleteVPCResponse { VPC vpc = 1 [json_name = "vpc"]; }
+
+message GetOperationRequest { string operation_id = 1 [json_name = "operation_id"]; }
+// Public operation fields only; attribution stays internal.
+message Operation {
+ string id = 1 [json_name = "id"];
+ string resource_id = 2 [json_name = "resource_id"];
+ string resource_type = 3 [json_name = "resource_type"];
+ string kind = 4 [json_name = "kind"];
+ string state = 5 [json_name = "state"];
+ string reason = 6 [json_name = "reason"];
+ google.protobuf.Timestamp created_at = 7 [json_name = "created_at"];
+ google.protobuf.Timestamp updated_at = 8 [json_name = "updated_at"];
+ google.protobuf.Timestamp completed_at = 9 [json_name = "completed_at"];
+ google.protobuf.Timestamp next_attempt_at = 10 [json_name = "next_attempt_at"];
+}
+message GetOperationResponse { Operation operation = 1 [json_name = "operation"]; }
+
+// Public product fields only; binding internals mirror the EIP record.
+message EIP {
+ string id = 1 [json_name = "id"];
+ string name = 2 [json_name = "name"];
+ string description = 3 [json_name = "description"];
+ string state = 4 [json_name = "state"];
+ string reason = 5 [json_name = "reason"];
+ google.protobuf.Timestamp created_at = 6 [json_name = "created_at"];
+ google.protobuf.Timestamp updated_at = 7 [json_name = "updated_at"];
+ int64 version = 8 [json_name = "version"];
+ google.protobuf.Timestamp observed_at = 9 [json_name = "observed_at"];
+ bool observation_stale = 10 [json_name = "observation_stale"];
+ string last_operation_id = 11 [json_name = "last_operation_id"];
+ string address = 12 [json_name = "address"];
+ string binding_id = 13 [json_name = "binding_id"];
+ string binding_state = 14 [json_name = "binding_state"];
+ string scope = 15 [json_name = "scope"];
+ string managed_by = 16 [json_name = "managed_by"];
+ EIPBindingTarget binding_target = 17 [json_name = "binding_target"];
+}
+message EIPBindingTarget {
+ string kind = 1 [json_name = "kind"];
+ string id = 2 [json_name = "id"];
+ string state = 3 [json_name = "state"];
+}
+message GetEIPRequest { string eip_id = 1 [json_name = "eip_id"]; }
+message GetEIPResponse { EIP eip = 1 [json_name = "eip"]; }
+
+message ListEIPsRequest {
+ string name = 1 [json_name = "name"];
+ string state = 2 [json_name = "state"];
+ int32 limit = 3 [json_name = "limit"];
+ string cursor = 4 [json_name = "cursor"];
+}
+message ListEIPsResponse {
+ repeated EIP items = 1 [json_name = "items"];
+ string next_cursor = 2 [json_name = "next_cursor"];
+}
+
+message CreateEIPRequest {
+ string name = 1 [json_name = "name"];
+ string description = 2 [json_name = "description"];
+ string idempotency_key = 3 [json_name = "idempotency_key"];
+}
+message CreateEIPResponse { EIP eip = 1 [json_name = "eip"]; }
+
+message DeleteEIPRequest { string eip_id = 1 [json_name = "eip_id"]; }
+message DeleteEIPResponse { EIP eip = 1 [json_name = "eip"]; }
+
+message GetVPCSnatRequest { string vpc_id = 1 [json_name = "vpc_id"]; }
+// Public product fields only.
+message VPCSnat {
+ string id = 1 [json_name = "id"];
+ string vpc_id = 2 [json_name = "vpc_id"];
+ string eip_id = 3 [json_name = "eip_id"];
+ string eip_address = 4 [json_name = "eip_address"];
+ string state = 5 [json_name = "state"];
+ string reason = 6 [json_name = "reason"];
+ google.protobuf.Timestamp created_at = 7 [json_name = "created_at"];
+ google.protobuf.Timestamp updated_at = 8 [json_name = "updated_at"];
+ int64 version = 9 [json_name = "version"];
+ bool desired_enabled = 10 [json_name = "desired_enabled"];
+ bool applied_enabled = 11 [json_name = "applied_enabled"];
+}
+message GetVPCSnatResponse { VPCSnat snat = 1 [json_name = "snat"]; }
+
+message BindVPCSnatRequest {
+ string vpc_id = 1 [json_name = "vpc_id"];
+ string eip_id = 2 [json_name = "eip_id"];
+ string idempotency_key = 3 [json_name = "idempotency_key"];
+}
+message BindVPCSnatResponse { VPCSnat snat = 1 [json_name = "snat"]; }

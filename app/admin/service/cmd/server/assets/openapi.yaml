@@ -4999,6 +4999,12 @@ paths:
                             $ref: '#/components/schemas/CreateAccessKeyRequest'
                 required: true
             responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateAccessKeyResponse'
                 "201":
                     description: Created; secret_key is returned once
                     content:
@@ -5283,6 +5289,278 @@ paths:
                     content: {}
             security:
                 - {}
+    /api/v1/networks/eips:
+        get:
+            tags:
+                - NetworkService
+            summary: List EIPs in the authenticated tenant
+            description: Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:list permission. Cursor pagination; limit is 1..100. Only tenant-managed Public EIPs are listed.
+            operationId: NetworkService_ListEIPs
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: cursor
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListEIPsResponse'
+                "400":
+                    description: Invalid cursor, limit or state filter
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        post:
+            tags:
+                - NetworkService
+            summary: Allocate a public EIP for the authenticated tenant
+            description: Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:create permission. Allocation is asynchronous; retries with the same idempotency_key replay the original result. Only Public addresses are allocatable.
+            operationId: NetworkService_CreateEIP
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateEIPRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateEIPResponse'
+                "400":
+                    description: Invalid name, description or idempotency key
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "503":
+                    description: Network dependency, trusted identity or public address pool unavailable
+                "504":
+                    description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/eips/{eip_id}:
+        get:
+            tags:
+                - NetworkService
+            summary: Get an EIP in the authenticated tenant
+            description: Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:get permission. Only tenant-managed Public EIPs are visible; System-managed Intranet addresses are excluded including guessed IDs. Cross-tenant and missing EIPs both return 404.
+            operationId: NetworkService_GetEIP
+            parameters:
+                - name: eip_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetEIPResponse'
+                "400":
+                    description: Invalid EIP ID
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: EIP not found in this tenant
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        delete:
+            tags:
+                - NetworkService
+            summary: Release an EIP in the authenticated tenant
+            description: Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:delete permission. Release is asynchronous; a bound EIP must be unbound first. Cross-tenant and missing EIPs both return 404.
+            operationId: NetworkService_DeleteEIP
+            parameters:
+                - name: eip_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/DeleteEIPResponse'
+                "400":
+                    description: Invalid EIP ID
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: EIP not found in this tenant
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/operations/{operation_id}:
+        get:
+            tags:
+                - NetworkService
+            summary: Get a network operation result
+            description: Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:operation:get permission. Returns the processing result of one tenant-owned operation; cross-tenant and missing operations both return 404.
+            operationId: NetworkService_GetOperation
+            parameters:
+                - name: operation_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetOperationResponse'
+                "400":
+                    description: Invalid operation ID
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Operation not found in this tenant
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/vpcs:
+        get:
+            tags:
+                - NetworkService
+            summary: List VPCs in the authenticated tenant
+            description: Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:list permission. Cursor pagination; limit is 1..100. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. System-managed Intranet resources are excluded downstream.
+            operationId: NetworkService_ListVPCs
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: cursor
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListVPCsResponse'
+                "400":
+                    description: Invalid cursor, limit or state filter
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        post:
+            tags:
+                - NetworkService
+            summary: Create a VPC in the authenticated tenant
+            description: Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:create permission. The VPC is created asynchronously; the response carries the persisted record and an operation id. Retries with the same idempotency_key replay the original result.
+            operationId: NetworkService_CreateVPC
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateVPCRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateVPCResponse'
+                "400":
+                    description: Invalid name, CIDR or idempotency key
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
     /api/v1/networks/vpcs/{vpc_id}:
         get:
             tags:
@@ -5311,6 +5589,122 @@ paths:
                     description: Tenant, permission or subscription denied
                 "404":
                     description: VPC not found in this tenant
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        delete:
+            tags:
+                - NetworkService
+            summary: Delete a VPC in the authenticated tenant
+            description: Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:delete permission. Deletion is asynchronous; the response carries the final record state and an operation id. Cross-tenant and missing VPCs both return 404.
+            operationId: NetworkService_DeleteVPC
+            parameters:
+                - name: vpc_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/DeleteVPCResponse'
+                "400":
+                    description: Invalid VPC ID
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: VPC not found in this tenant
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/vpcs/{vpc_id}/snat:
+        get:
+            tags:
+                - NetworkService
+            summary: Get the SNAT binding of a VPC
+            description: Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:snat:get permission. Returns the tenant-owned VPC's outbound SNAT binding state. Cross-tenant and missing VPCs both return 404.
+            operationId: NetworkService_GetVPCSnat
+            parameters:
+                - name: vpc_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetVPCSnatResponse'
+                "400":
+                    description: Invalid VPC ID
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: VPC not found in this tenant
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/vpcs/{vpc_id}/snat/bindings:
+        post:
+            tags:
+                - NetworkService
+            summary: Bind a public EIP as a VPC's SNAT egress
+            description: Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:snat:bind permission. Binding is asynchronous and exclusive; retries with the same idempotency_key replay the original result.
+            operationId: NetworkService_BindVPCSnat
+            parameters:
+                - name: vpc_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BindVPCSnatRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BindVPCSnatResponse'
+                "400":
+                    description: Invalid VPC or EIP ID
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: VPC or EIP not found in this tenant
                 "503":
                     description: Network dependency or trusted identity unavailable
                 "504":
@@ -5363,6 +5757,27 @@ components:
                     items:
                         $ref: '#/components/schemas/DistributionItem'
             description: 操作类型分布 - 回应
+        AdditionalPropertiesItem:
+            type: object
+            properties:
+                schemaOrReference:
+                    $ref: '#/components/schemas/SchemaOrReference'
+                boolean:
+                    type: boolean
+        Any:
+            type: object
+            properties:
+                value:
+                    $ref: '#/components/schemas/GoogleProtobufAny'
+                yaml:
+                    type: string
+        AnyOrExpression:
+            type: object
+            properties:
+                any:
+                    $ref: '#/components/schemas/Any'
+                expression:
+                    $ref: '#/components/schemas/Expression'
         Api:
             type: object
             properties:
@@ -5578,6 +5993,46 @@ components:
                 code:
                     type: string
                     description: 验证码
+        BindVPCSnatRequest:
+            type: object
+            properties:
+                vpc_id:
+                    type: string
+                eip_id:
+                    type: string
+                idempotency_key:
+                    type: string
+        BindVPCSnatResponse:
+            type: object
+            properties:
+                snat:
+                    $ref: '#/components/schemas/VPCSnat'
+        Callback:
+            type: object
+            properties:
+                path:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedPathItem'
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: A map of possible out-of band callbacks related to the parent operation. Each value in the map is a Path Item Object that describes a set of requests that may be initiated by the API provider and the expected responses. The key value used to identify the callback object is an expression, evaluated at runtime, that identifies a URL to use for the callback operation.
+        CallbackOrReference:
+            type: object
+            properties:
+                callback:
+                    $ref: '#/components/schemas/Callback'
+                reference:
+                    $ref: '#/components/schemas/Reference'
+        CallbacksOrReferences:
+            type: object
+            properties:
+                additionalProperties:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedCallbackOrReference'
         ChangePasswordRequest:
             type: object
             properties:
@@ -5738,6 +6193,20 @@ components:
                 data:
                     $ref: '#/components/schemas/DictType'
             description: 创建字典类型 - 请求
+        CreateEIPRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                description:
+                    type: string
+                idempotency_key:
+                    type: string
+        CreateEIPResponse:
+            type: object
+            properties:
+                eip:
+                    $ref: '#/components/schemas/EIP'
         CreateInternalMessageCategoryRequest:
             type: object
             properties:
@@ -5863,6 +6332,22 @@ components:
                     type: string
                     format: enum
             description: 创建用户 - 请求
+        CreateVPCRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                cidr:
+                    type: string
+                description:
+                    type: string
+                idempotency_key:
+                    type: string
+        CreateVPCResponse:
+            type: object
+            properties:
+                vpc:
+                    $ref: '#/components/schemas/VPC'
         DashboardOverviewResponse:
             type: object
             properties:
@@ -6019,11 +6504,26 @@ components:
                     description: 空闲连接数
                     format: uint32
             description: 数据库信息
+        DefaultType:
+            type: object
+            properties:
+                number:
+                    type: number
+                    format: double
+                boolean:
+                    type: boolean
+                string:
+                    type: string
         DeleteAccessKeyResponse:
             type: object
             properties:
                 status:
                     type: string
+        DeleteEIPResponse:
+            type: object
+            properties:
+                eip:
+                    $ref: '#/components/schemas/EIP'
         DeleteNotificationFromInboxRequest:
             type: object
             properties:
@@ -6037,6 +6537,11 @@ components:
                         type: integer
                         format: uint32
                     description: 收件箱记录ID列表，为空表示清空收件箱
+        DeleteVPCResponse:
+            type: object
+            properties:
+                vpc:
+                    $ref: '#/components/schemas/VPC'
         DeviceInfo:
             type: object
             properties:
@@ -6293,6 +6798,18 @@ components:
                          仅平台管理员可指定他人，用于用户认证器丢失时的救援解绑（按 method 清空该用户全部因子）。
                     format: uint32
             description: Disable / remove
+        Discriminator:
+            type: object
+            properties:
+                propertyName:
+                    type: string
+                mapping:
+                    $ref: '#/components/schemas/Strings'
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: When request bodies or response payloads may be one of a number of different schemas, a `discriminator` object can be used to aid in serialization, deserialization, and validation.  The discriminator is a specific object in a schema which is used to inform the consumer of the specification of an alternative schema based on the value associated with it.  When using the discriminator, _inline_ schemas will not be considered.
         DistributionItem:
             type: object
             properties:
@@ -6302,6 +6819,56 @@ components:
                     type: integer
                     format: uint32
             description: 分布数据项
+        EIP:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                description:
+                    type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+                version:
+                    type: string
+                observed_at:
+                    type: string
+                    format: date-time
+                observation_stale:
+                    type: boolean
+                last_operation_id:
+                    type: string
+                address:
+                    type: string
+                binding_id:
+                    type: string
+                binding_state:
+                    type: string
+                scope:
+                    type: string
+                managed_by:
+                    type: string
+                binding_target:
+                    $ref: '#/components/schemas/EIPBindingTarget'
+            description: Public product fields only; binding internals mirror the EIP record.
+        EIPBindingTarget:
+            type: object
+            properties:
+                kind:
+                    type: string
+                id:
+                    type: string
+                state:
+                    type: string
         EditUserPasswordRequest:
             type: object
             properties:
@@ -6325,6 +6892,31 @@ components:
                     type: string
                     description: 邮箱验证码
             description: 邮箱验证
+        Encoding:
+            type: object
+            properties:
+                contentType:
+                    type: string
+                headers:
+                    $ref: '#/components/schemas/HeadersOrReferences'
+                style:
+                    type: string
+                explode:
+                    type: boolean
+                allowReserved:
+                    type: boolean
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: A single encoding definition applied to a single schema property.
+        Encodings:
+            type: object
+            properties:
+                additionalProperties:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedEncoding'
         EnrolledMethod:
             type: object
             properties:
@@ -6352,6 +6944,54 @@ components:
                 lastUsedAt:
                     type: string
                     format: date-time
+        Example:
+            type: object
+            properties:
+                summary:
+                    type: string
+                description:
+                    type: string
+                value:
+                    $ref: '#/components/schemas/Any'
+                externalValue:
+                    type: string
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+        ExampleOrReference:
+            type: object
+            properties:
+                example:
+                    $ref: '#/components/schemas/Example'
+                reference:
+                    $ref: '#/components/schemas/Reference'
+        ExamplesOrReferences:
+            type: object
+            properties:
+                additionalProperties:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedExampleOrReference'
+        Expression:
+            type: object
+            properties:
+                additionalProperties:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+        ExternalDocs:
+            type: object
+            properties:
+                description:
+                    type: string
+                url:
+                    type: string
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: Allows referencing an external resource for extended documentation.
         ForceLogoutSessionRequest:
             type: object
             properties:
@@ -6415,6 +7055,11 @@ components:
                     type: string
                     description: 经度（微度）
             description: 地理位置
+        GetEIPResponse:
+            type: object
+            properties:
+                eip:
+                    $ref: '#/components/schemas/EIP'
         GetMFAStatusResponse:
             type: object
             properties:
@@ -6431,11 +7076,21 @@ components:
                         - MFA_REQUIRED
                     type: string
                     format: enum
+        GetOperationResponse:
+            type: object
+            properties:
+                operation:
+                    $ref: '#/components/schemas/Operation'
         GetVPCResponse:
             type: object
             properties:
                 vpc:
                     $ref: '#/components/schemas/VPC'
+        GetVPCSnatResponse:
+            type: object
+            properties:
+                snat:
+                    $ref: '#/components/schemas/VPCSnat'
         GoRuntimeInfo:
             type: object
             properties:
@@ -6464,6 +7119,58 @@ components:
                     description: 进程启动时间
                     format: date-time
             description: Go 运行时信息
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        Header:
+            type: object
+            properties:
+                description:
+                    type: string
+                required:
+                    type: boolean
+                deprecated:
+                    type: boolean
+                allowEmptyValue:
+                    type: boolean
+                style:
+                    type: string
+                explode:
+                    type: boolean
+                allowReserved:
+                    type: boolean
+                schema:
+                    $ref: '#/components/schemas/SchemaOrReference'
+                example:
+                    $ref: '#/components/schemas/Any'
+                examples:
+                    $ref: '#/components/schemas/ExamplesOrReferences'
+                content:
+                    $ref: '#/components/schemas/MediaTypes'
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: 'The Header Object follows the structure of the Parameter Object with the following changes:  1. `name` MUST NOT be specified, it is given in the corresponding `headers` map. 1. `in` MUST NOT be specified, it is implicitly in `header`. 1. All traits that are affected by the location MUST be applicable to a location of `header` (for example, `style`).'
+        HeaderOrReference:
+            type: object
+            properties:
+                header:
+                    $ref: '#/components/schemas/Header'
+                reference:
+                    $ref: '#/components/schemas/Reference'
+        HeadersOrReferences:
+            type: object
+            properties:
+                additionalProperties:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedHeaderOrReference'
         HostInfo:
             type: object
             properties:
@@ -6718,6 +7425,13 @@ components:
                     description: 删除时间
                     format: date-time
             description: 站内信消息用户接收信息
+        ItemsItem:
+            type: object
+            properties:
+                schemaOrReference:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SchemaOrReference'
         KratosStatus:
             type: object
             properties:
@@ -6786,6 +7500,40 @@ components:
                     description: 删除时间
                     format: date-time
             description: 语言
+        Link:
+            type: object
+            properties:
+                operationRef:
+                    type: string
+                operationId:
+                    type: string
+                parameters:
+                    $ref: '#/components/schemas/AnyOrExpression'
+                requestBody:
+                    $ref: '#/components/schemas/AnyOrExpression'
+                description:
+                    type: string
+                server:
+                    $ref: '#/components/schemas/Server'
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: The `Link object` represents a possible design-time link for a response. The presence of a link does not guarantee the caller's ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between responses and other operations.  Unlike _dynamic_ links (i.e. links provided **in** the response payload), the OAS linking mechanism does not require link information in the runtime response.  For computing links, and providing instructions to execute them, a runtime expression is used for accessing values in an operation and using them as parameters while invoking the linked operation.
+        LinkOrReference:
+            type: object
+            properties:
+                link:
+                    $ref: '#/components/schemas/Link'
+                reference:
+                    $ref: '#/components/schemas/Reference'
+        LinksOrReferences:
+            type: object
+            properties:
+                additionalProperties:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedLinkOrReference'
         ListAccessKeyResponse:
             type: object
             properties:
@@ -6862,6 +7610,15 @@ components:
                 total:
                     type: string
             description: 查询字典类型列表 - 回应
+        ListEIPsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EIP'
+                next_cursor:
+                    type: string
         ListEnrolledMethodsResponse:
             type: object
             properties:
@@ -7127,6 +7884,15 @@ components:
                 total:
                     type: string
             description: 获取用户列表 - 答复
+        ListVPCsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/VPC'
+                next_cursor:
+                    type: string
         LoginAuditLog:
             type: object
             properties:
@@ -7378,6 +8144,29 @@ components:
                     type: string
                     description: 新的消息状态
                     format: enum
+        MediaType:
+            type: object
+            properties:
+                schema:
+                    $ref: '#/components/schemas/SchemaOrReference'
+                example:
+                    $ref: '#/components/schemas/Any'
+                examples:
+                    $ref: '#/components/schemas/ExamplesOrReferences'
+                encoding:
+                    $ref: '#/components/schemas/Encodings'
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: Each Media Type Object provides schema and examples for the media type identified by its key.
+        MediaTypes:
+            type: object
+            properties:
+                additionalProperties:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedMediaType'
         Menu:
             type: object
             properties:
@@ -7583,6 +8372,148 @@ components:
                 meta:
                     $ref: '#/components/schemas/MenuMeta'
             description: 路由项
+        NamedAny:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/Any'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of Any as ordered (name,value) pairs.
+        NamedCallbackOrReference:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/CallbackOrReference'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of CallbackOrReference as ordered (name,value) pairs.
+        NamedEncoding:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/Encoding'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of Encoding as ordered (name,value) pairs.
+        NamedExampleOrReference:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/ExampleOrReference'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of ExampleOrReference as ordered (name,value) pairs.
+        NamedHeaderOrReference:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/HeaderOrReference'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of HeaderOrReference as ordered (name,value) pairs.
+        NamedLinkOrReference:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/LinkOrReference'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of LinkOrReference as ordered (name,value) pairs.
+        NamedMediaType:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/MediaType'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of MediaType as ordered (name,value) pairs.
+        NamedPathItem:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/PathItem'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of PathItem as ordered (name,value) pairs.
+        NamedResponseOrReference:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/ResponseOrReference'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of ResponseOrReference as ordered (name,value) pairs.
+        NamedSchemaOrReference:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/SchemaOrReference'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of SchemaOrReference as ordered (name,value) pairs.
+        NamedServerVariable:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/ServerVariable'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of ServerVariable as ordered (name,value) pairs.
+        NamedString:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    type: string
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of string as ordered (name,value) pairs.
+        NamedStringArray:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Map key
+                value:
+                    allOf:
+                        - $ref: '#/components/schemas/StringArray'
+                    description: Mapped value
+            description: Automatically-generated message used to represent maps of StringArray as ordered (name,value) pairs.
         NotificationChannel:
             type: object
             properties:
@@ -7684,6 +8615,46 @@ components:
                     description: 登录时间（刷新轮换继承首次登录时间）
                     format: date-time
             description: 在线会话
+        Operation:
+            type: object
+            properties:
+                tags:
+                    type: array
+                    items:
+                        type: string
+                summary:
+                    type: string
+                description:
+                    type: string
+                externalDocs:
+                    $ref: '#/components/schemas/ExternalDocs'
+                operationId:
+                    type: string
+                parameters:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParameterOrReference'
+                requestBody:
+                    $ref: '#/components/schemas/RequestBodyOrReference'
+                responses:
+                    $ref: '#/components/schemas/Responses'
+                callbacks:
+                    $ref: '#/components/schemas/CallbacksOrReferences'
+                deprecated:
+                    type: boolean
+                security:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SecurityRequirement'
+                servers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Server'
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: Describes a single API operation on a path.
         OperationAuditLog:
             type: object
             properties:
@@ -7936,6 +8907,47 @@ components:
                     description: 删除时间
                     format: date-time
             description: 组织单元
+        Parameter:
+            type: object
+            properties:
+                name:
+                    type: string
+                in:
+                    type: string
+                description:
+                    type: string
+                required:
+                    type: boolean
+                deprecated:
+                    type: boolean
+                allowEmptyValue:
+                    type: boolean
+                style:
+                    type: string
+                explode:
+                    type: boolean
+                allowReserved:
+                    type: boolean
+                schema:
+                    $ref: '#/components/schemas/SchemaOrReference'
+                example:
+                    $ref: '#/components/schemas/Any'
+                examples:
+                    $ref: '#/components/schemas/ExamplesOrReferences'
+                content:
+                    $ref: '#/components/schemas/MediaTypes'
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: Describes a single operation parameter.  A unique parameter is defined by a combination of a name and location.
+        ParameterOrReference:
+            type: object
+            properties:
+                parameter:
+                    $ref: '#/components/schemas/Parameter'
+                reference:
+                    $ref: '#/components/schemas/Reference'
         PasswordLoginRequest:
             type: object
             properties:
@@ -7949,6 +8961,44 @@ components:
                     type: string
                     description: 用户输入的原始密码，经 HTTPS 提交；不要进行 AES、Base64 或 bcrypt 编码
             description: 租户账密登录 - 请求
+        PathItem:
+            type: object
+            properties:
+                Ref:
+                    type: string
+                summary:
+                    type: string
+                description:
+                    type: string
+                get:
+                    $ref: '#/components/schemas/Operation'
+                put:
+                    $ref: '#/components/schemas/Operation'
+                post:
+                    $ref: '#/components/schemas/Operation'
+                delete:
+                    $ref: '#/components/schemas/Operation'
+                options:
+                    $ref: '#/components/schemas/Operation'
+                head:
+                    $ref: '#/components/schemas/Operation'
+                patch:
+                    $ref: '#/components/schemas/Operation'
+                trace:
+                    $ref: '#/components/schemas/Operation'
+                servers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Server'
+                parameters:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParameterOrReference'
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: Describes the operations available on a single path. A Path Item MAY be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.
         Permission:
             type: object
             properties:
@@ -8521,6 +9571,13 @@ components:
                     description: 删除时间
                     format: date-time
             description: 职位
+        Properties:
+            type: object
+            properties:
+                additionalProperties:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedSchemaOrReference'
         QuotaUsage:
             type: object
             properties:
@@ -8551,6 +9608,16 @@ components:
                     items:
                         $ref: '#/components/schemas/SlowLogEntry'
             description: Redis缓存监控信息
+        Reference:
+            type: object
+            properties:
+                Ref:
+                    type: string
+                summary:
+                    type: string
+                description:
+                    type: string
+            description: A simple object to allow referencing other components in the specification, internally and externally.  The Reference Object is defined by JSON Reference and follows the same structure, behavior and rules.   For this specification, reference resolution is accomplished as defined by the JSON Reference specification and not by the JSON Schema specification.
         RefreshAccessTokenRequest:
             type: object
             properties:
@@ -8566,6 +9633,27 @@ components:
                  与 ANI 契约的差异：refresh token 经 HttpOnly Cookie 传输，故请求体不含 refresh_token。
                  两个字段为可选的客户端/设备标识，用于在刷新后延续审计留痕（client_id 进审计日志）
                  与会话元数据（device_id 进在线会话列表）。缺失时新令牌对相应字段为空，不影响功能。
+        RequestBody:
+            type: object
+            properties:
+                description:
+                    type: string
+                content:
+                    $ref: '#/components/schemas/MediaTypes'
+                required:
+                    type: boolean
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: Describes a single request body.
+        RequestBodyOrReference:
+            type: object
+            properties:
+                requestBody:
+                    $ref: '#/components/schemas/RequestBody'
+                reference:
+                    $ref: '#/components/schemas/Reference'
         ResetAccessKeySecretRequest:
             type: object
             properties:
@@ -8585,6 +9673,43 @@ components:
                     type: string
                     description: 新密码
             description: 凭验证码重置密码 - 请求
+        Response:
+            type: object
+            properties:
+                description:
+                    type: string
+                headers:
+                    $ref: '#/components/schemas/HeadersOrReferences'
+                content:
+                    $ref: '#/components/schemas/MediaTypes'
+                links:
+                    $ref: '#/components/schemas/LinksOrReferences'
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: Describes a single response from an API Operation, including design-time, static  `links` to operations based on the response.
+        ResponseOrReference:
+            type: object
+            properties:
+                response:
+                    $ref: '#/components/schemas/Response'
+                reference:
+                    $ref: '#/components/schemas/Reference'
+        Responses:
+            type: object
+            properties:
+                default:
+                    $ref: '#/components/schemas/ResponseOrReference'
+                responseOrReference:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedResponseOrReference'
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: A container for the expected responses of an operation. The container maps a HTTP response code to the expected response.  The documentation is not necessarily expected to cover all possible HTTP response codes because they may not be known in advance. However, documentation is expected to cover a successful operation response and any known errors.  The `default` MAY be used as a default response object for all HTTP codes  that are not covered individually by the specification.  The `Responses Object` MUST contain at least one response code, and it  SHOULD be the response for a successful operation call.
         RestartAllTaskResponse:
             type: object
             properties:
@@ -8769,6 +9894,112 @@ components:
                     type: string
                 code:
                     type: string
+        Schema:
+            type: object
+            properties:
+                nullable:
+                    type: boolean
+                discriminator:
+                    $ref: '#/components/schemas/Discriminator'
+                readOnly:
+                    type: boolean
+                writeOnly:
+                    type: boolean
+                xml:
+                    $ref: '#/components/schemas/Xml'
+                externalDocs:
+                    $ref: '#/components/schemas/ExternalDocs'
+                example:
+                    $ref: '#/components/schemas/Any'
+                deprecated:
+                    type: boolean
+                title:
+                    type: string
+                multipleOf:
+                    type: number
+                    format: double
+                maximum:
+                    type: number
+                    format: double
+                exclusiveMaximum:
+                    type: boolean
+                minimum:
+                    type: number
+                    format: double
+                exclusiveMinimum:
+                    type: boolean
+                maxLength:
+                    type: string
+                minLength:
+                    type: string
+                pattern:
+                    type: string
+                maxItems:
+                    type: string
+                minItems:
+                    type: string
+                uniqueItems:
+                    type: boolean
+                maxProperties:
+                    type: string
+                minProperties:
+                    type: string
+                required:
+                    type: array
+                    items:
+                        type: string
+                enum:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Any'
+                type:
+                    type: string
+                allOf:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SchemaOrReference'
+                oneOf:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SchemaOrReference'
+                anyOf:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SchemaOrReference'
+                not:
+                    $ref: '#/components/schemas/Schema'
+                items:
+                    $ref: '#/components/schemas/ItemsItem'
+                properties:
+                    $ref: '#/components/schemas/Properties'
+                additionalProperties:
+                    $ref: '#/components/schemas/AdditionalPropertiesItem'
+                default:
+                    $ref: '#/components/schemas/DefaultType'
+                description:
+                    type: string
+                format:
+                    type: string
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: The Schema Object allows the definition of input and output data types. These types can be objects, but also primitives and arrays. This object is an extended subset of the JSON Schema Specification Wright Draft 00.  For more information about the properties, see JSON Schema Core and JSON Schema Validation. Unless stated otherwise, the property definitions follow the JSON Schema.
+        SchemaOrReference:
+            type: object
+            properties:
+                schema:
+                    $ref: '#/components/schemas/Schema'
+                reference:
+                    $ref: '#/components/schemas/Reference'
+        SecurityRequirement:
+            type: object
+            properties:
+                additionalProperties:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedStringArray'
+            description: Lists the required security schemes to execute this operation. The name used for each property MUST correspond to a security scheme declared in the Security Schemes under the Components Object.  Security Requirement Objects that contain multiple schemes require that all schemes MUST be satisfied for a request to be authorized. This enables support for scenarios where multiple query parameters or HTTP headers are required to convey security information.  When a list of Security Requirement Objects is defined on the OpenAPI Object or Operation Object, only one of the Security Requirement Objects in the list needs to be satisfied to authorize the request.
         SendMessageRequest:
             type: object
             properties:
@@ -8825,6 +10056,20 @@ components:
                     type: string
                     description: 测试收件人邮箱
             description: 发送测试邮件 - 请求
+        Server:
+            type: object
+            properties:
+                url:
+                    type: string
+                description:
+                    type: string
+                variables:
+                    $ref: '#/components/schemas/ServerVariables'
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: An object representing a Server.
         ServerMonitorInfo:
             type: object
             properties:
@@ -8839,6 +10084,29 @@ components:
                     description: 采集时间
                     format: date-time
             description: 服务监控聚合信息
+        ServerVariable:
+            type: object
+            properties:
+                enum:
+                    type: array
+                    items:
+                        type: string
+                default:
+                    type: string
+                description:
+                    type: string
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: An object representing a Server Variable for server URL template substitution.
+        ServerVariables:
+            type: object
+            properties:
+                additionalProperties:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedServerVariable'
         SlowLogEntry:
             type: object
             properties:
@@ -8902,6 +10170,20 @@ components:
                     items:
                         $ref: '#/components/schemas/DistributionItem'
             description: 登录状态分布 - 回应
+        StringArray:
+            type: object
+            properties:
+                value:
+                    type: array
+                    items:
+                        type: string
+        Strings:
+            type: object
+            properties:
+                additionalProperties:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedString'
         SyncMenusRequest:
             type: object
             properties:
@@ -9774,6 +11056,34 @@ components:
                 subnet_count:
                     type: string
             description: Public product fields only; tenant identity and provider placement stay internal.
+        VPCSnat:
+            type: object
+            properties:
+                id:
+                    type: string
+                vpc_id:
+                    type: string
+                eip_id:
+                    type: string
+                eip_address:
+                    type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+                version:
+                    type: string
+                desired_enabled:
+                    type: boolean
+                applied_enabled:
+                    type: boolean
+            description: Public product fields only.
         VerifyCaptchaRequest:
             type: object
             properties:
@@ -9834,6 +11144,24 @@ components:
                     type: string
                 rpId:
                     type: string
+        Xml:
+            type: object
+            properties:
+                name:
+                    type: string
+                namespace:
+                    type: string
+                prefix:
+                    type: string
+                attribute:
+                    type: boolean
+                wrapped:
+                    type: boolean
+                specificationExtension:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NamedAny'
+            description: A metadata object that allows for more fine-tuned XML model definitions.  When using arrays, XML element names are *not* inferred (for singular/plural forms) and the `name` property SHOULD be used to add that information. See examples for expected behavior.
     responses:
         default:
             description: default kratos response

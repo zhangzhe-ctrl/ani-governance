@@ -20,11 +20,14 @@
 | 平台运营账号管理 | 复用 ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-02/12；AUTH-15～AUTH-18；SESSION-01～SESSION-04；PERM-01～PERM-06、PERMGROUP-01～PERMGROUP-05 | 支持多个平台账号；运营/只读角色模板待 API 接入后再加；自助会话与权限点/权限组接口本轮补登，缺口见 MGMT-08～MGMT-15 | 待指定 |
 | API Key / AK-SK | AK-01～AK-07 | 签名、角色绑定、加密与可信审计已完成，真实 VPC 闭环 PASS | AKSK-VPC-20260922 已完成本批 |
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
+| Network 租户面读写对接（GOV-RESOURCE-20260922） | NET-02～NET-11；复用 AK-*、AUTH-* | BFF 路由/客户端/Service 已实现并编译、定向测试通过；全链路验收待执行 | GOV-RESOURCE-20260922 进行中 |
 | 通用配额与 GPU 本地模拟 | QUOTA-01～03、QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 已完成执行计划，尚未实现/验收；真实 GPU 未接入 | QUOTA-GPU-LOCAL-01，仅计划 |
 
 ## 风格改动批次
 
 本批 **AKSK-VPC-20260922** 已由用户明确指定，覆盖 AK-01～07、AK-ISSUE-01～05、NET-01/NET-ISSUE-01：实现、远端定向测试、空库真实链路及必要负向验收均 PASS。证据见 [运行记录](evidence/aksk-vpc-20260922/README.md)。单个批次完成不代表整体登记结束，其他功能风格仍待指定。
+
+本批 **GOV-RESOURCE-20260922**（进行中）：把 governance ↔ 下游资源服务（ani-resource-service，原 ani-network-service 改名）对接从单一 VPC 只读扩为**租户面读+写**。新增 BFF 路由（NET-02～NET-11）：`GET/POST /api/v1/networks/vpcs`、`DELETE /api/v1/networks/vpcs/{vpc_id}`、`GET /api/v1/networks/operations/{operation_id}`、`GET/POST /api/v1/networks/eips`、`DELETE /api/v1/networks/eips/{eip_id}`、`GET /api/v1/networks/vpcs/{vpc_id}/snat`、`POST /api/v1/networks/vpcs/{vpc_id}/snat/bindings`。权限码族 `network:vpc:list|create|delete`、`network:operation:get`、`network:eip:get|list|create|delete`、`network:snat:get|bind`（`bootstrap-network-access.sql` 已扩展）。下游统一走新的 `ANI_NETWORK_MODE=governance` 组合入口（mTLS、SAN、三头、actor 合同与 vpc-read 一致；resource 侧白名单按域分组，平台面与流式全部拒绝）。本批全链路验收未执行，状态以 [计划](../../ani-resource-service/docs/plans/governance-integration.md) 勾选为准。
 
 ## 功能组：登录、登出及登录后初始化
 

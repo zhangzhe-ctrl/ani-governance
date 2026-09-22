@@ -27,7 +27,7 @@ var File_admin_service_v1_i_network_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"\n" +
-	" admin/service/v1/i_network.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1ccatalog/service/v1/vpc.proto\x1a$gnostic/openapi/v3/annotations.proto2\xf8\a\n" +
+	" admin/service/v1/i_network.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1ccatalog/service/v1/vpc.proto\x1a$gnostic/openapi/v3/annotations.proto2\x83E\n" +
 	"\x0eNetworkService\x12\xe5\a\n" +
 	"\x06GetVPC\x12!.catalog.service.v1.GetVPCRequest\x1a\".catalog.service.v1.GetVPCResponse\"\x93\a\xbaG\xe9\x06\x12%Get a VPC in the authenticated tenant\x1a\xb7\x03Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters and body are rejected. Public identity headers are ignored. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed.B\xb8\x02\x12.\n" +
 	"\x03400\x12'\n" +
@@ -56,21 +56,330 @@ const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/networks/vpcs/{vpc_id}B\xba\x01\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/networks/vpcs/{vpc_id}\x12\xab\x06\n" +
+	"\bListVPCs\x12#.catalog.service.v1.ListVPCsRequest\x1a$.catalog.service.v1.ListVPCsResponse\"\xd3\x05\xbaG\xb2\x05\x12%List VPCs in the authenticated tenant\x1a\xa7\x02Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:list permission. Cursor pagination; limit is 1..100. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. System-managed Intranet resources are excluded downstream.B\x91\x02\x120\n" +
+	"\x03400\x12)\n" +
+	"'\n" +
+	"%Invalid cursor, limit or state filter\x12;\n" +
+	"\x03401\x124\n" +
+	"2\n" +
+	"0Missing, invalid, expired or revoked credentials\x124\n" +
+	"\x03403\x12-\n" +
+	"+\n" +
+	")Tenant, permission or subscription denied\x12=\n" +
+	"\x03503\x126\n" +
+	"4\n" +
+	"2Network dependency or trusted identity unavailable\x12+\n" +
+	"\x03504\x12$\n" +
+	"\"\n" +
+	" Connected Network call timed outZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00Z9\n" +
+	"\x11\n" +
+	"\rAccessKeyAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/networks/vpcs\x12\x98\x06\n" +
+	"\tCreateVPC\x12$.catalog.service.v1.CreateVPCRequest\x1a%.catalog.service.v1.CreateVPCResponse\"\xbd\x05\xbaG\x99\x05\x12(Create a VPC in the authenticated tenant\x1a\x8b\x02Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:create permission. The VPC is created asynchronously; the response carries the persisted record and an operation id. Retries with the same idempotency_key replay the original result.B\x91\x02\x120\n" +
+	"\x03400\x12)\n" +
+	"'\n" +
+	"%Invalid name, CIDR or idempotency key\x12;\n" +
+	"\x03401\x124\n" +
+	"2\n" +
+	"0Missing, invalid, expired or revoked credentials\x124\n" +
+	"\x03403\x12-\n" +
+	"+\n" +
+	")Tenant, permission or subscription denied\x12=\n" +
+	"\x03503\x126\n" +
+	"4\n" +
+	"2Network dependency or trusted identity unavailable\x12+\n" +
+	"\x03504\x12$\n" +
+	"\"\n" +
+	" Connected Network call timed outZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00Z9\n" +
+	"\x11\n" +
+	"\rAccessKeyAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/networks/vpcs\x12\x96\x06\n" +
+	"\tDeleteVPC\x12$.catalog.service.v1.DeleteVPCRequest\x1a%.catalog.service.v1.DeleteVPCResponse\"\xbb\x05\xbaG\x91\x05\x12(Delete a VPC in the authenticated tenant\x1a\xf1\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:delete permission. Deletion is asynchronous; the response carries the final record state and an operation id. Cross-tenant and missing VPCs both return 404.B\xa3\x02\x12\x19\n" +
+	"\x03400\x12\x12\n" +
+	"\x10\n" +
+	"\x0eInvalid VPC ID\x12;\n" +
+	"\x03401\x124\n" +
+	"2\n" +
+	"0Missing, invalid, expired or revoked credentials\x124\n" +
+	"\x03403\x12-\n" +
+	"+\n" +
+	")Tenant, permission or subscription denied\x12'\n" +
+	"\x03404\x12 \n" +
+	"\x1e\n" +
+	"\x1cVPC not found in this tenant\x12=\n" +
+	"\x03503\x126\n" +
+	"4\n" +
+	"2Network dependency or trusted identity unavailable\x12+\n" +
+	"\x03504\x12$\n" +
+	"\"\n" +
+	" Connected Network call timed outZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00Z9\n" +
+	"\x11\n" +
+	"\rAccessKeyAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 *\x1e/api/v1/networks/vpcs/{vpc_id}\x12\x98\x06\n" +
+	"\fGetOperation\x12'.catalog.service.v1.GetOperationRequest\x1a(.catalog.service.v1.GetOperationResponse\"\xb4\x05\xbaG\xfe\x04\x12\x1eGet a network operation result\x1a\xdc\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:operation:get permission. Returns the processing result of one tenant-owned operation; cross-tenant and missing operations both return 404.B\xaf\x02\x12\x1f\n" +
+	"\x03400\x12\x18\n" +
+	"\x16\n" +
+	"\x14Invalid operation ID\x12;\n" +
+	"\x03401\x124\n" +
+	"2\n" +
+	"0Missing, invalid, expired or revoked credentials\x124\n" +
+	"\x03403\x12-\n" +
+	"+\n" +
+	")Tenant, permission or subscription denied\x12-\n" +
+	"\x03404\x12&\n" +
+	"$\n" +
+	"\"Operation not found in this tenant\x12=\n" +
+	"\x03503\x126\n" +
+	"4\n" +
+	"2Network dependency or trusted identity unavailable\x12+\n" +
+	"\x03504\x12$\n" +
+	"\"\n" +
+	" Connected Network call timed outZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00Z9\n" +
+	"\x11\n" +
+	"\rAccessKeyAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02,\x12*/api/v1/networks/operations/{operation_id}\x12\xa0\x06\n" +
+	"\x06GetEIP\x12!.catalog.service.v1.GetEIPRequest\x1a\".catalog.service.v1.GetEIPResponse\"\xce\x05\xbaG\xa4\x05\x12&Get an EIP in the authenticated tenant\x1a\x86\x02Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:get permission. Only tenant-managed Public EIPs are visible; System-managed Intranet addresses are excluded including guessed IDs. Cross-tenant and missing EIPs both return 404.B\xa3\x02\x12\x19\n" +
+	"\x03400\x12\x12\n" +
+	"\x10\n" +
+	"\x0eInvalid EIP ID\x12;\n" +
+	"\x03401\x124\n" +
+	"2\n" +
+	"0Missing, invalid, expired or revoked credentials\x124\n" +
+	"\x03403\x12-\n" +
+	"+\n" +
+	")Tenant, permission or subscription denied\x12'\n" +
+	"\x03404\x12 \n" +
+	"\x1e\n" +
+	"\x1cEIP not found in this tenant\x12=\n" +
+	"\x03503\x126\n" +
+	"4\n" +
+	"2Network dependency or trusted identity unavailable\x12+\n" +
+	"\x03504\x12$\n" +
+	"\"\n" +
+	" Connected Network call timed outZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00Z9\n" +
+	"\x11\n" +
+	"\rAccessKeyAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/networks/eips/{eip_id}\x12\xb9\x05\n" +
+	"\bListEIPs\x12#.catalog.service.v1.ListEIPsRequest\x1a$.catalog.service.v1.ListEIPsResponse\"\xe1\x04\xbaG\xc0\x04\x12%List EIPs in the authenticated tenant\x1a\xb5\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:list permission. Cursor pagination; limit is 1..100. Only tenant-managed Public EIPs are listed.B\x91\x02\x120\n" +
+	"\x03400\x12)\n" +
+	"'\n" +
+	"%Invalid cursor, limit or state filter\x12;\n" +
+	"\x03401\x124\n" +
+	"2\n" +
+	"0Missing, invalid, expired or revoked credentials\x124\n" +
+	"\x03403\x12-\n" +
+	"+\n" +
+	")Tenant, permission or subscription denied\x12=\n" +
+	"\x03503\x126\n" +
+	"4\n" +
+	"2Network dependency or trusted identity unavailable\x12+\n" +
+	"\x03504\x12$\n" +
+	"\"\n" +
+	" Connected Network call timed outZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00Z9\n" +
+	"\x11\n" +
+	"\rAccessKeyAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/networks/eips\x12\x9f\x06\n" +
+	"\tCreateEIP\x12$.catalog.service.v1.CreateEIPRequest\x1a%.catalog.service.v1.CreateEIPResponse\"\xc4\x05\xbaG\xa0\x05\x122Allocate a public EIP for the authenticated tenant\x1a\xec\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:create permission. Allocation is asynchronous; retries with the same idempotency_key replay the original result. Only Public addresses are allocatable.B\xad\x02\x127\n" +
+	"\x03400\x120\n" +
+	".\n" +
+	",Invalid name, description or idempotency key\x12;\n" +
+	"\x03401\x124\n" +
+	"2\n" +
+	"0Missing, invalid, expired or revoked credentials\x124\n" +
+	"\x03403\x12-\n" +
+	"+\n" +
+	")Tenant, permission or subscription denied\x12R\n" +
+	"\x03503\x12K\n" +
+	"I\n" +
+	"GNetwork dependency, trusted identity or public address pool unavailable\x12+\n" +
+	"\x03504\x12$\n" +
+	"\"\n" +
+	" Connected Network call timed outZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00Z9\n" +
+	"\x11\n" +
+	"\rAccessKeyAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/networks/eips\x12\xf9\x05\n" +
+	"\tDeleteEIP\x12$.catalog.service.v1.DeleteEIPRequest\x1a%.catalog.service.v1.DeleteEIPResponse\"\x9e\x05\xbaG\xf4\x04\x12*Release an EIP in the authenticated tenant\x1a\xd2\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:delete permission. Release is asynchronous; a bound EIP must be unbound first. Cross-tenant and missing EIPs both return 404.B\xa3\x02\x12\x19\n" +
+	"\x03400\x12\x12\n" +
+	"\x10\n" +
+	"\x0eInvalid EIP ID\x12;\n" +
+	"\x03401\x124\n" +
+	"2\n" +
+	"0Missing, invalid, expired or revoked credentials\x124\n" +
+	"\x03403\x12-\n" +
+	"+\n" +
+	")Tenant, permission or subscription denied\x12'\n" +
+	"\x03404\x12 \n" +
+	"\x1e\n" +
+	"\x1cEIP not found in this tenant\x12=\n" +
+	"\x03503\x126\n" +
+	"4\n" +
+	"2Network dependency or trusted identity unavailable\x12+\n" +
+	"\x03504\x12$\n" +
+	"\"\n" +
+	" Connected Network call timed outZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00Z9\n" +
+	"\x11\n" +
+	"\rAccessKeyAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 *\x1e/api/v1/networks/eips/{eip_id}\x12\xf2\x05\n" +
+	"\n" +
+	"GetVPCSnat\x12%.catalog.service.v1.GetVPCSnatRequest\x1a&.catalog.service.v1.GetVPCSnatResponse\"\x94\x05\xbaG\xe5\x04\x12\x1dGet the SNAT binding of a VPC\x1a\xd0\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:snat:get permission. Returns the tenant-owned VPC's outbound SNAT binding state. Cross-tenant and missing VPCs both return 404.B\xa3\x02\x12\x19\n" +
+	"\x03400\x12\x12\n" +
+	"\x10\n" +
+	"\x0eInvalid VPC ID\x12;\n" +
+	"\x03401\x124\n" +
+	"2\n" +
+	"0Missing, invalid, expired or revoked credentials\x124\n" +
+	"\x03403\x12-\n" +
+	"+\n" +
+	")Tenant, permission or subscription denied\x12'\n" +
+	"\x03404\x12 \n" +
+	"\x1e\n" +
+	"\x1cVPC not found in this tenant\x12=\n" +
+	"\x03503\x126\n" +
+	"4\n" +
+	"2Network dependency or trusted identity unavailable\x12+\n" +
+	"\x03504\x12$\n" +
+	"\"\n" +
+	" Connected Network call timed outZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00Z9\n" +
+	"\x11\n" +
+	"\rAccessKeyAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02%\x12#/api/v1/networks/vpcs/{vpc_id}/snat\x12\x99\x06\n" +
+	"\vBindVPCSnat\x12&.catalog.service.v1.BindVPCSnatRequest\x1a'.catalog.service.v1.BindVPCSnatResponse\"\xb8\x05\xbaG\xfd\x04\x12(Bind a public EIP as a VPC's SNAT egress\x1a\xcf\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:snat:bind permission. Binding is asynchronous and exclusive; retries with the same idempotency_key replay the original result.B\xb1\x02\x12 \n" +
+	"\x03400\x12\x19\n" +
+	"\x17\n" +
+	"\x15Invalid VPC or EIP ID\x12;\n" +
+	"\x03401\x124\n" +
+	"2\n" +
+	"0Missing, invalid, expired or revoked credentials\x124\n" +
+	"\x03403\x12-\n" +
+	"+\n" +
+	")Tenant, permission or subscription denied\x12.\n" +
+	"\x03404\x12'\n" +
+	"%\n" +
+	"#VPC or EIP not found in this tenant\x12=\n" +
+	"\x03503\x126\n" +
+	"4\n" +
+	"2Network dependency or trusted identity unavailable\x12+\n" +
+	"\x03504\x12$\n" +
+	"\"\n" +
+	" Connected Network call timed outZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00Z9\n" +
+	"\x11\n" +
+	"\rAccessKeyAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x021:\x01*\",/api/v1/networks/vpcs/{vpc_id}/snat/bindingsB\xba\x01\n" +
 	"\x14com.admin.service.v1B\rINetworkProtoP\x01Z1go-wind-admin/api/gen/go/admin/service/v1;adminpb\xa2\x02\x03ASX\xaa\x02\x10Admin.Service.V1\xca\x02\x10Admin\\Service\\V1\xe2\x02\x1cAdmin\\Service\\V1\\GPBMetadata\xea\x02\x12Admin::Service::V1b\x06proto3"
 
 var file_admin_service_v1_i_network_proto_goTypes = []any{
-	(*v1.GetVPCRequest)(nil),  // 0: catalog.service.v1.GetVPCRequest
-	(*v1.GetVPCResponse)(nil), // 1: catalog.service.v1.GetVPCResponse
+	(*v1.GetVPCRequest)(nil),        // 0: catalog.service.v1.GetVPCRequest
+	(*v1.ListVPCsRequest)(nil),      // 1: catalog.service.v1.ListVPCsRequest
+	(*v1.CreateVPCRequest)(nil),     // 2: catalog.service.v1.CreateVPCRequest
+	(*v1.DeleteVPCRequest)(nil),     // 3: catalog.service.v1.DeleteVPCRequest
+	(*v1.GetOperationRequest)(nil),  // 4: catalog.service.v1.GetOperationRequest
+	(*v1.GetEIPRequest)(nil),        // 5: catalog.service.v1.GetEIPRequest
+	(*v1.ListEIPsRequest)(nil),      // 6: catalog.service.v1.ListEIPsRequest
+	(*v1.CreateEIPRequest)(nil),     // 7: catalog.service.v1.CreateEIPRequest
+	(*v1.DeleteEIPRequest)(nil),     // 8: catalog.service.v1.DeleteEIPRequest
+	(*v1.GetVPCSnatRequest)(nil),    // 9: catalog.service.v1.GetVPCSnatRequest
+	(*v1.BindVPCSnatRequest)(nil),   // 10: catalog.service.v1.BindVPCSnatRequest
+	(*v1.GetVPCResponse)(nil),       // 11: catalog.service.v1.GetVPCResponse
+	(*v1.ListVPCsResponse)(nil),     // 12: catalog.service.v1.ListVPCsResponse
+	(*v1.CreateVPCResponse)(nil),    // 13: catalog.service.v1.CreateVPCResponse
+	(*v1.DeleteVPCResponse)(nil),    // 14: catalog.service.v1.DeleteVPCResponse
+	(*v1.GetOperationResponse)(nil), // 15: catalog.service.v1.GetOperationResponse
+	(*v1.GetEIPResponse)(nil),       // 16: catalog.service.v1.GetEIPResponse
+	(*v1.ListEIPsResponse)(nil),     // 17: catalog.service.v1.ListEIPsResponse
+	(*v1.CreateEIPResponse)(nil),    // 18: catalog.service.v1.CreateEIPResponse
+	(*v1.DeleteEIPResponse)(nil),    // 19: catalog.service.v1.DeleteEIPResponse
+	(*v1.GetVPCSnatResponse)(nil),   // 20: catalog.service.v1.GetVPCSnatResponse
+	(*v1.BindVPCSnatResponse)(nil),  // 21: catalog.service.v1.BindVPCSnatResponse
 }
 var file_admin_service_v1_i_network_proto_depIdxs = []int32{
-	0, // 0: admin.service.v1.NetworkService.GetVPC:input_type -> catalog.service.v1.GetVPCRequest
-	1, // 1: admin.service.v1.NetworkService.GetVPC:output_type -> catalog.service.v1.GetVPCResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: admin.service.v1.NetworkService.GetVPC:input_type -> catalog.service.v1.GetVPCRequest
+	1,  // 1: admin.service.v1.NetworkService.ListVPCs:input_type -> catalog.service.v1.ListVPCsRequest
+	2,  // 2: admin.service.v1.NetworkService.CreateVPC:input_type -> catalog.service.v1.CreateVPCRequest
+	3,  // 3: admin.service.v1.NetworkService.DeleteVPC:input_type -> catalog.service.v1.DeleteVPCRequest
+	4,  // 4: admin.service.v1.NetworkService.GetOperation:input_type -> catalog.service.v1.GetOperationRequest
+	5,  // 5: admin.service.v1.NetworkService.GetEIP:input_type -> catalog.service.v1.GetEIPRequest
+	6,  // 6: admin.service.v1.NetworkService.ListEIPs:input_type -> catalog.service.v1.ListEIPsRequest
+	7,  // 7: admin.service.v1.NetworkService.CreateEIP:input_type -> catalog.service.v1.CreateEIPRequest
+	8,  // 8: admin.service.v1.NetworkService.DeleteEIP:input_type -> catalog.service.v1.DeleteEIPRequest
+	9,  // 9: admin.service.v1.NetworkService.GetVPCSnat:input_type -> catalog.service.v1.GetVPCSnatRequest
+	10, // 10: admin.service.v1.NetworkService.BindVPCSnat:input_type -> catalog.service.v1.BindVPCSnatRequest
+	11, // 11: admin.service.v1.NetworkService.GetVPC:output_type -> catalog.service.v1.GetVPCResponse
+	12, // 12: admin.service.v1.NetworkService.ListVPCs:output_type -> catalog.service.v1.ListVPCsResponse
+	13, // 13: admin.service.v1.NetworkService.CreateVPC:output_type -> catalog.service.v1.CreateVPCResponse
+	14, // 14: admin.service.v1.NetworkService.DeleteVPC:output_type -> catalog.service.v1.DeleteVPCResponse
+	15, // 15: admin.service.v1.NetworkService.GetOperation:output_type -> catalog.service.v1.GetOperationResponse
+	16, // 16: admin.service.v1.NetworkService.GetEIP:output_type -> catalog.service.v1.GetEIPResponse
+	17, // 17: admin.service.v1.NetworkService.ListEIPs:output_type -> catalog.service.v1.ListEIPsResponse
+	18, // 18: admin.service.v1.NetworkService.CreateEIP:output_type -> catalog.service.v1.CreateEIPResponse
+	19, // 19: admin.service.v1.NetworkService.DeleteEIP:output_type -> catalog.service.v1.DeleteEIPResponse
+	20, // 20: admin.service.v1.NetworkService.GetVPCSnat:output_type -> catalog.service.v1.GetVPCSnatResponse
+	21, // 21: admin.service.v1.NetworkService.BindVPCSnat:output_type -> catalog.service.v1.BindVPCSnatResponse
+	11, // [11:22] is the sub-list for method output_type
+	0,  // [0:11] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_admin_service_v1_i_network_proto_init() }

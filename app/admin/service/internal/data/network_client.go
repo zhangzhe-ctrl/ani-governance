@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,6 +26,7 @@ type NetworkClientConfig struct {
 }
 type NetworkClient struct {
 	client          networkv1.NetworkServiceClient
+	egress          networkv1.TenantEgressServiceClient
 	timeout         time.Duration
 	connectionState func() connectivity.State
 }
@@ -66,7 +68,7 @@ func NewNetworkClient(c NetworkClientConfig) (*NetworkClient, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	return &NetworkClient{client: networkv1.NewNetworkServiceClient(conn), timeout: c.Timeout, connectionState: conn.GetState}, func() { _ = conn.Close() }, nil
+	return &NetworkClient{client: networkv1.NewNetworkServiceClient(conn), egress: networkv1.NewTenantEgressServiceClient(conn), timeout: c.Timeout, connectionState: conn.GetState}, func() { _ = conn.Close() }, nil
 }
 
 func NetworkConfigFromEnv() (NetworkClientConfig, error) {
@@ -99,4 +101,163 @@ func (c *NetworkClient) GetVPC(ctx context.Context, tenant string, actor string,
 	return reply, err
 }
 
+// trusted validates and carries the replayed tenant UUID and the verified
+// actor; both are asserted once per call and never taken from request bodies.
+type trusted struct {
+	tenant string
+	actor  string
+}
+
+func (c *NetworkClient) trusted(tenant, actor string) (trusted, error) {
+	id, err := uuid.Parse(tenant)
+	if err != nil || id == uuid.Nil || id.String() != tenant || !networkActorPattern.MatchString(actor) {
+		return trusted{}, fmt.Errorf("invalid trusted network identity")
+	}
+	return trusted{tenant: tenant, actor: actor}, nil
+}
+
+// classify maps a disconnected-transport deadline to dependency outage.
+func (c *NetworkClient) classify(err error) error {
+	// A disconnected transport can spend the entire deadline reconnecting.
+	// Report that dependency outage as 503; a connected, slow RPC remains 504.
+	if status.Code(err) == codes.DeadlineExceeded && c.connectionState != nil && c.connectionState() != connectivity.Ready {
+		return status.Errorf(codes.Unavailable, "network transport unavailable: %v", err)
+	}
+	return err
+}
+
+// outCall runs one tenant-scoped RPC with rebuilt trusted metadata; never
+// append inbound/public identity headers.
+func outCall[T any](c *NetworkClient, ctx context.Context, tc trusted, call func(context.Context) (T, error)) (T, error) {
+	ctx, cancel := context.WithTimeout(ctx, c.timeout)
+	defer cancel()
+	ctx = metadata.AppendToOutgoingContext(ctx, "x-ani-tenant-id", tc.tenant, "x-ani-actor", tc.actor, "x-ani-request-id", uuid.NewString())
+	reply, err := call(ctx)
+	return reply, c.classify(err)
+}
+
 var networkActorPattern = regexp.MustCompile(`^governance:(user|access-key):[1-9][0-9]*$`)
+
+// resourceState maps the wire state string ("" or RESOURCE_STATE_*) to the
+// pinned enum; unknown names are rejected before any RPC.
+func resourceState(state string) (networkv1.ResourceState, error) {
+	if state == "" {
+		return networkv1.ResourceState_RESOURCE_STATE_UNSPECIFIED, nil
+	}
+	if value, ok := networkv1.ResourceState_value[state]; ok {
+		return networkv1.ResourceState(value), nil
+	}
+	if value, ok := networkv1.ResourceState_value["RESOURCE_STATE_"+strings.ToUpper(state)]; ok && state == strings.ToLower(state) {
+		return networkv1.ResourceState(value), nil
+	}
+	return 0, fmt.Errorf("invalid state filter")
+}
+
+func (c *NetworkClient) ListVPCs(ctx context.Context, tenant, actor string, name, state string, limit int32, cursor string) (*networkv1.ListVPCsResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	resourceState, err := resourceState(state)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.ListVPCsResponse, error) {
+		return c.client.ListVPCs(ctx, &networkv1.ListVPCsRequest{TenantId: tc.tenant, Name: name, State: resourceState, Limit: limit, Cursor: cursor})
+	})
+}
+
+func (c *NetworkClient) CreateVPC(ctx context.Context, tenant, actor string, name, cidr, description, idempotencyKey string) (*networkv1.CreateVPCResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.CreateVPCResponse, error) {
+		return c.client.CreateVPC(ctx, &networkv1.CreateVPCRequest{TenantId: tc.tenant, Name: name, Cidr: cidr, Description: description, IdempotencyKey: idempotencyKey,
+			Attribution: &networkv1.Attribution{Actor: actor, DirectCaller: "ani-governance", CorrelationId: uuid.NewString()}})
+	})
+}
+
+func (c *NetworkClient) DeleteVPC(ctx context.Context, tenant, actor, vpcID string) (*networkv1.DeleteVPCResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.DeleteVPCResponse, error) {
+		return c.client.DeleteVPC(ctx, &networkv1.DeleteVPCRequest{TenantId: tc.tenant, VpcId: vpcID})
+	})
+}
+
+func (c *NetworkClient) GetOperation(ctx context.Context, tenant, actor, operationID string) (*networkv1.GetOperationResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.GetOperationResponse, error) {
+		return c.client.GetOperation(ctx, &networkv1.GetOperationRequest{TenantId: tc.tenant, OperationId: operationID})
+	})
+}
+
+func (c *NetworkClient) GetEIP(ctx context.Context, tenant, actor, eipID string) (*networkv1.GetEIPResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.GetEIPResponse, error) {
+		return c.egress.GetEIP(ctx, &networkv1.GetEIPRequest{TargetTenantId: tc.tenant, EipId: eipID})
+	})
+}
+
+func (c *NetworkClient) ListEIPs(ctx context.Context, tenant, actor string, name, state string, limit int32, cursor string) (*networkv1.ListEIPsResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	resourceState, err := resourceState(state)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.ListEIPsResponse, error) {
+		return c.egress.ListEIPs(ctx, &networkv1.ListEIPsRequest{TargetTenantId: tc.tenant, Name: name, State: resourceState, Limit: limit, Cursor: cursor})
+	})
+}
+
+func (c *NetworkClient) CreateEIP(ctx context.Context, tenant, actor string, name, description, idempotencyKey string) (*networkv1.CreateEIPResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.CreateEIPResponse, error) {
+		return c.egress.CreateEIP(ctx, &networkv1.CreateEIPRequest{TargetTenantId: tc.tenant, Name: name, Description: description, IdempotencyKey: idempotencyKey})
+	})
+}
+
+func (c *NetworkClient) DeleteEIP(ctx context.Context, tenant, actor, eipID string) (*networkv1.DeleteEIPResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.DeleteEIPResponse, error) {
+		return c.egress.DeleteEIP(ctx, &networkv1.DeleteEIPRequest{TargetTenantId: tc.tenant, EipId: eipID})
+	})
+}
+
+func (c *NetworkClient) GetVPCSnat(ctx context.Context, tenant, actor, vpcID string) (*networkv1.GetVPCSnatResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.GetVPCSnatResponse, error) {
+		return c.egress.GetVPCSnat(ctx, &networkv1.GetVPCSnatRequest{TargetTenantId: tc.tenant, VpcId: vpcID})
+	})
+}
+
+func (c *NetworkClient) BindVPCSnat(ctx context.Context, tenant, actor, vpcID, eipID, idempotencyKey string) (*networkv1.BindVPCSnatResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.BindVPCSnatResponse, error) {
+		return c.egress.BindVPCSnat(ctx, &networkv1.BindVPCSnatRequest{TargetTenantId: tc.tenant, VpcId: vpcID, EipId: eipID, IdempotencyKey: idempotencyKey})
+	})
+}

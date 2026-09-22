@@ -220,7 +220,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		rollback()
 		return nil, nil, err
 	}
-	var networkClient service.VPCGetter
+	var networkClient service.NetworkTenantClient
 	if networkConfig.Address != "" {
 		client, closeNetwork, err := data.NewNetworkClient(networkConfig)
 		if err != nil {
