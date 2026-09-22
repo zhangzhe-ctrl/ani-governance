@@ -29,16 +29,39 @@ var File_admin_service_v1_i_access_key_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_access_key_proto_rawDesc = "" +
 	"\n" +
-	"#admin/service/v1/i_access_key.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1epagination/v1/pagination.proto\x1a&access_key/service/v1/access_key.proto2\xa7\a\n" +
-	"\x10AccessKeyService\x12n\n" +
-	"\x04List\x12\x19.pagination.PagingRequest\x1a,.access_key.service.v1.ListAccessKeyResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/admin/v1/access-keys\x12w\n" +
-	"\x03Get\x12*.access_key.service.v1.GetAccessKeyRequest\x1a .access_key.service.v1.AccessKey\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/admin/v1/access-keys/{id}\x12\x89\x01\n" +
-	"\x06Create\x12-.access_key.service.v1.CreateAccessKeyRequest\x1a..access_key.service.v1.CreateAccessKeyResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/admin/v1/access-keys\x12v\n" +
-	"\x06Update\x12-.access_key.service.v1.UpdateAccessKeyRequest\x1a\x16.google.protobuf.Empty\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\x1a\x1a/admin/v1/access-keys/{id}\x12s\n" +
-	"\x06Delete\x12-.access_key.service.v1.DeleteAccessKeyRequest\x1a\x16.google.protobuf.Empty\"\"\x82\xd3\xe4\x93\x02\x1c*\x1a/admin/v1/access-keys/{id}\x12\x9f\x01\n" +
-	"\vResetSecret\x122.access_key.service.v1.ResetAccessKeySecretRequest\x1a..access_key.service.v1.CreateAccessKeyResponse\",\x82\xd3\xe4\x93\x02&:\x01*\x1a!/admin/v1/access-keys/{id}/secret\x12\x8e\x01\n" +
+	"#admin/service/v1/i_access_key.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1epagination/v1/pagination.proto\x1a&access_key/service/v1/access_key.proto2\xbf\b\n" +
+	"\x10AccessKeyService\x12\x83\x01\n" +
+	"\x04List\x12\x19.pagination.PagingRequest\x1a,.access_key.service.v1.ListAccessKeyResponse\"2\xbaG\x12Z\x10\n" +
+	"\x0e\n" +
 	"\n" +
-	"IssueToken\x12(.access_key.service.v1.IssueTokenRequest\x1a).access_key.service.v1.IssueTokenResponse\"+\xbaG\x02Z\x00\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/admin/v1/access-keys/tokenB\xbc\x01\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/auth/api-keys\x12\x90\x01\n" +
+	"\x03Get\x12*.access_key.service.v1.GetAccessKeyRequest\x1a .access_key.service.v1.AccessKey\";\xbaG\x12Z\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/auth/api-keys/{key_id}\x12\x9d\x02\n" +
+	"\x06Create\x12-.access_key.service.v1.CreateAccessKeyRequest\x1a..access_key.service.v1.CreateAccessKeyResponse\"\xb3\x01\xbaG\x8f\x01B{\x12y\n" +
+	"\x03201\x12r\n" +
+	"p\n" +
+	"$Created; secret_key is returned once\x1aH\n" +
+	"F\n" +
+	"\x10application/json\x122\n" +
+	"0\x12.\n" +
+	",#/components/schemas/CreateAccessKeyResponseZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/auth/api-keys\x12\x8f\x01\n" +
+	"\x06Update\x12-.access_key.service.v1.UpdateAccessKeyRequest\x1a\x16.google.protobuf.Empty\">\xbaG\x12Z\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02#:\x01*\x1a\x1e/api/v1/auth/api-keys/{key_id}\x12\xa4\x01\n" +
+	"\x06Delete\x12-.access_key.service.v1.DeleteAccessKeyRequest\x1a..access_key.service.v1.DeleteAccessKeyResponse\";\xbaG\x12Z\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02 *\x1e/api/v1/auth/api-keys/{key_id}\x12\xb8\x01\n" +
+	"\vResetSecret\x122.access_key.service.v1.ResetAccessKeySecretRequest\x1a..access_key.service.v1.CreateAccessKeyResponse\"E\xbaG\x12Z\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/v1/auth/api-keys/{key_id}/secretB\xbc\x01\n" +
 	"\x14com.admin.service.v1B\x0fIAccessKeyProtoP\x01Z1go-wind-admin/api/gen/go/admin/service/v1;adminpb\xa2\x02\x03ASX\xaa\x02\x10Admin.Service.V1\xca\x02\x10Admin\\Service\\V1\xe2\x02\x1cAdmin\\Service\\V1\\GPBMetadata\xea\x02\x12Admin::Service::V1b\x06proto3"
 
 var file_admin_service_v1_i_access_key_proto_goTypes = []any{
@@ -48,12 +71,11 @@ var file_admin_service_v1_i_access_key_proto_goTypes = []any{
 	(*v11.UpdateAccessKeyRequest)(nil),      // 3: access_key.service.v1.UpdateAccessKeyRequest
 	(*v11.DeleteAccessKeyRequest)(nil),      // 4: access_key.service.v1.DeleteAccessKeyRequest
 	(*v11.ResetAccessKeySecretRequest)(nil), // 5: access_key.service.v1.ResetAccessKeySecretRequest
-	(*v11.IssueTokenRequest)(nil),           // 6: access_key.service.v1.IssueTokenRequest
-	(*v11.ListAccessKeyResponse)(nil),       // 7: access_key.service.v1.ListAccessKeyResponse
-	(*v11.AccessKey)(nil),                   // 8: access_key.service.v1.AccessKey
-	(*v11.CreateAccessKeyResponse)(nil),     // 9: access_key.service.v1.CreateAccessKeyResponse
-	(*emptypb.Empty)(nil),                   // 10: google.protobuf.Empty
-	(*v11.IssueTokenResponse)(nil),          // 11: access_key.service.v1.IssueTokenResponse
+	(*v11.ListAccessKeyResponse)(nil),       // 6: access_key.service.v1.ListAccessKeyResponse
+	(*v11.AccessKey)(nil),                   // 7: access_key.service.v1.AccessKey
+	(*v11.CreateAccessKeyResponse)(nil),     // 8: access_key.service.v1.CreateAccessKeyResponse
+	(*emptypb.Empty)(nil),                   // 9: google.protobuf.Empty
+	(*v11.DeleteAccessKeyResponse)(nil),     // 10: access_key.service.v1.DeleteAccessKeyResponse
 }
 var file_admin_service_v1_i_access_key_proto_depIdxs = []int32{
 	0,  // 0: admin.service.v1.AccessKeyService.List:input_type -> pagination.PagingRequest
@@ -62,16 +84,14 @@ var file_admin_service_v1_i_access_key_proto_depIdxs = []int32{
 	3,  // 3: admin.service.v1.AccessKeyService.Update:input_type -> access_key.service.v1.UpdateAccessKeyRequest
 	4,  // 4: admin.service.v1.AccessKeyService.Delete:input_type -> access_key.service.v1.DeleteAccessKeyRequest
 	5,  // 5: admin.service.v1.AccessKeyService.ResetSecret:input_type -> access_key.service.v1.ResetAccessKeySecretRequest
-	6,  // 6: admin.service.v1.AccessKeyService.IssueToken:input_type -> access_key.service.v1.IssueTokenRequest
-	7,  // 7: admin.service.v1.AccessKeyService.List:output_type -> access_key.service.v1.ListAccessKeyResponse
-	8,  // 8: admin.service.v1.AccessKeyService.Get:output_type -> access_key.service.v1.AccessKey
-	9,  // 9: admin.service.v1.AccessKeyService.Create:output_type -> access_key.service.v1.CreateAccessKeyResponse
-	10, // 10: admin.service.v1.AccessKeyService.Update:output_type -> google.protobuf.Empty
-	10, // 11: admin.service.v1.AccessKeyService.Delete:output_type -> google.protobuf.Empty
-	9,  // 12: admin.service.v1.AccessKeyService.ResetSecret:output_type -> access_key.service.v1.CreateAccessKeyResponse
-	11, // 13: admin.service.v1.AccessKeyService.IssueToken:output_type -> access_key.service.v1.IssueTokenResponse
-	7,  // [7:14] is the sub-list for method output_type
-	0,  // [0:7] is the sub-list for method input_type
+	6,  // 6: admin.service.v1.AccessKeyService.List:output_type -> access_key.service.v1.ListAccessKeyResponse
+	7,  // 7: admin.service.v1.AccessKeyService.Get:output_type -> access_key.service.v1.AccessKey
+	8,  // 8: admin.service.v1.AccessKeyService.Create:output_type -> access_key.service.v1.CreateAccessKeyResponse
+	9,  // 9: admin.service.v1.AccessKeyService.Update:output_type -> google.protobuf.Empty
+	10, // 10: admin.service.v1.AccessKeyService.Delete:output_type -> access_key.service.v1.DeleteAccessKeyResponse
+	8,  // 11: admin.service.v1.AccessKeyService.ResetSecret:output_type -> access_key.service.v1.CreateAccessKeyResponse
+	6,  // [6:12] is the sub-list for method output_type
+	0,  // [0:6] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

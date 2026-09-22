@@ -38,6 +38,7 @@ import (
 func NewRestMiddleware(
 	ctx *bootstrap.Context,
 	accessTokenChecker auth.AccessTokenChecker,
+	signingKeyStore auth.SigningKeyStore,
 	tenantAccessChecker auth.TenantAccessChecker,
 	authorizer *authorizer.Authorizer,
 	apiAuditLogRepo *data.ApiAuditLogRepo,
@@ -82,7 +83,7 @@ func NewRestMiddleware(
 	// 输入校验：对所有 RPC（含白名单内的 login/register/refresh/MFA）调用生成代码的
 	// Validate()。放 selector 外，否则白名单路由会被跳过——而它们恰是最需要校验入参的。
 	// 当前业务 proto 尚未补 (validate.rules)，多数 Validate() 返回 nil；补规则后再生效。
-	ms = append(ms, validate.Validator())
+	ms = append(ms, auth.CredentialHeaders(), validate.Validator())
 
 	// add white list for authentication.
 	rpc.AddWhiteList(
@@ -101,8 +102,6 @@ func NewRestMiddleware(
 		adminV1.OperationMfaServiceVerifyMFAChallenge,
 		// 找回密码两个端点免鉴权：验证码发送与凭码重置，
 		// 重置成功后会吊销该用户全部会话。
-		// OpenAPI 令牌交换免鉴权：AK/SK 本身即为认证凭据。
-		adminV1.OperationAccessKeyServiceIssueToken,
 		adminV1.OperationAuthenticationServiceForgotPassword,
 		adminV1.OperationAuthenticationServiceResetPasswordByCode,
 		adminV1.OperationAuthenticationServiceAcceptInvitation,
@@ -111,6 +110,7 @@ func NewRestMiddleware(
 	ms = append(ms, selector.Server(
 		auth.Server(
 			auth.WithAccessTokenChecker(accessTokenChecker),
+			auth.WithSigningKeyStore(signingKeyStore),
 			auth.WithTenantAccessChecker(tenantAccessChecker),
 			auth.WithInjectMetadata(false),
 			auth.WithInjectEnt(true),
@@ -243,7 +243,7 @@ func NewRestServer(
 	adminV1.RegisterInternalMessageRecipientServiceHTTPServer(srv, internalMessageRecipientService)
 
 	// register:route ── 新模块路由在此行后注册(make register 工具锚点,勿删)
-	adminV1.RegisterAccessKeyServiceHTTPServer(srv, accessKeyService)
+	registerAccessKeyHTTP(srv, accessKeyService)
 	adminV1.RegisterConfigServiceHTTPServer(srv, configService)
 	adminV1.RegisterNetworkServiceHTTPServer(srv, networkService)
 

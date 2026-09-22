@@ -1,0 +1,596 @@
+{
+  "status": "pass",
+  "case_count": 120,
+  "cases": [
+    {
+      "case": "isolated-environment",
+      "status": "pass",
+      "namespace": "aksk-vpc-20260922",
+      "base_url": "http://172.18.0.2:30188"
+    },
+    {
+      "case": "explicit-empty-database-initialization",
+      "status": "pass"
+    },
+    {
+      "case": "login-platform",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "create-dedicated-plan",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "plan-module-DASHBOARD",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "plan-module-OPM",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "plan-module-SYSTEM",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "plan-module-NETWORK",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "create-no-network-plan",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "no-network-plan-module-DASHBOARD",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "no-network-plan-module-OPM",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "no-network-plan-module-SYSTEM",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "create-tenant-a",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "create-tenant-b",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "create-tenant-empty",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "login-a",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "create-role-a-reader",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "create-role-a-denied",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "login-b",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "create-role-b-reader",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "create-role-b-denied",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "login-empty",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "create-role-empty-reader",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "create-role-empty-denied",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "assign-no-network-plan",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "persistent-vpc-fixtures",
+      "status": "pass",
+      "data_plane": "not_verified"
+    },
+    {
+      "case": "key-create-a-vpc-reader",
+      "status": "pass",
+      "http": 201
+    },
+    {
+      "case": "python-nodeport-governance-mtls-network-pg",
+      "status": "pass",
+      "vpc_id": "vpc_26c9fcd0944f5df9909d5a4f5d95b7fa"
+    },
+    {
+      "case": "repeat-read-within-window",
+      "status": "pass"
+    },
+    {
+      "case": "user-jwt-vpc-query",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "public-identity-headers-overwritten",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "cross-tenant-same-as-absent",
+      "status": "pass",
+      "http": 404
+    },
+    {
+      "case": "bad-sk",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "bad-signature",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "tampered-path",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "tampered-time",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "expired-window",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "future-window",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "query",
+      "status": "pass",
+      "http": 400
+    },
+    {
+      "case": "body",
+      "status": "pass",
+      "http": 400
+    },
+    {
+      "case": "mixed-credentials",
+      "status": "pass",
+      "http": 400
+    },
+    {
+      "case": "user-only",
+      "status": "pass",
+      "http": 403
+    },
+    {
+      "case": "key-management",
+      "status": "pass",
+      "http": 403
+    },
+    {
+      "case": "header-X-Access-Key-missing",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "header-X-Access-Key-duplicate",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "header-X-Access-Key-comma",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "header-X-Timestamp-missing",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "header-X-Timestamp-duplicate",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "header-X-Timestamp-comma",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "header-X-Signature-missing",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "header-X-Signature-duplicate",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "header-X-Signature-comma",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "key-create-a-denied",
+      "status": "pass",
+      "http": 201
+    },
+    {
+      "case": "no-role-permission",
+      "status": "pass"
+    },
+    {
+      "case": "key-create-empty-no-network",
+      "status": "pass",
+      "http": 201
+    },
+    {
+      "case": "no-network-plan",
+      "status": "pass"
+    },
+    {
+      "case": "set-tenant-OFF",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "tenant-state-OFF",
+      "status": "pass"
+    },
+    {
+      "case": "set-tenant-ON",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "tenant-state-ON",
+      "status": "pass"
+    },
+    {
+      "case": "cross-tenant-role-create",
+      "status": "pass",
+      "http": 403
+    },
+    {
+      "case": "key-update-roleId",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "cross-tenant-key-GET",
+      "status": "pass",
+      "http": 404
+    },
+    {
+      "case": "cross-tenant-key-PUT",
+      "status": "pass",
+      "http": 404
+    },
+    {
+      "case": "cross-tenant-key-DELETE",
+      "status": "pass",
+      "http": 404
+    },
+    {
+      "case": "key-update-isActive",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "disabled-key",
+      "status": "pass"
+    },
+    {
+      "case": "enabled-key",
+      "status": "pass"
+    },
+    {
+      "case": "key-update-expiresAt",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "expired-key",
+      "status": "pass"
+    },
+    {
+      "case": "clear-expiration",
+      "status": "pass"
+    },
+    {
+      "case": "rebind-denied-role",
+      "status": "pass"
+    },
+    {
+      "case": "rebind-reader-role",
+      "status": "pass"
+    },
+    {
+      "case": "disable-bound-role",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "disabled-role-request",
+      "status": "pass"
+    },
+    {
+      "case": "disabled-role-bad-signature",
+      "status": "pass"
+    },
+    {
+      "case": "disabled-role-create",
+      "status": "pass",
+      "http": 403
+    },
+    {
+      "case": "restore-bound-role",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "restored-role-request",
+      "status": "pass"
+    },
+    {
+      "case": "reset-response",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "reset-old-secret-rejected",
+      "status": "pass"
+    },
+    {
+      "case": "reset-new-secret-accepted",
+      "status": "pass"
+    },
+    {
+      "case": "key-create-a-delete",
+      "status": "pass",
+      "http": 201
+    },
+    {
+      "case": "delete-response",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "deleted-key-rejected",
+      "status": "pass"
+    },
+    {
+      "case": "no-secret-list",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "no-secret-detail",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "exchange-route-removed",
+      "status": "pass",
+      "http": 404
+    },
+    {
+      "case": "mtls-user",
+      "status": "pass",
+      "grpc": "OK"
+    },
+    {
+      "case": "mtls-key",
+      "status": "pass",
+      "grpc": "OK"
+    },
+    {
+      "case": "mtls-missing-cert",
+      "status": "pass",
+      "grpc": "Unavailable"
+    },
+    {
+      "case": "mtls-wrong-cert",
+      "status": "pass",
+      "grpc": "Unavailable"
+    },
+    {
+      "case": "mtls-control-user",
+      "status": "pass"
+    },
+    {
+      "case": "mtls-control-key",
+      "status": "pass"
+    },
+    {
+      "case": "mtls-control-missing-cert",
+      "status": "pass"
+    },
+    {
+      "case": "mtls-control-wrong-cert",
+      "status": "pass"
+    },
+    {
+      "case": "mtls-control-tenant-mismatch",
+      "status": "pass"
+    },
+    {
+      "case": "mtls-tenant-mismatch",
+      "status": "pass",
+      "grpc": "PermissionDenied"
+    },
+    {
+      "case": "restart-no-schema-or-initialization-writes",
+      "status": "pass"
+    },
+    {
+      "case": "missing-master-key-startup-refused",
+      "status": "pass"
+    },
+    {
+      "case": "runtime-no-ddl",
+      "status": "pass"
+    },
+    {
+      "case": "key-persists-after-restart",
+      "status": "pass"
+    },
+    {
+      "case": "postgres-tenant-role-fk-and-delete-restrict",
+      "status": "pass"
+    },
+    {
+      "case": "database-only-encrypted-sk",
+      "status": "pass"
+    },
+    {
+      "case": "bad-ciphertext-fails-closed",
+      "status": "pass"
+    },
+    {
+      "case": "logout-a",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "logout-revokes-jwt-a",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "logout-platform",
+      "status": "pass",
+      "http": 200
+    },
+    {
+      "case": "logout-revokes-jwt-platform",
+      "status": "pass",
+      "http": 401
+    },
+    {
+      "case": "logout-does-not-impersonate-key",
+      "status": "pass"
+    },
+    {
+      "case": "no-sk-in-logs-or-audits",
+      "status": "pass"
+    },
+    {
+      "case": "no-signatures-in-logs-or-audits",
+      "status": "pass"
+    },
+    {
+      "case": "audits-have-key-and-user",
+      "status": "pass"
+    },
+    {
+      "case": "missing-ciphertext-fails-closed",
+      "status": "pass"
+    },
+    {
+      "case": "plaintext-ciphertext-fails-closed",
+      "status": "pass"
+    },
+    {
+      "case": "malformed-ciphertext-fails-closed",
+      "status": "pass"
+    },
+    {
+      "case": "ciphertext-restored",
+      "status": "pass"
+    },
+    {
+      "case": "api-key-audit-no-user-impersonation",
+      "status": "pass"
+    },
+    {
+      "case": "failed-signature-audit-unverified",
+      "status": "pass"
+    },
+    {
+      "case": "last-used-is-successful-signature-time",
+      "status": "pass"
+    }
+  ],
+  "execution_host": "i-8yg2l7u8",
+  "context": "kind-kind-test",
+  "namespace": "aksk-vpc-20260922",
+  "nodeport_origin": "http://172.18.0.2:30188",
+  "runtime": {
+    "governance": {
+      "binary_sha256": "06d94eac1f25e7d7df3fc21c379fdd7c392220190cecf597ed33b872dfaa0bda"
+    },
+    "network": {
+      "binary_sha256": "f3c503a6c8a4bce687abee924012a8729c350c7e7a291675e9334ffdef4e997e"
+    },
+    "admin": {
+      "binary_sha256": "f9d1e271b86fa6c0db9ee172acbe2c5ddd2d7ba7b16c38d22d6342ce6f236160"
+    }
+  },
+  "source_sha256": {
+    "governance": "e5b7e80e26aecbfd1d7ff5f6c7dc8d4654ade2b5e13e136acacfaa2c9e4752c3",
+    "network": "9252fa1336b1f91fae09fb4b2ce7b76d1f25291047624fb9a945d69f6980163c"
+  },
+  "bases": {
+    "governance": "5a2a2e8c6c303a280acf2f6168d63fcebca8990c",
+    "network": "66f787bd30134141726c596612501a83cf75bdb7"
+  },
+  "not_verified": [
+    "network provisioning/data plane",
+    "other business APIs",
+    "frontend",
+    "public HTTPS",
+    "production cutover"
+  ]
+}

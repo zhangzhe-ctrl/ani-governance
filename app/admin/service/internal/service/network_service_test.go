@@ -14,14 +14,19 @@ import (
 )
 
 type vpcProbe struct {
+	actor string
 	calls int
 	wrong bool
 	err   error
 }
 
-func (p *vpcProbe) GetVPC(_ context.Context, tenant string, user uint32, id string) (*networkv1.GetVPCResponse, error) {
+func (p *vpcProbe) GetVPC(_ context.Context, tenant string, actor string, id string) (*networkv1.GetVPCResponse, error) {
 	p.calls++
-	if user != 7 || tenant != "11111111-1111-4111-8111-111111111111" {
+	expectedActor := p.actor
+	if expectedActor == "" {
+		expectedActor = "governance:user:7"
+	}
+	if actor != expectedActor || tenant != "11111111-1111-4111-8111-111111111111" {
 		panic("untrusted scope")
 	}
 	if p.wrong {
@@ -79,5 +84,15 @@ func TestNetworkTrustedScope(t *testing.T) {
 	}
 	if _, err := NewNetworkService(nil, resolver).GetVPC(ctx, req); errors.Code(err) != 503 {
 		t.Fatal("disabled dependency accepted")
+	}
+}
+
+func TestNetworkTrustedKeyPrincipal(t *testing.T) {
+	probe := &vpcProbe{actor: "governance:access-key:42"}
+	service := NewNetworkService(probe, &tenantProbe{})
+	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectAPIKey, ID: 42, TenantID: 5, Roles: []string{"reader"}})
+	reply, err := service.GetVPC(ctx, &catalogv1.GetVPCRequest{VpcId: "vpc_11111111111111111111111111111111"})
+	if err != nil || reply.GetVpc().GetId() != "vpc_11111111111111111111111111111111" || probe.calls != 1 {
+		t.Fatalf("key query: %v", err)
 	}
 }

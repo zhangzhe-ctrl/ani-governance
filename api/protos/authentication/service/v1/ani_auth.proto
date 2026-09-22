@@ -21,7 +21,7 @@ import "redact/v1/redact.proto";
 //
 // 已知与 ANI 契约的差异（有意为之，非缺陷）：
 //   1. refresh_token 默认不下发到响应体，浏览器会话经 HttpOnly Cookie 承载；
-//      非浏览器客户端请改用 AK/SK 换短期 JWT（/admin/v1/access-keys/token）。
+//      非浏览器客户端可使用 AK/SK 请求签名，仅适用于明确开放的业务接口。
 //   2. 不提供 idempotency_key：其"同一 key 返回同一 TokenPair"语义与
 //      本仓 refresh token 轮换（一次一换 + 原子吊销旧对）互斥。
 //   3. 不区分 404 TENANT_NOT_FOUND：租户存在性归一化进 401，
@@ -127,7 +127,7 @@ message TokenPairResponse {
   optional string refresh_token = 3 [
     json_name = "refresh_token",
     (gnostic.openapi.v3.property) = {
-      description: "刷新令牌。浏览器会话经 HttpOnly Cookie 下发，此字段通常为空；非浏览器客户端请使用 AK/SK 换取短期 JWT"
+      description: "刷新令牌。浏览器会话经 HttpOnly Cookie 下发，此字段通常为空；非浏览器客户端可在明确开放的业务接口使用 AK/SK 请求签名"
     }
   ]; // 刷新令牌（通常为空）
 

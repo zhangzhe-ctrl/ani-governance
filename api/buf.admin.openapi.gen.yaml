@@ -25,14 +25,14 @@ inputs:
 
 plugins:
   # generate openapi v2 json doc
-  #  - local: protoc-gen-openapiv2
+  #  - local: [go, run, github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1]v2
   #    out: ../app/admin/service/cmd/server/assets
   #    opt:
   #      - json_names_for_fields=true
   #      - logtostderr=true
 
   # generate openapi v3 yaml doc
-  - local: protoc-gen-openapi
+  - local: [go, run, github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1]
     out: ../app/admin/service/cmd/server/assets
     opt:
       - naming=json # 命名约定。使用"proto"则直接从proto文件传递名称。默认为：json

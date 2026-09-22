@@ -37,12 +37,14 @@ type AccessKey struct {
 	// 凭证名称（用途说明）
 	Name *string `json:"name,omitempty"`
 	// 访问键（AK，公开标识）
-	AccessKey *string `json:"access_key,omitempty"`
-	// 密钥摘要（SHA-256 hex，明文不落库）
-	SecretHash *string `json:"-"`
+	AccessKey string `json:"access_key,omitempty"`
+	// AES-256-GCM密文
+	SecretCiphertext string `json:"-"`
+	// 本租户绑定角色
+	RoleID uint32 `json:"role_id,omitempty"`
 	// 过期时间（空表示长期有效）
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
-	// 最近一次令牌交换时间
+	// 最近成功验签时间
 	LastUsedAt   *time.Time `json:"last_used_at,omitempty"`
 	selectValues sql.SelectValues
 }
@@ -52,9 +54,9 @@ func (*AccessKey) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case accesskey.FieldID, accesskey.FieldCreatedBy, accesskey.FieldUpdatedBy, accesskey.FieldDeletedBy, accesskey.FieldTenantID:
+		case accesskey.FieldID, accesskey.FieldCreatedBy, accesskey.FieldUpdatedBy, accesskey.FieldDeletedBy, accesskey.FieldTenantID, accesskey.FieldRoleID:
 			values[i] = new(sql.NullInt64)
-		case accesskey.FieldStatus, accesskey.FieldName, accesskey.FieldAccessKey, accesskey.FieldSecretHash:
+		case accesskey.FieldStatus, accesskey.FieldName, accesskey.FieldAccessKey, accesskey.FieldSecretCiphertext:
 			values[i] = new(sql.NullString)
 		case accesskey.FieldCreatedAt, accesskey.FieldUpdatedAt, accesskey.FieldDeletedAt, accesskey.FieldExpiresAt, accesskey.FieldLastUsedAt:
 			values[i] = new(sql.NullTime)
@@ -146,15 +148,19 @@ func (_m *AccessKey) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field access_key", values[i])
 			} else if value.Valid {
-				_m.AccessKey = new(string)
-				*_m.AccessKey = value.String
+				_m.AccessKey = value.String
 			}
-		case accesskey.FieldSecretHash:
+		case accesskey.FieldSecretCiphertext:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field secret_hash", values[i])
+				return fmt.Errorf("unexpected type %T for field secret_ciphertext", values[i])
 			} else if value.Valid {
-				_m.SecretHash = new(string)
-				*_m.SecretHash = value.String
+				_m.SecretCiphertext = value.String
+			}
+		case accesskey.FieldRoleID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field role_id", values[i])
+			} else if value.Valid {
+				_m.RoleID = uint32(value.Int64)
 			}
 		case accesskey.FieldExpiresAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -251,12 +257,13 @@ func (_m *AccessKey) String() string {
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	if v := _m.AccessKey; v != nil {
-		builder.WriteString("access_key=")
-		builder.WriteString(*v)
-	}
+	builder.WriteString("access_key=")
+	builder.WriteString(_m.AccessKey)
 	builder.WriteString(", ")
-	builder.WriteString("secret_hash=<sensitive>")
+	builder.WriteString("secret_ciphertext=<sensitive>")
+	builder.WriteString(", ")
+	builder.WriteString("role_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RoleID))
 	builder.WriteString(", ")
 	if v := _m.ExpiresAt; v != nil {
 		builder.WriteString("expires_at=")

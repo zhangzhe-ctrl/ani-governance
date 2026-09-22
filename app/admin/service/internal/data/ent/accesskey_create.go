@@ -126,14 +126,6 @@ func (_c *AccessKeyCreate) SetTenantID(v uint32) *AccessKeyCreate {
 	return _c
 }
 
-// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
-func (_c *AccessKeyCreate) SetNillableTenantID(v *uint32) *AccessKeyCreate {
-	if v != nil {
-		_c.SetTenantID(*v)
-	}
-	return _c
-}
-
 // SetName sets the "name" field.
 func (_c *AccessKeyCreate) SetName(v string) *AccessKeyCreate {
 	_c.mutation.SetName(v)
@@ -154,25 +146,15 @@ func (_c *AccessKeyCreate) SetAccessKey(v string) *AccessKeyCreate {
 	return _c
 }
 
-// SetNillableAccessKey sets the "access_key" field if the given value is not nil.
-func (_c *AccessKeyCreate) SetNillableAccessKey(v *string) *AccessKeyCreate {
-	if v != nil {
-		_c.SetAccessKey(*v)
-	}
+// SetSecretCiphertext sets the "secret_ciphertext" field.
+func (_c *AccessKeyCreate) SetSecretCiphertext(v string) *AccessKeyCreate {
+	_c.mutation.SetSecretCiphertext(v)
 	return _c
 }
 
-// SetSecretHash sets the "secret_hash" field.
-func (_c *AccessKeyCreate) SetSecretHash(v string) *AccessKeyCreate {
-	_c.mutation.SetSecretHash(v)
-	return _c
-}
-
-// SetNillableSecretHash sets the "secret_hash" field if the given value is not nil.
-func (_c *AccessKeyCreate) SetNillableSecretHash(v *string) *AccessKeyCreate {
-	if v != nil {
-		_c.SetSecretHash(*v)
-	}
+// SetRoleID sets the "role_id" field.
+func (_c *AccessKeyCreate) SetRoleID(v uint32) *AccessKeyCreate {
+	_c.mutation.SetRoleID(v)
 	return _c
 }
 
@@ -251,10 +233,6 @@ func (_c *AccessKeyCreate) defaults() error {
 		v := accesskey.DefaultStatus
 		_c.mutation.SetStatus(v)
 	}
-	if _, ok := _c.mutation.TenantID(); !ok {
-		v := accesskey.DefaultTenantID
-		_c.mutation.SetTenantID(v)
-	}
 	return nil
 }
 
@@ -266,6 +244,38 @@ func (_c *AccessKeyCreate) check() error {
 	if v, ok := _c.mutation.Status(); ok {
 		if err := accesskey.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "AccessKey.status": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "AccessKey.tenant_id"`)}
+	}
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := accesskey.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "AccessKey.tenant_id": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.AccessKey(); !ok {
+		return &ValidationError{Name: "access_key", err: errors.New(`ent: missing required field "AccessKey.access_key"`)}
+	}
+	if v, ok := _c.mutation.AccessKey(); ok {
+		if err := accesskey.AccessKeyValidator(v); err != nil {
+			return &ValidationError{Name: "access_key", err: fmt.Errorf(`ent: validator failed for field "AccessKey.access_key": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.SecretCiphertext(); !ok {
+		return &ValidationError{Name: "secret_ciphertext", err: errors.New(`ent: missing required field "AccessKey.secret_ciphertext"`)}
+	}
+	if v, ok := _c.mutation.SecretCiphertext(); ok {
+		if err := accesskey.SecretCiphertextValidator(v); err != nil {
+			return &ValidationError{Name: "secret_ciphertext", err: fmt.Errorf(`ent: validator failed for field "AccessKey.secret_ciphertext": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.RoleID(); !ok {
+		return &ValidationError{Name: "role_id", err: errors.New(`ent: missing required field "AccessKey.role_id"`)}
+	}
+	if v, ok := _c.mutation.RoleID(); ok {
+		if err := accesskey.RoleIDValidator(v); err != nil {
+			return &ValidationError{Name: "role_id", err: fmt.Errorf(`ent: validator failed for field "AccessKey.role_id": %w`, err)}
 		}
 	}
 	if v, ok := _c.mutation.ID(); ok {
@@ -344,11 +354,15 @@ func (_c *AccessKeyCreate) createSpec() (*AccessKey, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.AccessKey(); ok {
 		_spec.SetField(accesskey.FieldAccessKey, field.TypeString, value)
-		_node.AccessKey = &value
+		_node.AccessKey = value
 	}
-	if value, ok := _c.mutation.SecretHash(); ok {
-		_spec.SetField(accesskey.FieldSecretHash, field.TypeString, value)
-		_node.SecretHash = &value
+	if value, ok := _c.mutation.SecretCiphertext(); ok {
+		_spec.SetField(accesskey.FieldSecretCiphertext, field.TypeString, value)
+		_node.SecretCiphertext = value
+	}
+	if value, ok := _c.mutation.RoleID(); ok {
+		_spec.SetField(accesskey.FieldRoleID, field.TypeUint32, value)
+		_node.RoleID = value
 	}
 	if value, ok := _c.mutation.ExpiresAt(); ok {
 		_spec.SetField(accesskey.FieldExpiresAt, field.TypeTime, value)
@@ -560,27 +574,33 @@ func (u *AccessKeyUpsert) UpdateAccessKey() *AccessKeyUpsert {
 	return u
 }
 
-// ClearAccessKey clears the value of the "access_key" field.
-func (u *AccessKeyUpsert) ClearAccessKey() *AccessKeyUpsert {
-	u.SetNull(accesskey.FieldAccessKey)
+// SetSecretCiphertext sets the "secret_ciphertext" field.
+func (u *AccessKeyUpsert) SetSecretCiphertext(v string) *AccessKeyUpsert {
+	u.Set(accesskey.FieldSecretCiphertext, v)
 	return u
 }
 
-// SetSecretHash sets the "secret_hash" field.
-func (u *AccessKeyUpsert) SetSecretHash(v string) *AccessKeyUpsert {
-	u.Set(accesskey.FieldSecretHash, v)
+// UpdateSecretCiphertext sets the "secret_ciphertext" field to the value that was provided on create.
+func (u *AccessKeyUpsert) UpdateSecretCiphertext() *AccessKeyUpsert {
+	u.SetExcluded(accesskey.FieldSecretCiphertext)
 	return u
 }
 
-// UpdateSecretHash sets the "secret_hash" field to the value that was provided on create.
-func (u *AccessKeyUpsert) UpdateSecretHash() *AccessKeyUpsert {
-	u.SetExcluded(accesskey.FieldSecretHash)
+// SetRoleID sets the "role_id" field.
+func (u *AccessKeyUpsert) SetRoleID(v uint32) *AccessKeyUpsert {
+	u.Set(accesskey.FieldRoleID, v)
 	return u
 }
 
-// ClearSecretHash clears the value of the "secret_hash" field.
-func (u *AccessKeyUpsert) ClearSecretHash() *AccessKeyUpsert {
-	u.SetNull(accesskey.FieldSecretHash)
+// UpdateRoleID sets the "role_id" field to the value that was provided on create.
+func (u *AccessKeyUpsert) UpdateRoleID() *AccessKeyUpsert {
+	u.SetExcluded(accesskey.FieldRoleID)
+	return u
+}
+
+// AddRoleID adds v to the "role_id" field.
+func (u *AccessKeyUpsert) AddRoleID(v uint32) *AccessKeyUpsert {
+	u.Add(accesskey.FieldRoleID, v)
 	return u
 }
 
@@ -849,31 +869,38 @@ func (u *AccessKeyUpsertOne) UpdateAccessKey() *AccessKeyUpsertOne {
 	})
 }
 
-// ClearAccessKey clears the value of the "access_key" field.
-func (u *AccessKeyUpsertOne) ClearAccessKey() *AccessKeyUpsertOne {
+// SetSecretCiphertext sets the "secret_ciphertext" field.
+func (u *AccessKeyUpsertOne) SetSecretCiphertext(v string) *AccessKeyUpsertOne {
 	return u.Update(func(s *AccessKeyUpsert) {
-		s.ClearAccessKey()
+		s.SetSecretCiphertext(v)
 	})
 }
 
-// SetSecretHash sets the "secret_hash" field.
-func (u *AccessKeyUpsertOne) SetSecretHash(v string) *AccessKeyUpsertOne {
+// UpdateSecretCiphertext sets the "secret_ciphertext" field to the value that was provided on create.
+func (u *AccessKeyUpsertOne) UpdateSecretCiphertext() *AccessKeyUpsertOne {
 	return u.Update(func(s *AccessKeyUpsert) {
-		s.SetSecretHash(v)
+		s.UpdateSecretCiphertext()
 	})
 }
 
-// UpdateSecretHash sets the "secret_hash" field to the value that was provided on create.
-func (u *AccessKeyUpsertOne) UpdateSecretHash() *AccessKeyUpsertOne {
+// SetRoleID sets the "role_id" field.
+func (u *AccessKeyUpsertOne) SetRoleID(v uint32) *AccessKeyUpsertOne {
 	return u.Update(func(s *AccessKeyUpsert) {
-		s.UpdateSecretHash()
+		s.SetRoleID(v)
 	})
 }
 
-// ClearSecretHash clears the value of the "secret_hash" field.
-func (u *AccessKeyUpsertOne) ClearSecretHash() *AccessKeyUpsertOne {
+// AddRoleID adds v to the "role_id" field.
+func (u *AccessKeyUpsertOne) AddRoleID(v uint32) *AccessKeyUpsertOne {
 	return u.Update(func(s *AccessKeyUpsert) {
-		s.ClearSecretHash()
+		s.AddRoleID(v)
+	})
+}
+
+// UpdateRoleID sets the "role_id" field to the value that was provided on create.
+func (u *AccessKeyUpsertOne) UpdateRoleID() *AccessKeyUpsertOne {
+	return u.Update(func(s *AccessKeyUpsert) {
+		s.UpdateRoleID()
 	})
 }
 
@@ -1314,31 +1341,38 @@ func (u *AccessKeyUpsertBulk) UpdateAccessKey() *AccessKeyUpsertBulk {
 	})
 }
 
-// ClearAccessKey clears the value of the "access_key" field.
-func (u *AccessKeyUpsertBulk) ClearAccessKey() *AccessKeyUpsertBulk {
+// SetSecretCiphertext sets the "secret_ciphertext" field.
+func (u *AccessKeyUpsertBulk) SetSecretCiphertext(v string) *AccessKeyUpsertBulk {
 	return u.Update(func(s *AccessKeyUpsert) {
-		s.ClearAccessKey()
+		s.SetSecretCiphertext(v)
 	})
 }
 
-// SetSecretHash sets the "secret_hash" field.
-func (u *AccessKeyUpsertBulk) SetSecretHash(v string) *AccessKeyUpsertBulk {
+// UpdateSecretCiphertext sets the "secret_ciphertext" field to the value that was provided on create.
+func (u *AccessKeyUpsertBulk) UpdateSecretCiphertext() *AccessKeyUpsertBulk {
 	return u.Update(func(s *AccessKeyUpsert) {
-		s.SetSecretHash(v)
+		s.UpdateSecretCiphertext()
 	})
 }
 
-// UpdateSecretHash sets the "secret_hash" field to the value that was provided on create.
-func (u *AccessKeyUpsertBulk) UpdateSecretHash() *AccessKeyUpsertBulk {
+// SetRoleID sets the "role_id" field.
+func (u *AccessKeyUpsertBulk) SetRoleID(v uint32) *AccessKeyUpsertBulk {
 	return u.Update(func(s *AccessKeyUpsert) {
-		s.UpdateSecretHash()
+		s.SetRoleID(v)
 	})
 }
 
-// ClearSecretHash clears the value of the "secret_hash" field.
-func (u *AccessKeyUpsertBulk) ClearSecretHash() *AccessKeyUpsertBulk {
+// AddRoleID adds v to the "role_id" field.
+func (u *AccessKeyUpsertBulk) AddRoleID(v uint32) *AccessKeyUpsertBulk {
 	return u.Update(func(s *AccessKeyUpsert) {
-		s.ClearSecretHash()
+		s.AddRoleID(v)
+	})
+}
+
+// UpdateRoleID sets the "role_id" field to the value that was provided on create.
+func (u *AccessKeyUpsertBulk) UpdateRoleID() *AccessKeyUpsertBulk {
+	return u.Update(func(s *AccessKeyUpsert) {
+		s.UpdateRoleID()
 	})
 }
 

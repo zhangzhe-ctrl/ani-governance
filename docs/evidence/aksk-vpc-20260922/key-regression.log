@@ -1,0 +1,4 @@
+ok  	go-wind-admin/pkg/crypto	0.006s
+ok  	go-wind-admin/pkg/middleware/auth	0.011s
+ok  	go-wind-admin/pkg/middleware/logging	0.044s
+ok  	go-wind-admin/app/admin/service/internal/service	4.078s

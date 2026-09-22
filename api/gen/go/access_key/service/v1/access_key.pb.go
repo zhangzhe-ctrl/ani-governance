@@ -26,69 +26,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 凭证状态
-type AccessKey_Status int32
-
-const (
-	AccessKey_OFF AccessKey_Status = 0 // 停用
-	AccessKey_ON  AccessKey_Status = 1 // 启用
-)
-
-// Enum value maps for AccessKey_Status.
-var (
-	AccessKey_Status_name = map[int32]string{
-		0: "OFF",
-		1: "ON",
-	}
-	AccessKey_Status_value = map[string]int32{
-		"OFF": 0,
-		"ON":  1,
-	}
-)
-
-func (x AccessKey_Status) Enum() *AccessKey_Status {
-	p := new(AccessKey_Status)
-	*p = x
-	return p
-}
-
-func (x AccessKey_Status) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (AccessKey_Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_access_key_service_v1_access_key_proto_enumTypes[0].Descriptor()
-}
-
-func (AccessKey_Status) Type() protoreflect.EnumType {
-	return &file_access_key_service_v1_access_key_proto_enumTypes[0]
-}
-
-func (x AccessKey_Status) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use AccessKey_Status.Descriptor instead.
-func (AccessKey_Status) EnumDescriptor() ([]byte, []int) {
-	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{0, 0}
-}
-
-// OpenAPI 访问凭证（AK/SK）
+// Public metadata only. Secret material is deliberately absent.
 type AccessKey struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            *uint32                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`                                                     // 凭证ID
-	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`                                                  // 凭证名称
-	AccessKey     *string                `protobuf:"bytes,3,opt,name=access_key,json=accessKey,proto3,oneof" json:"access_key,omitempty"`                       // 访问键
-	Status        *AccessKey_Status      `protobuf:"varint,4,opt,name=status,proto3,enum=access_key.service.v1.AccessKey_Status,oneof" json:"status,omitempty"` // 凭证状态
-	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=expires_at,json=expiresAt,proto3,oneof" json:"expires_at,omitempty"`                       // 过期时间
-	LastUsedAt    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=last_used_at,json=lastUsedAt,proto3,oneof" json:"last_used_at,omitempty"`                  // 最近使用时间
-	TenantId      *uint32                `protobuf:"varint,10,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                        // 归属租户ID
-	CreatedBy     *uint32                `protobuf:"varint,100,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`                    // 创建者用户ID
-	UpdatedBy     *uint32                `protobuf:"varint,101,opt,name=updated_by,json=updatedBy,proto3,oneof" json:"updated_by,omitempty"`                    // 更新者用户ID
-	DeletedBy     *uint32                `protobuf:"varint,102,opt,name=deleted_by,json=deletedBy,proto3,oneof" json:"deleted_by,omitempty"`                    // 删除者用户ID
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`                     // 创建时间
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`                     // 更新时间
-	DeletedAt     *timestamppb.Timestamp `protobuf:"bytes,202,opt,name=deleted_at,json=deletedAt,proto3,oneof" json:"deleted_at,omitempty"`                     // 删除时间
+	Id            *uint32                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	AccessKey     *string                `protobuf:"bytes,3,opt,name=access_key,proto3,oneof" json:"access_key,omitempty"`
+	IsActive      *bool                  `protobuf:"varint,4,opt,name=is_active,proto3,oneof" json:"is_active,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=expires_at,proto3,oneof" json:"expires_at,omitempty"`
+	LastUsedAt    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=last_used_at,proto3,oneof" json:"last_used_at,omitempty"`
+	RoleId        *uint32                `protobuf:"varint,7,opt,name=role_id,proto3,oneof" json:"role_id,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,200,opt,name=created_at,proto3,oneof" json:"created_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -144,11 +92,11 @@ func (x *AccessKey) GetAccessKey() string {
 	return ""
 }
 
-func (x *AccessKey) GetStatus() AccessKey_Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
+func (x *AccessKey) GetIsActive() bool {
+	if x != nil && x.IsActive != nil {
+		return *x.IsActive
 	}
-	return AccessKey_OFF
+	return false
 }
 
 func (x *AccessKey) GetExpiresAt() *timestamppb.Timestamp {
@@ -165,30 +113,9 @@ func (x *AccessKey) GetLastUsedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *AccessKey) GetTenantId() uint32 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-func (x *AccessKey) GetCreatedBy() uint32 {
-	if x != nil && x.CreatedBy != nil {
-		return *x.CreatedBy
-	}
-	return 0
-}
-
-func (x *AccessKey) GetUpdatedBy() uint32 {
-	if x != nil && x.UpdatedBy != nil {
-		return *x.UpdatedBy
-	}
-	return 0
-}
-
-func (x *AccessKey) GetDeletedBy() uint32 {
-	if x != nil && x.DeletedBy != nil {
-		return *x.DeletedBy
+func (x *AccessKey) GetRoleId() uint32 {
+	if x != nil && x.RoleId != nil {
+		return *x.RoleId
 	}
 	return 0
 }
@@ -200,21 +127,6 @@ func (x *AccessKey) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *AccessKey) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
-	}
-	return nil
-}
-
-func (x *AccessKey) GetDeletedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.DeletedAt
-	}
-	return nil
-}
-
-// 查询访问凭证列表 - 回应
 type ListAccessKeyResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Items         []*AccessKey           `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
@@ -267,22 +179,60 @@ func (x *ListAccessKeyResponse) GetTotal() uint64 {
 	return 0
 }
 
-// 查询访问凭证详情 - 请求
+type CountAccessKeyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Count         uint64                 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountAccessKeyResponse) Reset() {
+	*x = CountAccessKeyResponse{}
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountAccessKeyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountAccessKeyResponse) ProtoMessage() {}
+
+func (x *CountAccessKeyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountAccessKeyResponse.ProtoReflect.Descriptor instead.
+func (*CountAccessKeyResponse) Descriptor() ([]byte, []int) {
+	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CountAccessKeyResponse) GetCount() uint64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
 type GetAccessKeyRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to QueryBy:
-	//
-	//	*GetAccessKeyRequest_Id
-	//	*GetAccessKeyRequest_AccessKey
-	QueryBy       isGetAccessKeyRequest_QueryBy `protobuf_oneof:"query_by"`
-	ViewMask      *fieldmaskpb.FieldMask        `protobuf:"bytes,100,opt,name=view_mask,json=viewMask,proto3,oneof" json:"view_mask,omitempty"` // 视图字段过滤器，用于控制返回的字段
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	KeyId         uint32                 `protobuf:"varint,1,opt,name=key_id,proto3" json:"key_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetAccessKeyRequest) Reset() {
 	*x = GetAccessKeyRequest{}
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[2]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -294,7 +244,7 @@ func (x *GetAccessKeyRequest) String() string {
 func (*GetAccessKeyRequest) ProtoMessage() {}
 
 func (x *GetAccessKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[2]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -307,58 +257,16 @@ func (x *GetAccessKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAccessKeyRequest.ProtoReflect.Descriptor instead.
 func (*GetAccessKeyRequest) Descriptor() ([]byte, []int) {
-	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{2}
+	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetAccessKeyRequest) GetQueryBy() isGetAccessKeyRequest_QueryBy {
+func (x *GetAccessKeyRequest) GetKeyId() uint32 {
 	if x != nil {
-		return x.QueryBy
-	}
-	return nil
-}
-
-func (x *GetAccessKeyRequest) GetId() uint32 {
-	if x != nil {
-		if x, ok := x.QueryBy.(*GetAccessKeyRequest_Id); ok {
-			return x.Id
-		}
+		return x.KeyId
 	}
 	return 0
 }
 
-func (x *GetAccessKeyRequest) GetAccessKey() string {
-	if x != nil {
-		if x, ok := x.QueryBy.(*GetAccessKeyRequest_AccessKey); ok {
-			return x.AccessKey
-		}
-	}
-	return ""
-}
-
-func (x *GetAccessKeyRequest) GetViewMask() *fieldmaskpb.FieldMask {
-	if x != nil {
-		return x.ViewMask
-	}
-	return nil
-}
-
-type isGetAccessKeyRequest_QueryBy interface {
-	isGetAccessKeyRequest_QueryBy()
-}
-
-type GetAccessKeyRequest_Id struct {
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3,oneof"`
-}
-
-type GetAccessKeyRequest_AccessKey struct {
-	AccessKey string `protobuf:"bytes,2,opt,name=access_key,json=accessKey,proto3,oneof"`
-}
-
-func (*GetAccessKeyRequest_Id) isGetAccessKeyRequest_QueryBy() {}
-
-func (*GetAccessKeyRequest_AccessKey) isGetAccessKeyRequest_QueryBy() {}
-
-// 创建访问凭证 - 请求
 type CreateAccessKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Data          *AccessKey             `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
@@ -368,7 +276,7 @@ type CreateAccessKeyRequest struct {
 
 func (x *CreateAccessKeyRequest) Reset() {
 	*x = CreateAccessKeyRequest{}
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[3]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -380,7 +288,7 @@ func (x *CreateAccessKeyRequest) String() string {
 func (*CreateAccessKeyRequest) ProtoMessage() {}
 
 func (x *CreateAccessKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[3]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -393,7 +301,7 @@ func (x *CreateAccessKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAccessKeyRequest.ProtoReflect.Descriptor instead.
 func (*CreateAccessKeyRequest) Descriptor() ([]byte, []int) {
-	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{3}
+	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreateAccessKeyRequest) GetData() *AccessKey {
@@ -403,20 +311,19 @@ func (x *CreateAccessKeyRequest) GetData() *AccessKey {
 	return nil
 }
 
-// 更新访问凭证 - 请求
 type UpdateAccessKeyRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Data          *AccessKey             `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
-	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`              // 要更新的字段列表
-	AllowMissing  *bool                  `protobuf:"varint,4,opt,name=allow_missing,json=allowMissing,proto3,oneof" json:"allow_missing,omitempty"` // 如果设置为true的时候，资源不存在则会新增(插入)，并且在这种情况下`updateMask`字段将会被忽略。
+	state protoimpl.MessageState `protogen:"open.v1"`
+	KeyId uint32                 `protobuf:"varint,1,opt,name=key_id,proto3" json:"key_id,omitempty"`
+	Data  *AccessKey             `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	// FieldMask JSON values use lowerCamel paths, e.g. roleId,isActive,expiresAt.
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateAccessKeyRequest) Reset() {
 	*x = UpdateAccessKeyRequest{}
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[4]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -428,7 +335,7 @@ func (x *UpdateAccessKeyRequest) String() string {
 func (*UpdateAccessKeyRequest) ProtoMessage() {}
 
 func (x *UpdateAccessKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[4]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -441,12 +348,12 @@ func (x *UpdateAccessKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAccessKeyRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAccessKeyRequest) Descriptor() ([]byte, []int) {
-	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{4}
+	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *UpdateAccessKeyRequest) GetId() uint32 {
+func (x *UpdateAccessKeyRequest) GetKeyId() uint32 {
 	if x != nil {
-		return x.Id
+		return x.KeyId
 	}
 	return 0
 }
@@ -465,24 +372,16 @@ func (x *UpdateAccessKeyRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
-func (x *UpdateAccessKeyRequest) GetAllowMissing() bool {
-	if x != nil && x.AllowMissing != nil {
-		return *x.AllowMissing
-	}
-	return false
-}
-
-// 删除访问凭证 - 请求
 type DeleteAccessKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	KeyId         uint32                 `protobuf:"varint,1,opt,name=key_id,proto3" json:"key_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteAccessKeyRequest) Reset() {
 	*x = DeleteAccessKeyRequest{}
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[5]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -494,7 +393,7 @@ func (x *DeleteAccessKeyRequest) String() string {
 func (*DeleteAccessKeyRequest) ProtoMessage() {}
 
 func (x *DeleteAccessKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[5]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -507,38 +406,38 @@ func (x *DeleteAccessKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAccessKeyRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAccessKeyRequest) Descriptor() ([]byte, []int) {
-	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{5}
+	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *DeleteAccessKeyRequest) GetId() uint32 {
+func (x *DeleteAccessKeyRequest) GetKeyId() uint32 {
 	if x != nil {
-		return x.Id
+		return x.KeyId
 	}
 	return 0
 }
 
-type CountAccessKeyResponse struct {
+type DeleteAccessKeyResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Count         uint64                 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"` // 凭证数量
+	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CountAccessKeyResponse) Reset() {
-	*x = CountAccessKeyResponse{}
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[6]
+func (x *DeleteAccessKeyResponse) Reset() {
+	*x = DeleteAccessKeyResponse{}
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CountAccessKeyResponse) String() string {
+func (x *DeleteAccessKeyResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CountAccessKeyResponse) ProtoMessage() {}
+func (*DeleteAccessKeyResponse) ProtoMessage() {}
 
-func (x *CountAccessKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[6]
+func (x *DeleteAccessKeyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -549,30 +448,30 @@ func (x *CountAccessKeyResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CountAccessKeyResponse.ProtoReflect.Descriptor instead.
-func (*CountAccessKeyResponse) Descriptor() ([]byte, []int) {
-	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{6}
+// Deprecated: Use DeleteAccessKeyResponse.ProtoReflect.Descriptor instead.
+func (*DeleteAccessKeyResponse) Descriptor() ([]byte, []int) {
+	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *CountAccessKeyResponse) GetCount() uint64 {
+func (x *DeleteAccessKeyResponse) GetStatus() string {
 	if x != nil {
-		return x.Count
+		return x.Status
 	}
-	return 0
+	return ""
 }
 
-// 创建访问凭证 - 回应（secret 仅本次明文返回，服务端只存 SHA-256 摘要）
 type CreateAccessKeyResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Data          *AccessKey             `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`     // 凭证（不含 secret 摘要）
-	Secret        string                 `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"` // 密钥明文（仅本次返回，请妥善保存）
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Data  *AccessKey             `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	// Returned once on creation/reset; encrypted at rest.
+	SecretKey     string `protobuf:"bytes,2,opt,name=secret_key,proto3" json:"secret_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateAccessKeyResponse) Reset() {
 	*x = CreateAccessKeyResponse{}
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[7]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -584,7 +483,7 @@ func (x *CreateAccessKeyResponse) String() string {
 func (*CreateAccessKeyResponse) ProtoMessage() {}
 
 func (x *CreateAccessKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[7]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -597,7 +496,7 @@ func (x *CreateAccessKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAccessKeyResponse.ProtoReflect.Descriptor instead.
 func (*CreateAccessKeyResponse) Descriptor() ([]byte, []int) {
-	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{7}
+	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CreateAccessKeyResponse) GetData() *AccessKey {
@@ -607,24 +506,23 @@ func (x *CreateAccessKeyResponse) GetData() *AccessKey {
 	return nil
 }
 
-func (x *CreateAccessKeyResponse) GetSecret() string {
+func (x *CreateAccessKeyResponse) GetSecretKey() string {
 	if x != nil {
-		return x.Secret
+		return x.SecretKey
 	}
 	return ""
 }
 
-// 重置密钥 - 请求
 type ResetAccessKeySecretRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 凭证ID
+	KeyId         uint32                 `protobuf:"varint,1,opt,name=key_id,proto3" json:"key_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ResetAccessKeySecretRequest) Reset() {
 	*x = ResetAccessKeySecretRequest{}
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[8]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -636,7 +534,7 @@ func (x *ResetAccessKeySecretRequest) String() string {
 func (*ResetAccessKeySecretRequest) ProtoMessage() {}
 
 func (x *ResetAccessKeySecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[8]
+	mi := &file_access_key_service_v1_access_key_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -649,225 +547,77 @@ func (x *ResetAccessKeySecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetAccessKeySecretRequest.ProtoReflect.Descriptor instead.
 func (*ResetAccessKeySecretRequest) Descriptor() ([]byte, []int) {
-	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *ResetAccessKeySecretRequest) GetId() uint32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-// 令牌交换 - 请求（机器对机器：AK/SK 换取短期 JWT）
-type IssueTokenRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccessKey     string                 `protobuf:"bytes,1,opt,name=access_key,json=accessKey,proto3" json:"access_key,omitempty"` // 访问键
-	Secret        string                 `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"`                        // 密钥
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *IssueTokenRequest) Reset() {
-	*x = IssueTokenRequest{}
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *IssueTokenRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*IssueTokenRequest) ProtoMessage() {}
-
-func (x *IssueTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use IssueTokenRequest.ProtoReflect.Descriptor instead.
-func (*IssueTokenRequest) Descriptor() ([]byte, []int) {
 	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *IssueTokenRequest) GetAccessKey() string {
+func (x *ResetAccessKeySecretRequest) GetKeyId() uint32 {
 	if x != nil {
-		return x.AccessKey
-	}
-	return ""
-}
-
-func (x *IssueTokenRequest) GetSecret() string {
-	if x != nil {
-		return x.Secret
-	}
-	return ""
-}
-
-// 令牌交换 - 回应
-type IssueTokenResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"` // 访问令牌
-	ExpiresIn     uint32                 `protobuf:"varint,2,opt,name=expires_in,json=expiresIn,proto3" json:"expires_in,omitempty"`      // 有效期（秒）
-	TokenType     string                 `protobuf:"bytes,3,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`       // 令牌类型
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *IssueTokenResponse) Reset() {
-	*x = IssueTokenResponse{}
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *IssueTokenResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*IssueTokenResponse) ProtoMessage() {}
-
-func (x *IssueTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_access_key_service_v1_access_key_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use IssueTokenResponse.ProtoReflect.Descriptor instead.
-func (*IssueTokenResponse) Descriptor() ([]byte, []int) {
-	return file_access_key_service_v1_access_key_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *IssueTokenResponse) GetAccessToken() string {
-	if x != nil {
-		return x.AccessToken
-	}
-	return ""
-}
-
-func (x *IssueTokenResponse) GetExpiresIn() uint32 {
-	if x != nil {
-		return x.ExpiresIn
+		return x.KeyId
 	}
 	return 0
-}
-
-func (x *IssueTokenResponse) GetTokenType() string {
-	if x != nil {
-		return x.TokenType
-	}
-	return ""
 }
 
 var File_access_key_service_v1_access_key_proto protoreflect.FileDescriptor
 
 const file_access_key_service_v1_access_key_proto_rawDesc = "" +
 	"\n" +
-	"&access_key/service/v1/access_key.proto\x12\x15access_key.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1epagination/v1/pagination.proto\"\xa9\n" +
+	"&access_key/service/v1/access_key.proto\x12\x15access_key.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1epagination/v1/pagination.proto\"\xd0\x03\n" +
+	"\tAccessKey\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x88\x01\x01\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12#\n" +
 	"\n" +
-	"\tAccessKey\x12#\n" +
-	"\x02id\x18\x01 \x01(\rB\x0e\xbaG\v\x92\x02\b凭证IDH\x00R\x02id\x88\x01\x01\x12=\n" +
-	"\x04name\x18\x02 \x01(\tB$\xbaG!\x92\x02\x1e凭证名称（用途说明）H\x01R\x04name\x88\x01\x01\x12q\n" +
+	"access_key\x18\x03 \x01(\tH\x02R\n" +
+	"access_key\x88\x01\x01\x12!\n" +
+	"\tis_active\x18\x04 \x01(\bH\x03R\tis_active\x88\x01\x01\x12?\n" +
 	"\n" +
-	"access_key\x18\x03 \x01(\tBM\xbaGJ\x92\x02G访问键（AK，公开标识，调用时随令牌交换请求上送）H\x02R\taccessKey\x88\x01\x01\x12|\n" +
-	"\x06status\x18\x04 \x01(\x0e2'.access_key.service.v1.AccessKey.StatusB6\xbaG3\x92\x020凭证状态（停用后令牌交换被拒绝）H\x03R\x06status\x88\x01\x01\x12p\n" +
+	"expires_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x04R\n" +
+	"expires_at\x88\x01\x01\x12C\n" +
+	"\flast_used_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x05R\flast_used_at\x88\x01\x01\x12\x1d\n" +
+	"\arole_id\x18\a \x01(\rH\x06R\arole_id\x88\x01\x01\x12@\n" +
 	"\n" +
-	"expires_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB0\xbaG-\x92\x02*过期时间（留空表示长期有效）H\x04R\texpiresAt\x88\x01\x01\x12g\n" +
-	"\flast_used_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB$\xbaG!\x92\x02\x1e最近一次令牌交换时间H\x05R\n" +
-	"lastUsedAt\x88\x01\x01\x12i\n" +
-	"\ttenant_id\x18\n" +
-	" \x01(\rBG\xbaGD\x92\x02A归属租户ID（机器令牌继承该租户的隔离与闸门）H\x06R\btenantId\x88\x01\x01\x12;\n" +
-	"\n" +
-	"created_by\x18d \x01(\rB\x17\xbaG\x14\x92\x02\x11创建者用户IDH\aR\tcreatedBy\x88\x01\x01\x12;\n" +
-	"\n" +
-	"updated_by\x18e \x01(\rB\x17\xbaG\x14\x92\x02\x11更新者用户IDH\bR\tupdatedBy\x88\x01\x01\x12;\n" +
-	"\n" +
-	"deleted_by\x18f \x01(\rB\x17\xbaG\x14\x92\x02\x11删除者用户IDH\tR\tdeletedBy\x88\x01\x01\x12S\n" +
-	"\n" +
-	"created_at\x18\xc8\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f创建时间H\n" +
-	"R\tcreatedAt\x88\x01\x01\x12S\n" +
-	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间H\vR\tupdatedAt\x88\x01\x01\x12S\n" +
-	"\n" +
-	"deleted_at\x18\xca\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f删除时间H\fR\tdeletedAt\x88\x01\x01\"\x19\n" +
-	"\x06Status\x12\a\n" +
-	"\x03OFF\x10\x00\x12\x06\n" +
-	"\x02ON\x10\x01B\x05\n" +
+	"created_at\x18\xc8\x01 \x01(\v2\x1a.google.protobuf.TimestampH\aR\n" +
+	"created_at\x88\x01\x01B\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\r\n" +
-	"\v_access_keyB\t\n" +
-	"\a_statusB\r\n" +
-	"\v_expires_atB\x0f\n" +
-	"\r_last_used_atB\f\n" +
+	"\v_access_keyB\f\n" +
 	"\n" +
-	"_tenant_idB\r\n" +
-	"\v_created_byB\r\n" +
-	"\v_updated_byB\r\n" +
-	"\v_deleted_byB\r\n" +
-	"\v_created_atB\r\n" +
-	"\v_updated_atB\r\n" +
-	"\v_deleted_at\"e\n" +
+	"_is_activeB\r\n" +
+	"\v_expires_atB\x0f\n" +
+	"\r_last_used_atB\n" +
+	"\n" +
+	"\b_role_idB\r\n" +
+	"\v_created_at\"e\n" +
 	"\x15ListAccessKeyResponse\x126\n" +
 	"\x05items\x18\x01 \x03(\v2 .access_key.service.v1.AccessKeyR\x05items\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\xdb\x01\n" +
-	"\x13GetAccessKeyRequest\x12\x10\n" +
-	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x12\x1f\n" +
-	"\n" +
-	"access_key\x18\x02 \x01(\tH\x00R\taccessKey\x12w\n" +
-	"\tview_mask\x18d \x01(\v2\x1a.google.protobuf.FieldMaskB9\xbaG6\x92\x023视图字段过滤器，用于控制返回的字段H\x01R\bviewMask\x88\x01\x01B\n" +
-	"\n" +
-	"\bquery_byB\f\n" +
-	"\n" +
-	"_view_mask\"N\n" +
-	"\x16CreateAccessKeyRequest\x124\n" +
-	"\x04data\x18\x01 \x01(\v2 .access_key.service.v1.AccessKeyR\x04data\"\x96\x03\n" +
-	"\x16UpdateAccessKeyRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\rR\x02id\x124\n" +
-	"\x04data\x18\x02 \x01(\v2 .access_key.service.v1.AccessKeyR\x04data\x12m\n" +
-	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskB0\xbaG-:\x10\x12\x0eid,name,status\x92\x02\x18要更新的字段列表R\n" +
-	"updateMask\x12\xb4\x01\n" +
-	"\rallow_missing\x18\x04 \x01(\bB\x89\x01\xbaG\x85\x01\x92\x02\x81\x01如果设置为true的时候，资源不存在则会新增(插入)，并且在这种情况下`updateMask`字段将会被忽略。H\x00R\fallowMissing\x88\x01\x01B\x10\n" +
-	"\x0e_allow_missing\"(\n" +
-	"\x16DeleteAccessKeyRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\rR\x02id\".\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\".\n" +
 	"\x16CountAccessKeyResponse\x12\x14\n" +
-	"\x05count\x18\x01 \x01(\x04R\x05count\"g\n" +
+	"\x05count\x18\x01 \x01(\x04R\x05count\"-\n" +
+	"\x13GetAccessKeyRequest\x12\x16\n" +
+	"\x06key_id\x18\x01 \x01(\rR\x06key_id\"N\n" +
+	"\x16CreateAccessKeyRequest\x124\n" +
+	"\x04data\x18\x01 \x01(\v2 .access_key.service.v1.AccessKeyR\x04data\"\xf6\x01\n" +
+	"\x16UpdateAccessKeyRequest\x12\x16\n" +
+	"\x06key_id\x18\x01 \x01(\rR\x06key_id\x124\n" +
+	"\x04data\x18\x02 \x01(\v2 .access_key.service.v1.AccessKeyR\x04data\x12\x8d\x01\n" +
+	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskBO\xbaGL\xca\x01\x06string\x92\x02@Comma-separated lowerCamel paths, e.g. roleId,isActive,expiresAtR\vupdate_mask\"0\n" +
+	"\x16DeleteAccessKeyRequest\x12\x16\n" +
+	"\x06key_id\x18\x01 \x01(\rR\x06key_id\"1\n" +
+	"\x17DeleteAccessKeyResponse\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\"o\n" +
 	"\x17CreateAccessKeyResponse\x124\n" +
-	"\x04data\x18\x01 \x01(\v2 .access_key.service.v1.AccessKeyR\x04data\x12\x16\n" +
-	"\x06secret\x18\x02 \x01(\tR\x06secret\"-\n" +
-	"\x1bResetAccessKeySecretRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\rR\x02id\"\x8d\x01\n" +
-	"\x11IssueTokenRequest\x12.\n" +
+	"\x04data\x18\x01 \x01(\v2 .access_key.service.v1.AccessKeyR\x04data\x12\x1e\n" +
 	"\n" +
-	"access_key\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t访问键R\taccessKey\x12H\n" +
-	"\x06secret\x18\x02 \x01(\tB0\xbaG-\x92\x02*密钥（创建凭证时一次性下发）R\x06secret\"\xcf\x01\n" +
-	"\x12IssueTokenResponse\x12A\n" +
-	"\faccess_token\x18\x01 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18访问令牌（Bearer）R\vaccessToken\x127\n" +
-	"\n" +
-	"expires_in\x18\x02 \x01(\rB\x18\xbaG\x15\x92\x02\x12有效期（秒）R\texpiresIn\x12=\n" +
-	"\n" +
-	"token_type\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18令牌类型（bearer）R\ttokenType2\xff\x04\n" +
+	"secret_key\x18\x02 \x01(\tR\n" +
+	"secret_key\"5\n" +
+	"\x1bResetAccessKeySecretRequest\x12\x16\n" +
+	"\x06key_id\x18\x01 \x01(\rR\x06key_id2\xaf\x05\n" +
 	"\x10AccessKeyService\x12Q\n" +
 	"\x04List\x12\x19.pagination.PagingRequest\x1a,.access_key.service.v1.ListAccessKeyResponse\"\x00\x12S\n" +
 	"\x05Count\x12\x19.pagination.PagingRequest\x1a-.access_key.service.v1.CountAccessKeyResponse\"\x00\x12U\n" +
-	"\x03Get\x12*.access_key.service.v1.GetAccessKeyRequest\x1a .access_key.service.v1.AccessKey\"\x00\x12Q\n" +
-	"\x06Create\x12-.access_key.service.v1.CreateAccessKeyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12Q\n" +
-	"\x06Update\x12-.access_key.service.v1.UpdateAccessKeyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12Q\n" +
-	"\x06Delete\x12-.access_key.service.v1.DeleteAccessKeyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12s\n" +
+	"\x03Get\x12*.access_key.service.v1.GetAccessKeyRequest\x1a .access_key.service.v1.AccessKey\"\x00\x12i\n" +
+	"\x06Create\x12-.access_key.service.v1.CreateAccessKeyRequest\x1a..access_key.service.v1.CreateAccessKeyResponse\"\x00\x12Q\n" +
+	"\x06Update\x12-.access_key.service.v1.UpdateAccessKeyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12i\n" +
+	"\x06Delete\x12-.access_key.service.v1.DeleteAccessKeyRequest\x1a..access_key.service.v1.DeleteAccessKeyResponse\"\x00\x12s\n" +
 	"\vResetSecret\x122.access_key.service.v1.ResetAccessKeySecretRequest\x1a..access_key.service.v1.CreateAccessKeyResponse\"\x00B\xd9\x01\n" +
 	"\x19com.access_key.service.v1B\x0eAccessKeyProtoP\x01Z:go-wind-admin/api/gen/go/access_key/service/v1;accesskeypb\xa2\x02\x03ASX\xaa\x02\x14AccessKey.Service.V1\xca\x02\x14AccessKey\\Service\\V1\xe2\x02 AccessKey\\Service\\V1\\GPBMetadata\xea\x02\x16AccessKey::Service::V1b\x06proto3"
 
@@ -883,58 +633,51 @@ func file_access_key_service_v1_access_key_proto_rawDescGZIP() []byte {
 	return file_access_key_service_v1_access_key_proto_rawDescData
 }
 
-var file_access_key_service_v1_access_key_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_access_key_service_v1_access_key_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_access_key_service_v1_access_key_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_access_key_service_v1_access_key_proto_goTypes = []any{
-	(AccessKey_Status)(0),               // 0: access_key.service.v1.AccessKey.Status
-	(*AccessKey)(nil),                   // 1: access_key.service.v1.AccessKey
-	(*ListAccessKeyResponse)(nil),       // 2: access_key.service.v1.ListAccessKeyResponse
+	(*AccessKey)(nil),                   // 0: access_key.service.v1.AccessKey
+	(*ListAccessKeyResponse)(nil),       // 1: access_key.service.v1.ListAccessKeyResponse
+	(*CountAccessKeyResponse)(nil),      // 2: access_key.service.v1.CountAccessKeyResponse
 	(*GetAccessKeyRequest)(nil),         // 3: access_key.service.v1.GetAccessKeyRequest
 	(*CreateAccessKeyRequest)(nil),      // 4: access_key.service.v1.CreateAccessKeyRequest
 	(*UpdateAccessKeyRequest)(nil),      // 5: access_key.service.v1.UpdateAccessKeyRequest
 	(*DeleteAccessKeyRequest)(nil),      // 6: access_key.service.v1.DeleteAccessKeyRequest
-	(*CountAccessKeyResponse)(nil),      // 7: access_key.service.v1.CountAccessKeyResponse
+	(*DeleteAccessKeyResponse)(nil),     // 7: access_key.service.v1.DeleteAccessKeyResponse
 	(*CreateAccessKeyResponse)(nil),     // 8: access_key.service.v1.CreateAccessKeyResponse
 	(*ResetAccessKeySecretRequest)(nil), // 9: access_key.service.v1.ResetAccessKeySecretRequest
-	(*IssueTokenRequest)(nil),           // 10: access_key.service.v1.IssueTokenRequest
-	(*IssueTokenResponse)(nil),          // 11: access_key.service.v1.IssueTokenResponse
-	(*timestamppb.Timestamp)(nil),       // 12: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),       // 13: google.protobuf.FieldMask
-	(*v1.PagingRequest)(nil),            // 14: pagination.PagingRequest
-	(*emptypb.Empty)(nil),               // 15: google.protobuf.Empty
+	(*timestamppb.Timestamp)(nil),       // 10: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),       // 11: google.protobuf.FieldMask
+	(*v1.PagingRequest)(nil),            // 12: pagination.PagingRequest
+	(*emptypb.Empty)(nil),               // 13: google.protobuf.Empty
 }
 var file_access_key_service_v1_access_key_proto_depIdxs = []int32{
-	0,  // 0: access_key.service.v1.AccessKey.status:type_name -> access_key.service.v1.AccessKey.Status
-	12, // 1: access_key.service.v1.AccessKey.expires_at:type_name -> google.protobuf.Timestamp
-	12, // 2: access_key.service.v1.AccessKey.last_used_at:type_name -> google.protobuf.Timestamp
-	12, // 3: access_key.service.v1.AccessKey.created_at:type_name -> google.protobuf.Timestamp
-	12, // 4: access_key.service.v1.AccessKey.updated_at:type_name -> google.protobuf.Timestamp
-	12, // 5: access_key.service.v1.AccessKey.deleted_at:type_name -> google.protobuf.Timestamp
-	1,  // 6: access_key.service.v1.ListAccessKeyResponse.items:type_name -> access_key.service.v1.AccessKey
-	13, // 7: access_key.service.v1.GetAccessKeyRequest.view_mask:type_name -> google.protobuf.FieldMask
-	1,  // 8: access_key.service.v1.CreateAccessKeyRequest.data:type_name -> access_key.service.v1.AccessKey
-	1,  // 9: access_key.service.v1.UpdateAccessKeyRequest.data:type_name -> access_key.service.v1.AccessKey
-	13, // 10: access_key.service.v1.UpdateAccessKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 11: access_key.service.v1.CreateAccessKeyResponse.data:type_name -> access_key.service.v1.AccessKey
-	14, // 12: access_key.service.v1.AccessKeyService.List:input_type -> pagination.PagingRequest
-	14, // 13: access_key.service.v1.AccessKeyService.Count:input_type -> pagination.PagingRequest
-	3,  // 14: access_key.service.v1.AccessKeyService.Get:input_type -> access_key.service.v1.GetAccessKeyRequest
-	4,  // 15: access_key.service.v1.AccessKeyService.Create:input_type -> access_key.service.v1.CreateAccessKeyRequest
-	5,  // 16: access_key.service.v1.AccessKeyService.Update:input_type -> access_key.service.v1.UpdateAccessKeyRequest
-	6,  // 17: access_key.service.v1.AccessKeyService.Delete:input_type -> access_key.service.v1.DeleteAccessKeyRequest
-	9,  // 18: access_key.service.v1.AccessKeyService.ResetSecret:input_type -> access_key.service.v1.ResetAccessKeySecretRequest
-	2,  // 19: access_key.service.v1.AccessKeyService.List:output_type -> access_key.service.v1.ListAccessKeyResponse
-	7,  // 20: access_key.service.v1.AccessKeyService.Count:output_type -> access_key.service.v1.CountAccessKeyResponse
-	1,  // 21: access_key.service.v1.AccessKeyService.Get:output_type -> access_key.service.v1.AccessKey
-	15, // 22: access_key.service.v1.AccessKeyService.Create:output_type -> google.protobuf.Empty
-	15, // 23: access_key.service.v1.AccessKeyService.Update:output_type -> google.protobuf.Empty
-	15, // 24: access_key.service.v1.AccessKeyService.Delete:output_type -> google.protobuf.Empty
-	8,  // 25: access_key.service.v1.AccessKeyService.ResetSecret:output_type -> access_key.service.v1.CreateAccessKeyResponse
-	19, // [19:26] is the sub-list for method output_type
-	12, // [12:19] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	10, // 0: access_key.service.v1.AccessKey.expires_at:type_name -> google.protobuf.Timestamp
+	10, // 1: access_key.service.v1.AccessKey.last_used_at:type_name -> google.protobuf.Timestamp
+	10, // 2: access_key.service.v1.AccessKey.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 3: access_key.service.v1.ListAccessKeyResponse.items:type_name -> access_key.service.v1.AccessKey
+	0,  // 4: access_key.service.v1.CreateAccessKeyRequest.data:type_name -> access_key.service.v1.AccessKey
+	0,  // 5: access_key.service.v1.UpdateAccessKeyRequest.data:type_name -> access_key.service.v1.AccessKey
+	11, // 6: access_key.service.v1.UpdateAccessKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	0,  // 7: access_key.service.v1.CreateAccessKeyResponse.data:type_name -> access_key.service.v1.AccessKey
+	12, // 8: access_key.service.v1.AccessKeyService.List:input_type -> pagination.PagingRequest
+	12, // 9: access_key.service.v1.AccessKeyService.Count:input_type -> pagination.PagingRequest
+	3,  // 10: access_key.service.v1.AccessKeyService.Get:input_type -> access_key.service.v1.GetAccessKeyRequest
+	4,  // 11: access_key.service.v1.AccessKeyService.Create:input_type -> access_key.service.v1.CreateAccessKeyRequest
+	5,  // 12: access_key.service.v1.AccessKeyService.Update:input_type -> access_key.service.v1.UpdateAccessKeyRequest
+	6,  // 13: access_key.service.v1.AccessKeyService.Delete:input_type -> access_key.service.v1.DeleteAccessKeyRequest
+	9,  // 14: access_key.service.v1.AccessKeyService.ResetSecret:input_type -> access_key.service.v1.ResetAccessKeySecretRequest
+	1,  // 15: access_key.service.v1.AccessKeyService.List:output_type -> access_key.service.v1.ListAccessKeyResponse
+	2,  // 16: access_key.service.v1.AccessKeyService.Count:output_type -> access_key.service.v1.CountAccessKeyResponse
+	0,  // 17: access_key.service.v1.AccessKeyService.Get:output_type -> access_key.service.v1.AccessKey
+	8,  // 18: access_key.service.v1.AccessKeyService.Create:output_type -> access_key.service.v1.CreateAccessKeyResponse
+	13, // 19: access_key.service.v1.AccessKeyService.Update:output_type -> google.protobuf.Empty
+	7,  // 20: access_key.service.v1.AccessKeyService.Delete:output_type -> access_key.service.v1.DeleteAccessKeyResponse
+	8,  // 21: access_key.service.v1.AccessKeyService.ResetSecret:output_type -> access_key.service.v1.CreateAccessKeyResponse
+	15, // [15:22] is the sub-list for method output_type
+	8,  // [8:15] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_access_key_service_v1_access_key_proto_init() }
@@ -943,24 +686,18 @@ func file_access_key_service_v1_access_key_proto_init() {
 		return
 	}
 	file_access_key_service_v1_access_key_proto_msgTypes[0].OneofWrappers = []any{}
-	file_access_key_service_v1_access_key_proto_msgTypes[2].OneofWrappers = []any{
-		(*GetAccessKeyRequest_Id)(nil),
-		(*GetAccessKeyRequest_AccessKey)(nil),
-	}
-	file_access_key_service_v1_access_key_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_access_key_service_v1_access_key_proto_rawDesc), len(file_access_key_service_v1_access_key_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   11,
+			NumEnums:      0,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_access_key_service_v1_access_key_proto_goTypes,
 		DependencyIndexes: file_access_key_service_v1_access_key_proto_depIdxs,
-		EnumInfos:         file_access_key_service_v1_access_key_proto_enumTypes,
 		MessageInfos:      file_access_key_service_v1_access_key_proto_msgTypes,
 	}.Build()
 	File_access_key_service_v1_access_key_proto = out.File

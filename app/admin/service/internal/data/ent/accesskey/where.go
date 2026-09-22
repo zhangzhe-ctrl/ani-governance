@@ -99,9 +99,14 @@ func AccessKey(v string) predicate.AccessKey {
 	return predicate.AccessKey(sql.FieldEQ(FieldAccessKey, v))
 }
 
-// SecretHash applies equality check predicate on the "secret_hash" field. It's identical to SecretHashEQ.
-func SecretHash(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldEQ(FieldSecretHash, v))
+// SecretCiphertext applies equality check predicate on the "secret_ciphertext" field. It's identical to SecretCiphertextEQ.
+func SecretCiphertext(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldEQ(FieldSecretCiphertext, v))
+}
+
+// RoleID applies equality check predicate on the "role_id" field. It's identical to RoleIDEQ.
+func RoleID(v uint32) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldEQ(FieldRoleID, v))
 }
 
 // ExpiresAt applies equality check predicate on the "expires_at" field. It's identical to ExpiresAtEQ.
@@ -474,16 +479,6 @@ func TenantIDLTE(v uint32) predicate.AccessKey {
 	return predicate.AccessKey(sql.FieldLTE(FieldTenantID, v))
 }
 
-// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
-func TenantIDIsNil() predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldIsNull(FieldTenantID))
-}
-
-// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
-func TenantIDNotNil() predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldNotNull(FieldTenantID))
-}
-
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.AccessKey {
 	return predicate.AccessKey(sql.FieldEQ(FieldName, v))
@@ -614,16 +609,6 @@ func AccessKeyHasSuffix(v string) predicate.AccessKey {
 	return predicate.AccessKey(sql.FieldHasSuffix(FieldAccessKey, v))
 }
 
-// AccessKeyIsNil applies the IsNil predicate on the "access_key" field.
-func AccessKeyIsNil() predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldIsNull(FieldAccessKey))
-}
-
-// AccessKeyNotNil applies the NotNil predicate on the "access_key" field.
-func AccessKeyNotNil() predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldNotNull(FieldAccessKey))
-}
-
 // AccessKeyEqualFold applies the EqualFold predicate on the "access_key" field.
 func AccessKeyEqualFold(v string) predicate.AccessKey {
 	return predicate.AccessKey(sql.FieldEqualFold(FieldAccessKey, v))
@@ -634,79 +619,109 @@ func AccessKeyContainsFold(v string) predicate.AccessKey {
 	return predicate.AccessKey(sql.FieldContainsFold(FieldAccessKey, v))
 }
 
-// SecretHashEQ applies the EQ predicate on the "secret_hash" field.
-func SecretHashEQ(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldEQ(FieldSecretHash, v))
+// SecretCiphertextEQ applies the EQ predicate on the "secret_ciphertext" field.
+func SecretCiphertextEQ(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldEQ(FieldSecretCiphertext, v))
 }
 
-// SecretHashNEQ applies the NEQ predicate on the "secret_hash" field.
-func SecretHashNEQ(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldNEQ(FieldSecretHash, v))
+// SecretCiphertextNEQ applies the NEQ predicate on the "secret_ciphertext" field.
+func SecretCiphertextNEQ(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldNEQ(FieldSecretCiphertext, v))
 }
 
-// SecretHashIn applies the In predicate on the "secret_hash" field.
-func SecretHashIn(vs ...string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldIn(FieldSecretHash, vs...))
+// SecretCiphertextIn applies the In predicate on the "secret_ciphertext" field.
+func SecretCiphertextIn(vs ...string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldIn(FieldSecretCiphertext, vs...))
 }
 
-// SecretHashNotIn applies the NotIn predicate on the "secret_hash" field.
-func SecretHashNotIn(vs ...string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldNotIn(FieldSecretHash, vs...))
+// SecretCiphertextNotIn applies the NotIn predicate on the "secret_ciphertext" field.
+func SecretCiphertextNotIn(vs ...string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldNotIn(FieldSecretCiphertext, vs...))
 }
 
-// SecretHashGT applies the GT predicate on the "secret_hash" field.
-func SecretHashGT(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldGT(FieldSecretHash, v))
+// SecretCiphertextGT applies the GT predicate on the "secret_ciphertext" field.
+func SecretCiphertextGT(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldGT(FieldSecretCiphertext, v))
 }
 
-// SecretHashGTE applies the GTE predicate on the "secret_hash" field.
-func SecretHashGTE(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldGTE(FieldSecretHash, v))
+// SecretCiphertextGTE applies the GTE predicate on the "secret_ciphertext" field.
+func SecretCiphertextGTE(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldGTE(FieldSecretCiphertext, v))
 }
 
-// SecretHashLT applies the LT predicate on the "secret_hash" field.
-func SecretHashLT(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldLT(FieldSecretHash, v))
+// SecretCiphertextLT applies the LT predicate on the "secret_ciphertext" field.
+func SecretCiphertextLT(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldLT(FieldSecretCiphertext, v))
 }
 
-// SecretHashLTE applies the LTE predicate on the "secret_hash" field.
-func SecretHashLTE(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldLTE(FieldSecretHash, v))
+// SecretCiphertextLTE applies the LTE predicate on the "secret_ciphertext" field.
+func SecretCiphertextLTE(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldLTE(FieldSecretCiphertext, v))
 }
 
-// SecretHashContains applies the Contains predicate on the "secret_hash" field.
-func SecretHashContains(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldContains(FieldSecretHash, v))
+// SecretCiphertextContains applies the Contains predicate on the "secret_ciphertext" field.
+func SecretCiphertextContains(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldContains(FieldSecretCiphertext, v))
 }
 
-// SecretHashHasPrefix applies the HasPrefix predicate on the "secret_hash" field.
-func SecretHashHasPrefix(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldHasPrefix(FieldSecretHash, v))
+// SecretCiphertextHasPrefix applies the HasPrefix predicate on the "secret_ciphertext" field.
+func SecretCiphertextHasPrefix(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldHasPrefix(FieldSecretCiphertext, v))
 }
 
-// SecretHashHasSuffix applies the HasSuffix predicate on the "secret_hash" field.
-func SecretHashHasSuffix(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldHasSuffix(FieldSecretHash, v))
+// SecretCiphertextHasSuffix applies the HasSuffix predicate on the "secret_ciphertext" field.
+func SecretCiphertextHasSuffix(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldHasSuffix(FieldSecretCiphertext, v))
 }
 
-// SecretHashIsNil applies the IsNil predicate on the "secret_hash" field.
-func SecretHashIsNil() predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldIsNull(FieldSecretHash))
+// SecretCiphertextEqualFold applies the EqualFold predicate on the "secret_ciphertext" field.
+func SecretCiphertextEqualFold(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldEqualFold(FieldSecretCiphertext, v))
 }
 
-// SecretHashNotNil applies the NotNil predicate on the "secret_hash" field.
-func SecretHashNotNil() predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldNotNull(FieldSecretHash))
+// SecretCiphertextContainsFold applies the ContainsFold predicate on the "secret_ciphertext" field.
+func SecretCiphertextContainsFold(v string) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldContainsFold(FieldSecretCiphertext, v))
 }
 
-// SecretHashEqualFold applies the EqualFold predicate on the "secret_hash" field.
-func SecretHashEqualFold(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldEqualFold(FieldSecretHash, v))
+// RoleIDEQ applies the EQ predicate on the "role_id" field.
+func RoleIDEQ(v uint32) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldEQ(FieldRoleID, v))
 }
 
-// SecretHashContainsFold applies the ContainsFold predicate on the "secret_hash" field.
-func SecretHashContainsFold(v string) predicate.AccessKey {
-	return predicate.AccessKey(sql.FieldContainsFold(FieldSecretHash, v))
+// RoleIDNEQ applies the NEQ predicate on the "role_id" field.
+func RoleIDNEQ(v uint32) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldNEQ(FieldRoleID, v))
+}
+
+// RoleIDIn applies the In predicate on the "role_id" field.
+func RoleIDIn(vs ...uint32) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldIn(FieldRoleID, vs...))
+}
+
+// RoleIDNotIn applies the NotIn predicate on the "role_id" field.
+func RoleIDNotIn(vs ...uint32) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldNotIn(FieldRoleID, vs...))
+}
+
+// RoleIDGT applies the GT predicate on the "role_id" field.
+func RoleIDGT(v uint32) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldGT(FieldRoleID, v))
+}
+
+// RoleIDGTE applies the GTE predicate on the "role_id" field.
+func RoleIDGTE(v uint32) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldGTE(FieldRoleID, v))
+}
+
+// RoleIDLT applies the LT predicate on the "role_id" field.
+func RoleIDLT(v uint32) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldLT(FieldRoleID, v))
+}
+
+// RoleIDLTE applies the LTE predicate on the "role_id" field.
+func RoleIDLTE(v uint32) predicate.AccessKey {
+	return predicate.AccessKey(sql.FieldLTE(FieldRoleID, v))
 }
 
 // ExpiresAtEQ applies the EQ predicate on the "expires_at" field.

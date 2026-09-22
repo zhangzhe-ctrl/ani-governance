@@ -24,6 +24,10 @@ type ApiAuditLog struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	// 租户ID
 	TenantID *uint32 `json:"tenant_id,omitempty"`
+	// 已验证主体类型user/api_key
+	SubjectType *string `json:"subject_type,omitempty"`
+	// 已验证主体ID
+	SubjectID *uint32 `json:"subject_id,omitempty"`
 	// 操作者用户ID
 	UserID *uint32 `json:"user_id,omitempty"`
 	// 操作者账号名
@@ -86,9 +90,9 @@ func (*ApiAuditLog) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case apiauditlog.FieldSuccess:
 			values[i] = new(sql.NullBool)
-		case apiauditlog.FieldID, apiauditlog.FieldTenantID, apiauditlog.FieldUserID, apiauditlog.FieldLatencyMs, apiauditlog.FieldStatusCode:
+		case apiauditlog.FieldID, apiauditlog.FieldTenantID, apiauditlog.FieldSubjectID, apiauditlog.FieldUserID, apiauditlog.FieldLatencyMs, apiauditlog.FieldStatusCode:
 			values[i] = new(sql.NullInt64)
-		case apiauditlog.FieldUsername, apiauditlog.FieldIPAddress, apiauditlog.FieldReferer, apiauditlog.FieldAppVersion, apiauditlog.FieldHTTPMethod, apiauditlog.FieldPath, apiauditlog.FieldRequestURI, apiauditlog.FieldAPIModule, apiauditlog.FieldAPIOperation, apiauditlog.FieldAPIDescription, apiauditlog.FieldRequestID, apiauditlog.FieldTraceID, apiauditlog.FieldSpanID, apiauditlog.FieldReason, apiauditlog.FieldRequestHeader, apiauditlog.FieldRequestBody, apiauditlog.FieldResponse, apiauditlog.FieldLogHash:
+		case apiauditlog.FieldSubjectType, apiauditlog.FieldUsername, apiauditlog.FieldIPAddress, apiauditlog.FieldReferer, apiauditlog.FieldAppVersion, apiauditlog.FieldHTTPMethod, apiauditlog.FieldPath, apiauditlog.FieldRequestURI, apiauditlog.FieldAPIModule, apiauditlog.FieldAPIOperation, apiauditlog.FieldAPIDescription, apiauditlog.FieldRequestID, apiauditlog.FieldTraceID, apiauditlog.FieldSpanID, apiauditlog.FieldReason, apiauditlog.FieldRequestHeader, apiauditlog.FieldRequestBody, apiauditlog.FieldResponse, apiauditlog.FieldLogHash:
 			values[i] = new(sql.NullString)
 		case apiauditlog.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -126,6 +130,20 @@ func (_m *ApiAuditLog) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.TenantID = new(uint32)
 				*_m.TenantID = uint32(value.Int64)
+			}
+		case apiauditlog.FieldSubjectType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field subject_type", values[i])
+			} else if value.Valid {
+				_m.SubjectType = new(string)
+				*_m.SubjectType = value.String
+			}
+		case apiauditlog.FieldSubjectID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field subject_id", values[i])
+			} else if value.Valid {
+				_m.SubjectID = new(uint32)
+				*_m.SubjectID = uint32(value.Int64)
 			}
 		case apiauditlog.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -346,6 +364,16 @@ func (_m *ApiAuditLog) String() string {
 	builder.WriteString(", ")
 	if v := _m.TenantID; v != nil {
 		builder.WriteString("tenant_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.SubjectType; v != nil {
+		builder.WriteString("subject_type=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.SubjectID; v != nil {
+		builder.WriteString("subject_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")

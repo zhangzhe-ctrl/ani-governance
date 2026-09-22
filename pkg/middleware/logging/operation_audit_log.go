@@ -114,7 +114,7 @@ func (o *OperationAuditLogMiddleware) Handle(ctx context.Context, htr *http.Tran
 	operationAuditLog.IpAddress = trans.Ptr(clientIp)
 	operationAuditLog.RequestId = trans.Ptr(getRequestId(htr.Request()))
 
-	ut := extractAuthToken(htr)
+	ut := extractAuthToken(ctx)
 	if ut != nil {
 		operationAuditLog.UserId = trans.Ptr(ut.UserId)
 		operationAuditLog.TenantId = ut.TenantId

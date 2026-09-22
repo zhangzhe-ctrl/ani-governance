@@ -51,6 +51,34 @@ func (_c *ApiAuditLogCreate) SetNillableTenantID(v *uint32) *ApiAuditLogCreate {
 	return _c
 }
 
+// SetSubjectType sets the "subject_type" field.
+func (_c *ApiAuditLogCreate) SetSubjectType(v string) *ApiAuditLogCreate {
+	_c.mutation.SetSubjectType(v)
+	return _c
+}
+
+// SetNillableSubjectType sets the "subject_type" field if the given value is not nil.
+func (_c *ApiAuditLogCreate) SetNillableSubjectType(v *string) *ApiAuditLogCreate {
+	if v != nil {
+		_c.SetSubjectType(*v)
+	}
+	return _c
+}
+
+// SetSubjectID sets the "subject_id" field.
+func (_c *ApiAuditLogCreate) SetSubjectID(v uint32) *ApiAuditLogCreate {
+	_c.mutation.SetSubjectID(v)
+	return _c
+}
+
+// SetNillableSubjectID sets the "subject_id" field if the given value is not nil.
+func (_c *ApiAuditLogCreate) SetNillableSubjectID(v *uint32) *ApiAuditLogCreate {
+	if v != nil {
+		_c.SetSubjectID(*v)
+	}
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *ApiAuditLogCreate) SetUserID(v uint32) *ApiAuditLogCreate {
 	_c.mutation.SetUserID(v)
@@ -485,6 +513,14 @@ func (_c *ApiAuditLogCreate) createSpec() (*ApiAuditLog, *sqlgraph.CreateSpec) {
 		_spec.SetField(apiauditlog.FieldTenantID, field.TypeUint32, value)
 		_node.TenantID = &value
 	}
+	if value, ok := _c.mutation.SubjectType(); ok {
+		_spec.SetField(apiauditlog.FieldSubjectType, field.TypeString, value)
+		_node.SubjectType = &value
+	}
+	if value, ok := _c.mutation.SubjectID(); ok {
+		_spec.SetField(apiauditlog.FieldSubjectID, field.TypeUint32, value)
+		_node.SubjectID = &value
+	}
 	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(apiauditlog.FieldUserID, field.TypeUint32, value)
 		_node.UserID = &value
@@ -636,6 +672,48 @@ type (
 		*sql.UpdateSet
 	}
 )
+
+// SetSubjectType sets the "subject_type" field.
+func (u *ApiAuditLogUpsert) SetSubjectType(v string) *ApiAuditLogUpsert {
+	u.Set(apiauditlog.FieldSubjectType, v)
+	return u
+}
+
+// UpdateSubjectType sets the "subject_type" field to the value that was provided on create.
+func (u *ApiAuditLogUpsert) UpdateSubjectType() *ApiAuditLogUpsert {
+	u.SetExcluded(apiauditlog.FieldSubjectType)
+	return u
+}
+
+// ClearSubjectType clears the value of the "subject_type" field.
+func (u *ApiAuditLogUpsert) ClearSubjectType() *ApiAuditLogUpsert {
+	u.SetNull(apiauditlog.FieldSubjectType)
+	return u
+}
+
+// SetSubjectID sets the "subject_id" field.
+func (u *ApiAuditLogUpsert) SetSubjectID(v uint32) *ApiAuditLogUpsert {
+	u.Set(apiauditlog.FieldSubjectID, v)
+	return u
+}
+
+// UpdateSubjectID sets the "subject_id" field to the value that was provided on create.
+func (u *ApiAuditLogUpsert) UpdateSubjectID() *ApiAuditLogUpsert {
+	u.SetExcluded(apiauditlog.FieldSubjectID)
+	return u
+}
+
+// AddSubjectID adds v to the "subject_id" field.
+func (u *ApiAuditLogUpsert) AddSubjectID(v uint32) *ApiAuditLogUpsert {
+	u.Add(apiauditlog.FieldSubjectID, v)
+	return u
+}
+
+// ClearSubjectID clears the value of the "subject_id" field.
+func (u *ApiAuditLogUpsert) ClearSubjectID() *ApiAuditLogUpsert {
+	u.SetNull(apiauditlog.FieldSubjectID)
+	return u
+}
 
 // SetUserID sets the "user_id" field.
 func (u *ApiAuditLogUpsert) SetUserID(v uint32) *ApiAuditLogUpsert {
@@ -1157,6 +1235,55 @@ func (u *ApiAuditLogUpsertOne) Update(set func(*ApiAuditLogUpsert)) *ApiAuditLog
 		set(&ApiAuditLogUpsert{UpdateSet: update})
 	}))
 	return u
+}
+
+// SetSubjectType sets the "subject_type" field.
+func (u *ApiAuditLogUpsertOne) SetSubjectType(v string) *ApiAuditLogUpsertOne {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.SetSubjectType(v)
+	})
+}
+
+// UpdateSubjectType sets the "subject_type" field to the value that was provided on create.
+func (u *ApiAuditLogUpsertOne) UpdateSubjectType() *ApiAuditLogUpsertOne {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.UpdateSubjectType()
+	})
+}
+
+// ClearSubjectType clears the value of the "subject_type" field.
+func (u *ApiAuditLogUpsertOne) ClearSubjectType() *ApiAuditLogUpsertOne {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.ClearSubjectType()
+	})
+}
+
+// SetSubjectID sets the "subject_id" field.
+func (u *ApiAuditLogUpsertOne) SetSubjectID(v uint32) *ApiAuditLogUpsertOne {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.SetSubjectID(v)
+	})
+}
+
+// AddSubjectID adds v to the "subject_id" field.
+func (u *ApiAuditLogUpsertOne) AddSubjectID(v uint32) *ApiAuditLogUpsertOne {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.AddSubjectID(v)
+	})
+}
+
+// UpdateSubjectID sets the "subject_id" field to the value that was provided on create.
+func (u *ApiAuditLogUpsertOne) UpdateSubjectID() *ApiAuditLogUpsertOne {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.UpdateSubjectID()
+	})
+}
+
+// ClearSubjectID clears the value of the "subject_id" field.
+func (u *ApiAuditLogUpsertOne) ClearSubjectID() *ApiAuditLogUpsertOne {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.ClearSubjectID()
+	})
 }
 
 // SetUserID sets the "user_id" field.
@@ -1923,6 +2050,55 @@ func (u *ApiAuditLogUpsertBulk) Update(set func(*ApiAuditLogUpsert)) *ApiAuditLo
 		set(&ApiAuditLogUpsert{UpdateSet: update})
 	}))
 	return u
+}
+
+// SetSubjectType sets the "subject_type" field.
+func (u *ApiAuditLogUpsertBulk) SetSubjectType(v string) *ApiAuditLogUpsertBulk {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.SetSubjectType(v)
+	})
+}
+
+// UpdateSubjectType sets the "subject_type" field to the value that was provided on create.
+func (u *ApiAuditLogUpsertBulk) UpdateSubjectType() *ApiAuditLogUpsertBulk {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.UpdateSubjectType()
+	})
+}
+
+// ClearSubjectType clears the value of the "subject_type" field.
+func (u *ApiAuditLogUpsertBulk) ClearSubjectType() *ApiAuditLogUpsertBulk {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.ClearSubjectType()
+	})
+}
+
+// SetSubjectID sets the "subject_id" field.
+func (u *ApiAuditLogUpsertBulk) SetSubjectID(v uint32) *ApiAuditLogUpsertBulk {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.SetSubjectID(v)
+	})
+}
+
+// AddSubjectID adds v to the "subject_id" field.
+func (u *ApiAuditLogUpsertBulk) AddSubjectID(v uint32) *ApiAuditLogUpsertBulk {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.AddSubjectID(v)
+	})
+}
+
+// UpdateSubjectID sets the "subject_id" field to the value that was provided on create.
+func (u *ApiAuditLogUpsertBulk) UpdateSubjectID() *ApiAuditLogUpsertBulk {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.UpdateSubjectID()
+	})
+}
+
+// ClearSubjectID clears the value of the "subject_id" field.
+func (u *ApiAuditLogUpsertBulk) ClearSubjectID() *ApiAuditLogUpsertBulk {
+	return u.Update(func(s *ApiAuditLogUpsert) {
+		s.ClearSubjectID()
+	})
 }
 
 // SetUserID sets the "user_id" field.

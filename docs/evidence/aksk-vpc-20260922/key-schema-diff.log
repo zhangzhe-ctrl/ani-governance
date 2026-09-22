@@ -1,0 +1,4 @@
+-- Modify "sys_users" table
+ALTER TABLE "public"."sys_users" DROP COLUMN "avatar";
+-- Drop "files" table
+DROP TABLE "public"."files";

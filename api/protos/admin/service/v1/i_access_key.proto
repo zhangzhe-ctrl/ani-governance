@@ -13,52 +13,53 @@ import "access_key/service/v1/access_key.proto";
 service AccessKeyService {
   // 分页查询访问凭证列表
   rpc List (pagination.PagingRequest) returns (access_key.service.v1.ListAccessKeyResponse) {
-    option (google.api.http) = { get: "/admin/v1/access-keys" };
+    option (gnostic.openapi.v3.operation) = { security: { additional_properties: { name: "BearerAuth" value: {} } } };
+    option (google.api.http) = { get: "/api/v1/auth/api-keys" };
   }
 
   // 查询访问凭证详情
   rpc Get (access_key.service.v1.GetAccessKeyRequest) returns (access_key.service.v1.AccessKey) {
-    option (google.api.http) = { get: "/admin/v1/access-keys/{id}" };
+    option (gnostic.openapi.v3.operation) = { security: { additional_properties: { name: "BearerAuth" value: {} } } };
+    option (google.api.http) = { get: "/api/v1/auth/api-keys/{key_id}" };
   }
 
-  // 创建访问凭证（响应中的 secret 仅本次明文返回，服务端只存 SHA-256 摘要）
+  // 创建访问凭证（响应中的 secret_key 仅本次返回，服务端加密存储）
   rpc Create (access_key.service.v1.CreateAccessKeyRequest) returns (access_key.service.v1.CreateAccessKeyResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      security: { additional_properties: { name: "BearerAuth" value: {} } }
+      responses: { response_or_reference: [{ name: "201" value: { response: {
+        description: "Created; secret_key is returned once"
+        content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/CreateAccessKeyResponse" } } } }] }
+      } } }] }
+    };
     option (google.api.http) = {
-      post: "/admin/v1/access-keys"
+      post: "/api/v1/auth/api-keys"
       body: "*"
     };
   }
 
   // 更新访问凭证（名称/状态/过期时间）
   rpc Update (access_key.service.v1.UpdateAccessKeyRequest) returns (google.protobuf.Empty) {
+    option (gnostic.openapi.v3.operation) = { security: { additional_properties: { name: "BearerAuth" value: {} } } };
     option (google.api.http) = {
-      put: "/admin/v1/access-keys/{id}"
+      put: "/api/v1/auth/api-keys/{key_id}"
       body: "*"
     };
   }
 
   // 删除访问凭证
-  rpc Delete (access_key.service.v1.DeleteAccessKeyRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { delete: "/admin/v1/access-keys/{id}" };
+  rpc Delete (access_key.service.v1.DeleteAccessKeyRequest) returns (access_key.service.v1.DeleteAccessKeyResponse) {
+    option (gnostic.openapi.v3.operation) = { security: { additional_properties: { name: "BearerAuth" value: {} } } };
+    option (google.api.http) = { delete: "/api/v1/auth/api-keys/{key_id}" };
   }
 
   // 重置密钥：生成新 Secret（响应明文返回一次）
   rpc ResetSecret (access_key.service.v1.ResetAccessKeySecretRequest) returns (access_key.service.v1.CreateAccessKeyResponse) {
+    option (gnostic.openapi.v3.operation) = { security: { additional_properties: { name: "BearerAuth" value: {} } } };
     option (google.api.http) = {
-      put: "/admin/v1/access-keys/{id}/secret"
+      put: "/api/v1/auth/api-keys/{key_id}/secret"
       body: "*"
     };
   }
 
-  // 令牌交换（机器对机器）：AK/SK 换短期 JWT。免鉴权端点——本身即是认证。
-  rpc IssueToken (access_key.service.v1.IssueTokenRequest) returns (access_key.service.v1.IssueTokenResponse) {
-    option (google.api.http) = {
-      post: "/admin/v1/access-keys/token"
-      body: "*"
-    };
-
-    option(gnostic.openapi.v3.operation) = {
-      security: {}
-    };
-  }
 }

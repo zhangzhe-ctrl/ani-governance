@@ -27,15 +27,15 @@ var File_admin_service_v1_i_network_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"\n" +
-	" admin/service/v1/i_network.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1ccatalog/service/v1/vpc.proto\x1a$gnostic/openapi/v3/annotations.proto2\xf3\x06\n" +
-	"\x0eNetworkService\x12\xe0\x06\n" +
-	"\x06GetVPC\x12!.catalog.service.v1.GetVPCRequest\x1a\".catalog.service.v1.GetVPCResponse\"\x8e\x06\xbaG\xe4\x05\x12%Get a VPC in the authenticated tenant\x1a\x8e\x03Requires login, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters are rejected. Public identity headers are ignored. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed.B\xa9\x02\x12.\n" +
+	" admin/service/v1/i_network.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1ccatalog/service/v1/vpc.proto\x1a$gnostic/openapi/v3/annotations.proto2\xf8\a\n" +
+	"\x0eNetworkService\x12\xe5\a\n" +
+	"\x06GetVPC\x12!.catalog.service.v1.GetVPCRequest\x1a\".catalog.service.v1.GetVPCResponse\"\x93\a\xbaG\xe9\x06\x12%Get a VPC in the authenticated tenant\x1a\xb7\x03Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters and body are rejected. Public identity headers are ignored. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed.B\xb8\x02\x12.\n" +
 	"\x03400\x12'\n" +
 	"%\n" +
-	"#Invalid VPC ID or unsupported query\x12,\n" +
-	"\x03401\x12%\n" +
-	"#\n" +
-	"!Missing, invalid or revoked login\x124\n" +
+	"#Invalid VPC ID or unsupported query\x12;\n" +
+	"\x03401\x124\n" +
+	"2\n" +
+	"0Missing, invalid, expired or revoked credentials\x124\n" +
 	"\x03403\x12-\n" +
 	"+\n" +
 	")Tenant, permission or subscription denied\x12'\n" +
@@ -47,7 +47,16 @@ const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"2Network dependency or trusted identity unavailable\x12+\n" +
 	"\x03504\x12$\n" +
 	"\"\n" +
-	" Connected Network call timed out\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/networks/vpcs/{vpc_id}B\xba\x01\n" +
+	" Connected Network call timed outZ\x10\n" +
+	"\x0e\n" +
+	"\n" +
+	"BearerAuth\x12\x00Z9\n" +
+	"\x11\n" +
+	"\rAccessKeyAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureAuth\x12\x00\n" +
+	"\x11\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/networks/vpcs/{vpc_id}B\xba\x01\n" +
 	"\x14com.admin.service.v1B\rINetworkProtoP\x01Z1go-wind-admin/api/gen/go/admin/service/v1;adminpb\xa2\x02\x03ASX\xaa\x02\x10Admin.Service.V1\xca\x02\x10Admin\\Service\\V1\xe2\x02\x1cAdmin\\Service\\V1\\GPBMetadata\xea\x02\x12Admin::Service::V1b\x06proto3"
 
 var file_admin_service_v1_i_network_proto_goTypes = []any{

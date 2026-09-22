@@ -13,6 +13,9 @@ var (
 )
 
 func NewContext(parent context.Context, claims *authenticationV1.UserTokenPayload) context.Context {
+	if claims != nil && claims.GetUserId() > 0 {
+		parent = NewPrincipalContext(parent, &Principal{Type: SubjectUser, ID: claims.GetUserId(), TenantID: claims.GetTenantId(), Roles: claims.GetRoles(), Claims: claims})
+	}
 	return context.WithValue(parent, authClaimsContextKey, claims)
 }
 

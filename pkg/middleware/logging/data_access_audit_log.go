@@ -2,6 +2,7 @@ package logging
 
 import (
 	"context"
+	"go-wind-admin/pkg/middleware/auth"
 	"strings"
 
 	"github.com/go-kratos/kratos/v2/transport/http"
@@ -66,7 +67,7 @@ func (d *DataAccessAuditLogMiddleware) Handle(ctx context.Context, htr *http.Tra
 
 	clientIp := getClientRealIP(htr.Request())
 	reqId := getRequestId(htr.Request())
-	ut := extractAuthToken(htr)
+	ut := extractAuthToken(ctx)
 
 	// 落库前植入 sink 标记，短路 wrapper 对审计行自身 INSERT 的采集。
 	sinkCtx := context.WithValue(ctx, audit.SinkKey(), true)
@@ -97,6 +98,9 @@ func (d *DataAccessAuditLogMiddleware) Handle(ctx context.Context, htr *http.Tra
 			rec.UserId = trans.Ptr(ut.UserId)
 			rec.TenantId = ut.TenantId
 			rec.Username = ut.Username
+		}
+		if p, err := auth.PrincipalFromContext(ctx); err == nil {
+			rec.TenantId = trans.Ptr(p.TenantID)
 		}
 		_ = d.op.writeDataAccessAuditLogFunc(sinkCtx, rec)
 	}

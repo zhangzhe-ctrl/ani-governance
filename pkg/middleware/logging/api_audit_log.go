@@ -8,8 +8,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"go-wind-admin/pkg/middleware/auth"
 	"io"
 	"net/url"
+	"strings"
 
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/tx7do/go-utils/trans"
@@ -49,7 +51,7 @@ func (a *ApiAuditLogMiddleware) Handle(ctx context.Context, htr *http.Transport,
 	referer, _ := url.QueryUnescape(htr.RequestHeader().Get(HeaderKeyReferer))
 	requestUri, _ := url.QueryUnescape(htr.Request().RequestURI)
 	var bodyBytes []byte
-	if htr.Operation() == adminV1.OperationAuthenticationServiceAcceptInvitation {
+	if htr.Operation() == adminV1.OperationAuthenticationServiceAcceptInvitation || strings.HasPrefix(htr.Request().URL.Path, "/api/v1/auth/api-keys") || htr.Operation() == auth.VPCReadOperation {
 		referer, requestUri = "", htr.Request().URL.Path
 		bodyBytes = []byte("[redacted]")
 	} else {
@@ -65,11 +67,17 @@ func (a *ApiAuditLogMiddleware) Handle(ctx context.Context, htr *http.Transport,
 	apiAuditLog.RequestUri = trans.Ptr(requestUri)
 	apiAuditLog.RequestBody = trans.Ptr(string(bodyBytes))
 
-	ut := extractAuthToken(htr)
+	ut := extractAuthToken(ctx)
 	if ut != nil {
 		apiAuditLog.UserId = trans.Ptr(ut.UserId)
 		apiAuditLog.TenantId = ut.TenantId
 		apiAuditLog.Username = ut.Username
+	}
+
+	if p, err := auth.PrincipalFromContext(ctx); err == nil {
+		apiAuditLog.SubjectType = trans.Ptr(string(p.Type))
+		apiAuditLog.SubjectId = trans.Ptr(p.ID)
+		apiAuditLog.TenantId = trans.Ptr(p.TenantID)
 	}
 
 	// 地理位置
@@ -80,6 +88,9 @@ func (a *ApiAuditLogMiddleware) Handle(ctx context.Context, htr *http.Transport,
 
 	// 获取错误码和是否成功
 	statusCode, reason, success := getStatusCode(middleErr)
+	if success && htr.Operation() == adminV1.OperationAccessKeyServiceCreate {
+		statusCode = 201
+	}
 
 	apiAuditLog.LatencyMs = trans.Ptr(uint32(latencyMs))
 	apiAuditLog.StatusCode = trans.Ptr(statusCode)

@@ -34,8 +34,10 @@ const (
 	FieldName = "name"
 	// FieldAccessKey holds the string denoting the access_key field in the database.
 	FieldAccessKey = "access_key"
-	// FieldSecretHash holds the string denoting the secret_hash field in the database.
-	FieldSecretHash = "secret_hash"
+	// FieldSecretCiphertext holds the string denoting the secret_ciphertext field in the database.
+	FieldSecretCiphertext = "secret_ciphertext"
+	// FieldRoleID holds the string denoting the role_id field in the database.
+	FieldRoleID = "role_id"
 	// FieldExpiresAt holds the string denoting the expires_at field in the database.
 	FieldExpiresAt = "expires_at"
 	// FieldLastUsedAt holds the string denoting the last_used_at field in the database.
@@ -57,7 +59,8 @@ var Columns = []string{
 	FieldTenantID,
 	FieldName,
 	FieldAccessKey,
-	FieldSecretHash,
+	FieldSecretCiphertext,
+	FieldRoleID,
 	FieldExpiresAt,
 	FieldLastUsedAt,
 }
@@ -80,8 +83,14 @@ func ValidColumn(column string) bool {
 var (
 	Hooks  [1]ent.Hook
 	Policy ent.Policy
-	// DefaultTenantID holds the default value on creation for the "tenant_id" field.
-	DefaultTenantID uint32
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(uint32) error
+	// AccessKeyValidator is a validator for the "access_key" field. It is called by the builders before save.
+	AccessKeyValidator func(string) error
+	// SecretCiphertextValidator is a validator for the "secret_ciphertext" field. It is called by the builders before save.
+	SecretCiphertextValidator func(string) error
+	// RoleIDValidator is a validator for the "role_id" field. It is called by the builders before save.
+	RoleIDValidator func(uint32) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(uint32) error
 )
@@ -170,9 +179,14 @@ func ByAccessKey(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAccessKey, opts...).ToFunc()
 }
 
-// BySecretHash orders the results by the secret_hash field.
-func BySecretHash(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSecretHash, opts...).ToFunc()
+// BySecretCiphertext orders the results by the secret_ciphertext field.
+func BySecretCiphertext(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSecretCiphertext, opts...).ToFunc()
+}
+
+// ByRoleID orders the results by the role_id field.
+func ByRoleID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRoleID, opts...).ToFunc()
 }
 
 // ByExpiresAt orders the results by the expires_at field.

@@ -60,7 +60,6 @@ func (l *LoginAuditLogMiddleware) Handle(ctx context.Context, htr *http.Transpor
 	// 获取错误码和是否成功
 	_, reason, success := getStatusCode(middleErr)
 
-
 	loginAuditLog := &auditV1.LoginAuditLog{}
 
 	switch {
@@ -95,7 +94,7 @@ func (l *LoginAuditLogMiddleware) Handle(ctx context.Context, htr *http.Transpor
 		loginAuditLog.Username = trans.Ptr(username)
 	}
 
-	ut := extractAuthToken(htr)
+	ut := extractAuthToken(ctx)
 	if ut != nil {
 		loginAuditLog.UserId = trans.Ptr(ut.UserId)
 		loginAuditLog.TenantId = ut.TenantId

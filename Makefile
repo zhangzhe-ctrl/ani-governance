@@ -72,6 +72,7 @@ ent:
       cd $(dir);\
       make ent;\
     )
+	cd app/admin/service && go run ./cmd/schema > schema.sql
 
 # generate code
 gen: ent api openapi
@@ -89,6 +90,7 @@ api:
 openapi:
 	cd api && \
 	buf generate --template buf.admin.openapi.gen.yaml
+	python3 scripts/finalize-aksk-openapi.py
 
 # build all service applications
 build: api openapi

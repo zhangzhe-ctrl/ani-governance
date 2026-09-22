@@ -23,7 +23,7 @@ type ResourceTenantResolver interface {
 	ResourceTenantID(context.Context, uint32) (string, error)
 }
 type VPCGetter interface {
-	GetVPC(context.Context, string, uint32, string) (*networkv1.GetVPCResponse, error)
+	GetVPC(context.Context, string, string, string) (*networkv1.GetVPCResponse, error)
 }
 type NetworkService struct {
 	adminv1.UnimplementedNetworkServiceServer
@@ -38,29 +38,36 @@ func NewNetworkService(client VPCGetter, tenants ResourceTenantResolver) *Networ
 var vpcIDPattern = regexp.MustCompile(`^vpc_[0-9a-f]{32}$`)
 
 func (s *NetworkService) GetVPC(ctx context.Context, req *catalogv1.GetVPCRequest) (*catalogv1.GetVPCResponse, error) {
-	operator, err := auth.FromContext(ctx)
+	operator, err := auth.PrincipalFromContext(ctx)
 	if err != nil || operator == nil {
 		return nil, errors.Unauthorized("INVALID_LOGIN", "login required")
 	}
-	if operator.GetTenantId() == 0 || operator.GetUserId() == 0 {
-		return nil, errors.Forbidden("TENANT_REQUIRED", "tenant user required")
+	if operator.TenantID == 0 || operator.ID == 0 {
+		return nil, errors.Forbidden("TENANT_REQUIRED", "tenant identity required")
 	}
 	if req == nil || !vpcIDPattern.MatchString(req.GetVpcId()) {
 		return nil, errors.BadRequest("INVALID_VPC_ID", "invalid VPC ID")
 	}
 	if tr, ok := transport.FromServerContext(ctx); ok {
-		if ht, ok := tr.(*khttp.Transport); ok && ht.Request().URL.RawQuery != "" {
-			return nil, errors.BadRequest("INVALID_QUERY", "VPC detail accepts no query parameters")
+		if ht, ok := tr.(*khttp.Transport); ok {
+			if err := auth.ValidateVPCReadRequest(ht.Request()); err != nil {
+				return nil, err
+			}
 		}
 	}
-	if s.client == nil {
-		return nil, errors.ServiceUnavailable("NETWORK_UNAVAILABLE", "network read access is not configured")
-	}
-	tenant, err := s.tenants.ResourceTenantID(ctx, operator.GetTenantId())
+	actor, err := operator.Actor()
 	if err != nil {
 		return nil, err
 	}
-	reply, err := s.client.GetVPC(ctx, tenant, operator.GetUserId(), req.GetVpcId())
+
+	if s.client == nil {
+		return nil, errors.ServiceUnavailable("NETWORK_UNAVAILABLE", "network read access is not configured")
+	}
+	tenant, err := s.tenants.ResourceTenantID(ctx, operator.TenantID)
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.GetVPC(ctx, tenant, actor, req.GetVpcId())
 	if err != nil {
 		return nil, mapNetworkError(err)
 	}

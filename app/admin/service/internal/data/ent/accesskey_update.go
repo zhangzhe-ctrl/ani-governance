@@ -198,29 +198,38 @@ func (_u *AccessKeyUpdate) SetNillableAccessKey(v *string) *AccessKeyUpdate {
 	return _u
 }
 
-// ClearAccessKey clears the value of the "access_key" field.
-func (_u *AccessKeyUpdate) ClearAccessKey() *AccessKeyUpdate {
-	_u.mutation.ClearAccessKey()
+// SetSecretCiphertext sets the "secret_ciphertext" field.
+func (_u *AccessKeyUpdate) SetSecretCiphertext(v string) *AccessKeyUpdate {
+	_u.mutation.SetSecretCiphertext(v)
 	return _u
 }
 
-// SetSecretHash sets the "secret_hash" field.
-func (_u *AccessKeyUpdate) SetSecretHash(v string) *AccessKeyUpdate {
-	_u.mutation.SetSecretHash(v)
-	return _u
-}
-
-// SetNillableSecretHash sets the "secret_hash" field if the given value is not nil.
-func (_u *AccessKeyUpdate) SetNillableSecretHash(v *string) *AccessKeyUpdate {
+// SetNillableSecretCiphertext sets the "secret_ciphertext" field if the given value is not nil.
+func (_u *AccessKeyUpdate) SetNillableSecretCiphertext(v *string) *AccessKeyUpdate {
 	if v != nil {
-		_u.SetSecretHash(*v)
+		_u.SetSecretCiphertext(*v)
 	}
 	return _u
 }
 
-// ClearSecretHash clears the value of the "secret_hash" field.
-func (_u *AccessKeyUpdate) ClearSecretHash() *AccessKeyUpdate {
-	_u.mutation.ClearSecretHash()
+// SetRoleID sets the "role_id" field.
+func (_u *AccessKeyUpdate) SetRoleID(v uint32) *AccessKeyUpdate {
+	_u.mutation.ResetRoleID()
+	_u.mutation.SetRoleID(v)
+	return _u
+}
+
+// SetNillableRoleID sets the "role_id" field if the given value is not nil.
+func (_u *AccessKeyUpdate) SetNillableRoleID(v *uint32) *AccessKeyUpdate {
+	if v != nil {
+		_u.SetRoleID(*v)
+	}
+	return _u
+}
+
+// AddRoleID adds value to the "role_id" field.
+func (_u *AccessKeyUpdate) AddRoleID(v int32) *AccessKeyUpdate {
+	_u.mutation.AddRoleID(v)
 	return _u
 }
 
@@ -303,6 +312,21 @@ func (_u *AccessKeyUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "AccessKey.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.AccessKey(); ok {
+		if err := accesskey.AccessKeyValidator(v); err != nil {
+			return &ValidationError{Name: "access_key", err: fmt.Errorf(`ent: validator failed for field "AccessKey.access_key": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.SecretCiphertext(); ok {
+		if err := accesskey.SecretCiphertextValidator(v); err != nil {
+			return &ValidationError{Name: "secret_ciphertext", err: fmt.Errorf(`ent: validator failed for field "AccessKey.secret_ciphertext": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RoleID(); ok {
+		if err := accesskey.RoleIDValidator(v); err != nil {
+			return &ValidationError{Name: "role_id", err: fmt.Errorf(`ent: validator failed for field "AccessKey.role_id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -369,9 +393,6 @@ func (_u *AccessKeyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(accesskey.FieldStatus, field.TypeEnum, value)
 	}
-	if _u.mutation.TenantIDCleared() {
-		_spec.ClearField(accesskey.FieldTenantID, field.TypeUint32)
-	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(accesskey.FieldName, field.TypeString, value)
 	}
@@ -381,14 +402,14 @@ func (_u *AccessKeyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.AccessKey(); ok {
 		_spec.SetField(accesskey.FieldAccessKey, field.TypeString, value)
 	}
-	if _u.mutation.AccessKeyCleared() {
-		_spec.ClearField(accesskey.FieldAccessKey, field.TypeString)
+	if value, ok := _u.mutation.SecretCiphertext(); ok {
+		_spec.SetField(accesskey.FieldSecretCiphertext, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.SecretHash(); ok {
-		_spec.SetField(accesskey.FieldSecretHash, field.TypeString, value)
+	if value, ok := _u.mutation.RoleID(); ok {
+		_spec.SetField(accesskey.FieldRoleID, field.TypeUint32, value)
 	}
-	if _u.mutation.SecretHashCleared() {
-		_spec.ClearField(accesskey.FieldSecretHash, field.TypeString)
+	if value, ok := _u.mutation.AddedRoleID(); ok {
+		_spec.AddField(accesskey.FieldRoleID, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.ExpiresAt(); ok {
 		_spec.SetField(accesskey.FieldExpiresAt, field.TypeTime, value)
@@ -593,29 +614,38 @@ func (_u *AccessKeyUpdateOne) SetNillableAccessKey(v *string) *AccessKeyUpdateOn
 	return _u
 }
 
-// ClearAccessKey clears the value of the "access_key" field.
-func (_u *AccessKeyUpdateOne) ClearAccessKey() *AccessKeyUpdateOne {
-	_u.mutation.ClearAccessKey()
+// SetSecretCiphertext sets the "secret_ciphertext" field.
+func (_u *AccessKeyUpdateOne) SetSecretCiphertext(v string) *AccessKeyUpdateOne {
+	_u.mutation.SetSecretCiphertext(v)
 	return _u
 }
 
-// SetSecretHash sets the "secret_hash" field.
-func (_u *AccessKeyUpdateOne) SetSecretHash(v string) *AccessKeyUpdateOne {
-	_u.mutation.SetSecretHash(v)
-	return _u
-}
-
-// SetNillableSecretHash sets the "secret_hash" field if the given value is not nil.
-func (_u *AccessKeyUpdateOne) SetNillableSecretHash(v *string) *AccessKeyUpdateOne {
+// SetNillableSecretCiphertext sets the "secret_ciphertext" field if the given value is not nil.
+func (_u *AccessKeyUpdateOne) SetNillableSecretCiphertext(v *string) *AccessKeyUpdateOne {
 	if v != nil {
-		_u.SetSecretHash(*v)
+		_u.SetSecretCiphertext(*v)
 	}
 	return _u
 }
 
-// ClearSecretHash clears the value of the "secret_hash" field.
-func (_u *AccessKeyUpdateOne) ClearSecretHash() *AccessKeyUpdateOne {
-	_u.mutation.ClearSecretHash()
+// SetRoleID sets the "role_id" field.
+func (_u *AccessKeyUpdateOne) SetRoleID(v uint32) *AccessKeyUpdateOne {
+	_u.mutation.ResetRoleID()
+	_u.mutation.SetRoleID(v)
+	return _u
+}
+
+// SetNillableRoleID sets the "role_id" field if the given value is not nil.
+func (_u *AccessKeyUpdateOne) SetNillableRoleID(v *uint32) *AccessKeyUpdateOne {
+	if v != nil {
+		_u.SetRoleID(*v)
+	}
+	return _u
+}
+
+// AddRoleID adds value to the "role_id" field.
+func (_u *AccessKeyUpdateOne) AddRoleID(v int32) *AccessKeyUpdateOne {
+	_u.mutation.AddRoleID(v)
 	return _u
 }
 
@@ -711,6 +741,21 @@ func (_u *AccessKeyUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "AccessKey.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.AccessKey(); ok {
+		if err := accesskey.AccessKeyValidator(v); err != nil {
+			return &ValidationError{Name: "access_key", err: fmt.Errorf(`ent: validator failed for field "AccessKey.access_key": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.SecretCiphertext(); ok {
+		if err := accesskey.SecretCiphertextValidator(v); err != nil {
+			return &ValidationError{Name: "secret_ciphertext", err: fmt.Errorf(`ent: validator failed for field "AccessKey.secret_ciphertext": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RoleID(); ok {
+		if err := accesskey.RoleIDValidator(v); err != nil {
+			return &ValidationError{Name: "role_id", err: fmt.Errorf(`ent: validator failed for field "AccessKey.role_id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -794,9 +839,6 @@ func (_u *AccessKeyUpdateOne) sqlSave(ctx context.Context) (_node *AccessKey, er
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(accesskey.FieldStatus, field.TypeEnum, value)
 	}
-	if _u.mutation.TenantIDCleared() {
-		_spec.ClearField(accesskey.FieldTenantID, field.TypeUint32)
-	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(accesskey.FieldName, field.TypeString, value)
 	}
@@ -806,14 +848,14 @@ func (_u *AccessKeyUpdateOne) sqlSave(ctx context.Context) (_node *AccessKey, er
 	if value, ok := _u.mutation.AccessKey(); ok {
 		_spec.SetField(accesskey.FieldAccessKey, field.TypeString, value)
 	}
-	if _u.mutation.AccessKeyCleared() {
-		_spec.ClearField(accesskey.FieldAccessKey, field.TypeString)
+	if value, ok := _u.mutation.SecretCiphertext(); ok {
+		_spec.SetField(accesskey.FieldSecretCiphertext, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.SecretHash(); ok {
-		_spec.SetField(accesskey.FieldSecretHash, field.TypeString, value)
+	if value, ok := _u.mutation.RoleID(); ok {
+		_spec.SetField(accesskey.FieldRoleID, field.TypeUint32, value)
 	}
-	if _u.mutation.SecretHashCleared() {
-		_spec.ClearField(accesskey.FieldSecretHash, field.TypeString)
+	if value, ok := _u.mutation.AddedRoleID(); ok {
+		_spec.AddField(accesskey.FieldRoleID, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.ExpiresAt(); ok {
 		_spec.SetField(accesskey.FieldExpiresAt, field.TypeTime, value)

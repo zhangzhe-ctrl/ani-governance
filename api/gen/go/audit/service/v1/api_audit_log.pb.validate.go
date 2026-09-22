@@ -57,6 +57,14 @@ func (m *ApiAuditLog) validate(all bool) error {
 
 	var errors []error
 
+	if m.SubjectType != nil {
+		// no validation rules for SubjectType
+	}
+
+	if m.SubjectId != nil {
+		// no validation rules for SubjectId
+	}
+
 	if m.Id != nil {
 		// no validation rules for Id
 	}

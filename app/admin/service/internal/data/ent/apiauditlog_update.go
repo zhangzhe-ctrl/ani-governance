@@ -29,6 +29,53 @@ func (_u *ApiAuditLogUpdate) Where(ps ...predicate.ApiAuditLog) *ApiAuditLogUpda
 	return _u
 }
 
+// SetSubjectType sets the "subject_type" field.
+func (_u *ApiAuditLogUpdate) SetSubjectType(v string) *ApiAuditLogUpdate {
+	_u.mutation.SetSubjectType(v)
+	return _u
+}
+
+// SetNillableSubjectType sets the "subject_type" field if the given value is not nil.
+func (_u *ApiAuditLogUpdate) SetNillableSubjectType(v *string) *ApiAuditLogUpdate {
+	if v != nil {
+		_u.SetSubjectType(*v)
+	}
+	return _u
+}
+
+// ClearSubjectType clears the value of the "subject_type" field.
+func (_u *ApiAuditLogUpdate) ClearSubjectType() *ApiAuditLogUpdate {
+	_u.mutation.ClearSubjectType()
+	return _u
+}
+
+// SetSubjectID sets the "subject_id" field.
+func (_u *ApiAuditLogUpdate) SetSubjectID(v uint32) *ApiAuditLogUpdate {
+	_u.mutation.ResetSubjectID()
+	_u.mutation.SetSubjectID(v)
+	return _u
+}
+
+// SetNillableSubjectID sets the "subject_id" field if the given value is not nil.
+func (_u *ApiAuditLogUpdate) SetNillableSubjectID(v *uint32) *ApiAuditLogUpdate {
+	if v != nil {
+		_u.SetSubjectID(*v)
+	}
+	return _u
+}
+
+// AddSubjectID adds value to the "subject_id" field.
+func (_u *ApiAuditLogUpdate) AddSubjectID(v int32) *ApiAuditLogUpdate {
+	_u.mutation.AddSubjectID(v)
+	return _u
+}
+
+// ClearSubjectID clears the value of the "subject_id" field.
+func (_u *ApiAuditLogUpdate) ClearSubjectID() *ApiAuditLogUpdate {
+	_u.mutation.ClearSubjectID()
+	return _u
+}
+
 // SetUserID sets the "user_id" field.
 func (_u *ApiAuditLogUpdate) SetUserID(v uint32) *ApiAuditLogUpdate {
 	_u.mutation.ResetUserID()
@@ -579,6 +626,21 @@ func (_u *ApiAuditLogUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if _u.mutation.TenantIDCleared() {
 		_spec.ClearField(apiauditlog.FieldTenantID, field.TypeUint32)
 	}
+	if value, ok := _u.mutation.SubjectType(); ok {
+		_spec.SetField(apiauditlog.FieldSubjectType, field.TypeString, value)
+	}
+	if _u.mutation.SubjectTypeCleared() {
+		_spec.ClearField(apiauditlog.FieldSubjectType, field.TypeString)
+	}
+	if value, ok := _u.mutation.SubjectID(); ok {
+		_spec.SetField(apiauditlog.FieldSubjectID, field.TypeUint32, value)
+	}
+	if value, ok := _u.mutation.AddedSubjectID(); ok {
+		_spec.AddField(apiauditlog.FieldSubjectID, field.TypeUint32, value)
+	}
+	if _u.mutation.SubjectIDCleared() {
+		_spec.ClearField(apiauditlog.FieldSubjectID, field.TypeUint32)
+	}
 	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(apiauditlog.FieldUserID, field.TypeUint32, value)
 	}
@@ -758,6 +820,53 @@ type ApiAuditLogUpdateOne struct {
 	hooks     []Hook
 	mutation  *ApiAuditLogMutation
 	modifiers []func(*sql.UpdateBuilder)
+}
+
+// SetSubjectType sets the "subject_type" field.
+func (_u *ApiAuditLogUpdateOne) SetSubjectType(v string) *ApiAuditLogUpdateOne {
+	_u.mutation.SetSubjectType(v)
+	return _u
+}
+
+// SetNillableSubjectType sets the "subject_type" field if the given value is not nil.
+func (_u *ApiAuditLogUpdateOne) SetNillableSubjectType(v *string) *ApiAuditLogUpdateOne {
+	if v != nil {
+		_u.SetSubjectType(*v)
+	}
+	return _u
+}
+
+// ClearSubjectType clears the value of the "subject_type" field.
+func (_u *ApiAuditLogUpdateOne) ClearSubjectType() *ApiAuditLogUpdateOne {
+	_u.mutation.ClearSubjectType()
+	return _u
+}
+
+// SetSubjectID sets the "subject_id" field.
+func (_u *ApiAuditLogUpdateOne) SetSubjectID(v uint32) *ApiAuditLogUpdateOne {
+	_u.mutation.ResetSubjectID()
+	_u.mutation.SetSubjectID(v)
+	return _u
+}
+
+// SetNillableSubjectID sets the "subject_id" field if the given value is not nil.
+func (_u *ApiAuditLogUpdateOne) SetNillableSubjectID(v *uint32) *ApiAuditLogUpdateOne {
+	if v != nil {
+		_u.SetSubjectID(*v)
+	}
+	return _u
+}
+
+// AddSubjectID adds value to the "subject_id" field.
+func (_u *ApiAuditLogUpdateOne) AddSubjectID(v int32) *ApiAuditLogUpdateOne {
+	_u.mutation.AddSubjectID(v)
+	return _u
+}
+
+// ClearSubjectID clears the value of the "subject_id" field.
+func (_u *ApiAuditLogUpdateOne) ClearSubjectID() *ApiAuditLogUpdateOne {
+	_u.mutation.ClearSubjectID()
+	return _u
 }
 
 // SetUserID sets the "user_id" field.
@@ -1339,6 +1448,21 @@ func (_u *ApiAuditLogUpdateOne) sqlSave(ctx context.Context) (_node *ApiAuditLog
 	}
 	if _u.mutation.TenantIDCleared() {
 		_spec.ClearField(apiauditlog.FieldTenantID, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.SubjectType(); ok {
+		_spec.SetField(apiauditlog.FieldSubjectType, field.TypeString, value)
+	}
+	if _u.mutation.SubjectTypeCleared() {
+		_spec.ClearField(apiauditlog.FieldSubjectType, field.TypeString)
+	}
+	if value, ok := _u.mutation.SubjectID(); ok {
+		_spec.SetField(apiauditlog.FieldSubjectID, field.TypeUint32, value)
+	}
+	if value, ok := _u.mutation.AddedSubjectID(); ok {
+		_spec.AddField(apiauditlog.FieldSubjectID, field.TypeUint32, value)
+	}
+	if _u.mutation.SubjectIDCleared() {
+		_spec.ClearField(apiauditlog.FieldSubjectID, field.TypeUint32)
 	}
 	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(apiauditlog.FieldUserID, field.TypeUint32, value)

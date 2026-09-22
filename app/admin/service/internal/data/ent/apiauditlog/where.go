@@ -64,6 +64,16 @@ func TenantID(v uint32) predicate.ApiAuditLog {
 	return predicate.ApiAuditLog(sql.FieldEQ(FieldTenantID, v))
 }
 
+// SubjectType applies equality check predicate on the "subject_type" field. It's identical to SubjectTypeEQ.
+func SubjectType(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldEQ(FieldSubjectType, v))
+}
+
+// SubjectID applies equality check predicate on the "subject_id" field. It's identical to SubjectIDEQ.
+func SubjectID(v uint32) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldEQ(FieldSubjectID, v))
+}
+
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
 func UserID(v uint32) predicate.ApiAuditLog {
 	return predicate.ApiAuditLog(sql.FieldEQ(FieldUserID, v))
@@ -277,6 +287,131 @@ func TenantIDIsNil() predicate.ApiAuditLog {
 // TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
 func TenantIDNotNil() predicate.ApiAuditLog {
 	return predicate.ApiAuditLog(sql.FieldNotNull(FieldTenantID))
+}
+
+// SubjectTypeEQ applies the EQ predicate on the "subject_type" field.
+func SubjectTypeEQ(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldEQ(FieldSubjectType, v))
+}
+
+// SubjectTypeNEQ applies the NEQ predicate on the "subject_type" field.
+func SubjectTypeNEQ(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldNEQ(FieldSubjectType, v))
+}
+
+// SubjectTypeIn applies the In predicate on the "subject_type" field.
+func SubjectTypeIn(vs ...string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldIn(FieldSubjectType, vs...))
+}
+
+// SubjectTypeNotIn applies the NotIn predicate on the "subject_type" field.
+func SubjectTypeNotIn(vs ...string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldNotIn(FieldSubjectType, vs...))
+}
+
+// SubjectTypeGT applies the GT predicate on the "subject_type" field.
+func SubjectTypeGT(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldGT(FieldSubjectType, v))
+}
+
+// SubjectTypeGTE applies the GTE predicate on the "subject_type" field.
+func SubjectTypeGTE(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldGTE(FieldSubjectType, v))
+}
+
+// SubjectTypeLT applies the LT predicate on the "subject_type" field.
+func SubjectTypeLT(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldLT(FieldSubjectType, v))
+}
+
+// SubjectTypeLTE applies the LTE predicate on the "subject_type" field.
+func SubjectTypeLTE(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldLTE(FieldSubjectType, v))
+}
+
+// SubjectTypeContains applies the Contains predicate on the "subject_type" field.
+func SubjectTypeContains(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldContains(FieldSubjectType, v))
+}
+
+// SubjectTypeHasPrefix applies the HasPrefix predicate on the "subject_type" field.
+func SubjectTypeHasPrefix(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldHasPrefix(FieldSubjectType, v))
+}
+
+// SubjectTypeHasSuffix applies the HasSuffix predicate on the "subject_type" field.
+func SubjectTypeHasSuffix(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldHasSuffix(FieldSubjectType, v))
+}
+
+// SubjectTypeIsNil applies the IsNil predicate on the "subject_type" field.
+func SubjectTypeIsNil() predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldIsNull(FieldSubjectType))
+}
+
+// SubjectTypeNotNil applies the NotNil predicate on the "subject_type" field.
+func SubjectTypeNotNil() predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldNotNull(FieldSubjectType))
+}
+
+// SubjectTypeEqualFold applies the EqualFold predicate on the "subject_type" field.
+func SubjectTypeEqualFold(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldEqualFold(FieldSubjectType, v))
+}
+
+// SubjectTypeContainsFold applies the ContainsFold predicate on the "subject_type" field.
+func SubjectTypeContainsFold(v string) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldContainsFold(FieldSubjectType, v))
+}
+
+// SubjectIDEQ applies the EQ predicate on the "subject_id" field.
+func SubjectIDEQ(v uint32) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldEQ(FieldSubjectID, v))
+}
+
+// SubjectIDNEQ applies the NEQ predicate on the "subject_id" field.
+func SubjectIDNEQ(v uint32) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldNEQ(FieldSubjectID, v))
+}
+
+// SubjectIDIn applies the In predicate on the "subject_id" field.
+func SubjectIDIn(vs ...uint32) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldIn(FieldSubjectID, vs...))
+}
+
+// SubjectIDNotIn applies the NotIn predicate on the "subject_id" field.
+func SubjectIDNotIn(vs ...uint32) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldNotIn(FieldSubjectID, vs...))
+}
+
+// SubjectIDGT applies the GT predicate on the "subject_id" field.
+func SubjectIDGT(v uint32) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldGT(FieldSubjectID, v))
+}
+
+// SubjectIDGTE applies the GTE predicate on the "subject_id" field.
+func SubjectIDGTE(v uint32) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldGTE(FieldSubjectID, v))
+}
+
+// SubjectIDLT applies the LT predicate on the "subject_id" field.
+func SubjectIDLT(v uint32) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldLT(FieldSubjectID, v))
+}
+
+// SubjectIDLTE applies the LTE predicate on the "subject_id" field.
+func SubjectIDLTE(v uint32) predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldLTE(FieldSubjectID, v))
+}
+
+// SubjectIDIsNil applies the IsNil predicate on the "subject_id" field.
+func SubjectIDIsNil() predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldIsNull(FieldSubjectID))
+}
+
+// SubjectIDNotNil applies the NotNil predicate on the "subject_id" field.
+func SubjectIDNotNil() predicate.ApiAuditLog {
+	return predicate.ApiAuditLog(sql.FieldNotNull(FieldSubjectID))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.

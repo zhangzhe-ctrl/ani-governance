@@ -169,8 +169,7 @@ func stripLocalIdentityPrefix(username string) string {
 // buildTokenPairResponse 把内部登录引擎的 LoginResponse 映射为对外的 TokenPairResponse。
 //
 // refresh token 不在响应体中返回：本实现经 HttpOnly Cookie 下发（见 setRefreshCookies）。
-// 非浏览器客户端不走此端点，而用 AK/SK 换短期机器令牌
-// （AccessKeyService.IssueToken），其令牌本就没有 refresh。
+// AK/SK 调用方直接签名允许的业务请求，不签发机器 JWT 或 refresh token。
 //
 // MFA 中间态：用户已绑定启用的 TOTP 因子时引擎不签发令牌，改为返回 operation_id。
 // 该中间态为 ANI 契约所无，属本仓扩展字段。

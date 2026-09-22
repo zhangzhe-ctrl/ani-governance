@@ -8,11 +8,19 @@ service NetworkService {
  rpc GetVPC(catalog.service.v1.GetVPCRequest) returns (catalog.service.v1.GetVPCResponse) {
    option (google.api.http) = { get: "/api/v1/networks/vpcs/{vpc_id}" };
    option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
      summary: "Get a VPC in the authenticated tenant"
-     description: "Requires login, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters are rejected. Public identity headers are ignored. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed."
+     description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters and body are rejected. Public identity headers are ignored. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed."
      responses: { response_or_reference: [
        { name: "400" value: { response: { description: "Invalid VPC ID or unsupported query" } } },
-       { name: "401" value: { response: { description: "Missing, invalid or revoked login" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
        { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
        { name: "404" value: { response: { description: "VPC not found in this tenant" } } },
        { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },

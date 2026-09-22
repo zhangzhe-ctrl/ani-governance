@@ -21,7 +21,7 @@ func (timedOutNetworkRPC) GetVPC(context.Context, *networkv1.GetVPCRequest, ...g
 func TestNetworkClientTransportOutage(t *testing.T) {
 	for _, state := range []connectivity.State{connectivity.Ready, connectivity.Connecting, connectivity.TransientFailure} {
 		c := &NetworkClient{client: timedOutNetworkRPC{}, timeout: time.Second, connectionState: func() connectivity.State { return state }}
-		_, err := c.GetVPC(context.Background(), "11111111-1111-4111-8111-111111111111", 7, "vpc_11111111111111111111111111111111")
+		_, err := c.GetVPC(context.Background(), "11111111-1111-4111-8111-111111111111", "governance:user:7", "vpc_11111111111111111111111111111111")
 		want := codes.Unavailable
 		if state == connectivity.Ready {
 			want = codes.DeadlineExceeded
@@ -58,19 +58,48 @@ func (p networkRPCProbe) GetVPC(ctx context.Context, in *networkv1.GetVPCRequest
 func TestNetworkClientIdentityAndCancellation(t *testing.T) {
 	c := &NetworkClient{client: networkRPCProbe{t: t}, timeout: 20 * time.Millisecond}
 	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("evil", "forwarded", "x-ani-tenant-id", "forged"))
-	if _, err := c.GetVPC(ctx, "11111111-1111-4111-8111-111111111111", 7, "vpc_11111111111111111111111111111111"); err != nil {
+	if _, err := c.GetVPC(ctx, "11111111-1111-4111-8111-111111111111", "governance:user:7", "vpc_11111111111111111111111111111111"); err != nil {
 		t.Fatal(err)
 	}
 	c.client = networkRPCProbe{t: t, wait: true}
-	if _, err := c.GetVPC(ctx, "11111111-1111-4111-8111-111111111111", 7, "vpc_11111111111111111111111111111111"); err != context.DeadlineExceeded {
+	if _, err := c.GetVPC(ctx, "11111111-1111-4111-8111-111111111111", "governance:user:7", "vpc_11111111111111111111111111111111"); err != context.DeadlineExceeded {
 		t.Fatalf("timeout: %v", err)
 	}
 	canceled, cancel := context.WithCancel(ctx)
 	cancel()
-	if _, err := c.GetVPC(canceled, "11111111-1111-4111-8111-111111111111", 7, "vpc_11111111111111111111111111111111"); err != context.Canceled {
+	if _, err := c.GetVPC(canceled, "11111111-1111-4111-8111-111111111111", "governance:user:7", "vpc_11111111111111111111111111111111"); err != context.Canceled {
 		t.Fatalf("cancel: %v", err)
 	}
 	if _, _, err := NewNetworkClient(NetworkClientConfig{}); err == nil {
 		t.Fatal("missing TLS configuration accepted")
+	}
+}
+
+type actorNetworkRPCProbe struct {
+	networkv1.NetworkServiceClient
+	actor string
+	t     *testing.T
+}
+
+func (p actorNetworkRPCProbe) GetVPC(ctx context.Context, in *networkv1.GetVPCRequest, _ ...grpc.CallOption) (*networkv1.GetVPCResponse, error) {
+	md, _ := metadata.FromOutgoingContext(ctx)
+	if md.Get("x-ani-actor")[0] != p.actor || md.Get("x-ani-tenant-id")[0] != in.TenantId {
+		p.t.Fatal("actor or tenant mismatch")
+	}
+	if len(md.Get("authorization")) != 0 || len(md.Get("x-signature")) != 0 {
+		p.t.Fatal("public credentials forwarded")
+	}
+	return &networkv1.GetVPCResponse{}, nil
+}
+func TestNetworkClientKeyActor(t *testing.T) {
+	c := &NetworkClient{client: actorNetworkRPCProbe{actor: "governance:access-key:42", t: t}, timeout: time.Second}
+	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("authorization", "secret", "x-signature", "secret"))
+	if _, err := c.GetVPC(ctx, "11111111-1111-4111-8111-111111111111", "governance:access-key:42", "vpc_11111111111111111111111111111111"); err != nil {
+		t.Fatal(err)
+	}
+	for _, actor := range []string{"governance:user:0", "governance:access-key:0", "governance:user:01", "governance:evil:1", "user:7"} {
+		if _, err := c.GetVPC(ctx, "11111111-1111-4111-8111-111111111111", actor, "vpc_11111111111111111111111111111111"); err == nil {
+			t.Fatalf("accepted %s", actor)
+		}
 	}
 }

@@ -71,19 +71,20 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 		Type: "AccessKey",
 		Fields: map[string]*sqlgraph.FieldSpec{
-			accesskey.FieldCreatedAt:  {Type: field.TypeTime, Column: accesskey.FieldCreatedAt},
-			accesskey.FieldUpdatedAt:  {Type: field.TypeTime, Column: accesskey.FieldUpdatedAt},
-			accesskey.FieldDeletedAt:  {Type: field.TypeTime, Column: accesskey.FieldDeletedAt},
-			accesskey.FieldCreatedBy:  {Type: field.TypeUint32, Column: accesskey.FieldCreatedBy},
-			accesskey.FieldUpdatedBy:  {Type: field.TypeUint32, Column: accesskey.FieldUpdatedBy},
-			accesskey.FieldDeletedBy:  {Type: field.TypeUint32, Column: accesskey.FieldDeletedBy},
-			accesskey.FieldStatus:     {Type: field.TypeEnum, Column: accesskey.FieldStatus},
-			accesskey.FieldTenantID:   {Type: field.TypeUint32, Column: accesskey.FieldTenantID},
-			accesskey.FieldName:       {Type: field.TypeString, Column: accesskey.FieldName},
-			accesskey.FieldAccessKey:  {Type: field.TypeString, Column: accesskey.FieldAccessKey},
-			accesskey.FieldSecretHash: {Type: field.TypeString, Column: accesskey.FieldSecretHash},
-			accesskey.FieldExpiresAt:  {Type: field.TypeTime, Column: accesskey.FieldExpiresAt},
-			accesskey.FieldLastUsedAt: {Type: field.TypeTime, Column: accesskey.FieldLastUsedAt},
+			accesskey.FieldCreatedAt:        {Type: field.TypeTime, Column: accesskey.FieldCreatedAt},
+			accesskey.FieldUpdatedAt:        {Type: field.TypeTime, Column: accesskey.FieldUpdatedAt},
+			accesskey.FieldDeletedAt:        {Type: field.TypeTime, Column: accesskey.FieldDeletedAt},
+			accesskey.FieldCreatedBy:        {Type: field.TypeUint32, Column: accesskey.FieldCreatedBy},
+			accesskey.FieldUpdatedBy:        {Type: field.TypeUint32, Column: accesskey.FieldUpdatedBy},
+			accesskey.FieldDeletedBy:        {Type: field.TypeUint32, Column: accesskey.FieldDeletedBy},
+			accesskey.FieldStatus:           {Type: field.TypeEnum, Column: accesskey.FieldStatus},
+			accesskey.FieldTenantID:         {Type: field.TypeUint32, Column: accesskey.FieldTenantID},
+			accesskey.FieldName:             {Type: field.TypeString, Column: accesskey.FieldName},
+			accesskey.FieldAccessKey:        {Type: field.TypeString, Column: accesskey.FieldAccessKey},
+			accesskey.FieldSecretCiphertext: {Type: field.TypeString, Column: accesskey.FieldSecretCiphertext},
+			accesskey.FieldRoleID:           {Type: field.TypeUint32, Column: accesskey.FieldRoleID},
+			accesskey.FieldExpiresAt:        {Type: field.TypeTime, Column: accesskey.FieldExpiresAt},
+			accesskey.FieldLastUsedAt:       {Type: field.TypeTime, Column: accesskey.FieldLastUsedAt},
 		},
 	}
 	graph.Nodes[1] = &sqlgraph.Node{
@@ -127,6 +128,8 @@ var schemaGraph = func() *sqlgraph.Schema {
 		Fields: map[string]*sqlgraph.FieldSpec{
 			apiauditlog.FieldCreatedAt:      {Type: field.TypeTime, Column: apiauditlog.FieldCreatedAt},
 			apiauditlog.FieldTenantID:       {Type: field.TypeUint32, Column: apiauditlog.FieldTenantID},
+			apiauditlog.FieldSubjectType:    {Type: field.TypeString, Column: apiauditlog.FieldSubjectType},
+			apiauditlog.FieldSubjectID:      {Type: field.TypeUint32, Column: apiauditlog.FieldSubjectID},
 			apiauditlog.FieldUserID:         {Type: field.TypeUint32, Column: apiauditlog.FieldUserID},
 			apiauditlog.FieldUsername:       {Type: field.TypeString, Column: apiauditlog.FieldUsername},
 			apiauditlog.FieldIPAddress:      {Type: field.TypeString, Column: apiauditlog.FieldIPAddress},
@@ -1640,9 +1643,14 @@ func (f *AccessKeyFilter) WhereAccessKey(p entql.StringP) {
 	f.Where(p.Field(accesskey.FieldAccessKey))
 }
 
-// WhereSecretHash applies the entql string predicate on the secret_hash field.
-func (f *AccessKeyFilter) WhereSecretHash(p entql.StringP) {
-	f.Where(p.Field(accesskey.FieldSecretHash))
+// WhereSecretCiphertext applies the entql string predicate on the secret_ciphertext field.
+func (f *AccessKeyFilter) WhereSecretCiphertext(p entql.StringP) {
+	f.Where(p.Field(accesskey.FieldSecretCiphertext))
+}
+
+// WhereRoleID applies the entql uint32 predicate on the role_id field.
+func (f *AccessKeyFilter) WhereRoleID(p entql.Uint32P) {
+	f.Where(p.Field(accesskey.FieldRoleID))
 }
 
 // WhereExpiresAt applies the entql time.Time predicate on the expires_at field.
@@ -1818,6 +1826,16 @@ func (f *ApiAuditLogFilter) WhereCreatedAt(p entql.TimeP) {
 // WhereTenantID applies the entql uint32 predicate on the tenant_id field.
 func (f *ApiAuditLogFilter) WhereTenantID(p entql.Uint32P) {
 	f.Where(p.Field(apiauditlog.FieldTenantID))
+}
+
+// WhereSubjectType applies the entql string predicate on the subject_type field.
+func (f *ApiAuditLogFilter) WhereSubjectType(p entql.StringP) {
+	f.Where(p.Field(apiauditlog.FieldSubjectType))
+}
+
+// WhereSubjectID applies the entql uint32 predicate on the subject_id field.
+func (f *ApiAuditLogFilter) WhereSubjectID(p entql.Uint32P) {
+	f.Where(p.Field(apiauditlog.FieldSubjectID))
 }
 
 // WhereUserID applies the entql uint32 predicate on the user_id field.

@@ -81,8 +81,20 @@ func init() {
 	_ = accesskeyFields
 	// accesskeyDescTenantID is the schema descriptor for tenant_id field.
 	accesskeyDescTenantID := accesskeyMixinFields4[0].Descriptor()
-	// accesskey.DefaultTenantID holds the default value on creation for the tenant_id field.
-	accesskey.DefaultTenantID = accesskeyDescTenantID.Default.(uint32)
+	// accesskey.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	accesskey.TenantIDValidator = accesskeyDescTenantID.Validators[0].(func(uint32) error)
+	// accesskeyDescAccessKey is the schema descriptor for access_key field.
+	accesskeyDescAccessKey := accesskeyFields[1].Descriptor()
+	// accesskey.AccessKeyValidator is a validator for the "access_key" field. It is called by the builders before save.
+	accesskey.AccessKeyValidator = accesskeyDescAccessKey.Validators[0].(func(string) error)
+	// accesskeyDescSecretCiphertext is the schema descriptor for secret_ciphertext field.
+	accesskeyDescSecretCiphertext := accesskeyFields[2].Descriptor()
+	// accesskey.SecretCiphertextValidator is a validator for the "secret_ciphertext" field. It is called by the builders before save.
+	accesskey.SecretCiphertextValidator = accesskeyDescSecretCiphertext.Validators[0].(func(string) error)
+	// accesskeyDescRoleID is the schema descriptor for role_id field.
+	accesskeyDescRoleID := accesskeyFields[3].Descriptor()
+	// accesskey.RoleIDValidator is a validator for the "role_id" field. It is called by the builders before save.
+	accesskey.RoleIDValidator = accesskeyDescRoleID.Validators[0].(func(uint32) error)
 	// accesskeyDescID is the schema descriptor for id field.
 	accesskeyDescID := accesskeyMixinFields0[0].Descriptor()
 	// accesskey.IDValidator is a validator for the "id" field. It is called by the builders before save.

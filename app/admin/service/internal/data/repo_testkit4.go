@@ -23,28 +23,19 @@ import (
 	"github.com/tx7do/go-utils/mapper"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/ent/accesskey"
 	"go-wind-admin/app/admin/service/internal/data/ent/notificationchannel"
+	appcrypto "go-wind-admin/pkg/crypto"
 
-	accesskeyV1 "go-wind-admin/api/gen/go/access_key/service/v1"
 	notificationChannelV1 "go-wind-admin/api/gen/go/notification_channel/service/v1"
 )
 
 // NewAccessKeyRepoForTest 与生产 NewAccessKeyRepo 逐字段一致（log 换 NopLogger），并调用 init()。
 func NewAccessKeyRepoForTest(entClient *entCrud.EntClient[*ent.Client]) *AccessKeyRepo {
-	repo := &AccessKeyRepo{
-		log:       bLogger.NewHelper(bLogger.NopLogger()),
-		entClient: entClient,
-		mapper:    mapper.NewCopierMapper[accesskeyV1.AccessKey, ent.AccessKey](),
-		statusConverter: mapper.NewEnumTypeConverter[accesskeyV1.AccessKey_Status, accesskey.Status](
-			accesskeyV1.AccessKey_Status_name,
-			accesskeyV1.AccessKey_Status_value,
-		),
+	cipher, err := appcrypto.NewAccessKeyCipher("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
+	if err != nil {
+		panic(err)
 	}
-
-	repo.init()
-
-	return repo
+	return NewAccessKeyRepo(nil, entClient, cipher)
 }
 
 // NewNotificationChannelRepoForTest 与生产 NewNotificationChannelRepo 逐字段一致

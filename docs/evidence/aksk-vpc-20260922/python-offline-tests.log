@@ -1,0 +1,9 @@
+test_fixed_vector (__main__.SigningClientTests.test_fixed_vector) ... ok
+test_http_opt_in_and_origin_validation (__main__.SigningClientTests.test_http_opt_in_and_origin_validation) ... ok
+test_invalid_inputs (__main__.SigningClientTests.test_invalid_inputs) ... ok
+test_redirects_refused (__main__.SigningClientTests.test_redirects_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.198s
+
+OK

@@ -20,7 +20,7 @@ make build_admin
 |---|---|
 | `data.database` | PostgreSQL 地址、库名、账号；`migrate: false` |
 | `data.redis`、`server.asynq.uri` | 两处都指向可用 Redis，密码正确 |
-| `auth`、加密配置 | 使用部署环境自己的密钥，多副本保持一致 |
+| `auth`、加密配置 | 使用部署环境自己的密钥，多副本保持一致；`ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE` 必填，指向独立 64 位十六进制主密钥文件，不能明文降级 |
 | `authz.type` | 当前主装配要求 `casbin` |
 | `server.rest.addr` | 默认 7788；按实际监听地址与反向代理配置 |
 | CORS / Cookie | 优先同域代理；跨端口开发需正确 Origin、凭证设置；代理 HTTPS 传递正确协议 |
@@ -42,14 +42,14 @@ make build_admin
 
 `scripts/atlas.sh` 固定运行目录，避免 Ent schema 位于 Go `internal` 目录导致加载失败。
 
-开发者修改 schema 后，先完成 Ent 生成，再用**独立、可清空的开发数据库**生成下一份迁移：
+开发者修改 schema 后，先完成 Ent 生成并运行 `go run ./cmd/schema > schema.sql`（在 `app/admin/service` 下；`make ent` 和 `scripts/generate-aksk-slice.sh` 已包含此步），再用**独立、可清空的开发数据库**生成下一份迁移：
 
 ```bash
 # ANI_ATLAS_DEV_DSN 指向独立开发库，不能指向待升级的数据库。
 ./scripts/atlas.sh migrate diff change_name
 ```
 
-审查生成 SQL 和恢复方案，连同 `atlas.sum` 提交。部署只执行已审查的迁移，不在启动时生成迁移。
+Atlas 的声明式来源为生成的 `app/admin/service/schema.sql`。其导出器在 Ent 表定义上补充 Key 的同租户角色复合外键；不要将来源改回单独 `ent://`，否则可能丢失该约束。结构生成在构建环境执行，部署 `migrate apply` 不需要 Go。审查生成 SQL 和恢复方案，连同 `atlas.sum` 提交。部署只执行已审查的迁移，不在启动时生成迁移。
 
 **已有数据库不能直接套初始建表 SQL。** 先备份，在副本上对比现有结构和基线；完全匹配后才能按 [Atlas baseline 流程](https://atlasgo.io/versioned/apply#existing-databases) 建立版本记录。存在差异时先编写明确的迁移。不能仅用 `--allow-dirty` 跳过接管判断。
 
@@ -166,3 +166,24 @@ psql -v ON_ERROR_STOP=1 -f sql/patches/20260921_tenant_logout.sql
 “基础管理”套餐不包含 Network 等下游模块；需要时明确增加套餐模块和接口权限，并单独验收下游接线。进程启动、只读检查、真实登录、目标 API 成功分别记录，不能互相替代。
 
 当前 Ubuntu kind 的初始化、账号获取、NodePort 验收与恢复步骤见 [2026-09-21 kind 运行记录](deployment-kind-20260921.md)。
+
+
+## 7. AK/SK 签名与首次 VPC 查询
+
+本批按无旧 Key、无存量用户实施，直接提供最终初始结构和种子，不提供旧 Key 转换或兼容交换入口。管理接口为 `/api/v1/auth/api-keys`，仅接受有权限的非零租户用户 JWT；业务签名当前只开放 VPC 详情。完整报文、300 秒窗口及 FieldMask 编码见 [执行合同与验收](aksk-vpc-execution-plan.md)。
+
+启动前必须提供 `ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE`。文件内容为 32 随机字节的 64 位十六进制文本，最多一个结尾 LF，所有副本一致，以 Secret 挂载并备份；丢失后不能仅凭数据库恢复 SK。缺失、长度错误或不可读时服务构造失败。示例生成命令在部署主机执行：
+
+```bash
+umask 077
+openssl rand -hex 32 > /run/secrets/governance-access-key-encryption
+export ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE=/run/secrets/governance-access-key-encryption
+```
+
+`admin init` 本身不要求 SK 主密钥，因为它只执行显式首次播种。首次种子已包含六条新管理路由与租户管理员权限。基础套餐仍仅 DASHBOARD/OPM；用管理 API 创建本次专用套餐，保留这两项并增加 SYSTEM/NETWORK。角色由已有管理权限的操作人显式准备：租户管理员默认能查角色，默认没有角色创建权限。Key 必须绑定本租户 ON/TENANT 角色。
+
+为目标角色授予 VPC 权限时，使用已有 `scripts/bootstrap-network-access.sql`，明确传入真实 tenant_id/role_id；该脚本检查持久化 resource_tenant_id 与 NETWORK 套餐，随后重载内存策略。管理 API 也可维护权限，但不能把开模块当成授予所有 API 权限。
+
+可复现的空库建表、初始化、平台创建套餐/租户/角色、租户创建 Key、Python NodePort 查询及负向验收命令见 [隔离实验说明](../scripts/aksk-lab/README.md)；本次真实结果见 [验收证据](evidence/aksk-vpc-20260922/README.md)。客户端为 `scripts/aksk_vpc_client.py`，默认验证 HTTPS、不跟随重定向；隔离 HTTP 必须明确设置 `ANI_ALLOW_HTTP_FOR_TEST=1`。
+
+本次 Atlas 检查确认 AK/SK、审计与角色复合约束一致。同时发现实施前初始基线仍保留 `files` 表、`sys_users.avatar` 列，而 Ent 已移除它们；这两项既有偏差不属于本批，未执行删除。今后 `migrate diff` 必须审查这些 DROP 候选，不得直接应用。

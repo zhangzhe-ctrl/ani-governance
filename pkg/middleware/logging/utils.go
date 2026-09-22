@@ -1,8 +1,8 @@
 package logging
 
 import (
-	"context"
 	"bytes"
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -16,7 +16,6 @@ import (
 	"net/url"
 
 	"github.com/go-kratos/kratos/v2/errors"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/tx7do/go-utils/geoip"
 	"github.com/tx7do/go-utils/id"
@@ -24,38 +23,22 @@ import (
 
 	"github.com/mileusna/useragent"
 	"github.com/tx7do/go-utils/geoip/geolite"
-	"github.com/tx7do/go-utils/jwtutil"
 
 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 
-	"go-wind-admin/pkg/jwt"
+	"go-wind-admin/pkg/middleware/auth"
 )
 
 var ipClient, _ = geolite.NewClient()
 
-// extractAuthToken 从JWT Token中提取用户信息
-func extractAuthToken(htr *http.Transport) *authenticationV1.UserTokenPayload {
-	authToken := htr.RequestHeader().Get(HeaderKeyAuthorization)
-	if len(authToken) == 0 {
+// extractAuthToken uses only the verified identity recorded by the authentication middleware.
+func extractAuthToken(ctx context.Context) *authenticationV1.UserTokenPayload {
+	principal, err := auth.PrincipalFromContext(ctx)
+	if err != nil || principal.Type != auth.SubjectUser {
 		return nil
 	}
-
-	jwtToken := strings.TrimPrefix(authToken, "Bearer ")
-
-	claims, err := jwtutil.ParseJWTPayload(jwtToken)
-	if err != nil {
-		bLogger.GetLogger().Error(context.Background(), fmt.Sprintf("extractAuthToken ParseJWTPayload failed: %v", err))
-		return nil
-	}
-
-	ut, err := jwt.NewUserTokenPayloadWithJwtMapClaims(claims)
-	if err != nil {
-		bLogger.GetLogger().Error(context.Background(), fmt.Sprintf("extractAuthToken NewUserTokenPayloadWithJwtMapClaims failed: %v", err))
-		return nil
-	}
-
-	return ut
+	return principal.Claims
 }
 
 // getClientRealIP 获取客户端真实IP
@@ -183,6 +166,7 @@ func getStatusCode(err error) (uint32, string, bool) {
 		return 200, "", true
 	}
 }
+
 var reUsername = regexp.MustCompile(`"username"\s*:\s*"([^"]+)"`)
 
 // parseUsernameFromBytes 从请求体中解析用户名。
@@ -238,6 +222,7 @@ func clientIpToLocation(ip string) *geoip.Result {
 	}
 	return &res
 }
+
 // generateECDSAKeyPair 生成 ECDSA 密钥对（secp256r1 曲线）
 func generateECDSAKeyPair() (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)

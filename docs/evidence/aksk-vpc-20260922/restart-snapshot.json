@@ -1,0 +1,34 @@
+{
+  "before": {
+    "schema_sha256": "66de61edebb695221788b90eed4655b258328fee008abadc07611c544e6711a4",
+    "tables": {
+      "sys_tenants": "dcb5ed61b5bbdac583fef6bc9eb1fe9e",
+      "sys_users": "8e49e6238d5bf72841d3d807d39a7861",
+      "sys_roles": "aa0681ac54bc27769fc2334ea4c3daa6",
+      "sys_plans": "4339fd0222192c9337c8ba3f4a8a757e",
+      "sys_plan_modules": "813c7d632ca8d5ba603582bd8c57c8d0",
+      "sys_permissions": "f8c048cd364bde303c1608e61b7b11b9",
+      "sys_permission_apis": "03b1f6454568ae4ef1fdbc4cc783fb55",
+      "sys_role_permissions": "475458001741aa7247f69153a19e3739",
+      "sys_apis": "f35f995e483e4eba0e8885136c7422c2",
+      "sys_configs": "157396092fa1ff8116a4c975c6dbd50a",
+      "sys_user_credentials": "1e7d1dab715e297eebfa6706daa4eb68"
+    }
+  },
+  "after": {
+    "schema_sha256": "66de61edebb695221788b90eed4655b258328fee008abadc07611c544e6711a4",
+    "tables": {
+      "sys_tenants": "dcb5ed61b5bbdac583fef6bc9eb1fe9e",
+      "sys_users": "8e49e6238d5bf72841d3d807d39a7861",
+      "sys_roles": "aa0681ac54bc27769fc2334ea4c3daa6",
+      "sys_plans": "4339fd0222192c9337c8ba3f4a8a757e",
+      "sys_plan_modules": "813c7d632ca8d5ba603582bd8c57c8d0",
+      "sys_permissions": "f8c048cd364bde303c1608e61b7b11b9",
+      "sys_permission_apis": "03b1f6454568ae4ef1fdbc4cc783fb55",
+      "sys_role_permissions": "475458001741aa7247f69153a19e3739",
+      "sys_apis": "f35f995e483e4eba0e8885136c7422c2",
+      "sys_configs": "157396092fa1ff8116a4c975c6dbd50a",
+      "sys_user_credentials": "1e7d1dab715e297eebfa6706daa4eb68"
+    }
+  }
+}

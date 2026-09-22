@@ -31,7 +31,7 @@ func TestInvitationPage(t *testing.T) {
 
 func TestInvitationPublicSelector(t *testing.T) {
 	bctx := bootstrap.NewContextWithParam(context.Background(), nil, &conf.Bootstrap{Authz: &conf.Authorization{Type: "noop"}}, bLogger.NopLogger())
-	ms := NewRestMiddleware(bctx, nil, nil, authorizer.NewAuthorizer(bctx, nil), nil, nil, nil, nil, nil, nil)
+	ms := NewRestMiddleware(bctx, nil, nil, nil, authorizer.NewAuthorizer(bctx, nil), nil, nil, nil, nil, nil, nil)
 	// Exercise the actual auth selector constructed for the production server.
 	srv := http.NewServer(http.Middleware(ms[len(ms)-1]))
 	adminV1.RegisterAuthenticationServiceHTTPServer(srv, &service.AuthenticationService{})

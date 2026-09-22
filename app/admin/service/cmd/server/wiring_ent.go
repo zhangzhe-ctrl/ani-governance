@@ -12,6 +12,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/server"
 	"go-wind-admin/app/admin/service/internal/service"
 	"go-wind-admin/pkg/authorizer"
+	"go-wind-admin/pkg/crypto"
 )
 
 // initApp 手写装配整个应用,是唯一后端构建的依赖注入点。
@@ -46,6 +47,11 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 
 	// ═══════════════════════ 一、基础设施 ═══════════════════════
+
+	accessKeyCipher, err := crypto.LoadAccessKeyCipherFromEnv()
+	if err != nil {
+		return nil, nil, err
+	}
 
 	redisClient, cleanupRedis, err := data.NewRedisClient(ctx)
 	if err != nil {
@@ -143,7 +149,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	internalMessageRecipientRepo := data.NewInternalMessageRecipientRepo(ctx, entClient)
 
 	// ── register:repo ── 新模块仓储在此行后注册(make register 工具锚点,勿删)
-	accessKeyRepo := data.NewAccessKeyRepo(ctx, entClient)
+	accessKeyRepo := data.NewAccessKeyRepo(ctx, entClient, accessKeyCipher)
 
 	// ═══════════════════════ 三、认证与鉴权 ═══════════════════════
 
@@ -207,7 +213,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	internalMessageRecipientService := service.NewInternalMessageRecipientService(ctx, internalMessageRepo, internalMessageRecipientRepo)
 
 	// ── register:service ── 新模块服务在此行后注册(make register 工具锚点,勿删)
-	accessKeyService := service.NewAccessKeyService(ctx, accessKeyRepo, authenticator, loginRateLimiter)
+	accessKeyService := service.NewAccessKeyService(ctx, accessKeyRepo)
 	configService := service.NewConfigService(ctx, configRepo)
 	networkConfig, err := data.NetworkConfigFromEnv()
 	if err != nil {
@@ -228,7 +234,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 	// ═══════════════════════ 五、传输层(internal/server) ═══════════════════════
 
-	restMiddlewares := server.NewRestMiddleware(ctx, accessTokenChecker, tenantAccessChecker, authz,
+	restMiddlewares := server.NewRestMiddleware(ctx, accessTokenChecker, accessKeyRepo, tenantAccessChecker, authz,
 		apiAuditLogRepo, loginAuditLogRepo, operationAuditLogRepo, permissionAuditLogRepo, dataAccessAuditLogRepo, policyEvaluationLogRepo)
 
 	restServer, err := server.NewRestServer(ctx, restMiddlewares, authz,

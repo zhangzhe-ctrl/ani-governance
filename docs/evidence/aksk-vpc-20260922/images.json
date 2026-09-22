@@ -1,0 +1,62 @@
+[
+  {
+    "pod": "governance-674bfddcd6-zrgth",
+    "containers": [
+      {
+        "name": "governance",
+        "image": "docker.io/library/ani-governance:aksk-20260922-06d94eac1f25e7d7",
+        "imageID": "sha256:5722d90aed97a9f9d5ca3e517e83abc3c3a11109da6befbf11f9ab1de64921ae"
+      }
+    ]
+  },
+  {
+    "pod": "governance-init-wrzw9",
+    "containers": [
+      {
+        "name": "init",
+        "image": "docker.io/library/ani-governance:aksk-20260922-06d94eac1f25e7d7",
+        "imageID": "sha256:5722d90aed97a9f9d5ca3e517e83abc3c3a11109da6befbf11f9ab1de64921ae"
+      }
+    ]
+  },
+  {
+    "pod": "network-7c658b8b64-knfwf",
+    "containers": [
+      {
+        "name": "network",
+        "image": "docker.io/library/ani-network-service:aksk-20260922-f3c503a6c8a4bce6",
+        "imageID": "sha256:5b7e367ccc928fdc890f0bd56497f0d9c7e849e76c2c28c72389ce642ec067e1"
+      }
+    ]
+  },
+  {
+    "pod": "network-migrate-vrlpq",
+    "containers": [
+      {
+        "name": "migration",
+        "image": "docker.io/library/ani-network-service:aksk-20260922-f3c503a6c8a4bce6",
+        "imageID": "sha256:5b7e367ccc928fdc890f0bd56497f0d9c7e849e76c2c28c72389ce642ec067e1"
+      }
+    ]
+  },
+  {
+    "pod": "postgres-59bc7c8df6-mqvgc",
+    "containers": [
+      {
+        "name": "postgres",
+        "image": "docker.io/library/postgres:18",
+        "imageID": "sha256:662db3da228c2ea2649b3ae04db4b4479e85fea5979f6a917a7f6d5cb1e7ec39"
+      }
+    ]
+  },
+  {
+    "pod": "redis-5744c4b8b7-87g28",
+    "containers": [
+      {
+        "name": "redis",
+        "image": "docker.io/library/redis:7-alpine",
+        "imageID": "sha256:f84b0c4678011602b9b98c227a4dcd5468bf8b088b02fdd4165cb7758bad8058"
+      }
+    ]
+  }
+]

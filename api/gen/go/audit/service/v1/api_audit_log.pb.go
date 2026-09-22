@@ -30,6 +30,8 @@ const (
 // 接口审计日志
 type ApiAuditLog struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
+	SubjectType    *string                `protobuf:"bytes,6,opt,name=subject_type,proto3,oneof" json:"subject_type,omitempty"`
+	SubjectId      *uint32                `protobuf:"varint,7,opt,name=subject_id,proto3,oneof" json:"subject_id,omitempty"`
 	Id             *uint32                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`                                               // 接口审计日志ID
 	TenantId       *uint32                `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                   // 租户ID
 	TenantName     *string                `protobuf:"bytes,3,opt,name=tenant_name,json=tenantName,proto3,oneof" json:"tenant_name,omitempty"`              // 租户名称
@@ -91,6 +93,20 @@ func (x *ApiAuditLog) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ApiAuditLog.ProtoReflect.Descriptor instead.
 func (*ApiAuditLog) Descriptor() ([]byte, []int) {
 	return file_audit_service_v1_api_audit_log_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ApiAuditLog) GetSubjectType() string {
+	if x != nil && x.SubjectType != nil {
+		return *x.SubjectType
+	}
+	return ""
+}
+
+func (x *ApiAuditLog) GetSubjectId() uint32 {
+	if x != nil && x.SubjectId != nil {
+		return *x.SubjectId
+	}
+	return 0
 }
 
 func (x *ApiAuditLog) GetId() uint32 {
@@ -473,50 +489,56 @@ var File_audit_service_v1_api_audit_log_proto protoreflect.FileDescriptor
 
 const file_audit_service_v1_api_audit_log_proto_rawDesc = "" +
 	"\n" +
-	"$audit/service/v1/api_audit_log.proto\x12\x10audit.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x17validate/validate.proto\x1a\x1epagination/v1/pagination.proto\x1a#audit/service/v1/geo_location.proto\x1a\"audit/service/v1/device_info.proto\"\xcc\x15\n" +
-	"\vApiAuditLog\x12/\n" +
-	"\x02id\x18\x01 \x01(\rB\x1a\xbaG\x17\x92\x02\x14接口审计日志IDH\x00R\x02id\x88\x01\x01\x120\n" +
-	"\ttenant_id\x18\x02 \x01(\rB\x0e\xbaG\v\x92\x02\b租户IDH\x01R\btenantId\x88\x01\x01\x128\n" +
-	"\vtenant_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称H\x02R\n" +
+	"$audit/service/v1/api_audit_log.proto\x12\x10audit.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x17validate/validate.proto\x1a\x1epagination/v1/pagination.proto\x1a#audit/service/v1/geo_location.proto\x1a\"audit/service/v1/device_info.proto\"\xba\x16\n" +
+	"\vApiAuditLog\x12'\n" +
+	"\fsubject_type\x18\x06 \x01(\tH\x00R\fsubject_type\x88\x01\x01\x12#\n" +
+	"\n" +
+	"subject_id\x18\a \x01(\rH\x01R\n" +
+	"subject_id\x88\x01\x01\x12/\n" +
+	"\x02id\x18\x01 \x01(\rB\x1a\xbaG\x17\x92\x02\x14接口审计日志IDH\x02R\x02id\x88\x01\x01\x120\n" +
+	"\ttenant_id\x18\x02 \x01(\rB\x0e\xbaG\v\x92\x02\b租户IDH\x03R\btenantId\x88\x01\x01\x128\n" +
+	"\vtenant_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称H\x04R\n" +
 	"tenantName\x88\x01\x01\x12,\n" +
-	"\auser_id\x18\x04 \x01(\rB\x0e\xbaG\v\x92\x02\b用户IDH\x03R\x06userId\x88\x01\x01\x120\n" +
-	"\busername\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t账号名H\x04R\busername\x88\x01\x01\x122\n" +
+	"\auser_id\x18\x04 \x01(\rB\x0e\xbaG\v\x92\x02\b用户IDH\x05R\x06userId\x88\x01\x01\x120\n" +
+	"\busername\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t账号名H\x06R\busername\x88\x01\x01\x122\n" +
 	"\n" +
 	"ip_address\x18\n" +
-	" \x01(\tB\x0e\xbaG\v\x92\x02\bIP地址H\x05R\tipAddress\x88\x01\x01\x12f\n" +
-	"\fgeo_location\x18\v \x01(\v2\x1d.audit.service.v1.GeoLocationB\x1f\xbaG\x1c\x92\x02\x19地理位置(来自IP库)H\x06R\vgeoLocation\x88\x01\x01\x12V\n" +
-	"\vdevice_info\x18\f \x01(\v2\x1c.audit.service.v1.DeviceInfoB\x12\xbaG\x0f\x92\x02\f设备信息H\aR\n" +
+	" \x01(\tB\x0e\xbaG\v\x92\x02\bIP地址H\aR\tipAddress\x88\x01\x01\x12f\n" +
+	"\fgeo_location\x18\v \x01(\v2\x1d.audit.service.v1.GeoLocationB\x1f\xbaG\x1c\x92\x02\x19地理位置(来自IP库)H\bR\vgeoLocation\x88\x01\x01\x12V\n" +
+	"\vdevice_info\x18\f \x01(\v2\x1c.audit.service.v1.DeviceInfoB\x12\xbaG\x0f\x92\x02\f设备信息H\tR\n" +
 	"deviceInfo\x88\x01\x01\x124\n" +
-	"\areferer\x18\r \x01(\tB\x15\xbaG\x12\x92\x02\x0f请求来源URLH\bR\areferer\x88\x01\x01\x12>\n" +
-	"\vapp_version\x18\x0e \x01(\tB\x18\xbaG\x15\x92\x02\x12客户端版本号H\tR\n" +
+	"\areferer\x18\r \x01(\tB\x15\xbaG\x12\x92\x02\x0f请求来源URLH\n" +
+	"R\areferer\x88\x01\x01\x12>\n" +
+	"\vapp_version\x18\x0e \x01(\tB\x18\xbaG\x15\x92\x02\x12客户端版本号H\vR\n" +
 	"appVersion\x88\x01\x01\x12U\n" +
-	"\vhttp_method\x18\x14 \x01(\tB/\xbaG,\x92\x02)HTTP请求方法（GET/POST/PUT/DELETE）H\n" +
-	"R\n" +
+	"\vhttp_method\x18\x14 \x01(\tB/\xbaG,\x92\x02)HTTP请求方法（GET/POST/PUT/DELETE）H\fR\n" +
 	"httpMethod\x88\x01\x01\x12P\n" +
-	"\x04path\x18\x15 \x01(\tB7\xbaG4\x92\x021请求路径（不含参数，如/api/v1/users）H\vR\x04path\x88\x01\x01\x12b\n" +
-	"\vrequest_uri\x18\x16 \x01(\tB<\xbaG9\x92\x026完整请求URI（含参数，如/api/v1/users?id=1）H\fR\n" +
+	"\x04path\x18\x15 \x01(\tB7\xbaG4\x92\x021请求路径（不含参数，如/api/v1/users）H\rR\x04path\x88\x01\x01\x12b\n" +
+	"\vrequest_uri\x18\x16 \x01(\tB<\xbaG9\x92\x026完整请求URI（含参数，如/api/v1/users?id=1）H\x0eR\n" +
 	"requestUri\x88\x01\x01\x12]\n" +
 	"\n" +
-	"api_module\x18\x17 \x01(\tB9\xbaG6\x92\x023API所属业务模块（如user/permission/order）H\rR\tapiModule\x88\x01\x01\x12q\n" +
-	"\rapi_operation\x18\x18 \x01(\tBG\xbaGD\x92\x02AAPI业务操作（如查询用户/创建订单，非HTTP方法）H\x0eR\fapiOperation\x88\x01\x01\x12r\n" +
-	"\x0fapi_description\x18\x19 \x01(\tBD\xbaGA\x92\x02>API功能描述（如“根据ID查询单个用户信息”）H\x0fR\x0eapiDescription\x88\x01\x01\x12P\n" +
+	"api_module\x18\x17 \x01(\tB9\xbaG6\x92\x023API所属业务模块（如user/permission/order）H\x0fR\tapiModule\x88\x01\x01\x12q\n" +
+	"\rapi_operation\x18\x18 \x01(\tBG\xbaGD\x92\x02AAPI业务操作（如查询用户/创建订单，非HTTP方法）H\x10R\fapiOperation\x88\x01\x01\x12r\n" +
+	"\x0fapi_description\x18\x19 \x01(\tBD\xbaGA\x92\x02>API功能描述（如“根据ID查询单个用户信息”）H\x11R\x0eapiDescription\x88\x01\x01\x12P\n" +
 	"\n" +
-	"request_id\x18\x1a \x01(\tB,\xbaG)\x92\x02&全局请求ID（关联网关日志）H\x10R\trequestId\x88\x01\x01\x12\\\n" +
-	"\btrace_id\x18\x1b \x01(\tB<\xbaG9\x92\x026全局链路追踪ID（符合W3C TraceContext标准）H\x11R\atraceId\x88\x01\x01\x122\n" +
-	"\aspan_id\x18\x1c \x01(\tB\x14\xbaG\x11\x92\x02\x0e当前跨度IDH\x12R\x06spanId\x88\x01\x01\x12I\n" +
+	"request_id\x18\x1a \x01(\tB,\xbaG)\x92\x02&全局请求ID（关联网关日志）H\x12R\trequestId\x88\x01\x01\x12\\\n" +
+	"\btrace_id\x18\x1b \x01(\tB<\xbaG9\x92\x026全局链路追踪ID（符合W3C TraceContext标准）H\x13R\atraceId\x88\x01\x01\x122\n" +
+	"\aspan_id\x18\x1c \x01(\tB\x14\xbaG\x11\x92\x02\x0e当前跨度IDH\x14R\x06spanId\x88\x01\x01\x12I\n" +
 	"\n" +
-	"latency_ms\x18\x1d \x01(\rB%\xfaB\a*\x05\x18\x80\xdd\xdb\x01\xbaG\x18\x92\x02\x15API耗时（毫秒）H\x13R\tlatencyMs\x88\x01\x01\x127\n" +
-	"\asuccess\x18\x1e \x01(\bB\x18\xbaG\x15\x92\x02\x12操作是否成功H\x14R\asuccess\x88\x01\x01\x12J\n" +
-	"\vstatus_code\x18\x1f \x01(\rB$\xbaG!\x92\x02\x1eHTTP状态码（200/403/500）H\x15R\n" +
+	"latency_ms\x18\x1d \x01(\rB%\xfaB\a*\x05\x18\x80\xdd\xdb\x01\xbaG\x18\x92\x02\x15API耗时（毫秒）H\x15R\tlatencyMs\x88\x01\x01\x127\n" +
+	"\asuccess\x18\x1e \x01(\bB\x18\xbaG\x15\x92\x02\x12操作是否成功H\x16R\asuccess\x88\x01\x01\x12J\n" +
+	"\vstatus_code\x18\x1f \x01(\rB$\xbaG!\x92\x02\x1eHTTP状态码（200/403/500）H\x17R\n" +
 	"statusCode\x88\x01\x01\x12T\n" +
-	"\x06reason\x18  \x01(\tB7\xbaG4\x92\x021操作失败原因（仅success=false时填充）H\x16R\x06reason\x88\x01\x01\x12c\n" +
-	"\x0erequest_header\x18! \x01(\tB7\xbaG4\x92\x021请求头（JSON格式，敏感字段脱敏后）H\x17R\rrequestHeader\x88\x01\x01\x12_\n" +
-	"\frequest_body\x18\" \x01(\tB7\xbaG4\x92\x021请求体（JSON格式，敏感字段脱敏后）H\x18R\vrequestBody\x88\x01\x01\x12[\n" +
-	"\bresponse\x18# \x01(\tB:\xbaG7\x92\x024响应信息（JSON格式，敏感字段脱敏后）H\x19R\bresponse\x88\x01\x01\x12\\\n" +
-	"\blog_hash\x18( \x01(\tB<\xbaG9\x92\x026日志内容哈希（SHA256，十六进制字符串）H\x1aR\alogHash\x88\x01\x01\x12}\n" +
-	"\tsignature\x18) \x01(\fBZ\xbaGW\x92\x02T日志数字签名（ECDSA，签名内容：tenant_id+user_id+created_at+log_hash）H\x1bR\tsignature\x88\x01\x01\x12X\n" +
+	"\x06reason\x18  \x01(\tB7\xbaG4\x92\x021操作失败原因（仅success=false时填充）H\x18R\x06reason\x88\x01\x01\x12c\n" +
+	"\x0erequest_header\x18! \x01(\tB7\xbaG4\x92\x021请求头（JSON格式，敏感字段脱敏后）H\x19R\rrequestHeader\x88\x01\x01\x12_\n" +
+	"\frequest_body\x18\" \x01(\tB7\xbaG4\x92\x021请求体（JSON格式，敏感字段脱敏后）H\x1aR\vrequestBody\x88\x01\x01\x12[\n" +
+	"\bresponse\x18# \x01(\tB:\xbaG7\x92\x024响应信息（JSON格式，敏感字段脱敏后）H\x1bR\bresponse\x88\x01\x01\x12\\\n" +
+	"\blog_hash\x18( \x01(\tB<\xbaG9\x92\x026日志内容哈希（SHA256，十六进制字符串）H\x1cR\alogHash\x88\x01\x01\x12}\n" +
+	"\tsignature\x18) \x01(\fBZ\xbaGW\x92\x02T日志数字签名（ECDSA，签名内容：tenant_id+user_id+created_at+log_hash）H\x1dR\tsignature\x88\x01\x01\x12X\n" +
 	"\n" +
-	"created_at\x182 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x15\x92\x02\x12日志创建时间H\x1cR\tcreatedAt\x88\x01\x01B\x05\n" +
+	"created_at\x182 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x15\x92\x02\x12日志创建时间H\x1eR\tcreatedAt\x88\x01\x01B\x0f\n" +
+	"\r_subject_typeB\r\n" +
+	"\v_subject_idB\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\x0e\n" +

@@ -71,10 +71,11 @@ func (c *composedChecker) IsBlockedAccessToken(ctx context.Context, accessToken 
 type options struct {
 	log *bLogger.Helper
 
+	signingKeyStore                   SigningKeyStore
 	accessTokenChecker                AccessTokenChecker // 访问令牌检查器
 	tenantAccessChecker               TenantAccessChecker
-	enableCheckRefreshTokenExpiration bool               // 是否启用刷新令牌过期检查
-	enableCheckScopes                 bool               // 是否启用作用域检查
+	enableCheckRefreshTokenExpiration bool // 是否启用刷新令牌过期检查
+	enableCheckScopes                 bool // 是否启用作用域检查
 
 	enableAuthz bool // 是否启用鉴权
 
@@ -159,4 +160,8 @@ func WithLogger(logger bLogger.Logger) Option {
 	return func(o *options) {
 		o.log = bLogger.NewHelper(logger.With("module", "auth.middleware"))
 	}
+}
+
+func WithSigningKeyStore(store SigningKeyStore) Option {
+	return func(o *options) { o.signingKeyStore = store }
 }

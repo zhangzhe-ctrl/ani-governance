@@ -25,20 +25,17 @@ const _ = http.SupportPackageIsVersion1
 const OperationAccessKeyServiceCreate = "/admin.service.v1.AccessKeyService/Create"
 const OperationAccessKeyServiceDelete = "/admin.service.v1.AccessKeyService/Delete"
 const OperationAccessKeyServiceGet = "/admin.service.v1.AccessKeyService/Get"
-const OperationAccessKeyServiceIssueToken = "/admin.service.v1.AccessKeyService/IssueToken"
 const OperationAccessKeyServiceList = "/admin.service.v1.AccessKeyService/List"
 const OperationAccessKeyServiceResetSecret = "/admin.service.v1.AccessKeyService/ResetSecret"
 const OperationAccessKeyServiceUpdate = "/admin.service.v1.AccessKeyService/Update"
 
 type AccessKeyServiceHTTPServer interface {
-	// Create 创建访问凭证（响应中的 secret 仅本次明文返回，服务端只存 SHA-256 摘要）
+	// Create 创建访问凭证（响应中的 secret_key 仅本次返回，服务端加密存储）
 	Create(context.Context, *v11.CreateAccessKeyRequest) (*v11.CreateAccessKeyResponse, error)
 	// Delete 删除访问凭证
-	Delete(context.Context, *v11.DeleteAccessKeyRequest) (*emptypb.Empty, error)
+	Delete(context.Context, *v11.DeleteAccessKeyRequest) (*v11.DeleteAccessKeyResponse, error)
 	// Get 查询访问凭证详情
 	Get(context.Context, *v11.GetAccessKeyRequest) (*v11.AccessKey, error)
-	// IssueToken 令牌交换（机器对机器）：AK/SK 换短期 JWT。免鉴权端点——本身即是认证。
-	IssueToken(context.Context, *v11.IssueTokenRequest) (*v11.IssueTokenResponse, error)
 	// List 分页查询访问凭证列表
 	List(context.Context, *v1.PagingRequest) (*v11.ListAccessKeyResponse, error)
 	// ResetSecret 重置密钥：生成新 Secret（响应明文返回一次）
@@ -49,13 +46,12 @@ type AccessKeyServiceHTTPServer interface {
 
 func RegisterAccessKeyServiceHTTPServer(s *http.Server, srv AccessKeyServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/admin/v1/access-keys", _AccessKeyService_List0_HTTP_Handler(srv))
-	r.GET("/admin/v1/access-keys/{id}", _AccessKeyService_Get0_HTTP_Handler(srv))
-	r.POST("/admin/v1/access-keys", _AccessKeyService_Create0_HTTP_Handler(srv))
-	r.PUT("/admin/v1/access-keys/{id}", _AccessKeyService_Update0_HTTP_Handler(srv))
-	r.DELETE("/admin/v1/access-keys/{id}", _AccessKeyService_Delete0_HTTP_Handler(srv))
-	r.PUT("/admin/v1/access-keys/{id}/secret", _AccessKeyService_ResetSecret0_HTTP_Handler(srv))
-	r.POST("/admin/v1/access-keys/token", _AccessKeyService_IssueToken0_HTTP_Handler(srv))
+	r.GET("/api/v1/auth/api-keys", _AccessKeyService_List0_HTTP_Handler(srv))
+	r.GET("/api/v1/auth/api-keys/{key_id}", _AccessKeyService_Get0_HTTP_Handler(srv))
+	r.POST("/api/v1/auth/api-keys", _AccessKeyService_Create0_HTTP_Handler(srv))
+	r.PUT("/api/v1/auth/api-keys/{key_id}", _AccessKeyService_Update0_HTTP_Handler(srv))
+	r.DELETE("/api/v1/auth/api-keys/{key_id}", _AccessKeyService_Delete0_HTTP_Handler(srv))
+	r.PUT("/api/v1/auth/api-keys/{key_id}/secret", _AccessKeyService_ResetSecret0_HTTP_Handler(srv))
 }
 
 func _AccessKeyService_List0_HTTP_Handler(srv AccessKeyServiceHTTPServer) func(ctx http.Context) error {
@@ -163,7 +159,7 @@ func _AccessKeyService_Delete0_HTTP_Handler(srv AccessKeyServiceHTTPServer) func
 		if err != nil {
 			return err
 		}
-		reply := out.(*emptypb.Empty)
+		reply := out.(*v11.DeleteAccessKeyResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -193,37 +189,13 @@ func _AccessKeyService_ResetSecret0_HTTP_Handler(srv AccessKeyServiceHTTPServer)
 	}
 }
 
-func _AccessKeyService_IssueToken0_HTTP_Handler(srv AccessKeyServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in v11.IssueTokenRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationAccessKeyServiceIssueToken)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.IssueToken(ctx, req.(*v11.IssueTokenRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*v11.IssueTokenResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
 type AccessKeyServiceHTTPClient interface {
-	// Create 创建访问凭证（响应中的 secret 仅本次明文返回，服务端只存 SHA-256 摘要）
+	// Create 创建访问凭证（响应中的 secret_key 仅本次返回，服务端加密存储）
 	Create(ctx context.Context, req *v11.CreateAccessKeyRequest, opts ...http.CallOption) (rsp *v11.CreateAccessKeyResponse, err error)
 	// Delete 删除访问凭证
-	Delete(ctx context.Context, req *v11.DeleteAccessKeyRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	Delete(ctx context.Context, req *v11.DeleteAccessKeyRequest, opts ...http.CallOption) (rsp *v11.DeleteAccessKeyResponse, err error)
 	// Get 查询访问凭证详情
 	Get(ctx context.Context, req *v11.GetAccessKeyRequest, opts ...http.CallOption) (rsp *v11.AccessKey, err error)
-	// IssueToken 令牌交换（机器对机器）：AK/SK 换短期 JWT。免鉴权端点——本身即是认证。
-	IssueToken(ctx context.Context, req *v11.IssueTokenRequest, opts ...http.CallOption) (rsp *v11.IssueTokenResponse, err error)
 	// List 分页查询访问凭证列表
 	List(ctx context.Context, req *v1.PagingRequest, opts ...http.CallOption) (rsp *v11.ListAccessKeyResponse, err error)
 	// ResetSecret 重置密钥：生成新 Secret（响应明文返回一次）
@@ -240,10 +212,10 @@ func NewAccessKeyServiceHTTPClient(client *http.Client) AccessKeyServiceHTTPClie
 	return &AccessKeyServiceHTTPClientImpl{client}
 }
 
-// Create 创建访问凭证（响应中的 secret 仅本次明文返回，服务端只存 SHA-256 摘要）
+// Create 创建访问凭证（响应中的 secret_key 仅本次返回，服务端加密存储）
 func (c *AccessKeyServiceHTTPClientImpl) Create(ctx context.Context, in *v11.CreateAccessKeyRequest, opts ...http.CallOption) (*v11.CreateAccessKeyResponse, error) {
 	var out v11.CreateAccessKeyResponse
-	pattern := "/admin/v1/access-keys"
+	pattern := "/api/v1/auth/api-keys"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAccessKeyServiceCreate))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -255,9 +227,9 @@ func (c *AccessKeyServiceHTTPClientImpl) Create(ctx context.Context, in *v11.Cre
 }
 
 // Delete 删除访问凭证
-func (c *AccessKeyServiceHTTPClientImpl) Delete(ctx context.Context, in *v11.DeleteAccessKeyRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/admin/v1/access-keys/{id}"
+func (c *AccessKeyServiceHTTPClientImpl) Delete(ctx context.Context, in *v11.DeleteAccessKeyRequest, opts ...http.CallOption) (*v11.DeleteAccessKeyResponse, error) {
+	var out v11.DeleteAccessKeyResponse
+	pattern := "/api/v1/auth/api-keys/{key_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAccessKeyServiceDelete))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -271,7 +243,7 @@ func (c *AccessKeyServiceHTTPClientImpl) Delete(ctx context.Context, in *v11.Del
 // Get 查询访问凭证详情
 func (c *AccessKeyServiceHTTPClientImpl) Get(ctx context.Context, in *v11.GetAccessKeyRequest, opts ...http.CallOption) (*v11.AccessKey, error) {
 	var out v11.AccessKey
-	pattern := "/admin/v1/access-keys/{id}"
+	pattern := "/api/v1/auth/api-keys/{key_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAccessKeyServiceGet))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -282,24 +254,10 @@ func (c *AccessKeyServiceHTTPClientImpl) Get(ctx context.Context, in *v11.GetAcc
 	return &out, nil
 }
 
-// IssueToken 令牌交换（机器对机器）：AK/SK 换短期 JWT。免鉴权端点——本身即是认证。
-func (c *AccessKeyServiceHTTPClientImpl) IssueToken(ctx context.Context, in *v11.IssueTokenRequest, opts ...http.CallOption) (*v11.IssueTokenResponse, error) {
-	var out v11.IssueTokenResponse
-	pattern := "/admin/v1/access-keys/token"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAccessKeyServiceIssueToken))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
 // List 分页查询访问凭证列表
 func (c *AccessKeyServiceHTTPClientImpl) List(ctx context.Context, in *v1.PagingRequest, opts ...http.CallOption) (*v11.ListAccessKeyResponse, error) {
 	var out v11.ListAccessKeyResponse
-	pattern := "/admin/v1/access-keys"
+	pattern := "/api/v1/auth/api-keys"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAccessKeyServiceList))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -313,7 +271,7 @@ func (c *AccessKeyServiceHTTPClientImpl) List(ctx context.Context, in *v1.Paging
 // ResetSecret 重置密钥：生成新 Secret（响应明文返回一次）
 func (c *AccessKeyServiceHTTPClientImpl) ResetSecret(ctx context.Context, in *v11.ResetAccessKeySecretRequest, opts ...http.CallOption) (*v11.CreateAccessKeyResponse, error) {
 	var out v11.CreateAccessKeyResponse
-	pattern := "/admin/v1/access-keys/{id}/secret"
+	pattern := "/api/v1/auth/api-keys/{key_id}/secret"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAccessKeyServiceResetSecret))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -327,7 +285,7 @@ func (c *AccessKeyServiceHTTPClientImpl) ResetSecret(ctx context.Context, in *v1
 // Update 更新访问凭证（名称/状态/过期时间）
 func (c *AccessKeyServiceHTTPClientImpl) Update(ctx context.Context, in *v11.UpdateAccessKeyRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/admin/v1/access-keys/{id}"
+	pattern := "/api/v1/auth/api-keys/{key_id}"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAccessKeyServiceUpdate))
 	opts = append(opts, http.PathTemplate(pattern))

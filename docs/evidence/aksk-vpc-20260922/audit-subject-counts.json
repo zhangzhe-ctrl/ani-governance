@@ -1,0 +1,14 @@
+[
+  {
+    "subject_type": "api_key",
+    "count": 24
+  },
+  {
+    "subject_type": "user",
+    "count": 50
+  },
+  {
+    "subject_type": null,
+    "count": 30
+  }
+]

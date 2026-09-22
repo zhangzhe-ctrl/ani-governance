@@ -14,6 +14,7 @@ import (
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	"go-wind-admin/pkg/audit"
+	"go-wind-admin/pkg/middleware/auth"
 )
 
 // reqBodyKey 携带 pre-handler 快照的 JSON 写请求体，供 post-handler 审计解析。
@@ -108,6 +109,7 @@ func Server(opts ...Option) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
 			startTime := time.Now()
+			ctx = auth.WithIdentityRecorder(ctx)
 
 			// DataAccessAuditLog: pre-handler 植入 accumulator，driver wrapper
 			// 在 handler 内执行 SQL 时向其 append 事件。post-handler 取出落库。

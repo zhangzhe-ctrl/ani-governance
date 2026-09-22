@@ -6,7 +6,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"os"
-	"strconv"
+	"regexp"
 	"time"
 
 	"github.com/google/uuid"
@@ -81,15 +81,15 @@ func NetworkConfigFromEnv() (NetworkClientConfig, error) {
 	return NetworkClientConfig{Address: os.Getenv("ANI_NETWORK_ADDR"), CAFile: os.Getenv("ANI_NETWORK_CA"), CertFile: os.Getenv("ANI_NETWORK_CERT"), KeyFile: os.Getenv("ANI_NETWORK_KEY"), Timeout: timeout}, nil
 }
 
-func (c *NetworkClient) GetVPC(ctx context.Context, tenant string, user uint32, vpcID string) (*networkv1.GetVPCResponse, error) {
+func (c *NetworkClient) GetVPC(ctx context.Context, tenant string, actor string, vpcID string) (*networkv1.GetVPCResponse, error) {
 	id, err := uuid.Parse(tenant)
-	if err != nil || id == uuid.Nil || id.String() != tenant || user == 0 {
+	if err != nil || id == uuid.Nil || id.String() != tenant || !networkActorPattern.MatchString(actor) {
 		return nil, fmt.Errorf("invalid trusted network identity")
 	}
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
 	// Rebuild metadata; never append inbound/public identity headers.
-	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("x-ani-tenant-id", tenant, "x-ani-actor", "governance:user:"+strconv.FormatUint(uint64(user), 10), "x-ani-request-id", uuid.NewString()))
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("x-ani-tenant-id", tenant, "x-ani-actor", actor, "x-ani-request-id", uuid.NewString()))
 	reply, err := c.client.GetVPC(ctx, &networkv1.GetVPCRequest{TenantId: tenant, VpcId: vpcID})
 	// A disconnected transport can spend the entire deadline reconnecting.
 	// Report that dependency outage as 503; a connected, slow RPC remains 504.
@@ -98,3 +98,5 @@ func (c *NetworkClient) GetVPC(ctx context.Context, tenant string, user uint32, 
 	}
 	return reply, err
 }
+
+var networkActorPattern = regexp.MustCompile(`^governance:(user|access-key):[1-9][0-9]*$`)

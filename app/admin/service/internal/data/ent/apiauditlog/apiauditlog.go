@@ -16,6 +16,10 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldTenantID holds the string denoting the tenant_id field in the database.
 	FieldTenantID = "tenant_id"
+	// FieldSubjectType holds the string denoting the subject_type field in the database.
+	FieldSubjectType = "subject_type"
+	// FieldSubjectID holds the string denoting the subject_id field in the database.
+	FieldSubjectID = "subject_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
 	// FieldUsername holds the string denoting the username field in the database.
@@ -75,6 +79,8 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldTenantID,
+	FieldSubjectType,
+	FieldSubjectID,
 	FieldUserID,
 	FieldUsername,
 	FieldIPAddress,
@@ -142,6 +148,16 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByTenantID orders the results by the tenant_id field.
 func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
+}
+
+// BySubjectType orders the results by the subject_type field.
+func BySubjectType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubjectType, opts...).ToFunc()
+}
+
+// BySubjectID orders the results by the subject_id field.
+func BySubjectID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubjectID, opts...).ToFunc()
 }
 
 // ByUserID orders the results by the user_id field.

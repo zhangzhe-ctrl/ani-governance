@@ -2,272 +2,255 @@ package data
 
 import (
 	"context"
+	"fmt"
 	"time"
 
-	"entgo.io/ent/dialect/sql"
-	entCrud "github.com/tx7do/go-crud/entgo"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
-	"github.com/tx7do/go-utils/copierutil"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	"github.com/tx7do/go-utils/mapper"
-
-	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
+	"entgo.io/ent/privacy"
+	kerrors "github.com/go-kratos/kratos/v2/errors"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+	entCrud "github.com/tx7do/go-crud/entgo"
+	"github.com/tx7do/go-utils/copierutil"
+	"github.com/tx7do/go-utils/mapper"
+	"github.com/tx7do/go-utils/trans"
+	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	accesskeyV1 "go-wind-admin/api/gen/go/access_key/service/v1"
+	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/accesskey"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
-	appViewer "go-wind-admin/pkg/entgo/viewer"
+	"go-wind-admin/app/admin/service/internal/data/ent/role"
+	appcrypto "go-wind-admin/pkg/crypto"
+	"go-wind-admin/pkg/middleware/auth"
 )
 
-// AccessKeyRepo OpenAPI 访问凭证（AK/SK）仓储。
-// 租户隔离由 ent TenantPrivacy 编译策略保证；令牌交换（免鉴权流程）
-// 的查询经由 SystemViewerContext 旁路租户 scope（见 service 层）。
 type AccessKeyRepo struct {
-	entClient *entCrud.EntClient[*ent.Client]
-	log       *bLogger.Helper
-	mapper    *mapper.CopierMapper[accesskeyV1.AccessKey, ent.AccessKey]
-	// 状态枚举转换（ent SwitchStatus ON/OFF <-> proto AccessKey_Status）
-	statusConverter *mapper.EnumTypeConverter[accesskeyV1.AccessKey_Status, accesskey.Status]
-
-	repository *entCrud.Repository[
-		ent.AccessKeyQuery, ent.AccessKeySelect,
-		ent.AccessKeyCreate, ent.AccessKeyCreateBulk,
-		ent.AccessKeyUpdate, ent.AccessKeyUpdateOne,
-		ent.AccessKeyDelete,
-		predicate.AccessKey,
-		accesskeyV1.AccessKey, ent.AccessKey,
-	]
+	entClient  *entCrud.EntClient[*ent.Client]
+	cipher     *appcrypto.AccessKeyCipher
+	repository *entCrud.Repository[ent.AccessKeyQuery, ent.AccessKeySelect, ent.AccessKeyCreate, ent.AccessKeyCreateBulk, ent.AccessKeyUpdate, ent.AccessKeyUpdateOne, ent.AccessKeyDelete, predicate.AccessKey, accesskeyV1.AccessKey, ent.AccessKey]
 }
 
-func tsOf(t *timestamppb.Timestamp) *time.Time {
-	if t == nil || t.AsTime().IsZero() {
+func NewAccessKeyRepo(_ *bootstrap.Context, client *entCrud.EntClient[*ent.Client], cipher *appcrypto.AccessKeyCipher) *AccessKeyRepo {
+	m := mapper.NewCopierMapper[accesskeyV1.AccessKey, ent.AccessKey]()
+	m.AppendConverters(copierutil.NewTimeStringConverterPair())
+	m.AppendConverters(copierutil.NewTimeTimestamppbConverterPair())
+	return &AccessKeyRepo{entClient: client, cipher: cipher, repository: entCrud.NewRepository[ent.AccessKeyQuery, ent.AccessKeySelect, ent.AccessKeyCreate, ent.AccessKeyCreateBulk, ent.AccessKeyUpdate, ent.AccessKeyUpdateOne, ent.AccessKeyDelete, predicate.AccessKey, accesskeyV1.AccessKey, ent.AccessKey](m)}
+}
+func accessKeyDTO(e *ent.AccessKey) *accesskeyV1.AccessKey {
+	return &accesskeyV1.AccessKey{Id: trans.Ptr(e.ID), Name: e.Name, AccessKey: trans.Ptr(e.AccessKey), RoleId: trans.Ptr(e.RoleID), IsActive: trans.Ptr(e.Status != nil && *e.Status == accesskey.StatusOn), ExpiresAt: keyTimestamp(e.ExpiresAt), CreatedAt: keyTimestamp(e.CreatedAt), LastUsedAt: keyTimestamp(e.LastUsedAt)}
+}
+func keyTimestamp(t *time.Time) *timestamppb.Timestamp {
+	if t == nil {
 		return nil
 	}
-	u := t.AsTime()
-	return &u
+	return timestamppb.New(*t)
 }
-
-func NewAccessKeyRepo(ctx *bootstrap.Context, entClient *entCrud.EntClient[*ent.Client]) *AccessKeyRepo {
-	r := &AccessKeyRepo{
-		log:       ctx.NewLoggerHelper("access-key/repo/admin-service"),
-		entClient: entClient,
-		mapper:    mapper.NewCopierMapper[accesskeyV1.AccessKey, ent.AccessKey](),
-		statusConverter: mapper.NewEnumTypeConverter[accesskeyV1.AccessKey_Status, accesskey.Status](
-			accesskeyV1.AccessKey_Status_name,
-			accesskeyV1.AccessKey_Status_value,
-		),
+func keyRepoError(err error) error {
+	if ent.IsNotFound(err) {
+		return kerrors.NotFound("ACCESS_KEY_NOT_FOUND", "access key not found")
 	}
-	r.init()
-	return r
+	return kerrors.ServiceUnavailable("ACCESS_KEY_STORAGE_UNAVAILABLE", "access key storage unavailable").WithCause(err)
 }
-
-func (r *AccessKeyRepo) init() {
-	r.repository = entCrud.NewRepository[
-		ent.AccessKeyQuery, ent.AccessKeySelect,
-		ent.AccessKeyCreate, ent.AccessKeyCreateBulk,
-		ent.AccessKeyUpdate, ent.AccessKeyUpdateOne,
-		ent.AccessKeyDelete,
-		predicate.AccessKey,
-		accesskeyV1.AccessKey, ent.AccessKey,
-	](r.mapper)
-
-	r.mapper.AppendConverters(copierutil.NewTimeStringConverterPair())
-	r.mapper.AppendConverters(copierutil.NewTimeTimestamppbConverterPair())
-	r.mapper.AppendConverters(r.statusConverter.NewConverterPair())
-}
-
-func (r *AccessKeyRepo) Count(ctx context.Context, req *paginationV1.PagingRequest) (*accesskeyV1.CountAccessKeyResponse, error) {
-	builder := r.entClient.Client().AccessKey.Query()
-
-	whereSelectors, _, _ := r.repository.BuildListSelectorWithPaging(builder, req)
-	if len(whereSelectors) != 0 {
-		builder.Modify(whereSelectors...)
-	}
-
-	count, err := builder.Count(ctx)
-	if err != nil {
-		r.log.Errorf(ctx, "query access key count failed: %s", err.Error())
-		return nil, adminV1.ErrorInternalServerError("query access key count failed")
-	}
-
-	return &accesskeyV1.CountAccessKeyResponse{
-		Count: uint64(count),
-	}, nil
-}
-
 func (r *AccessKeyRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*accesskeyV1.ListAccessKeyResponse, error) {
 	if req == nil {
 		return nil, adminV1.ErrorBadRequest("invalid parameter")
 	}
-
 	builder := r.entClient.Client().AccessKey.Query()
-
 	ret, err := r.repository.ListWithPaging(ctx, builder, builder.Clone(), req)
 	if err != nil {
 		return nil, err
 	}
+	result := &accesskeyV1.ListAccessKeyResponse{Items: []*accesskeyV1.AccessKey{}}
 	if ret == nil {
-		return &accesskeyV1.ListAccessKeyResponse{Total: 0, Items: nil}, nil
+		return result, nil
 	}
-
-	return &accesskeyV1.ListAccessKeyResponse{
-		Total: ret.Total,
-		Items: ret.Items,
-	}, nil
-}
-
-func (r *AccessKeyRepo) IsExist(ctx context.Context, id uint32) (bool, error) {
-	exist, err := r.entClient.Client().AccessKey.Query().
-		Where(accesskey.IDEQ(id)).
-		Exist(ctx)
+	result.Total = ret.Total
+	// Fetch only the selected IDs to map the internal ON/OFF status explicitly.
+	// The generic mapper cannot map ON/OFF to the public is_active boolean.
+	ids := make([]uint32, 0, len(ret.Items))
+	for _, item := range ret.Items {
+		ids = append(ids, item.GetId())
+	}
+	if len(ids) == 0 {
+		return result, nil
+	}
+	entities, err := r.entClient.Client().AccessKey.Query().Where(accesskey.IDIn(ids...)).All(ctx)
 	if err != nil {
-		r.log.Errorf(ctx, "query access key exist failed: %s", err.Error())
-		return false, adminV1.ErrorInternalServerError("query access key exist failed")
+		return nil, keyRepoError(err)
 	}
-	return exist, nil
+	byID := make(map[uint32]*ent.AccessKey, len(entities))
+	for _, e := range entities {
+		byID[e.ID] = e
+	}
+	for _, id := range ids {
+		if e := byID[id]; e != nil {
+			result.Items = append(result.Items, accessKeyDTO(e))
+		}
+	}
+	return result, nil
 }
-
 func (r *AccessKeyRepo) Get(ctx context.Context, req *accesskeyV1.GetAccessKeyRequest) (*accesskeyV1.AccessKey, error) {
-	if req == nil {
-		return nil, adminV1.ErrorBadRequest("invalid parameter")
+	if req == nil || req.GetKeyId() == 0 {
+		return nil, adminV1.ErrorBadRequest("key_id is required")
 	}
-
-	builder := r.entClient.Client().AccessKey.Query()
-
-	var whereCond []func(s *sql.Selector)
-	switch req.QueryBy.(type) {
-	default:
-	case *accesskeyV1.GetAccessKeyRequest_Id:
-		whereCond = append(whereCond, accesskey.IDEQ(req.GetId()))
-	case *accesskeyV1.GetAccessKeyRequest_AccessKey:
-		whereCond = append(whereCond, accesskey.AccessKeyEQ(req.GetAccessKey()))
+	e, err := r.entClient.Client().AccessKey.Query().Where(accesskey.IDEQ(req.GetKeyId())).Only(ctx)
+	if err != nil {
+		return nil, keyRepoError(err)
 	}
+	return accessKeyDTO(e), nil
+}
+func validKeyRole(ctx context.Context, client *ent.Client, tenantID, roleID uint32) error {
+	if tenantID == 0 || roleID == 0 {
+		return adminV1.ErrorForbidden("an enabled role in the current tenant is required")
+	}
+	e, err := client.Role.Query().Where(role.IDEQ(roleID), role.TenantIDEQ(tenantID), role.TypeEQ(role.TypeTenant), role.StatusEQ(role.StatusOn)).Only(ctx)
+	if ent.IsNotFound(err) {
+		return adminV1.ErrorForbidden("an enabled role in the current tenant is required")
+	}
+	if err != nil {
+		return keyRepoError(err)
+	}
+	if e.Code == nil || *e.Code == "" {
+		return adminV1.ErrorForbidden("role has no authorization identity")
+	}
+	return nil
+}
+func (r *AccessKeyRepo) Create(ctx context.Context, data *accesskeyV1.AccessKey, tenantID, userID uint32, ak, sk string) (*accesskeyV1.AccessKey, error) {
+	ciphertext, err := r.cipher.Encrypt(sk)
+	if err != nil {
+		return nil, keyRepoError(err)
+	}
+	tx, err := r.entClient.Client().Tx(ctx)
+	if err != nil {
+		return nil, keyRepoError(err)
+	}
+	defer tx.Rollback()
+	if err = validKeyRole(ctx, tx.Client(), tenantID, data.GetRoleId()); err != nil {
+		return nil, err
+	}
+	b := tx.AccessKey.Create().SetName(data.GetName()).SetAccessKey(ak).SetSecretCiphertext(ciphertext).SetRoleID(data.GetRoleId()).SetTenantID(tenantID).SetCreatedBy(userID).SetStatus(accesskey.StatusOn).SetCreatedAt(time.Now())
+	if data.ExpiresAt != nil {
+		b.SetExpiresAt(data.ExpiresAt.AsTime())
+	}
+	e, err := b.Save(ctx)
+	if err != nil {
+		return nil, keyRepoError(err)
+	}
+	if err = tx.Commit(); err != nil {
+		return nil, keyRepoError(err)
+	}
+	return accessKeyDTO(e), nil
+}
+func (r *AccessKeyRepo) Update(ctx context.Context, req *accesskeyV1.UpdateAccessKeyRequest, tenantID, userID uint32) error {
+	tx, err := r.entClient.Client().Tx(ctx)
+	if err != nil {
+		return keyRepoError(err)
+	}
+	defer tx.Rollback()
+	_, err = tx.AccessKey.Query().Where(accesskey.IDEQ(req.GetKeyId()), accesskey.TenantIDEQ(tenantID)).Only(ctx)
+	if err != nil {
+		return keyRepoError(err)
+	}
+	b := tx.AccessKey.UpdateOneID(req.GetKeyId()).SetUpdatedBy(userID).SetUpdatedAt(time.Now())
+	for _, path := range req.UpdateMask.Paths {
+		switch path {
+		case "name":
+			b.SetName(req.Data.GetName())
+		case "role_id":
+			if err = validKeyRole(ctx, tx.Client(), tenantID, req.Data.GetRoleId()); err != nil {
+				return err
+			}
+			b.SetRoleID(req.Data.GetRoleId())
+		case "is_active":
+			if req.Data.GetIsActive() {
+				b.SetStatus(accesskey.StatusOn)
+			} else {
+				b.SetStatus(accesskey.StatusOff)
+			}
+		case "expires_at":
+			if req.Data.ExpiresAt == nil {
+				b.ClearExpiresAt()
+			} else {
+				b.SetExpiresAt(req.Data.ExpiresAt.AsTime())
+			}
+		}
+	}
+	if err = b.Exec(ctx); err != nil {
+		return keyRepoError(err)
+	}
+	if err = tx.Commit(); err != nil {
+		return keyRepoError(err)
+	}
+	return nil
+}
+func (r *AccessKeyRepo) Delete(ctx context.Context, id, tenantID uint32) error {
+	n, err := r.entClient.Client().AccessKey.Delete().Where(accesskey.IDEQ(id), accesskey.TenantIDEQ(tenantID)).Exec(ctx)
+	if err != nil {
+		return keyRepoError(err)
+	}
+	if n == 0 {
+		return kerrors.NotFound("ACCESS_KEY_NOT_FOUND", "access key not found")
+	}
+	return nil
+}
+func (r *AccessKeyRepo) ResetSecret(ctx context.Context, id, tenantID, userID uint32, sk string) (*accesskeyV1.AccessKey, error) {
+	ciphertext, err := r.cipher.Encrypt(sk)
+	if err != nil {
+		return nil, keyRepoError(err)
+	}
+	tx, err := r.entClient.Client().Tx(ctx)
+	if err != nil {
+		return nil, keyRepoError(err)
+	}
+	defer tx.Rollback()
+	_, err = tx.AccessKey.Query().Where(accesskey.IDEQ(id), accesskey.TenantIDEQ(tenantID)).Only(ctx)
+	if err != nil {
+		return nil, keyRepoError(err)
+	}
+	e, err := tx.AccessKey.UpdateOneID(id).SetSecretCiphertext(ciphertext).SetUpdatedBy(userID).SetUpdatedAt(time.Now()).Save(ctx)
+	if err != nil {
+		return nil, keyRepoError(err)
+	}
+	if err = tx.Commit(); err != nil {
+		return nil, keyRepoError(err)
+	}
+	return accessKeyDTO(e), nil
+}
 
-	dto, err := r.repository.Get(ctx, builder, req.GetViewMask(), whereCond...)
+// LookupSigningKey makes only the credential lookup and its bound-role lookup
+// without a tenant scope. This local context never escapes into the request and
+// never installs a platform/system viewer.
+func (r *AccessKeyRepo) LookupSigningKey(ctx context.Context, ak string) (*auth.SigningKey, error) {
+	lookupCtx := privacy.DecisionContext(ctx, privacy.Allow)
+	e, err := r.entClient.Client().AccessKey.Query().Where(accesskey.AccessKeyEQ(ak)).Only(lookupCtx)
+	if ent.IsNotFound(err) {
+		return nil, auth.ErrSigningKeyRejected
+	}
+	if err != nil {
+		return nil, fmt.Errorf("lookup signing key: %w", err)
+	}
+	if e.TenantID == nil || *e.TenantID == 0 || e.Status == nil || *e.Status != accesskey.StatusOn || (e.ExpiresAt != nil && !time.Now().Before(*e.ExpiresAt)) {
+		return nil, auth.ErrSigningKeyRejected
+	}
+	secret, err := r.cipher.Decrypt(e.SecretCiphertext)
 	if err != nil {
 		return nil, err
 	}
-
-	return dto, err
-}
-
-// Create 创建凭证。AK 与 secret 摘要由 service 层生成后传入
-// （proto DTO 不携带 secret 摘要，不能走通用 DTO 映射落库）。
-// 返回落库后的实体供回显（id/AK/时间戳）。
-func (r *AccessKeyRepo) Create(ctx context.Context, req *accesskeyV1.CreateAccessKeyRequest, data *accesskeyV1.AccessKey, accessKey, secretHash string) (*ent.AccessKey, error) {
-	builder := r.entClient.Client().AccessKey.Create().
-		SetNillableName(data.Name).
-		SetAccessKey(accessKey).
-		SetSecretHash(secretHash).
-		SetNillableExpiresAt(tsOf(data.ExpiresAt)).
-		SetCreatedAt(time.Now())
-
-	// 未指定状态时默认启用（与 ent schema 的 ON 默认一致）
-	if data.Status == nil || *data.Status == accesskeyV1.AccessKey_ON {
-		builder.SetStatus(accesskey.StatusOn)
-	} else {
-		builder.SetStatus(accesskey.StatusOff)
+	candidate := &auth.SigningKey{ID: e.ID, TenantID: *e.TenantID, Secret: secret}
+	bound, err := r.entClient.Client().Role.Query().Where(role.IDEQ(e.RoleID), role.TenantIDEQ(*e.TenantID), role.TypeEQ(role.TypeTenant)).Only(lookupCtx)
+	if ent.IsNotFound(err) {
+		return candidate, nil
 	}
-
-	if data.TenantId != nil {
-		builder.SetTenantID(*data.TenantId)
-	}
-
-	entity, err := builder.Save(ctx)
 	if err != nil {
-		r.log.Errorf(ctx, "insert access key failed: %s", err.Error())
-		return nil, adminV1.ErrorInternalServerError("insert access key failed")
+		return nil, fmt.Errorf("lookup signing role: %w", err)
 	}
-	return entity, nil
+	if bound.Code != nil {
+		candidate.Role = *bound.Code
+	}
+	candidate.RoleAllowed = bound.Code != nil && *bound.Code != "" && bound.Status != nil && *bound.Status == role.StatusOn
+	return candidate, nil
 }
-
-func (r *AccessKeyRepo) Update(ctx context.Context, req *accesskeyV1.UpdateAccessKeyRequest) error {
-	if req == nil || req.Data == nil {
-		return adminV1.ErrorBadRequest("invalid parameter")
-	}
-	if req.GetId() == 0 {
-		return adminV1.ErrorBadRequest("id is required")
-	}
-
-	builder := r.entClient.Client().AccessKey.Update()
-	err := r.repository.UpdateX(ctx, builder, req.Data, req.GetUpdateMask(),
-		func(dto *accesskeyV1.AccessKey) {
-			builder.
-				SetNillableName(dto.Name).
-				SetNillableUpdatedBy(dto.UpdatedBy).
-				SetUpdatedAt(time.Now())
-
-			if dto.Status != nil {
-				if stEnt := r.statusConverter.ToEntity(dto.Status); stEnt != nil {
-				builder.SetStatus(*stEnt)
-			}
-			}
-			if dto.ExpiresAt != nil {
-				builder.SetExpiresAt(dto.ExpiresAt.AsTime())
-			}
-		},
-		func(s *sql.Selector) {
-			s.Where(sql.EQ(accesskey.FieldID, req.GetId()))
-		},
-	)
-	if err != nil {
-		r.log.Errorf(ctx, "update access key failed: %s", err.Error())
-		return adminV1.ErrorInternalServerError("update access key failed")
-	}
-	return nil
-}
-
-func (r *AccessKeyRepo) Delete(ctx context.Context, req *accesskeyV1.DeleteAccessKeyRequest) error {
-	if req == nil {
-		return adminV1.ErrorBadRequest("invalid parameter")
-	}
-
-	_, err := r.entClient.Client().AccessKey.Delete().
-		Where(accesskey.IDEQ(req.GetId())).
-		Exec(ctx)
-	if err != nil {
-		r.log.Errorf(ctx, "delete access key failed: %s", err.Error())
-		return adminV1.ErrorInternalServerError("delete access key failed")
-	}
-	return nil
-}
-
-// UpdateSecretHash 重置密钥摘要（轮换）。旧的已签发机器令牌在自身过期前仍有效。
-func (r *AccessKeyRepo) UpdateSecretHash(ctx context.Context, id uint32, secretHash string) error {
-	err := r.entClient.Client().AccessKey.UpdateOneID(id).
-		SetSecretHash(secretHash).
-		SetUpdatedAt(time.Now()).
-		Exec(ctx)
-	if err != nil {
-		r.log.Errorf(ctx, "update access key secret hash failed: %s", err.Error())
-		return adminV1.ErrorInternalServerError("update secret failed")
-	}
-	return nil
-}
-
-// GetByAccessKeyBySystem 按访问键查询凭证（系统旁路视图，绕过租户 scope）——
-// 仅供令牌交换（免鉴权流程）使用：交换发生时请求尚无任何 viewer。
-func (r *AccessKeyRepo) GetByAccessKeyBySystem(ctx context.Context, accessKey string) (*ent.AccessKey, error) {
-	svCtx := appViewer.NewSystemViewerContext(ctx)
-	entity, err := r.entClient.Client().AccessKey.Query().
-		Where(accesskey.AccessKeyEQ(accessKey)).
-		Only(svCtx)
-	if err != nil {
-		return nil, err
-	}
-	return entity, nil
-}
-
-// TouchLastUsedBySystem 刷新最近使用时间（系统旁路；尽力而为，失败不影响交换）。
-func (r *AccessKeyRepo) TouchLastUsedBySystem(ctx context.Context, id uint32) {
-	svCtx := appViewer.NewSystemViewerContext(ctx)
-	err := r.entClient.Client().AccessKey.UpdateOneID(id).
-		SetLastUsedAt(time.Now()).
-		Exec(svCtx)
-	if err != nil {
-		r.log.Warnf(ctx, "touch access key [%d] last_used_at failed: %s", id, err.Error())
-	}
+func (r *AccessKeyRepo) MarkSigningKeyUsed(ctx context.Context, id uint32) error {
+	return r.entClient.Client().AccessKey.UpdateOneID(id).SetLastUsedAt(time.Now()).Exec(privacy.DecisionContext(ctx, privacy.Allow))
 }

@@ -398,37 +398,6 @@ func (a *Authenticator) CreateUserToken(
 	return
 }
 
-// CreateMachineToken 签发机器令牌（AK/SK 令牌交换专用）：
-// 仅签发 access token（短期、无 refresh、不进在线会话缓存）——
-// 机器令牌无对应用户行，走 CreateUserToken 的 userId 缓存键与 refresh 链路都不适用。
-func (a *Authenticator) CreateMachineToken(
-	ctx context.Context,
-	tokenPayload *authenticationV1.UserTokenPayload,
-) (accessToken string, expires time.Duration, err error) {
-	if tokenPayload == nil {
-		return "", 0, authenticationV1.ErrorBadRequest("token payload is nil")
-	}
-
-	var jti string
-	if jti = a.newJwtId(); jti == "" {
-		return "", 0, authenticationV1.ErrorServiceUnavailable("create jwt id failed")
-	}
-	tokenPayload.Jti = trans.Ptr(jti)
-
-	if accessToken, err = a.newAccessToken(0, tokenPayload); accessToken == "" || err != nil {
-		return "", 0, authenticationV1.ErrorServiceUnavailable("create access token failed")
-	}
-
-	// 访问令牌必须进 Redis 缓存：auth 中间件的校验器会核对缓存中的令牌，
-	// 未入缓存的令牌会被判为"已吊销/过期"。机器令牌无 refresh。
-	expires = a.GetAccessTokenExpires(0)
-	if err = a.userTokenCache.AddAccessToken(ctx, 0, tokenPayload.GetUserId(), jti, accessToken, expires); err != nil {
-		return "", 0, authenticationV1.ErrorServiceUnavailable("cache machine token failed")
-	}
-
-	return accessToken, expires, nil
-}
-
 // RevokeUserToken 撤销用户令牌
 func (a *Authenticator) RevokeUserToken(ctx context.Context, clientType authenticationV1.ClientType, userId uint32) error {
 	if a.userTokenCache == nil {

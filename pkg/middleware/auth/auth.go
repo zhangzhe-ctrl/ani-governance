@@ -2,12 +2,14 @@ package auth
 
 import (
 	"context"
+	"github.com/go-kratos/kratos/v2/errors"
+	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/transport"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/tx7do/go-crud/viewer"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"go.opentelemetry.io/otel/trace"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
@@ -44,26 +46,50 @@ func Server(opts ...Option) middleware.Middleware {
 				return nil, ErrWrongContext
 			}
 
-			token, err := authnEngine.AuthFromMD(ctx, authnEngine.BearerWord, authnEngine.ContextTypeKratosMetaData)
-			if err != nil {
-				return nil, ErrMissingBearerToken
-			}
-
-			if op.accessTokenChecker == nil {
-				op.log.Errorf(ctx, "auth middleware: access token checker is not configured")
-				return nil, ErrAccessTokenCheckerNotConfigured
-			}
-
 			var tokenPayload *authenticationV1.UserTokenPayload
-			var valid bool
-			if valid, tokenPayload = op.accessTokenChecker.IsValidAccessToken(ctx, token, false); !valid {
-				op.log.Errorf(ctx, "auth middleware: invalid access token")
-				return nil, ErrAccessTokenExpired
+			var principal *Principal
+			var err error
+			htr, isHTTP := tr.(*http.Transport)
+			if isHTTP && hasSigningHeaders(htr.Request()) {
+				if len(htr.Request().Header.Values("Authorization")) > 0 {
+					return nil, errors.BadRequest("MIXED_AUTHENTICATION", "choose one authentication method")
+				}
+				principal, err = verifySignature(ctx, htr.Request(), tr.Operation(), op.signingKeyStore, time.Now())
+				if principal != nil {
+					ctx = NewPrincipalContext(ctx, principal)
+				}
+				if err != nil {
+					return nil, err
+				}
+				tokenPayload = &authenticationV1.UserTokenPayload{TenantId: &principal.TenantID, Roles: principal.Roles}
+				ctx = NewPrincipalContext(ctx, principal)
+				ctx = NewContext(ctx, tokenPayload)
+			} else {
+				if isHTTP && len(htr.Request().Header.Values("Authorization")) != 1 {
+					return nil, ErrMissingBearerToken
+				}
+				token, tokenErr := authnEngine.AuthFromMD(ctx, authnEngine.BearerWord, authnEngine.ContextTypeKratosMetaData)
+				if tokenErr != nil {
+					return nil, ErrMissingBearerToken
+				}
+				if op.accessTokenChecker == nil {
+					return nil, ErrAccessTokenCheckerNotConfigured
+				}
+				valid, payload := op.accessTokenChecker.IsValidAccessToken(ctx, token, false)
+				if !valid || payload == nil || payload.GetUserId() == 0 {
+					return nil, ErrAccessTokenExpired
+				}
+				tokenPayload = payload
+				ctx = NewContext(ctx, tokenPayload)
+				principal, _ = PrincipalFromContext(ctx)
+				if isHTTP && tr.Operation() == VPCReadOperation {
+					if err := ValidateVPCReadRequest(htr.Request()); err != nil {
+						return nil, err
+					}
+				}
 			}
 
-			ctx = NewContext(ctx, tokenPayload)
-
-			if op.injectOperatorId {
+			if op.injectOperatorId && principal.Type == SubjectUser {
 				if err = setRequestOperationId(req, tokenPayload); err != nil {
 					op.log.Errorf(ctx, "auth middleware: invalid token payload in context [%s]", err.Error())
 					return nil, err
@@ -83,55 +109,55 @@ func Server(opts ...Option) middleware.Middleware {
 					traceID = spanContext.TraceID().String()
 				}
 
-			userViewer := appViewer.NewUserViewer(
-				uint64(tokenPayload.GetUserId()),
-				uint64(tokenPayload.GetTenantId()),
-				uint64(tokenPayload.GetOrgUnitId()),
-				traceID,
-				appViewer.BuildDataScopes(
-					tokenPayload.GetDataScopes(),
-					tokenPayload.GetDataScopeUnitIds(),
-					tokenPayload.GetDataScope(),
-				),
-			)
-			ctx = viewer.WithContext(ctx, userViewer)
-		}
+				userViewer := appViewer.NewUserViewer(
+					uint64(tokenPayload.GetUserId()),
+					uint64(tokenPayload.GetTenantId()),
+					uint64(tokenPayload.GetOrgUnitId()),
+					traceID,
+					appViewer.BuildDataScopes(
+						tokenPayload.GetDataScopes(),
+						tokenPayload.GetDataScopeUnitIds(),
+						tokenPayload.GetDataScope(),
+					),
+				)
+				ctx = viewer.WithContext(ctx, userViewer)
+			}
 
-		if op.injectMetadata {
-			ctx, err = metadata.NewContext(ctx,
-				&authenticationV1.OperatorMetadata{
-					UserId:           uint64(tokenPayload.GetUserId()),
-					TenantId:         uint64(tokenPayload.GetTenantId()),
-					OrgUnitId:        uint64(tokenPayload.GetOrgUnitId()),
-					DataScope:        tokenPayload.GetDataScope(),
-					DataScopes:       tokenPayload.GetDataScopes(),
-					DataScopeUnitIds: tokenPayload.GetDataScopeUnitIds(),
-				},
-			)
-		if err != nil {
-			op.log.Errorf(ctx, "auth middleware: invalid token payload in context [%s]", err.Error())
-			return nil, err
-		}
-	}
+			if op.injectMetadata && principal.Type == SubjectUser {
+				ctx, err = metadata.NewContext(ctx,
+					&authenticationV1.OperatorMetadata{
+						UserId:           uint64(tokenPayload.GetUserId()),
+						TenantId:         uint64(tokenPayload.GetTenantId()),
+						OrgUnitId:        uint64(tokenPayload.GetOrgUnitId()),
+						DataScope:        tokenPayload.GetDataScope(),
+						DataScopes:       tokenPayload.GetDataScopes(),
+						DataScopeUnitIds: tokenPayload.GetDataScopeUnitIds(),
+					},
+				)
+				if err != nil {
+					op.log.Errorf(ctx, "auth middleware: invalid token payload in context [%s]", err.Error())
+					return nil, err
+				}
+			}
 
-	// 租户级访问检查：仅对租户用户（tenantId>0）生效，平台管理员（tenantId=0）直接放行。
-	// 检查项：租户状态（OFF/EXPIRED/FREEZE 拒绝）、到期只读策略（仅放行 GET/HEAD/OPTIONS）、
-	// 套餐模块白名单（请求所属业务模块不在白名单则拒绝）。
-	if op.tenantAccessChecker != nil && tokenPayload.GetTenantId() > 0 {
-		var path, method string
-		if htr, ok := tr.(*http.Transport); ok {
-			path = htr.PathTemplate()
-			method = htr.Request().Method
-		} else {
-			path = tr.Operation()
-			method = ""
-		}
-		if err := op.tenantAccessChecker.CheckTenantAccess(ctx, tokenPayload.GetTenantId(), path, method); err != nil {
-			return nil, err
-		}
-	}
+			// 租户级访问检查：仅对租户用户（tenantId>0）生效，平台管理员（tenantId=0）直接放行。
+			// 检查项：租户状态（OFF/EXPIRED/FREEZE 拒绝）、到期只读策略（仅放行 GET/HEAD/OPTIONS）、
+			// 套餐模块白名单（请求所属业务模块不在白名单则拒绝）。
+			if op.tenantAccessChecker != nil && tokenPayload.GetTenantId() > 0 {
+				var path, method string
+				if htr, ok := tr.(*http.Transport); ok {
+					path = htr.PathTemplate()
+					method = htr.Request().Method
+				} else {
+					path = tr.Operation()
+					method = ""
+				}
+				if err := op.tenantAccessChecker.CheckTenantAccess(ctx, tokenPayload.GetTenantId(), path, method); err != nil {
+					return nil, err
+				}
+			}
 
-	if op.enableAuthz {
+			if op.enableAuthz {
 				ctx, err = processAuthz(ctx, tr, tokenPayload)
 				if err != nil {
 					op.log.Errorf(ctx, "auth middleware: invalid token payload in context [%s]", err.Error())

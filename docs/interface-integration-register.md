@@ -1,6 +1,6 @@
 # 功能对接与接口风格改动登记
 
-总体状态：**进行中，未结项**。最后更新：2026-09-21。
+总体状态：**进行中，未结项**。最后更新：2026-09-22。
 
 本文件覆盖所有后续对接功能。每次用户对接一个新功能时，AI 先排查真实调用链，将涉及的接口、请求和响应、鉴权条件、现有问题追加到对应功能组。先累计登记，等用户指定某个批次后，再统一修改该批接口的路径、字段和响应风格；不能因排查或登记就自动改接口风格。
 
@@ -15,10 +15,12 @@
 | 租户管理员管理 | 复用 TENANT-06、ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-01/12 | 复用用户和租户角色；用户明确不做主管理员移交 | 待指定 |
 | 套餐管理 | PLAN-01～PLAN-14；复用 TENANT-04/08 | 模块限制已有接线；数量配额只配置和统计 | 待指定 |
 | 平台运营账号管理 | 复用 ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-02/12；SESSION-01/02 | 支持多个平台账号；运营/只读角色模板待 API 接入后再加 | 待指定 |
+| API Key / AK-SK | AK-01～AK-07 | 签名、角色绑定、加密与可信审计已完成，真实 VPC 闭环 PASS | AKSK-VPC-20260922 已完成本批 |
+| VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
 
 ## 风格改动批次
 
-当前没有已指定的批次。后续由用户指定涉及的接口编号及目标风格，在此追加批次、实施状态与验证结果；单个批次完成不代表整体登记结束。
+本批 **AKSK-VPC-20260922** 已由用户明确指定，覆盖 AK-01～07、AK-ISSUE-01～05、NET-01/NET-ISSUE-01：实现、远端定向测试、空库真实链路及必要负向验收均 PASS。证据见 [运行记录](evidence/aksk-vpc-20260922/README.md)。单个批次完成不代表整体登记结束，其他功能风格仍待指定。
 
 ## 功能组：登录、登出及登录后初始化
 
@@ -224,3 +226,277 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 源码入口：[租户业务](../app/admin/service/internal/service/tenant_service.go)、[用户业务](../app/admin/service/internal/service/user_service.go)、[角色业务](../app/admin/service/internal/service/role_service.go)、[套餐业务](../app/admin/service/internal/service/plan_service.go)、[租户模块检查](../app/admin/service/internal/data/tenant_access_checker.go)、[用量与到期任务](../app/admin/service/internal/data/tenant_usage_repo.go)、[首次种子](../sql/bootstrap/001_initial.sql)、[HTTP 装配](../app/admin/service/internal/server/rest_server.go)。
 
 整合记录：已拉取 `11fa857`，源码改动无文本冲突；原未跟踪的 `docs/onboarding-invite-audit.md` 与远端新增版本内容一致，保留远端跟踪版本。同步修正文件管理移除后存储用量固定返回 0 的登记说明；整合后的相同定向回归与服务入口编译均 PASS（Go 1.26.7）；证据目录为 Ubuntu `/home/ubuntu/Workspace/.codex-runs/governance-account-main-20260921/`，包含 `regression.log` 和 `build.log`。未部署到 kind。
+
+## 功能组：API Key / AK-SK
+
+### 当前交付：AKSK-VPC-20260922（已实施及验收）
+
+以 [执行文档](aksk-vpc-execution-plan.md) 为最终合同。下面旧版本排查保留为历史，不再描述当前代码。
+
+| 编号 | 当前方法和路径 | 当前合同与验证 |
+| --- | --- | --- |
+| AK-01 | `GET /api/v1/auth/api-keys` | 用户 JWT；`items/total`，无 SK；真实 HTTP PASS |
+| AK-02 | `GET /api/v1/auth/api-keys/{key_id}` | 用户 JWT；snake_case Key 信息、数字 id/role_id；跨租户 404，PASS |
+| AK-03 | `POST /api/v1/auth/api-keys` | `{data:{name,role_id,expires_at?}}` → **201** `{data,secret_key}`；真实 HTTP PASS |
+| AK-04 | `PUT /api/v1/auth/api-keys/{key_id}` | 仅 name/role_id/is_active/expires_at；外层 update_mask，值为 FieldMask lowerCamel；清空到期、启停、改绑 PASS |
+| AK-05 | `DELETE /api/v1/auth/api-keys/{key_id}` | 200 `{status:"revoked"}`，后续签名 401，PASS |
+| AK-06 | `PUT /api/v1/auth/api-keys/{key_id}/secret` | `{}` → `{data,secret_key}`；AK 不变，旧 SK 立即拒绝、新 SK 成功，PASS |
+| AK-07 | 旧 `/admin/v1/access-keys/token` 已移除 | RPC/签发分支/白名单和 secret_hash 删除；旧路径 404，PASS |
+
+Key 绑定同租户启用 TENANT 角色，复用套餐和 Casbin。主密钥文件必填，SK 使用专用 AES-256-GCM 实例加密；仅创建/重置返回一次，列表、详情、日志和审计无 SK/完整签名。每请求查询 Key 和角色状态，主体为独立 `api_key`，不伪造 user_id。首次种子为租户管理员授予六条管理权限；目标专用套餐经 API 开放 DASHBOARD/OPM/SYSTEM/NETWORK。
+
+| 问题编号 | 本批结论 |
+| --- | --- |
+| AK-ISSUE-01 | 已解决：一个 Key 一个角色；无权限/跨租户/停用角色及改绑真实验收 PASS |
+| AK-ISSUE-02 | 已解决：移除机器 JWT，逐请求签名与当前状态校验；停用/删除/到期/重置即时生效 PASS；无存量迁移任务 |
+| AK-ISSUE-03 | 已解决：移除交换接口，审计使用已验证主体；SK/签名扫描及伪造身份回归 PASS |
+| AK-ISSUE-04 | 已解决本批首次部署：空库种子权限 + 显式专用套餐与角色配置；租户管理员创建 Key PASS |
+| AK-ISSUE-05 | 已解决 NET-01：共用 Principal 与下游 actor；Key 对用户专用/Key 管理接口仍 403，PASS |
+
+证据及复现命令见 [本批记录](evidence/aksk-vpc-20260922/README.md)。本次仅持久化 VPC 查询，不证明网络数据面，也不开放其他业务 API。
+
+### 实施前历史排查（以下记录截至源码 5a2a2e8，已由上述交付替代）
+
+排查日期：2026-09-22，源码基线 `5a2a2e8`。本轮只排查与登记，没有修改实现、种子或运行环境。结论：**凭证管理、AK/SK 换 JWT 已有实现，但默认初始化后尚不能完成受控业务 API 调用，不能算完整可用。**
+
+### 已有能力与边界
+
+- 支持创建多个凭证、分页列表、详情、修改名称/启停/有效期、删除、重置 SK；创建和重置响应各返回一次明文 SK，列表/详情不返回 SK。凭证表只存 SK 的 SHA-256 摘要；审计路径另有泄露问题，见 AK-ISSUE-03。
+- 凭证归属当前操作者的租户，服务端覆盖请求中的 `tenantId`。平台账号创建的是租户 `0` 的凭证，不能通过传入其他 `tenantId` 代建租户凭证。现有租户过滤和写入守卫适用于凭证表；本轮未做完整跨租户 HTTP 验收。
+- AK/SK 先换短期 JWT，再携带 `Authorization: Bearer <accessToken>` 调 API。现有链路没有直接传 `X-API-Key`、把 SK 当 Bearer、或逐请求 HMAC 签名的用法。
+- 换令牌时校验摘要、凭证状态和有效期，包含 IP+AK 失败限流；凭证 `expiresAt` 留空表示长期有效。`lastUsedAt` 只表示最近换令牌时间，不是最近业务调用时间。
+- 机器令牌无 refresh token、不走用户登录 Cookie。到期重新提交 AK/SK；JWT 有效期共用 `authn.jwt.access_token_expires`，配置样例为 `5400s`，未配置时回退 `900s`，以响应 `expiresIn` 为准。JWT 有效期没有截断到凭证到期时间。
+
+### 接口与当前报文
+
+除 AK-07 外均需已登录管理员的 Bearer 和相应 API 权限；租户上下文还受套餐模块限制。API Key 管理当前归类 `SYSTEM`，默认套餐只有 `DASHBOARD`、`OPM`，默认租户管理员也未授予这些管理 API；平台管理员已有管理授权。
+
+| 编号 | 方法与路径 | 请求 / 响应与用途 |
+| --- | --- | --- |
+| AK-01 | `GET /admin/v1/access-keys` | `pagination.PagingRequest`；返回 `{items,total}`，不含 SK |
+| AK-02 | `GET /admin/v1/access-keys/{id}` | 返回凭证详情，不含 SK |
+| AK-03 | `POST /admin/v1/access-keys` | `{data:{name,status,expiresAt}}`；返回 `{data:{id,accessKey,...},secret}`，AK/SK 由服务端生成 |
+| AK-04 | `PUT /admin/v1/access-keys/{id}` | `{data:{...},updateMask:"status"}` 等；可改名称、状态、有效期，不能改 AK、摘要或租户；返回空对象 |
+| AK-05 | `DELETE /admin/v1/access-keys/{id}` | 删除凭证；返回空对象 |
+| AK-06 | `PUT /admin/v1/access-keys/{id}/secret` | 请求体 `{}`；返回 `{data,secret}`，旧 SK 不能再换新令牌 |
+| AK-07 | `POST /admin/v1/access-keys/token` | `{accessKey,secret}`；无需登录 Bearer；返回 `{accessToken,expiresIn,tokenType}` |
+
+这些接口沿用 camelCase，不能直接套用 AUTH-01/02 的 `access_token` 响应解析。没有独立 Count HTTP 路由。
+
+### 当前调用方式及卡点
+
+以下展示现有协议，第三步仍受下述授权缺口阻断；不是已完成的业务接入验收。真实 AK/SK 只应经 HTTPS 提交并保存在调用方服务端，不能放进浏览器前端。
+
+1. 使用有管理权限的账号登录，再创建凭证：
+
+   ```http
+   POST /admin/v1/access-keys
+   Authorization: Bearer <管理员访问令牌>
+   Content-Type: application/json
+
+   {"data":{"name":"业务脚本","status":"ON"}}
+   ```
+
+   保存响应 `data.id`、`data.accessKey` 和 `secret`。需要固定到期时间时，增加 RFC3339 格式的 `expiresAt`。不要依赖重新查询取回 SK，丢失后只能重置。
+
+2. 调用方用 AK/SK 换令牌，不需要先登录：
+
+   ```http
+   POST /admin/v1/access-keys/token
+   Content-Type: application/json
+
+   {"accessKey":"ak-<创建时返回的值>","secret":"sk-<创建或重置时返回的值>"}
+   ```
+
+   响应字段为 `accessToken`、`expiresIn`（秒）、`tokenType`（`bearer`）。缓存令牌，在到期前后按需重新交换，不必每次业务请求都提交 SK。
+
+3. 业务请求带 `Authorization: Bearer <accessToken>`。当前令牌固定 `roles=["machine"]`、`userId=0`；种子没有这个角色的业务授权，也不会继承创建者权限，因此默认 Casbin 下受保护 API 会被拒绝。仅拿到 JWT 不代表已能调用业务接口。
+
+停用示例：`PUT /admin/v1/access-keys/{id}`，请求体 `{"data":{"status":"OFF"},"updateMask":"status"}`。它目前只阻止后续换令牌，**不会立即吊销已经发出的 JWT**；删除和重置同样存在这个限制。
+
+### 已发现的缺口
+
+| 编号 | 已核对的事实及影响 | 状态 / 最小处理方向 |
+| --- | --- | --- |
+| AK-ISSUE-01 | Key 没有角色/权限绑定字段；所有机器 JWT 固定 `machine` 角色，种子没有相应策略；不继承创建者权限。手动给同一租户的 `machine` 角色授权会使该租户所有 Key 共用权限，仍无法分别控制 | 未修复。最小方向是复用现有租户角色和 API 权限，为 Key 明确绑定授权，不另建 IAM |
+| AK-ISSUE-02 | 停用、删除、重置、凭证到期只阻止新交换；后续 JWT 校验只验签/有效期/Redis/黑名单，不复查对应 Key。令牌使用 `userId=0` 入 Redis，无按 Key 的吊销索引，也不登记普通在线会话 | 未修复。不能套用本轮已完成的用户账号会话吊销；需要按 Key 使旧令牌失效，或在认证时复查 Key 当前状态 |
+| AK-ISSUE-03 | IssueToken 经过通用 API 审计；既没有归入跳过请求体的登录操作，也没有邀请接口的脱敏分支，提交的 SK 会进入审计请求体 | 未修复。换令牌入口须避免记录 `secret`；凭证表存摘要并不能解决这个泄露路径 |
+| AK-ISSUE-04 | 默认租户管理员没有 Key 管理 API 授权，默认套餐也没有其 `SYSTEM` 模块；平台创建的 Key 固定归属租户 0 | 未修复。租户自助使用前需明确并显式补齐所需授权/套餐，不通过启动重刷种子或清空 API 表处理 |
+| AK-ISSUE-05 | 机器令牌 `userId=0`，部分业务入口要求真实用户；例如 `NetworkService.GetVPC` 明确拒绝零用户 ID，补角色授权后仍然不能调用 | 未修复。按实际要开放的业务 API 适配机器身份并验收，不能声称所有接口天然支持 API Key |
+
+如后续要求补齐最小闭环，范围限于：选定实际要调用的 API、复用角色授权、处理 Key 失效与审计脱敏，并显式配置所需初始化授权。不自动引入跨服务配额、独立认证服务或全平台机器身份框架。
+
+### 请求签名模式的改造评估（待决定，未实施）
+
+用户询问改成“客户端用 SK 为每次请求签名，直接调用业务 API”的成本。本项只是方案评估，尚未实施。此前覆盖通用 HTTP JSON 签名、迁移和较完整验证的初估为 3～5 个开发人天；后续用户要求先跑通主流程，收窄后的第一批范围和估算见文末，不以此前清单作为全部首批要求。
+
+- 认证入口：现有 `auth.Server` 固定提取 Bearer；需要识别签名凭证、验签后建立可信机器身份，再复用租户/套餐、Casbin 与 Ent 上下文。要明确签名失败不回退到另一种认证方式，避免混用凭证绕过校验。
+- 请求协议：确定方法、实际路径、查询参数、签名头及原始请求体摘要的规范化规则，检查时间窗并明确重放处理；客户端与服务端必须对同一字节内容计算签名。AWS 的规范化规则可作参考，但采用相似方式不等于兼容其 SDK，参见 [SigV4 请求签名步骤](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_sigv-create-signed-request.html)。
+- 密钥与结构：当前代码只存 `SHA-256(SK)`，无法直接用于验证以原 SK 为密钥的常规 HMAC 签名。用户随后明确没有旧 Key、没有存量用户，因此直接改为加密 SK 并移除未使用的摘要/交换代码，不做旧凭证转换或兼容。主密钥由部署环境单独保管，结构由 Atlas 显式管理。现有加密工具允许缺密钥时明文直通，SK 场景必须拒绝这种降级。
+- 授权和审计：仍需补齐 AK-ISSUE-01/04/05；改用签名不会自动给机器身份授权。审计当前从 Bearer 解析身份，需改为可靠记录已认证的 Key 与租户，避免记录密钥或可重放的完整认证材料。
+- 代码替换：移除换 JWT 入口、签发分支和对应免鉴权登记；普通用户登录 JWT 继续使用。按无存量前提，不增加历史机器 JWT 回收或切换流程。每次验签读取 Key 当前状态时，停用/删除/重置可在后续请求生效，但不能撤回已通过认证并开始执行的请求。
+- 验收：除成功调用外，至少覆盖请求篡改、时间边界、禁用/过期 Key、跨租户及越权拒绝、密钥不进入日志、首次初始化，以及普通登录 JWT 回归。只写出 HMAC 计算函数不算完成。
+
+### 本轮验证
+
+源码链路已核对：HTTP 路由 → Service → Repo/Schema → 机器 JWT 签发及 Redis 校验 → Casbin 策略来源与租户套餐 → API 审计。
+
+- Ubuntu 独立源码快照、Go 1.26.7、SQLite + miniredis：`go test ./app/admin/service/internal/data ./app/admin/service/internal/service -run '^TestAccessKey' -count=1 -v`，既有 AccessKey 定向用例全部 PASS。
+- 仅在远端快照增加诊断探针：分别停用、删除、重置和把有效期改至过去后，旧 AK/SK 已不能换新令牌，但原 JWT 仍能通过真实签名与 Redis 缓存校验；四种情形均复现。到期情形通过修改有效期模拟，不是墙钟等待到期。
+- 使用生成的 AccessKey HTTP 路由、真实 IssueToken Service 和通用审计中间件，在进程内提交测试 AK/SK，确认明文 SK 到达 API 审计写入回调；没有使用真实凭证，也没有连接用户审计数据库。生产装配将该回调接到 ApiAuditLogRepo，实际已部署环境是否存有历史泄露记录未排查。
+- 诊断用例的 PASS 表示成功复现现状，**不是缺口已修复**；探针仅保留在远端证据目录，未加入仓库回归测试。证据：`/home/ubuntu/Workspace/.codex-runs/governance-access-key-audit-20260922/access-key-audit.log`；探针位于其 `src/app/admin/service/internal/service/access_key_audit_probe_test.go`。
+- 本轮仓库只修改本登记文件；没有部署或修改运行数据库。kind、真实 PostgreSQL/Redis 与业务 API 全链路为 `not_verified`。
+
+源码入口：[HTTP 路由](../api/protos/admin/service/v1/i_access_key.proto)、[报文](../api/protos/access_key/service/v1/access_key.proto)、[业务实现](../app/admin/service/internal/service/access_key_service.go)、[仓储](../app/admin/service/internal/data/access_key_repo.go)、[表定义](../app/admin/service/internal/data/ent/schema/access_key.go)、[机器令牌签发与校验](../app/admin/service/internal/data/authenticator.go)、[角色策略来源](../app/admin/service/internal/data/authorizer_provider.go)、[API 审计](../pkg/middleware/logging/api_audit_log.go)、[首次初始化 SQL](../sql/bootstrap/001_initial.sql)、[VPC 入口身份检查](../app/admin/service/internal/service/network_service.go)。
+
+## 功能组：VPC 详情查询的机器调用
+
+### 当前交付：NET-01 / NET-ISSUE-01
+
+`GET /api/v1/networks/vpcs/{vpc_id}` 已接受用户 JWT 或三个签名头之一整组，禁止混用；只接受规范 VPC 路径和空 query/body。可信主体经公共认证层进入租户/套餐/Casbin，数值租户经持久化 resource_tenant_id 映射，下游统一生成 `governance:user:<id>` 或 `governance:access-key:<id>`。
+
+Network 在 66f787b 上仅整合 9e56e1c 必要 vpc-read 改动，保留主线 BaseConnectivity 映射和租户过滤，加入 Key actor；没有整支合并平台工作或改名。真实 NodePort → Governance → mTLS → Network → PostgreSQL 已 PASS；跨租户/不存在同样 404（仅 request_id 不同），伪造公网身份无效，缺/错误证书与 RPC/header 租户不一致拒绝，用户 JWT 查询与登出回归 PASS。NET-ISSUE-01 本批已解决，full 模式及其他 RPC 仍不在开放范围。
+
+本次运行证据见 [本批记录](evidence/aksk-vpc-20260922/README.md)，以下保留实施前的分支核对和范围形成记录。
+
+### 实施前历史评估
+
+2026-09-22 只读评估。Governance 基线 `5a2a2e8`；本地 Network 源码 `66f787bd30134141726c596612501a83cf75bdb7`，与 Governance `go.mod` 固定的 API 模块版本一致。这里核对的是源码，不能据此推断实际部署镜像与实验接收端相同；本轮未部署、未运行跨服务验收，也未修改 Network 仓库。
+
+| 编号 | 方法与路径 | 请求 / 响应 | 当前条件 |
+| --- | --- | --- | --- |
+| NET-01 | `GET /api/v1/networks/vpcs/{vpc_id}` | 路径 ID 为 `vpc_` + 32 位小写十六进制；无 body、拒绝查询参数；返回 `{vpc:{...}}` | 目前需要用户 JWT、非零租户与用户 ID、角色的 `network:vpc:get` API 授权、套餐 `NETWORK` 模块；不存在或跨租户资源按 404 处理 |
+
+### 认证改造影响
+
+无需替换现有 Casbin、套餐或租户隔离规则。建议由 Governance 入口校验 AK/SK 签名并建立可信的 Key ID、租户、角色上下文，再复用既有 API 权限和套餐检查。客户端仍调用 NET-01，不直接访问 Network 内部 gRPC；原始 SK 不传下游。
+
+Governance 的两处适配必须修改：[NetworkService.GetVPC](../app/admin/service/internal/service/network_service.go) 拒绝 `userId=0`；[NetworkClient.GetVPC](../app/admin/service/internal/data/network_client.go) 也拒绝零用户 ID，并固定生成 `governance:user:<uid>`。需接受经过认证、授权的 Key 身份并保留可区分的审计标识（例如 `governance:access-key:<id>`，仅为建议，尚未冻结合同），不能简单删除守卫或伪造用户 ID。角色绑定缺口仍按 AK-ISSUE-01 处理。
+
+**接收端的分支整合差异（NET-ISSUE-01，历史核对后纠正）**：此前仅检查 Network 当前 main `66f787b`，把缺失描述成“尚未实现、需要新补接收层”，不够准确。mTLS 没有被删除：[提交 `9e56e1c`](https://github.com/zhangzhe-ctrl/ani-network-service/commit/9e56e1c675bb2102c8e84adc5a8dfd2962823ddd) 已实现 Governance VPC 只读接收，保留在 `codex/install-ceph` 及对应远端跟踪分支；后续 `f198a1e` 没有删除它，当前 main 不包含该提交。源码包括 `internal/server/governance.go`、`cmd/ani-network-service/vpc_read.go`，需显式启用 `ANI_NETWORK_MODE=vpc-read`；full 模式仍保留历史认证延期边界。Governance 自己的 Network mTLS 客户端和共享证书配置也仍在。
+
+该分支已有的 [GovernanceResolver/Unary](https://github.com/zhangzhe-ctrl/ani-network-service/blob/9e56e1c675bb2102c8e84adc5a8dfd2962823ddd/internal/server/governance.go) 校验证书链及精确 SAN `ani-governance`，随后信任它声明的单值 `x-ani-tenant-id`、`x-ani-actor`、`x-ani-request-id`，仅允许 GetVPC；校验 RPC 请求 `tenant_id` 与可信 header 一致。**Network 不重新查询用户归属或角色权限**，这些由 Governance 保证；一致性检查避免请求体的重复租户字段绕过 header 范围，并非另一套租户授权。当前 actor 格式只接受 `governance:user:<非零ID>`，接 API Key 时需扩展为可区分的机器 actor，同时复用原证书和租户信任链。
+
+Network 的 [GetVPC SQL](../../ani-network-service/internal/data/queries/vpcs.sql) 已按 `tenant_id + vpc_id` 过滤，同租户关联也有条件；请求签名不要求改 VPC 查询或领域模型。后续应先整合已有接收实现，再适配 Key 身份，不重新建设 mTLS 或引入 IAM。Governance 的 `go.mod` 只固定消费的 API 模块，不决定 Network 实际运行的镜像/源码版本；2026-09-21 `a936623` 将模块 pin 更新为 main `66f787b`，没有删除独立分支的服务端代码。
+
+历史 [2026-09-19 执行记录](https://github.com/zhangzhe-ctrl/ani-network-service/blob/9e56e1c675bb2102c8e84adc5a8dfd2962823ddd/docs/execution/records/governance-vpc-read-20260919.md) 保存 VPC 只读链路与 mTLS/隔离验收，不能把这些说成从未实现；它也不证明当前部署或新增 API Key 链路已通过。当前部署版本本轮未检查；分支整合、机器 actor、签名调用和原 JWT 回归仍为 `not_verified`。原“不含下游合同调整”的 3～5 人天估算不包含分支整合与两仓联调。
+
+### 第一批收窄：先跑通签名查询 VPC
+
+用户要求先跑通主流程，后续按实际问题迭代。第一批只验收“管理员配置租户 Key → 客户端签名 → Governance 验签和既有权限检查 → mTLS 调 Network GetVPC → 返回本租户 VPC”；不把所有业务 API、通用云厂商兼容列为前置。用户已明确没有旧 Key、没有存量用户，按首次部署实施。沿用此前 2～3 个开发人天的粗估，不是交付承诺。执行依据见 [AK/SK 执行文档](aksk-vpc-execution-plan.md)，尚未改实现。
+
+- Governance：复用 AK 管理，增加加密 SK 和一个同租户角色绑定；入口增加签名认证，首批仅开放 NET-01，其他业务接口按后续批次接入。租户状态、套餐和 Casbin 继续复用。每次查 Key 当前状态即可，先不做权限/密钥缓存。
+- Network：整合现有 `9e56e1c` 的 vpc-read 入口，扩展其 actor 校验支持 Key；不重写 mTLS、可信租户 header 或 VPC 查询。`git merge-tree --write-tree main 9e56e1c` 只预览、未实际合并：唯一文本冲突在 `internal/data/postgres.go`，一侧增加 BaseConnectivity 返回映射，另一侧增加连接失败错误分类，需同时保留。仍需实际编译和回归，合并预览不算验证通过。
+- 数据与调用：Atlas 显式建表、首次种子授权；给目标租户配置 VPC 只读权限、SYSTEM/NETWORK 套餐；提供 Python 签名示例。直接移除未使用的交换代码，保留普通用户 JWT；不做旧 Key 迁移、存量增量授权补丁、停机切换或恢复演练。
+- 必要验证保留：真实查询成功，错误/过时签名、无权限、跨租户、停用 Key 拒绝，以及原用户 JWT 查询仍成功；SK 加密存储且不进入日志。首批 GET 只读接口允许时间窗内重复查询，不宣称一次性请求或通用防重放；写接口接入时再确定相应重放/幂等语义。
+- 后续再做：其他业务 API 和写请求、全功能 SDK、无中断密钥轮换、复杂权限组合、自助权限管理界面、性能优化和全面故障恢复验收。不会因本次收窄关闭 AK-* / NET-* 的未完成登记。
+
+### API Key 风格对照与声明预览（历史方向，现已按执行文档实施）
+
+2026-09-22：用户明确将**共用认证层**纳入范围，参照 [ANI OpenAPI](../../ANI/repo/api/openapi/v1.yaml) 查看预览后确认方向，并要求编写含 Python 示例的执行文档。用户进一步明确**没有旧 Key、没有存量用户**。后续以 [执行文档](aksk-vpc-execution-plan.md) 的接口、签名规范、首次部署与验收步骤为准；本节保留原样式对照；实现和真实运行结果以上述当前交付及执行文档为准。
+
+参照文件在 `servers.url` 中已有 `/api/v1`，Key 路由写作 `/auth/api-keys`，完整路径为 `/api/v1/auth/api-keys`。其 `ApiKeyAuth` 使用单个 `X-API-Key` 长期凭证；创建字段为 `name/scopes/user_id/rate_limit_rpm/expires_at`，创建响应为 `key_id/key_value/key_prefix`，列表为 `items/total`。**这是静态 API Key 声明，不是 AK/SK 请求签名协议。**
+
+建议沿用路径和 snake_case 外观，具体差异如下：
+
+| 项目 | 本批建议 |
+| --- | --- |
+| 路径 | `/api/v1/auth/api-keys`，明细及操作使用 `/{key_id}` |
+| 字段 | `access_key`、`secret_key`、`role_id`、`expires_at`、`is_active` 等使用 snake_case；API Key ID 继续使用当前数字类型 |
+| 创建请求 | 保留本仓 `{data:{...}}` 约定；`name/role_id` 必填，`expires_at` 可选，默认启用 |
+| 授权 | 一个同租户 `role_id` 复用现有角色及 API 权限；不复制旧 `scopes` 体系。可绑定角色需经过授权校验，不因为知道角色 ID 就能任意绑定 |
+| 身份 | 租户和创建者来自可信认证上下文；不开放旧 `user_id` 代建参数 |
+| 限流 | 首批不暴露 `rate_limit_rpm`，避免声明尚未实现的单 Key 限流能力 |
+| 列表 | 沿用 `items/total`；保留现有分页机制，页参数暂不在本批统一改名。旧 YAML 的 Key 列表本身没有 cursor 参数，不因此新增游标分页 |
+| 秘密 | 旧 `key_value` 拆成公开 AK 与一次返回的 SK；SK 仅创建/重置响应返回，后续读取不返回，服务端加密存储以支持 HMAC 验证 |
+| 更新 | 保留 PUT 和 `update_mask` 部分更新语义，`is_active` 映射现有 ON/OFF；实现时须核对 FieldMask 的 JSON 编解码，不能仅改字段名就声称掩码路径兼容 |
+
+以下均为**目标路由**，现有 AK-01～07 的当前路由仍以原登记为准：
+
+| 现有编号 | 建议目标 | 行为与响应 |
+| --- | --- | --- |
+| AK-01 | `GET /api/v1/auth/api-keys` | 列表，200，`{items,total}`，不含 SK |
+| AK-02 | `GET /api/v1/auth/api-keys/{key_id}` | 详情，200，Key 信息，不含 SK |
+| AK-03 | `POST /api/v1/auth/api-keys` | 创建，建议 201，`{data,secret_key}` |
+| AK-04 | `PUT /api/v1/auth/api-keys/{key_id}` | 修改名称、绑定角色、有效期或启停状态；`{data,update_mask}`，200 |
+| AK-05 | `DELETE /api/v1/auth/api-keys/{key_id}` | 吊销并删除，建议 200，`{status:"revoked"}` |
+| AK-06 | `PUT /api/v1/auth/api-keys/{key_id}/secret` | 重置 SK，200，`{data,secret_key}`，旧 SK 后续请求失效 |
+| AK-07 | 不提供新的换 JWT 路由 | 签名直接调用业务 API；删除未使用的交换路由与签发代码，不做存量兼容 |
+
+Key 管理路由使用用户 Bearer JWT 并要求对应管理权限；不因为新增签名认证就允许 Key 管理其他 Key。首次种子必须引用最终路径、补齐租户管理员授权，空库通过 admin init 显式初始化；不写存量路径迁移脚本。
+
+创建预览（角色 12、ID 42 均为示例，不是初始化约定）：
+
+```http
+POST /api/v1/auth/api-keys
+Authorization: Bearer <用户 JWT>
+Content-Type: application/json
+
+{"data":{"name":"vpc-reader","role_id":12,"expires_at":"2026-12-31T23:59:59Z"}}
+```
+
+```json
+{
+  "data": {
+    "id": 42,
+    "name": "vpc-reader",
+    "access_key": "ak-...",
+    "role_id": 12,
+    "is_active": true,
+    "expires_at": "2026-12-31T23:59:59Z"
+  },
+  "secret_key": "sk-..."
+}
+```
+
+业务调用外观如下；头名和准确签名输入已写入执行文档。客户端以 SK 计算 HMAC-SHA256 签名，业务请求不发送 SK，也不预先换 JWT。首批仍只有 NET-01 签名闭环，不扩大为全部业务 API。
+
+```http
+GET /api/v1/networks/vpcs/vpc_0123456789abcdef0123456789abcdef
+X-Access-Key: ak-...
+X-Timestamp: <当前 Unix 秒时间戳>
+X-Signature: <HMAC-SHA256 签名的十六进制值>
+```
+
+签名绑定方法、实际路径、查询、AK、时间戳和原始请求体摘要；首批只读 VPC 的 query/body 为空，七行字节规则及 300 秒时间窗详见执行文档第 3 节，Python 示例见第 7 节，现已落为可运行文件并完成真实联调。
+
+OpenAPI 认证声明示意（片段，省略消息和响应定义）：
+
+```yaml
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    AccessKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Access-Key
+      description: 公开 AK，不是 SK
+    SignatureAuth:
+      type: apiKey
+      in: header
+      name: X-Signature
+      description: 使用 SK 对当前请求计算的 HMAC-SHA256 签名
+    SignatureTime:
+      type: apiKey
+      in: header
+      name: X-Timestamp
+      description: 签名时间，Unix 秒
+
+# NET-01 的 operation 级配置；不作为所有接口的全局默认值
+security:
+  - BearerAuth: []
+  - AccessKeyAuth: []
+    SignatureAuth: []
+    SignatureTime: []
+x-ani-authz:
+  principal_kinds: [user, api_key]
+```
+
+按 [OpenAPI Security Requirement](https://spec.openapis.org/oas/v3.1.0.html#security-requirement-object) 语义，数组中的两项为二选一；同一项中的 AK、签名和时间戳要求同时提供。`type: apiKey` 在这里描述头部传输位置，不代表服务端直接信任 AK；扩展字段只是文档说明，实际支持范围仍需代码执行。OpenAPI 声明也不会自动为 Swagger UI 或生成客户端计算 HMAC。
+
+共用认证层的目标：用户 JWT 和 Key 签名各自验证后，统一产出调用主体类型、主体 ID、租户和角色，再走现有套餐/Casbin；业务入口从同一可信上下文取身份，下游调用也共用 actor/header 生成逻辑。首批改好 VPC 入口及通用接入示例，后续新接口只声明支持的主体并登记权限，不逐个重写验签；既有硬编码非零用户 ID 的入口仍需按实际接入修正。用户专用功能继续只接受用户身份。
+
+验证范围：只读对照两份源声明并登记草案；未生成、未构建、未部署，签名协议及新版路由均 `not_verified`。

@@ -1,3 +1,6 @@
+# Required for AK/SK: ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE=/run/secrets/access-key-encryption-key
+# File: 32 random bytes encoded as exactly 64 hex characters, optional single LF.
+# All replicas use the same independently backed-up Secret; no plaintext fallback.
 authn:
   type: "jwt" # jwt, oidc, preshared_key
 

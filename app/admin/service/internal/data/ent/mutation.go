@@ -123,30 +123,32 @@ const (
 // AccessKeyMutation represents an operation that mutates the AccessKey nodes in the graph.
 type AccessKeyMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uint32
-	created_at    *time.Time
-	updated_at    *time.Time
-	deleted_at    *time.Time
-	created_by    *uint32
-	addcreated_by *int32
-	updated_by    *uint32
-	addupdated_by *int32
-	deleted_by    *uint32
-	adddeleted_by *int32
-	status        *accesskey.Status
-	tenant_id     *uint32
-	addtenant_id  *int32
-	name          *string
-	access_key    *string
-	secret_hash   *string
-	expires_at    *time.Time
-	last_used_at  *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*AccessKey, error)
-	predicates    []predicate.AccessKey
+	op                Op
+	typ               string
+	id                *uint32
+	created_at        *time.Time
+	updated_at        *time.Time
+	deleted_at        *time.Time
+	created_by        *uint32
+	addcreated_by     *int32
+	updated_by        *uint32
+	addupdated_by     *int32
+	deleted_by        *uint32
+	adddeleted_by     *int32
+	status            *accesskey.Status
+	tenant_id         *uint32
+	addtenant_id      *int32
+	name              *string
+	access_key        *string
+	secret_ciphertext *string
+	role_id           *uint32
+	addrole_id        *int32
+	expires_at        *time.Time
+	last_used_at      *time.Time
+	clearedFields     map[string]struct{}
+	done              bool
+	oldValue          func(context.Context) (*AccessKey, error)
+	predicates        []predicate.AccessKey
 }
 
 var _ ent.Mutation = (*AccessKeyMutation)(nil)
@@ -696,24 +698,10 @@ func (m *AccessKeyMutation) AddedTenantID() (r int32, exists bool) {
 	return *v, true
 }
 
-// ClearTenantID clears the value of the "tenant_id" field.
-func (m *AccessKeyMutation) ClearTenantID() {
-	m.tenant_id = nil
-	m.addtenant_id = nil
-	m.clearedFields[accesskey.FieldTenantID] = struct{}{}
-}
-
-// TenantIDCleared returns if the "tenant_id" field was cleared in this mutation.
-func (m *AccessKeyMutation) TenantIDCleared() bool {
-	_, ok := m.clearedFields[accesskey.FieldTenantID]
-	return ok
-}
-
 // ResetTenantID resets all changes to the "tenant_id" field.
 func (m *AccessKeyMutation) ResetTenantID() {
 	m.tenant_id = nil
 	m.addtenant_id = nil
-	delete(m.clearedFields, accesskey.FieldTenantID)
 }
 
 // SetName sets the "name" field.
@@ -782,7 +770,7 @@ func (m *AccessKeyMutation) AccessKey() (r string, exists bool) {
 // OldAccessKey returns the old "access_key" field's value of the AccessKey entity.
 // If the AccessKey object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AccessKeyMutation) OldAccessKey(ctx context.Context) (v *string, err error) {
+func (m *AccessKeyMutation) OldAccessKey(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAccessKey is only allowed on UpdateOne operations")
 	}
@@ -796,71 +784,101 @@ func (m *AccessKeyMutation) OldAccessKey(ctx context.Context) (v *string, err er
 	return oldValue.AccessKey, nil
 }
 
-// ClearAccessKey clears the value of the "access_key" field.
-func (m *AccessKeyMutation) ClearAccessKey() {
-	m.access_key = nil
-	m.clearedFields[accesskey.FieldAccessKey] = struct{}{}
-}
-
-// AccessKeyCleared returns if the "access_key" field was cleared in this mutation.
-func (m *AccessKeyMutation) AccessKeyCleared() bool {
-	_, ok := m.clearedFields[accesskey.FieldAccessKey]
-	return ok
-}
-
 // ResetAccessKey resets all changes to the "access_key" field.
 func (m *AccessKeyMutation) ResetAccessKey() {
 	m.access_key = nil
-	delete(m.clearedFields, accesskey.FieldAccessKey)
 }
 
-// SetSecretHash sets the "secret_hash" field.
-func (m *AccessKeyMutation) SetSecretHash(s string) {
-	m.secret_hash = &s
+// SetSecretCiphertext sets the "secret_ciphertext" field.
+func (m *AccessKeyMutation) SetSecretCiphertext(s string) {
+	m.secret_ciphertext = &s
 }
 
-// SecretHash returns the value of the "secret_hash" field in the mutation.
-func (m *AccessKeyMutation) SecretHash() (r string, exists bool) {
-	v := m.secret_hash
+// SecretCiphertext returns the value of the "secret_ciphertext" field in the mutation.
+func (m *AccessKeyMutation) SecretCiphertext() (r string, exists bool) {
+	v := m.secret_ciphertext
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldSecretHash returns the old "secret_hash" field's value of the AccessKey entity.
+// OldSecretCiphertext returns the old "secret_ciphertext" field's value of the AccessKey entity.
 // If the AccessKey object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AccessKeyMutation) OldSecretHash(ctx context.Context) (v *string, err error) {
+func (m *AccessKeyMutation) OldSecretCiphertext(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSecretHash is only allowed on UpdateOne operations")
+		return v, errors.New("OldSecretCiphertext is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSecretHash requires an ID field in the mutation")
+		return v, errors.New("OldSecretCiphertext requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSecretHash: %w", err)
+		return v, fmt.Errorf("querying old value for OldSecretCiphertext: %w", err)
 	}
-	return oldValue.SecretHash, nil
+	return oldValue.SecretCiphertext, nil
 }
 
-// ClearSecretHash clears the value of the "secret_hash" field.
-func (m *AccessKeyMutation) ClearSecretHash() {
-	m.secret_hash = nil
-	m.clearedFields[accesskey.FieldSecretHash] = struct{}{}
+// ResetSecretCiphertext resets all changes to the "secret_ciphertext" field.
+func (m *AccessKeyMutation) ResetSecretCiphertext() {
+	m.secret_ciphertext = nil
 }
 
-// SecretHashCleared returns if the "secret_hash" field was cleared in this mutation.
-func (m *AccessKeyMutation) SecretHashCleared() bool {
-	_, ok := m.clearedFields[accesskey.FieldSecretHash]
-	return ok
+// SetRoleID sets the "role_id" field.
+func (m *AccessKeyMutation) SetRoleID(u uint32) {
+	m.role_id = &u
+	m.addrole_id = nil
 }
 
-// ResetSecretHash resets all changes to the "secret_hash" field.
-func (m *AccessKeyMutation) ResetSecretHash() {
-	m.secret_hash = nil
-	delete(m.clearedFields, accesskey.FieldSecretHash)
+// RoleID returns the value of the "role_id" field in the mutation.
+func (m *AccessKeyMutation) RoleID() (r uint32, exists bool) {
+	v := m.role_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRoleID returns the old "role_id" field's value of the AccessKey entity.
+// If the AccessKey object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessKeyMutation) OldRoleID(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRoleID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRoleID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRoleID: %w", err)
+	}
+	return oldValue.RoleID, nil
+}
+
+// AddRoleID adds u to the "role_id" field.
+func (m *AccessKeyMutation) AddRoleID(u int32) {
+	if m.addrole_id != nil {
+		*m.addrole_id += u
+	} else {
+		m.addrole_id = &u
+	}
+}
+
+// AddedRoleID returns the value that was added to the "role_id" field in this mutation.
+func (m *AccessKeyMutation) AddedRoleID() (r int32, exists bool) {
+	v := m.addrole_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRoleID resets all changes to the "role_id" field.
+func (m *AccessKeyMutation) ResetRoleID() {
+	m.role_id = nil
+	m.addrole_id = nil
 }
 
 // SetExpiresAt sets the "expires_at" field.
@@ -995,7 +1013,7 @@ func (m *AccessKeyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AccessKeyMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 14)
 	if m.created_at != nil {
 		fields = append(fields, accesskey.FieldCreatedAt)
 	}
@@ -1026,8 +1044,11 @@ func (m *AccessKeyMutation) Fields() []string {
 	if m.access_key != nil {
 		fields = append(fields, accesskey.FieldAccessKey)
 	}
-	if m.secret_hash != nil {
-		fields = append(fields, accesskey.FieldSecretHash)
+	if m.secret_ciphertext != nil {
+		fields = append(fields, accesskey.FieldSecretCiphertext)
+	}
+	if m.role_id != nil {
+		fields = append(fields, accesskey.FieldRoleID)
 	}
 	if m.expires_at != nil {
 		fields = append(fields, accesskey.FieldExpiresAt)
@@ -1063,8 +1084,10 @@ func (m *AccessKeyMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case accesskey.FieldAccessKey:
 		return m.AccessKey()
-	case accesskey.FieldSecretHash:
-		return m.SecretHash()
+	case accesskey.FieldSecretCiphertext:
+		return m.SecretCiphertext()
+	case accesskey.FieldRoleID:
+		return m.RoleID()
 	case accesskey.FieldExpiresAt:
 		return m.ExpiresAt()
 	case accesskey.FieldLastUsedAt:
@@ -1098,8 +1121,10 @@ func (m *AccessKeyMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldName(ctx)
 	case accesskey.FieldAccessKey:
 		return m.OldAccessKey(ctx)
-	case accesskey.FieldSecretHash:
-		return m.OldSecretHash(ctx)
+	case accesskey.FieldSecretCiphertext:
+		return m.OldSecretCiphertext(ctx)
+	case accesskey.FieldRoleID:
+		return m.OldRoleID(ctx)
 	case accesskey.FieldExpiresAt:
 		return m.OldExpiresAt(ctx)
 	case accesskey.FieldLastUsedAt:
@@ -1183,12 +1208,19 @@ func (m *AccessKeyMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAccessKey(v)
 		return nil
-	case accesskey.FieldSecretHash:
+	case accesskey.FieldSecretCiphertext:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetSecretHash(v)
+		m.SetSecretCiphertext(v)
+		return nil
+	case accesskey.FieldRoleID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRoleID(v)
 		return nil
 	case accesskey.FieldExpiresAt:
 		v, ok := value.(time.Time)
@@ -1224,6 +1256,9 @@ func (m *AccessKeyMutation) AddedFields() []string {
 	if m.addtenant_id != nil {
 		fields = append(fields, accesskey.FieldTenantID)
 	}
+	if m.addrole_id != nil {
+		fields = append(fields, accesskey.FieldRoleID)
+	}
 	return fields
 }
 
@@ -1240,6 +1275,8 @@ func (m *AccessKeyMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedDeletedBy()
 	case accesskey.FieldTenantID:
 		return m.AddedTenantID()
+	case accesskey.FieldRoleID:
+		return m.AddedRoleID()
 	}
 	return nil, false
 }
@@ -1277,6 +1314,13 @@ func (m *AccessKeyMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddTenantID(v)
 		return nil
+	case accesskey.FieldRoleID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRoleID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown AccessKey numeric field %s", name)
 }
@@ -1303,17 +1347,8 @@ func (m *AccessKeyMutation) ClearedFields() []string {
 	if m.FieldCleared(accesskey.FieldDeletedBy) {
 		fields = append(fields, accesskey.FieldDeletedBy)
 	}
-	if m.FieldCleared(accesskey.FieldTenantID) {
-		fields = append(fields, accesskey.FieldTenantID)
-	}
 	if m.FieldCleared(accesskey.FieldName) {
 		fields = append(fields, accesskey.FieldName)
-	}
-	if m.FieldCleared(accesskey.FieldAccessKey) {
-		fields = append(fields, accesskey.FieldAccessKey)
-	}
-	if m.FieldCleared(accesskey.FieldSecretHash) {
-		fields = append(fields, accesskey.FieldSecretHash)
 	}
 	if m.FieldCleared(accesskey.FieldExpiresAt) {
 		fields = append(fields, accesskey.FieldExpiresAt)
@@ -1353,17 +1388,8 @@ func (m *AccessKeyMutation) ClearField(name string) error {
 	case accesskey.FieldDeletedBy:
 		m.ClearDeletedBy()
 		return nil
-	case accesskey.FieldTenantID:
-		m.ClearTenantID()
-		return nil
 	case accesskey.FieldName:
 		m.ClearName()
-		return nil
-	case accesskey.FieldAccessKey:
-		m.ClearAccessKey()
-		return nil
-	case accesskey.FieldSecretHash:
-		m.ClearSecretHash()
 		return nil
 	case accesskey.FieldExpiresAt:
 		m.ClearExpiresAt()
@@ -1409,8 +1435,11 @@ func (m *AccessKeyMutation) ResetField(name string) error {
 	case accesskey.FieldAccessKey:
 		m.ResetAccessKey()
 		return nil
-	case accesskey.FieldSecretHash:
-		m.ResetSecretHash()
+	case accesskey.FieldSecretCiphertext:
+		m.ResetSecretCiphertext()
+		return nil
+	case accesskey.FieldRoleID:
+		m.ResetRoleID()
 		return nil
 	case accesskey.FieldExpiresAt:
 		m.ResetExpiresAt()
@@ -2941,6 +2970,9 @@ type ApiAuditLogMutation struct {
 	created_at      *time.Time
 	tenant_id       *uint32
 	addtenant_id    *int32
+	subject_type    *string
+	subject_id      *uint32
+	addsubject_id   *int32
 	user_id         *uint32
 	adduser_id      *int32
 	username        *string
@@ -3196,6 +3228,125 @@ func (m *ApiAuditLogMutation) ResetTenantID() {
 	m.tenant_id = nil
 	m.addtenant_id = nil
 	delete(m.clearedFields, apiauditlog.FieldTenantID)
+}
+
+// SetSubjectType sets the "subject_type" field.
+func (m *ApiAuditLogMutation) SetSubjectType(s string) {
+	m.subject_type = &s
+}
+
+// SubjectType returns the value of the "subject_type" field in the mutation.
+func (m *ApiAuditLogMutation) SubjectType() (r string, exists bool) {
+	v := m.subject_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubjectType returns the old "subject_type" field's value of the ApiAuditLog entity.
+// If the ApiAuditLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ApiAuditLogMutation) OldSubjectType(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubjectType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubjectType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubjectType: %w", err)
+	}
+	return oldValue.SubjectType, nil
+}
+
+// ClearSubjectType clears the value of the "subject_type" field.
+func (m *ApiAuditLogMutation) ClearSubjectType() {
+	m.subject_type = nil
+	m.clearedFields[apiauditlog.FieldSubjectType] = struct{}{}
+}
+
+// SubjectTypeCleared returns if the "subject_type" field was cleared in this mutation.
+func (m *ApiAuditLogMutation) SubjectTypeCleared() bool {
+	_, ok := m.clearedFields[apiauditlog.FieldSubjectType]
+	return ok
+}
+
+// ResetSubjectType resets all changes to the "subject_type" field.
+func (m *ApiAuditLogMutation) ResetSubjectType() {
+	m.subject_type = nil
+	delete(m.clearedFields, apiauditlog.FieldSubjectType)
+}
+
+// SetSubjectID sets the "subject_id" field.
+func (m *ApiAuditLogMutation) SetSubjectID(u uint32) {
+	m.subject_id = &u
+	m.addsubject_id = nil
+}
+
+// SubjectID returns the value of the "subject_id" field in the mutation.
+func (m *ApiAuditLogMutation) SubjectID() (r uint32, exists bool) {
+	v := m.subject_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubjectID returns the old "subject_id" field's value of the ApiAuditLog entity.
+// If the ApiAuditLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ApiAuditLogMutation) OldSubjectID(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubjectID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubjectID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubjectID: %w", err)
+	}
+	return oldValue.SubjectID, nil
+}
+
+// AddSubjectID adds u to the "subject_id" field.
+func (m *ApiAuditLogMutation) AddSubjectID(u int32) {
+	if m.addsubject_id != nil {
+		*m.addsubject_id += u
+	} else {
+		m.addsubject_id = &u
+	}
+}
+
+// AddedSubjectID returns the value that was added to the "subject_id" field in this mutation.
+func (m *ApiAuditLogMutation) AddedSubjectID() (r int32, exists bool) {
+	v := m.addsubject_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearSubjectID clears the value of the "subject_id" field.
+func (m *ApiAuditLogMutation) ClearSubjectID() {
+	m.subject_id = nil
+	m.addsubject_id = nil
+	m.clearedFields[apiauditlog.FieldSubjectID] = struct{}{}
+}
+
+// SubjectIDCleared returns if the "subject_id" field was cleared in this mutation.
+func (m *ApiAuditLogMutation) SubjectIDCleared() bool {
+	_, ok := m.clearedFields[apiauditlog.FieldSubjectID]
+	return ok
+}
+
+// ResetSubjectID resets all changes to the "subject_id" field.
+func (m *ApiAuditLogMutation) ResetSubjectID() {
+	m.subject_id = nil
+	m.addsubject_id = nil
+	delete(m.clearedFields, apiauditlog.FieldSubjectID)
 }
 
 // SetUserID sets the "user_id" field.
@@ -4520,12 +4671,18 @@ func (m *ApiAuditLogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ApiAuditLogMutation) Fields() []string {
-	fields := make([]string, 0, 27)
+	fields := make([]string, 0, 29)
 	if m.created_at != nil {
 		fields = append(fields, apiauditlog.FieldCreatedAt)
 	}
 	if m.tenant_id != nil {
 		fields = append(fields, apiauditlog.FieldTenantID)
+	}
+	if m.subject_type != nil {
+		fields = append(fields, apiauditlog.FieldSubjectType)
+	}
+	if m.subject_id != nil {
+		fields = append(fields, apiauditlog.FieldSubjectID)
 	}
 	if m.user_id != nil {
 		fields = append(fields, apiauditlog.FieldUserID)
@@ -4614,6 +4771,10 @@ func (m *ApiAuditLogMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case apiauditlog.FieldTenantID:
 		return m.TenantID()
+	case apiauditlog.FieldSubjectType:
+		return m.SubjectType()
+	case apiauditlog.FieldSubjectID:
+		return m.SubjectID()
 	case apiauditlog.FieldUserID:
 		return m.UserID()
 	case apiauditlog.FieldUsername:
@@ -4677,6 +4838,10 @@ func (m *ApiAuditLogMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldCreatedAt(ctx)
 	case apiauditlog.FieldTenantID:
 		return m.OldTenantID(ctx)
+	case apiauditlog.FieldSubjectType:
+		return m.OldSubjectType(ctx)
+	case apiauditlog.FieldSubjectID:
+		return m.OldSubjectID(ctx)
 	case apiauditlog.FieldUserID:
 		return m.OldUserID(ctx)
 	case apiauditlog.FieldUsername:
@@ -4749,6 +4914,20 @@ func (m *ApiAuditLogMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTenantID(v)
+		return nil
+	case apiauditlog.FieldSubjectType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubjectType(v)
+		return nil
+	case apiauditlog.FieldSubjectID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubjectID(v)
 		return nil
 	case apiauditlog.FieldUserID:
 		v, ok := value.(uint32)
@@ -4936,6 +5115,9 @@ func (m *ApiAuditLogMutation) AddedFields() []string {
 	if m.addtenant_id != nil {
 		fields = append(fields, apiauditlog.FieldTenantID)
 	}
+	if m.addsubject_id != nil {
+		fields = append(fields, apiauditlog.FieldSubjectID)
+	}
 	if m.adduser_id != nil {
 		fields = append(fields, apiauditlog.FieldUserID)
 	}
@@ -4955,6 +5137,8 @@ func (m *ApiAuditLogMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case apiauditlog.FieldTenantID:
 		return m.AddedTenantID()
+	case apiauditlog.FieldSubjectID:
+		return m.AddedSubjectID()
 	case apiauditlog.FieldUserID:
 		return m.AddedUserID()
 	case apiauditlog.FieldLatencyMs:
@@ -4976,6 +5160,13 @@ func (m *ApiAuditLogMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddTenantID(v)
+		return nil
+	case apiauditlog.FieldSubjectID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSubjectID(v)
 		return nil
 	case apiauditlog.FieldUserID:
 		v, ok := value.(int32)
@@ -5011,6 +5202,12 @@ func (m *ApiAuditLogMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(apiauditlog.FieldTenantID) {
 		fields = append(fields, apiauditlog.FieldTenantID)
+	}
+	if m.FieldCleared(apiauditlog.FieldSubjectType) {
+		fields = append(fields, apiauditlog.FieldSubjectType)
+	}
+	if m.FieldCleared(apiauditlog.FieldSubjectID) {
+		fields = append(fields, apiauditlog.FieldSubjectID)
 	}
 	if m.FieldCleared(apiauditlog.FieldUserID) {
 		fields = append(fields, apiauditlog.FieldUserID)
@@ -5107,6 +5304,12 @@ func (m *ApiAuditLogMutation) ClearField(name string) error {
 	case apiauditlog.FieldTenantID:
 		m.ClearTenantID()
 		return nil
+	case apiauditlog.FieldSubjectType:
+		m.ClearSubjectType()
+		return nil
+	case apiauditlog.FieldSubjectID:
+		m.ClearSubjectID()
+		return nil
 	case apiauditlog.FieldUserID:
 		m.ClearUserID()
 		return nil
@@ -5195,6 +5398,12 @@ func (m *ApiAuditLogMutation) ResetField(name string) error {
 		return nil
 	case apiauditlog.FieldTenantID:
 		m.ResetTenantID()
+		return nil
+	case apiauditlog.FieldSubjectType:
+		m.ResetSubjectType()
+		return nil
+	case apiauditlog.FieldSubjectID:
+		m.ResetSubjectID()
 		return nil
 	case apiauditlog.FieldUserID:
 		m.ResetUserID()

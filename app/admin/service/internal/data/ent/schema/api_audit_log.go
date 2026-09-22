@@ -32,6 +32,8 @@ func (ApiAuditLog) Annotations() []schema.Annotation {
 // Fields of the ApiAuditLog.
 func (ApiAuditLog) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("subject_type").Optional().Nillable().Comment("已验证主体类型user/api_key"),
+		field.Uint32("subject_id").Optional().Nillable().Comment("已验证主体ID"),
 		field.Uint32("user_id").
 			Comment("操作者用户ID").
 			Optional().

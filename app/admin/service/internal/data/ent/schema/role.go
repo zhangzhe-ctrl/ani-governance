@@ -92,6 +92,7 @@ func (Role) Mixin() []ent.Mixin {
 // Indexes of the Role.
 func (Role) Indexes() []ent.Index {
 	return []ent.Index{
+		index.Fields("tenant_id", "id").Unique().StorageKey("uix_sys_roles_tenant_id_id"),
 		// 租户维度唯一：同一租户下 code 唯一
 		index.Fields("tenant_id", "code").
 			Unique().

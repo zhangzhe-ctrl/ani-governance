@@ -29,10 +29,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/stretchr/testify/require"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/stretchr/testify/require"
 	crudviewer "github.com/tx7do/go-crud/viewer"
 	authn "github.com/tx7do/kratos-authn/engine"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -40,6 +40,7 @@ import (
 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"
 	"go-wind-admin/pkg/audit"
 	pkgjwt "go-wind-admin/pkg/jwt"
+	"go-wind-admin/pkg/middleware/auth"
 )
 
 // ---------------------------------------------------------------------------
@@ -167,6 +168,21 @@ func (e *auditServerEnv) chainHandler() func(ctx khttp.Context) error {
 		}
 		da := req.Header.Get("X-Test-Data-Access")
 		h := ctx.Middleware(func(c context.Context, reqIn interface{}) (interface{}, error) {
+			// Test authentication boundary: verify the fixture's signature before recording identity.
+			if raw := req.Header.Get("Authorization"); strings.HasPrefix(raw, "Bearer ") {
+				tok, err := jwt.Parse(strings.TrimPrefix(raw, "Bearer "), func(_ *jwt.Token) (interface{}, error) { return []byte("test-signing-secret"), nil }, jwt.WithValidMethods([]string{"HS256"}))
+				if err == nil && tok.Valid {
+					if claims, ok := tok.Claims.(jwt.MapClaims); ok {
+						if payload, err := pkgjwt.NewUserTokenPayloadWithJwtMapClaims(claims); err == nil {
+							c = auth.NewContext(c, payload)
+						}
+					}
+				}
+			}
+			if req.Header.Get("X-Test-Key-Identity") == "verified" {
+				c = auth.NewPrincipalContext(c, &auth.Principal{Type: auth.SubjectAPIKey, ID: 42, TenantID: 7, Roles: []string{"reader"}})
+			}
+
 			if da == "all" || da == "empty" {
 				if acc, ok := audit.FromContext(c); ok {
 					e.acc = acc
@@ -212,37 +228,34 @@ func (e *auditServerEnv) fire(method, path string, headers map[string]string, bo
 func testDAEvents() []audit.AuditEvent {
 	return []audit.AuditEvent{
 		{
-			SqlText: "SELECT id, username FROM sys_users WHERE id = $1",
+			SqlText:   "SELECT id, username FROM sys_users WHERE id = $1",
 			SqlDigest: "digest-select-users", Latency: 12, Dialect: "postgres",
 			AffectedRows: -1, DataMasked: true, MaskingRules: "rule-a",
 		},
 		{
-			SqlText: "INSERT INTO sys_roles (name) VALUES ('x')",
+			SqlText:   "INSERT INTO sys_roles (name) VALUES ('x')",
 			SqlDigest: "digest-insert-roles", Latency: 34, Dialect: "mysql",
 			AffectedRows: 2, DataMasked: false, MaskingRules: "",
 		},
 		{
-			SqlText: "SELECT * FROM sys_users a JOIN sys_plan_quotas b ON a.id = b.user_id",
+			SqlText:   "SELECT * FROM sys_users a JOIN sys_plan_quotas b ON a.id = b.user_id",
 			SqlDigest: "digest-join", Latency: 56, Dialect: "postgres",
 			AffectedRows: 0, DataMasked: false, MaskingRules: "",
 		},
 		{
-			SqlText: "SELECT 1",
+			SqlText:   "SELECT 1",
 			SqlDigest: "digest-constant", Latency: 7, Dialect: "postgres",
 			AffectedRows: 0, DataMasked: false, MaskingRules: "",
 		},
 	}
 }
 
-// mintTestToken 铸造测试 JWT。解析侧（jwtutil.ParseJWTPayload）不校验签名，
-// 任意 HS256 密钥签出的载荷即可映射出 UserTokenPayload
-// （sub→Username、uid→UserId、tid→TenantId、cid→ClientId），
-// 用于断言审计记录中用户身份字段的令牌来源映射。
+// mintTestToken issues a signed fixture, verified by the test authentication boundary.
 func mintTestToken(t *testing.T) string {
 	t.Helper()
 	claims := jwt.MapClaims{
-		authn.ClaimFieldSubject:  "alice",
-		pkgjwt.ClaimFieldUserID:  float64(42),
+		authn.ClaimFieldSubject:   "alice",
+		pkgjwt.ClaimFieldUserID:   float64(42),
 		pkgjwt.ClaimFieldTenantID: float64(7),
 		pkgjwt.ClaimFieldClientID: "test-client-id",
 	}
@@ -256,7 +269,7 @@ func mintTestToken(t *testing.T) string {
 func mintTestTokenWithoutSubject(t *testing.T) string {
 	t.Helper()
 	claims := jwt.MapClaims{
-		pkgjwt.ClaimFieldUserID:  float64(42),
+		pkgjwt.ClaimFieldUserID:   float64(42),
 		pkgjwt.ClaimFieldTenantID: float64(7),
 	}
 	tok, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test-signing-secret"))

@@ -19,12 +19,13 @@ var (
 		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
 		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
 		{Name: "status", Type: field.TypeEnum, Comment: "状态", Enums: []string{"OFF", "ON"}, Default: "ON"},
-		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "tenant_id", Type: field.TypeUint32, Comment: "租户ID"},
 		{Name: "name", Type: field.TypeString, Nullable: true, Comment: "凭证名称（用途说明）"},
-		{Name: "access_key", Type: field.TypeString, Nullable: true, Comment: "访问键（AK，公开标识）"},
-		{Name: "secret_hash", Type: field.TypeString, Nullable: true, Comment: "密钥摘要（SHA-256 hex，明文不落库）"},
+		{Name: "access_key", Type: field.TypeString, Comment: "访问键（AK，公开标识）"},
+		{Name: "secret_ciphertext", Type: field.TypeString, Comment: "AES-256-GCM密文"},
+		{Name: "role_id", Type: field.TypeUint32, Comment: "本租户绑定角色"},
 		{Name: "expires_at", Type: field.TypeTime, Nullable: true, Comment: "过期时间（空表示长期有效）"},
-		{Name: "last_used_at", Type: field.TypeTime, Nullable: true, Comment: "最近一次令牌交换时间"},
+		{Name: "last_used_at", Type: field.TypeTime, Nullable: true, Comment: "最近成功验签时间"},
 	}
 	// SysAccessKeysTable holds the schema information for the "sys_access_keys" table.
 	SysAccessKeysTable = &schema.Table{
@@ -113,6 +114,8 @@ var (
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
 		{Name: "created_at", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
 		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "subject_type", Type: field.TypeString, Nullable: true, Comment: "已验证主体类型user/api_key"},
+		{Name: "subject_id", Type: field.TypeUint32, Nullable: true, Comment: "已验证主体ID"},
 		{Name: "user_id", Type: field.TypeUint32, Nullable: true, Comment: "操作者用户ID"},
 		{Name: "username", Type: field.TypeString, Nullable: true, Comment: "操作者账号名"},
 		{Name: "ip_address", Type: field.TypeString, Nullable: true, Comment: "IP地址"},
@@ -149,12 +152,12 @@ var (
 			{
 				Name:    "uidx_sys_api_audit_logs_tenant_request_id",
 				Unique:  true,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[16]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[18]},
 			},
 			{
 				Name:    "uidx_sys_api_audit_logs_tenant_log_hash",
 				Unique:  true,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[26]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[28]},
 			},
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_created_at",
@@ -169,37 +172,37 @@ var (
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_user_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[3], SysAPIAuditLogsColumns[1]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[5], SysAPIAuditLogsColumns[1]},
 			},
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_username_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[4], SysAPIAuditLogsColumns[1]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[6], SysAPIAuditLogsColumns[1]},
 			},
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_ip_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[5], SysAPIAuditLogsColumns[1]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[7], SysAPIAuditLogsColumns[1]},
 			},
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_trace_id",
 				Unique:  false,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[17]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[19]},
 			},
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_api_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[13], SysAPIAuditLogsColumns[14], SysAPIAuditLogsColumns[1]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[15], SysAPIAuditLogsColumns[16], SysAPIAuditLogsColumns[1]},
 			},
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_path_method_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[11], SysAPIAuditLogsColumns[10], SysAPIAuditLogsColumns[1]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[13], SysAPIAuditLogsColumns[12], SysAPIAuditLogsColumns[1]},
 			},
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_status_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[21], SysAPIAuditLogsColumns[20], SysAPIAuditLogsColumns[1]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[23], SysAPIAuditLogsColumns[22], SysAPIAuditLogsColumns[1]},
 			},
 		},
 	}
@@ -2179,6 +2182,11 @@ var (
 		PrimaryKey: []*schema.Column{SysRolesColumns[0]},
 		Indexes: []*schema.Index{
 			{
+				Name:    "uix_sys_roles_tenant_id_id",
+				Unique:  true,
+				Columns: []*schema.Column{SysRolesColumns[10], SysRolesColumns[0]},
+			},
+			{
 				Name:    "uix_sys_roles_tenant_code",
 				Unique:  true,
 				Columns: []*schema.Column{SysRolesColumns[10], SysRolesColumns[13]},
@@ -3107,6 +3115,9 @@ func init() {
 		Table:     "sys_access_keys",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
+	}
+	SysAccessKeysTable.Annotation.Checks = map[string]string{
+		"sys_access_keys_tenant_positive": "tenant_id > 0",
 	}
 	SysApisTable.Annotation = &entsql.Annotation{
 		Table:     "sys_apis",

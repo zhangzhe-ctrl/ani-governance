@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/jinzhu/copier"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
@@ -156,6 +156,8 @@ func (r *ApiAuditLogRepo) Create(ctx context.Context, req *auditV1.CreateApiAudi
 
 	builder := r.entClient.Client().ApiAuditLog.Create().
 		SetNillableTenantID(req.Data.TenantId).
+		SetNillableSubjectType(req.Data.SubjectType).
+		SetNillableSubjectID(req.Data.SubjectId).
 		SetNillableUserID(req.Data.UserId).
 		SetNillableUsername(req.Data.Username).
 		SetNillableIPAddress(req.Data.IpAddress).

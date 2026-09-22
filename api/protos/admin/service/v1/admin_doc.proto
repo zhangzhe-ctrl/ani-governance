@@ -33,6 +33,10 @@ option (gnostic.openapi.v3.document) = {
   components: {
     security_schemes: {
       additional_properties: [
+        { name: "BearerAuth" value: { security_scheme: { type: "http" scheme: "bearer" bearer_format: "JWT" description: "User JWT" } } },
+        { name: "AccessKeyAuth" value: { security_scheme: { type: "apiKey" name: "X-Access-Key" in: "header" description: "Public AK; all three signature headers are required together" } } },
+        { name: "SignatureAuth" value: { security_scheme: { type: "apiKey" name: "X-Signature" in: "header" description: "ANI seven-line HMAC-SHA256, lowercase hex; Swagger does not calculate it" } } },
+        { name: "SignatureTime" value: { security_scheme: { type: "apiKey" name: "X-Timestamp" in: "header" description: "Positive Unix seconds within 300 seconds of server time" } } },
         {
           name: "OAuth2PasswordBearer";
           value: {
