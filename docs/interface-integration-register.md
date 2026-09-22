@@ -6,11 +6,14 @@
 
 后续始终维护本文件，不按功能或对话另起登记文件。复用接口引用已有编号，避免重复登记；新功能使用自己的稳定编号。用户明确要求的即时功能修复可单独实施并记录，不必等待风格批次。尚未提供的旧项目格式标为“待指定”；只有用户确认全部改动完成后，整体登记才结项。
 
+前端交接入口：[用户、租户及两类管理员页面接入说明](#frontend-management-handoff)。该章节可整段转发，包含第一批接口、请求示例、权限、响应和暂缓项；沿用本文已有接口编号。
+
 ## 功能登记索引
 
 | 功能组 | 接口编号 | 排查进度 | 风格改动批次 |
 | --- | --- | --- | --- |
 | 登录、登出及登录后初始化 | AUTH-01～AUTH-08；相关可选接口 AUTH-09～AUTH-14 | 已排查；已按单独要求去掉登录图形验证码 | 待用户分批，尚未统一改风格 |
+| 用户管理 | ACCOUNT-01～ACCOUNT-09；复用 ROLE-01/02、AUTH-01～AUTH-08 | 前端交接见专节；管理侧更新须携带目标租户和有效角色；部分接口暂缓 | 待指定 |
 | 租户管理 | TENANT-01～TENANT-09 | 已核对 HTTP、Service、Repository 和首次种子；本轮未做运行验收 | 待指定 |
 | 租户管理员管理 | 复用 TENANT-06、ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-01/12；AUTH-15～AUTH-18（自助 /me） | 复用用户和租户角色；用户明确不做主管理员移交 | 待指定 |
 | 套餐管理 | PLAN-01～PLAN-14；复用 TENANT-04/08 | 模块限制已有接线；数量配额只配置和统计 | 待指定 |
@@ -59,7 +62,7 @@
 | AUTH-14 | `POST /api/v1/auth/captcha/verify` | 独立验证图形验证码 | 登录不再使用；接口是否删除待指定 |
 | AUTH-15 | `PUT /admin/v1/me` | 本人资料自助更新；直接落 `userRepo.Update`，**绕过 `UserService` 的角色类型/租户校验**，携带 `roleIds`+`role_ids`　掩码可能自改角色（见 MGMT-11） | 已接线但此前未登记，本轮补登；路径/字段待指定 |
 | AUTH-16 | `POST /admin/v1/me/password` | 本人自助改密；`oldPassword`/`newPassword` 走 AES 密文（与登录直接提交明文密码不同）；成功后吊销本人全部客户端令牌 | 已接线但此前未登记，本轮补登；协议/路径待指定 |
-| AUTH-17 | `POST /admin/v1/me/contact` | 绑定本人邮箱/手机号并发送验证码；是邀请落库与找回密码的前置 | 已接线但此前未登记，本轮补登；待指定 |
+| AUTH-17 | `POST /admin/v1/me/contact` | 向本人待绑定邮箱发送验证码；当前只支持 EMAIL，不支持手机号。与 AUTH-18 配合建立邮箱凭证，可用于找回密码；邀请接受流程会自行建立邮箱凭证，不以本接口为前置 | 已接线；2026-09-22 前端交接复核更正用途；待指定 |
 | AUTH-18 | `POST /admin/v1/me/contact/verify` | 校验本人联系方式验证码，与 AUTH-17 成对 | 已接线但此前未登记，本轮补登；待指定 |
 
 `PUT /admin/v1/me`（AUTH-15）与账号组的 `ACCOUNT-04`（管理侧改用户）不是同一入口：后者经 `UserService` 校验角色类型/租户并要求至少一个角色，前者不经该校验。
@@ -68,7 +71,7 @@
 
 ### 当前最小调用流程
 
-1. 租户账号调用 AUTH-01；首管理员/平台账号调用 AUTH-02。`tenant_name` 实际是 `sys_tenants.code`，不是租户显示名称；租户登录漏传它会拒绝，不会自动改走平台登录。用户名允许 `local:` 前缀。
+1. 租户账号（包括租户首管理员）调用 AUTH-01；平台账号调用 AUTH-02。`tenant_name` 实际是 `sys_tenants.code`，不是租户显示名称；租户登录漏传它会拒绝，不会自动改走平台登录。用户名允许 `local:` 前缀。
 2. 保存响应中的访问令牌；由浏览器或 HTTP 客户端 Cookie jar 保存登录响应 Cookie。
 3. 使用 Bearer 调用 AUTH-05、AUTH-06，取得个人资料、菜单与权限。用了聚合初始化后，不必同时调用 AUTH-07、AUTH-08。
 4. 使用 AUTH-04 刷新会话并替换访问令牌。旧 refresh token 单次使用，客户端应避免并发刷新。
@@ -135,6 +138,8 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 
 2026-09-21 增量复核（按用户要求重列租户管理、租户管理员管理、套餐管理、平台管理员管理四域接口）：逐一对照源码核对 `TENANT-01～09`、`ACCOUNT-01～09`、`ROLE-01～05`、`PLAN-01～14`，与既有登记一致，无错登（`misregistered` 为空）；补登在线会话自助两条路由 `SESSION-03/04` 及授权缺口 `MGMT-08`；并补登此前仅以"待对接"一句带过的**权限点/权限组**接口 `PERM-01～06`、`PERMGROUP-01～05` 与**自助 /me 面** `AUTH-15～18`（登记于登录功能组）；新增 `MGMT-09～MGMT-15`；并新增「鉴权边界（授权矩阵与租户隔离）」小节与 `MGMT-16～MGMT-18`（授权矩阵、令牌租户信任、SystemViewer 旁路、全局权限点）。本轮只做登记，未改任何接口、鉴权或运行数据。
 
+2026-09-22 前端交接复核：在 `8b80461` 源码基线上补充四类页面交接说明；更正 AUTH-17 的邮箱/邀请依赖、平台 API Key 实际准入、MGMT-13 删除保护及 MGMT-16 的租户 0 描述；补充 ACCOUNT-06 平台用户名查重限制。此前“无错登”不代表本轮未发现描述问题。本轮仅改文档，没有修复后端或执行 HTTP 验收。
+
 ### 能力与身份边界
 
 | 功能 | 已有实现 | 当前限制 |
@@ -162,15 +167,17 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 | 在线会话 `/admin/v1/online-session/*`（含自助 `my-sessions`） | 全 | **无** | 376-377,443-444 / 无（见 MGMT-08） |
 | 用户 `/admin/v1/users*`（建/读/改/删/重置密码） | 全 | **全**（限本租户） | 335-336,411-414,462-463,495 / 507-508,519-522,526-527,530 |
 | 自助 `/admin/v1/me*` | 全 | **全** | 369,432-434,482 / 514,523-525,529 |
-| API Key `/api/v1/auth/api-keys*`（2026-09-22 新增，见 AK 功能组） | 全 | **全**（限本租户） | 313,337-338,417,472-473 / 501-506 |
+| API Key `/api/v1/auth/api-keys*`（2026-09-22 新增，见 AK 功能组） | 种子有绑定，但 Service 拒绝 `tenantId=0`，平台身份实际不可调用 | **全**（限本租户） | 313,337-338,417,472-473 / 501-506 |
 
 权限码与绑定（`35-42`、`51-56`）：`platform:admin`（`tenant_id=0`，SYSTEM，受保护）绑定 `sys:access_backend` + `sys:platform_admin` 等 6 项；`template:tenant:manager`（`tenant_id=0`，TEMPLATE）只绑 `sys:access_backend` + `sys:tenant_manager`。`sys:access_backend` 是两角色共有的后台入口权限。
 
-**租户隔离（运行时）**：请求主体 → ent viewer（`pkg/middleware/auth/auth.go:112-123`），user/tenant/orgUnit 均取自**校验后的主体**（JWT 或已验签的 AK/SK 主体，`auth.go:49-66`），不信任请求头；casbin domain 亦取主体租户（`utils.go:37-43`）。数据层由 `mixin.TenantID` + go-crud `TenantPrivacy`（查/建/改/删注入 `tenant_id=viewer`，跨租户改租户被拒）＋ 本仓 `TenantMutationGuardPolicy`（`ent/schema/tenant_mutation_guard.go:27-63`）双重约束。服务层再强制：`user_service.go:352-355`（强制 `TenantId=操作人租户`）、`370-395`（只允许**本租户 TENANT 类型**角色，否则 `some roles not found`）、`567-581`/`691-695`（跨租户改密拒绝，除非持 `sys:reset_others_credential`）、`role_service.go:160-162,194-196,208-210`（强制 `type=TENANT`、拒绝改 SYSTEM 角色）。结论：**租户管理员只能作用于本租户，无法读写平台账号（`tenant_id=0`）或他租户**；`canCrossTenant=false`。
+**租户隔离（运行时）**：请求主体 → ent viewer（`pkg/middleware/auth/auth.go:112-123`），user/tenant/orgUnit 均取自**校验后的主体**（JWT 或已验签的 AK/SK 主体，`auth.go:49-66`），不信任请求头；casbin domain 亦取主体租户（`utils.go:37-43`）。数据层由 `mixin.TenantID` + go-crud `TenantPrivacy`（查/建/改/删注入 `tenant_id=viewer`，跨租户改租户被拒）＋ 本仓 `TenantMutationGuardPolicy`（`ent/schema/tenant_mutation_guard.go:27-63`）双重约束。服务层再强制：`user_service.go:352-355`（强制 `TenantId=操作人租户`）、`370-395`（只允许**本租户 TENANT 类型**角色，否则 `some roles not found`）、`567-581`/`691-695`（跨租户改密拒绝，除非持 `sys:reset_others_credential`）、`role_service.go:160-162,194-196,208-210`（强制 `type=TENANT`、拒绝改 SYSTEM 角色）。这些普通管理入口的设计边界是：租户管理员操作本租户账号，不获得平台账号（`tenant_id=0`）或其他租户账号的管理权限。
+
+上述源码边界不是完整授权边界的运行验收。MGMT-11 的自助角色写入仍绕过 Service 校验；关系表自身有 tenant_id 不能代替目标角色的租户一致性校验。2026-09-22 复核未运行跨租户 HTTP 负向验证。
 
 | 编号 | 已核对的事实及影响 | 状态 |
 | --- | --- | --- |
-| MGMT-16 | 隔离强度取决于**主体签发**：viewer 的租户即主体（JWT 令牌或已验签的 AK/SK）中的租户，数据层不再复核 `tid>0`；`TenantPrivacy`/`IsPlatformContext` 对 `tenant_id=0` 一律放行（go-crud `rule/tenant.go:36-39,68-71`、`pkg/entgo/viewer/user_viewer.go`）。 | 若租户主体被签发出 `tenant_id=0`（令牌或 AK/SK 绑定到租户 0）即获平台级全通，属**隐含硬约束**（"不给租户主体签 tid=0 主体"）；未新增防护 |
+| MGMT-16 | viewer 的租户取自可信主体；JWT `tenant_id=0` 会绕过 Ent 租户过滤，但仍受角色和 Casbin domain/API 授权。AK/SK 与 JWT 不能混写：`signature.go`、`access_key_repo.go` 明确拒绝租户 0，AccessKey schema 也有正租户约束；管理接口 `keyManager` 拒绝平台身份。 | JWT 签发必须保证租户语义正确；不能把取消行过滤描述为“所有平台 API 全通”，也不能忽略 AK/SK 已有防线。2026-09-22 源码更正；本轮未做运行验收 |
 | MGMT-17 | `appViewer.NewSystemViewerContext` 会**完全绕过**租户过滤（该 viewer `IsPlatformContext()`/`IsSystemContext()` 均为真、`TenantID()==0`，go-crud `rule/tenant.go:36-39,68-71` 对平台/系统上下文直接返回空谓词）。该旁路在**请求与认证路径上是刻意且广泛使用**的：登录（`authentication_service.go:294,874` 的 `resetContextForLogin`，注释说明为绕过 TenantPrivacy 以查到租户凭证）、找回密码（`authentication_forgot_password.go:27,75`）、邀请激活（`user_invitation.go:87`）、租户闸门中间件（`tenant_access_checker.go:45`）、租户用量（`tenant_usage_repo.go:74,154,256`）、站内信（`internal_message_service.go:508`）、策略评估日志（`policy_eval_logging_engine.go:94,113`）、启动重置策略（`rest_server.go:259`）、策略装载（`authorizer_provider.go:57`）、定时任务（`asynq_server.go:63`、`task_service.go:559`）与审计落地（`pkg/middleware/logging/*`、`audit_log_archive_repo.go:48`） | `user_service.go`/`role_service.go` 未使用（已确认）；该旁路**安全性取决于各调用点是否自行正确限定范围**，任何新增/改动若误用即成越权口，必须评审 |
 | MGMT-18 | `sys_permissions`/`sys_permission_apis` **无 `tenant_id`**，权限点是全局资源；租户上下文下挂权限点不经租户校验，而组织单元有同租户校验（`role_org_unit_repo.go:38-58`）。 | 当前租户管理员**无角色写授权**，故为**潜在**项；一旦开放角色写，可把任意权限点挂到本租户 TENANT 角色（**租户内**提权，非跨租户） |
 
@@ -203,7 +210,7 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 | ACCOUNT-03 | `POST /admin/v1/users` | `{data:{tenantId,username,roleIds,...},password,activationMode}`；角色必须与目标租户/系统类型匹配 |
 | ACCOUNT-04 | `PUT /admin/v1/users/{id}` | `data`、`updateMask`，可另传 `password`；当前 Service 即使只改资料/状态也要求传有效角色 |
 | ACCOUNT-05 | `DELETE /admin/v1/users/{id}` | 删除用户；拒绝删除默认平台管理员或操作者本人 |
-| ACCOUNT-06 | `GET /admin/v1/users:exists` | 用户存在性查询 |
+| ACCOUNT-06 | `GET /admin/v1/users:exists` | `id` / `username` 二选一，返回 `exist`；用户名查重仅支持当前租户，平台身份按用户名调用会拒绝，不能额外传 `tenantId` 指定目标；平台页面改用 ACCOUNT-01 按目标租户＋用户名精确过滤 |
 | ACCOUNT-07 | `POST /admin/v1/users/{user_id}/password` | `newPassword`；当前仍要求 AES 编码，与登录不同；路径目录问题见 MGMT-05 |
 | ACCOUNT-08 | `GET /admin/v1/users/username/{username}` | 用户名读取别名；同名账号可能跨租户，平台管理优先使用 ID |
 | ACCOUNT-09 | `DELETE /admin/v1/users/username/{username}` | 已注册的旧别名；Service 删除保护按 ID 查目标，不能据路由存在认定此别名可用，见 MGMT-06 |
@@ -264,7 +271,7 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 | MGMT-10 | `constants.ProtectedPermissionCodes`（`sys:*` 共 7 个）在 `PermissionService.Delete` 路径未被强制校验，删除保护只落在角色层（`ROLE-05`） | 受保护权限点可被直接删除，导致鉴权与菜单静默失效；是否补删除保护待指定 |
 | MGMT-11 | `PUT /admin/v1/me`（`UserProfileService.UpdateUser`，`user_profile_service.go:81-96`）直接调 `userRepo.Update`，跳过 `UserService.Update` 的角色类型/租户校验与"至少一个角色"约束；而 `user_repo.go` 在掩码含 `role_ids` 时会应用 `roleIds` | 源码观察（**未运行验证**）：本人可借自助接口改动自身角色集合，形成自助提权面；是否收紧待用户指定 |
 | MGMT-12 | `tenant.admin_user_id` 是自由指针（`TenantRepo.AssignTenantAdmin`），无外键/级联或一致性校验；`UserService.Delete` 删除主管理员用户后**不清空**该指针 | 租户记录留下悬空主管理员引用，`List`/`Get` 的 `adminUserName` 静默为空；与 MGMT-01（移交缺失）是不同问题 |
-| MGMT-13 | 平台账号无专用接口面：`tenantId=0` + 绑定 `SYSTEM` 角色的普通用户，经 `/admin/v1/users` 管理；删除保护仅覆盖 `id==1` 或（`username==admin` 且 `tenantId==0`） | 删除全部非默认 `platform:*` 运营账号后，部署可能不再有可用平台管理员，且无等价保护或恢复入口；是否补保护待指定 |
+| MGMT-13 | 平台账号复用 `/admin/v1/users`；删除保护覆盖 `id==1`、（`username==admin` 且 `tenantId==0`）以及操作者本人。平台登录还要求 `platform:*` 角色及后台访问权限，不能仅凭 `SYSTEM` 类型判定可登录。 | 删除非默认账号不必然导致失去管理员；缺口是停用、移除角色等更新没有“最后一个有效管理员”保护，默认账号被停用或失去管理角色后亦可能失去管理入口。2026-09-22 更正；是否补保护待指定 |
 | MGMT-14 | 租户仅注册 `GET /admin/v1/tenants/{id}`（绑定 id），源消息的 `query_by code/name` 无 HTTP 入口；`cleanup` 不删租户行（置 OFF），`code`/`name` 仍被 `TenantExists` 占用 | 按 code/name 读取须列表过滤；清理后无法以同 code/name 重新 `with-admin` 建租户 |
 | MGMT-15 | `PlanModuleService`/`PlanQuotaService` 的 Update 回调不写 `planId`（仅 updated_by/updated_at 与 module/quota 字段）；三者均无 HTTP `Count` 路由，源域 `TenantService.Count`/`BatchCreate` 亦无 HTTP 入口；`cleanup` 声明 `body:"*"` 但请求体无业务语义 | 白名单行/配额行的套餐归属不能经 PUT 改挂，只能删后重建；批量建租户须循环调用；登记为契约冗余，未改代码 |
 
@@ -287,6 +294,248 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 整合记录：已拉取 `11fa857`，源码改动无文本冲突；原未跟踪的 `docs/onboarding-invite-audit.md` 与远端新增版本内容一致，保留远端跟踪版本。同步修正文件管理移除后存储用量固定返回 0 的登记说明；整合后的相同定向回归与服务入口编译均 PASS（Go 1.26.7）；证据目录为 Ubuntu `/home/ubuntu/Workspace/.codex-runs/governance-account-main-20260921/`，包含 `regression.log` 和 `build.log`。未部署到 kind。
 
 整合记录（2026-09-22）：本轮登记与远端 `0c8e567`（AK-SK 签名接入 / Network VPC 校验）及合并提交 `7c8f574` 整合。该提交把访问密钥路由由 `/admin/v1/access-keys*` 改为 `/api/v1/auth/api-keys*`，为租户管理员新增 6 条 AK 授权（租户块由 24 条增至 30 条，现为 `501-530`），重写 `pkg/middleware/auth/auth.go`（viewer 构造移至 `112-123`，新增已验签 AK/SK 主体路径 `49-66`），并移除了 `access_key_repo.go` 中的 SystemViewer 调用。本文件「鉴权边界（授权矩阵与租户隔离）」小节的全部行号引用已据此**重算**（平台块 `313-497`、租户块 `501-530`），并新增「API Key」一行及与 AK 功能组的交叉引用。同步修正登录路径的 SystemViewer 引用行号（`294,874`）。登记为文档改动，未改任何接口或运行代码。
+
+<a id="frontend-management-handoff"></a>
+
+## 前端交接：用户、租户、租户管理员、平台管理员页面
+
+交接日期：2026-09-22。源码基线：`8b80461`。范围为上述四类页面及必要的登录、角色选择、套餐选择、会话配套。可将本节完整转发给前端。
+
+**“可接”表示当前源码存在对应路由与实现，可开始开发和联调；不表示目标环境已部署或端到端验收通过。** 本次只核对源码与报文并编写文档；目标环境 HTTP、前端、隔离验收为 `not_verified`。本节“暂缓”是建议的第一批页面范围，不代表后端已关闭这些路由。
+
+### 1. 通用请求与响应
+
+- `BASE_URL` 使用联调环境提供的 Governance 地址；以下路径原样使用，不统一替换 `/api/v1` 和 `/admin/v1`。
+- 受保护请求带 `Authorization: Bearer <access_token>`；JSON 请求带 `Content-Type: application/json`，接受 JSON 响应。浏览器登录、刷新需保存并发送 Cookie，建议经同源代理访问。
+- 普通创建是 `{ "data": { ... } }`，普通更新是 `{ "data": { ... }, "updateMask": "字段1,字段2" }`。登录和 `tenants:with-admin` 等专用接口按下文报文发送。
+- HTTP JSON 的 `updateMask` 是逗号分隔的 **lowerCamelCase 字符串**，例如 `"nickname,roleIds"`、`"planId,expiredAt,status"`；不是 `{ "paths": [...] }`，也不要发送 `"role_ids"`。后端解析后才转换为 snake_case。更新始终明确传 mask，不使用 `allowMissing`。
+- 路径中的 `{id}` 替换为真实数字，GET 不带请求体。普通实体 ID 为 JSON number；`total`、用量等 int64/uint64 字段按 JSON 十进制字符串处理，界面计数可在确认安全整数范围后转 number。
+- 枚举使用字符串名；时间使用 RFC 3339，例如 `"2027-09-22T00:00:00Z"`，不能发送毫秒时间戳。可选字段可能缺失；不要假设 `null` 或省略字段能清空数据库值。
+- 成功响应直接是业务对象，没有统一 `{code,data}` 外壳。列表为 `{ "items": [...], "total": "2" }`；详情直接返回 User/Tenant/Role/Plan；普通创建、更新、删除返回 `{}`，**不返回新建 ID**。创建成功后刷新对应筛选列表获取结果。
+- 错误使用非 2xx HTTP 状态，JSON 为 `{ "code": 403, "reason": "FORBIDDEN", "message": "...", "metadata": { "request_id": "..." } }` 这类结构；`reason` 的实际值按响应处理。401 走刷新/重新登录，403 提示权限或租户套餐限制，不能把所有 403 都当登录过期。保留 request_id 便于联调。
+- 不提交 `createdBy/updatedBy`、统计字段等只读数据。用户响应中的邮箱/手机可能脱敏或被 `hiddenFields` 隐藏；编辑时只提交实际修改的字段，不能把整个详情对象原样写回。
+
+### 2. 登录及页面初始化
+
+| 编号 | 方法与路径 | 请求 | 响应 / 页面行为 |
+| --- | --- | --- | --- |
+| AUTH-02 | `POST /api/v1/auth/platform/password/login` | `{username,password}`，原始密码 | 平台管理员登录 |
+| AUTH-01 | `POST /api/v1/auth/password/login` | `{tenant_name,username,password}`，原始密码 | 租户用户及租户首管理员登录；`tenant_name` 填租户 `code`，不是显示名称 |
+| AUTH-05 | `GET /admin/v1/me` | Bearer，无参数 | 当前 User；用于确认当前 `id/tenantId/roles` |
+| AUTH-06 | `GET /admin/v1/initial-context` | Bearer，无参数 | `{menus,permissions,hiddenFields}`，用于导航、按钮和字段展示 |
+| AUTH-04 | `POST /api/v1/auth/refresh` | `{}`，携带 `refresh_token` Cookie，无需 Bearer | 新访问令牌；客户端串行刷新，旧令牌对失效 |
+| AUTH-03 | `POST /api/v1/auth/logout` | Bearer，`{}` | `{status:"revoked"}`；吊销该用户全部后台会话并清 Cookie |
+| AUTH-07/08 | `GET /admin/v1/routes`、`GET /admin/v1/perm-codes` | Bearer | 单独导航 `{items}`、权限 `{codes,hiddenFields}`；用了 AUTH-06 可不重复调用 |
+
+正常登录/刷新响应为 `access_token`、`expires_in`（秒，字符串）和 `issued_at` 等字段。刷新令牌从 HttpOnly Cookie 读取，不依赖响应体的 `refresh_token`。密码登录不再使用 AES、Base64 或图形验证码。
+
+若登录返回 `mfa_required=true`，当前尚未完成登录，不能进入管理页；按既有 AUTH-09（`POST /admin/v1/mfa/verify`）处理二次验证，其响应与普通登录不同，见登录功能组。不要因首批未制作 MFA 页面而把该中间态当成功。
+
+### 3. 列表、筛选与分页
+
+用户、租户、角色、套餐列表统一使用 `page`、`pageSize`、`query`，从第 1 页开始；`query` 是 **JSON 字符串**，通过 URL 参数编码发送。筛选中的字段采用数据库 snake_case；这与 JSON body 的 camelCase 是两层合同。
+
+```javascript
+// 示例 ID 均须替换为接口查到的值。此例查询租户 12 的全部用户。
+const params = new URLSearchParams({
+  page: '1',
+  pageSize: '20',
+  query: JSON.stringify({ tenant_id: '12' }),
+  orderBy: JSON.stringify(['-id']),
+});
+const url = `${BASE_URL}/admin/v1/users?${params.toString()}`;
+// 使用项目统一请求客户端，并附加 Bearer。
+```
+
+| 需求 | `query` 的对象内容（发送时 JSON.stringify） |
+| --- | --- |
+| 平台账号列表 | `{ "tenant_id": "0" }` |
+| 指定租户的全部用户 | `{ "tenant_id": "12" }` |
+| 指定租户管理员列表 | `{ "tenant_id": "12", "role_id": "34" }`，34 为该租户管理员角色 ID |
+| 用户名包含搜索 | `{ "tenant_id": "12", "username__contains": "alice" }` |
+| 平台替指定租户检查用户名 | `{ "tenant_id": "12", "username": "alice" }`，查 `items/total` |
+| 查租户管理员角色 | 对 `/admin/v1/roles`：`{ "tenant_id": "12", "type": "TENANT", "code": "tenant:manager", "status": "ON" }` |
+| 查默认平台管理员角色 | 对 `/admin/v1/roles`：`{ "tenant_id": "0", "type": "SYSTEM", "code": "platform:admin", "status": "ON" }` |
+| 租户名称包含搜索 | 对 `/admin/v1/tenants`：`{ "name__contains": "示例" }` |
+| 创建租户后定位记录 | 对 `/admin/v1/tenants`：`{ "code": "example-team" }` |
+
+裸字段是精确条件，文本模糊搜索显式使用 `__contains`，ID 不做模糊匹配。单角色过滤用顶层 `role_id`；多角色用顶层 `"role_ids__in": ["34","35"]`。不要写成 `role_ids:[34,35]`，也不要把角色条件藏在 `$and/$or` 子树中。管理员列表由后端过滤后分页，不在前端拿一页普通用户再筛管理员。
+
+角色/套餐下拉可在范围受控时使用 `noPaging=true`，仍携带必要的 `query`；当前依赖默认上限为 10,000 行，不能当作无限全量导出。普通分页建议 `pageSize=20`，默认上限 100。当前租户登录只能读取本租户允许的数据，不能靠修改筛选参数切换身份。
+
+### 4. 用户管理：三个账号页面共用
+
+平台管理员可管理平台及目标租户账号；默认租户管理员仅管理本租户。普通用户是否有管理权限取决于其角色，不能因能登录而显示所有管理按钮。
+
+| 编号 | 方法与路径 | 请求 / 响应 | 第一批接入说明 |
+| --- | --- | --- | --- |
+| ACCOUNT-01 | `GET /admin/v1/users` | 共用分页 → `{items,total}` | 列表、查重预检查、创建后定位 |
+| ACCOUNT-02 | `GET /admin/v1/users/{id}` | 无 body → User | 查看及编辑前读取最新角色/状态 |
+| ACCOUNT-03 | `POST /admin/v1/users` | `{data,password,activationMode}` → `{}` | 新增普通用户、追加租户管理员、创建平台管理员共用 |
+| ACCOUNT-04 | `PUT /admin/v1/users/{id}` | `{data,updateMask}` → `{}` | 资料、角色、启用/禁用共用；不在资料更新中夹带 password |
+| ACCOUNT-05 | `DELETE /admin/v1/users/{id}` | 无 body → `{}` | 按 ID 删除；服务端拒绝删除默认平台管理员及本人 |
+| ACCOUNT-06 | `GET /admin/v1/users:exists` | `?username=alice` 或 `?id=123` → `{exist}` | username 仅当前租户可用；平台用户名查重改用列表精确查询，不能附加 tenantId 绕过 |
+| ROLE-01 | `GET /admin/v1/roles` | 共用分页 → `{items,total}` | 获取目标租户可分配角色；平台角色筛 `tenant_id=0,type=SYSTEM` |
+| ROLE-02 | `GET /admin/v1/roles/{id}` | 无 body → Role | 查看角色 `code/type/tenantId/permissions`；permissions 是权限点 ID 数组 |
+
+用户主要显示字段：`id,tenantId,tenantName,username,nickname,realname,roleIds,roles,roleNames,status,email,mobile,createdAt,updatedAt`。角色显示名称不能作为写入标识，写入使用 `roleIds`。
+
+创建示例：`POST /admin/v1/users`。`12/34` 为查询所得租户/角色 ID；密码占位符必须替换为用户输入并通过服务端密码策略。
+
+```json
+{
+  "data": {
+    "tenantId": 12,
+    "username": "alice",
+    "nickname": "Alice",
+    "roleIds": [34],
+    "status": "NORMAL"
+  },
+  "password": "<用户输入的原始密码>",
+  "activationMode": "IMMEDIATE"
+}
+```
+
+立即激活时页面要求明确输入密码，不依赖后端默认密码。创建用户和密码凭证目前不是一个事务；若返回失败，应按租户和用户名重新查列表确认是否已建用户，不能无条件自动重试创建（MGMT-07）。
+
+资料更新示例：`PUT /admin/v1/users/123`。
+
+```json
+{
+  "data": {
+    "tenantId": 12,
+    "roleIds": [34],
+    "nickname": "新的昵称",
+    "remark": "新的备注"
+  },
+  "updateMask": "nickname,remark"
+}
+```
+
+**每次用户更新都带真实目标 `tenantId` 和完整有效 `roleIds`**，即使 mask 只改昵称或状态；这是当前 Service 的校验要求。普通字段更新的 mask 不加 `roleIds`，防止覆盖并发角色变化。平台更新租户账号漏传 `tenantId`，会按 SYSTEM 角色校验并可能报 `some roles not found`。
+
+- 启停：同一 PUT，`data` 保留 `tenantId/roleIds` 并传 `status:"DISABLED"` 或 `"NORMAL"`；`updateMask:"status"`。
+- 分配角色：同一 PUT，传目标完整 `roleIds`，`updateMask:"roleIds"`；不允许传空角色数组。角色保存没有吊销旧 JWT，不能提示“已有会话权限立即失效”；刷新/重登才重载用户角色。
+- 第一批资料字段可用 `nickname/realname/email/mobile/telephone/region/address/description/remark/gender`；用户名、租户归属保持只读，不提供迁租、改用户名或头像编辑。组织/岗位关联不在本次四页面接入范围。
+- 管理侧修改资料中的 email 不等于完成邮箱验证，也不自动建立找回密码所需的邮箱凭证；邀请码接受与 AUTH-17/18 邮箱验证是独立流程。
+- 用户状态全集为 `NORMAL/DISABLED/PENDING/LOCKED/EXPIRED/CLOSED`，状态展示需兼容全部值；手动启停使用前两种，邀请待激活不等于管理员手动启用流程。
+- 禁用/删除可能出现数据库成功、会话吊销失败而返回 500；页面重新查询记录/状态，展示服务端提示，不把报错简单解释为“没有发生修改”。
+
+### 5. 租户管理员与平台管理员的页面规则
+
+| 页面 | 列表条件 | 创建 / 编辑角色 | 登录入口 |
+| --- | --- | --- | --- |
+| 租户用户管理 | 指定 `tenant_id`；默认含管理员，可按角色进一步筛选 | 该租户的 TENANT 角色 | AUTH-01 |
+| 租户管理员管理 | 指定 `tenant_id` ＋ 该租户 `tenant:manager` 的角色 ID | 复用 ACCOUNT-03/04，绑定查询到的本租户管理员角色 | AUTH-01，含首管理员 |
+| 平台管理员管理 | `tenant_id=0`；若只列管理员，再加 `platform:admin` 对应角色 ID | 第一批使用现有 `platform:admin`；角色类型 SYSTEM | AUTH-02 |
+
+三个页面复用同一用户 CRUD，不新增“管理员账号”接口。`tenant_id=0` 是平台范围，不是“当前租户”的占位值；不要在租户用户请求中随意使用 0。
+
+`adminUserId` 是租户记录中的主管理员指针；它不代表所有具有管理员角色的用户。产品不做主管理员移交。默认租户管理员只有角色读取权限，没有角色增删改权限；“给用户分配已有角色”和“编辑角色的权限”是两项功能。
+
+首次种子只提供平台管理员和租户管理员模板，**没有普通用户、平台运营、平台只读的完整角色模板**。普通用户页面需要后端/平台先准备对应 TENANT 角色，不能默认把管理员角色当作普通角色。第一批不制作自定义权限矩阵。
+
+删除、禁用、撤销管理员角色前需要确认目标；当前没有“最后一个有效管理员”后端保护，删除租户主管理员也不会自动清空 `adminUserId`。建议首批暂不开放主管理员删除、管理员降权等易导致失去管理入口的操作（MGMT-12/13）；页面限制不代替后端保护。
+
+### 6. 租户管理
+
+本组为平台侧页面；默认租户管理员无 TENANT-* 及 PLAN-* 授权。
+
+| 编号 | 方法与路径 | 请求 / 响应 | 第一批接入说明 |
+| --- | --- | --- | --- |
+| TENANT-01 | `GET /admin/v1/tenants` | 共用分页 → `{items,total}` | 列表、租户选择、创建后定位 |
+| TENANT-02 | `GET /admin/v1/tenants/{id}` | 无 body → Tenant | 详情 |
+| TENANT-06 | `POST /admin/v1/tenants:with-admin` | `{tenant,user,password,activationMode}` → `{}` | 新开租户推荐入口，原子创建租户、首管理员、角色、凭证 |
+| TENANT-03 | `POST /admin/v1/tenants` | `{data:{...租户字段}}` → `{}` | 仅创建租户记录，不生成管理员/租户管理员角色；不作为默认开通按钮 |
+| TENANT-04 | `PUT /admin/v1/tenants/{id}` | `{data,updateMask}` → `{}` | 编辑资料、状态、套餐、有效期 |
+| TENANT-07 | `GET /admin/v1/tenants:exists` | `?code=example-team` 或 `?name=示例团队` → `{exist}` | 至少传一项；两项同时传时任一重复即 true；不支持排除当前记录 ID |
+| TENANT-08 | `GET /admin/v1/tenants/{id}/usage` | 无 body → TenantUsage | 只读用量；`storageUsedBytes=0` 为当前占位，不能标记为外部存储真实用量 |
+| PLAN-01 | `GET /admin/v1/plans` | 共用分页 → `{items,total}` | 套餐选择器，使用返回的真实 id |
+| PLAN-02 | `GET /admin/v1/plans/{id}` | 无 body → Plan | 展示所选套餐名称、到期策略等 |
+
+主要租户展示字段：`id,name,code,status,type,auditStatus,planId,expiredAt,adminUserId,adminUserName,memberCount,createdAt`。审核状态目前是普通字段，不代表独立审批流程。`TenantUsage` 返回 `tenantId,userCount,storageUsedBytes,apiCallCount,planId,planName,quotas`，API 次数不是计费周期统计，quota 也不代表已实现超额拦截。
+
+开通示例：`POST /admin/v1/tenants:with-admin`。套餐 ID 5 须换成实际允许后台管理模块的套餐。
+
+```json
+{
+  "tenant": {
+    "name": "示例团队",
+    "code": "example-team",
+    "status": "ON",
+    "planId": 5
+  },
+  "user": {
+    "username": "tenant_admin",
+    "nickname": "租户管理员",
+    "status": "NORMAL"
+  },
+  "password": "<用户输入的原始密码>",
+  "activationMode": "IMMEDIATE"
+}
+```
+
+`user.tenantId/roleIds` 和 `tenant.adminUserId` 不由页面填写，由服务端生成绑定。建号成功后刷新列表，按租户 `code` 精确取得新租户。租户必须启用、绑定包含所需模块的套餐，且实际 API 目录和角色绑定齐全，租户账号才能使用管理页；这些是环境前提，前端不用调用 API 同步或修改种子。
+
+`tenants:with-admin` 返回失败时，也先按 code 查询租户及首管理员。数据库事务提交后还会重载策略，重载失败可导致“已创建但响应报错”；不要无条件自动重试创建，由后端确认持久化结果并重载策略。
+
+更新示例：`PUT /admin/v1/tenants/12`。
+
+```json
+{
+  "data": {
+    "planId": 5,
+    "expiredAt": "2027-09-22T00:00:00Z",
+    "status": "ON"
+  },
+  "updateMask": "planId,expiredAt,status"
+}
+```
+
+套餐实际关联用 `planId`，`subscriptionPlan` 文本不能代替它。只改状态时 `data:{status:"OFF"}`、`updateMask:"status"`。租户状态为 `ON/OFF/FREEZE/EXPIRED`；延长有效期不会自动将冻结/过期状态恢复为 ON，页面应根据操作者意图明确提交状态。修改 code 会影响后续租户登录输入，应作明显提示。不开放 `adminUserId` 更新。
+
+### 7. 可选配套：邀请与平台会话
+
+**邮件邀请**复用 ACCOUNT-03 或 TENANT-06：设置顶层 `activationMode:"EMAIL_INVITATION"`，移除 password，普通建号增加 `data.email`，建租户增加 `user.email`。服务端会将账号设为 PENDING；须先具备可用 EMAIL 渠道和邀请 origin。邀请 24 小时有效，目前无重发/撤销管理接口，第一批可以只接立即激活。
+
+自建接受邀请页时调用 AUTH-12：`POST /api/v1/auth/invitations/accept`，body 为 `{ "token": "<邮件链接片段中的令牌>", "password": "<用户输入的原始密码>" }`，无需 Bearer，成功返回 `{}`，随后进入原平台/租户登录页；不自动登录。邀请接受不依赖先调用绑定邮箱接口。
+
+**平台会话管理**使用下表；默认租户管理员四条均未授权，第一批不在租户页面展示可操作入口。
+
+| 编号 | 方法与路径 | 请求 | 响应 |
+| --- | --- | --- | --- |
+| SESSION-01 | `GET /admin/v1/online-session/sessions` | `page=1&pageSize=20&keyword=alice`；keyword 按用户名/IP 匹配 | `{items,total}` |
+| SESSION-02 | `POST /admin/v1/online-session/force-logout` | `{userId,jti,clientType}`，均取目标会话记录 | `{}`；下线指定会话 |
+| SESSION-03 | `GET /admin/v1/online-session/my-sessions` | 无参数 | `{items,total}`，本人会话，含 `current` 标记 |
+| SESSION-04 | `POST /admin/v1/online-session/my-sessions/revoke` | `{jti,clientType}` | `{}`；下线本人指定会话 |
+
+会话项含 `jti,userId,username,tenantId,clientType,ipAddress,userAgent,deviceId,loginAt`；`clientType` 为 `"admin"` 或 `"app"`，原样回传。`current` 仅在本人列表有意义。管理会话列表不支持独立 userId/tenantId 精确筛选参数，不能把前端过滤一页的结果和全局 total 当成某用户的完整会话分页。
+
+### 8. 第一批暂缓项与后端跟进
+
+| 接口 / 操作 | 暂缓原因或接入前置 |
+| --- | --- |
+| AUTH-15 `PUT /admin/v1/me` | 直接进入通用用户更新，可写角色；必须先由后端限定自助字段（MGMT-11）。页面隐藏字段无法消除已暴露接口的风险，正式开放给真实用户前需处理 |
+| ACCOUNT-07 `POST /admin/v1/users/{user_id}/password` | 仍要求 AES+Base64，且 HTTP 路径模板与 API 目录不一致（MGMT-05）；建议本批先不开放重置密码按钮 |
+| ACCOUNT-04 顶层 password、AUTH-16 `POST /admin/v1/me/password` | 同样仍是旧 AES 协议；不能复用创建/登录明文提交，也不以普通 PUT 夹带密码绕过前述问题 |
+| ACCOUNT-08/09 用户名详情/删除别名 | 使用 ID 入口；用户名删除有实现缺口，平台同名账号存在跨租户歧义（MGMT-06） |
+| ROLE-03～05、PERM-*、PERMGROUP-* 自定义角色与权限写入 | 四类页面先选择已有角色。运营/只读权限矩阵待定；权限点 PUT 丢数组会清绑定，删除保护不完整（MGMT-09/10/18） |
+| TENANT-05 `DELETE /admin/v1/tenants/{id}` | 仅删除租户记录，不等于关联数据及下游资源清理；首批普通管理流程不开放 |
+| TENANT-09 `POST /admin/v1/tenants/{id}/cleanup` | 删除实现列出的 Governance 本地数据，保留租户并置 OFF；不清下游资源，code/name 仍占用，需单独设计操作流程 |
+| 主管理员移交 | 产品明确不提供，不调用通用更新改 adminUserId 代替移交 |
+| 平台身份调用 API Key 管理 | 当前 Service 拒绝 tenantId=0；本批平台管理员页面不据种子授权矩阵添加该入口 |
+
+前端可先完成列表/详情、现有角色选择、立即激活创建、管理侧基础编辑与启停；按上述限制处理错误和状态。后端应先收紧 `/me`，再按选定范围修复密码重置、角色变更后的旧会话和管理员保护问题。以上为交接建议，未在本次文档工作中实施修复或改变此前产品范围。
+
+### 9. 联调检查与源码依据
+
+联调至少分别使用平台管理员、租户 A 管理员、租户 B 管理员核对：正确列表范围、管理员角色筛选、创建后登录、更新 mask、启停与会话失效、无权限按钮/403、A 无法读写 B 的账号。邮件/MFA/会话功能在选择接入时另验。当前这些目标环境结果均为 `not_verified`，不得仅用 HTTP 200 或菜单出现判定完成。
+
+接口以已注册 BFF 与 Service 为准，不能只按源领域 RPC 名或 OpenAPI 路径模板推导可用性。
+
+- 路由：[用户](../api/protos/admin/service/v1/i_user.proto)、[租户](../api/protos/admin/service/v1/i_tenant.proto)、[角色](../api/protos/admin/service/v1/i_role.proto)、[套餐](../api/protos/admin/service/v1/i_plan.proto)、[认证](../api/protos/admin/service/v1/i_authentication.proto)、[会话](../api/protos/admin/service/v1/i_online_session.proto)。
+- 报文：[User](../api/protos/identity/service/v1/user.proto)、[Tenant / TenantUsage](../api/protos/identity/service/v1/tenant.proto)、[Role](../api/protos/permission/service/v1/role.proto)、[Plan](../api/protos/identity/service/v1/plan.proto)、[登录](../api/protos/authentication/service/v1/ani_auth.proto)、[会话](../api/protos/online_session/service/v1/online_session.proto)。
+- 实现：[用户校验与会话吊销](../app/admin/service/internal/service/user_service.go)、[用户筛选及查重](../app/admin/service/internal/data/user_repo.go)、[租户与首管理员开通](../app/admin/service/internal/service/tenant_service.go)、[邀请使用说明](onboarding.md)、[部署和权限目录前提](deployment.md)。
 
 ## 功能组：API Key / AK-SK
 
