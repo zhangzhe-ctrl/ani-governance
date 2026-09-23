@@ -15,8 +15,8 @@ import (
 // userId 传 0 表示只检查全局条目（密码校验前的第一段），取到 userId 后再查第二段。
 //
 // 维度支持：IP（精确 IP 或 CIDR）、TIME（HH:MM-HH:MM 时间窗，支持跨午夜）、
-// DEVICE（device_id 精确匹配）。MAC 与 REGION 第一版不判定：HTTP 请求上下文
-// 拿不到 MAC 地址，REGION 依赖 IP 地理库（后续可复用登录审计的 GeoLocation 能力接入）。
+// DEVICE（device_id 精确匹配）。MAC 与 REGION 不判定：HTTP 请求上下文拿不到
+// MAC 地址，REGION 也没有数据来源——审计已不再采集 IP 归属地。
 func MatchLoginPolicy(
 	policies []EffectivePolicy,
 	userId uint32,

@@ -55,8 +55,11 @@ vendor/
 # Secrets / env (compose reads .env on the host; never baked into image layers)
 .env
 
-# SQL seed/migration dumps (not needed for image build)
-sql/
+# SQL dumps are not needed to build the image, but sql/bootstrap/*.go is embedded
+# by the server and admin binaries and must stay in the context.
+sql/*.sql
+sql/patches/
+sql/quota/
 
 # Source dependency backups are restored explicitly, not included in images.
 third_party/

@@ -121,8 +121,6 @@ func (o *OperationAuditLogMiddleware) Handle(ctx context.Context, htr *http.Tran
 		operationAuditLog.Username = ut.Username
 	}
 
-	operationAuditLog.GeoLocation = fillGeoLocation(clientIp)
-
 	statusCode, reason, success := getStatusCode(middleErr)
 
 	operationAuditLog.Success = trans.Ptr(success)

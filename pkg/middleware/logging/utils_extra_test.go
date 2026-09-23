@@ -12,12 +12,10 @@
 //  5. parseUsernameFromBytes / stripLineBreaks / extractUsernameFromRequest：
 //     JSON 与表单体提取、CR/LF 剥离（防日志行注入）、未找到的报错路径、
 //     提取后请求体的可重读性；
-//  6. clientIpToLocation / fillGeoLocation：私网 IP（局域网归一）、
-//     非法 IP（空结果）；
-//  7. fillDeviceInfo 的空 Transport 来源（全空设备信息）；
-//  8. isPrivateIP：常见私网/链路本地/环回段与 IPv6 ULA 的判定；
-//  9. detectPlatformFromUA：原生 App / 桌面混合应用 / 浏览器的启发式分类全分支；
-//  10. generateECDSAKeyPair 与 encodeDER（含高位字节 0x00 前缀与零值分支）。
+//  6. fillDeviceInfo 的空 Transport 来源（全空设备信息）；
+//  7. isPrivateIP：常见私网/链路本地/环回段与 IPv6 ULA 的判定；
+//  8. detectPlatformFromUA：原生 App / 桌面混合应用 / 浏览器的启发式分类全分支；
+//  9. generateECDSAKeyPair 与 encodeDER（含高位字节 0x00 前缀与零值分支）。
 package logging
 
 import (
@@ -285,37 +283,6 @@ type errReadCloser struct{ err error }
 
 func (r *errReadCloser) Read(p []byte) (int, error) { return 0, r.err }
 func (r *errReadCloser) Close() error               { return nil }
-
-// TestClientIpToLocation 验证地理解析结果的两个分支：
-// 私网 IP → 内建局域网结果；非法 IP → nil。
-func TestClientIpToLocation(t *testing.T) {
-	res := clientIpToLocation("127.0.0.1")
-	require.NotNil(t, res)
-	assert.Equal(t, "局域网", res.Country)
-	assert.Equal(t, "局域网", res.Province)
-	assert.Equal(t, "局域网", res.City)
-
-	assert.Nil(t, clientIpToLocation("not-an-ip"))
-}
-
-// TestFillGeoLocation 验证地理位置填充：非法/空 IP 得到全空结构体
-// （不 panic、不 nil）；私网 IP 填内建局域网字段。
-func TestFillGeoLocation(t *testing.T) {
-	for _, ip := range []string{"", "not-an-ip"} {
-		info := fillGeoLocation(ip)
-		require.NotNil(t, info, "地理位置结构必须非 nil")
-		assert.Empty(t, info.GetCountryCode())
-		assert.Empty(t, info.GetProvince())
-		assert.Empty(t, info.GetCity())
-		assert.Empty(t, info.GetIsp())
-	}
-
-	info := fillGeoLocation("127.0.0.1")
-	require.NotNil(t, info)
-	assert.Equal(t, "局域网", info.GetCountryCode())
-	assert.Equal(t, "局域网", info.GetProvince())
-	assert.Equal(t, "局域网", info.GetCity())
-}
 
 // TestFillDeviceInfoEmptyTransport 验证空 Transport（无请求头可读）时
 // 设备信息为全空解析：UA 空、设备类型 OTHER、平台 Other、ClientId 空。

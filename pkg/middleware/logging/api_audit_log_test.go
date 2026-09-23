@@ -110,12 +110,8 @@ func TestApiAuditLogHandleFieldMapping(t *testing.T) {
 	assert.Equal(t, uint32(7), rec.GetTenantId())
 	assert.Equal(t, "alice", rec.GetUsername())
 
-	// 地理位置映射（私网 IP → 局域网，GeoLite 库内建分支）。
-	geo := rec.GetGeoLocation()
-	require.NotNil(t, geo)
-	assert.Equal(t, "局域网", geo.GetCountryCode())
-	assert.Equal(t, "局域网", geo.GetProvince())
-	assert.Equal(t, "局域网", geo.GetCity())
+	// 归属地不再采集（原 GeoLite 内建分支已随地理库一并移除）。
+	assert.Nil(t, rec.GetGeoLocation())
 
 	// 设备信息映射（UA 解析 + 令牌 cid）。
 	di := rec.GetDeviceInfo()
@@ -254,7 +250,7 @@ func TestApiAuditLogHandleInputSanitization(t *testing.T) {
 		require.Len(t, env.capture.api, 1)
 		rec := env.capture.api[0]
 		assert.Equal(t, "10.0.0.5", rec.GetIpAddress(), "XFF 中首个可解析 IP 优先于 RemoteAddr")
-		assert.Equal(t, "局域网", rec.GetGeoLocation().GetCountryCode(), "私网 IP 的地理归一")
+		assert.Nil(t, rec.GetGeoLocation(), "归属地不再采集")
 	})
 }
 

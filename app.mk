@@ -63,14 +63,15 @@ LAST_TAG	?= v$(DEFAULT_VERSION)
 VERSION		?= $(DEFAULT_VERSION)
 
 # GOFLAGS is the flags for the go compiler.
-LDFLAGS ?= -X main.version=$(VERSION)
+# "-s -w" strips the symbol table and DWARF so shipped artifacts match the image build.
+LDFLAGS ?= -s -w -X main.version=$(VERSION)
 GOFLAGS ?=
 
 APP_RELATIVE_PATH	:= $(shell a=`basename $$PWD` && cd .. && b=`basename $$PWD` && echo $$b/$$a)
 SERVICE_NAME		:= $(shell a=`basename $$PWD` && cd .. && b=`basename $$PWD` && echo $$b)
 APP_NAME			:= $(shell echo $(APP_RELATIVE_PATH) | sed -En "s/\//-/p")
 
-.PHONY: build clean docker gen ent api openapi run app help
+.PHONY: build clean docker docker_server docker_admin gen ent api openapi run app help
 
 # show environment variables
 env:
@@ -132,9 +133,21 @@ openapi:
 	cd ../../../api && \
 	buf generate --template buf.admin.openapi.gen.yaml
 
-# build docker image
-docker:
-	docker build -t $(PROJECT_NAME)/$(APP_NAME) \
+# build both docker images (server runtime + admin CLI)
+docker: docker_server docker_admin
+
+# build the service runtime image
+docker_server:
+	docker build --target runtime-server \
+				  -t $(PROJECT_NAME)/$(APP_NAME):$(VERSION) \
+				  --build-arg SERVICE_NAME=$(SERVICE_NAME) \
+				  --build-arg APP_VERSION=$(APP_VERSION) \
+				  -f ../../../Dockerfile ../../../
+
+# build the one-shot admin CLI image (init / check / sync-apis)
+docker_admin:
+	docker build --target runtime-admin \
+				  -t $(PROJECT_NAME)/$(APP_NAME)-admin:$(VERSION) \
 				  --build-arg SERVICE_NAME=$(SERVICE_NAME) \
 				  --build-arg APP_VERSION=$(APP_VERSION) \
 				  -f ../../../Dockerfile ../../../

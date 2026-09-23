@@ -96,7 +96,7 @@ func TestOperationAuditLogHandleFieldMapping(t *testing.T) {
 	assert.Equal(t, "alice", rec.GetUsername(), "Username ← 令牌 sub")
 	assert.Equal(t, "127.0.0.1", rec.GetIpAddress())
 	assert.Equal(t, "req-op-1", rec.GetRequestId(), "RequestId ← X-Request-ID 头")
-	assert.Equal(t, "局域网", rec.GetGeoLocation().GetCountryCode(), "GeoLocation ← 客户端 IP 的地理解析")
+	assert.Nil(t, rec.GetGeoLocation(), "归属地不再采集")
 	assert.True(t, rec.GetSuccess())
 	assert.Empty(t, rec.GetFailureReason())
 	requireLogHashHex(t, rec.GetLogHash())

@@ -17,20 +17,16 @@ import (
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/tx7do/go-utils/geoip"
 	"github.com/tx7do/go-utils/id"
 	"github.com/tx7do/go-utils/trans"
 
 	"github.com/mileusna/useragent"
-	"github.com/tx7do/go-utils/geoip/geolite"
 
 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 
 	"go-wind-admin/pkg/middleware/auth"
 )
-
-var ipClient, _ = geolite.NewClient()
 
 // extractAuthToken uses only the verified identity recorded by the authentication middleware.
 func extractAuthToken(ctx context.Context) *authenticationV1.UserTokenPayload {
@@ -214,15 +210,6 @@ func extractUsernameFromRequest(r *http.Request) (username string, err error) {
 	return "", err
 }
 
-// clientIpToLocation 获取客户端IP的地理位置
-func clientIpToLocation(ip string) *geoip.Result {
-	res, err := ipClient.Query(ip)
-	if err != nil {
-		return nil
-	}
-	return &res
-}
-
 // generateECDSAKeyPair 生成 ECDSA 密钥对（secp256r1 曲线）
 func generateECDSAKeyPair() (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
@@ -299,23 +286,6 @@ func fillDeviceInfo(htr *http.Transport, ut *authenticationV1.UserTokenPayload) 
 	info.Platform = trans.Ptr(detectPlatformFromUA(userAgent))
 
 	info.ClientId = trans.Ptr(getClientID(htr.Request(), ut))
-
-	return
-}
-
-// fillGeoLocation 填写地理位置信息
-func fillGeoLocation(clientIp string) (info *auditV1.GeoLocation) {
-	info = &auditV1.GeoLocation{}
-
-	result := clientIpToLocation(clientIp)
-	if result == nil {
-		return
-	}
-
-	info.CountryCode = trans.Ptr(result.Country)
-	info.Province = trans.Ptr(result.Province)
-	info.City = trans.Ptr(result.City)
-	info.Isp = trans.Ptr(result.ISP)
 
 	return
 }

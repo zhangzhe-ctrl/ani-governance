@@ -91,11 +91,9 @@ func TestLoginAuditLogHandleLoginOpWithToken(t *testing.T) {
 	assert.Equal(t, uint32(42), rec.GetUserId())
 	assert.Equal(t, uint32(7), rec.GetTenantId())
 
-	// IP 与地理（私网归一）。
+	// IP 记录保留；归属地不再采集。
 	assert.Equal(t, "127.0.0.1", rec.GetIpAddress())
-	geo := rec.GetGeoLocation()
-	require.NotNil(t, geo)
-	assert.Equal(t, "局域网", geo.GetCountryCode())
+	assert.Nil(t, rec.GetGeoLocation())
 
 	// 设备信息：无 UA 头 → 空解析；ClientId ← 令牌 cid。
 	di := rec.GetDeviceInfo()
@@ -194,7 +192,7 @@ func TestLoginAuditLogHandleReplyHeaderFallbackUsername(t *testing.T) {
 	rec := env.capture.login[0]
 	assert.Equal(t, "audit-user", rec.GetUsername(), "Username ← 响应头 X-Audit-Username 兜底")
 	assert.Equal(t, "8.8.8.8", rec.GetIpAddress())
-	assert.Equal(t, "美国", rec.GetGeoLocation().GetCountryCode(), "公网 IP 走地理库解析")
+	assert.Nil(t, rec.GetGeoLocation(), "归属地不再采集，公网 IP 也不再解析")
 	// 评分：成功(0) + 未知用户(10) + 未知设备(10) + 公网(0) = 20 → LOW。
 	assert.Equal(t, uint32(20), rec.GetRiskScore())
 	assert.Equal(t, auditV1.LoginAuditLog_LOW, rec.GetRiskLevel())

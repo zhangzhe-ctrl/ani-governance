@@ -80,9 +80,6 @@ func (a *ApiAuditLogMiddleware) Handle(ctx context.Context, htr *http.Transport,
 		apiAuditLog.TenantId = trans.Ptr(p.TenantID)
 	}
 
-	// 地理位置
-	apiAuditLog.GeoLocation = fillGeoLocation(clientIp)
-
 	// 用户设备信息
 	apiAuditLog.DeviceInfo = fillDeviceInfo(htr, ut)
 

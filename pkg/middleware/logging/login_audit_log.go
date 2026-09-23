@@ -88,8 +88,6 @@ func (l *LoginAuditLogMiddleware) Handle(ctx context.Context, htr *http.Transpor
 	loginAuditLog.IpAddress = trans.Ptr(clientIp)
 	loginAuditLog.CreatedAt = timeutil.TimeToTimestamppb(trans.Ptr(time.Now()))
 
-	loginAuditLog.GeoLocation = fillGeoLocation(clientIp)
-
 	if username, _ := extractUsernameFromRequest(htr.Request()); username != "" {
 		loginAuditLog.Username = trans.Ptr(username)
 	}

@@ -849,3 +849,20 @@ x-ani-authz:
 - QUOTA-ISSUE-06：本批不调整全局到期后用户 DELETE 权限；内部可信资源释放通道必须持续可用。旧三个配额项仍保持配置/现有统计，不宣称强制拦截已接入。
 
 本轮验证仅为源码核对、计划交叉审查与文档检查；实现、生成、迁移、本地模拟验收均未执行。整体登记继续进行中。
+
+## 功能组：审计归属地停止采集（IMAGE-SLIM-01）
+
+2026-09-23 镜像瘦身批次移除 GeoIP（GeoLite2）依赖，执行计划见 [镜像瘦身与二进制拆分执行计划](image-size-reduction-plan.md)。影响面是**既有审计写入的报文内容**，接口路由与鉴权条件不变。
+
+| 编号 | 涉及接口/报文 | 变更内容 | 鉴权、套餐关系、状态 |
+| --- | --- | --- | --- |
+| AUDIT-GEO-01 | 登录审计、API 审计、操作审计（写入）及对应审计查询响应中的 `geo_location` 子消息 | 不再采集 IP 归属地，新记录 `geo_location` 为 NULL/空；`ip_address`、设备信息、风险评分与签名不变 | 鉴权与套餐不变；Proto/Ent/DB 字段保留，字段删除另开一批；已实现（本机编译 + 定向测试通过，真实落库与查询展示 `not_verified`） |
+
+### 已登记边界与执行约束
+
+- AUDIT-GEO-ISSUE-01：登录策略 REGION 维度此前就未判定，移除地理库后仍无数据来源，登录闸门行为不变；IP/TIME/DEVICE 维度不受影响。
+- AUDIT-GEO-ISSUE-02：历史审计行的 `geo_location` 保持原值，本批不做数据迁移；前端与下游消费方需容忍空值。
+- AUDIT-GEO-ISSUE-03：本批不动 Proto/DB 字段；字段删除与对应 Atlas 迁移另开一批，不在本批声称完成。
+- AUDIT-GEO-ISSUE-04：镜像形态变化（服务镜像与运维 CLI 镜像拆分、基础镜像换 distroless）不属于接口变更，登记在此仅为可追溯；部署命令变更见 [部署文档](deployment.md)。
+
+本轮验证：本机 `go build ./...`、`go vet ./pkg/middleware/logging/...`、`go test ./pkg/middleware/logging/...` 通过；审计落库、查询响应与前端展示未验证（`not_verified`）。

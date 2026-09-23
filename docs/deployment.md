@@ -14,6 +14,21 @@ make build_only
 make build_admin
 ```
 
+镜像制品从仓库根目录构建，产出**两个独立镜像**（同一个 Dockerfile，按 target 区分）：
+
+```bash
+make docker_server   # 服务运行时镜像 $(PROJECT_NAME)/$(APP_NAME)
+make docker_admin    # 一次性运维 CLI 镜像 $(PROJECT_NAME)/$(APP_NAME)-admin
+
+# 或直接用 target 构建（未指定 --target 时默认构建服务镜像）
+docker build --target runtime-server -t <registry>/ani-governance:<tag> .
+docker build --target runtime-admin  -t <registry>/ani-governance-admin:<tag> .
+```
+
+两个镜像的基础镜像都是 `gcr.io/distroless/static-debian12:nonroot`：容器内无 shell、自带 CA 证书、以 UID 65532 运行；二进制以 `-trimpath -ldflags "-s -w"` 构建，符号表与 DWARF 已剥离。服务镜像内路径为 `/app/bin/server` 与 `/app/configs`；运维镜像内只有 `/app/bin/admin`，不含配置文件。
+
+构建期依赖代理默认 `https://goproxy.cn,https://proxy.golang.org,direct`（校验仍由 `go.sum` 保证），可用 `--build-arg GOPROXY=...` 覆盖；构建环境若要求 `proxy.golang.org` 在前（见 `AGENTS.md` 的 GOPROXY 约束），显式传入即可。
+
 服务使用 `app/admin/service/configs/` 的配置结构。部署时提供独立配置目录，至少核对：
 
 | 配置 | 要求 |
@@ -63,6 +78,19 @@ Atlas 的声明式来源为生成的 `app/admin/service/schema.sql`。其导出�
 ./bin/admin check
 ```
 
+使用运维镜像时（一次性作业，不随服务副本启动）：
+
+```bash
+docker run --rm \
+  -e ANI_DATABASE_DSN='postgres://USER@HOST:5432/DB?sslmode=require' \
+  -v /run/secrets/governance-admin-password:/run/secrets/governance-admin-password:ro \
+  <registry>/ani-governance-admin:<tag> admin init --username admin \
+  --password-file /run/secrets/governance-admin-password
+
+docker run --rm -e ANI_DATABASE_DSN='postgres://USER@HOST:5432/DB?sslmode=require' \
+  <registry>/ani-governance-admin:<tag> admin check
+```
+
 `admin` 只连接 PostgreSQL，不需要 Redis、邮件或其他业务服务。密码须满足当前初始策略：至少 8 位、至少三类字符，并受 bcrypt 长度限制。没有内置默认管理员密码。
 
 首次初始化在一个事务内完成：
@@ -89,7 +117,9 @@ gow run admin
 /app/bin/server -c /run/governance/configs
 ```
 
-根 Dockerfile 同时包含 `/app/bin/server` 和 `/app/bin/admin`；默认命令只启动服务。初始化单独以一次性作业或运维命令执行，不放在每个副本的启动命令中。
+根 Dockerfile 产出两个镜像：服务镜像（默认 target `runtime-server`）只含 `/app/bin/server` 与 `/app/configs`，运维镜像（`runtime-admin`）只含 `/app/bin/admin`。默认命令只启动服务；初始化单独以一次性作业或运维命令执行，不放在每个副本的启动命令中。
+
+镜像注意事项：基础镜像无 shell，容器内不能 `sh -c` 执行探针或脚本（迁移仍用独立 Atlas 镜像）；二进制已剥离符号，panic 栈只有地址，排障需按 build id 对应源码，必要时临时用未剥离构建复现。
 
 先用首管理员登录平台：`POST /api/v1/auth/platform/password/login`。登录不再需要图形验证码或验证码请求头；客户端在 JSON 的 `password` 字段直接提交用户输入的密码，不做 AES/Base64/bcrypt 编码，通过 HTTPS 访问部署入口。接口报文和待调整事项统一见 [功能对接与接口风格改动登记](interface-integration-register.md)。不要把“数据库里是 bcrypt”误解为“客户端发送 bcrypt”。
 
@@ -127,6 +157,8 @@ gow run admin
 ./bin/admin sync-apis
 ./bin/admin check
 ```
+
+运维镜像内把 `./bin/admin` 换成 `docker run --rm -e ANI_DATABASE_DSN=... <registry>/ani-governance-admin:<tag> admin`（K8s 场景用一次性 Job，命令与参数按上面的子命令填写）。
 
 预览只读；应用不清表、不重新编号、不删除旧 API、不改权限关联。代码已删除的 API 会显示 `REVIEW`，保留到人工审查其授权关系后再明确清理。相同 `(path,method)` 已有多行会报冲突，不猜测应该保留哪一行。
 
