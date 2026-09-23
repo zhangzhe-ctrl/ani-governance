@@ -50,8 +50,6 @@ type OperationAuditLog struct {
 	FailureReason *string `json:"failure_reason,omitempty"`
 	// IP地址
 	IPAddress *string `json:"ip_address,omitempty"`
-	// 地理位置(来自IP库)
-	GeoLocation *auditpb.GeoLocation `json:"geo_location,omitempty"`
 	// 设备信息
 	DeviceInfo *auditpb.DeviceInfo `json:"device_info,omitempty"`
 	// 日志内容哈希（SHA256，十六进制字符串）
@@ -66,7 +64,7 @@ func (*OperationAuditLog) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case operationauditlog.FieldGeoLocation, operationauditlog.FieldDeviceInfo, operationauditlog.FieldSignature:
+		case operationauditlog.FieldDeviceInfo, operationauditlog.FieldSignature:
 			values[i] = new([]byte)
 		case operationauditlog.FieldSuccess:
 			values[i] = new(sql.NullBool)
@@ -202,14 +200,6 @@ func (_m *OperationAuditLog) assignValues(columns []string, values []any) error 
 				_m.IPAddress = new(string)
 				*_m.IPAddress = value.String
 			}
-		case operationauditlog.FieldGeoLocation:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field geo_location", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.GeoLocation); err != nil {
-					return fmt.Errorf("unmarshal field geo_location: %w", err)
-				}
-			}
 		case operationauditlog.FieldDeviceInfo:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field device_info", values[i])
@@ -341,9 +331,6 @@ func (_m *OperationAuditLog) String() string {
 		builder.WriteString("ip_address=")
 		builder.WriteString(*v)
 	}
-	builder.WriteString(", ")
-	builder.WriteString("geo_location=")
-	builder.WriteString(fmt.Sprintf("%v", _m.GeoLocation))
 	builder.WriteString(", ")
 	builder.WriteString("device_info=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DeviceInfo))

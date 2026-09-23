@@ -4,7 +4,6 @@
 //  1. 构造器与 Name()、Handle 的 nil 守卫与非登录操作的早退分支；
 //  2. 触发路径（进程内 server）：登录/登出/MFA 验证三类 operation 的
 //     ActionType 与 MfaStatus 语义、用户名的三级来源（请求体 → 令牌 →
-//     响应头 X-Audit-Username 兜底）、IP/地理/设备/请求 ID 映射、
 //     中间件错误到 Status/FailureReason 的映射，以及端到端的风险评分/
 //     等级/风险因素推导；
 //  3. 直调空 Transport 的全空来源路径（覆盖 Request()/RequestHeader() 为
@@ -67,7 +66,6 @@ func TestLoginAuditLogHandleNilGuards(t *testing.T) {
 
 // TestLoginAuditLogHandleLoginOpWithToken 走 server 验证登录 operation 的
 // 完整字段映射：用户名取请求体（优先于令牌）、身份字段取令牌、
-// IP/地理取 RemoteAddr（私网 → 局域网）、设备 ClientId 取令牌 cid、
 // 成功状态、风险评分清零（成功 + 已知用户 + 已知设备 + 内网）。
 func TestLoginAuditLogHandleLoginOpWithToken(t *testing.T) {
 	env := newAuditServer(t)
@@ -91,9 +89,7 @@ func TestLoginAuditLogHandleLoginOpWithToken(t *testing.T) {
 	assert.Equal(t, uint32(42), rec.GetUserId())
 	assert.Equal(t, uint32(7), rec.GetTenantId())
 
-	// IP 记录保留；归属地不再采集。
 	assert.Equal(t, "127.0.0.1", rec.GetIpAddress())
-	assert.Nil(t, rec.GetGeoLocation())
 
 	// 设备信息：无 UA 头 → 空解析；ClientId ← 令牌 cid。
 	di := rec.GetDeviceInfo()
@@ -192,7 +188,6 @@ func TestLoginAuditLogHandleReplyHeaderFallbackUsername(t *testing.T) {
 	rec := env.capture.login[0]
 	assert.Equal(t, "audit-user", rec.GetUsername(), "Username ← 响应头 X-Audit-Username 兜底")
 	assert.Equal(t, "8.8.8.8", rec.GetIpAddress())
-	assert.Nil(t, rec.GetGeoLocation(), "归属地不再采集，公网 IP 也不再解析")
 	// 评分：成功(0) + 未知用户(10) + 未知设备(10) + 公网(0) = 20 → LOW。
 	assert.Equal(t, uint32(20), rec.GetRiskScore())
 	assert.Equal(t, auditV1.LoginAuditLog_LOW, rec.GetRiskLevel())
@@ -266,7 +261,6 @@ func TestLoginAuditLogHandleDirectEmptySources(t *testing.T) {
 		assert.Empty(t, rec.GetIpAddress())
 		assert.Empty(t, rec.GetRequestId(), "nil 请求的请求 ID 归一为空串")
 		assert.Empty(t, rec.GetUsername())
-		assert.Empty(t, rec.GetGeoLocation().GetCountryCode())
 		di := rec.GetDeviceInfo()
 		require.NotNil(t, di)
 		assert.Empty(t, di.GetUserAgent())

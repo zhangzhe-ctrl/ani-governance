@@ -6,7 +6,6 @@
 //     即返回，不触碰请求字段）；
 //  3. 触发路径的字段来源映射（进程内 server）：HTTP 方法、operation、路径模板、
 //     Referer 反转义、客户端 IP（RemoteAddr / X-Forwarded-For）、请求 ID 头、
-//     RequestURI 反转义、请求体重放、令牌身份字段（uid/tid/sub）、地理位置
 //     （私网 IP → 局域网）、设备信息（UA 解析 + 令牌 cid）；
 //  4. 错误状态映射（kratos 错误 / 普通错误 → status/reason/success）与
 //     输入清洗（非法 Referer 转义 → 空串；非 Bearer 令牌 → 无身份）；
@@ -110,8 +109,6 @@ func TestApiAuditLogHandleFieldMapping(t *testing.T) {
 	assert.Equal(t, uint32(7), rec.GetTenantId())
 	assert.Equal(t, "alice", rec.GetUsername())
 
-	// 归属地不再采集（原 GeoLite 内建分支已随地理库一并移除）。
-	assert.Nil(t, rec.GetGeoLocation())
 
 	// 设备信息映射（UA 解析 + 令牌 cid）。
 	di := rec.GetDeviceInfo()
@@ -250,7 +247,6 @@ func TestApiAuditLogHandleInputSanitization(t *testing.T) {
 		require.Len(t, env.capture.api, 1)
 		rec := env.capture.api[0]
 		assert.Equal(t, "10.0.0.5", rec.GetIpAddress(), "XFF 中首个可解析 IP 优先于 RemoteAddr")
-		assert.Nil(t, rec.GetGeoLocation(), "归属地不再采集")
 	})
 }
 

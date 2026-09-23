@@ -93,12 +93,6 @@ func (_c *LoginAuditLogCreate) SetNillableIPAddress(v *string) *LoginAuditLogCre
 	return _c
 }
 
-// SetGeoLocation sets the "geo_location" field.
-func (_c *LoginAuditLogCreate) SetGeoLocation(v *auditpb.GeoLocation) *LoginAuditLogCreate {
-	_c.mutation.SetGeoLocation(v)
-	return _c
-}
-
 // SetSessionID sets the "session_id" field.
 func (_c *LoginAuditLogCreate) SetSessionID(v string) *LoginAuditLogCreate {
 	_c.mutation.SetSessionID(v)
@@ -323,11 +317,6 @@ func (_c *LoginAuditLogCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *LoginAuditLogCreate) check() error {
-	if v, ok := _c.mutation.GeoLocation(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "geo_location", err: fmt.Errorf(`ent: validator failed for field "LoginAuditLog.geo_location": %w`, err)}
-		}
-	}
 	if v, ok := _c.mutation.DeviceInfo(); ok {
 		if err := v.Validate(); err != nil {
 			return &ValidationError{Name: "device_info", err: fmt.Errorf(`ent: validator failed for field "LoginAuditLog.device_info": %w`, err)}
@@ -410,10 +399,6 @@ func (_c *LoginAuditLogCreate) createSpec() (*LoginAuditLog, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.IPAddress(); ok {
 		_spec.SetField(loginauditlog.FieldIPAddress, field.TypeString, value)
 		_node.IPAddress = &value
-	}
-	if value, ok := _c.mutation.GeoLocation(); ok {
-		_spec.SetField(loginauditlog.FieldGeoLocation, field.TypeJSON, value)
-		_node.GeoLocation = value
 	}
 	if value, ok := _c.mutation.SessionID(); ok {
 		_spec.SetField(loginauditlog.FieldSessionID, field.TypeString, value)
@@ -580,24 +565,6 @@ func (u *LoginAuditLogUpsert) UpdateIPAddress() *LoginAuditLogUpsert {
 // ClearIPAddress clears the value of the "ip_address" field.
 func (u *LoginAuditLogUpsert) ClearIPAddress() *LoginAuditLogUpsert {
 	u.SetNull(loginauditlog.FieldIPAddress)
-	return u
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (u *LoginAuditLogUpsert) SetGeoLocation(v *auditpb.GeoLocation) *LoginAuditLogUpsert {
-	u.Set(loginauditlog.FieldGeoLocation, v)
-	return u
-}
-
-// UpdateGeoLocation sets the "geo_location" field to the value that was provided on create.
-func (u *LoginAuditLogUpsert) UpdateGeoLocation() *LoginAuditLogUpsert {
-	u.SetExcluded(loginauditlog.FieldGeoLocation)
-	return u
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (u *LoginAuditLogUpsert) ClearGeoLocation() *LoginAuditLogUpsert {
-	u.SetNull(loginauditlog.FieldGeoLocation)
 	return u
 }
 
@@ -980,27 +947,6 @@ func (u *LoginAuditLogUpsertOne) UpdateIPAddress() *LoginAuditLogUpsertOne {
 func (u *LoginAuditLogUpsertOne) ClearIPAddress() *LoginAuditLogUpsertOne {
 	return u.Update(func(s *LoginAuditLogUpsert) {
 		s.ClearIPAddress()
-	})
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (u *LoginAuditLogUpsertOne) SetGeoLocation(v *auditpb.GeoLocation) *LoginAuditLogUpsertOne {
-	return u.Update(func(s *LoginAuditLogUpsert) {
-		s.SetGeoLocation(v)
-	})
-}
-
-// UpdateGeoLocation sets the "geo_location" field to the value that was provided on create.
-func (u *LoginAuditLogUpsertOne) UpdateGeoLocation() *LoginAuditLogUpsertOne {
-	return u.Update(func(s *LoginAuditLogUpsert) {
-		s.UpdateGeoLocation()
-	})
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (u *LoginAuditLogUpsertOne) ClearGeoLocation() *LoginAuditLogUpsertOne {
-	return u.Update(func(s *LoginAuditLogUpsert) {
-		s.ClearGeoLocation()
 	})
 }
 
@@ -1592,27 +1538,6 @@ func (u *LoginAuditLogUpsertBulk) UpdateIPAddress() *LoginAuditLogUpsertBulk {
 func (u *LoginAuditLogUpsertBulk) ClearIPAddress() *LoginAuditLogUpsertBulk {
 	return u.Update(func(s *LoginAuditLogUpsert) {
 		s.ClearIPAddress()
-	})
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (u *LoginAuditLogUpsertBulk) SetGeoLocation(v *auditpb.GeoLocation) *LoginAuditLogUpsertBulk {
-	return u.Update(func(s *LoginAuditLogUpsert) {
-		s.SetGeoLocation(v)
-	})
-}
-
-// UpdateGeoLocation sets the "geo_location" field to the value that was provided on create.
-func (u *LoginAuditLogUpsertBulk) UpdateGeoLocation() *LoginAuditLogUpsertBulk {
-	return u.Update(func(s *LoginAuditLogUpsert) {
-		s.UpdateGeoLocation()
-	})
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (u *LoginAuditLogUpsertBulk) ClearGeoLocation() *LoginAuditLogUpsertBulk {
-	return u.Update(func(s *LoginAuditLogUpsert) {
-		s.ClearGeoLocation()
 	})
 }
 

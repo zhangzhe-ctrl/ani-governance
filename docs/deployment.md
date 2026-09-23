@@ -85,6 +85,16 @@ containers:
 
 完整可复现的镜像构建与导入见 [隔离实验镜像说明](../scripts/lab/README.md)。
 
+### 字段清理迁移（FIELD-CLEANUP-01）
+
+`migrations/20260923143455_drop_geo_location.sql` 删除 4 张审计日志表的 `geo_location` 列（`sys_api_audit_logs`、`sys_data_access_audit_logs`、`sys_login_audit_logs`、`sys_operation_audit_logs`）。它随其它迁移一起由 `./scripts/atlas.sh migrate apply` 执行，顺序不变。
+
+**执行前必须备份目标库**：`DROP COLUMN` 会一并丢弃历史审计行的归属地数据，且该列不能由迁移"加回"——回滚只能靠备份恢复，不要试图用加回空列假装没删过。服务侧自 IMAGE-SLIM-01 起已不再写入该列，删列与新旧版本服务的读写不冲突（旧版本停止写入后才执行迁移即可）。
+
+`sys_permission_policies.policy_engine` 的枚举值 `OPA` 只在代码与 Ent 生成码中删除；该列在 PostgreSQL 中是 `character varying NOT NULL DEFAULT 'CASBIN'`（无 CHECK 约束），**数据库侧不需要变更，也没有对应迁移**。既有行若存了 `OPA` 值不受影响，但服务已不再使用该引擎。
+
+生成方式说明：本迁移为手写后经 `atlas migrate hash` 校验并在独立开发库 `migrate apply` 验证——`atlas migrate diff` 的 dev 库规范化目前被既有的 `sys_quota_operations` 外键问题阻塞（见 [字段清理计划](geo-location-field-removal-plan.md)），该问题属另一批。
+
 开发者修改 schema 后，先完成 Ent 生成并运行 `go run ./cmd/schema > schema.sql`（在 `app/admin/service` 下；`make ent` 和 `scripts/generate-aksk-slice.sh` 已包含此步），再用**独立、可清空的开发数据库**生成下一份迁移：
 
 ```bash

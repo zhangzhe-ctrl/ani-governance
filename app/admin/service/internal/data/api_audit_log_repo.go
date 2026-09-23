@@ -161,7 +161,6 @@ func (r *ApiAuditLogRepo) Create(ctx context.Context, req *auditV1.CreateApiAudi
 		SetNillableUserID(req.Data.UserId).
 		SetNillableUsername(req.Data.Username).
 		SetNillableIPAddress(req.Data.IpAddress).
-		SetGeoLocation(req.Data.GeoLocation).
 		SetDeviceInfo(req.Data.DeviceInfo).
 		SetNillableReferer(req.Data.Referer).
 		SetNillableAppVersion(req.Data.AppVersion).

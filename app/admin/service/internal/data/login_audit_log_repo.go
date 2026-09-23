@@ -165,7 +165,6 @@ func (r *LoginAuditLogRepo) Create(ctx context.Context, req *auditV1.CreateLogin
 		SetNillableUserID(req.Data.UserId).
 		SetNillableUsername(req.Data.Username).
 		SetNillableIPAddress(req.Data.IpAddress).
-		SetGeoLocation(req.Data.GeoLocation).
 		SetNillableSessionID(req.Data.SessionId).
 		SetDeviceInfo(req.Data.DeviceInfo).
 		SetNillableRequestID(req.Data.RequestId).

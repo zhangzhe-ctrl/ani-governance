@@ -296,18 +296,6 @@ func (_u *OperationAuditLogUpdate) ClearIPAddress() *OperationAuditLogUpdate {
 	return _u
 }
 
-// SetGeoLocation sets the "geo_location" field.
-func (_u *OperationAuditLogUpdate) SetGeoLocation(v *auditpb.GeoLocation) *OperationAuditLogUpdate {
-	_u.mutation.SetGeoLocation(v)
-	return _u
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (_u *OperationAuditLogUpdate) ClearGeoLocation() *OperationAuditLogUpdate {
-	_u.mutation.ClearGeoLocation()
-	return _u
-}
-
 // SetDeviceInfo sets the "device_info" field.
 func (_u *OperationAuditLogUpdate) SetDeviceInfo(v *auditpb.DeviceInfo) *OperationAuditLogUpdate {
 	_u.mutation.SetDeviceInfo(v)
@@ -394,11 +382,6 @@ func (_u *OperationAuditLogUpdate) check() error {
 	if v, ok := _u.mutation.SensitiveLevel(); ok {
 		if err := operationauditlog.SensitiveLevelValidator(v); err != nil {
 			return &ValidationError{Name: "sensitive_level", err: fmt.Errorf(`ent: validator failed for field "OperationAuditLog.sensitive_level": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.GeoLocation(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "geo_location", err: fmt.Errorf(`ent: validator failed for field "OperationAuditLog.geo_location": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.DeviceInfo(); ok {
@@ -513,12 +496,6 @@ func (_u *OperationAuditLogUpdate) sqlSave(ctx context.Context) (_node int, err 
 	}
 	if _u.mutation.IPAddressCleared() {
 		_spec.ClearField(operationauditlog.FieldIPAddress, field.TypeString)
-	}
-	if value, ok := _u.mutation.GeoLocation(); ok {
-		_spec.SetField(operationauditlog.FieldGeoLocation, field.TypeJSON, value)
-	}
-	if _u.mutation.GeoLocationCleared() {
-		_spec.ClearField(operationauditlog.FieldGeoLocation, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.DeviceInfo(); ok {
 		_spec.SetField(operationauditlog.FieldDeviceInfo, field.TypeJSON, value)
@@ -827,18 +804,6 @@ func (_u *OperationAuditLogUpdateOne) ClearIPAddress() *OperationAuditLogUpdateO
 	return _u
 }
 
-// SetGeoLocation sets the "geo_location" field.
-func (_u *OperationAuditLogUpdateOne) SetGeoLocation(v *auditpb.GeoLocation) *OperationAuditLogUpdateOne {
-	_u.mutation.SetGeoLocation(v)
-	return _u
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (_u *OperationAuditLogUpdateOne) ClearGeoLocation() *OperationAuditLogUpdateOne {
-	_u.mutation.ClearGeoLocation()
-	return _u
-}
-
 // SetDeviceInfo sets the "device_info" field.
 func (_u *OperationAuditLogUpdateOne) SetDeviceInfo(v *auditpb.DeviceInfo) *OperationAuditLogUpdateOne {
 	_u.mutation.SetDeviceInfo(v)
@@ -938,11 +903,6 @@ func (_u *OperationAuditLogUpdateOne) check() error {
 	if v, ok := _u.mutation.SensitiveLevel(); ok {
 		if err := operationauditlog.SensitiveLevelValidator(v); err != nil {
 			return &ValidationError{Name: "sensitive_level", err: fmt.Errorf(`ent: validator failed for field "OperationAuditLog.sensitive_level": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.GeoLocation(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "geo_location", err: fmt.Errorf(`ent: validator failed for field "OperationAuditLog.geo_location": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.DeviceInfo(); ok {
@@ -1074,12 +1034,6 @@ func (_u *OperationAuditLogUpdateOne) sqlSave(ctx context.Context) (_node *Opera
 	}
 	if _u.mutation.IPAddressCleared() {
 		_spec.ClearField(operationauditlog.FieldIPAddress, field.TypeString)
-	}
-	if value, ok := _u.mutation.GeoLocation(); ok {
-		_spec.SetField(operationauditlog.FieldGeoLocation, field.TypeJSON, value)
-	}
-	if _u.mutation.GeoLocationCleared() {
-		_spec.ClearField(operationauditlog.FieldGeoLocation, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.DeviceInfo(); ok {
 		_spec.SetField(operationauditlog.FieldDeviceInfo, field.TypeJSON, value)

@@ -47,10 +47,6 @@ func (DataAccessAuditLog) Fields() []ent.Field {
 			Optional().
 			Nillable(),
 
-		field.JSON("geo_location", &auditV1.GeoLocation{}).
-			Comment("地理位置(来自IP库)").
-			Optional(),
-
 		field.JSON("device_info", &auditV1.DeviceInfo{}).
 			Comment("设备信息").
 			Optional(),

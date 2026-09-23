@@ -2987,7 +2987,6 @@ type ApiAuditLogMutation struct {
 	adduser_id      *int32
 	username        *string
 	ip_address      *string
-	geo_location    **auditpb.GeoLocation
 	device_info     **auditpb.DeviceInfo
 	referer         *string
 	app_version     *string
@@ -3525,55 +3524,6 @@ func (m *ApiAuditLogMutation) IPAddressCleared() bool {
 func (m *ApiAuditLogMutation) ResetIPAddress() {
 	m.ip_address = nil
 	delete(m.clearedFields, apiauditlog.FieldIPAddress)
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (m *ApiAuditLogMutation) SetGeoLocation(al *auditpb.GeoLocation) {
-	m.geo_location = &al
-}
-
-// GeoLocation returns the value of the "geo_location" field in the mutation.
-func (m *ApiAuditLogMutation) GeoLocation() (r *auditpb.GeoLocation, exists bool) {
-	v := m.geo_location
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldGeoLocation returns the old "geo_location" field's value of the ApiAuditLog entity.
-// If the ApiAuditLog object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ApiAuditLogMutation) OldGeoLocation(ctx context.Context) (v *auditpb.GeoLocation, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldGeoLocation is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldGeoLocation requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldGeoLocation: %w", err)
-	}
-	return oldValue.GeoLocation, nil
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (m *ApiAuditLogMutation) ClearGeoLocation() {
-	m.geo_location = nil
-	m.clearedFields[apiauditlog.FieldGeoLocation] = struct{}{}
-}
-
-// GeoLocationCleared returns if the "geo_location" field was cleared in this mutation.
-func (m *ApiAuditLogMutation) GeoLocationCleared() bool {
-	_, ok := m.clearedFields[apiauditlog.FieldGeoLocation]
-	return ok
-}
-
-// ResetGeoLocation resets all changes to the "geo_location" field.
-func (m *ApiAuditLogMutation) ResetGeoLocation() {
-	m.geo_location = nil
-	delete(m.clearedFields, apiauditlog.FieldGeoLocation)
 }
 
 // SetDeviceInfo sets the "device_info" field.
@@ -4681,7 +4631,7 @@ func (m *ApiAuditLogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ApiAuditLogMutation) Fields() []string {
-	fields := make([]string, 0, 29)
+	fields := make([]string, 0, 28)
 	if m.created_at != nil {
 		fields = append(fields, apiauditlog.FieldCreatedAt)
 	}
@@ -4702,9 +4652,6 @@ func (m *ApiAuditLogMutation) Fields() []string {
 	}
 	if m.ip_address != nil {
 		fields = append(fields, apiauditlog.FieldIPAddress)
-	}
-	if m.geo_location != nil {
-		fields = append(fields, apiauditlog.FieldGeoLocation)
 	}
 	if m.device_info != nil {
 		fields = append(fields, apiauditlog.FieldDeviceInfo)
@@ -4791,8 +4738,6 @@ func (m *ApiAuditLogMutation) Field(name string) (ent.Value, bool) {
 		return m.Username()
 	case apiauditlog.FieldIPAddress:
 		return m.IPAddress()
-	case apiauditlog.FieldGeoLocation:
-		return m.GeoLocation()
 	case apiauditlog.FieldDeviceInfo:
 		return m.DeviceInfo()
 	case apiauditlog.FieldReferer:
@@ -4858,8 +4803,6 @@ func (m *ApiAuditLogMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldUsername(ctx)
 	case apiauditlog.FieldIPAddress:
 		return m.OldIPAddress(ctx)
-	case apiauditlog.FieldGeoLocation:
-		return m.OldGeoLocation(ctx)
 	case apiauditlog.FieldDeviceInfo:
 		return m.OldDeviceInfo(ctx)
 	case apiauditlog.FieldReferer:
@@ -4959,13 +4902,6 @@ func (m *ApiAuditLogMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIPAddress(v)
-		return nil
-	case apiauditlog.FieldGeoLocation:
-		v, ok := value.(*auditpb.GeoLocation)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetGeoLocation(v)
 		return nil
 	case apiauditlog.FieldDeviceInfo:
 		v, ok := value.(*auditpb.DeviceInfo)
@@ -5228,9 +5164,6 @@ func (m *ApiAuditLogMutation) ClearedFields() []string {
 	if m.FieldCleared(apiauditlog.FieldIPAddress) {
 		fields = append(fields, apiauditlog.FieldIPAddress)
 	}
-	if m.FieldCleared(apiauditlog.FieldGeoLocation) {
-		fields = append(fields, apiauditlog.FieldGeoLocation)
-	}
 	if m.FieldCleared(apiauditlog.FieldDeviceInfo) {
 		fields = append(fields, apiauditlog.FieldDeviceInfo)
 	}
@@ -5329,9 +5262,6 @@ func (m *ApiAuditLogMutation) ClearField(name string) error {
 	case apiauditlog.FieldIPAddress:
 		m.ClearIPAddress()
 		return nil
-	case apiauditlog.FieldGeoLocation:
-		m.ClearGeoLocation()
-		return nil
 	case apiauditlog.FieldDeviceInfo:
 		m.ClearDeviceInfo()
 		return nil
@@ -5423,9 +5353,6 @@ func (m *ApiAuditLogMutation) ResetField(name string) error {
 		return nil
 	case apiauditlog.FieldIPAddress:
 		m.ResetIPAddress()
-		return nil
-	case apiauditlog.FieldGeoLocation:
-		m.ResetGeoLocation()
 		return nil
 	case apiauditlog.FieldDeviceInfo:
 		m.ResetDeviceInfo()
@@ -5555,7 +5482,6 @@ type DataAccessAuditLogMutation struct {
 	adduser_id       *int32
 	username         *string
 	ip_address       *string
-	geo_location     **auditpb.GeoLocation
 	device_info      **auditpb.DeviceInfo
 	request_id       *string
 	trace_id         *string
@@ -5973,55 +5899,6 @@ func (m *DataAccessAuditLogMutation) IPAddressCleared() bool {
 func (m *DataAccessAuditLogMutation) ResetIPAddress() {
 	m.ip_address = nil
 	delete(m.clearedFields, dataaccessauditlog.FieldIPAddress)
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (m *DataAccessAuditLogMutation) SetGeoLocation(al *auditpb.GeoLocation) {
-	m.geo_location = &al
-}
-
-// GeoLocation returns the value of the "geo_location" field in the mutation.
-func (m *DataAccessAuditLogMutation) GeoLocation() (r *auditpb.GeoLocation, exists bool) {
-	v := m.geo_location
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldGeoLocation returns the old "geo_location" field's value of the DataAccessAuditLog entity.
-// If the DataAccessAuditLog object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DataAccessAuditLogMutation) OldGeoLocation(ctx context.Context) (v *auditpb.GeoLocation, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldGeoLocation is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldGeoLocation requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldGeoLocation: %w", err)
-	}
-	return oldValue.GeoLocation, nil
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (m *DataAccessAuditLogMutation) ClearGeoLocation() {
-	m.geo_location = nil
-	m.clearedFields[dataaccessauditlog.FieldGeoLocation] = struct{}{}
-}
-
-// GeoLocationCleared returns if the "geo_location" field was cleared in this mutation.
-func (m *DataAccessAuditLogMutation) GeoLocationCleared() bool {
-	_, ok := m.clearedFields[dataaccessauditlog.FieldGeoLocation]
-	return ok
-}
-
-// ResetGeoLocation resets all changes to the "geo_location" field.
-func (m *DataAccessAuditLogMutation) ResetGeoLocation() {
-	m.geo_location = nil
-	delete(m.clearedFields, dataaccessauditlog.FieldGeoLocation)
 }
 
 // SetDeviceInfo sets the "device_info" field.
@@ -7080,7 +6957,7 @@ func (m *DataAccessAuditLogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DataAccessAuditLogMutation) Fields() []string {
-	fields := make([]string, 0, 26)
+	fields := make([]string, 0, 25)
 	if m.created_at != nil {
 		fields = append(fields, dataaccessauditlog.FieldCreatedAt)
 	}
@@ -7095,9 +6972,6 @@ func (m *DataAccessAuditLogMutation) Fields() []string {
 	}
 	if m.ip_address != nil {
 		fields = append(fields, dataaccessauditlog.FieldIPAddress)
-	}
-	if m.geo_location != nil {
-		fields = append(fields, dataaccessauditlog.FieldGeoLocation)
 	}
 	if m.device_info != nil {
 		fields = append(fields, dataaccessauditlog.FieldDeviceInfo)
@@ -7177,8 +7051,6 @@ func (m *DataAccessAuditLogMutation) Field(name string) (ent.Value, bool) {
 		return m.Username()
 	case dataaccessauditlog.FieldIPAddress:
 		return m.IPAddress()
-	case dataaccessauditlog.FieldGeoLocation:
-		return m.GeoLocation()
 	case dataaccessauditlog.FieldDeviceInfo:
 		return m.DeviceInfo()
 	case dataaccessauditlog.FieldRequestID:
@@ -7238,8 +7110,6 @@ func (m *DataAccessAuditLogMutation) OldField(ctx context.Context, name string) 
 		return m.OldUsername(ctx)
 	case dataaccessauditlog.FieldIPAddress:
 		return m.OldIPAddress(ctx)
-	case dataaccessauditlog.FieldGeoLocation:
-		return m.OldGeoLocation(ctx)
 	case dataaccessauditlog.FieldDeviceInfo:
 		return m.OldDeviceInfo(ctx)
 	case dataaccessauditlog.FieldRequestID:
@@ -7323,13 +7193,6 @@ func (m *DataAccessAuditLogMutation) SetField(name string, value ent.Value) erro
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIPAddress(v)
-		return nil
-	case dataaccessauditlog.FieldGeoLocation:
-		v, ok := value.(*auditpb.GeoLocation)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetGeoLocation(v)
 		return nil
 	case dataaccessauditlog.FieldDeviceInfo:
 		v, ok := value.(*auditpb.DeviceInfo)
@@ -7567,9 +7430,6 @@ func (m *DataAccessAuditLogMutation) ClearedFields() []string {
 	if m.FieldCleared(dataaccessauditlog.FieldIPAddress) {
 		fields = append(fields, dataaccessauditlog.FieldIPAddress)
 	}
-	if m.FieldCleared(dataaccessauditlog.FieldGeoLocation) {
-		fields = append(fields, dataaccessauditlog.FieldGeoLocation)
-	}
 	if m.FieldCleared(dataaccessauditlog.FieldDeviceInfo) {
 		fields = append(fields, dataaccessauditlog.FieldDeviceInfo)
 	}
@@ -7659,9 +7519,6 @@ func (m *DataAccessAuditLogMutation) ClearField(name string) error {
 	case dataaccessauditlog.FieldIPAddress:
 		m.ClearIPAddress()
 		return nil
-	case dataaccessauditlog.FieldGeoLocation:
-		m.ClearGeoLocation()
-		return nil
 	case dataaccessauditlog.FieldDeviceInfo:
 		m.ClearDeviceInfo()
 		return nil
@@ -7744,9 +7601,6 @@ func (m *DataAccessAuditLogMutation) ResetField(name string) error {
 		return nil
 	case dataaccessauditlog.FieldIPAddress:
 		m.ResetIPAddress()
-		return nil
-	case dataaccessauditlog.FieldGeoLocation:
-		m.ResetGeoLocation()
 		return nil
 	case dataaccessauditlog.FieldDeviceInfo:
 		m.ResetDeviceInfo()
@@ -17130,7 +16984,6 @@ type LoginAuditLogMutation struct {
 	adduser_id         *int32
 	username           *string
 	ip_address         *string
-	geo_location       **auditpb.GeoLocation
 	session_id         *string
 	device_info        **auditpb.DeviceInfo
 	request_id         *string
@@ -17542,55 +17395,6 @@ func (m *LoginAuditLogMutation) IPAddressCleared() bool {
 func (m *LoginAuditLogMutation) ResetIPAddress() {
 	m.ip_address = nil
 	delete(m.clearedFields, loginauditlog.FieldIPAddress)
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (m *LoginAuditLogMutation) SetGeoLocation(al *auditpb.GeoLocation) {
-	m.geo_location = &al
-}
-
-// GeoLocation returns the value of the "geo_location" field in the mutation.
-func (m *LoginAuditLogMutation) GeoLocation() (r *auditpb.GeoLocation, exists bool) {
-	v := m.geo_location
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldGeoLocation returns the old "geo_location" field's value of the LoginAuditLog entity.
-// If the LoginAuditLog object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LoginAuditLogMutation) OldGeoLocation(ctx context.Context) (v *auditpb.GeoLocation, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldGeoLocation is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldGeoLocation requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldGeoLocation: %w", err)
-	}
-	return oldValue.GeoLocation, nil
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (m *LoginAuditLogMutation) ClearGeoLocation() {
-	m.geo_location = nil
-	m.clearedFields[loginauditlog.FieldGeoLocation] = struct{}{}
-}
-
-// GeoLocationCleared returns if the "geo_location" field was cleared in this mutation.
-func (m *LoginAuditLogMutation) GeoLocationCleared() bool {
-	_, ok := m.clearedFields[loginauditlog.FieldGeoLocation]
-	return ok
-}
-
-// ResetGeoLocation resets all changes to the "geo_location" field.
-func (m *LoginAuditLogMutation) ResetGeoLocation() {
-	m.geo_location = nil
-	delete(m.clearedFields, loginauditlog.FieldGeoLocation)
 }
 
 // SetSessionID sets the "session_id" field.
@@ -18350,7 +18154,7 @@ func (m *LoginAuditLogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LoginAuditLogMutation) Fields() []string {
-	fields := make([]string, 0, 20)
+	fields := make([]string, 0, 19)
 	if m.created_at != nil {
 		fields = append(fields, loginauditlog.FieldCreatedAt)
 	}
@@ -18365,9 +18169,6 @@ func (m *LoginAuditLogMutation) Fields() []string {
 	}
 	if m.ip_address != nil {
 		fields = append(fields, loginauditlog.FieldIPAddress)
-	}
-	if m.geo_location != nil {
-		fields = append(fields, loginauditlog.FieldGeoLocation)
 	}
 	if m.session_id != nil {
 		fields = append(fields, loginauditlog.FieldSessionID)
@@ -18429,8 +18230,6 @@ func (m *LoginAuditLogMutation) Field(name string) (ent.Value, bool) {
 		return m.Username()
 	case loginauditlog.FieldIPAddress:
 		return m.IPAddress()
-	case loginauditlog.FieldGeoLocation:
-		return m.GeoLocation()
 	case loginauditlog.FieldSessionID:
 		return m.SessionID()
 	case loginauditlog.FieldDeviceInfo:
@@ -18478,8 +18277,6 @@ func (m *LoginAuditLogMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldUsername(ctx)
 	case loginauditlog.FieldIPAddress:
 		return m.OldIPAddress(ctx)
-	case loginauditlog.FieldGeoLocation:
-		return m.OldGeoLocation(ctx)
 	case loginauditlog.FieldSessionID:
 		return m.OldSessionID(ctx)
 	case loginauditlog.FieldDeviceInfo:
@@ -18551,13 +18348,6 @@ func (m *LoginAuditLogMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIPAddress(v)
-		return nil
-	case loginauditlog.FieldGeoLocation:
-		v, ok := value.(*auditpb.GeoLocation)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetGeoLocation(v)
 		return nil
 	case loginauditlog.FieldSessionID:
 		v, ok := value.(string)
@@ -18741,9 +18531,6 @@ func (m *LoginAuditLogMutation) ClearedFields() []string {
 	if m.FieldCleared(loginauditlog.FieldIPAddress) {
 		fields = append(fields, loginauditlog.FieldIPAddress)
 	}
-	if m.FieldCleared(loginauditlog.FieldGeoLocation) {
-		fields = append(fields, loginauditlog.FieldGeoLocation)
-	}
 	if m.FieldCleared(loginauditlog.FieldSessionID) {
 		fields = append(fields, loginauditlog.FieldSessionID)
 	}
@@ -18815,9 +18602,6 @@ func (m *LoginAuditLogMutation) ClearField(name string) error {
 	case loginauditlog.FieldIPAddress:
 		m.ClearIPAddress()
 		return nil
-	case loginauditlog.FieldGeoLocation:
-		m.ClearGeoLocation()
-		return nil
 	case loginauditlog.FieldSessionID:
 		m.ClearSessionID()
 		return nil
@@ -18882,9 +18666,6 @@ func (m *LoginAuditLogMutation) ResetField(name string) error {
 		return nil
 	case loginauditlog.FieldIPAddress:
 		m.ResetIPAddress()
-		return nil
-	case loginauditlog.FieldGeoLocation:
-		m.ResetGeoLocation()
 		return nil
 	case loginauditlog.FieldSessionID:
 		m.ResetSessionID()
@@ -30564,7 +30345,6 @@ type OperationAuditLogMutation struct {
 	success         *bool
 	failure_reason  *string
 	ip_address      *string
-	geo_location    **auditpb.GeoLocation
 	device_info     **auditpb.DeviceInfo
 	log_hash        *string
 	signature       *[]byte
@@ -31455,55 +31235,6 @@ func (m *OperationAuditLogMutation) ResetIPAddress() {
 	delete(m.clearedFields, operationauditlog.FieldIPAddress)
 }
 
-// SetGeoLocation sets the "geo_location" field.
-func (m *OperationAuditLogMutation) SetGeoLocation(al *auditpb.GeoLocation) {
-	m.geo_location = &al
-}
-
-// GeoLocation returns the value of the "geo_location" field in the mutation.
-func (m *OperationAuditLogMutation) GeoLocation() (r *auditpb.GeoLocation, exists bool) {
-	v := m.geo_location
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldGeoLocation returns the old "geo_location" field's value of the OperationAuditLog entity.
-// If the OperationAuditLog object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OperationAuditLogMutation) OldGeoLocation(ctx context.Context) (v *auditpb.GeoLocation, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldGeoLocation is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldGeoLocation requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldGeoLocation: %w", err)
-	}
-	return oldValue.GeoLocation, nil
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (m *OperationAuditLogMutation) ClearGeoLocation() {
-	m.geo_location = nil
-	m.clearedFields[operationauditlog.FieldGeoLocation] = struct{}{}
-}
-
-// GeoLocationCleared returns if the "geo_location" field was cleared in this mutation.
-func (m *OperationAuditLogMutation) GeoLocationCleared() bool {
-	_, ok := m.clearedFields[operationauditlog.FieldGeoLocation]
-	return ok
-}
-
-// ResetGeoLocation resets all changes to the "geo_location" field.
-func (m *OperationAuditLogMutation) ResetGeoLocation() {
-	m.geo_location = nil
-	delete(m.clearedFields, operationauditlog.FieldGeoLocation)
-}
-
 // SetDeviceInfo sets the "device_info" field.
 func (m *OperationAuditLogMutation) SetDeviceInfo(ai *auditpb.DeviceInfo) {
 	m.device_info = &ai
@@ -31685,7 +31416,7 @@ func (m *OperationAuditLogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OperationAuditLogMutation) Fields() []string {
-	fields := make([]string, 0, 19)
+	fields := make([]string, 0, 18)
 	if m.created_at != nil {
 		fields = append(fields, operationauditlog.FieldCreatedAt)
 	}
@@ -31730,9 +31461,6 @@ func (m *OperationAuditLogMutation) Fields() []string {
 	}
 	if m.ip_address != nil {
 		fields = append(fields, operationauditlog.FieldIPAddress)
-	}
-	if m.geo_location != nil {
-		fields = append(fields, operationauditlog.FieldGeoLocation)
 	}
 	if m.device_info != nil {
 		fields = append(fields, operationauditlog.FieldDeviceInfo)
@@ -31781,8 +31509,6 @@ func (m *OperationAuditLogMutation) Field(name string) (ent.Value, bool) {
 		return m.FailureReason()
 	case operationauditlog.FieldIPAddress:
 		return m.IPAddress()
-	case operationauditlog.FieldGeoLocation:
-		return m.GeoLocation()
 	case operationauditlog.FieldDeviceInfo:
 		return m.DeviceInfo()
 	case operationauditlog.FieldLogHash:
@@ -31828,8 +31554,6 @@ func (m *OperationAuditLogMutation) OldField(ctx context.Context, name string) (
 		return m.OldFailureReason(ctx)
 	case operationauditlog.FieldIPAddress:
 		return m.OldIPAddress(ctx)
-	case operationauditlog.FieldGeoLocation:
-		return m.OldGeoLocation(ctx)
 	case operationauditlog.FieldDeviceInfo:
 		return m.OldDeviceInfo(ctx)
 	case operationauditlog.FieldLogHash:
@@ -31949,13 +31673,6 @@ func (m *OperationAuditLogMutation) SetField(name string, value ent.Value) error
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIPAddress(v)
-		return nil
-	case operationauditlog.FieldGeoLocation:
-		v, ok := value.(*auditpb.GeoLocation)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetGeoLocation(v)
 		return nil
 	case operationauditlog.FieldDeviceInfo:
 		v, ok := value.(*auditpb.DeviceInfo)
@@ -32080,9 +31797,6 @@ func (m *OperationAuditLogMutation) ClearedFields() []string {
 	if m.FieldCleared(operationauditlog.FieldIPAddress) {
 		fields = append(fields, operationauditlog.FieldIPAddress)
 	}
-	if m.FieldCleared(operationauditlog.FieldGeoLocation) {
-		fields = append(fields, operationauditlog.FieldGeoLocation)
-	}
 	if m.FieldCleared(operationauditlog.FieldDeviceInfo) {
 		fields = append(fields, operationauditlog.FieldDeviceInfo)
 	}
@@ -32151,9 +31865,6 @@ func (m *OperationAuditLogMutation) ClearField(name string) error {
 	case operationauditlog.FieldIPAddress:
 		m.ClearIPAddress()
 		return nil
-	case operationauditlog.FieldGeoLocation:
-		m.ClearGeoLocation()
-		return nil
 	case operationauditlog.FieldDeviceInfo:
 		m.ClearDeviceInfo()
 		return nil
@@ -32215,9 +31926,6 @@ func (m *OperationAuditLogMutation) ResetField(name string) error {
 		return nil
 	case operationauditlog.FieldIPAddress:
 		m.ResetIPAddress()
-		return nil
-	case operationauditlog.FieldGeoLocation:
-		m.ResetGeoLocation()
 		return nil
 	case operationauditlog.FieldDeviceInfo:
 		m.ResetDeviceInfo()

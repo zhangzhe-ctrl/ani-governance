@@ -77,7 +77,7 @@ OPA 相关面：
 | R1 | 删除 `ProvideModels` 接口改动面扩到测试 stub | 改动点已枚举（1.4），编译器兜底 |
 | R2 | 有人把 `authz.type` 配成 `opa` | 主装配 `wiring_ent.go:38` 非 casbin 即拒绝启动；配置注释同步 |
 | R3 | `denyAllEngine` 删除后少了一层 fail-closed | 该引擎只对 OPA 模型解析失败生效，OPA 移除后无调用方；casbin 装配失败由 `newEngineCasbin` 返回 nil + 上层校验兜住 |
-| R4 | DB 枚举 `policy_engine` 仍含 OPA | 数据字段，另批处理（本批不声称已清理） |
+| R4 | DB 枚举 `policy_engine` 仍含 OPA | 数据字段，另批处理（本批不声称已清理）→ 已于 2026-09-23 由 [FIELD-CLEANUP-01](geo-location-field-removal-plan.md) 删除该枚举值（DB 侧 varchar 无 CHECK，无迁移） |
 
 ## 8. 执行状态
 

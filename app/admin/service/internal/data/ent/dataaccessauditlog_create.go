@@ -93,12 +93,6 @@ func (_c *DataAccessAuditLogCreate) SetNillableIPAddress(v *string) *DataAccessA
 	return _c
 }
 
-// SetGeoLocation sets the "geo_location" field.
-func (_c *DataAccessAuditLogCreate) SetGeoLocation(v *auditpb.GeoLocation) *DataAccessAuditLogCreate {
-	_c.mutation.SetGeoLocation(v)
-	return _c
-}
-
 // SetDeviceInfo sets the "device_info" field.
 func (_c *DataAccessAuditLogCreate) SetDeviceInfo(v *auditpb.DeviceInfo) *DataAccessAuditLogCreate {
 	_c.mutation.SetDeviceInfo(v)
@@ -415,11 +409,6 @@ func (_c *DataAccessAuditLogCreate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *DataAccessAuditLogCreate) check() error {
-	if v, ok := _c.mutation.GeoLocation(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "geo_location", err: fmt.Errorf(`ent: validator failed for field "DataAccessAuditLog.geo_location": %w`, err)}
-		}
-	}
 	if v, ok := _c.mutation.DeviceInfo(); ok {
 		if err := v.Validate(); err != nil {
 			return &ValidationError{Name: "device_info", err: fmt.Errorf(`ent: validator failed for field "DataAccessAuditLog.device_info": %w`, err)}
@@ -492,10 +481,6 @@ func (_c *DataAccessAuditLogCreate) createSpec() (*DataAccessAuditLog, *sqlgraph
 	if value, ok := _c.mutation.IPAddress(); ok {
 		_spec.SetField(dataaccessauditlog.FieldIPAddress, field.TypeString, value)
 		_node.IPAddress = &value
-	}
-	if value, ok := _c.mutation.GeoLocation(); ok {
-		_spec.SetField(dataaccessauditlog.FieldGeoLocation, field.TypeJSON, value)
-		_node.GeoLocation = value
 	}
 	if value, ok := _c.mutation.DeviceInfo(); ok {
 		_spec.SetField(dataaccessauditlog.FieldDeviceInfo, field.TypeJSON, value)
@@ -686,24 +671,6 @@ func (u *DataAccessAuditLogUpsert) UpdateIPAddress() *DataAccessAuditLogUpsert {
 // ClearIPAddress clears the value of the "ip_address" field.
 func (u *DataAccessAuditLogUpsert) ClearIPAddress() *DataAccessAuditLogUpsert {
 	u.SetNull(dataaccessauditlog.FieldIPAddress)
-	return u
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (u *DataAccessAuditLogUpsert) SetGeoLocation(v *auditpb.GeoLocation) *DataAccessAuditLogUpsert {
-	u.Set(dataaccessauditlog.FieldGeoLocation, v)
-	return u
-}
-
-// UpdateGeoLocation sets the "geo_location" field to the value that was provided on create.
-func (u *DataAccessAuditLogUpsert) UpdateGeoLocation() *DataAccessAuditLogUpsert {
-	u.SetExcluded(dataaccessauditlog.FieldGeoLocation)
-	return u
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (u *DataAccessAuditLogUpsert) ClearGeoLocation() *DataAccessAuditLogUpsert {
-	u.SetNull(dataaccessauditlog.FieldGeoLocation)
 	return u
 }
 
@@ -1200,27 +1167,6 @@ func (u *DataAccessAuditLogUpsertOne) UpdateIPAddress() *DataAccessAuditLogUpser
 func (u *DataAccessAuditLogUpsertOne) ClearIPAddress() *DataAccessAuditLogUpsertOne {
 	return u.Update(func(s *DataAccessAuditLogUpsert) {
 		s.ClearIPAddress()
-	})
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (u *DataAccessAuditLogUpsertOne) SetGeoLocation(v *auditpb.GeoLocation) *DataAccessAuditLogUpsertOne {
-	return u.Update(func(s *DataAccessAuditLogUpsert) {
-		s.SetGeoLocation(v)
-	})
-}
-
-// UpdateGeoLocation sets the "geo_location" field to the value that was provided on create.
-func (u *DataAccessAuditLogUpsertOne) UpdateGeoLocation() *DataAccessAuditLogUpsertOne {
-	return u.Update(func(s *DataAccessAuditLogUpsert) {
-		s.UpdateGeoLocation()
-	})
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (u *DataAccessAuditLogUpsertOne) ClearGeoLocation() *DataAccessAuditLogUpsertOne {
-	return u.Update(func(s *DataAccessAuditLogUpsert) {
-		s.ClearGeoLocation()
 	})
 }
 
@@ -1945,27 +1891,6 @@ func (u *DataAccessAuditLogUpsertBulk) UpdateIPAddress() *DataAccessAuditLogUpse
 func (u *DataAccessAuditLogUpsertBulk) ClearIPAddress() *DataAccessAuditLogUpsertBulk {
 	return u.Update(func(s *DataAccessAuditLogUpsert) {
 		s.ClearIPAddress()
-	})
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (u *DataAccessAuditLogUpsertBulk) SetGeoLocation(v *auditpb.GeoLocation) *DataAccessAuditLogUpsertBulk {
-	return u.Update(func(s *DataAccessAuditLogUpsert) {
-		s.SetGeoLocation(v)
-	})
-}
-
-// UpdateGeoLocation sets the "geo_location" field to the value that was provided on create.
-func (u *DataAccessAuditLogUpsertBulk) UpdateGeoLocation() *DataAccessAuditLogUpsertBulk {
-	return u.Update(func(s *DataAccessAuditLogUpsert) {
-		s.UpdateGeoLocation()
-	})
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (u *DataAccessAuditLogUpsertBulk) ClearGeoLocation() *DataAccessAuditLogUpsertBulk {
-	return u.Update(func(s *DataAccessAuditLogUpsert) {
-		s.ClearGeoLocation()
 	})
 }
 

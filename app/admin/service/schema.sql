@@ -158,7 +158,6 @@ CREATE TABLE "sys_api_audit_logs" (
   "user_id" bigint NULL,
   "username" character varying NULL,
   "ip_address" character varying NULL,
-  "geo_location" jsonb NULL,
   "device_info" jsonb NULL,
   "referer" character varying NULL,
   "app_version" character varying NULL,
@@ -222,8 +221,6 @@ COMMENT ON COLUMN "sys_api_audit_logs"."user_id" IS '操作者用户ID';
 COMMENT ON COLUMN "sys_api_audit_logs"."username" IS '操作者账号名';
 -- Set comment to column: "ip_address" on table: "sys_api_audit_logs"
 COMMENT ON COLUMN "sys_api_audit_logs"."ip_address" IS 'IP地址';
--- Set comment to column: "geo_location" on table: "sys_api_audit_logs"
-COMMENT ON COLUMN "sys_api_audit_logs"."geo_location" IS '地理位置(来自IP库)';
 -- Set comment to column: "device_info" on table: "sys_api_audit_logs"
 COMMENT ON COLUMN "sys_api_audit_logs"."device_info" IS '设备信息';
 -- Set comment to column: "referer" on table: "sys_api_audit_logs"
@@ -274,7 +271,6 @@ CREATE TABLE "sys_data_access_audit_logs" (
   "user_id" bigint NULL,
   "username" character varying NULL,
   "ip_address" character varying NULL,
-  "geo_location" jsonb NULL,
   "device_info" jsonb NULL,
   "request_id" character varying NULL,
   "trace_id" character varying NULL,
@@ -341,8 +337,6 @@ COMMENT ON COLUMN "sys_data_access_audit_logs"."user_id" IS '操作者用户ID';
 COMMENT ON COLUMN "sys_data_access_audit_logs"."username" IS '操作者账号名';
 -- Set comment to column: "ip_address" on table: "sys_data_access_audit_logs"
 COMMENT ON COLUMN "sys_data_access_audit_logs"."ip_address" IS 'IP地址';
--- Set comment to column: "geo_location" on table: "sys_data_access_audit_logs"
-COMMENT ON COLUMN "sys_data_access_audit_logs"."geo_location" IS '地理位置(来自IP库)';
 -- Set comment to column: "device_info" on table: "sys_data_access_audit_logs"
 COMMENT ON COLUMN "sys_data_access_audit_logs"."device_info" IS '设备信息';
 -- Set comment to column: "request_id" on table: "sys_data_access_audit_logs"
@@ -863,7 +857,6 @@ CREATE TABLE "sys_login_audit_logs" (
   "user_id" bigint NULL,
   "username" character varying NULL,
   "ip_address" character varying NULL,
-  "geo_location" jsonb NULL,
   "session_id" character varying NULL,
   "device_info" jsonb NULL,
   "request_id" character varying NULL,
@@ -916,8 +909,6 @@ COMMENT ON COLUMN "sys_login_audit_logs"."user_id" IS '操作者用户ID';
 COMMENT ON COLUMN "sys_login_audit_logs"."username" IS '操作者账号名';
 -- Set comment to column: "ip_address" on table: "sys_login_audit_logs"
 COMMENT ON COLUMN "sys_login_audit_logs"."ip_address" IS 'IP地址';
--- Set comment to column: "geo_location" on table: "sys_login_audit_logs"
-COMMENT ON COLUMN "sys_login_audit_logs"."geo_location" IS '地理位置(来自IP库)';
 -- Set comment to column: "session_id" on table: "sys_login_audit_logs"
 COMMENT ON COLUMN "sys_login_audit_logs"."session_id" IS '会话ID';
 -- Set comment to column: "device_info" on table: "sys_login_audit_logs"
@@ -1503,7 +1494,6 @@ CREATE TABLE "sys_operation_audit_logs" (
   "success" boolean NULL,
   "failure_reason" character varying NULL,
   "ip_address" character varying NULL,
-  "geo_location" jsonb NULL,
   "device_info" jsonb NULL,
   "log_hash" character varying NULL,
   "signature" bytea NULL,
@@ -1575,8 +1565,6 @@ COMMENT ON COLUMN "sys_operation_audit_logs"."success" IS '操作结果';
 COMMENT ON COLUMN "sys_operation_audit_logs"."failure_reason" IS '失败原因';
 -- Set comment to column: "ip_address" on table: "sys_operation_audit_logs"
 COMMENT ON COLUMN "sys_operation_audit_logs"."ip_address" IS 'IP地址';
--- Set comment to column: "geo_location" on table: "sys_operation_audit_logs"
-COMMENT ON COLUMN "sys_operation_audit_logs"."geo_location" IS '地理位置(来自IP库)';
 -- Set comment to column: "device_info" on table: "sys_operation_audit_logs"
 COMMENT ON COLUMN "sys_operation_audit_logs"."device_info" IS '设备信息';
 -- Set comment to column: "log_hash" on table: "sys_operation_audit_logs"

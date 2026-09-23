@@ -164,7 +164,6 @@ func (r *OperationAuditLogRepo) Create(ctx context.Context, req *auditV1.CreateO
 		SetNillableSuccess(req.Data.Success).
 		SetNillableFailureReason(req.Data.FailureReason).
 		SetNillableIPAddress(req.Data.IpAddress).
-		SetGeoLocation(req.Data.GeoLocation).
 		SetNillableLogHash(req.Data.LogHash).
 		SetSignature(req.Data.Signature).
 		SetCreatedAt(time.Now())

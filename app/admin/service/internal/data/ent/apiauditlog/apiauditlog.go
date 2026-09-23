@@ -26,8 +26,6 @@ const (
 	FieldUsername = "username"
 	// FieldIPAddress holds the string denoting the ip_address field in the database.
 	FieldIPAddress = "ip_address"
-	// FieldGeoLocation holds the string denoting the geo_location field in the database.
-	FieldGeoLocation = "geo_location"
 	// FieldDeviceInfo holds the string denoting the device_info field in the database.
 	FieldDeviceInfo = "device_info"
 	// FieldReferer holds the string denoting the referer field in the database.
@@ -84,7 +82,6 @@ var Columns = []string{
 	FieldUserID,
 	FieldUsername,
 	FieldIPAddress,
-	FieldGeoLocation,
 	FieldDeviceInfo,
 	FieldReferer,
 	FieldAppVersion,

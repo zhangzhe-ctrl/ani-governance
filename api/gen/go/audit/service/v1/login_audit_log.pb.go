@@ -265,7 +265,6 @@ type LoginAuditLog struct {
 	UserId        *uint32                    `protobuf:"varint,4,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`                                                             // 用户ID
 	Username      *string                    `protobuf:"bytes,5,opt,name=username,proto3,oneof" json:"username,omitempty"`                                                                        // 账号名
 	IpAddress     *string                    `protobuf:"bytes,10,opt,name=ip_address,json=ipAddress,proto3,oneof" json:"ip_address,omitempty"`                                                    // IP地址
-	GeoLocation   *GeoLocation               `protobuf:"bytes,11,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`                                              // 地理位置(来自IP库)
 	SessionId     *string                    `protobuf:"bytes,12,opt,name=session_id,json=sessionId,proto3,oneof" json:"session_id,omitempty"`                                                    // 会话ID
 	DeviceInfo    *DeviceInfo                `protobuf:"bytes,13,opt,name=device_info,json=deviceInfo,proto3,oneof" json:"device_info,omitempty"`                                                 // 设备信息
 	RequestId     *string                    `protobuf:"bytes,16,opt,name=request_id,json=requestId,proto3,oneof" json:"request_id,omitempty"`                                                    // 全局请求ID（关联网关日志）
@@ -355,13 +354,6 @@ func (x *LoginAuditLog) GetIpAddress() string {
 		return *x.IpAddress
 	}
 	return ""
-}
-
-func (x *LoginAuditLog) GetGeoLocation() *GeoLocation {
-	if x != nil {
-		return x.GeoLocation
-	}
-	return nil
 }
 
 func (x *LoginAuditLog) GetSessionId() string {
@@ -646,7 +638,7 @@ var File_audit_service_v1_login_audit_log_proto protoreflect.FileDescriptor
 
 const file_audit_service_v1_login_audit_log_proto_rawDesc = "" +
 	"\n" +
-	"&audit/service/v1/login_audit_log.proto\x12\x10audit.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1epagination/v1/pagination.proto\x1a#audit/service/v1/geo_location.proto\x1a\"audit/service/v1/device_info.proto\"\xa2\x14\n" +
+	"&audit/service/v1/login_audit_log.proto\x12\x10audit.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1epagination/v1/pagination.proto\x1a\"audit/service/v1/device_info.proto\"\xa9\x13\n" +
 	"\rLoginAuditLog\x12/\n" +
 	"\x02id\x18\x01 \x01(\rB\x1a\xbaG\x17\x92\x02\x14登录审计日志IDH\x00R\x02id\x88\x01\x01\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\rB\x0e\xbaG\v\x92\x02\b租户IDH\x01R\btenantId\x88\x01\x01\x128\n" +
@@ -656,32 +648,31 @@ const file_audit_service_v1_login_audit_log_proto_rawDesc = "" +
 	"\busername\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t账号名H\x04R\busername\x88\x01\x01\x122\n" +
 	"\n" +
 	"ip_address\x18\n" +
-	" \x01(\tB\x0e\xbaG\v\x92\x02\bIP地址H\x05R\tipAddress\x88\x01\x01\x12f\n" +
-	"\fgeo_location\x18\v \x01(\v2\x1d.audit.service.v1.GeoLocationB\x1f\xbaG\x1c\x92\x02\x19地理位置(来自IP库)H\x06R\vgeoLocation\x88\x01\x01\x122\n" +
+	" \x01(\tB\x0e\xbaG\v\x92\x02\bIP地址H\x05R\tipAddress\x88\x01\x01\x122\n" +
 	"\n" +
-	"session_id\x18\f \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDH\aR\tsessionId\x88\x01\x01\x12V\n" +
-	"\vdevice_info\x18\r \x01(\v2\x1c.audit.service.v1.DeviceInfoB\x12\xbaG\x0f\x92\x02\f设备信息H\bR\n" +
+	"session_id\x18\f \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDH\x06R\tsessionId\x88\x01\x01\x12V\n" +
+	"\vdevice_info\x18\r \x01(\v2\x1c.audit.service.v1.DeviceInfoB\x12\xbaG\x0f\x92\x02\f设备信息H\aR\n" +
 	"deviceInfo\x88\x01\x01\x12P\n" +
 	"\n" +
-	"request_id\x18\x10 \x01(\tB,\xbaG)\x92\x02&全局请求ID（关联网关日志）H\tR\trequestId\x88\x01\x01\x12:\n" +
-	"\btrace_id\x18\x11 \x01(\tB\x1a\xbaG\x17\x92\x02\x14全局链路追踪IDH\n" +
-	"R\atraceId\x88\x01\x01\x12j\n" +
-	"\vaction_type\x18\x14 \x01(\x0e2*.audit.service.v1.LoginAuditLog.ActionTypeB\x18\xbaG\x15\x92\x02\x12事件动作类型H\vR\n" +
+	"request_id\x18\x10 \x01(\tB,\xbaG)\x92\x02&全局请求ID（关联网关日志）H\bR\trequestId\x88\x01\x01\x12:\n" +
+	"\btrace_id\x18\x11 \x01(\tB\x1a\xbaG\x17\x92\x02\x14全局链路追踪IDH\tR\atraceId\x88\x01\x01\x12j\n" +
+	"\vaction_type\x18\x14 \x01(\x0e2*.audit.service.v1.LoginAuditLog.ActionTypeB\x18\xbaG\x15\x92\x02\x12事件动作类型H\n" +
+	"R\n" +
 	"actionType\x88\x01\x01\x12]\n" +
-	"\x06status\x18\x15 \x01(\x0e2&.audit.service.v1.LoginAuditLog.StatusB\x18\xbaG\x15\x92\x02\x12操作结果状态H\fR\x06status\x88\x01\x01\x12l\n" +
-	"\x0efailure_reason\x18\x16 \x01(\tB@\xbaG=\x92\x02:失败原因：密码错误/MFA验证失败/IP黑名单等H\rR\rfailureReason\x88\x01\x01\x12Z\n" +
+	"\x06status\x18\x15 \x01(\x0e2&.audit.service.v1.LoginAuditLog.StatusB\x18\xbaG\x15\x92\x02\x12操作结果状态H\vR\x06status\x88\x01\x01\x12l\n" +
+	"\x0efailure_reason\x18\x16 \x01(\tB@\xbaG=\x92\x02:失败原因：密码错误/MFA验证失败/IP黑名单等H\fR\rfailureReason\x88\x01\x01\x12Z\n" +
 	"\n" +
-	"mfa_status\x18\x17 \x01(\tB6\xbaG3\x92\x020MFA状态：UNVERIFIED/VERIFYING/VERIFIED/FAILEDH\x0eR\tmfaStatus\x88\x01\x01\x12g\n" +
-	"\flogin_method\x18\x18 \x01(\x0e2+.audit.service.v1.LoginAuditLog.LoginMethodB\x12\xbaG\x0f\x92\x02\f登录方式H\x0fR\vloginMethod\x88\x01\x01\x12\\\n" +
+	"mfa_status\x18\x17 \x01(\tB6\xbaG3\x92\x020MFA状态：UNVERIFIED/VERIFYING/VERIFIED/FAILEDH\rR\tmfaStatus\x88\x01\x01\x12g\n" +
+	"\flogin_method\x18\x18 \x01(\x0e2+.audit.service.v1.LoginAuditLog.LoginMethodB\x12\xbaG\x0f\x92\x02\f登录方式H\x0eR\vloginMethod\x88\x01\x01\x12\\\n" +
 	"\n" +
-	"risk_score\x18\x1e \x01(\rB8\xbaG5\x92\x022风险评分（0-100，分值越高风险越大）H\x10R\triskScore\x88\x01\x01\x12\x7f\n" +
+	"risk_score\x18\x1e \x01(\rB8\xbaG5\x92\x022风险评分（0-100，分值越高风险越大）H\x0fR\triskScore\x88\x01\x01\x12\x7f\n" +
 	"\n" +
-	"risk_level\x18\x1f \x01(\x0e2).audit.service.v1.LoginAuditLog.RiskLevelB0\xbaG-\x92\x02*风险等级（高风险需实时告警）H\x11R\triskLevel\x88\x01\x01\x12\x82\x01\n" +
+	"risk_level\x18\x1f \x01(\x0e2).audit.service.v1.LoginAuditLog.RiskLevelB0\xbaG-\x92\x02*风险等级（高风险需实时告警）H\x10R\triskLevel\x88\x01\x01\x12\x82\x01\n" +
 	"\frisk_factors\x18  \x03(\tB_\xbaG\\\x92\x02Y风险因素（ISO 27001标准，如：异地登录/新设备/密码尝试次数过多）R\vriskFactors\x12\\\n" +
-	"\blog_hash\x18( \x01(\tB<\xbaG9\x92\x026日志内容哈希（SHA256，十六进制字符串）H\x12R\alogHash\x88\x01\x01\x12}\n" +
-	"\tsignature\x18) \x01(\fBZ\xbaGW\x92\x02T日志数字签名（ECDSA，签名内容：tenant_id+user_id+created_at+log_hash）H\x13R\tsignature\x88\x01\x01\x12X\n" +
+	"\blog_hash\x18( \x01(\tB<\xbaG9\x92\x026日志内容哈希（SHA256，十六进制字符串）H\x11R\alogHash\x88\x01\x01\x12}\n" +
+	"\tsignature\x18) \x01(\fBZ\xbaGW\x92\x02T日志数字签名（ECDSA，签名内容：tenant_id+user_id+created_at+log_hash）H\x12R\tsignature\x88\x01\x01\x12X\n" +
 	"\n" +
-	"created_at\x182 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x15\x92\x02\x12日志创建时间H\x14R\tcreatedAt\x88\x01\x01\"y\n" +
+	"created_at\x182 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x15\x92\x02\x12日志创建时间H\x13R\tcreatedAt\x88\x01\x01\"y\n" +
 	"\n" +
 	"ActionType\x12\x1b\n" +
 	"\x17ACTION_TYPE_UNSPECIFIED\x10\x00\x12\t\n" +
@@ -721,8 +712,7 @@ const file_audit_service_v1_login_audit_log_proto_rawDesc = "" +
 	"\n" +
 	"\b_user_idB\v\n" +
 	"\t_usernameB\r\n" +
-	"\v_ip_addressB\x0f\n" +
-	"\r_geo_locationB\r\n" +
+	"\v_ip_addressB\r\n" +
 	"\v_session_idB\x0e\n" +
 	"\f_device_infoB\r\n" +
 	"\v_request_idB\v\n" +
@@ -780,35 +770,33 @@ var file_audit_service_v1_login_audit_log_proto_goTypes = []any{
 	(*ListLoginAuditLogResponse)(nil),  // 5: audit.service.v1.ListLoginAuditLogResponse
 	(*GetLoginAuditLogRequest)(nil),    // 6: audit.service.v1.GetLoginAuditLogRequest
 	(*CreateLoginAuditLogRequest)(nil), // 7: audit.service.v1.CreateLoginAuditLogRequest
-	(*GeoLocation)(nil),                // 8: audit.service.v1.GeoLocation
-	(*DeviceInfo)(nil),                 // 9: audit.service.v1.DeviceInfo
-	(*timestamppb.Timestamp)(nil),      // 10: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),      // 11: google.protobuf.FieldMask
-	(*v1.PagingRequest)(nil),           // 12: pagination.PagingRequest
-	(*emptypb.Empty)(nil),              // 13: google.protobuf.Empty
+	(*DeviceInfo)(nil),                 // 8: audit.service.v1.DeviceInfo
+	(*timestamppb.Timestamp)(nil),      // 9: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),      // 10: google.protobuf.FieldMask
+	(*v1.PagingRequest)(nil),           // 11: pagination.PagingRequest
+	(*emptypb.Empty)(nil),              // 12: google.protobuf.Empty
 }
 var file_audit_service_v1_login_audit_log_proto_depIdxs = []int32{
-	8,  // 0: audit.service.v1.LoginAuditLog.geo_location:type_name -> audit.service.v1.GeoLocation
-	9,  // 1: audit.service.v1.LoginAuditLog.device_info:type_name -> audit.service.v1.DeviceInfo
-	0,  // 2: audit.service.v1.LoginAuditLog.action_type:type_name -> audit.service.v1.LoginAuditLog.ActionType
-	1,  // 3: audit.service.v1.LoginAuditLog.status:type_name -> audit.service.v1.LoginAuditLog.Status
-	3,  // 4: audit.service.v1.LoginAuditLog.login_method:type_name -> audit.service.v1.LoginAuditLog.LoginMethod
-	2,  // 5: audit.service.v1.LoginAuditLog.risk_level:type_name -> audit.service.v1.LoginAuditLog.RiskLevel
-	10, // 6: audit.service.v1.LoginAuditLog.created_at:type_name -> google.protobuf.Timestamp
-	4,  // 7: audit.service.v1.ListLoginAuditLogResponse.items:type_name -> audit.service.v1.LoginAuditLog
-	11, // 8: audit.service.v1.GetLoginAuditLogRequest.view_mask:type_name -> google.protobuf.FieldMask
-	4,  // 9: audit.service.v1.CreateLoginAuditLogRequest.data:type_name -> audit.service.v1.LoginAuditLog
-	12, // 10: audit.service.v1.LoginAuditLogService.List:input_type -> pagination.PagingRequest
-	6,  // 11: audit.service.v1.LoginAuditLogService.Get:input_type -> audit.service.v1.GetLoginAuditLogRequest
-	7,  // 12: audit.service.v1.LoginAuditLogService.Create:input_type -> audit.service.v1.CreateLoginAuditLogRequest
-	5,  // 13: audit.service.v1.LoginAuditLogService.List:output_type -> audit.service.v1.ListLoginAuditLogResponse
-	4,  // 14: audit.service.v1.LoginAuditLogService.Get:output_type -> audit.service.v1.LoginAuditLog
-	13, // 15: audit.service.v1.LoginAuditLogService.Create:output_type -> google.protobuf.Empty
-	13, // [13:16] is the sub-list for method output_type
-	10, // [10:13] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	8,  // 0: audit.service.v1.LoginAuditLog.device_info:type_name -> audit.service.v1.DeviceInfo
+	0,  // 1: audit.service.v1.LoginAuditLog.action_type:type_name -> audit.service.v1.LoginAuditLog.ActionType
+	1,  // 2: audit.service.v1.LoginAuditLog.status:type_name -> audit.service.v1.LoginAuditLog.Status
+	3,  // 3: audit.service.v1.LoginAuditLog.login_method:type_name -> audit.service.v1.LoginAuditLog.LoginMethod
+	2,  // 4: audit.service.v1.LoginAuditLog.risk_level:type_name -> audit.service.v1.LoginAuditLog.RiskLevel
+	9,  // 5: audit.service.v1.LoginAuditLog.created_at:type_name -> google.protobuf.Timestamp
+	4,  // 6: audit.service.v1.ListLoginAuditLogResponse.items:type_name -> audit.service.v1.LoginAuditLog
+	10, // 7: audit.service.v1.GetLoginAuditLogRequest.view_mask:type_name -> google.protobuf.FieldMask
+	4,  // 8: audit.service.v1.CreateLoginAuditLogRequest.data:type_name -> audit.service.v1.LoginAuditLog
+	11, // 9: audit.service.v1.LoginAuditLogService.List:input_type -> pagination.PagingRequest
+	6,  // 10: audit.service.v1.LoginAuditLogService.Get:input_type -> audit.service.v1.GetLoginAuditLogRequest
+	7,  // 11: audit.service.v1.LoginAuditLogService.Create:input_type -> audit.service.v1.CreateLoginAuditLogRequest
+	5,  // 12: audit.service.v1.LoginAuditLogService.List:output_type -> audit.service.v1.ListLoginAuditLogResponse
+	4,  // 13: audit.service.v1.LoginAuditLogService.Get:output_type -> audit.service.v1.LoginAuditLog
+	12, // 14: audit.service.v1.LoginAuditLogService.Create:output_type -> google.protobuf.Empty
+	12, // [12:15] is the sub-list for method output_type
+	9,  // [9:12] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_audit_service_v1_login_audit_log_proto_init() }
@@ -816,7 +804,6 @@ func file_audit_service_v1_login_audit_log_proto_init() {
 	if File_audit_service_v1_login_audit_log_proto != nil {
 		return
 	}
-	file_audit_service_v1_geo_location_proto_init()
 	file_audit_service_v1_device_info_proto_init()
 	file_audit_service_v1_login_audit_log_proto_msgTypes[0].OneofWrappers = []any{}
 	file_audit_service_v1_login_audit_log_proto_msgTypes[2].OneofWrappers = []any{

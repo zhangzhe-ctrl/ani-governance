@@ -12,7 +12,6 @@ import "validate/validate.proto";
 
 import "pagination/v1/pagination.proto";
 
-import "audit/service/v1/geo_location.proto";
 import "audit/service/v1/device_info.proto";
 
 // 接口审计日志管理服务
@@ -62,11 +61,6 @@ message ApiAuditLog {
     json_name = "ipAddress",
     (gnostic.openapi.v3.property) = {description: "IP地址"}
   ]; // IP地址
-
-  optional GeoLocation geo_location = 11 [
-    json_name = "geoLocation",
-    (gnostic.openapi.v3.property) = {description: "地理位置(来自IP库)"}
-  ]; // 地理位置(来自IP库)
 
   optional DeviceInfo device_info = 12 [
     json_name = "deviceInfo",

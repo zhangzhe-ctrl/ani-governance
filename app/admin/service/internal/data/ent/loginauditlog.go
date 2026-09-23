@@ -30,8 +30,6 @@ type LoginAuditLog struct {
 	Username *string `json:"username,omitempty"`
 	// IP地址
 	IPAddress *string `json:"ip_address,omitempty"`
-	// 地理位置(来自IP库)
-	GeoLocation *auditpb.GeoLocation `json:"geo_location,omitempty"`
 	// 会话ID
 	SessionID *string `json:"session_id,omitempty"`
 	// 设备信息
@@ -68,7 +66,7 @@ func (*LoginAuditLog) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case loginauditlog.FieldGeoLocation, loginauditlog.FieldDeviceInfo, loginauditlog.FieldRiskFactors, loginauditlog.FieldSignature:
+		case loginauditlog.FieldDeviceInfo, loginauditlog.FieldRiskFactors, loginauditlog.FieldSignature:
 			values[i] = new([]byte)
 		case loginauditlog.FieldID, loginauditlog.FieldTenantID, loginauditlog.FieldUserID, loginauditlog.FieldRiskScore:
 			values[i] = new(sql.NullInt64)
@@ -131,14 +129,6 @@ func (_m *LoginAuditLog) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.IPAddress = new(string)
 				*_m.IPAddress = value.String
-			}
-		case loginauditlog.FieldGeoLocation:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field geo_location", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.GeoLocation); err != nil {
-					return fmt.Errorf("unmarshal field geo_location: %w", err)
-				}
 			}
 		case loginauditlog.FieldSessionID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -299,9 +289,6 @@ func (_m *LoginAuditLog) String() string {
 		builder.WriteString("ip_address=")
 		builder.WriteString(*v)
 	}
-	builder.WriteString(", ")
-	builder.WriteString("geo_location=")
-	builder.WriteString(fmt.Sprintf("%v", _m.GeoLocation))
 	builder.WriteString(", ")
 	if v := _m.SessionID; v != nil {
 		builder.WriteString("session_id=")

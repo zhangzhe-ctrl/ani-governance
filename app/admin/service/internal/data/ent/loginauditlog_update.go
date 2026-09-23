@@ -97,18 +97,6 @@ func (_u *LoginAuditLogUpdate) ClearIPAddress() *LoginAuditLogUpdate {
 	return _u
 }
 
-// SetGeoLocation sets the "geo_location" field.
-func (_u *LoginAuditLogUpdate) SetGeoLocation(v *auditpb.GeoLocation) *LoginAuditLogUpdate {
-	_u.mutation.SetGeoLocation(v)
-	return _u
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (_u *LoginAuditLogUpdate) ClearGeoLocation() *LoginAuditLogUpdate {
-	_u.mutation.ClearGeoLocation()
-	return _u
-}
-
 // SetSessionID sets the "session_id" field.
 func (_u *LoginAuditLogUpdate) SetSessionID(v string) *LoginAuditLogUpdate {
 	_u.mutation.SetSessionID(v)
@@ -412,11 +400,6 @@ func (_u *LoginAuditLogUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *LoginAuditLogUpdate) check() error {
-	if v, ok := _u.mutation.GeoLocation(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "geo_location", err: fmt.Errorf(`ent: validator failed for field "LoginAuditLog.geo_location": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.DeviceInfo(); ok {
 		if err := v.Validate(); err != nil {
 			return &ValidationError{Name: "device_info", err: fmt.Errorf(`ent: validator failed for field "LoginAuditLog.device_info": %w`, err)}
@@ -489,12 +472,6 @@ func (_u *LoginAuditLogUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	}
 	if _u.mutation.IPAddressCleared() {
 		_spec.ClearField(loginauditlog.FieldIPAddress, field.TypeString)
-	}
-	if value, ok := _u.mutation.GeoLocation(); ok {
-		_spec.SetField(loginauditlog.FieldGeoLocation, field.TypeJSON, value)
-	}
-	if _u.mutation.GeoLocationCleared() {
-		_spec.ClearField(loginauditlog.FieldGeoLocation, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.SessionID(); ok {
 		_spec.SetField(loginauditlog.FieldSessionID, field.TypeString, value)
@@ -674,18 +651,6 @@ func (_u *LoginAuditLogUpdateOne) SetNillableIPAddress(v *string) *LoginAuditLog
 // ClearIPAddress clears the value of the "ip_address" field.
 func (_u *LoginAuditLogUpdateOne) ClearIPAddress() *LoginAuditLogUpdateOne {
 	_u.mutation.ClearIPAddress()
-	return _u
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (_u *LoginAuditLogUpdateOne) SetGeoLocation(v *auditpb.GeoLocation) *LoginAuditLogUpdateOne {
-	_u.mutation.SetGeoLocation(v)
-	return _u
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (_u *LoginAuditLogUpdateOne) ClearGeoLocation() *LoginAuditLogUpdateOne {
-	_u.mutation.ClearGeoLocation()
 	return _u
 }
 
@@ -1005,11 +970,6 @@ func (_u *LoginAuditLogUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *LoginAuditLogUpdateOne) check() error {
-	if v, ok := _u.mutation.GeoLocation(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "geo_location", err: fmt.Errorf(`ent: validator failed for field "LoginAuditLog.geo_location": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.DeviceInfo(); ok {
 		if err := v.Validate(); err != nil {
 			return &ValidationError{Name: "device_info", err: fmt.Errorf(`ent: validator failed for field "LoginAuditLog.device_info": %w`, err)}
@@ -1099,12 +1059,6 @@ func (_u *LoginAuditLogUpdateOne) sqlSave(ctx context.Context) (_node *LoginAudi
 	}
 	if _u.mutation.IPAddressCleared() {
 		_spec.ClearField(loginauditlog.FieldIPAddress, field.TypeString)
-	}
-	if value, ok := _u.mutation.GeoLocation(); ok {
-		_spec.SetField(loginauditlog.FieldGeoLocation, field.TypeJSON, value)
-	}
-	if _u.mutation.GeoLocationCleared() {
-		_spec.ClearField(loginauditlog.FieldGeoLocation, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.SessionID(); ok {
 		_spec.SetField(loginauditlog.FieldSessionID, field.TypeString, value)

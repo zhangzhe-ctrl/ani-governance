@@ -47,10 +47,6 @@ func (LoginAuditLog) Fields() []ent.Field {
 			Optional().
 			Nillable(),
 
-		field.JSON("geo_location", &auditV1.GeoLocation{}).
-			Comment("地理位置(来自IP库)").
-			Optional(),
-
 		field.String("session_id").
 			Comment("会话ID").
 			Optional().

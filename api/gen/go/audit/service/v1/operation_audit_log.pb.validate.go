@@ -121,39 +121,6 @@ func (m *OperationAuditLog) validate(all bool) error {
 		// no validation rules for IpAddress
 	}
 
-	if m.GeoLocation != nil {
-
-		if all {
-			switch v := interface{}(m.GetGeoLocation()).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, OperationAuditLogValidationError{
-						field:  "GeoLocation",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, OperationAuditLogValidationError{
-						field:  "GeoLocation",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(m.GetGeoLocation()).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return OperationAuditLogValidationError{
-					field:  "GeoLocation",
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
-
 	if m.LogHash != nil {
 		// no validation rules for LogHash
 	}

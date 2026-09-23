@@ -5098,12 +5098,6 @@ paths:
                             $ref: '#/components/schemas/CreateAccessKeyRequest'
                 required: true
             responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/CreateAccessKeyResponse'
                 "201":
                     description: Created; secret_key is returned once
                     content:
@@ -5988,8 +5982,6 @@ components:
                 ipAddress:
                     type: string
                     description: IP地址
-                geoLocation:
-                    $ref: '#/components/schemas/GeoLocation'
                 deviceInfo:
                     $ref: '#/components/schemas/DeviceInfo'
                 referer:
@@ -7129,31 +7121,6 @@ components:
                 imageBase64:
                     type: string
                     description: 验证码图片的Base64编码字符串，客户端可以解码并显示给用户
-        GeoLocation:
-            type: object
-            properties:
-                countryCode:
-                    type: string
-                    description: 国家代码（CN/US），遵循ISO 3166-1 alpha-2标准
-                province:
-                    type: string
-                    description: 省份/州（中文：北京市，英文：California）
-                city:
-                    type: string
-                    description: 城市（中文：上海市，英文：New York）
-                isp:
-                    type: string
-                    description: 网络运营商（如：中国移动/中国电信/AT&T）
-                addressRemark:
-                    type: string
-                    description: 地址备注（如：内网IP/无法解析/海外IP）
-                latitude:
-                    type: string
-                    description: 纬度（微度）
-                longitude:
-                    type: string
-                    description: 经度（微度）
-            description: 地理位置
         GetEIPResponse:
             type: object
             properties:
@@ -8035,8 +8002,6 @@ components:
                 ipAddress:
                     type: string
                     description: IP地址
-                geoLocation:
-                    $ref: '#/components/schemas/GeoLocation'
                 sessionId:
                     type: string
                     description: 会话ID
@@ -8846,8 +8811,6 @@ components:
                 ipAddress:
                     type: string
                     description: IP地址
-                geoLocation:
-                    $ref: '#/components/schemas/GeoLocation'
                 logHash:
                     type: string
                     description: 日志内容哈希（SHA256，十六进制字符串）

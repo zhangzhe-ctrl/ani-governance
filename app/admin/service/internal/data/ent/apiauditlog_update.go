@@ -143,18 +143,6 @@ func (_u *ApiAuditLogUpdate) ClearIPAddress() *ApiAuditLogUpdate {
 	return _u
 }
 
-// SetGeoLocation sets the "geo_location" field.
-func (_u *ApiAuditLogUpdate) SetGeoLocation(v *auditpb.GeoLocation) *ApiAuditLogUpdate {
-	_u.mutation.SetGeoLocation(v)
-	return _u
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (_u *ApiAuditLogUpdate) ClearGeoLocation() *ApiAuditLogUpdate {
-	_u.mutation.ClearGeoLocation()
-	return _u
-}
-
 // SetDeviceInfo sets the "device_info" field.
 func (_u *ApiAuditLogUpdate) SetDeviceInfo(v *auditpb.DeviceInfo) *ApiAuditLogUpdate {
 	_u.mutation.SetDeviceInfo(v)
@@ -662,12 +650,6 @@ func (_u *ApiAuditLogUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if _u.mutation.IPAddressCleared() {
 		_spec.ClearField(apiauditlog.FieldIPAddress, field.TypeString)
 	}
-	if value, ok := _u.mutation.GeoLocation(); ok {
-		_spec.SetField(apiauditlog.FieldGeoLocation, field.TypeJSON, value)
-	}
-	if _u.mutation.GeoLocationCleared() {
-		_spec.ClearField(apiauditlog.FieldGeoLocation, field.TypeJSON)
-	}
 	if value, ok := _u.mutation.DeviceInfo(); ok {
 		_spec.SetField(apiauditlog.FieldDeviceInfo, field.TypeJSON, value)
 	}
@@ -933,18 +915,6 @@ func (_u *ApiAuditLogUpdateOne) SetNillableIPAddress(v *string) *ApiAuditLogUpda
 // ClearIPAddress clears the value of the "ip_address" field.
 func (_u *ApiAuditLogUpdateOne) ClearIPAddress() *ApiAuditLogUpdateOne {
 	_u.mutation.ClearIPAddress()
-	return _u
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (_u *ApiAuditLogUpdateOne) SetGeoLocation(v *auditpb.GeoLocation) *ApiAuditLogUpdateOne {
-	_u.mutation.SetGeoLocation(v)
-	return _u
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (_u *ApiAuditLogUpdateOne) ClearGeoLocation() *ApiAuditLogUpdateOne {
-	_u.mutation.ClearGeoLocation()
 	return _u
 }
 
@@ -1484,12 +1454,6 @@ func (_u *ApiAuditLogUpdateOne) sqlSave(ctx context.Context) (_node *ApiAuditLog
 	}
 	if _u.mutation.IPAddressCleared() {
 		_spec.ClearField(apiauditlog.FieldIPAddress, field.TypeString)
-	}
-	if value, ok := _u.mutation.GeoLocation(); ok {
-		_spec.SetField(apiauditlog.FieldGeoLocation, field.TypeJSON, value)
-	}
-	if _u.mutation.GeoLocationCleared() {
-		_spec.ClearField(apiauditlog.FieldGeoLocation, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.DeviceInfo(); ok {
 		_spec.SetField(apiauditlog.FieldDeviceInfo, field.TypeJSON, value)

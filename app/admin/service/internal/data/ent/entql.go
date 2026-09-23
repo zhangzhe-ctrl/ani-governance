@@ -138,7 +138,6 @@ var schemaGraph = func() *sqlgraph.Schema {
 			apiauditlog.FieldUserID:         {Type: field.TypeUint32, Column: apiauditlog.FieldUserID},
 			apiauditlog.FieldUsername:       {Type: field.TypeString, Column: apiauditlog.FieldUsername},
 			apiauditlog.FieldIPAddress:      {Type: field.TypeString, Column: apiauditlog.FieldIPAddress},
-			apiauditlog.FieldGeoLocation:    {Type: field.TypeJSON, Column: apiauditlog.FieldGeoLocation},
 			apiauditlog.FieldDeviceInfo:     {Type: field.TypeJSON, Column: apiauditlog.FieldDeviceInfo},
 			apiauditlog.FieldReferer:        {Type: field.TypeString, Column: apiauditlog.FieldReferer},
 			apiauditlog.FieldAppVersion:     {Type: field.TypeString, Column: apiauditlog.FieldAppVersion},
@@ -178,7 +177,6 @@ var schemaGraph = func() *sqlgraph.Schema {
 			dataaccessauditlog.FieldUserID:          {Type: field.TypeUint32, Column: dataaccessauditlog.FieldUserID},
 			dataaccessauditlog.FieldUsername:        {Type: field.TypeString, Column: dataaccessauditlog.FieldUsername},
 			dataaccessauditlog.FieldIPAddress:       {Type: field.TypeString, Column: dataaccessauditlog.FieldIPAddress},
-			dataaccessauditlog.FieldGeoLocation:     {Type: field.TypeJSON, Column: dataaccessauditlog.FieldGeoLocation},
 			dataaccessauditlog.FieldDeviceInfo:      {Type: field.TypeJSON, Column: dataaccessauditlog.FieldDeviceInfo},
 			dataaccessauditlog.FieldRequestID:       {Type: field.TypeString, Column: dataaccessauditlog.FieldRequestID},
 			dataaccessauditlog.FieldTraceID:         {Type: field.TypeString, Column: dataaccessauditlog.FieldTraceID},
@@ -388,7 +386,6 @@ var schemaGraph = func() *sqlgraph.Schema {
 			loginauditlog.FieldUserID:        {Type: field.TypeUint32, Column: loginauditlog.FieldUserID},
 			loginauditlog.FieldUsername:      {Type: field.TypeString, Column: loginauditlog.FieldUsername},
 			loginauditlog.FieldIPAddress:     {Type: field.TypeString, Column: loginauditlog.FieldIPAddress},
-			loginauditlog.FieldGeoLocation:   {Type: field.TypeJSON, Column: loginauditlog.FieldGeoLocation},
 			loginauditlog.FieldSessionID:     {Type: field.TypeString, Column: loginauditlog.FieldSessionID},
 			loginauditlog.FieldDeviceInfo:    {Type: field.TypeJSON, Column: loginauditlog.FieldDeviceInfo},
 			loginauditlog.FieldRequestID:     {Type: field.TypeString, Column: loginauditlog.FieldRequestID},
@@ -635,7 +632,6 @@ var schemaGraph = func() *sqlgraph.Schema {
 			operationauditlog.FieldSuccess:        {Type: field.TypeBool, Column: operationauditlog.FieldSuccess},
 			operationauditlog.FieldFailureReason:  {Type: field.TypeString, Column: operationauditlog.FieldFailureReason},
 			operationauditlog.FieldIPAddress:      {Type: field.TypeString, Column: operationauditlog.FieldIPAddress},
-			operationauditlog.FieldGeoLocation:    {Type: field.TypeJSON, Column: operationauditlog.FieldGeoLocation},
 			operationauditlog.FieldDeviceInfo:     {Type: field.TypeJSON, Column: operationauditlog.FieldDeviceInfo},
 			operationauditlog.FieldLogHash:        {Type: field.TypeString, Column: operationauditlog.FieldLogHash},
 			operationauditlog.FieldSignature:      {Type: field.TypeBytes, Column: operationauditlog.FieldSignature},
@@ -1976,11 +1972,6 @@ func (f *ApiAuditLogFilter) WhereIPAddress(p entql.StringP) {
 	f.Where(p.Field(apiauditlog.FieldIPAddress))
 }
 
-// WhereGeoLocation applies the entql json.RawMessage predicate on the geo_location field.
-func (f *ApiAuditLogFilter) WhereGeoLocation(p entql.BytesP) {
-	f.Where(p.Field(apiauditlog.FieldGeoLocation))
-}
-
 // WhereDeviceInfo applies the entql json.RawMessage predicate on the device_info field.
 func (f *ApiAuditLogFilter) WhereDeviceInfo(p entql.BytesP) {
 	f.Where(p.Field(apiauditlog.FieldDeviceInfo))
@@ -2149,11 +2140,6 @@ func (f *DataAccessAuditLogFilter) WhereUsername(p entql.StringP) {
 // WhereIPAddress applies the entql string predicate on the ip_address field.
 func (f *DataAccessAuditLogFilter) WhereIPAddress(p entql.StringP) {
 	f.Where(p.Field(dataaccessauditlog.FieldIPAddress))
-}
-
-// WhereGeoLocation applies the entql json.RawMessage predicate on the geo_location field.
-func (f *DataAccessAuditLogFilter) WhereGeoLocation(p entql.BytesP) {
-	f.Where(p.Field(dataaccessauditlog.FieldGeoLocation))
 }
 
 // WhereDeviceInfo applies the entql json.RawMessage predicate on the device_info field.
@@ -3055,11 +3041,6 @@ func (f *LoginAuditLogFilter) WhereUsername(p entql.StringP) {
 // WhereIPAddress applies the entql string predicate on the ip_address field.
 func (f *LoginAuditLogFilter) WhereIPAddress(p entql.StringP) {
 	f.Where(p.Field(loginauditlog.FieldIPAddress))
-}
-
-// WhereGeoLocation applies the entql json.RawMessage predicate on the geo_location field.
-func (f *LoginAuditLogFilter) WhereGeoLocation(p entql.BytesP) {
-	f.Where(p.Field(loginauditlog.FieldGeoLocation))
 }
 
 // WhereSessionID applies the entql string predicate on the session_id field.
@@ -4118,11 +4099,6 @@ func (f *OperationAuditLogFilter) WhereFailureReason(p entql.StringP) {
 // WhereIPAddress applies the entql string predicate on the ip_address field.
 func (f *OperationAuditLogFilter) WhereIPAddress(p entql.StringP) {
 	f.Where(p.Field(operationauditlog.FieldIPAddress))
-}
-
-// WhereGeoLocation applies the entql json.RawMessage predicate on the geo_location field.
-func (f *OperationAuditLogFilter) WhereGeoLocation(p entql.BytesP) {
-	f.Where(p.Field(operationauditlog.FieldGeoLocation))
 }
 
 // WhereDeviceInfo applies the entql json.RawMessage predicate on the device_info field.

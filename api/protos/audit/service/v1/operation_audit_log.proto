@@ -11,7 +11,6 @@ import "google/protobuf/empty.proto";
 import "pagination/v1/pagination.proto";
 
 import "audit/service/v1/common.proto";
-import "audit/service/v1/geo_location.proto";
 
 // 操作审计日志服务
 service OperationAuditLogService {
@@ -123,11 +122,6 @@ message OperationAuditLog {
     json_name = "ipAddress",
     (gnostic.openapi.v3.property) = {description: "IP地址"}
   ]; // IP地址
-
-  optional GeoLocation geo_location = 21 [
-    json_name = "geoLocation",
-    (gnostic.openapi.v3.property) = {description: "地理位置(来自IP库)"}
-  ]; // 地理位置(来自IP库)
 
   // ========== 合规校验 ==========
 

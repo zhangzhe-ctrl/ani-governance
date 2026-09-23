@@ -96,18 +96,6 @@ func (_u *DataAccessAuditLogUpdate) ClearIPAddress() *DataAccessAuditLogUpdate {
 	return _u
 }
 
-// SetGeoLocation sets the "geo_location" field.
-func (_u *DataAccessAuditLogUpdate) SetGeoLocation(v *auditpb.GeoLocation) *DataAccessAuditLogUpdate {
-	_u.mutation.SetGeoLocation(v)
-	return _u
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (_u *DataAccessAuditLogUpdate) ClearGeoLocation() *DataAccessAuditLogUpdate {
-	_u.mutation.ClearGeoLocation()
-	return _u
-}
-
 // SetDeviceInfo sets the "device_info" field.
 func (_u *DataAccessAuditLogUpdate) SetDeviceInfo(v *auditpb.DeviceInfo) *DataAccessAuditLogUpdate {
 	_u.mutation.SetDeviceInfo(v)
@@ -540,11 +528,6 @@ func (_u *DataAccessAuditLogUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *DataAccessAuditLogUpdate) check() error {
-	if v, ok := _u.mutation.GeoLocation(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "geo_location", err: fmt.Errorf(`ent: validator failed for field "DataAccessAuditLog.geo_location": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.DeviceInfo(); ok {
 		if err := v.Validate(); err != nil {
 			return &ValidationError{Name: "device_info", err: fmt.Errorf(`ent: validator failed for field "DataAccessAuditLog.device_info": %w`, err)}
@@ -607,12 +590,6 @@ func (_u *DataAccessAuditLogUpdate) sqlSave(ctx context.Context) (_node int, err
 	}
 	if _u.mutation.IPAddressCleared() {
 		_spec.ClearField(dataaccessauditlog.FieldIPAddress, field.TypeString)
-	}
-	if value, ok := _u.mutation.GeoLocation(); ok {
-		_spec.SetField(dataaccessauditlog.FieldGeoLocation, field.TypeJSON, value)
-	}
-	if _u.mutation.GeoLocationCleared() {
-		_spec.ClearField(dataaccessauditlog.FieldGeoLocation, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.DeviceInfo(); ok {
 		_spec.SetField(dataaccessauditlog.FieldDeviceInfo, field.TypeJSON, value)
@@ -826,18 +803,6 @@ func (_u *DataAccessAuditLogUpdateOne) SetNillableIPAddress(v *string) *DataAcce
 // ClearIPAddress clears the value of the "ip_address" field.
 func (_u *DataAccessAuditLogUpdateOne) ClearIPAddress() *DataAccessAuditLogUpdateOne {
 	_u.mutation.ClearIPAddress()
-	return _u
-}
-
-// SetGeoLocation sets the "geo_location" field.
-func (_u *DataAccessAuditLogUpdateOne) SetGeoLocation(v *auditpb.GeoLocation) *DataAccessAuditLogUpdateOne {
-	_u.mutation.SetGeoLocation(v)
-	return _u
-}
-
-// ClearGeoLocation clears the value of the "geo_location" field.
-func (_u *DataAccessAuditLogUpdateOne) ClearGeoLocation() *DataAccessAuditLogUpdateOne {
-	_u.mutation.ClearGeoLocation()
 	return _u
 }
 
@@ -1286,11 +1251,6 @@ func (_u *DataAccessAuditLogUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *DataAccessAuditLogUpdateOne) check() error {
-	if v, ok := _u.mutation.GeoLocation(); ok {
-		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "geo_location", err: fmt.Errorf(`ent: validator failed for field "DataAccessAuditLog.geo_location": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.DeviceInfo(); ok {
 		if err := v.Validate(); err != nil {
 			return &ValidationError{Name: "device_info", err: fmt.Errorf(`ent: validator failed for field "DataAccessAuditLog.device_info": %w`, err)}
@@ -1370,12 +1330,6 @@ func (_u *DataAccessAuditLogUpdateOne) sqlSave(ctx context.Context) (_node *Data
 	}
 	if _u.mutation.IPAddressCleared() {
 		_spec.ClearField(dataaccessauditlog.FieldIPAddress, field.TypeString)
-	}
-	if value, ok := _u.mutation.GeoLocation(); ok {
-		_spec.SetField(dataaccessauditlog.FieldGeoLocation, field.TypeJSON, value)
-	}
-	if _u.mutation.GeoLocationCleared() {
-		_spec.ClearField(dataaccessauditlog.FieldGeoLocation, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.DeviceInfo(); ok {
 		_spec.SetField(dataaccessauditlog.FieldDeviceInfo, field.TypeJSON, value)

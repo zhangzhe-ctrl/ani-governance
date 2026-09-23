@@ -116,7 +116,6 @@ type OperationAuditLog struct {
 	Success        *bool                         `protobuf:"varint,18,opt,name=success,proto3,oneof" json:"success,omitempty"`                                                                          // 操作结果
 	FailureReason  *string                       `protobuf:"bytes,19,opt,name=failure_reason,json=failureReason,proto3,oneof" json:"failure_reason,omitempty"`                                          // 失败原因
 	IpAddress      *string                       `protobuf:"bytes,20,opt,name=ip_address,json=ipAddress,proto3,oneof" json:"ip_address,omitempty"`                                                      // IP地址
-	GeoLocation    *GeoLocation                  `protobuf:"bytes,21,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`                                                // 地理位置(来自IP库)
 	LogHash        *string                       `protobuf:"bytes,40,opt,name=log_hash,json=logHash,proto3,oneof" json:"log_hash,omitempty"`                                                            // 日志哈希
 	Signature      []byte                        `protobuf:"bytes,41,opt,name=signature,proto3,oneof" json:"signature,omitempty"`                                                                       // 日志数字签名
 	CreatedAt      *timestamppb.Timestamp        `protobuf:"bytes,50,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`                                                      // 日志创建时间
@@ -264,13 +263,6 @@ func (x *OperationAuditLog) GetIpAddress() string {
 		return *x.IpAddress
 	}
 	return ""
-}
-
-func (x *OperationAuditLog) GetGeoLocation() *GeoLocation {
-	if x != nil {
-		return x.GeoLocation
-	}
-	return nil
 }
 
 func (x *OperationAuditLog) GetLogHash() string {
@@ -471,7 +463,7 @@ var File_audit_service_v1_operation_audit_log_proto protoreflect.FileDescriptor
 
 const file_audit_service_v1_operation_audit_log_proto_rawDesc = "" +
 	"\n" +
-	"*audit/service/v1/operation_audit_log.proto\x12\x10audit.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1epagination/v1/pagination.proto\x1a\x1daudit/service/v1/common.proto\x1a#audit/service/v1/geo_location.proto\"\xee\x0e\n" +
+	"*audit/service/v1/operation_audit_log.proto\x12\x10audit.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1epagination/v1/pagination.proto\x1a\x1daudit/service/v1/common.proto\"\xf5\r\n" +
 	"\x11OperationAuditLog\x12,\n" +
 	"\x02id\x18\x01 \x01(\rB\x17\xbaG\x14\x92\x02\x11API审计日志IDH\x00R\x02id\x88\x01\x01\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\rB\x0e\xbaG\v\x92\x02\b租户IDH\x01R\btenantId\x88\x01\x01\x128\n" +
@@ -496,12 +488,11 @@ const file_audit_service_v1_operation_audit_log_proto_rawDesc = "" +
 	"\asuccess\x18\x12 \x01(\bB\x18\xbaG\x15\x92\x02\x12操作是否成功H\rR\asuccess\x88\x01\x01\x12>\n" +
 	"\x0efailure_reason\x18\x13 \x01(\tB\x12\xbaG\x0f\x92\x02\f失败原因H\x0eR\rfailureReason\x88\x01\x01\x122\n" +
 	"\n" +
-	"ip_address\x18\x14 \x01(\tB\x0e\xbaG\v\x92\x02\bIP地址H\x0fR\tipAddress\x88\x01\x01\x12f\n" +
-	"\fgeo_location\x18\x15 \x01(\v2\x1d.audit.service.v1.GeoLocationB\x1f\xbaG\x1c\x92\x02\x19地理位置(来自IP库)H\x10R\vgeoLocation\x88\x01\x01\x12\\\n" +
-	"\blog_hash\x18( \x01(\tB<\xbaG9\x92\x026日志内容哈希（SHA256，十六进制字符串）H\x11R\alogHash\x88\x01\x01\x12}\n" +
-	"\tsignature\x18) \x01(\fBZ\xbaGW\x92\x02T日志数字签名（ECDSA，签名内容：tenant_id+user_id+created_at+log_hash）H\x12R\tsignature\x88\x01\x01\x12X\n" +
+	"ip_address\x18\x14 \x01(\tB\x0e\xbaG\v\x92\x02\bIP地址H\x0fR\tipAddress\x88\x01\x01\x12\\\n" +
+	"\blog_hash\x18( \x01(\tB<\xbaG9\x92\x026日志内容哈希（SHA256，十六进制字符串）H\x10R\alogHash\x88\x01\x01\x12}\n" +
+	"\tsignature\x18) \x01(\fBZ\xbaGW\x92\x02T日志数字签名（ECDSA，签名内容：tenant_id+user_id+created_at+log_hash）H\x11R\tsignature\x88\x01\x01\x12X\n" +
 	"\n" +
-	"created_at\x182 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x15\x92\x02\x12日志创建时间H\x13R\tcreatedAt\x88\x01\x01\"\x94\x01\n" +
+	"created_at\x182 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x15\x92\x02\x12日志创建时间H\x12R\tcreatedAt\x88\x01\x01\"\x94\x01\n" +
 	"\n" +
 	"ActionType\x12\x1b\n" +
 	"\x17ACTION_TYPE_UNSPECIFIED\x10\x00\x12\n" +
@@ -538,8 +529,7 @@ const file_audit_service_v1_operation_audit_log_proto_rawDesc = "" +
 	"\n" +
 	"\b_successB\x11\n" +
 	"\x0f_failure_reasonB\r\n" +
-	"\v_ip_addressB\x0f\n" +
-	"\r_geo_locationB\v\n" +
+	"\v_ip_addressB\v\n" +
 	"\t_log_hashB\f\n" +
 	"\n" +
 	"_signatureB\r\n" +
@@ -584,31 +574,29 @@ var file_audit_service_v1_operation_audit_log_proto_goTypes = []any{
 	(*GetOperationAuditLogRequest)(nil),    // 3: audit.service.v1.GetOperationAuditLogRequest
 	(*CreateOperationAuditLogRequest)(nil), // 4: audit.service.v1.CreateOperationAuditLogRequest
 	(SensitiveLevel)(0),                    // 5: audit.service.v1.SensitiveLevel
-	(*GeoLocation)(nil),                    // 6: audit.service.v1.GeoLocation
-	(*timestamppb.Timestamp)(nil),          // 7: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),          // 8: google.protobuf.FieldMask
-	(*v1.PagingRequest)(nil),               // 9: pagination.PagingRequest
-	(*emptypb.Empty)(nil),                  // 10: google.protobuf.Empty
+	(*timestamppb.Timestamp)(nil),          // 6: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),          // 7: google.protobuf.FieldMask
+	(*v1.PagingRequest)(nil),               // 8: pagination.PagingRequest
+	(*emptypb.Empty)(nil),                  // 9: google.protobuf.Empty
 }
 var file_audit_service_v1_operation_audit_log_proto_depIdxs = []int32{
-	0,  // 0: audit.service.v1.OperationAuditLog.action:type_name -> audit.service.v1.OperationAuditLog.ActionType
-	5,  // 1: audit.service.v1.OperationAuditLog.sensitive_level:type_name -> audit.service.v1.SensitiveLevel
-	6,  // 2: audit.service.v1.OperationAuditLog.geo_location:type_name -> audit.service.v1.GeoLocation
-	7,  // 3: audit.service.v1.OperationAuditLog.created_at:type_name -> google.protobuf.Timestamp
-	1,  // 4: audit.service.v1.ListOperationAuditLogResponse.items:type_name -> audit.service.v1.OperationAuditLog
-	8,  // 5: audit.service.v1.GetOperationAuditLogRequest.view_mask:type_name -> google.protobuf.FieldMask
-	1,  // 6: audit.service.v1.CreateOperationAuditLogRequest.data:type_name -> audit.service.v1.OperationAuditLog
-	9,  // 7: audit.service.v1.OperationAuditLogService.List:input_type -> pagination.PagingRequest
-	3,  // 8: audit.service.v1.OperationAuditLogService.Get:input_type -> audit.service.v1.GetOperationAuditLogRequest
-	4,  // 9: audit.service.v1.OperationAuditLogService.Create:input_type -> audit.service.v1.CreateOperationAuditLogRequest
-	2,  // 10: audit.service.v1.OperationAuditLogService.List:output_type -> audit.service.v1.ListOperationAuditLogResponse
-	1,  // 11: audit.service.v1.OperationAuditLogService.Get:output_type -> audit.service.v1.OperationAuditLog
-	10, // 12: audit.service.v1.OperationAuditLogService.Create:output_type -> google.protobuf.Empty
-	10, // [10:13] is the sub-list for method output_type
-	7,  // [7:10] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	0, // 0: audit.service.v1.OperationAuditLog.action:type_name -> audit.service.v1.OperationAuditLog.ActionType
+	5, // 1: audit.service.v1.OperationAuditLog.sensitive_level:type_name -> audit.service.v1.SensitiveLevel
+	6, // 2: audit.service.v1.OperationAuditLog.created_at:type_name -> google.protobuf.Timestamp
+	1, // 3: audit.service.v1.ListOperationAuditLogResponse.items:type_name -> audit.service.v1.OperationAuditLog
+	7, // 4: audit.service.v1.GetOperationAuditLogRequest.view_mask:type_name -> google.protobuf.FieldMask
+	1, // 5: audit.service.v1.CreateOperationAuditLogRequest.data:type_name -> audit.service.v1.OperationAuditLog
+	8, // 6: audit.service.v1.OperationAuditLogService.List:input_type -> pagination.PagingRequest
+	3, // 7: audit.service.v1.OperationAuditLogService.Get:input_type -> audit.service.v1.GetOperationAuditLogRequest
+	4, // 8: audit.service.v1.OperationAuditLogService.Create:input_type -> audit.service.v1.CreateOperationAuditLogRequest
+	2, // 9: audit.service.v1.OperationAuditLogService.List:output_type -> audit.service.v1.ListOperationAuditLogResponse
+	1, // 10: audit.service.v1.OperationAuditLogService.Get:output_type -> audit.service.v1.OperationAuditLog
+	9, // 11: audit.service.v1.OperationAuditLogService.Create:output_type -> google.protobuf.Empty
+	9, // [9:12] is the sub-list for method output_type
+	6, // [6:9] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_audit_service_v1_operation_audit_log_proto_init() }
@@ -617,7 +605,6 @@ func file_audit_service_v1_operation_audit_log_proto_init() {
 		return
 	}
 	file_audit_service_v1_common_proto_init()
-	file_audit_service_v1_geo_location_proto_init()
 	file_audit_service_v1_operation_audit_log_proto_msgTypes[0].OneofWrappers = []any{}
 	file_audit_service_v1_operation_audit_log_proto_msgTypes[2].OneofWrappers = []any{
 		(*GetOperationAuditLogRequest_Id)(nil),

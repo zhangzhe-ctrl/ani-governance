@@ -6,7 +6,6 @@
 //     Service 后缀转小写）与动作类型（方法名映射，含 Export/Import 的
 //     操作审计特有分支、未知方法的 OTHER、各类畸形串的 UNSPECIFIED）；
 //  3. 触发路径（进程内 server）：字段来源映射（资源类型/动作/REST 路径
-//     最后数字段→ResourceId、令牌身份、IP、请求 ID、地理、错误映射）；
 //  4. 跳过路径：GET 读请求、会话维护端点、畸形 operation；
 //  5. 直调空 Transport：Request() 为 nil 的分支（ResourceId/Reason 的
 //     空值来源）与错误映射；
@@ -96,7 +95,6 @@ func TestOperationAuditLogHandleFieldMapping(t *testing.T) {
 	assert.Equal(t, "alice", rec.GetUsername(), "Username ← 令牌 sub")
 	assert.Equal(t, "127.0.0.1", rec.GetIpAddress())
 	assert.Equal(t, "req-op-1", rec.GetRequestId(), "RequestId ← X-Request-ID 头")
-	assert.Nil(t, rec.GetGeoLocation(), "归属地不再采集")
 	assert.True(t, rec.GetSuccess())
 	assert.Empty(t, rec.GetFailureReason())
 	requireLogHashHex(t, rec.GetLogHash())
@@ -186,7 +184,6 @@ func TestOperationAuditLogHandleSkips(t *testing.T) {
 
 // TestOperationAuditLogHandleDirectNilRequest 直调空 Transport 覆盖
 // Request() 为 nil 的分支：ResourceId 与 Reason 的方法/路径部分为空、
-// IP/请求 ID 归一空串、令牌与地理字段为空；错误变体覆盖 Reason 的
 // 失败后缀拼接与 Success=false。
 func TestOperationAuditLogHandleDirectNilRequest(t *testing.T) {
 	newMw := func(t *testing.T) (*OperationAuditLogMiddleware, *[]*auditV1.OperationAuditLog) {
@@ -217,7 +214,6 @@ func TestOperationAuditLogHandleDirectNilRequest(t *testing.T) {
 		assert.Empty(t, rec.GetRequestId())
 		assert.Zero(t, rec.GetUserId())
 		assert.Empty(t, rec.GetUsername())
-		assert.Empty(t, rec.GetGeoLocation().GetCountryCode())
 		assert.Empty(t, rec.GetFailureReason(), "nil 请求时 Reason 无方法/路径前缀")
 		assert.True(t, rec.GetSuccess())
 	})

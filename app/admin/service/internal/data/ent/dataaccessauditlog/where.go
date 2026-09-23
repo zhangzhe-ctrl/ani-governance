@@ -464,16 +464,6 @@ func IPAddressContainsFold(v string) predicate.DataAccessAuditLog {
 	return predicate.DataAccessAuditLog(sql.FieldContainsFold(FieldIPAddress, v))
 }
 
-// GeoLocationIsNil applies the IsNil predicate on the "geo_location" field.
-func GeoLocationIsNil() predicate.DataAccessAuditLog {
-	return predicate.DataAccessAuditLog(sql.FieldIsNull(FieldGeoLocation))
-}
-
-// GeoLocationNotNil applies the NotNil predicate on the "geo_location" field.
-func GeoLocationNotNil() predicate.DataAccessAuditLog {
-	return predicate.DataAccessAuditLog(sql.FieldNotNull(FieldGeoLocation))
-}
-
 // DeviceInfoIsNil applies the IsNil predicate on the "device_info" field.
 func DeviceInfoIsNil() predicate.DataAccessAuditLog {
 	return predicate.DataAccessAuditLog(sql.FieldIsNull(FieldDeviceInfo))

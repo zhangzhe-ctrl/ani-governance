@@ -118,7 +118,6 @@ const DefaultPolicyEngine = PolicyEngineCasbin
 const (
 	PolicyEngineCel    PolicyEngine = "CEL"
 	PolicyEngineCasbin PolicyEngine = "CASBIN"
-	PolicyEngineOpa    PolicyEngine = "OPA"
 	PolicyEngineSql    PolicyEngine = "SQL"
 )
 
@@ -129,7 +128,7 @@ func (pe PolicyEngine) String() string {
 // PolicyEngineValidator is a validator for the "policy_engine" field enum values. It is called by the builders before save.
 func PolicyEngineValidator(pe PolicyEngine) error {
 	switch pe {
-	case PolicyEngineCel, PolicyEngineCasbin, PolicyEngineOpa, PolicyEngineSql:
+	case PolicyEngineCel, PolicyEngineCasbin, PolicyEngineSql:
 		return nil
 	default:
 		return fmt.Errorf("permissionpolicy: invalid enum value for policy_engine field: %q", pe)

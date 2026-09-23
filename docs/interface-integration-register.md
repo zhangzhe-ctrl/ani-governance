@@ -883,3 +883,22 @@ x-ani-authz:
 - AUTHZ-OPA-ISSUE-04：对外接口与错误码不变；受影响的只是"引擎可选值"这一部署期契约。
 
 本轮验证：`go build ./...`、`go vet ./...`、`go test ./pkg/authorizer/... ./pkg/middleware/auth/...` 通过；部署环境需复验 `admin check`、服务启动日志中的 casbin 引擎装载，以及登录后 `GET /admin/v1/me`、`GET /admin/v1/initial-context` 与一个需授权接口的 403/200 表现（`not_verified`）。
+
+## 功能组：审计报文去掉 geo_location、权限策略枚举去掉 OPA（FIELD-CLEANUP-01）
+
+2026-09-23 字段清理批次，执行计划见 [字段清理计划](geo-location-field-removal-plan.md)。这是**报文结构变更**，不只是实现细节。
+
+| 编号 | 涉及接口/报文 | 变更内容 | 状态 |
+| --- | --- | --- | --- |
+| AUDIT-GEO-02 | 审计日志的写入与查询（`sys_api_audit_logs` / `sys_login_audit_logs` / `sys_operation_audit_logs` / `sys_data_access_audit_logs`） | Proto 消息 `GeoLocation` 与 `geo_location` 字段删除；HTTP/gRPC 响应与 OpenAPI 不再含该字段；DB 列由迁移 `20260923143455_drop_geo_location.sql` 删除 | 已实现（本机生成、编译、定向测试通过；真实库执行与前端展示 `not_verified`） |
+| PERM-ENGINE-01 | 权限策略 `policy_engine` 取值域 | 枚举去掉 `OPA`，仅剩 `CEL` / `CASBIN` / `SQL`（默认 `CASBIN`）；DB 侧为 varchar 无 CHECK，**不产生迁移** | 已实现（Ent 重新生成；DB 无变更） |
+
+### 已登记边界与执行约束
+
+- FIELD-CLEANUP-ISSUE-01：`DROP COLUMN` 不可回滚到"有数据"状态，执行前必须备份；历史行的归属地数据会被丢弃。
+- FIELD-CLEANUP-ISSUE-02：前端/下游消费方若读取 `geo_location`，字段消失后应表现为缺省而非报错；需各自确认容错。
+- FIELD-CLEANUP-ISSUE-03：`admin sync-apis` 依赖的 OpenAPI 本批只删消息字段，未增删路由，升级后仍应按 dry-run → 应用顺序执行。
+- FIELD-CLEANUP-ISSUE-04：`atlas migrate diff` 的 dev 库规范化被既有 `sys_quota_operations` 外键问题阻塞（与本次改动无关），本批迁移改为手写 + `migrate hash` + 独立开发库 apply 验证；该阻塞项另批处理。
+- FIELD-CLEANUP-ISSUE-05：`policy_engine` 枚举变化不产生迁移，既有 `OPA` 值行不受影响，但服务已不再支持该引擎（见 [OPA 移除记录](opa-removal-plan.md)）。
+
+本轮验证：`go build ./...`、`go vet ./...`、`go test ./pkg/middleware/logging/...` 通过；`make api` / `make openapi` / `make ent` 重新生成并复核 diff 只含本次变更；新迁移在独立开发库 `migrate apply` 通过（4 条 DROP COLUMN）后开发库已回收。真实库迁移、回滚演练与前端展示未验证（`not_verified`）。

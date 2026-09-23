@@ -175,7 +175,7 @@ OPA 无条件链接问题本批不处理，**已于 2026-09-23 由 [OPA-REMOVAL-
 
 待确认项已于 2026-09-23 由用户确认：
 
-- [x] **8.1** `geo_location` **只「不再填充」**（按计划默认执行）；Proto/DB 字段删除**另开一批**，不在本批声称完成。
+- [x] **8.1** `geo_location` **只「不再填充」**（按计划默认执行）；Proto/DB 字段删除**另开一批** → 已于 2026-09-23 由 [FIELD-CLEANUP-01](geo-location-field-removal-plan.md) 完成（Proto 消息、Ent 字段、DB 列一并删除）。
 - [x] **8.2** distroless **按 tag 引用** `gcr.io/distroless/static-debian12:nonroot`，不固定 digest；本机实测可拉取（digest 记录在 §4.2 备查）。
 - [x] **8.3** lab 脚本：本批**不改**（保持 2026-09-22 证据复现路径）；随后由 [ATLAS-SPLIT-01](atlas-image-split-plan.md) 删除并重写为 `scripts/lab/build-images.sh`。
 - [x] **8.4** 镜像 tag 规则**沿用** `$(PROJECT_NAME)/$(APP_NAME)` 与 `-admin` 后缀（`app.mk` 的 `docker_server` / `docker_admin`）。

@@ -39,7 +39,6 @@ func (PermissionPolicy) Fields() []ent.Field {
 			NamedValues(
 				"Cel", "CEL",
 				"Casbin", "CASBIN",
-				"Opa", "OPA",
 				"Sql", "SQL",
 			).
 			Default("CASBIN").

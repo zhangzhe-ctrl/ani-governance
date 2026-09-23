@@ -119,7 +119,6 @@ var (
 		{Name: "user_id", Type: field.TypeUint32, Nullable: true, Comment: "操作者用户ID"},
 		{Name: "username", Type: field.TypeString, Nullable: true, Comment: "操作者账号名"},
 		{Name: "ip_address", Type: field.TypeString, Nullable: true, Comment: "IP地址"},
-		{Name: "geo_location", Type: field.TypeJSON, Nullable: true, Comment: "地理位置(来自IP库)"},
 		{Name: "device_info", Type: field.TypeJSON, Nullable: true, Comment: "设备信息"},
 		{Name: "referer", Type: field.TypeString, Nullable: true, Comment: "请求来源URL"},
 		{Name: "app_version", Type: field.TypeString, Nullable: true, Comment: "客户端版本号"},
@@ -152,12 +151,12 @@ var (
 			{
 				Name:    "uidx_sys_api_audit_logs_tenant_request_id",
 				Unique:  true,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[18]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[17]},
 			},
 			{
 				Name:    "uidx_sys_api_audit_logs_tenant_log_hash",
 				Unique:  true,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[28]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[27]},
 			},
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_created_at",
@@ -187,22 +186,22 @@ var (
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_trace_id",
 				Unique:  false,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[19]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[18]},
 			},
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_api_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[15], SysAPIAuditLogsColumns[16], SysAPIAuditLogsColumns[1]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[14], SysAPIAuditLogsColumns[15], SysAPIAuditLogsColumns[1]},
 			},
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_path_method_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[13], SysAPIAuditLogsColumns[12], SysAPIAuditLogsColumns[1]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[12], SysAPIAuditLogsColumns[11], SysAPIAuditLogsColumns[1]},
 			},
 			{
 				Name:    "idx_sys_api_audit_logs_tenant_status_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[23], SysAPIAuditLogsColumns[22], SysAPIAuditLogsColumns[1]},
+				Columns: []*schema.Column{SysAPIAuditLogsColumns[2], SysAPIAuditLogsColumns[22], SysAPIAuditLogsColumns[21], SysAPIAuditLogsColumns[1]},
 			},
 		},
 	}
@@ -214,7 +213,6 @@ var (
 		{Name: "user_id", Type: field.TypeUint32, Nullable: true, Comment: "操作者用户ID"},
 		{Name: "username", Type: field.TypeString, Nullable: true, Comment: "操作者账号名"},
 		{Name: "ip_address", Type: field.TypeString, Nullable: true, Comment: "IP地址"},
-		{Name: "geo_location", Type: field.TypeJSON, Nullable: true, Comment: "地理位置(来自IP库)"},
 		{Name: "device_info", Type: field.TypeJSON, Nullable: true, Comment: "设备信息"},
 		{Name: "request_id", Type: field.TypeString, Nullable: true, Comment: "全局请求ID"},
 		{Name: "trace_id", Type: field.TypeString, Nullable: true, Comment: "全局链路追踪ID"},
@@ -256,12 +254,12 @@ var (
 			{
 				Name:    "dataaccessauditlog_request_id",
 				Unique:  false,
-				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[8]},
+				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[7]},
 			},
 			{
 				Name:    "dataaccessauditlog_trace_id",
 				Unique:  false,
-				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[9]},
+				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[8]},
 			},
 			{
 				Name:    "dataaccessauditlog_ip_address",
@@ -296,27 +294,27 @@ var (
 			{
 				Name:    "dataaccessauditlog_data_source_table_name_data_id",
 				Unique:  false,
-				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[10], SysDataAccessAuditLogsColumns[11], SysDataAccessAuditLogsColumns[12]},
+				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[9], SysDataAccessAuditLogsColumns[10], SysDataAccessAuditLogsColumns[11]},
 			},
 			{
 				Name:    "dataaccessauditlog_access_type",
 				Unique:  false,
-				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[13]},
+				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[12]},
 			},
 			{
 				Name:    "dataaccessauditlog_access_type_success_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[13], SysDataAccessAuditLogsColumns[18], SysDataAccessAuditLogsColumns[1]},
+				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[12], SysDataAccessAuditLogsColumns[17], SysDataAccessAuditLogsColumns[1]},
 			},
 			{
 				Name:    "dataaccessauditlog_sql_digest",
 				Unique:  false,
-				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[14]},
+				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[13]},
 			},
 			{
 				Name:    "dataaccessauditlog_data_masked",
 				Unique:  false,
-				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[20]},
+				Columns: []*schema.Column{SysDataAccessAuditLogsColumns[19]},
 			},
 		},
 	}
@@ -692,7 +690,6 @@ var (
 		{Name: "user_id", Type: field.TypeUint32, Nullable: true, Comment: "操作者用户ID"},
 		{Name: "username", Type: field.TypeString, Nullable: true, Comment: "操作者账号名"},
 		{Name: "ip_address", Type: field.TypeString, Nullable: true, Comment: "IP地址"},
-		{Name: "geo_location", Type: field.TypeJSON, Nullable: true, Comment: "地理位置(来自IP库)"},
 		{Name: "session_id", Type: field.TypeString, Nullable: true, Comment: "会话ID"},
 		{Name: "device_info", Type: field.TypeJSON, Nullable: true, Comment: "设备信息"},
 		{Name: "request_id", Type: field.TypeString, Nullable: true, Comment: "全局请求ID"},
@@ -738,22 +735,22 @@ var (
 			{
 				Name:    "loginauditlog_session_id",
 				Unique:  false,
-				Columns: []*schema.Column{SysLoginAuditLogsColumns[7]},
+				Columns: []*schema.Column{SysLoginAuditLogsColumns[6]},
 			},
 			{
 				Name:    "loginauditlog_request_id",
 				Unique:  false,
-				Columns: []*schema.Column{SysLoginAuditLogsColumns[9]},
+				Columns: []*schema.Column{SysLoginAuditLogsColumns[8]},
 			},
 			{
 				Name:    "loginauditlog_action_type",
 				Unique:  false,
-				Columns: []*schema.Column{SysLoginAuditLogsColumns[11]},
+				Columns: []*schema.Column{SysLoginAuditLogsColumns[10]},
 			},
 			{
 				Name:    "loginauditlog_status",
 				Unique:  false,
-				Columns: []*schema.Column{SysLoginAuditLogsColumns[12]},
+				Columns: []*schema.Column{SysLoginAuditLogsColumns[11]},
 			},
 			{
 				Name:    "loginauditlog_tenant_id",
@@ -1342,7 +1339,6 @@ var (
 		{Name: "success", Type: field.TypeBool, Nullable: true, Comment: "操作结果"},
 		{Name: "failure_reason", Type: field.TypeString, Nullable: true, Comment: "失败原因"},
 		{Name: "ip_address", Type: field.TypeString, Nullable: true, Comment: "IP地址"},
-		{Name: "geo_location", Type: field.TypeJSON, Nullable: true, Comment: "地理位置(来自IP库)"},
 		{Name: "device_info", Type: field.TypeJSON, Nullable: true, Comment: "设备信息"},
 		{Name: "log_hash", Type: field.TypeString, Nullable: true, Comment: "日志内容哈希（SHA256，十六进制字符串）"},
 		{Name: "signature", Type: field.TypeBytes, Nullable: true, Comment: "日志数字签名"},
@@ -1432,7 +1428,7 @@ var (
 			{
 				Name:    "operationauditlog_log_hash",
 				Unique:  false,
-				Columns: []*schema.Column{SysOperationAuditLogsColumns[18]},
+				Columns: []*schema.Column{SysOperationAuditLogsColumns[17]},
 			},
 		},
 	}
@@ -1800,7 +1796,7 @@ var (
 		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
 		{Name: "status", Type: field.TypeEnum, Comment: "状态", Enums: []string{"OFF", "ON"}, Default: "ON"},
 		{Name: "permission_id", Type: field.TypeUint32, Comment: "权限ID（关联sys_permissions.id）"},
-		{Name: "policy_engine", Type: field.TypeEnum, Comment: "策略引擎", Enums: []string{"CEL", "CASBIN", "OPA", "SQL"}, Default: "CASBIN"},
+		{Name: "policy_engine", Type: field.TypeEnum, Comment: "策略引擎", Enums: []string{"CEL", "CASBIN", "SQL"}, Default: "CASBIN"},
 		{Name: "definition", Type: field.TypeString, Nullable: true, Comment: "策略定义（动态结构）", SchemaType: map[string]string{"mysql": "json", "postgres": "jsonb"}},
 		{Name: "version", Type: field.TypeUint32, Comment: "策略版本（用于灰度/回滚）", Default: 1},
 		{Name: "eval_order", Type: field.TypeUint32, Comment: "评估优先级（越小越先执行）", Default: 0},

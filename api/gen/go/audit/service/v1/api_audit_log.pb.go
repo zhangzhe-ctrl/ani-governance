@@ -38,7 +38,6 @@ type ApiAuditLog struct {
 	UserId         *uint32                `protobuf:"varint,4,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`                         // 用户ID
 	Username       *string                `protobuf:"bytes,5,opt,name=username,proto3,oneof" json:"username,omitempty"`                                    // 账号名
 	IpAddress      *string                `protobuf:"bytes,10,opt,name=ip_address,json=ipAddress,proto3,oneof" json:"ip_address,omitempty"`                // IP地址
-	GeoLocation    *GeoLocation           `protobuf:"bytes,11,opt,name=geo_location,json=geoLocation,proto3,oneof" json:"geo_location,omitempty"`          // 地理位置(来自IP库)
 	DeviceInfo     *DeviceInfo            `protobuf:"bytes,12,opt,name=device_info,json=deviceInfo,proto3,oneof" json:"device_info,omitempty"`             // 设备信息
 	Referer        *string                `protobuf:"bytes,13,opt,name=referer,proto3,oneof" json:"referer,omitempty"`                                     // 请求来源URL
 	AppVersion     *string                `protobuf:"bytes,14,opt,name=app_version,json=appVersion,proto3,oneof" json:"app_version,omitempty"`             // 客户端版本号
@@ -149,13 +148,6 @@ func (x *ApiAuditLog) GetIpAddress() string {
 		return *x.IpAddress
 	}
 	return ""
-}
-
-func (x *ApiAuditLog) GetGeoLocation() *GeoLocation {
-	if x != nil {
-		return x.GeoLocation
-	}
-	return nil
 }
 
 func (x *ApiAuditLog) GetDeviceInfo() *DeviceInfo {
@@ -489,7 +481,7 @@ var File_audit_service_v1_api_audit_log_proto protoreflect.FileDescriptor
 
 const file_audit_service_v1_api_audit_log_proto_rawDesc = "" +
 	"\n" +
-	"$audit/service/v1/api_audit_log.proto\x12\x10audit.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x17validate/validate.proto\x1a\x1epagination/v1/pagination.proto\x1a#audit/service/v1/geo_location.proto\x1a\"audit/service/v1/device_info.proto\"\xba\x16\n" +
+	"$audit/service/v1/api_audit_log.proto\x12\x10audit.service.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x17validate/validate.proto\x1a\x1epagination/v1/pagination.proto\x1a\"audit/service/v1/device_info.proto\"\xc1\x15\n" +
 	"\vApiAuditLog\x12'\n" +
 	"\fsubject_type\x18\x06 \x01(\tH\x00R\fsubject_type\x88\x01\x01\x12#\n" +
 	"\n" +
@@ -503,40 +495,39 @@ const file_audit_service_v1_api_audit_log_proto_rawDesc = "" +
 	"\busername\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t账号名H\x06R\busername\x88\x01\x01\x122\n" +
 	"\n" +
 	"ip_address\x18\n" +
-	" \x01(\tB\x0e\xbaG\v\x92\x02\bIP地址H\aR\tipAddress\x88\x01\x01\x12f\n" +
-	"\fgeo_location\x18\v \x01(\v2\x1d.audit.service.v1.GeoLocationB\x1f\xbaG\x1c\x92\x02\x19地理位置(来自IP库)H\bR\vgeoLocation\x88\x01\x01\x12V\n" +
-	"\vdevice_info\x18\f \x01(\v2\x1c.audit.service.v1.DeviceInfoB\x12\xbaG\x0f\x92\x02\f设备信息H\tR\n" +
+	" \x01(\tB\x0e\xbaG\v\x92\x02\bIP地址H\aR\tipAddress\x88\x01\x01\x12V\n" +
+	"\vdevice_info\x18\f \x01(\v2\x1c.audit.service.v1.DeviceInfoB\x12\xbaG\x0f\x92\x02\f设备信息H\bR\n" +
 	"deviceInfo\x88\x01\x01\x124\n" +
-	"\areferer\x18\r \x01(\tB\x15\xbaG\x12\x92\x02\x0f请求来源URLH\n" +
-	"R\areferer\x88\x01\x01\x12>\n" +
-	"\vapp_version\x18\x0e \x01(\tB\x18\xbaG\x15\x92\x02\x12客户端版本号H\vR\n" +
+	"\areferer\x18\r \x01(\tB\x15\xbaG\x12\x92\x02\x0f请求来源URLH\tR\areferer\x88\x01\x01\x12>\n" +
+	"\vapp_version\x18\x0e \x01(\tB\x18\xbaG\x15\x92\x02\x12客户端版本号H\n" +
+	"R\n" +
 	"appVersion\x88\x01\x01\x12U\n" +
-	"\vhttp_method\x18\x14 \x01(\tB/\xbaG,\x92\x02)HTTP请求方法（GET/POST/PUT/DELETE）H\fR\n" +
+	"\vhttp_method\x18\x14 \x01(\tB/\xbaG,\x92\x02)HTTP请求方法（GET/POST/PUT/DELETE）H\vR\n" +
 	"httpMethod\x88\x01\x01\x12P\n" +
-	"\x04path\x18\x15 \x01(\tB7\xbaG4\x92\x021请求路径（不含参数，如/api/v1/users）H\rR\x04path\x88\x01\x01\x12b\n" +
-	"\vrequest_uri\x18\x16 \x01(\tB<\xbaG9\x92\x026完整请求URI（含参数，如/api/v1/users?id=1）H\x0eR\n" +
+	"\x04path\x18\x15 \x01(\tB7\xbaG4\x92\x021请求路径（不含参数，如/api/v1/users）H\fR\x04path\x88\x01\x01\x12b\n" +
+	"\vrequest_uri\x18\x16 \x01(\tB<\xbaG9\x92\x026完整请求URI（含参数，如/api/v1/users?id=1）H\rR\n" +
 	"requestUri\x88\x01\x01\x12]\n" +
 	"\n" +
-	"api_module\x18\x17 \x01(\tB9\xbaG6\x92\x023API所属业务模块（如user/permission/order）H\x0fR\tapiModule\x88\x01\x01\x12q\n" +
-	"\rapi_operation\x18\x18 \x01(\tBG\xbaGD\x92\x02AAPI业务操作（如查询用户/创建订单，非HTTP方法）H\x10R\fapiOperation\x88\x01\x01\x12r\n" +
-	"\x0fapi_description\x18\x19 \x01(\tBD\xbaGA\x92\x02>API功能描述（如“根据ID查询单个用户信息”）H\x11R\x0eapiDescription\x88\x01\x01\x12P\n" +
+	"api_module\x18\x17 \x01(\tB9\xbaG6\x92\x023API所属业务模块（如user/permission/order）H\x0eR\tapiModule\x88\x01\x01\x12q\n" +
+	"\rapi_operation\x18\x18 \x01(\tBG\xbaGD\x92\x02AAPI业务操作（如查询用户/创建订单，非HTTP方法）H\x0fR\fapiOperation\x88\x01\x01\x12r\n" +
+	"\x0fapi_description\x18\x19 \x01(\tBD\xbaGA\x92\x02>API功能描述（如“根据ID查询单个用户信息”）H\x10R\x0eapiDescription\x88\x01\x01\x12P\n" +
 	"\n" +
-	"request_id\x18\x1a \x01(\tB,\xbaG)\x92\x02&全局请求ID（关联网关日志）H\x12R\trequestId\x88\x01\x01\x12\\\n" +
-	"\btrace_id\x18\x1b \x01(\tB<\xbaG9\x92\x026全局链路追踪ID（符合W3C TraceContext标准）H\x13R\atraceId\x88\x01\x01\x122\n" +
-	"\aspan_id\x18\x1c \x01(\tB\x14\xbaG\x11\x92\x02\x0e当前跨度IDH\x14R\x06spanId\x88\x01\x01\x12I\n" +
+	"request_id\x18\x1a \x01(\tB,\xbaG)\x92\x02&全局请求ID（关联网关日志）H\x11R\trequestId\x88\x01\x01\x12\\\n" +
+	"\btrace_id\x18\x1b \x01(\tB<\xbaG9\x92\x026全局链路追踪ID（符合W3C TraceContext标准）H\x12R\atraceId\x88\x01\x01\x122\n" +
+	"\aspan_id\x18\x1c \x01(\tB\x14\xbaG\x11\x92\x02\x0e当前跨度IDH\x13R\x06spanId\x88\x01\x01\x12I\n" +
 	"\n" +
-	"latency_ms\x18\x1d \x01(\rB%\xfaB\a*\x05\x18\x80\xdd\xdb\x01\xbaG\x18\x92\x02\x15API耗时（毫秒）H\x15R\tlatencyMs\x88\x01\x01\x127\n" +
-	"\asuccess\x18\x1e \x01(\bB\x18\xbaG\x15\x92\x02\x12操作是否成功H\x16R\asuccess\x88\x01\x01\x12J\n" +
-	"\vstatus_code\x18\x1f \x01(\rB$\xbaG!\x92\x02\x1eHTTP状态码（200/403/500）H\x17R\n" +
+	"latency_ms\x18\x1d \x01(\rB%\xfaB\a*\x05\x18\x80\xdd\xdb\x01\xbaG\x18\x92\x02\x15API耗时（毫秒）H\x14R\tlatencyMs\x88\x01\x01\x127\n" +
+	"\asuccess\x18\x1e \x01(\bB\x18\xbaG\x15\x92\x02\x12操作是否成功H\x15R\asuccess\x88\x01\x01\x12J\n" +
+	"\vstatus_code\x18\x1f \x01(\rB$\xbaG!\x92\x02\x1eHTTP状态码（200/403/500）H\x16R\n" +
 	"statusCode\x88\x01\x01\x12T\n" +
-	"\x06reason\x18  \x01(\tB7\xbaG4\x92\x021操作失败原因（仅success=false时填充）H\x18R\x06reason\x88\x01\x01\x12c\n" +
-	"\x0erequest_header\x18! \x01(\tB7\xbaG4\x92\x021请求头（JSON格式，敏感字段脱敏后）H\x19R\rrequestHeader\x88\x01\x01\x12_\n" +
-	"\frequest_body\x18\" \x01(\tB7\xbaG4\x92\x021请求体（JSON格式，敏感字段脱敏后）H\x1aR\vrequestBody\x88\x01\x01\x12[\n" +
-	"\bresponse\x18# \x01(\tB:\xbaG7\x92\x024响应信息（JSON格式，敏感字段脱敏后）H\x1bR\bresponse\x88\x01\x01\x12\\\n" +
-	"\blog_hash\x18( \x01(\tB<\xbaG9\x92\x026日志内容哈希（SHA256，十六进制字符串）H\x1cR\alogHash\x88\x01\x01\x12}\n" +
-	"\tsignature\x18) \x01(\fBZ\xbaGW\x92\x02T日志数字签名（ECDSA，签名内容：tenant_id+user_id+created_at+log_hash）H\x1dR\tsignature\x88\x01\x01\x12X\n" +
+	"\x06reason\x18  \x01(\tB7\xbaG4\x92\x021操作失败原因（仅success=false时填充）H\x17R\x06reason\x88\x01\x01\x12c\n" +
+	"\x0erequest_header\x18! \x01(\tB7\xbaG4\x92\x021请求头（JSON格式，敏感字段脱敏后）H\x18R\rrequestHeader\x88\x01\x01\x12_\n" +
+	"\frequest_body\x18\" \x01(\tB7\xbaG4\x92\x021请求体（JSON格式，敏感字段脱敏后）H\x19R\vrequestBody\x88\x01\x01\x12[\n" +
+	"\bresponse\x18# \x01(\tB:\xbaG7\x92\x024响应信息（JSON格式，敏感字段脱敏后）H\x1aR\bresponse\x88\x01\x01\x12\\\n" +
+	"\blog_hash\x18( \x01(\tB<\xbaG9\x92\x026日志内容哈希（SHA256，十六进制字符串）H\x1bR\alogHash\x88\x01\x01\x12}\n" +
+	"\tsignature\x18) \x01(\fBZ\xbaGW\x92\x02T日志数字签名（ECDSA，签名内容：tenant_id+user_id+created_at+log_hash）H\x1cR\tsignature\x88\x01\x01\x12X\n" +
 	"\n" +
-	"created_at\x182 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x15\x92\x02\x12日志创建时间H\x1eR\tcreatedAt\x88\x01\x01B\x0f\n" +
+	"created_at\x182 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x15\x92\x02\x12日志创建时间H\x1dR\tcreatedAt\x88\x01\x01B\x0f\n" +
 	"\r_subject_typeB\r\n" +
 	"\v_subject_idB\x05\n" +
 	"\x03_idB\f\n" +
@@ -546,8 +537,7 @@ const file_audit_service_v1_api_audit_log_proto_rawDesc = "" +
 	"\n" +
 	"\b_user_idB\v\n" +
 	"\t_usernameB\r\n" +
-	"\v_ip_addressB\x0f\n" +
-	"\r_geo_locationB\x0e\n" +
+	"\v_ip_addressB\x0e\n" +
 	"\f_device_infoB\n" +
 	"\n" +
 	"\b_refererB\x0e\n" +
@@ -611,31 +601,29 @@ var file_audit_service_v1_api_audit_log_proto_goTypes = []any{
 	(*ListApiAuditLogResponse)(nil),  // 1: audit.service.v1.ListApiAuditLogResponse
 	(*GetApiAuditLogRequest)(nil),    // 2: audit.service.v1.GetApiAuditLogRequest
 	(*CreateApiAuditLogRequest)(nil), // 3: audit.service.v1.CreateApiAuditLogRequest
-	(*GeoLocation)(nil),              // 4: audit.service.v1.GeoLocation
-	(*DeviceInfo)(nil),               // 5: audit.service.v1.DeviceInfo
-	(*timestamppb.Timestamp)(nil),    // 6: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),    // 7: google.protobuf.FieldMask
-	(*v1.PagingRequest)(nil),         // 8: pagination.PagingRequest
-	(*emptypb.Empty)(nil),            // 9: google.protobuf.Empty
+	(*DeviceInfo)(nil),               // 4: audit.service.v1.DeviceInfo
+	(*timestamppb.Timestamp)(nil),    // 5: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),    // 6: google.protobuf.FieldMask
+	(*v1.PagingRequest)(nil),         // 7: pagination.PagingRequest
+	(*emptypb.Empty)(nil),            // 8: google.protobuf.Empty
 }
 var file_audit_service_v1_api_audit_log_proto_depIdxs = []int32{
-	4, // 0: audit.service.v1.ApiAuditLog.geo_location:type_name -> audit.service.v1.GeoLocation
-	5, // 1: audit.service.v1.ApiAuditLog.device_info:type_name -> audit.service.v1.DeviceInfo
-	6, // 2: audit.service.v1.ApiAuditLog.created_at:type_name -> google.protobuf.Timestamp
-	0, // 3: audit.service.v1.ListApiAuditLogResponse.items:type_name -> audit.service.v1.ApiAuditLog
-	7, // 4: audit.service.v1.GetApiAuditLogRequest.view_mask:type_name -> google.protobuf.FieldMask
-	0, // 5: audit.service.v1.CreateApiAuditLogRequest.data:type_name -> audit.service.v1.ApiAuditLog
-	8, // 6: audit.service.v1.ApiAuditLogService.List:input_type -> pagination.PagingRequest
-	2, // 7: audit.service.v1.ApiAuditLogService.Get:input_type -> audit.service.v1.GetApiAuditLogRequest
-	3, // 8: audit.service.v1.ApiAuditLogService.Create:input_type -> audit.service.v1.CreateApiAuditLogRequest
-	1, // 9: audit.service.v1.ApiAuditLogService.List:output_type -> audit.service.v1.ListApiAuditLogResponse
-	0, // 10: audit.service.v1.ApiAuditLogService.Get:output_type -> audit.service.v1.ApiAuditLog
-	9, // 11: audit.service.v1.ApiAuditLogService.Create:output_type -> google.protobuf.Empty
-	9, // [9:12] is the sub-list for method output_type
-	6, // [6:9] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	4, // 0: audit.service.v1.ApiAuditLog.device_info:type_name -> audit.service.v1.DeviceInfo
+	5, // 1: audit.service.v1.ApiAuditLog.created_at:type_name -> google.protobuf.Timestamp
+	0, // 2: audit.service.v1.ListApiAuditLogResponse.items:type_name -> audit.service.v1.ApiAuditLog
+	6, // 3: audit.service.v1.GetApiAuditLogRequest.view_mask:type_name -> google.protobuf.FieldMask
+	0, // 4: audit.service.v1.CreateApiAuditLogRequest.data:type_name -> audit.service.v1.ApiAuditLog
+	7, // 5: audit.service.v1.ApiAuditLogService.List:input_type -> pagination.PagingRequest
+	2, // 6: audit.service.v1.ApiAuditLogService.Get:input_type -> audit.service.v1.GetApiAuditLogRequest
+	3, // 7: audit.service.v1.ApiAuditLogService.Create:input_type -> audit.service.v1.CreateApiAuditLogRequest
+	1, // 8: audit.service.v1.ApiAuditLogService.List:output_type -> audit.service.v1.ListApiAuditLogResponse
+	0, // 9: audit.service.v1.ApiAuditLogService.Get:output_type -> audit.service.v1.ApiAuditLog
+	8, // 10: audit.service.v1.ApiAuditLogService.Create:output_type -> google.protobuf.Empty
+	8, // [8:11] is the sub-list for method output_type
+	5, // [5:8] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_audit_service_v1_api_audit_log_proto_init() }
@@ -643,7 +631,6 @@ func file_audit_service_v1_api_audit_log_proto_init() {
 	if File_audit_service_v1_api_audit_log_proto != nil {
 		return
 	}
-	file_audit_service_v1_geo_location_proto_init()
 	file_audit_service_v1_device_info_proto_init()
 	file_audit_service_v1_api_audit_log_proto_msgTypes[0].OneofWrappers = []any{}
 	file_audit_service_v1_api_audit_log_proto_msgTypes[2].OneofWrappers = []any{
