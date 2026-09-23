@@ -9,7 +9,6 @@ import (
 	authzEngine "github.com/tx7do/kratos-authz/engine"
 	"github.com/tx7do/kratos-authz/engine/casbin"
 	"github.com/tx7do/kratos-authz/engine/noop"
-	"github.com/tx7do/kratos-authz/engine/opa"
 
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
@@ -86,12 +85,6 @@ func (a *Authorizer) ResetPolicies(ctx context.Context) error {
 			return err
 		}
 
-	case "opa":
-		if policies, err = a.generateOpaPolicies(result); err != nil {
-			a.log.Errorf(ctx, "generate OPA policies error: %v", err)
-			return err
-		}
-
 	case "noop":
 		return nil
 
@@ -137,33 +130,6 @@ func (a *Authorizer) generateCasbinPolicies(data PermissionDataMap) (authzEngine
 	return policies, nil
 }
 
-// generateOpaPolicies 生成 OPA 策略
-func (a *Authorizer) generateOpaPolicies(data PermissionDataMap) (authzEngine.PolicyMap, error) {
-	type OpaPolicyPath struct {
-		Pattern string `json:"pattern"`
-		Method  string `json:"method"`
-	}
-
-	policies := make(authzEngine.PolicyMap, len(data))
-
-	for roleCode, aRule := range data {
-		paths := make([]OpaPolicyPath, 0, len(aRule))
-
-		for _, api := range aRule {
-			paths = append(paths, OpaPolicyPath{
-				Pattern: api.Path,
-				Method:  api.Method,
-			})
-
-			//a.log.Debugf("OPA Policy - Role: [%s], Path: [%s], Method: [%s]", roleCode, api.Path, api.Method)
-		}
-
-		policies[roleCode] = paths
-	}
-
-	return policies, nil
-}
-
 // newEngine 创建权限引擎
 func (a *Authorizer) newEngine(ctx context.Context, cfg *conf.Authorization) authzEngine.Engine {
 	if cfg == nil {
@@ -178,9 +144,6 @@ func (a *Authorizer) newEngine(ctx context.Context, cfg *conf.Authorization) aut
 
 	case "casbin":
 		return a.newEngineCasbin(ctx)
-
-	case "opa":
-		return a.newEngineOPA(ctx)
 	}
 }
 
@@ -201,45 +164,5 @@ func (a *Authorizer) newEngineCasbin(ctx context.Context) authzEngine.Engine {
 		a.log.Errorf(ctx, "init casbin engine error: %v", err)
 		return nil
 	}
-	return state
-}
-
-// newEngineOPA 创建 OPA 引擎
-func (a *Authorizer) newEngineOPA(ctx context.Context) authzEngine.Engine {
-	modelName := "rbac.rego"
-	models := a.provider.ProvideModels("opa")
-	var model []byte
-	var ok bool
-	if model, ok = models[modelName]; ok {
-		a.log.Infof(ctx, "load custom OPA model: %s", modelName)
-	} else {
-		a.log.Errorf(ctx, "OPA model not found: %s", modelName)
-		return nil
-	}
-
-	state, err := opa.NewEngine(ctx,
-		opa.WithModulesFromString(map[string]string{
-			modelName: string(model),
-		}),
-	)
-	if err != nil {
-		a.log.Errorf(ctx, "init opa engine error: %v", err)
-		return nil
-	}
-
-	// 模型有效性探测：上游 WithModulesFromString 对无法解析的自定义模型吞错，
-	// NewEngine 随即回退编译内置资产策略并正常返回引擎。此处显式再走一次解析：
-	// 出错即证明引擎当前跑的是内置资产策略而非运营者部署的模型——此前该分支
-	// 只记日志仍返回引擎（带错误语义静默上线），改为返回 denyAllEngine
-	// 全量拒绝（fail-closed），并高声报错提示运营者修复模型。
-	if err = state.InitModulesFromString(map[string]string{
-		modelName: string(model),
-	}); err != nil {
-		a.log.Errorf(ctx,
-			"custom OPA model [%s] failed to parse, engine rejected (all requests will be denied until fixed): %v",
-			modelName, err)
-		return denyAllEngine{}
-	}
-
 	return state
 }

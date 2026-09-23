@@ -34,11 +34,9 @@ import (
 	"go-wind-admin/pkg/middleware/auth"
 )
 
-// roleServiceAuthProviderStub：authorizer.Provider 桩，返回空模型/空策略，
+// roleServiceAuthProviderStub：authorizer.Provider 桩，返回空策略，
 // 仅供 noop 引擎的 ResetPolicies 走通（noop 分支不消费策略数据）。
 type roleServiceAuthProviderStub struct{}
-
-func (roleServiceAuthProviderStub) ProvideModels(string) authorizer.ModelDataMap { return nil }
 
 func (roleServiceAuthProviderStub) ProvidePolicies(context.Context) (authorizer.PermissionDataMap, error) {
 	return nil, nil

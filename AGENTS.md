@@ -6,7 +6,7 @@
 
 - 仓库根目录就是 Go 模块根目录，模块路径保持 `go-wind-admin`，运行服务名为 `ani-governance`。
 - Go 工具链基准为 **1.26.7**，gow 固定 **v1.0.3**；命令从仓库根目录执行。
-- 主装配为 Kratos + Ent，当前 ANI 集成使用 PostgreSQL；GORM 备用装配与 Zanzibar 占位已移除，鉴权引擎支持 casbin / opa / noop。
+- 主装配为 Kratos + Ent，当前 ANI 集成使用 PostgreSQL；GORM 备用装配与 Zanzibar 占位已移除，鉴权引擎支持 casbin / noop（OPA 已于 2026-09-23 移除，见 `docs/opa-removal-plan.md`）。
 - 现有登录、身份、权限与套餐代码按已接受的 ANI 合同演进；目录调整不代表域职责迁移或生产切换完成。
 
 ```text

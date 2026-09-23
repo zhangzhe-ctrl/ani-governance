@@ -2,12 +2,11 @@
 //
 // 覆盖目标：
 //   - newEngine 按 conf.Authorization.Type 选择引擎的分支逻辑
-//     （空串/未知串/noop → noop 引擎；nil 配置 → nil；
-//     casbin/opa 走真实引擎构造，OPA 依赖 provider 提供模型文件）。
-//   - generateCasbinPolicies / generateOpaPolicies 的输出形状
+//     （空串/未知串/noop → noop 引擎；nil 配置 → nil；casbin 走真实引擎构造）。
+//   - generateCasbinPolicies 的输出形状
 //     （多角色多 API 条目下的映射关系，以及空输入的退化形状）。
 //   - ResetPolicies 的分支：noop 引擎直接返回 nil；未知引擎名返回错误；
-//     provider 出错时原样透传；casbin/opa 名字的引擎收到生成器产物。
+//     provider 出错时原样透传；casbin 名字的引擎收到生成器产物。
 //   - NewAuthorizer 在 bootstrap.Context 各配置形态下的引擎初始化结果。
 //
 // 引擎均通过白盒构造 &Authorizer{...}（NopLogger 日志、stub Provider）实现，
@@ -16,7 +15,6 @@ package authorizer
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"testing"
 
@@ -34,18 +32,10 @@ import (
 // 测试替身
 // ---------------------------------------------------------------------------
 
-// stubProvider 是 Provider 接口的测试替身：
-// 按预置数据返回模型/策略，并可注入错误、记录模型请求的引擎名。
+// stubProvider 是 Provider 接口的测试替身：按预置数据返回策略，并可注入错误。
 type stubProvider struct {
-	models             ModelDataMap
-	policyData         PermissionDataMap
-	provideErr         error
-	lastModelEngineArg string
-}
-
-func (s *stubProvider) ProvideModels(engineName string) ModelDataMap {
-	s.lastModelEngineArg = engineName
-	return s.models
+	policyData PermissionDataMap
+	provideErr error
 }
 
 func (s *stubProvider) ProvidePolicies(_ context.Context) (PermissionDataMap, error) {
@@ -162,59 +152,6 @@ func TestNewEngine_CasbinCreatesRealEngine(t *testing.T) {
 	assert.Equal(t, "casbin", eng.Name())
 }
 
-// TestNewEngineOPA_MissingModelReturnsNil OPA 引擎依赖 provider 提供
-// "rbac.rego" 模型；缺失时必须返回 nil。
-func TestNewEngineOPA_MissingModelReturnsNil(t *testing.T) {
-	p := &stubProvider{models: ModelDataMap{}}
-	a := newTestAuthorizer(p)
-	eng := a.newEngine(context.Background(), &conf.Authorization{Type: "opa"})
-	assert.Nil(t, eng, "缺少 rbac.rego 模型时 OPA 引擎应为 nil")
-	assert.Equal(t, "opa", p.lastModelEngineArg, "OPA 引擎应以引擎名 opa 请求模型")
-}
-
-// TestNewEngineOPA_CustomModelLoadsEngine provider 提供 rbac.rego 时应成功
-// 构造 OPA 引擎（最小可解析的 rego 模块即可，构造过程全内存）。
-func TestNewEngineOPA_CustomModelLoadsEngine(t *testing.T) {
-	p := &stubProvider{models: ModelDataMap{
-		"rbac.rego": []byte("package rbac\n"),
-	}}
-	a := newTestAuthorizer(p)
-	eng := a.newEngine(context.Background(), &conf.Authorization{Type: "opa"})
-	require.NotNil(t, eng, "提供 rbac.rego 模型后应构造出 OPA 引擎")
-	assert.Equal(t, "opa", eng.Name())
-	assert.Equal(t, "opa", p.lastModelEngineArg)
-}
-
-// TestNewEngineOPA_InvalidModelReturnsDenyAllEngine 非法模型内容（无法解析为 rego）
-// 时的行为：上游 opa.NewEngine 会吞掉模型解析错误并回退编译内置资产策略、
-// 仍返回非 nil 引擎——此前构造函数照样把这套"并非运营者本意"的引擎交出去
-// 静默上线。修复后：模型解析失败一律换 denyAllEngine——全量拒绝（fail-closed）
-// 且各接口返回统一可观测错误，运营者须修复模型后重启才恢复。
-func TestNewEngineOPA_InvalidModelReturnsDenyAllEngine(t *testing.T) {
-	p := &stubProvider{models: ModelDataMap{
-		"rbac.rego": []byte("this is definitely not valid rego !!!"),
-	}}
-	a := newTestAuthorizer(p)
-	eng := a.newEngine(context.Background(), &conf.Authorization{Type: "opa"})
-	require.NotNil(t, eng,
-		"非法模型应返回 deny-all 兜底引擎而非 nil（nil 会使鉴权中间件整体消失、退化为全放行）")
-	assert.Equal(t, "deny-all", eng.Name())
-
-	allowed, err := eng.IsAuthorized(context.Background(), "s", "a", "r", "p")
-	assert.False(t, allowed, "deny-all 引擎应拒绝一切判定")
-	assert.Error(t, err, "拒绝应携带可观测错误")
-
-	pairs, err := eng.FilterAuthorizedPairs(context.Background(), nil, nil)
-	assert.Nil(t, pairs)
-	assert.Error(t, err, "过滤接口同样拒绝")
-
-	projects, err := eng.FilterAuthorizedProjects(context.Background(), nil)
-	assert.Nil(t, projects)
-	assert.Error(t, err, "过滤接口同样拒绝")
-
-	assert.Error(t, eng.SetPolicies(context.Background(), nil, nil), "策略写入同样拒绝")
-}
-
 // TestEngine_ReturnsAssignedEngine Engine() 应原样返回当前引擎字段。
 func TestEngine_ReturnsAssignedEngine(t *testing.T) {
 	a := newTestAuthorizer(&stubProvider{})
@@ -285,58 +222,6 @@ func TestGenerateCasbinPolicies_EmptyInput(t *testing.T) {
 	}
 }
 
-// opaPathJSON 是 OPA paths 元素的 JSON 形状：
-// 通过 JSON 序列化观察生成器产物中每个路径元素的 {pattern, method} 结构。
-type opaPathJSON struct {
-	Pattern string `json:"pattern"`
-	Method  string `json:"method"`
-}
-
-// TestGenerateOpaPolicies_MultiRoleMultiApi OPA 策略图必须按角色分组，
-// 每组含该角色全部 API 的 {pattern, method} 列表，不携带 Domain 字段。
-func TestGenerateOpaPolicies_MultiRoleMultiApi(t *testing.T) {
-	a := newTestAuthorizer(&stubProvider{})
-
-	policies, err := a.generateOpaPolicies(samplePermData())
-	require.NoError(t, err)
-	require.Len(t, policies, 2, "应为每个角色生成一个键")
-
-	expected := map[string][]opaPathJSON{
-		"roleA": {
-			{Pattern: "/a", Method: "GET"},
-			{Pattern: "/b", Method: "POST"},
-		},
-		"roleB": {
-			{Pattern: "/c", Method: "GET"},
-			{Pattern: "/d", Method: "DELETE"},
-		},
-	}
-	for role, raw := range policies {
-		buf, err := json.Marshal(raw)
-		require.NoError(t, err, "OPA paths 必须可 JSON 序列化")
-
-		var got []opaPathJSON
-		require.NoError(t, json.Unmarshal(buf, &got))
-		assert.Equal(t, expected[role], got, "角色 %s 的 paths 结构应与输入 API 条目一一对应", role)
-	}
-}
-
-// TestGenerateOpaPolicies_EmptyInput 空输入下应得到空策略图。
-func TestGenerateOpaPolicies_EmptyInput(t *testing.T) {
-	a := newTestAuthorizer(&stubProvider{})
-
-	for name, data := range map[string]PermissionDataMap{
-		"nil map":   nil,
-		"empty map": {},
-	} {
-		t.Run(name, func(t *testing.T) {
-			policies, err := a.generateOpaPolicies(data)
-			require.NoError(t, err)
-			assert.Empty(t, policies, "空输入不应产生任何角色键")
-		})
-	}
-}
-
 // ---------------------------------------------------------------------------
 // ResetPolicies
 // ---------------------------------------------------------------------------
@@ -353,7 +238,7 @@ func TestResetPolicies_NoopEngineReturnsNil(t *testing.T) {
 }
 
 // TestResetPolicies_UnknownEngineNameReturnsError 引擎名不在
-// casbin/opa/noop 之列时必须报错，不能静默吞掉。
+// casbin/noop 之列时必须报错，不能静默吞掉。
 func TestResetPolicies_UnknownEngineNameReturnsError(t *testing.T) {
 	a := newTestAuthorizer(&stubProvider{policyData: samplePermData()})
 	a.engine = &stubEngine{name: "mystery-engine"}
@@ -391,21 +276,6 @@ func TestResetPolicies_CasbinStubReceivesGeneratedPolicies(t *testing.T) {
 	require.True(t, ok)
 	assert.Len(t, rawRules, 4, "stub 引擎应收到 4 条生成的 casbin 规则")
 	assert.Nil(t, stub.lastRoles, "RoleMap 入参应为 nil")
-}
-
-// TestResetPolicies_OpaStubReceivesGeneratedPolicies 引擎名为 opa 时，
-// ResetPolicies 应把 generateOpaPolicies 的按角色分组结果交给 SetPolicies。
-func TestResetPolicies_OpaStubReceivesGeneratedPolicies(t *testing.T) {
-	a := newTestAuthorizer(&stubProvider{policyData: samplePermData()})
-	stub := &stubEngine{name: "opa"}
-	a.engine = stub
-
-	err := a.ResetPolicies(context.Background())
-	require.NoError(t, err)
-	assert.Equal(t, 1, stub.setCalls)
-	require.NotNil(t, stub.lastPolicies)
-	assert.Len(t, stub.lastPolicies, 2, "应为两个角色各传一组 paths")
-	assert.Nil(t, stub.lastRoles)
 }
 
 // TestResetPolicies_RealCasbinEngineLoadsPolicies 真实 casbin 引擎端到端：

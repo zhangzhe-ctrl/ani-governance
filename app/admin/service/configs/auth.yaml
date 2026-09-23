@@ -68,8 +68,8 @@ authn:
       - "key2"
 
 authz:
-  type: "casbin" # casbin, opa, noop
+  # 主装配强制 casbin：非 casbin 时服务拒绝启动（见 cmd/server/wiring_ent.go）。
+  # noop 仅作"未配置/未知类型"的兜底引擎，不用于生产。
+  type: "casbin" # casbin, noop
 
   casbin:
-
-  opa:

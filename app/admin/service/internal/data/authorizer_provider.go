@@ -9,8 +9,6 @@ import (
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 
-	"go-wind-admin/app/admin/service/cmd/server/assets"
-
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 
 	"go-wind-admin/pkg/authorizer"
@@ -36,19 +34,6 @@ func NewAuthorizerProvider(
 		roleRepo: roleRepo,
 		apiRepo:  apiRepo,
 	}
-}
-
-// ProvideModels 提供模型数据
-func (p *AuthorizerProvider) ProvideModels(engineName string) authorizer.ModelDataMap {
-	switch engineName {
-	case "casbin":
-		return make(map[string][]byte)
-	case "opa":
-		return map[string][]byte{
-			"rbac.rego": assets.OpaRbacRego,
-		}
-	}
-	return nil
 }
 
 // ProvidePolicies 提供策略数据

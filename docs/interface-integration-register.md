@@ -866,3 +866,20 @@ x-ani-authz:
 - AUDIT-GEO-ISSUE-04：镜像形态变化（服务镜像与运维 CLI 镜像拆分、基础镜像换 distroless）不属于接口变更，登记在此仅为可追溯；部署命令变更见 [部署文档](deployment.md)。
 
 本轮验证：本机 `go build ./...`、`go vet ./pkg/middleware/logging/...`、`go test ./pkg/middleware/logging/...` 通过；审计落库、查询响应与前端展示未验证（`not_verified`）。
+
+## 功能组：鉴权引擎去掉 OPA（OPA-REMOVAL-01）
+
+2026-09-23 镜像瘦身后续：移除 OPA 鉴权引擎，执行计划见 [OPA 移除记录](opa-removal-plan.md)。接口路由与报文不变，**鉴权条件**收敛。
+
+| 编号 | 涉及条件 | 变更内容 | 状态 |
+| --- | --- | --- | --- |
+| AUTHZ-OPA-01 | `authz.type` 取值域、鉴权引擎装配 | 可选值由 `casbin / opa / noop` 收敛为 `casbin / noop`；配置 `opa` 时主装配启动期即拒绝（原 fail-closed 校验继续生效）。`rbac.rego` 与 OPA 策略生成器一并移除 | 已实现（本机 `go build ./...`、`go vet ./...`、`go test ./pkg/authorizer/... ./pkg/middleware/auth/...` 通过；真实部署下 Casbin 策略装载与接口鉴权 `not_verified`） |
+
+### 已登记边界与执行约束
+
+- AUTHZ-OPA-ISSUE-01：`authz` 配置块**保留**：`wiring_ent.go:38` 用 `authz.type != "casbin"` 做启动期 fail-closed 校验，去掉配置即失去防线；`noop` 保留作为"未配置/未知类型"的兜底引擎。
+- AUTHZ-OPA-ISSUE-02：原 OPA 自定义模型解析失败的 `denyAllEngine` 兜底随 OPA 一并移除，它没有其它调用方。
+- AUTHZ-OPA-ISSUE-03：`permission_policy.policy_engine` 枚举仍含 `OPA`（DB 字段），本批不动：改动需 Ent 重生成 + Atlas 迁移，且业务代码当前不写入该字段。这类"字段值域收敛"与 `geo_location` 字段删除同批另做。
+- AUTHZ-OPA-ISSUE-04：对外接口与错误码不变；受影响的只是"引擎可选值"这一部署期契约。
+
+本轮验证：`go build ./...`、`go vet ./...`、`go test ./pkg/authorizer/... ./pkg/middleware/auth/...` 通过；部署环境需复验 `admin check`、服务启动日志中的 casbin 引擎装载，以及登录后 `GET /admin/v1/me`、`GET /admin/v1/initial-context` 与一个需授权接口的 403/200 表现（`not_verified`）。

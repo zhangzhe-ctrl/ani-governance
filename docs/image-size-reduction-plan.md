@@ -1,7 +1,7 @@
 # 镜像瘦身与二进制拆分执行计划（IMAGE-SLIM-01）
 
 目标：按 2026-09-23 决定落地四项：① 去掉 GeoIP 归属地查询；② 编译剥离符号/DWARF；③ server / admin 二进制拆成两个镜像并同步部署；④ 基础镜像换 `gcr.io/distroless/static`。
-OPA 无条件链接问题**不在本批**，另开任务讨论。
+OPA 无条件链接问题本批不处理，**已于 2026-09-23 由 [OPA-REMOVAL-01](opa-removal-plan.md) 完成移除**。
 
 ## 0. 实测基线（本机 `CGO_ENABLED=0 GOARCH=amd64` 构建，与 Dockerfile 参数一致）
 

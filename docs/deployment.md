@@ -36,7 +36,7 @@ docker build --target runtime-admin  -t <registry>/ani-governance-admin:<tag> .
 | `data.database` | PostgreSQL 地址、库名、账号；`migrate: false` |
 | `data.redis`、`server.asynq.uri` | 两处都指向可用 Redis，密码正确 |
 | `auth`、加密配置 | 使用部署环境自己的密钥，多副本保持一致；`ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE` 必填，指向独立 64 位十六进制主密钥文件，不能明文降级 |
-| `authz.type` | 当前主装配要求 `casbin` |
+| `authz.type` | 必须填 `casbin`；主装配在启动期校验，非 `casbin` 直接拒绝启动，不会退化为 noop。可选值仅 `casbin` / `noop`，`opa` 已移除（见 [OPA 移除记录](opa-removal-plan.md)） |
 | `server.rest.addr` | 默认 7788；按实际监听地址与反向代理配置 |
 | CORS / Cookie | 优先同域代理；跨端口开发需正确 Origin、凭证设置；代理 HTTPS 传递正确协议 |
 | Network | 未接入时不设置 `ANI_NETWORK_ADDR`；接入时另配 mTLS 和下游数据 |

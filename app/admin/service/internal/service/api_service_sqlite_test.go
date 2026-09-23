@@ -28,10 +28,8 @@ import (
 )
 
 // stubAuthzProvider 是 authorizer.Provider 的本地测试桩：
-// 无模型、无策略数据（noop 引擎的 ResetPolicies 在取数后直接返回 nil）。
+// 无策略数据（noop 引擎的 ResetPolicies 在取数后直接返回 nil）。
 type stubAuthzProvider struct{}
-
-func (stubAuthzProvider) ProvideModels(string) authorizer.ModelDataMap { return nil }
 
 func (stubAuthzProvider) ProvidePolicies(context.Context) (authorizer.PermissionDataMap, error) {
 	return nil, nil
