@@ -23,12 +23,12 @@ Network 从自己的根目录编译 `./cmd/ani-network-service` 到 `bin/network
 
 ## 空库到真实查询
 
-下面命令全部在 ubuntu 的 Governance 源码目录执行。先核对 kind 节点已装载预期 PostgreSQL 18、Redis 7 和 BusyBox 1.37 镜像，最终记录实际 imageID。`build-images.sh` 以二进制摘要命名镜像并导入三个当前 kind 节点；不会改已有应用 Deployment。
+下面命令全部在 ubuntu 的 Governance 源码目录执行。先核对 kind 节点已装载预期 PostgreSQL 18、Redis 7 和 BusyBox 1.37 镜像，最终记录实际 imageID。`scripts/lab/build-images.sh` 构建**三个**镜像（服务、运维 CLI、Atlas）并按 git 提交打标签、导入当前 kind 节点；不会改已有应用 Deployment。Atlas 二进制不在仓库内，脚本找不到就报错退出。
 
 ```bash
 python3 scripts/aksk_vpc_client.py --self-test
 python3 scripts/aksk-lab/lab.py prepare
-bash scripts/aksk-lab/build-images.sh
+bash scripts/lab/build-images.sh
 python3 scripts/aksk-lab/lab.py deploy
 python3 scripts/aksk-lab/lab.py setup
 python3 scripts/aksk-lab/lab.py contract
@@ -38,7 +38,7 @@ python3 scripts/aksk-lab/lab.py security_checks
 python3 scripts/aksk-lab/collect.py
 ```
 
-`deploy` 创建显式 Atlas/admin init Job，之后才启动服务。服务使用无 DDL 权限的 Governance 运行角色；Network 使用只读运行角色。PostgreSQL 使用本任务 PVC，Redis 是独立实例。`setup` 经真实 HTTP 创建专用套餐（DASHBOARD/OPM/SYSTEM/NETWORK）、租户及管理员和租户角色，调用既有 `bootstrap-network-access.sql` 配置 `network:vpc:get` 后重载策略；VPC 是明确的数据库 fixture，不代表数据面验收。
+`deploy` 先创建 `governance-migrate` Job（Atlas 镜像：status → dry-run → apply 串行），再创建 `governance-admin` Job（运维镜像：init → check 串行），之后才启动服务；运行时镜像是 distroless，没有 shell，每一步都是独立容器。服务使用无 DDL 权限的 Governance 运行角色；Network 使用只读运行角色。PostgreSQL 使用本任务 PVC，Redis 是独立实例。`setup` 经真实 HTTP 创建专用套餐（DASHBOARD/OPM/SYSTEM/NETWORK）、租户及管理员和租户角色，调用既有 `bootstrap-network-access.sql` 配置 `network:vpc:get` 后重载策略；VPC 是明确的数据库 fixture，不代表数据面验收。
 
 `contract` 经租户管理员 JWT 调用 `POST /api/v1/auth/api-keys`，检查真实 HTTP 201，再由标准库 Python 客户端签名查询持久化 VPC。覆盖协议篡改、身份、套餐、跨租户管理/资源、FieldMask、生命周期和用户 JWT 回归。`mtls` 直接探测同一个 Network Pod 的 TLS 边界；`final_checks` 检查重启、密文、日志和审计。
 

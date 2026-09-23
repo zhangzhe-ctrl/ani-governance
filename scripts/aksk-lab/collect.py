@@ -49,14 +49,17 @@ sources = {
 (E / 'source-manifest.json').write_text(json.dumps(sources, indent=2) + '\n')
 # Prove that binaries in running Pods are exactly the built artifacts.
 runtime = {}
-for service, filename in [('governance', 'governance'), ('network', 'network')]:
-    actual = m.kub('exec', 'deployment/' + service, '--', 'sha256sum', '/app/server').split()[0]
+# governance 用 distroless 服务镜像（/app/bin/server），network 仍是 /app/server。
+for service, filename, path in [('governance', 'governance', '/app/bin/server'), ('network', 'network', '/app/server')]:
+    actual = m.kub('exec', 'deployment/' + service, '--', 'sha256sum', path).split()[0]
     expected = sha(R / 'bin' / filename)
     assert actual == expected, service + ' runtime binary mismatch'
     runtime[service] = {'binary_sha256': actual}
-admin_actual = m.kub('exec', 'deployment/governance', '--', 'sha256sum', '/app/admin').split()[0]
-assert admin_actual == sha(R / 'bin/admin')
-runtime['admin'] = {'binary_sha256': admin_actual}
+# The admin CLI lives in its own image (no shell, not present in the service Pod); the
+# bootstrap Job log plus the image recorded in images.json are the runtime evidence.
+admin_binary = R / 'bin/admin'
+assert admin_binary.is_file(), 'admin artifact missing: ' + str(admin_binary)
+runtime['admin'] = {'binary_sha256': sha(admin_binary), 'image': json.loads((R / 'images.json').read_text())['governance-admin']}
 # Compare application sources to the build snapshot (docs/scripts do not affect binaries).
 compiled = manifest(R / 'governance-key', ['api/gen', 'app/admin/service/cmd/server', 'app/admin/service/cmd/admin', 'app/admin/service/internal', 'pkg', 'sql', 'go.mod', 'go.sum'])
 final = manifest(R / 'governance', ['api/gen', 'app/admin/service/cmd/server', 'app/admin/service/cmd/admin', 'app/admin/service/internal', 'pkg', 'sql', 'go.mod', 'go.sum'])

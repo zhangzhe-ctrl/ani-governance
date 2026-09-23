@@ -57,6 +57,34 @@ docker build --target runtime-admin  -t <registry>/ani-governance-admin:<tag> .
 
 `scripts/atlas.sh` 固定运行目录，避免 Ent schema 位于 Go `internal` 目录导致加载失败。
 
+**集群内执行时用独立 Atlas 镜像**：服务镜像与运维镜像都不含 Atlas（也不含 shell），结构迁移由 `scripts/deploy/atlas/build-image.sh` 产出的 `ani-atlas:<版本>-<migrations摘要>` 承担，作为一次性 Job 运行。Atlas 二进制不在仓库内，构建脚本只定位不下载，找不到就报错退出。
+
+```bash
+# 构建（需要 atlas v1.3.0，与 go.mod 的 arigaio/atlas 一致）
+ANI_ATLAS_BIN=/path/to/atlas bash scripts/deploy/atlas/build-image.sh
+
+# 一次性 Job（status → dry-run → apply 串行，只跑 apply 也可）
+kubectl create job governance-migrate --from=job/manifest   # 或按下列片段声明
+```
+
+Job 片段（镜像内 `/app/migrations` 为迁移目录，`ANI_DATABASE_DSN` 由 Secret 注入）：
+
+```yaml
+initContainers:
+  - name: status
+    image: ani-atlas:v1.3.0-<migrations摘要>
+    args: ["migrate", "status", "--dir", "file://migrations", "--url", "$(ANI_DATABASE_DSN)"]
+  - name: dry-run
+    image: ani-atlas:v1.3.0-<migrations摘要>
+    args: ["migrate", "apply", "--dry-run", "--dir", "file://migrations", "--url", "$(ANI_DATABASE_DSN)"]
+containers:
+  - name: apply
+    image: ani-atlas:v1.3.0-<migrations摘要>
+    args: ["migrate", "apply", "--dir", "file://migrations", "--url", "$(ANI_DATABASE_DSN)"]
+```
+
+完整可复现的镜像构建与导入见 [隔离实验镜像说明](../scripts/lab/README.md)。
+
 开发者修改 schema 后，先完成 Ent 生成并运行 `go run ./cmd/schema > schema.sql`（在 `app/admin/service` 下；`make ent` 和 `scripts/generate-aksk-slice.sh` 已包含此步），再用**独立、可清空的开发数据库**生成下一份迁移：
 
 ```bash

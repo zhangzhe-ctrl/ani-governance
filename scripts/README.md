@@ -16,6 +16,8 @@
 | [../docs/service-integration.md](../docs/service-integration.md) | 业务服务接入指南：mTLS 出站、身份 header 契约、装配锚点、Api 登记与验收清单。 |
 | [new-service-scaffold.sh](new-service-scaffold.sh) | 接入骨架生成（只写四个源文件，不执行生成/构建；生成、编译与验收按仓库执行环境约定运行）。 |
 | [model-lab/README.md](model-lab/README.md)（**已暂停**）、[network-lab/README.md](network-lab/README.md) | 历史隔离实验入口，包含特定环境和验收前提。model-lab 因接入暂摘而不可运行，保留作重接基线。 |
+| [lab/README.md](lab/README.md) | 当前隔离实验镜像构建：服务镜像 / 运维 CLI 镜像 / Atlas 镜像（可选 network），导入 kind。 |
+| [deploy/atlas/](deploy/atlas/) | 独立 Atlas 迁移镜像的 Dockerfile 与构建脚本；应用镜像不含 Atlas。 |
 | `backup-tx7do.py` | 源码备份及恢复校验，见 [备份说明](../third_party/tx7do/README.md)。 |
 
 ## 常用开发命令

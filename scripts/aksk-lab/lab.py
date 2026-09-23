@@ -200,19 +200,43 @@ def configs():
     apply([obj('Secret', 'configs', type='Opaque', stringData={'governance.yaml': json.dumps(config), 'network.yaml': json.dumps(nc), **tls})])
 
 
+def job(name, init_containers, main, volumes, mounts):
+    """One-shot Job whose steps run serially: initContainers first, then the main container."""
+    return {'apiVersion': 'batch/v1', 'kind': 'Job', 'metadata': {'name': name, 'namespace': NS}, 'spec': {'backoffLimit': 0, 'template': {'spec': {
+        'restartPolicy': 'Never', 'automountServiceAccountToken': False, 'volumes': volumes,
+        'initContainers': [dict(c, volumeMounts=mounts) for c in init_containers],
+        'containers': [dict(main, volumeMounts=mounts)]}}}}
+
+
 def deploy():
     images = json.loads((R / 'images.json').read_text())
     configs()
     volumes = [{'name': 'config', 'secret': {'secretName': 'configs'}}, {'name': 'runtime', 'secret': {'secretName': 'runtime'}}]
     mounts = [{'name': 'config', 'mountPath': '/config', 'readOnly': True}, {'name': 'runtime', 'mountPath': '/run/secrets', 'readOnly': True}]
-    # Atlas/admin run explicitly before the service deployment. The owner DSN is only in this Job.
-    init = {'apiVersion': 'batch/v1', 'kind': 'Job', 'metadata': {'name': 'governance-init', 'namespace': NS}, 'spec': {'backoffLimit': 0, 'template': {'spec': {'restartPolicy': 'Never', 'automountServiceAccountToken': False, 'volumes': volumes, 'containers': [{
-        'name': 'init', 'image': images['governance'], 'imagePullPolicy': 'Never', 'command': ['/bin/sh', '-ec'],
-        'args': ['cd /app; atlas migrate status --dir file://migrations --url "$ANI_DATABASE_DSN"; atlas migrate apply --dry-run --dir file://migrations --url "$ANI_DATABASE_DSN"; atlas migrate apply --dir file://migrations --url "$ANI_DATABASE_DSN"; /app/admin init --username admin --password-file /run/secrets/admin-password; /app/admin check'],
-        'env': [secret_env('ANI_DATABASE_DSN', 'governance-dsn')], 'volumeMounts': mounts}]}}}}
-    apply([init])
-    kub('wait', '--for=condition=complete', 'job/governance-init', '--timeout=120s')
-    (E / 'governance-init.log').write_text(kub('logs', 'job/governance-init'))
+    # Atlas and the admin CLI run explicitly before the service deployment, each from its own
+    # image: the runtime images are distroless (no shell), so every step is a single container
+    # and initContainers give the required ordering. The owner DSN is only in these Jobs.
+    dsn = [secret_env('ANI_DATABASE_DSN', 'governance-dsn')]
+    base = {'imagePullPolicy': 'Never', 'env': dsn}
+
+    def atlas(name, args):
+        return dict(base, name=name, image=images['atlas'], args=list(args) + ['--dir', 'file://migrations', '--url', '$(ANI_DATABASE_DSN)'])
+
+    def admin(name, args):
+        return dict(base, name=name, image=images['governance-admin'], command=['/app/bin/admin'], args=list(args))
+
+    migrate = job('governance-migrate',
+                  [atlas('status', ['migrate', 'status']), atlas('dry-run', ['migrate', 'apply', '--dry-run'])],
+                  atlas('apply', ['migrate', 'apply']), volumes, mounts)
+    apply([migrate])
+    kub('wait', '--for=condition=complete', 'job/governance-migrate', '--timeout=180s')
+    (E / 'governance-migrate.log').write_text(kub('logs', 'job/governance-migrate'))
+    bootstrap = job('governance-admin',
+                    [admin('init', ['init', '--username', 'admin', '--password-file', '/run/secrets/admin-password'])],
+                    admin('check', ['check']), volumes, mounts)
+    apply([bootstrap])
+    kub('wait', '--for=condition=complete', 'job/governance-admin', '--timeout=180s')
+    (E / 'governance-admin.log').write_text(kub('logs', 'job/governance-admin'))
     sql('governance', 'GRANT USAGE ON SCHEMA public TO governance_runtime; GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO governance_runtime; GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO governance_runtime; REVOKE CREATE ON SCHEMA public FROM PUBLIC;')
     migration = {'apiVersion': 'batch/v1', 'kind': 'Job', 'metadata': {'name': 'network-migrate', 'namespace': NS}, 'spec': {'backoffLimit': 0, 'template': {'spec': {'restartPolicy': 'Never', 'automountServiceAccountToken': False, 'containers': [{
         'name': 'migration', 'image': images['network'], 'imagePullPolicy': 'Never', 'args': ['-migrate'], 'env': [secret_env('ANI_NETWORK_MIGRATION_DSN', 'network-dsn'), {'name': 'ANI_NETWORK_RUNTIME_ROLE', 'value': 'network_read'}]}]}}}}
@@ -223,7 +247,7 @@ def deploy():
     items = [deployment('network', images['network'], [19090, 19091], args=['-conf', '/config/network.yaml'], volumes=volumes, volumeMounts=mounts,
                         env=env({'ANI_NETWORK_MODE': 'vpc-read', 'ANI_NETWORK_CLIENT_CA': '/config/ca.pem', 'ANI_NETWORK_TLS_CERT': '/config/ani-network-service.pem', 'ANI_NETWORK_TLS_KEY': '/config/ani-network-service.key'}),
                         readinessProbe={'httpGet': {'path': '/readyz', 'port': 19091}, 'periodSeconds': 2}), service('network', [19090, 19091]),
-             deployment('governance', images['governance'], [7788], command=['/app/server'], args=['-c', '/governance'], volumes=volumes, volumeMounts=mounts + [{'name': 'config', 'mountPath': '/governance/config.yaml', 'subPath': 'governance.yaml', 'readOnly': True}],
+             deployment('governance', images['governance'], [7788], command=['/app/bin/server'], args=['-c', '/governance'], volumes=volumes, volumeMounts=mounts + [{'name': 'config', 'mountPath': '/governance/config.yaml', 'subPath': 'governance.yaml', 'readOnly': True}],
                         env=env({'ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE': '/run/secrets/access-key-encryption', 'ANI_NETWORK_ADDR': 'network:19090', 'ANI_NETWORK_CA': '/config/ca.pem', 'ANI_NETWORK_CERT': '/config/ani-governance.pem', 'ANI_NETWORK_KEY': '/config/ani-governance.key', 'ANI_NETWORK_TIMEOUT': '3s'}),
                         readinessProbe={'tcpSocket': {'port': 7788}, 'periodSeconds': 2}), service('governance', [7788], NODEPORT)]
     apply(items)
@@ -485,8 +509,21 @@ def final_checks():
     after = snapshot()
     check('restart-no-schema-or-initialization-writes', before == after)
     (E / 'restart-snapshot.json').write_text(json.dumps({'before': before, 'after': after}, indent=2))
-    rejected = subprocess.run(['kubectl', '--context', CONTEXT, '-n', NS, 'exec', 'deploy/governance', '--', 'sh', '-c', 'unset ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE; exec /app/server -c /governance'], capture_output=True, text=True, timeout=20)
-    check('missing-master-key-startup-refused', rejected.returncode != 0 and 'ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE' in rejected.stdout + rejected.stderr)
+    # The runtime image has no shell, so the probe is a dedicated Pod that simply omits the
+    # master key env var instead of unsetting it inside a shell.
+    images = json.loads((R / 'images.json').read_text())
+    probe = {'apiVersion': 'v1', 'kind': 'Pod', 'metadata': {'name': 'missing-master-key', 'namespace': NS}, 'spec': {
+        'restartPolicy': 'Never', 'automountServiceAccountToken': False,
+        'volumes': [{'name': 'config', 'secret': {'secretName': 'configs'}}],
+        'containers': [{'name': 'probe', 'image': images['governance'], 'imagePullPolicy': 'Never',
+                        'command': ['/app/bin/server'], 'args': ['-c', '/governance'],
+                        'volumeMounts': [{'name': 'config', 'mountPath': '/governance/config.yaml', 'subPath': 'governance.yaml', 'readOnly': True}]}]}}
+    apply([probe])
+    subprocess.run(['kubectl', '--context', CONTEXT, '-n', NS, 'wait', '--for=jsonpath={.status.phase}=Failed',
+                    'pod/missing-master-key', '--timeout=60s'], capture_output=True, text=True)
+    rejected = subprocess.run(['kubectl', '--context', CONTEXT, '-n', NS, 'logs', 'pod/missing-master-key'], capture_output=True, text=True, timeout=60)
+    kub('delete', 'pod/missing-master-key', '--ignore-not-found=true')
+    check('missing-master-key-startup-refused', 'ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE' in rejected.stdout + rejected.stderr)
     check('runtime-no-ddl', sql('governance', "SELECT has_schema_privilege('governance_runtime','public','CREATE');") == 'f')
     check('key-persists-after-restart', signed(S['key'])[0] == 200)
     fk_sql = "DO $$ BEGIN BEGIN UPDATE sys_access_keys SET role_id=" + str(S['tenants']['b']['reader']) + " WHERE id=" + str(S['key']['id']) + "; RAISE EXCEPTION 'cross-tenant FK accepted'; EXCEPTION WHEN foreign_key_violation THEN NULL; END; BEGIN DELETE FROM sys_roles WHERE id=" + str(S['tenants']['a']['reader']) + "; RAISE EXCEPTION 'referenced role deletion accepted'; EXCEPTION WHEN foreign_key_violation OR restrict_violation THEN NULL; END; END $$;"
@@ -539,7 +576,7 @@ def security_checks():
 
 def diagnose():
     sensitive = list(S.get('passwords', {}).values()) + list(S.get('tokens', {}).values()) + S.get('all_secrets', []) + S.get('request_signatures', []) + [S.get('jwt', ''), S.get('encryption', '')]
-    for target in ['job/governance-init', 'job/network-migrate', 'deployment/governance', 'deployment/network']:
+    for target in ['job/governance-migrate', 'job/governance-admin', 'job/network-migrate', 'deployment/governance', 'deployment/network']:
         result = subprocess.run(['kubectl', '--context', CONTEXT, '-n', NS, 'logs', target, '--tail=60'], text=True, capture_output=True)
         output = result.stdout + result.stderr
         for secret in sensitive:

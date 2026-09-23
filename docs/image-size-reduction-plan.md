@@ -126,7 +126,7 @@ OPA 无条件链接问题**不在本批**，另开任务讨论。
   - 容器内已含 `/etc/ssl/certs/ca-certificates.crt` 与 `usr/share/zoneinfo`（用 `docker create` + `docker export` 验证），**因此 Dockerfile 可以去掉 `apk add ca-certificates`**。
   - 容器内**无 `/bin/sh`**（实测 `exec: "/bin/sh": stat /bin/sh: no such file or directory`）。
   - 是否按 digest 固定见 §8.2；若固定则 Dockerfile 内写 `@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab`。
-- [x] **4.3** 确认无 shell 的影响面：容器不支持 `sh -c` 探针/健康检查；Atlas 迁移仍用独立 Atlas 镜像（`scripts/aksk-lab/build-images.sh:9` 的做法），**不在 governance 镜像里塞 shell**。
+- [x] **4.3** 确认无 shell 的影响面：容器不支持 `sh -c` 探针/健康检查；Atlas 迁移改用独立 Atlas 镜像（`scripts/deploy/atlas/`，见 [ATLAS-SPLIT-01](atlas-image-split-plan.md)），**不在 governance 镜像里塞 shell**。
 
 ---
 
@@ -138,7 +138,7 @@ OPA 无条件链接问题**不在本批**，另开任务讨论。
 - [x] **5.4** `docs/deployment.md:123-129`（`sync-apis`）：补镜像形态命令，保持 dry-run → 应用 → check 顺序。
 - [x] **5.5** `docs/deployment.md` 增加「注意事项」：剥离符号后 panic 栈无行号；distroless 无 shell，容器内排障靠日志与 HTTP 健康检查。
 - [x] **5.6** `scripts/deploy/pm2_service.sh` **不改**：它只起 `bin/server`（`pm2_service.sh:71`、`:103`），`bin/` 仍同时产出两个二进制，不受拆分影响。
-- [x] **5.7** `scripts/aksk-lab/build-images.sh:7-27` 与 `scripts/network-lab/build-images.sh`：**待确认**（见 §8.3）。若改：governance 镜像只放 `server` + atlas + migrations，另出 `governance-admin` 镜像放 `admin`；注意这两个脚本是 2026-09-22 证据复现脚本，改动会改变历史复现路径。
+- [x] **5.7** 旧 `scripts/aksk-lab/build-images.sh` / `scripts/network-lab/build-images.sh`：**已在 ATLAS-SPLIT-01 删除**（用户 2026-09-23 决定：实验脚本可以干掉），由 `scripts/lab/build-images.sh` + `scripts/deploy/atlas/` 取代；历史证据文件保留当次实际执行的命令。
 
 ---
 
@@ -177,7 +177,7 @@ OPA 无条件链接问题**不在本批**，另开任务讨论。
 
 - [x] **8.1** `geo_location` **只「不再填充」**（按计划默认执行）；Proto/DB 字段删除**另开一批**，不在本批声称完成。
 - [x] **8.2** distroless **按 tag 引用** `gcr.io/distroless/static-debian12:nonroot`，不固定 digest；本机实测可拉取（digest 记录在 §4.2 备查）。
-- [x] **8.3** lab 脚本（`scripts/aksk-lab/build-images.sh`、`scripts/network-lab/build-images.sh`）**本批不改**，保持 2026-09-22 证据复现路径不变。
+- [x] **8.3** lab 脚本：本批**不改**（保持 2026-09-22 证据复现路径）；随后由 [ATLAS-SPLIT-01](atlas-image-split-plan.md) 删除并重写为 `scripts/lab/build-images.sh`。
 - [x] **8.4** 镜像 tag 规则**沿用** `$(PROJECT_NAME)/$(APP_NAME)` 与 `-admin` 后缀（`app.mk` 的 `docker_server` / `docker_admin`）。
 
 ## 9. 执行状态
@@ -197,4 +197,4 @@ OPA 无条件链接问题**不在本批**，另开任务讨论。
 - `.dockerignore:59` 排除 `sql/` 与 `sql/bootstrap` 的 `//go:embed` 编译需求冲突，按仓库根 `docker build` 会失败（已实测上下文缺失）→ 列入阶段 0。
 - 原 `Dockerfile` 硬编码 `GOPROXY=https://proxy.golang.org,direct`，容器内无模块缓存且走官方代理，实测 `go mod download` 超过 40 分钟仍未完成 → 改为 `ARG GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct`（可用 `--build-arg GOPROXY=...` 覆盖），并去掉 RUN 里的硬编码。
   **与仓库现有约定的冲突（需确认）**：`AGENTS.md:75`、`README.md:11`、`docs/local-integration.md:99-101` 要求 `proxy.golang.org` 在前，理由是 `goproxy.cn` 对 `zhangzhe-ctrl/*` 等固定版本领域模块可能返回 `not found`。本次实测两个代理对该模块均返回 200，且代理链在 404 时会回退到下一个源；若构建环境严格要求遵循仓库约定，把默认值改回 `https://proxy.golang.org,https://goproxy.cn,direct` 即可。
-- 现网在用的 `ani-governance:anisystem-*` 镜像 **554 MB**，分层为 `server + admin` 271 MB、**`atlas` 126 MB**、busybox 4.55 MB，由 `scripts/aksk-lab/build-images.sh` 产出。本批按用户决定不改 lab 脚本，因此该镜像不会自动变小；若要继续降，需把 Atlas 拆成独立镜像/init 容器（属另一批）。
+- 本机 kind 的 `ani-system` 命名空间里，Deployment `ani-governance` 实际运行的镜像是 `ani-governance:anisystem-43033829cffe5da4` **554 MB**，分层为 `server + admin` 271 MB、**`atlas` 126 MB**、migrations 434 kB、busybox 4.55 MB；容器命令只有 `-c /app/configs`，**没有 initContainer，运行期不调用 Atlas**。该 tag（`anisystem-*` / `govres-*`）在仓库脚本里查不到出处，但分层形态与旧实验脚本（busybox + server + admin + atlas + migrations）一致，可以解释为什么根 Dockerfile 之前没能成为部署来源：它因 `.dockerignore` 排除 `sql/` 而构建失败（见上文）。改用 `make docker_server` / `make docker_admin` 后为 165 MB + 38.7 MB；Atlas 已由 [ATLAS-SPLIT-01](atlas-image-split-plan.md) 拆成独立镜像 `ani-atlas:<版本>-<migrations摘要>`，不再进入应用镜像。

@@ -27,6 +27,8 @@ Thumbs.db
 *.key
 *.log
 bin/
+# 隔离实验镜像产物（scripts/lab/build-images.sh 默认输出目录）
+build/
 
 # Develop tools
 .vscode/
