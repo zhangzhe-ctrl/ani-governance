@@ -4,7 +4,13 @@
   "purpose": "Resume ledger for the continuous T03~T15 takeover. Recovery must re-check these SHAs against migration/receipts before any edit.",
   "plan": {
     "master_goal": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
-    "phase_order": ["A=T07", "B=T03,T04,T05,T06", "C=T08,T09,T10", "D=T11,T12,T13", "E=T14,T15"],
+    "phase_order": [
+      "A=T07",
+      "B=T03,T04,T05,T06",
+      "C=T08,T09,T10",
+      "D=T11,T12,T13",
+      "E=T14,T15"
+    ],
     "override": "This goal waives only the per-batch human-confirmation cadence of the old plan; functional, security, method-level and acceptance constraints stay in force."
   },
   "handoff_item_1_preserve_current_work": {
@@ -32,7 +38,9 @@
       },
       "working_tree": {
         "command": "git status --porcelain",
-        "output": ["?? _agent/"],
+        "output": [
+          "?? _agent/"
+        ],
         "note": "_agent/ is untracked plan material; per handoff item 5 it is deliberately not committed."
       },
       "module_files_untouched_since_T02": {
@@ -101,10 +109,77 @@
       "cat migration/accepted_head must equal a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
       "the T07-B1 fixture patch must still apply reversed cleanly to app/admin/service/internal/data/ent/tenant_guard_test.go (migration/patches/T07-B1-accesskey-guard-fixture.patch)"
     ],
-    "authorization_now_in_force": "The master goal gained 「### 测试夹具修复的有限授权」 (8 conditions) on 2026-09-25, which pre-authorizes reproducible-pre-existing, data-preparation-only fixture repair inside the same task. It does not weaken any functional, security or acceptance gate, and it does not extend to changing assertions.",
+    "authorization_now_in_force": "The master goal gained \u300c### \u6d4b\u8bd5\u5939\u5177\u4fee\u590d\u7684\u6709\u9650\u6388\u6743\u300d (8 conditions) on 2026-09-25, which pre-authorizes reproducible-pre-existing, data-preparation-only fixture repair inside the same task. It does not weaken any functional, security or acceptance gate, and it does not extend to changing assertions.",
     "next_task": "T03 (group B). Read _agent/ani-governance-tx7do-plan/goals/T03.md on entry only.",
-    "environment_still_live": ["tx7do-t07-guard-pg -> GUARD_TEST_PG_DSN (127.0.0.1:55432)", "tx7do-t07-acc-lab-pg -> QUOTA_LAB_PG_DSN (127.0.0.1:55433)"],
+    "environment_still_live": [
+      "tx7do-t07-guard-pg -> GUARD_TEST_PG_DSN (127.0.0.1:55432)",
+      "tx7do-t07-acc-lab-pg -> QUOTA_LAB_PG_DSN (127.0.0.1:55433)"
+    ],
     "unverified_backlog": "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY remain not_run (need an external production-shaped dump/restore window, outside every group's authorized scope so far)."
+  },
+  "phase_B_T03_closure": {
+    "verdict": "PASS",
+    "recorded_at": "T03 complete, group B in progress",
+    "result_sha": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+    "ledger_commit": "this commit (names 8e5dbde, changes no source)",
+    "accepted_head_now": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+    "receipt": "migration/receipts/T03.json",
+    "activated": {
+      "github.com/tx7do/go-utils": "v1.1.40 (stringcase, sliceutil, fieldmaskutil)",
+      "github.com/tx7do/go-utils/mapper": "v0.0.3",
+      "github.com/tx7do/go-utils/copierutil": "v0.0.8"
+    },
+    "still_external_on_purpose": [
+      "github.com/tx7do/go-utils/timeutil (T10; no second copy was made)",
+      "github.com/tx7do/kratos-bootstrap/* (T10)",
+      "github.com/tx7do/go-crud/api + pagination Proto (T05/T06)"
+    ],
+    "resume_check_before_editing": [
+      "git merge-base --is-ancestor 8e5dbdeec677405a44d263e814c2938cefe8bf20 HEAD",
+      "cat migration/accepted_head  -> 8e5dbdeec677405a44d263e814c2938cefe8bf20",
+      "git status --porcelain      -> only '?? _agent/'",
+      "git diff --name-only 8e5dbde -- pkg/localdeps/go-utils go.mod  -> empty"
+    ],
+    "required_tests_gate": {
+      "required": 599,
+      "pass": 599,
+      "fail": 0,
+      "skip": 0,
+      "missing": 0,
+      "not_run": 0,
+      "builder": "/home/ubuntu/tx7do-pilot-run/t03_profile.py builds the profile from the packages the task touched, never hand-picked",
+      "gated_excluded": 8
+    },
+    "disclosed_not_fixed": [
+      "T03-F4 TestBootstrapPostgres fails at bootstrap_postgres_test.go:58 on a freshly created *_bootstrap_test database in both the accepted_head baseline and the migrated tree (pre-existing; production-behaviour assertion, outside the fixture authorization)",
+      "T03-F5 go vet 'assignment copies lock value' at accelerator_joint_http_test.go:503, identical at accepted_head, file untouched by T03"
+    ],
+    "environment_still_live": {
+      "containers": [
+        "tx7do-t07-guard-pg (127.0.0.1:55432)",
+        "tx7do-t07-acc-lab-pg (127.0.0.1:55433)"
+      ],
+      "databases_added_by_T03": [
+        "ani_t03_bootstrap_test",
+        "ani_t03base_bootstrap_test (each dropped and recreated before every run)"
+      ],
+      "never_touched": "quota-gpu-local-01-pg",
+      "helper": "bash /home/ubuntu/tx7do-pilot-run/T03/with_t03_env.sh <command> exports the pinned toolchain plus every task-owned DSN; GOV_BOOTSTRAP_DB selects the bootstrap database"
+    },
+    "worktrees_open": [
+      "/home/ubuntu/tx7do-pilot-run/T07/premigrate-ref (accepted T07 evidence)",
+      "/home/ubuntu/tx7do-pilot-run/T03/base-ref (a17cf52 baseline used for the gated comparisons)"
+    ],
+    "next_task": "T04. Read _agent/ani-governance-tx7do-plan/goals/T04.md on entry only.",
+    "unverified_backlog": [
+      "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run (carried from T07)"
+    ],
+    "constraints_still_in_force": [
+      "no push, no merge, no deploy",
+      "_agent/ is not committed",
+      "missing/skip/fail/not_run is not success",
+      "one batch at a time, receipts in ledger-only follow-up commits"
+    ]
   },
   "co_run_note": {
     "patch_strip_correction": "The T02 receipt recorded the reference build as `patch -p5 -d T02/t02b1-ref`. With the patch's a/ b/ labels a plain -p5 resolves to a bare `trans_test.go` inside -d; a nested pkg/localdeps/... layout under -d fails with 'can't find file to patch'. Reference dirs must be flat. This is an evidence-reproduction detail only; no repo file changed."
