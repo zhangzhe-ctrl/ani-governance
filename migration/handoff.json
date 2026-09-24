@@ -91,6 +91,21 @@
     },
     "verdict": "PASS - the only deviation is the approved T02-B1 test patch, byte-for-byte."
   },
+  "phase_A_closure": {
+    "recorded_at": "T07 PASS, phase A closed",
+    "verdict": "PASS",
+    "accepted_head_now": "a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
+    "receipt": "migration/receipts/T07.json",
+    "resume_check_before_editing": [
+      "git rev-parse HEAD must be a descendant of a17cf5293b599a68e053e9fd1be4ebc8246cecd4 on task/tx7do-takeover",
+      "cat migration/accepted_head must equal a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
+      "the T07-B1 fixture patch must still apply reversed cleanly to app/admin/service/internal/data/ent/tenant_guard_test.go (migration/patches/T07-B1-accesskey-guard-fixture.patch)"
+    ],
+    "authorization_now_in_force": "The master goal gained 「### 测试夹具修复的有限授权」 (8 conditions) on 2026-09-25, which pre-authorizes reproducible-pre-existing, data-preparation-only fixture repair inside the same task. It does not weaken any functional, security or acceptance gate, and it does not extend to changing assertions.",
+    "next_task": "T03 (group B). Read _agent/ani-governance-tx7do-plan/goals/T03.md on entry only.",
+    "environment_still_live": ["tx7do-t07-guard-pg -> GUARD_TEST_PG_DSN (127.0.0.1:55432)", "tx7do-t07-acc-lab-pg -> QUOTA_LAB_PG_DSN (127.0.0.1:55433)"],
+    "unverified_backlog": "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY remain not_run (need an external production-shaped dump/restore window, outside every group's authorized scope so far)."
+  },
   "co_run_note": {
     "patch_strip_correction": "The T02 receipt recorded the reference build as `patch -p5 -d T02/t02b1-ref`. With the patch's a/ b/ labels a plain -p5 resolves to a bare `trans_test.go` inside -d; a nested pkg/localdeps/... layout under -d fails with 'can't find file to patch'. Reference dirs must be flat. This is an evidence-reproduction detail only; no repo file changed."
   }

@@ -1,41 +1,49 @@
 {
   "task": "T07",
   "phase": "A (core pilot: viewer + entgo rules + audit/cache + Repository + DB wrapper)",
-  "status": "BLOCKED",
-  "conclusion": "BLOCKED",
-  "status_note": "Takeover executed and committed; BLOCKED on one mandatory pre-existing test failure (T07-B1) that prevents positive evidence for the access_key cross-tenant write guard. Production logic changes: 0. Tests removed or skipped: 0. B/C/D/E not started per 总goal A 未通过禁止继续后续组.",
+  "status": "PASS",
+  "conclusion": "PASS",
+  "status_note": "Takeover executed and committed; the single mandatory failure T07-B1 was resolved inside the user's 测试夹具修复的有限授权 (8 conditions) as a test-only fixture repair, and the access_key cross-tenant write guard now has positive evidence on both the pre-migration and the migrated tree. Production logic changes: 0. Tests removed or skipped: 0. Required profile 76/76 with 0 skip; make verify-gpu re-run after the repair: exit 0. Phase A is therefore closed and group B (T03→T06) is authorized to continue by the same instruction.",
   "base_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
   "baseline_sha": "2b1e132568b29a98d7429af9ed0a85f9bd62f59d",
   "schema_version": "t07-receipt/1",
   "supersedes": "migration/receipts/T07-attempt1-environment-blocked.json (sha256 e8bebbe72e5892262a174a969e7a6bd144687b099c36e0e44a095430df576029, kept byte-for-byte as history; the environment gate T07-E1/E2/E3 in that record was unblocked by the user supplying two task-owned disposable PostgreSQL instances, so this run is a new attempt, not a continuation of the same verdict)",
 
   "start_sha": "2b1e132568b29a98d7429af9ed0a85f9bd62f59d",
-  "end_sha": "3c5933c686d4f8780c4932265b51fc37a6ff15bf",
-  "result_sha": "3c5933c686d4f8780c4932265b51fc37a6ff15bf",
-  "result_sha_note": "Code commit on the work branch, named by this receipt in a second ledger-only commit that changes no source (same convention as T02). migration/accepted_head deliberately still records 28b6c95: T07 did not pass, so the pointer must not advance.",
+  "end_sha": "a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
+  "result_sha": "a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
+  "result_sha_note": "Three local commits make up phase A on task/tx7do-takeover: 3c5933c (takeover, 378 files: 114 added localdeps + 263 consumers + go.mod), b9e6059 (ledger of the BLOCKED attempt, 17 files, preserved as history), a17cf52 (test-only fixture repair, 1 file). This receipt names the tip a17cf52 in a ledger-only commit that changes no source (same convention as T02). migration/accepted_head advances from 28b6c95 to a17cf52 in that same ledger commit, because T07 passed.",
   "tested_code_sha": "28b6c954f4d399399720892dab8453b53482c4e7",
   "resume_head": "2b1e132568b29a98d7429af9ed0a85f9bd62f59d",
   "branch": "task/tx7do-takeover",
-  "lineage_check": "git merge-base --is-ancestor 28b6c954... 2b1e1325... exit 0; migration/accepted_head still reads 28b6c954f4d399399720892dab8453b53482c4e7 and was not modified by this task.",
+  "lineage_check": "git merge-base --is-ancestor 28b6c954... 2b1e1325... exit 0; 2b1e132 → 3c5933c → b9e6059 → a17cf52 is linear on task/tx7do-takeover with no merge and no rebase; migration/accepted_head read 28b6c954f4d399399720892dab8453b53482c4e7 before this task and is moved to a17cf5293b599a68e053e9fd1be4ebc8246cecd4 only by the ledger commit.",
   "pushed_merged_deployed": false,
 
   "blocker": {
     "id": "T07-B1",
+    "state": "RESOLVED in this task as a test-only fixture repair under the adopted 测试夹具修复的有限授权; commit a17cf52",
     "gate": "T07.md line 12 关键用例不能skip + 00-plan master-goal line 30 (missing/skip/fail/not_run 不算成功)",
     "test": "go-wind-admin/app/admin/service/internal/data/ent :: TestTenantMutationGuardAccessKey",
-    "observed": "panic: ent: missing required field \"AccessKey.secret_ciphertext\" at app/admin/service/internal/data/ent/tenant_guard_test.go:148, before any tenant-isolation assertion runs",
+    "observed_before": "panic: ent: missing required field \"AccessKey.secret_ciphertext\" at app/admin/service/internal/data/ent/tenant_guard_test.go:148, before any tenant-isolation assertion runs",
     "classification": "测试缺陷 (pre-existing test defect), NOT a migration regression and NOT an environment problem",
     "evidence": [
       "baseline-guard.log: the identical panic at the pristine start SHA 2b1e132 with exit 1, i.e. before any T07 file existed (T07/pristine/baseline-guard.exit = 1)",
       "git log -1 --format=%h app/admin/service/internal/data/ent/schema/access_key.go: field.String(\"secret_ciphertext\").NotEmpty().Sensitive() was introduced by commit 0c8e567",
       "git log --oneline app/admin/service/internal/data/ent/tenant_guard_test.go: dates to 10a7256 first commit, so the fixture predates the required field and was never updated",
-      "The two seed rows tenant_guard_test.go:148 and :150 call AccessKey.Create().SetAccessKey(...).SetName(...) with no SetSecretCiphertext, so CreateX panics on the NotEmpty validator",
-      "Consequence: the assertion the test exists to pin (cross-tenant Update/Delete must hit 0 rows) is never reached, so this run produced no positive evidence for the access_key write guard"
+      "The two seed rows tenant_guard_test.go:148 and :150 called AccessKey.Create().SetAccessKey(...).SetName(...) with no SetSecretCiphertext, so CreateX panicked on the NotEmpty validator",
+      "Consequence before the repair: the assertion the test exists to pin (cross-tenant Update/Delete must hit 0 rows) was never reached"
     ],
-    "why_not_fixed_here": "The user's continuation authorization for the earlier T02 defect was explicitly scoped: 本授权不扩展为自动修复其他未知上游缺陷；新的测试问题先区分来源、环境、测试缺陷和迁移回归，按总goal处理. Editing the fixture would be a new test change outside T07's approved file set (T07.md 业务Repository方法只改import / 不扩展身份授权租户), and silently repairing it would hide a real repo defect from the reviewer.",
-    "minimal_unblock_ask": "One test-only patch, analogous in kind to the approved T02-B1: add SetSecretCiphertext(\"GUARD_T1_CIPHERTEXT\") / SetSecretCiphertext(\"GUARD_T2_CIPHERTEXT\") (any non-empty placeholder; the field is Sensitive() and never asserted on) to the two seed rows in tenant_guard_test.go, keeping every assertion, the required-tests entry and the equiv/guard gates unchanged. With that change the test is expected to exercise the guard as written; this run did not verify that prediction.",
-    "other_gates_outcome": "Every other T07 gate is green (build, Ent regeneration, equiv 108/108, guard 263/263, archive provenance 8/8, entry-graph reachability 0, required tests 75/76 with 0 skip, make verify-gpu fully green). T07 is BLOCKED on this single mandatory failure only.",
-    "downstream_effect": "Master goal 4: A 未通过禁止继续后续组. Therefore B (T03→T06), C (T08→T10), D (T11→T13) and E (T14→T15) are NOT started, and the second/third make verify-gpu checkpoints and dependency zeroing are not attempted."
+    "resolution": {
+      "authorization": "The user added 「### 测试夹具修复的有限授权」 (8 conditions) to _agent/ani-governance-tx7do-plan/T03-T15-master-goal.md on 2026-09-25 and instructed steps A–E for exactly this defect, replacing the earlier 本授权不扩展为自动修复其他未知上游缺陷 restriction only for normal test fixtures. T02-B1's time-assertion patch stays under its own separate authorization.",
+      "what_changed": "Only data preparation and targeted cleanup in the one test file: a placeholder secret_ciphertext plus a same-tenant role created through client.Role.Create() and read back by code (no guessed role_id, no system identity, no validation bypass, no cross-tenant borrow).",
+      "patch": "migration/patches/T07-B1-accesskey-guard-fixture.patch (sha256 3d615e96dd397bc01760acb51c592d3970f50932fe6f475f2e18b19be014e055, 23 insertions / 2 deletions), applies cleanly to both the pre-migration reference file and the migrated one; reverse-apply verified.",
+      "both_trees": "condition 6 satisfied — the repaired fixture passes with its original assertions actually executing at the pre-migration reference 2b1e132 (--- PASS, 0.25s, exit 0) and at the migrated 3c5933c (--- PASS, 0.55s, exit 0).",
+      "tool_untouched": "condition 7 satisfied — the frozen migrate_imports tool is unmodified and has no per-file override; tenant_guard_test.go is now compared by equiv against 「original test + approved patch」 while guard still covers the other 262 consumer files (migration/preflight/T07-guard-262-postfix.json, pass true).",
+      "post_repair_gates": "Required profile still the same 76 named cases: 76/76 pass, 155 test cases pass / 0 fail / 0 skip (exit 0); then make verify-gpu re-run end-to-end at exit 0, as step E requires.",
+      "full_record": "migration/preflight/T07-fixture-b1.json — condition-by-condition evidence, hashes, provenance, DSN provenance.",
+      "previous_verdict": "The BLOCKED text of this receipt is preserved verbatim in commit b9e6059 (git show b9e6059:migration/receipts/T07.json); no ledger file was rewritten in place."
+    },
+    "other_gates_outcome": "Every other T07 gate was already green (build, Ent regeneration, equiv 108/108, guard 263/263 then 262+patch-anchored equiv, archive provenance 8/8, entry-graph reachability 0, make verify-gpu). With T07-B1 resolved, required tests moved from 75/76 to 76/76 and phase A is complete."
   },
 
   "source_package_versions": {
@@ -66,12 +74,19 @@
       "path": "263 repository .go files under app/, api/, pkg/, tools/",
       "count": 263,
       "kind": "modified (import blocks only)",
-      "reason": "Rewire every Viewer.WithContext/FromContext, NewUserViewer/NewSystemViewerContext, schema.Mixin/Policy, TenantMutationGuardPolicy/dataScope, Repository and EntClient consumer to the localdeps paths in one pass. migrate_imports guard proves non-import AST and Go directives unchanged for all 263 (migration/preflight/T07-guard-final-all.json, checked_files 263, pass true).",
+      "reason": "Rewire every Viewer.WithContext/FromContext, NewUserViewer/NewSystemViewerContext, schema.Mixin/Policy, TenantMutationGuardPolicy/dataScope, Repository and EntClient consumer to the localdeps paths in one pass. migrate_imports guard proves non-import AST and Go directives unchanged for all 263 (migration/preflight/T07-guard-final-all.json, checked_files 263, pass true). After the T07-B1 fixture repair the same check runs over the remaining 262 files (T07-guard-262-postfix.json, pass true) and tenant_guard_test.go is verified by equiv against its authorized 「original test + approved patch」 reference, which is the mechanism condition 7 prescribes.",
       "composition_note": "The pre-activation dry-run inventory measured 262 consumers (163 handwritten + 99 test). The 263rd, pkg/jwt/user_token_payload.go, was already a pkg/localdeps/go-utils/trans consumer from T02 and changed only because gofmt re-sorted its import block; it is reported here rather than quietly dropped from the count."
     },
     { "path": "go.mod", "count": 1, "kind": "modified", "reason": "See module_file_accounting. go.sum unchanged (git diff 2b1e132..3c5933c -- go.sum is empty)." },
-    { "path": "migration/preflight/T07-*.json", "count": 15, "kind": "added", "reason": "Per-gate evidence: archives, closure analysis, import map, activation, equiv-final-all, guard-final-all, gofmt pass1/pass2, required/named/entclient test results, residual deps." },
-    { "path": "migration/receipts/T07.json + migration/receipts/T07-attempt1-environment-blocked.json", "count": 2, "kind": "this receipt + the archived predecessor", "reason": "Ledger continuity: the predecessor is preserved, not overwritten." }
+    {
+      "path": "app/admin/service/internal/data/ent/tenant_guard_test.go",
+      "count": 1,
+      "kind": "modified (test-only, data preparation + targeted cleanup)",
+      "reason": "T07-B1 repair under the adopted 测试夹具修复的有限授权. 23 insertions / 2 deletions; production implementation, schema, DB constraints and generated validation code untouched; test name, tested operations, caller identity, tenant relation and every assertion unchanged. Evidence migration/preflight/T07-fixture-b1.json, patch migration/patches/T07-B1-accesskey-guard-fixture.patch. Committed separately as a17cf52 so the test-only delta is reviewable on its own."
+    },
+    { "path": "migration/preflight/T07-*.json", "count": 20, "kind": "added (17 in the blocked-attempt ledger commit, 3 in this repair round)", "reason": "Per-gate evidence: archives, closure analysis, import map, activation, equiv-final-all, guard-final-all, gofmt pass1/pass2, required/named/entclient test results, residual deps, plus the post-repair set T07-fixture-b1 / T07-guard-262-postfix / T07-require-postfix." },
+    { "path": "migration/patches/T07-B1-accesskey-guard-fixture.patch", "count": 1, "kind": "added", "reason": "Exact reproducible test-only patch required by condition 7 of the fixture authorization." },
+    { "path": "migration/receipts/T07.json + migration/receipts/T07-attempt1-environment-blocked.json", "count": 2, "kind": "this receipt + the archived predecessor", "reason": "Ledger continuity: the predecessor is preserved, not overwritten. The intermediate BLOCKED verdict of this file is preserved in commit b9e6059." }
   ],
   "unchanged_on_purpose": [
     "app/admin/service/internal/data/ent schema files: 55 editable schema files appear in the diff because they import entgo/mixin; their rule bodies are byte-guarded by the 263-file non-import AST check.",
@@ -135,26 +150,35 @@
     { "name": "verify-gpu-regressions (2nd)", "command": "make verify-gpu-regressions", "exit": 0, "result": "green after the two gofmt passes; includes -race suites and the 8 TestSimPG_* cases" },
     { "name": "format-gate", "command": "scripts/verify-gpu-format.sh", "exit": 0 },
     { "name": "verify-gpu-audit", "command": "make verify-gpu-audit", "exit": 0, "result": "govulncheck v1.7.0: Your code is affected by 0 vulnerabilities (1 imported + 8 required-module findings are not reachable in called code); gitleaks v8.30.1: no leaks found; fixture sha256 gate ok" },
-    { "name": "residual-scan", "command": "python3 /home/ubuntu/tx7do-pilot-run/t07_residual.py", "exit": 0 }
+    { "name": "residual-scan", "command": "python3 /home/ubuntu/tx7do-pilot-run/t07_residual.py", "exit": 0 },
+    { "name": "fixture-patch-apply (pre-migration reference)", "command": "git worktree add at 2b1e132 + git apply migration/patches/T07-B1-accesskey-guard-fixture.patch; go test -mod=readonly -count=1 -v -p 1 -tags quota_pg -run '^TestTenantMutationGuardAccessKey$' ./app/admin/service/internal/data/ent", "exit": 0, "result": "--- PASS: TestTenantMutationGuardAccessKey (0.25s) — condition 6, left side. T07/fixture-post-premigration.log" },
+    { "name": "fixture-patch-apply (migrated tree)", "command": "same patch on the task branch at 3c5933c, same -run filter and DSN", "exit": 0, "result": "--- PASS: TestTenantMutationGuardAccessKey (0.55s) — condition 6, right side. T07/fixture-post-migrated.log" },
+    { "name": "gofmt-vet-postfix", "command": "gofmt -l app/admin/service/internal/data/ent/tenant_guard_test.go ; go vet -tags quota_pg ./app/admin/service/internal/data/ent", "exit": 0, "result": "0 unformatted files; vet clean (the first vet run caught this repo's generated Create.ExecX returning no value, fixed by reading the role id back through a tenant-scoped query)" },
+    { "name": "equiv-patched", "command": "migrate_imports equiv -root . -before <pre-migration reference tenant_guard_test.go> -after <working copy>", "exit": 0, "result": "PASS: non-import AST and directives equivalent — proves no assertion was altered" },
+    { "name": "guard-262-postfix", "command": "migrate_imports guard -base 2b1e132568b29a98d7429af9ed0a85f9bd62f59d -files T07/guard-files-262.txt -out migration/preflight/T07-guard-262-postfix.json", "exit": 0, "result": "checked_files 262, pass true (the repaired file is covered by equiv instead)" },
+    { "name": "tests-postfix", "command": "tools/migration/run_checked.sh tests-postfix go test -mod=readonly -count=1 -json -p 1 -tags quota_pg ./pkg/localdeps/... ./app/admin/service/internal/data/ent", "exit": 0, "result": "155 pass / 0 fail / 0 skip across 11 packages" },
+    { "name": "require-postfix", "command": "tools/migration/run_checked.sh require-postfix python3 tools/migration/require_tests.py --required T07/required-profile.json --log T07/tests-postfix.log", "exit": 0, "result": "pass true, required 76, bad_tests [], failed_packages []" },
+    { "name": "verify-gpu-postfix", "command": "make verify-gpu (full chain: verify-quota-ent + verify-gpu-regressions + verify-gpu-audit) after the repair", "exit": 0, "result": "Ent/schema.sql regeneration diffless; -race suites and the 8 TestSimPG_* cases pass; format gate clean; govulncheck No vulnerabilities found / affected by 0 vulnerabilities; gitleaks no leaks found; git status afterwards shows no generated-file drift" }
   ],
 
   "required_tests": {
     "verdict_rule": "require_tests.py counts skip/fail/missing/not_run as failure; T07.md forbids skipping the key cases, so every case below was executed against a live database.",
-    "profile_final": { "required": 76, "pass": 75, "fail": 1, "skip": 0, "missing": 0, "not_run": 0, "failing": "TestTenantMutationGuardAccessKey (T07-B1)" },
+    "profile_final": { "required": 76, "pass": 76, "fail": 0, "skip": 0, "missing": 0, "not_run": 0, "evidence": "migration/preflight/T07-require-postfix.json, require-postfix.exit = 0" },
+    "profile_before_fixture_repair": { "required": 76, "pass": 75, "fail": 1, "skip": 0, "note": "the same profile, same 76 named cases, kept for continuity: T07-require-final.json recorded TestTenantMutationGuardAccessKey failing on the pre-repair fixture. The profile was never shrunk to obtain the pass." },
     "packages_in_profile": { "pkg/localdeps/go-crud/cache": 19, "pkg/localdeps/go-crud/entgo/filter": 16, "pkg/localdeps/go-crud/entgo/rule": 14, "pkg/localdeps/go-crud/entgo/sorting": 6, "pkg/localdeps/go-crud/entgo": 5, "pkg/localdeps/go-crud/entgo/update": 5, "app/admin/service/internal/data/ent": 5, "pkg/localdeps/go-crud/entgo/field": 2, "pkg/localdeps/go-crud/entgo/mixin": 2, "pkg/localdeps/go-crud/entgo/pagination": 2 },
     "mandated_tenant_guards": [
       { "test": "TestTenantMutationGuard", "result": "pass" },
       { "test": "TestTenantGuardDeleteOneCreate", "result": "pass" },
       { "test": "TestPositionDataScopeGuard", "result": "pass" },
       { "test": "TestOrgUnitPathExpansionTenantBounded", "result": "pass" },
-      { "test": "TestTenantMutationGuardAccessKey", "result": "fail", "reason": "T07-B1 panic in fixture, guard never exercised" }
+      { "test": "TestTenantMutationGuardAccessKey", "result": "pass", "note": "cross-tenant Update and Delete each affect 0 rows, the foreign row stays intact, own-tenant Update and Delete affect exactly 1 row — positive evidence for the access_key write guard that this task previously lacked" }
     ],
     "named_followups": [
       { "profile": "Role-association / cross-tenant named set", "required": 11, "pass": 11, "note": "RoleRepoSqlite_Update (mask + association clear/replace), CreateAndMetadataCascade, Delete, RoleOrgUnitRepoSqlite_AssignListReplaceClean, CrossTenantRejected, MembershipRoleRepoSqlite_RemoveRolesFromMembership, AssignListAndClean, plus the remaining named cases" },
       { "profile": "quota Ent + DB wrapper named set", "required": 8, "pass": 8, "note": "TestQuotaEntDatabaseTimestamps, MutationHookRollback, TransactionFailures (commit-error/cancel/panic subtests), TransactionHooks" },
       { "profile": "EntClient + auditDriver named set", "required": 8, "pass": 8, "note": "TestEntClientRejectsStartupMigration, TestAuditDriver_{CollectsQueryEvent,CollectsWriteEvent,SinkAndNoAccumulator,TxEvents}, TestAffectedRows, TestDigest, TestIsWriteStatement" }
     ],
-    "executed_totals": { "test_pass": 154, "test_fail": 1, "test_skip": 0 },
+    "executed_totals": { "test_pass": 155, "test_fail": 0, "test_skip": 0, "history": "tests-final.log recorded 154 pass / 1 fail / 0 skip before the repair; tests-postfix.log is the authoritative final run (11 packages, -p 1 serial, live guard database)" },
     "not_run": [
       { "gate": "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY", "result": "not_run", "reason": "need an external production-shaped dump and restore window; neither is in T07's authorized scope. Recorded as not_run, not as pass." }
     ]
@@ -187,37 +211,44 @@
   },
 
   "findings": [
-    { "id": "T07-B1", "topic": "blocking gate", "finding": "see blocker" },
+    { "id": "T07-B1", "topic": "gate that blocked this task, now resolved", "finding": "pre-existing AccessKey guard fixture defect; repaired test-only under the adopted fixture authorization — see blocker.resolution" },
     { "id": "T07-F5", "topic": "harness defect found and corrected, no verdict was manufactured", "finding": "The activation script judged migrate_imports equiv by parsing a -out JSON that the equiv subcommand never writes, so T07-activation.json recorded status FAILED and 103 spurious equiv failures. Reproduced directly (stdout PASS, exit 0, no output file) and superseded by migration/preflight/T07-equiv-final-all.json (108/108, judged on exit code + stdout prefix). The buggy record and the earlier 103-file T07-equiv-verify.json are both kept unchanged for audit; neither was rewritten." },
     { "id": "T07-F6", "topic": "stale pre-activation finding reversed", "finding": "T07-F3's claim that no go.mod change was needed was wrong (entps). go.sum stayed unchanged, so the module-file-unchanged property holds in the only sense that matters for reproducibility: no new hash entered the build." },
     { "id": "T07-F7", "topic": "self-reported process error", "finding": "While filing closure analysis I overwrote the tracked evidence file migration/preflight/T07-activation-plan.json with a same-named document (-2546 lines). Detected before any commit, repaired with git checkout 2b1e132 -- <path> and verified byte-identical to the ledger copy; my own document was re-filed as migration/preflight/T07-closure-analysis.json. No tracked evidence was lost and no hash was adjusted to hide it." },
     { "id": "T07-F8", "topic": "upstream demo Ent code is a required closure member, not scope creep", "finding": "Carried over from attempt 1 and confirmed by execution: entgo/ent, ent/menu, ent/user, ent/migrate, ent/predicate are imported by the activated production packages (field, filter, sorting) and by the mandatory tenant tests, so they must be taken over; only ent/hook, ent/privacy, ent/runtime and ent/schema are compiler-proven unreachable and were excluded (5 files not activated)." },
     { "id": "T07-F9", "topic": "trans stays retired", "finding": "entgo and entgo/cache import go-utils/trans, so the import map redirects that exact package to pkg/localdeps/go-utils/trans instead of leaving the T02 dependency alive in the entry graph. The go-utils module root is deliberately not mapped: fieldmaskutil, id, mapper and stringcase stay on the old path until group B." },
     { "id": "T07-F10", "topic": "generated code is not a consumer", "finding": "No file under api/gen/go or the generated half of internal/data/ent imports a T07 package, so regeneration from schema (not hand-editing) was the correct and sufficient mechanism, and the non-import diff stays confined to imports and whitespace." },
-    { "id": "T07-F11", "topic": "plan-level observation, not worked around", "finding": "make verify-gpu chains scripts/verify-quota-schema.sh, which regenerates Ent and rewrites schema.sql before diffing. Executed before activation it mutates the very tree the takeover measures, so it was run once in a pristine worktree to isolate generator drift from T07's effect, and once after; both exit 0. This ordering constraint applies to every later make verify-gpu checkpoint." }
+    { "id": "T07-F11", "topic": "plan-level observation, not worked around", "finding": "make verify-gpu chains scripts/verify-quota-schema.sh, which regenerates Ent and rewrites schema.sql before diffing. Executed before activation it mutates the very tree the takeover measures, so it was run once in a pristine worktree to isolate generator drift from T07's effect, and once after; both exit 0. This ordering constraint applies to every later make verify-gpu checkpoint." },
+    { "id": "T07-F12", "topic": "repo defect that remains open outside this task's file set", "finding": "The AccessKey guard fixture had been silently failing since commit 0c8e567 added secret_ciphertext (and role_id) — i.e. the access_key cross-tenant write guard has had no working regression test in main for that whole period, and nothing noticed because the case is skipped whenever the guard database is unreachable (openGuardTestClient t.Skipf on ping failure). The repair fixes only the data preparation; the skip-on-unreachable-DB design and the missing CI database are reported, not changed. The same skip pattern also covers data_scope_guard_test.go." },
+    { "id": "T07-F13", "topic": "fixture repair method constraint discovered", "finding": "This repository's generated Ent Create.ExecX(ctx) returns no value, so a helper cannot obtain a primary key from the create call; the seed helper reads the id back with a tenant-scoped query, which additionally proves the row is visible to the creating tenant. Recorded so later groups do not repeat the same vet failure." }
   ],
 
   "handoff_items": [
     { "item": "1 保留当前成果", "result": "PASS", "detail": "start SHA descends from tested_code_sha 28b6c95; accepted_head untouched; trans not re-copied; no undocumented source/build delta found (the two ledger commits 11ba9c8 and 623ce02/2b1e132 are the recorded resume ledger)." },
     { "item": "2 保留批准的T02-B1补丁", "result": "PASS", "detail": "Test_Trans retained, equiv still enabled, no _test.go exemption added, trans production source unchanged by T07." },
     { "item": "3 归档核验逐组执行", "result": "PASS", "detail": "the T07 group's 8 archives verified at the locked versions before activation; old checksum table not overwritten; no hash edited." },
-    { "item": "4 执行顺序", "result": "NOT SATISFIED", "detail": "phase A did not pass, so B/C/D/E were not started, as the plan requires. T02's pass was not used as a substitute for any T07 gate." },
-    { "item": "5 工作区及执行边界", "result": "PASS", "detail": "only the two task-owned isolated instances used; no business DB; local commits only, nothing pushed, merged or deployed; _agent/ left untracked (0 _agent paths in either commit)." }
+    { "item": "4 执行顺序", "result": "PASS", "detail": "phase A (T07) closed as PASS after the authorized fixture repair; the user's step E then authorizes continuing B (T03→T06), C (T08→T10), D (T11→T13), E (T14→T15) without further confirmation. T02's pass was never used as a substitute for a T07 gate, and the G4 make verify-gpu checkpoint for phase A was actually run (exit 0) rather than inherited." },
+    { "item": "5 工作区及执行边界", "result": "PASS", "detail": "only the two task-owned isolated instances used; no business DB; local commits only, nothing pushed, merged or deployed; _agent/ left untracked (0 _agent paths in any of 3c5933c, b9e6059, a17cf52)." }
   ],
 
   "preserved_scene": {
-    "code_commit": "3c5933c686d4f8780c4932265b51fc37a6ff15bf",
-    "ledger_commit": "this receipt plus migration/preflight evidence and the archived predecessor receipt",
+    "code_commits": ["3c5933c686d4f8780c4932265b51fc37a6ff15bf (takeover)", "a17cf5293b599a68e053e9fd1be4ebc8246cecd4 (test-only fixture repair, tip)"],
+    "ledger_commits": ["b9e6059 (blocked attempt, preserved verbatim in history)", "this receipt plus migration/patches and the three new preflight evidence files, and the accepted_head advance"],
     "evidence_directory": "/home/ubuntu/tx7do-pilot-run/T07 (per-command .command/.started/.log/.exit/.finished records; .exit is authoritative)",
-    "containers_left_running": ["tx7do-t07-guard-pg", "tx7do-t07-acc-lab-pg"],
-    "pristine_worktree": "used for the baseline and Ent-drift measurements, removed after the diff was captured",
-    "test_data": "guard tables live only in the task-owned guard database; nothing written to a business database"
+    "containers_left_running": ["tx7do-t07-guard-pg (127.0.0.1:55432)", "tx7do-t07-acc-lab-pg (127.0.0.1:55433)"],
+    "containers_kept_reason": "groups B–E need the same guard and lab databases; they are task-owned and disposable, so they stay up rather than being recreated",
+    "pristine_worktree": "/home/ubuntu/tx7do-pilot-run/T07/premigrate-ref still holds the 2b1e132 reference used for the condition-6 left side and for the equiv comparison; it is removed only after the final phase acceptance",
+    "test_data": "guard tables live only in the task-owned guard database; nothing written to a business database",
+    "rollback": "reverting a17cf52 restores the previously failing fixture; reverting the whole phase means git reset to 2b1e132 on the work branch. Nothing was pushed, so main is untouched."
   },
 
-  "unblock_requires": [
-    "User ruling on T07-B1: authorize the test-only AccessKey fixture patch (or an equivalent decision, e.g. accept the access_key guard as unverified and record it as a repo defect with a separate fix task).",
-    "Then re-run make verify-gpu and the ent-package guard suite once, and only then continue with B (T03→T06), C (T08→T10), D (T11→T13), E (T14→T15)."
-  ],
-  "next_allowed_task": "none until T07 phase A is decided; the takeover commit 3c5933c is on the work branch and reversible.",
-  "self_assessment": "The takeover itself is complete and every measurable gate is green. T07 is nonetheless reported BLOCKED rather than PASS because one mandatory case — the very case that pins the access_key cross-tenant write guard — fails for a pre-existing reason and no positive evidence exists for that guard. Reporting it as passing would require repairing an unauthorized test change and would contradict 不得只写测试通过."
+  "authorization_amendment": {
+    "adopted": "2026-09-25, by the user, into _agent/ani-governance-tx7do-plan/T03-T15-master-goal.md as 「### 测试夹具修复的有限授权」 under ## 失败与恢复 (8 numbered conditions plus a closing paragraph)",
+    "effect_on_this_task": "It lifts only the old prohibition on repairing a normal test fixture, and only when the defect is reproducible before migration, the repair stays inside data preparation / helpers / targeted cleanup, every assertion and the caller identity and tenant relation are unchanged, the added data is legal for the scenario, no system identity or validation bypass is used, illegal-input cases are not converted into success input, the repaired fixture passes on both sides with its original assertions actually executing, the patch and hashes are recorded separately as test-only, the protection tool is untouched, and nothing is deleted, skipped, narrowed or re-expected.",
+    "not_extended": "Functional freeze, security requirements, all other acceptance gates, and T02-B1's separate time-assertion authorization are unchanged. A security assertion that fails after a fixture repair still stops the run and still has to be classified as an existing defect or a migration regression.",
+    "plan_file_not_committed": "_agent/ remains untracked, so this amendment is recorded here rather than in the repository's own plan copy."
+  },
+
+  "next_allowed_task": "T03 (group B: go-utils pure helpers — stringcase, sliceutil, fieldmaskutil, mapper, copierutil, trans already done) under the master goal's fixed order, continuing B→C→D→E automatically without further confirmation.",
+  "self_assessment": "Phase A is PASS on measured evidence, not on inheritance: the takeover itself changed only imports and canonical formatting across 263 consumers plus 114 activated source files, the access_key write guard now has the positive cross-tenant evidence it was missing, the required profile is 76/76 with zero skips against a live database, and the full make verify-gpu chain is green after the repair. The one thing I want the reviewer to look at deliberately is the repair itself: it is the second test-side change in this migration (after T02-B1), it is authorized only by the section quoted in authorization_amendment, and it is confined to seed data and cleanup. The remaining repo defect that this task did not fix — guard tests skip when no database is reachable, which is how the broken fixture stayed hidden — is filed as finding T07-F12."
 }
