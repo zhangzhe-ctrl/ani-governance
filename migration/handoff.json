@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "recorded_at": "T03-T15 master goal, phase A entry",
+  "purpose": "Resume ledger for the continuous T03~T15 takeover. Recovery must re-check these SHAs against migration/receipts before any edit.",
+  "plan": {
+    "master_goal": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
+    "phase_order": ["A=T07", "B=T03,T04,T05,T06", "C=T08,T09,T10", "D=T11,T12,T13", "E=T14,T15"],
+    "override": "This goal waives only the per-batch human-confirmation cadence of the old plan; functional, security, method-level and acceptance constraints stay in force."
+  },
+  "handoff_item_1_preserve_current_work": {
+    "tested_code_sha": "28b6c954f4d399399720892dab8453b53482c4e7",
+    "resume_head": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
+    "work_branch": "task/tx7do-takeover",
+    "branch_created_from": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
+    "original_frozen_baseline_not_resumed_from": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+    "verification": {
+      "is_descendant": {
+        "command": "git merge-base --is-ancestor 28b6c954f4d399399720892dab8453b53482c4e7 HEAD",
+        "exit": 0,
+        "result": "true"
+      },
+      "delta": {
+        "command": "git diff --name-status 28b6c954f4d399399720892dab8453b53482c4e7 HEAD",
+        "exit": 0,
+        "output": [
+          "M\tmigration/accepted_head",
+          "M\tmigration/receipts/T02.json"
+        ],
+        "diffstat": "2 files changed, 5 insertions(+), 4 deletions(-)",
+        "matches_receipt_claim": true,
+        "undocumented_source_or_build_changes": []
+      },
+      "working_tree": {
+        "command": "git status --porcelain",
+        "output": ["?? _agent/"],
+        "note": "_agent/ is untracked plan material; per handoff item 5 it is deliberately not committed."
+      },
+      "module_files_untouched_since_T02": {
+        "go.mod_sha256": "f07eedc615890e510a89296c884bf515170d09ab13c1d94612df1740e6b76aba",
+        "go.sum_sha256": "c5af448918da03714ef5c38d5f1448e206fe5d05bd1c41165df1f6e8ac8b17da",
+        "unchanged_from_T01_record": true
+      },
+      "trans_not_recopied": {
+        "command": "find pkg/localdeps -type f",
+        "output": [
+          "pkg/localdeps/go-utils/trans/LICENSE",
+          "pkg/localdeps/go-utils/trans/to.go",
+          "pkg/localdeps/go-utils/trans/to_test.go",
+          "pkg/localdeps/go-utils/trans/trans.go",
+          "pkg/localdeps/go-utils/trans/trans_test.go"
+        ]
+      }
+    },
+    "verdict": "PASS - no unexplained source or build change; safe to continue from resume_head."
+  },
+  "handoff_item_2_approved_test_patch_still_exact": {
+    "patch": "migration/patches/T02-B1-trans-time-test.patch",
+    "production_source_equiv": [
+      {
+        "file": "pkg/localdeps/go-utils/trans/trans.go",
+        "command": "migrate_imports equiv -before T01/stage/trans/trans.go -after <local>",
+        "exit": 0,
+        "result": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+      },
+      {
+        "file": "pkg/localdeps/go-utils/trans/to.go",
+        "command": "migrate_imports equiv -before T01/stage/trans/to.go -after <local>",
+        "exit": 0,
+        "result": "PASS"
+      },
+      {
+        "file": "pkg/localdeps/go-utils/trans/to_test.go",
+        "command": "migrate_imports equiv -before T01/stage/trans/to_test.go -after <local>",
+        "exit": 0,
+        "result": "PASS"
+      }
+    ],
+    "test_file_reference_rebuild": {
+      "steps": [
+        "copy pristine archive T01/stage/trans/trans_test.go into a fresh temp dir",
+        "patch -p5 -d <temp> -i migration/patches/T02-B1-trans-time-test.patch",
+        "compare sha256 with the repo file"
+      ],
+      "patch_exit": 0,
+      "reference_sha256": "89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e",
+      "repo_sha256": "89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e",
+      "identical": true,
+      "original_archive_sha256_for_contrast": "d71c0cebafde6000a7479e8b4fff9473bdfa43df69cb51ce3e5a550b72ce807b",
+      "equiv_and_all_test_go_checks_still_enabled": true,
+      "Test_Trans_retained": true
+    },
+    "verdict": "PASS - the only deviation is the approved T02-B1 test patch, byte-for-byte."
+  },
+  "co_run_note": {
+    "patch_strip_correction": "The T02 receipt recorded the reference build as `patch -p5 -d T02/t02b1-ref`. With the patch's a/ b/ labels a plain -p5 resolves to a bare `trans_test.go` inside -d; a nested pkg/localdeps/... layout under -d fails with 'can't find file to patch'. Reference dirs must be flat. This is an evidence-reproduction detail only; no repo file changed."
+  }
+}
