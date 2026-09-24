@@ -1,0 +1,1 @@
+DELETE FROM sys_gpu_delete_acceptances

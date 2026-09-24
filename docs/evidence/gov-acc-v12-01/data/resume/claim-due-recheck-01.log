@@ -1,0 +1,4 @@
+=== RUN   TestQuotaGpuClaimRechecksDueAfterTenantLock
+--- PASS: TestQuotaGpuClaimRechecksDueAfterTenantLock (0.07s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	1.162s

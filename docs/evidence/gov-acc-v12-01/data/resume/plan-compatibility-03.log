@@ -1,0 +1,26 @@
+=== RUN   TestPlanQuotaPostgresListCompatibility
+    plan_quota_list_pg_test.go:29: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/plan_quota_list_pg_test.go:29
+        	Error:      	Received unexpected error:
+        	            	ERROR: insert or update on table "sys_plan_quotas" violates foreign key constraint "sys_plan_quotas_quota_code_fkey" (SQLSTATE 23503)
+        	Test:       	TestPlanQuotaPostgresListCompatibility
+--- FAIL: TestPlanQuotaPostgresListCompatibility (0.07s)
+=== RUN   TestPlanQuotaRepoPostgres_Create
+--- PASS: TestPlanQuotaRepoPostgres_Create (0.01s)
+=== RUN   TestPlanQuotaRepoPostgres_ListFilter
+--- PASS: TestPlanQuotaRepoPostgres_ListFilter (0.02s)
+=== RUN   TestPlanQuotaRepoPostgres_Get
+--- PASS: TestPlanQuotaRepoPostgres_Get (0.01s)
+=== RUN   TestPlanQuotaRepoPostgres_QuotaTypeReadView
+--- PASS: TestPlanQuotaRepoPostgres_QuotaTypeReadView (0.03s)
+=== RUN   TestPlanQuotaRepoPostgres_Update
+--- PASS: TestPlanQuotaRepoPostgres_Update (0.02s)
+=== RUN   TestPlanQuotaRepoPostgres_Delete
+--- PASS: TestPlanQuotaRepoPostgres_Delete (0.01s)
+=== RUN   TestPlanQuotaRepoPostgres_QuotaCodeCompat
+--- PASS: TestPlanQuotaRepoPostgres_QuotaCodeCompat (0.02s)
+=== RUN   TestPlanQuotaRepoPostgres_DuplicateCodeRejected
+--- PASS: TestPlanQuotaRepoPostgres_DuplicateCodeRejected (0.02s)
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/data	0.250s
+FAIL

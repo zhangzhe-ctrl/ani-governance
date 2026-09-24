@@ -156,6 +156,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	// 配额账本与持久化转发（QUOTA-GPU-LOCAL-01）
 	quotaLedgerRepo := data.NewQuotaLedgerRepo(ctx, entClient)
 	quotaRegistry, quotaRegistryCleanup := newQuotaAdapterRegistry(ctx)
+	quotaAdminRepo.SetExecutionCapabilities(quotaRegistry)
 	quotaWorker := service.NewQuotaDispatchWorker(ctx, quotaLedgerRepo, quotaRegistry)
 
 	// ═══════════════════════ 三、认证与鉴权 ═══════════════════════
@@ -239,6 +240,23 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		networkClient = client
 	}
 	networkService := service.NewNetworkService(networkClient, tenantRepo)
+	acceleratorConfig, err := data.AcceleratorConfigFromEnv()
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	var acceleratorClient *data.AcceleratorClient
+	if acceleratorConfig.Address != "" {
+		client, closeAccelerator, err := data.NewAcceleratorClient(acceleratorConfig)
+		if err != nil {
+			rollback()
+			return nil, nil, err
+		}
+		cleanups = append(cleanups, closeAccelerator)
+		acceleratorClient = client
+	}
+	gpuBffLedger := service.NewGpuBffLedgerBridge(quotaLedgerRepo, quotaAdminRepo)
+	acceleratorService := service.NewAcceleratorService(acceleratorClient, tenantRepo, gpuBffLedger, gpuBffLedger, quotaAdminRepo, quotaRegistry)
 
 	// ═══════════════════════ 五、传输层(internal/server) ═══════════════════════
 
@@ -280,6 +298,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		accessKeyService,
 		configService,
 		networkService,
+		acceleratorService,
 		quotaLabRoutes,
 	)
 	if err != nil {
@@ -300,6 +319,13 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	// disabled 时 quotaInternalServer 为 nil：typed-nil 不能进入 transport.Server
 	// 接口切片，否则 Start 空指针崩溃。
 	extraServers := []transport.Server{quotaWorker}
+	if acceleratorClient != nil {
+		gpuSyncLog := ctx.NewLoggerHelper("gpu-usage-sync")
+		gpuSync := service.NewGpuUsageSyncWorker(quotaLedgerRepo, acceleratorClient, func(err error) {
+			gpuSyncLog.Errorf(ctx.Context(), "GPU usage projection recovery failed: %v", err)
+		})
+		extraServers = append(extraServers, gpuSync)
+	}
 	if quotaInternalServer != nil {
 		extraServers = append(extraServers, quotaInternalServer)
 	}

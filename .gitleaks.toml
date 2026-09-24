@@ -1,0 +1,44 @@
+title = "Governance reviewed fixture and digest exceptions"
+[extend]
+useDefault = true
+
+[[rules]]
+id = "private-key"
+[[rules.allowlists]]
+description = "Pre-existing development RSA fixture; both complete files are SHA256-locked by verify-gpu-audit and production rejects this key"
+condition = "AND"
+paths = ['''^app/admin/service/configs/auth\.yaml$''', '''^app/admin/service/internal/data/authenticator_test\.go$''']
+regexes = ['''(?s)^-----BEGIN (RSA )?PRIVATE KEY-----.*-----END (RSA )?PRIVATE KEY-----$''']
+
+[[rules]]
+id = "generic-api-key"
+[[rules.allowlists]]
+description = "Historical source/table checksum evidence, not credentials"
+condition = "AND"
+paths = ['''^docs/evidence/aksk-vpc-20260922/(source-manifest|restart-snapshot)\.json$''']
+regexes = ['''^[0-9a-f]{32}$''', '''^[0-9a-f]{64}$''']
+[[rules.allowlists]]
+description = "Fingerprint used to reject the known development RSA example"
+condition = "AND"
+paths = ['''^app/admin/service/internal/data/authenticator\.go$''']
+regexes = ['''^MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCL8EdeTLDTf8AY$''']
+[[rules.allowlists]]
+description = "Literal API example repeated in unit test and documentation"
+condition = "AND"
+paths = ['''^pkg/crypto/(payload_test\.go|README\.md)$''']
+regexes = ['''^sk-1234567890abcdef$''']
+[[rules.allowlists]]
+description = "Documented test cursor key, decoded text explicitly starts test-signing-key"
+condition = "AND"
+paths = ['''^docs/local-integration\.md$''']
+regexes = ['''^dGVzdC1zaWduaW5nLWtleS0wMTIzNDU2Nzg5YWJjZGVmMDEyMzQ1Njc4OWFiY2RlZg==$''', '''^test-signing-key-0123456789abcdef0123456789abcdef$''']
+[[rules.allowlists]]
+description = "Case identifier incorrectly parsed as API credential"
+condition = "AND"
+paths = ['''^scripts/model-lab/collect\.py$''']
+regexes = ['''^V12-inventory-permission-route$''']
+[[rules.allowlists]]
+description = "Expected signature digest in the fixed example-key signing vector"
+condition = "AND"
+paths = ['''^scripts/test_aksk_vpc_client\.py$''']
+regexes = ['''^vpc_0123456789abcdef0123456789abcdef$''']

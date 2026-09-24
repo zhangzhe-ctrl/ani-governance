@@ -1,0 +1,426 @@
+{
+  "status": "pass",
+  "checked_at": "2026-09-24T03:31:04.013884+00:00",
+  "scope": "document ID set/count and relative link validation only; no runtime claims generated",
+  "required_ids": 95,
+  "unique_rows": 95,
+  "statuses": {
+    "not_verified": 14,
+    "pass": 81
+  },
+  "software_rows": 82,
+  "software_pending": [
+    "BASE-01"
+  ],
+  "relative_links_checked": 101,
+  "sha256": {
+    "acceptance-results.md": "d84fe0ca2806c99945ea5432777f623797ce1f676d2c0e47e9d1391bf7b0ee5a",
+    "governance-accelerator-v1.2.md": "a74a0c47f1298301efa9273fad698800666bc92e8e84b8c2496810898ceebd97"
+  },
+  "links": [
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/final-1d32dd9/module.json"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/final-1d32dd9/module-verify.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/release/acc-release-audit.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/release/acc-ci-success.json"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031542Z/bff-WAIT_FOR_CAPACITY.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031542Z/bff-FIT_UNKNOWN.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031813Z/bff-WAIT_FOR_CAPACITY.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031813Z/bff-FIT_UNKNOWN.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/resume/README.md"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/README.md"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/bff-joint-content-final.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/bff-auth-network-regression-02.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/final-1d32dd9/README.md"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/final-1d32dd9/formal-gov-acc-process.json"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/final-1d32dd9/formal-gov-process.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/final-1d32dd9/lab.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/final-1d32dd9/lab.exit"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/resume/lab.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data-layer.md"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/verify-gpu-05.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/verify-gpu-05.meta"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/verify-gpu-05-source.sha256"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/verify-gpu-05-source-check.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/verify-gpu-03.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/verify-gpu-03.meta"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/verify-gpu-04.meta"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/secrets-05.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/secrets-05.json"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/plan-compatibility-05.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/plan-timezone-01.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/catalog-pagination-01.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/gpu-negative-policy-02.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/gpu-negative-policy-02.meta"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/delete-negative-02.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/delete-negative-02.meta"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/claim-due-recheck-01.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/claim-due-recheck-01.meta"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/sync-lease-audit-01.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/sync-lease-audit-01.meta"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/old-upgrade-migrations.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/upgrade-digest-assert.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/old-upgrade-replay.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/restore-digests.diff"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/restore-continuation.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/failed-migration.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/failed-migration-rollback-assert.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/process/README.md"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/process/final.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/process/race.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/resume/capability-final.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031542Z/test.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031542Z/command"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031542Z/exit_code"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031542Z/accelerator-module.json"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031542Z/runtime-source.sha256"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031542Z/joint-contract-result.json"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031813Z/test.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031813Z/command"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031813Z/exit_code"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031813Z/runtime-source.sha256"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/dispatch-fault-tail.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/sync-fault-conflict.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/policy-recovery-02.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/snapshot-race-first.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/acc-pg-outage.json"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/acc-pg-outage-03.log"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/contracts/gpu-owner-integration-guide.md"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/operations/governance-accelerator-v1.2.md"
+    },
+    {
+      "document": "acceptance-results.md",
+      "target": "docs/evidence/gov-acc-v12-01/docs-owner/document-validation-published-acc.json"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/acceptance-results.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/data-layer.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/contracts/gpu-owner-integration-guide.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/interface-integration-register.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "go.mod"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "go.sum"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "migrations"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "migrations/20260923130000_gpu_sqlc.sql"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "migrations/20260923130100_gpu_no_rls_catalog.sql"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "migrations/20260923130200_gpu_sync_ref.sql"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "scripts/atlas.sh"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "app/admin/service/atlas.hcl"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/deployment.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "sql/patches/20260923_accelerator_permissions.sql"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "sql/gpu/ops/runtime_grants.sql"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "sql/gpu/ops/restrict_database.sql"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "sql/gpu/ops/rls_audit.sql"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "app/admin/service/configs/accelerator.env.example"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "sql/gpu/ops/restore_pending_projection.sql"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "sql/gpu/ops/table_digests.sql"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/data-layer.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/acceptance-results.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/data-pause.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/paused-handoff.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/pause-check.txt"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/resume/README.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/data-layer.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/process/README.md"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/data/resume/verify-gpu-05.meta"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031542Z/test.log"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031813Z/test.log"
+    },
+    {
+      "document": "governance-accelerator-v1.2.md",
+      "target": "docs/evidence/gov-acc-v12-01/bff/final-1d32dd9/README.md"
+    }
+  ]
+}

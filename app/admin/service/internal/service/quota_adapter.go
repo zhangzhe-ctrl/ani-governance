@@ -1,8 +1,11 @@
 package service
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"slices"
 	"sync"
 
@@ -28,19 +31,70 @@ type QuotaDispatchAdapter interface {
 // QuotaChargeRef 命令携带的占额明细（与 data 层账本定义一致）。
 type QuotaChargeRef = data.QuotaChargeRef
 
+// QuotaActor preserves the trusted subject type and ID without parsing a string.
+type QuotaActor struct {
+	Type string `json:"type"`
+	ID   string `json:"id"`
+}
+
 // QuotaDispatchCommand 投递命令：字段与 operation/charge 持久记录一致，
 // 重试保持相同 ID 与报文（§6.6/§8.2）。
 type QuotaDispatchCommand struct {
 	OperationID      string
 	ResourceID       string
 	ResourceTenantID string
-	Actor            string
+	Actor            QuotaActor
 	Action           string
 	RequestHash      string
 	CanonicalRequest []byte
 	// CREATE 为空；DELETE 指向原创建操作（§6.2）。
 	CreateOperationID string
 	Charges           []QuotaChargeRef
+}
+
+// ValidateDurableOwnerAck gates ACKED for every adapter, including quota_lab.
+// Accepted means durable receipt only; it says nothing about readiness/cleanup.
+func ValidateDurableOwnerAck(cmd *QuotaDispatchCommand, raw []byte) error {
+	invalid := status.Error(codes.FailedPrecondition, "INVALID_DURABLE_OWNER_ACK")
+	if cmd == nil || cmd.OperationID == "" || cmd.ResourceID == "" {
+		return invalid
+	}
+	// Reject ambiguous duplicate fields and case aliases before decoding the
+	// contract. Different JSON implementations must agree on the durable ACK.
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	token, err := decoder.Token()
+	if err != nil || token != json.Delim('{') {
+		return invalid
+	}
+	seen := map[string]bool{}
+	for decoder.More() {
+		token, err = decoder.Token()
+		key, ok := token.(string)
+		if err != nil || !ok || seen[key] || (key != "operation_id" && key != "resource_id" && key != "accepted") {
+			return invalid
+		}
+		seen[key] = true
+		var value json.RawMessage
+		if decoder.Decode(&value) != nil {
+			return invalid
+		}
+	}
+	if token, err = decoder.Token(); err != nil || token != json.Delim('}') || len(seen) != 3 {
+		return invalid
+	}
+	if _, err = decoder.Token(); err != io.EOF {
+		return invalid
+	}
+	var ack struct {
+		OperationID string `json:"operation_id"`
+		ResourceID  string `json:"resource_id"`
+		Accepted    bool   `json:"accepted"`
+	}
+	if json.Unmarshal(raw, &ack) != nil || !ack.Accepted ||
+		ack.OperationID != cmd.OperationID || ack.ResourceID != cmd.ResourceID {
+		return invalid
+	}
+	return nil
 }
 
 // QuotaAdapterRegistry 编译期适配器注册表。构造不查询数据库、不启动 goroutine。
@@ -118,10 +172,7 @@ func grpcCodeIn(err error, allowed ...codes.Code) bool {
 
 func errorReason(err error) string {
 	if st, ok := status.FromError(err); ok {
-		if st.Message() != "" {
-			return st.Code().String() + ":" + st.Message()
-		}
 		return st.Code().String()
 	}
-	return err.Error()
+	return "OWNER_TRANSPORT_UNKNOWN"
 }

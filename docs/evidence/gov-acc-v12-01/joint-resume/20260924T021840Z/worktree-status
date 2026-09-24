@@ -1,0 +1,123 @@
+ D .env
+ M Makefile
+ M api/gen/go/identity/service/v1/module.pb.go
+ M api/gen/go/quota/service/v1/quota_catalog.pb.go
+ M api/protos/identity/service/v1/module.proto
+ M api/protos/quota/service/v1/quota_catalog.proto
+ M app/admin/service/cmd/schema/main.go
+ M app/admin/service/cmd/server/assets/openapi.yaml
+ M app/admin/service/cmd/server/wiring_ent.go
+ M app/admin/service/internal/data/authorizer_provider.go
+ M app/admin/service/internal/data/ent/api/api.go
+ M app/admin/service/internal/data/ent/client.go
+ M app/admin/service/internal/data/ent/ent.go
+ M app/admin/service/internal/data/ent/entql.go
+ M app/admin/service/internal/data/ent/hook/hook.go
+ M app/admin/service/internal/data/ent/migrate/schema.go
+ M app/admin/service/internal/data/ent/mutation.go
+ M app/admin/service/internal/data/ent/planmodule/planmodule.go
+ M app/admin/service/internal/data/ent/predicate/predicate.go
+ M app/admin/service/internal/data/ent/privacy/privacy.go
+ M app/admin/service/internal/data/ent/runtime/runtime.go
+ M app/admin/service/internal/data/ent/schema/api.go
+ M app/admin/service/internal/data/ent/schema/plan_module.go
+ M app/admin/service/internal/data/ent/schema/quota_operation.go
+ M app/admin/service/internal/data/ent/schema/quota_release_receipt.go
+ M app/admin/service/internal/data/ent/schema/tenant.go
+ M app/admin/service/internal/data/ent/tx.go
+ M app/admin/service/internal/data/ent_client.go
+ M app/admin/service/internal/data/enttest/enttest.go
+ M app/admin/service/internal/data/permission_repo.go
+ M app/admin/service/internal/data/plan_quota_repo.go
+ M app/admin/service/internal/data/plan_quota_repo_sqlite_test.go
+ M app/admin/service/internal/data/quota_admin_repo.go
+ M app/admin/service/internal/data/quota_code_map_test.go
+ M app/admin/service/internal/data/quota_ledger_pg_test.go
+ M app/admin/service/internal/data/quota_ledger_repo.go
+ M app/admin/service/internal/data/role_permission_repo.go
+ M app/admin/service/internal/data/tenant_access_checker.go
+ M app/admin/service/internal/data/tenant_access_checker_sqlite_test.go
+ M app/admin/service/internal/quotalab/governance_control.go
+ M app/admin/service/internal/quotalab/gpu_lab_service.go
+ M app/admin/service/internal/quotalab/gpu_simulator_adapter.go
+ M app/admin/service/internal/quotalab/simulator/integration_pg_test.go
+ M app/admin/service/internal/quotalab/simulator/store.go
+ M app/admin/service/internal/server/rest_server.go
+ M app/admin/service/internal/service/plan_quota_service_sqlite_test.go
+ M app/admin/service/internal/service/quota_adapter.go
+ M app/admin/service/internal/service/quota_dispatch_worker.go
+ M app/admin/service/schema.sql
+ M docs/evidence/quota-gpu-local-01/README.md
+ M docs/interface-integration-register.md
+ M go.mod
+ M go.sum
+ M migrations/atlas.sum
+ M pkg/constants/module_mapping.go
+ M pkg/constants/module_mapping_test.go
+ M scripts/quota-lab/run.py
+?? .github/
+?? api/buf.accelerator.gen.yaml
+?? api/gen/go/admin/service/v1/i_accelerator.pb.go
+?? api/gen/go/admin/service/v1/i_accelerator_grpc.pb.go
+?? api/gen/go/admin/service/v1/i_accelerator_http.pb.go
+?? api/gen/go/catalog/service/v1/accelerator.pb.go
+?? api/protos/admin/service/v1/i_accelerator.proto
+?? api/protos/catalog/service/v1/accelerator.proto
+?? app/admin/service/cmd/schema/constraints.sql
+?? app/admin/service/configs/accelerator.env.example
+?? app/admin/service/internal/data/accelerator_client.go
+?? app/admin/service/internal/data/accelerator_client_test.go
+?? app/admin/service/internal/data/ent/gpudeleteacceptance.go
+?? app/admin/service/internal/data/ent/gpudeleteacceptance/
+?? app/admin/service/internal/data/ent/gpudeleteacceptance_create.go
+?? app/admin/service/internal/data/ent/gpudeleteacceptance_delete.go
+?? app/admin/service/internal/data/ent/gpudeleteacceptance_query.go
+?? app/admin/service/internal/data/ent/gpudeleteacceptance_update.go
+?? app/admin/service/internal/data/ent/gpuusagesync.go
+?? app/admin/service/internal/data/ent/gpuusagesync/
+?? app/admin/service/internal/data/ent/gpuusagesync_create.go
+?? app/admin/service/internal/data/ent/gpuusagesync_delete.go
+?? app/admin/service/internal/data/ent/gpuusagesync_query.go
+?? app/admin/service/internal/data/ent/gpuusagesync_update.go
+?? app/admin/service/internal/data/ent/schema/gpu_delete_acceptance.go
+?? app/admin/service/internal/data/ent/schema/gpu_usage_sync.go
+?? app/admin/service/internal/data/enttest/quota_pg.go
+?? app/admin/service/internal/data/enttest/testdata/
+?? app/admin/service/internal/data/plan_quota_list.go
+?? app/admin/service/internal/data/quota_code_map_pg_test.go
+?? app/admin/service/internal/data/quota_gpu_pg_test.go
+?? app/admin/service/internal/data/quota_gpu_sync_repo.go
+?? app/admin/service/internal/data/quota_pgx.go
+?? app/admin/service/internal/data/quota_process_pg_test.go
+?? app/admin/service/internal/data/quotasql/
+?? app/admin/service/internal/data/row_lock.go
+?? app/admin/service/internal/data/testdata/
+?? app/admin/service/internal/quotalab/simulator/testdata/
+?? app/admin/service/internal/service/accelerator_joint_http_test.go
+?? app/admin/service/internal/service/accelerator_service.go
+?? app/admin/service/internal/service/accelerator_service_test.go
+?? app/admin/service/internal/service/accelerator_views.go
+?? app/admin/service/internal/service/gpu_acceptance.go
+?? app/admin/service/internal/service/gpu_bff_ledger.go
+?? app/admin/service/internal/service/gpu_contract.go
+?? app/admin/service/internal/service/gpu_contract_test.go
+?? app/admin/service/internal/service/gpu_usage_sync_worker.go
+?? app/admin/service/internal/service/gpu_usage_sync_worker_test.go
+?? app/admin/service/internal/service/testdata/
+?? app/admin/service/tests/
+?? docs/evidence/gov-acc-v12-01/
+?? migrations/20260923130000_gpu_sqlc.sql
+?? migrations/20260923130100_gpu_no_rls_catalog.sql
+?? migrations/20260923130200_gpu_sync_ref.sql
+?? scripts/accelerator-acceptance/
+?? scripts/check-quota-sql.py
+?? scripts/ci-quota-pg.sh
+?? scripts/generate-accelerator-slice.sh
+?? scripts/gpu-format-files.txt
+?? scripts/verify-gpu-audit.sh
+?? scripts/verify-gpu-format.sh
+?? scripts/verify-quota-schema.sh
+?? scripts/verify-quota-sqlc.sh
+?? sql/gpu/
+?? sql/patches/20260923_accelerator_permissions.sql
+?? sqlc.yaml

@@ -12,6 +12,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
 	"go-wind-admin/app/admin/service/internal/data/ent/dicttype"
+	"go-wind-admin/app/admin/service/internal/data/ent/gpudeleteacceptance"
+	"go-wind-admin/app/admin/service/internal/data/ent/gpuusagesync"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessage"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessagecategory"
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessagerecipient"
@@ -285,6 +287,134 @@ func init() {
 	dicttypeDescID := dicttypeMixinFields0[0].Descriptor()
 	// dicttype.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	dicttype.IDValidator = dicttypeDescID.Validators[0].(func(uint32) error)
+	gpudeleteacceptanceMixin := schema.GpuDeleteAcceptance{}.Mixin()
+	gpudeleteacceptance.Policy = privacy.NewPolicies(gpudeleteacceptanceMixin[2], schema.GpuDeleteAcceptance{})
+	gpudeleteacceptance.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := gpudeleteacceptance.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	gpudeleteacceptanceMixinFields0 := gpudeleteacceptanceMixin[0].Fields()
+	_ = gpudeleteacceptanceMixinFields0
+	gpudeleteacceptanceMixinFields2 := gpudeleteacceptanceMixin[2].Fields()
+	_ = gpudeleteacceptanceMixinFields2
+	gpudeleteacceptanceFields := schema.GpuDeleteAcceptance{}.Fields()
+	_ = gpudeleteacceptanceFields
+	// gpudeleteacceptanceDescTenantID is the schema descriptor for tenant_id field.
+	gpudeleteacceptanceDescTenantID := gpudeleteacceptanceMixinFields2[0].Descriptor()
+	// gpudeleteacceptance.DefaultTenantID holds the default value on creation for the tenant_id field.
+	gpudeleteacceptance.DefaultTenantID = gpudeleteacceptanceDescTenantID.Default.(uint32)
+	// gpudeleteacceptanceDescActorType is the schema descriptor for actor_type field.
+	gpudeleteacceptanceDescActorType := gpudeleteacceptanceFields[0].Descriptor()
+	// gpudeleteacceptance.ActorTypeValidator is a validator for the "actor_type" field. It is called by the builders before save.
+	gpudeleteacceptance.ActorTypeValidator = gpudeleteacceptanceDescActorType.Validators[0].(func(string) error)
+	// gpudeleteacceptanceDescActorID is the schema descriptor for actor_id field.
+	gpudeleteacceptanceDescActorID := gpudeleteacceptanceFields[1].Descriptor()
+	// gpudeleteacceptance.ActorIDValidator is a validator for the "actor_id" field. It is called by the builders before save.
+	gpudeleteacceptance.ActorIDValidator = gpudeleteacceptanceDescActorID.Validators[0].(func(string) error)
+	// gpudeleteacceptanceDescAction is the schema descriptor for action field.
+	gpudeleteacceptanceDescAction := gpudeleteacceptanceFields[2].Descriptor()
+	// gpudeleteacceptance.ActionValidator is a validator for the "action" field. It is called by the builders before save.
+	gpudeleteacceptance.ActionValidator = gpudeleteacceptanceDescAction.Validators[0].(func(string) error)
+	// gpudeleteacceptanceDescIdempotencyKey is the schema descriptor for idempotency_key field.
+	gpudeleteacceptanceDescIdempotencyKey := gpudeleteacceptanceFields[3].Descriptor()
+	// gpudeleteacceptance.IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
+	gpudeleteacceptance.IdempotencyKeyValidator = gpudeleteacceptanceDescIdempotencyKey.Validators[0].(func(string) error)
+	// gpudeleteacceptanceDescRequestHash is the schema descriptor for request_hash field.
+	gpudeleteacceptanceDescRequestHash := gpudeleteacceptanceFields[4].Descriptor()
+	// gpudeleteacceptance.RequestHashValidator is a validator for the "request_hash" field. It is called by the builders before save.
+	gpudeleteacceptance.RequestHashValidator = gpudeleteacceptanceDescRequestHash.Validators[0].(func(string) error)
+	// gpudeleteacceptanceDescCreateOperationID is the schema descriptor for create_operation_id field.
+	gpudeleteacceptanceDescCreateOperationID := gpudeleteacceptanceFields[5].Descriptor()
+	// gpudeleteacceptance.CreateOperationIDValidator is a validator for the "create_operation_id" field. It is called by the builders before save.
+	gpudeleteacceptance.CreateOperationIDValidator = gpudeleteacceptanceDescCreateOperationID.Validators[0].(func(string) error)
+	// gpudeleteacceptanceDescDeleteOperationID is the schema descriptor for delete_operation_id field.
+	gpudeleteacceptanceDescDeleteOperationID := gpudeleteacceptanceFields[6].Descriptor()
+	// gpudeleteacceptance.DeleteOperationIDValidator is a validator for the "delete_operation_id" field. It is called by the builders before save.
+	gpudeleteacceptance.DeleteOperationIDValidator = gpudeleteacceptanceDescDeleteOperationID.Validators[0].(func(string) error)
+	// gpudeleteacceptanceDescResult is the schema descriptor for result field.
+	gpudeleteacceptanceDescResult := gpudeleteacceptanceFields[7].Descriptor()
+	// gpudeleteacceptance.ResultValidator is a validator for the "result" field. It is called by the builders before save.
+	gpudeleteacceptance.ResultValidator = gpudeleteacceptanceDescResult.Validators[0].(func(string) error)
+	// gpudeleteacceptanceDescID is the schema descriptor for id field.
+	gpudeleteacceptanceDescID := gpudeleteacceptanceMixinFields0[0].Descriptor()
+	// gpudeleteacceptance.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	gpudeleteacceptance.IDValidator = gpudeleteacceptanceDescID.Validators[0].(func(uint32) error)
+	gpuusagesyncMixin := schema.GpuUsageSync{}.Mixin()
+	gpuusagesync.Policy = privacy.NewPolicies(gpuusagesyncMixin[2], schema.GpuUsageSync{})
+	gpuusagesync.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := gpuusagesync.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	gpuusagesyncMixinFields0 := gpuusagesyncMixin[0].Fields()
+	_ = gpuusagesyncMixinFields0
+	gpuusagesyncMixinFields2 := gpuusagesyncMixin[2].Fields()
+	_ = gpuusagesyncMixinFields2
+	gpuusagesyncFields := schema.GpuUsageSync{}.Fields()
+	_ = gpuusagesyncFields
+	// gpuusagesyncDescTenantID is the schema descriptor for tenant_id field.
+	gpuusagesyncDescTenantID := gpuusagesyncMixinFields2[0].Descriptor()
+	// gpuusagesync.DefaultTenantID holds the default value on creation for the tenant_id field.
+	gpuusagesync.DefaultTenantID = gpuusagesyncDescTenantID.Default.(uint32)
+	// gpuusagesyncDescOperationID is the schema descriptor for operation_id field.
+	gpuusagesyncDescOperationID := gpuusagesyncFields[0].Descriptor()
+	// gpuusagesync.OperationIDValidator is a validator for the "operation_id" field. It is called by the builders before save.
+	gpuusagesync.OperationIDValidator = gpuusagesyncDescOperationID.Validators[0].(func(string) error)
+	// gpuusagesyncDescResourceTenantID is the schema descriptor for resource_tenant_id field.
+	gpuusagesyncDescResourceTenantID := gpuusagesyncFields[1].Descriptor()
+	// gpuusagesync.ResourceTenantIDValidator is a validator for the "resource_tenant_id" field. It is called by the builders before save.
+	gpuusagesync.ResourceTenantIDValidator = gpuusagesyncDescResourceTenantID.Validators[0].(func(string) error)
+	// gpuusagesyncDescOwnerService is the schema descriptor for owner_service field.
+	gpuusagesyncDescOwnerService := gpuusagesyncFields[2].Descriptor()
+	// gpuusagesync.OwnerServiceValidator is a validator for the "owner_service" field. It is called by the builders before save.
+	gpuusagesync.OwnerServiceValidator = gpuusagesyncDescOwnerService.Validators[0].(func(string) error)
+	// gpuusagesyncDescResourceID is the schema descriptor for resource_id field.
+	gpuusagesyncDescResourceID := gpuusagesyncFields[3].Descriptor()
+	// gpuusagesync.ResourceIDValidator is a validator for the "resource_id" field. It is called by the builders before save.
+	gpuusagesync.ResourceIDValidator = gpuusagesyncDescResourceID.Validators[0].(func(string) error)
+	// gpuusagesyncDescRevision is the schema descriptor for revision field.
+	gpuusagesyncDescRevision := gpuusagesyncFields[4].Descriptor()
+	// gpuusagesync.DefaultRevision holds the default value on creation for the revision field.
+	gpuusagesync.DefaultRevision = gpuusagesyncDescRevision.Default.(int64)
+	// gpuusagesyncDescState is the schema descriptor for state field.
+	gpuusagesyncDescState := gpuusagesyncFields[5].Descriptor()
+	// gpuusagesync.StateValidator is a validator for the "state" field. It is called by the builders before save.
+	gpuusagesync.StateValidator = gpuusagesyncDescState.Validators[0].(func(string) error)
+	// gpuusagesyncDescPayloadJSON is the schema descriptor for payload_json field.
+	gpuusagesyncDescPayloadJSON := gpuusagesyncFields[6].Descriptor()
+	// gpuusagesync.PayloadJSONValidator is a validator for the "payload_json" field. It is called by the builders before save.
+	gpuusagesync.PayloadJSONValidator = gpuusagesyncDescPayloadJSON.Validators[0].(func(string) error)
+	// gpuusagesyncDescPayloadHash is the schema descriptor for payload_hash field.
+	gpuusagesyncDescPayloadHash := gpuusagesyncFields[7].Descriptor()
+	// gpuusagesync.PayloadHashValidator is a validator for the "payload_hash" field. It is called by the builders before save.
+	gpuusagesync.PayloadHashValidator = gpuusagesyncDescPayloadHash.Validators[0].(func(string) error)
+	// gpuusagesyncDescAckedRevision is the schema descriptor for acked_revision field.
+	gpuusagesyncDescAckedRevision := gpuusagesyncFields[8].Descriptor()
+	// gpuusagesync.DefaultAckedRevision holds the default value on creation for the acked_revision field.
+	gpuusagesync.DefaultAckedRevision = gpuusagesyncDescAckedRevision.Default.(int64)
+	// gpuusagesyncDescLeaseGeneration is the schema descriptor for lease_generation field.
+	gpuusagesyncDescLeaseGeneration := gpuusagesyncFields[9].Descriptor()
+	// gpuusagesync.DefaultLeaseGeneration holds the default value on creation for the lease_generation field.
+	gpuusagesync.DefaultLeaseGeneration = gpuusagesyncDescLeaseGeneration.Default.(int64)
+	// gpuusagesyncDescAttemptCount is the schema descriptor for attempt_count field.
+	gpuusagesyncDescAttemptCount := gpuusagesyncFields[12].Descriptor()
+	// gpuusagesync.DefaultAttemptCount holds the default value on creation for the attempt_count field.
+	gpuusagesync.DefaultAttemptCount = gpuusagesyncDescAttemptCount.Default.(int)
+	// gpuusagesyncDescRetryBlocked is the schema descriptor for retry_blocked field.
+	gpuusagesyncDescRetryBlocked := gpuusagesyncFields[13].Descriptor()
+	// gpuusagesync.DefaultRetryBlocked holds the default value on creation for the retry_blocked field.
+	gpuusagesync.DefaultRetryBlocked = gpuusagesyncDescRetryBlocked.Default.(bool)
+	// gpuusagesyncDescID is the schema descriptor for id field.
+	gpuusagesyncDescID := gpuusagesyncMixinFields0[0].Descriptor()
+	// gpuusagesync.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	gpuusagesync.IDValidator = gpuusagesyncDescID.Validators[0].(func(uint32) error)
 	internalmessageMixin := schema.InternalMessage{}.Mixin()
 	internalmessage.Policy = privacy.NewPolicies(internalmessageMixin[3], schema.InternalMessage{})
 	internalmessage.Hooks[0] = func(next ent.Mutator) ent.Mutator {

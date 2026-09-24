@@ -1,3 +1,5 @@
+//go:build quota_pg
+
 package service
 
 import (
@@ -32,11 +34,11 @@ func newPlanQuotaServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.
 	}
 }
 
-// TestPlanQuotaServiceSqlite_Create_AssociatesPlan 验证服务层创建套餐配额时，
+// TestPlanQuotaServicePostgres_Create_AssociatesPlan 验证服务层创建套餐配额时，
 // 请求携带的 planId 真实落库为指向父套餐的外键（历史上该条件曾写反导致
 // 配额行的 plan_id 永远为 NULL），且配额类型枚举经转换器落库。
-func TestPlanQuotaServiceSqlite_Create_AssociatesPlan(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+func TestPlanQuotaServicePostgres_Create_AssociatesPlan(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
 	svc := newPlanQuotaServiceForTest(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
@@ -73,10 +75,10 @@ func TestPlanQuotaServiceSqlite_Create_AssociatesPlan(t *testing.T) {
 	require.Equal(t, 1, linked, "plan_quota 的 plan 外键应指向父 plan")
 }
 
-// TestPlanQuotaServiceSqlite_List_BackfillsPlanId 验证服务层 List 从 plan 边
+// TestPlanQuotaServicePostgres_List_BackfillsPlanId 验证服务层 List 从 plan 边
 // 回填 PlanId，并把配额字段回读出来。
-func TestPlanQuotaServiceSqlite_List_BackfillsPlanId(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+func TestPlanQuotaServicePostgres_List_BackfillsPlanId(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
 	svc := newPlanQuotaServiceForTest(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
@@ -104,10 +106,10 @@ func TestPlanQuotaServiceSqlite_List_BackfillsPlanId(t *testing.T) {
 	require.Equal(t, identityV1.PlanQuota_STORAGE, listResp.Items[0].GetQuotaType(), "quota_type 应经转换器回读")
 }
 
-// TestPlanQuotaServiceSqlite_Create_MissingOperatorRejected 缺少操作人声明时
+// TestPlanQuotaServicePostgres_Create_MissingOperatorRejected 缺少操作人声明时
 // 服务层 Create 应直接拒绝，且不落库。
-func TestPlanQuotaServiceSqlite_Create_MissingOperatorRejected(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+func TestPlanQuotaServicePostgres_Create_MissingOperatorRejected(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
 	svc := newPlanQuotaServiceForTest(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 
@@ -121,9 +123,9 @@ func TestPlanQuotaServiceSqlite_Create_MissingOperatorRejected(t *testing.T) {
 	require.Zero(t, cnt, "被拒绝的请求不应落库")
 }
 
-// TestPlanQuotaServiceSqlite_Get 验证服务层 Get 按主键查询的命中与未命中。
-func TestPlanQuotaServiceSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+// TestPlanQuotaServicePostgres_Get 验证服务层 Get 按主键查询的命中与未命中。
+func TestPlanQuotaServicePostgres_Get(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
 	svc := newPlanQuotaServiceForTest(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
@@ -159,10 +161,10 @@ func TestPlanQuotaServiceSqlite_Get(t *testing.T) {
 	require.Error(t, err, "按不存在主键查询应返回错误")
 }
 
-// TestPlanQuotaServiceSqlite_Update 验证服务层 Update 在单字段掩码下
+// TestPlanQuotaServicePostgres_Update 验证服务层 Update 在单字段掩码下
 // 只更新掩码内字段（quota_value），其余保持原值。
-func TestPlanQuotaServiceSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+func TestPlanQuotaServicePostgres_Update(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
 	svc := newPlanQuotaServiceForTest(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
@@ -199,9 +201,9 @@ func TestPlanQuotaServiceSqlite_Update(t *testing.T) {
 	require.Equal(t, entPlanQuota.QuotaTypeStorage, *after.QuotaType, "掩码外字段 quota_type 应保持原值")
 }
 
-// TestPlanQuotaServiceSqlite_Delete 验证服务层 Delete 后表内计数归零。
-func TestPlanQuotaServiceSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+// TestPlanQuotaServicePostgres_Delete 验证服务层 Delete 后表内计数归零。
+func TestPlanQuotaServicePostgres_Delete(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
 	svc := newPlanQuotaServiceForTest(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})

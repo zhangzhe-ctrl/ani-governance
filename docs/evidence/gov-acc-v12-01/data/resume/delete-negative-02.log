@@ -1,0 +1,18 @@
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/wrong_owner
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/unknown_resource
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/known_resource_other_tenant
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/missing_gpu_charge
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/empty_original_charges
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/wrong_original_units
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/corrupt_frozen_vector
+--- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic (0.71s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/wrong_owner (0.28s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/unknown_resource (0.08s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/known_resource_other_tenant (0.03s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/missing_gpu_charge (0.03s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/empty_original_charges (0.03s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/wrong_original_units (0.14s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/corrupt_frozen_vector (0.11s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	1.806s

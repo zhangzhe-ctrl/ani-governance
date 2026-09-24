@@ -2,13 +2,14 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"github.com/google/uuid"
+	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 
 	"go-wind-admin/app/admin/service/internal/data"
 )
@@ -31,6 +32,7 @@ type QuotaDispatchWorker struct {
 	stopCh chan struct{}
 	done   chan struct{}
 	stopMu sync.Mutex
+	cancel context.CancelFunc
 
 	// paused 仅 lab 控制钩子使用：占额提交后暂停投递（FAIL-02/15 屏障）。
 	paused atomic.Bool
@@ -45,8 +47,8 @@ func (w *QuotaDispatchWorker) Paused() bool { return w.paused.Load() }
 // 固定退避 1/2/4/8/16/30 秒（§8.2）。
 func backoffForAttempt(attempt int) time.Duration {
 	shift := attempt
-	if shift > 5 {
-		shift = 5
+	if shift > 6 {
+		shift = 6
 	}
 	if shift < 1 {
 		shift = 1
@@ -70,7 +72,7 @@ func NewQuotaDispatchWorker(
 		workerID:     "worker-" + uuid.NewString(),
 		lease:        15 * time.Second,
 		pollInterval: 300 * time.Millisecond,
-		batchLimit:   8,
+		batchLimit:   1, // claim just before dispatch; no aging leases in a serial batch
 		notify:       make(chan struct{}, 1),
 		stopCh:       make(chan struct{}),
 		done:         make(chan struct{}),
@@ -86,14 +88,25 @@ func (w *QuotaDispatchWorker) Notify() {
 }
 
 // Start 实现 transport.Server 生命周期；不阻塞调用方。
-func (w *QuotaDispatchWorker) Start(_ context.Context) error {
-	go w.loop()
+func (w *QuotaDispatchWorker) Start(ctx context.Context) error {
+	w.stopMu.Lock()
+	defer w.stopMu.Unlock()
+	if w.cancel != nil {
+		return fmt.Errorf("quota dispatch worker already started")
+	}
+	ctx, w.cancel = context.WithCancel(ctx)
+	go w.loop(ctx)
 	return nil
 }
 
 // Stop 停止领取并等待有限时间退出。
-func (w *QuotaDispatchWorker) Stop(_ context.Context) error {
+func (w *QuotaDispatchWorker) Stop(ctx context.Context) error {
 	w.stopMu.Lock()
+	if w.cancel == nil {
+		w.stopMu.Unlock()
+		return nil
+	}
+	w.cancel()
 	select {
 	case <-w.stopCh:
 	default:
@@ -102,28 +115,32 @@ func (w *QuotaDispatchWorker) Stop(_ context.Context) error {
 	w.stopMu.Unlock()
 	select {
 	case <-w.done:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
 	case <-time.After(5 * time.Second):
-		w.log.Warn(context.Background(), "quota dispatch worker stop timeout")
+		return fmt.Errorf("quota dispatch worker stop timeout")
 	}
-	return nil
 }
 
-func (w *QuotaDispatchWorker) loop() {
+func (w *QuotaDispatchWorker) loop(ctx context.Context) {
 	defer close(w.done)
 	for {
 		select {
+		case <-ctx.Done():
+			return
 		case <-w.stopCh:
 			return
 		case <-w.notify:
 		case <-time.After(w.pollInterval):
 		}
-		w.drain()
+		w.drain(ctx)
 	}
 }
 
 // drain 扫描并投递一批到期操作；每次网络调用不在任何数据库事务内（§7.1）。
 // 暂停屏障生效时立即返回（已提交操作保持 QUEUED 等待恢复）。
-func (w *QuotaDispatchWorker) drain() {
+func (w *QuotaDispatchWorker) drain(ctx context.Context) {
 	if w.paused.Load() {
 		return
 	}
@@ -133,7 +150,7 @@ func (w *QuotaDispatchWorker) drain() {
 			return
 		default:
 		}
-		ops, err := w.ledger.ClaimDispatchable(context.Background(), w.workerID, w.lease, w.batchLimit)
+		ops, err := w.ledger.ClaimDispatchable(ctx, w.workerID, w.lease, w.batchLimit)
 		if err != nil {
 			w.log.Errorf(context.Background(), "claim dispatchable failed: %s", err.Error())
 			return
@@ -147,53 +164,76 @@ func (w *QuotaDispatchWorker) drain() {
 				return
 			default:
 			}
-			w.dispatchOne(&ops[i])
+			w.dispatchOne(ctx, &ops[i])
 		}
 	}
 }
 
 // dispatchOne 投递单个已领取操作：先提交领取（ClaimDispatchable 已提交），再发 RPC。
-func (w *QuotaDispatchWorker) dispatchOne(op *data.ClaimedOperation) {
+func (w *QuotaDispatchWorker) dispatchOne(ctx context.Context, op *data.ClaimedOperation) {
 	adapter := w.registry.Lookup(op.OwnerService, op.Action)
 	if adapter == nil {
 		// 恢复遇到缺失 adapter：保留账本并报错，不退额、不改余额（§8.2）。
 		w.log.Errorf(context.Background(), "missing quota adapter for owner=%s action=%s operation=%s: ledger kept, dispatch deferred",
 			op.OwnerService, op.Action, op.OperationID)
 		next := time.Now().Add(60 * time.Second)
-		if _, err := w.ledger.MarkUnknown(context.Background(), op.OperationID, op.LeaseGeneration, next, "ADAPTER_MISSING", false); err != nil {
+		if _, err := w.ledger.MarkUnknown(ctx, op.TenantID, op.OperationID, op.LeaseGeneration, next, "ADAPTER_MISSING", false); err != nil {
 			w.log.Errorf(context.Background(), "mark unknown failed: %s", err.Error())
 		}
 		return
 	}
 
 	// 删除操作不新建 charge（§6.2）：命令携带原创建操作的 charge。
-	charges := op.Charges
-	if len(charges) == 0 && op.CreateOperationID != "" {
-		if orig, err := w.ledger.GetChargeForOperation(context.Background(), op.TenantID, op.CreateOperationID); err == nil {
-			charges = []data.QuotaChargeRef{{ChargeID: orig.ChargeID, QuotaCode: orig.QuotaCode, ChargedUnits: orig.OriginalUnits}}
-		} else {
-			w.log.Errorf(context.Background(), "resolve original charge for delete op=%s failed: %s", op.OperationID, err.Error())
+	createID := op.OperationID
+	if op.CreateOperationID != "" {
+		createID = op.CreateOperationID
+	}
+	original, readErr := w.ledger.GetChargesForOperation(ctx, op.TenantID, createID)
+	if readErr != nil || len(original) == 0 {
+		w.deferInvalidCommand(ctx, op, "ORIGINAL_CHARGES_UNAVAILABLE")
+		return
+	}
+	charges := make([]data.QuotaChargeRef, 0, len(original))
+	seenCode, seenID := map[string]bool{}, map[string]bool{}
+	for _, c := range original {
+		if c == nil || c.TenantID == nil || *c.TenantID != op.TenantID || c.OperationID != createID || c.OriginalUnits <= 0 || c.ChargeID == "" || c.QuotaCode == "" || seenCode[c.QuotaCode] || seenID[c.ChargeID] {
+			w.deferInvalidCommand(ctx, op, "ORIGINAL_CHARGES_INVALID")
+			return
 		}
+		seenCode[c.QuotaCode], seenID[c.ChargeID] = true, true
+		charges = append(charges, data.QuotaChargeRef{ChargeID: c.ChargeID, QuotaCode: c.QuotaCode, ChargedUnits: c.OriginalUnits})
 	}
 
 	cmd := &QuotaDispatchCommand{
 		OperationID:       op.OperationID,
 		ResourceID:        op.ResourceID,
 		ResourceTenantID:  op.ResourceTenantID,
-		Actor:             op.ActorType + ":" + op.ActorID,
+		Actor:             QuotaActor{Type: op.ActorType, ID: op.ActorID},
 		Action:            op.Action,
 		RequestHash:       op.RequestHash,
 		CanonicalRequest:  []byte(op.CanonicalRequest),
 		CreateOperationID: op.CreateOperationID,
 		Charges:           charges,
 	}
+	if isGpuCanonical(cmd.CanonicalRequest) {
+		if _, _, err := BuildGpuOwnerAttachments(op.OwnerService, cmd); err != nil {
+			w.deferInvalidCommand(ctx, op, "ORIGINAL_GPU_COMMAND_INVALID")
+			return
+		}
+	}
 
-	dispatchCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	if ctx.Err() != nil {
+		return
+	}
+	dispatchCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	ack, derr := adapter.Dispatch(dispatchCtx, cmd)
 	cancel()
+	if derr == nil {
+		derr = ValidateDurableOwnerAck(cmd, ack)
+	}
 
 	if derr == nil {
-		ok, aerr := w.ledger.AckDispatched(context.Background(), op.OperationID, op.LeaseGeneration, string(ack))
+		ok, aerr := w.ledger.AckDispatched(ctx, op.TenantID, op.OperationID, op.LeaseGeneration, string(ack))
 		if aerr != nil {
 			w.log.Errorf(context.Background(), "ack writeback failed: %s", aerr.Error())
 			return
@@ -208,7 +248,7 @@ func (w *QuotaDispatchWorker) dispatchOne(op *data.ClaimedOperation) {
 	// 分类：永久合同错误暂停重试；传输不确定保持占额并退避重试（同 ID 同报文）。
 	perm := isPermanentContractError(derr)
 	next := time.Now().Add(backoffForAttempt(op.AttemptCount))
-	ok, aerr := w.ledger.MarkUnknown(context.Background(), op.OperationID, op.LeaseGeneration, next, errorReason(derr), perm)
+	ok, aerr := w.ledger.MarkUnknown(ctx, op.TenantID, op.OperationID, op.LeaseGeneration, next, errorReason(derr), perm)
 	if aerr != nil {
 		w.log.Errorf(context.Background(), "unknown writeback failed: %s", aerr.Error())
 		return
@@ -221,6 +261,13 @@ func (w *QuotaDispatchWorker) dispatchOne(op *data.ClaimedOperation) {
 		w.log.Errorf(context.Background(), "permanent contract error for operation=%s: %s; retry paused (retry_blocked), ledger kept", op.OperationID, derr.Error())
 	} else {
 		w.log.Warnf(context.Background(), "dispatch unknown for operation=%s: %s; will retry with same id/payload", op.OperationID, derr.Error())
+	}
+}
+
+func (w *QuotaDispatchWorker) deferInvalidCommand(ctx context.Context, op *data.ClaimedOperation, reason string) {
+	_, err := w.ledger.MarkUnknown(ctx, op.TenantID, op.OperationID, op.LeaseGeneration, time.Now().Add(time.Minute), reason, false)
+	if err != nil {
+		w.log.Errorf(context.Background(), "defer invalid command operation=%s: %s", op.OperationID, err)
 	}
 }
 

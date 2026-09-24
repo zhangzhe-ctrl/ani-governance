@@ -1,0 +1,1 @@
+DELETE FROM sys_gpu_usage_sync

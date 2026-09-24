@@ -64,6 +64,7 @@ require (
 	github.com/dlclark/regexp2 v1.12.0 // indirect
 	github.com/tx7do/go-wind v0.0.2 // indirect
 	github.com/yuin/gopher-lua v1.1.2 // indirect
+	github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9173 // indirect
 )
 
 require (

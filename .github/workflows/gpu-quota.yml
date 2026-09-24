@@ -1,0 +1,56 @@
+name: GPU quota data gate
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  quota-pgx-sqlc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16.10
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      GOWORK: "off"
+      GOMAXPROCS: "2"
+      GOFLAGS: "-p=2"
+      PGHOST: 127.0.0.1
+      PGPORT: "5432"
+      PGUSER: postgres
+      QUOTA_LAB_PG_DSN: postgres://gov_acc_runtime@127.0.0.1:5432/gov_acc_data?sslmode=disable
+      QUOTA_LAB_REGRESSION_DSN: postgres://gov_acc_runtime@127.0.0.1:5432/gov_acc_lab?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Install pinned generators and audit tools
+        run: |
+          go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.30.0
+          go install golang.org/x/vuln/cmd/govulncheck@v1.7.0
+          go install github.com/zricethezav/gitleaks/v8@v8.30.1
+          echo "SQLC=$(go env GOPATH)/bin/sqlc" >> "$GITHUB_ENV"
+      - name: Explicit migration and restricted runtime role
+        run: bash scripts/ci-quota-pg.sh
+      - name: Explicit isolated legacy lab certificates
+        run: |
+          bash scripts/accelerator-acceptance/prepare-lab-certs.sh "$RUNNER_TEMP/quota-lab"
+          echo "QUOTA_LAB_CERTS_DIR=$RUNNER_TEMP/quota-lab/certs" >> "$GITHUB_ENV"
+          echo 'QUOTA_LAB_PG_ADMIN_DSN=postgres://postgres@127.0.0.1:5432/postgres?sslmode=disable' >> "$GITHUB_ENV"
+      - name: Generated query, source, PG, tenancy, and race gates
+        run: make verify-gpu
+      - name: Coverage boundary
+        run: echo 'This job proves the quota data slice only. Cross-repository mTLS BFF, durable test owner, and provider replay require the separate GOV-ACC-V12-01 joint assembly.'

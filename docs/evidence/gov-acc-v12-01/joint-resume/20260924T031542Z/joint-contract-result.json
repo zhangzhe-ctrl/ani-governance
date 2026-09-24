@@ -1,0 +1,8 @@
+{
+  "canceled_operation": "b1c9c34e-e6c0-4134-998e-87426ea3f602",
+  "create_operation": "bc14f62f-d805-40d4-964c-91e5dce70925",
+  "delete_operation": "eba8ff55-abb9-4ab4-a4fe-557934556af9",
+  "hardware_observed": false,
+  "resource": "86ace4e8-a85e-4c69-8347-606403127c33",
+  "scope": "independent persistent test owner; production business code"
+}

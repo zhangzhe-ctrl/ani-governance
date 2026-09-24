@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql/schema"
 	"github.com/stretchr/testify/require"
 
 	_ "modernc.org/sqlite" // 纯 Go SQLite（注册名 "sqlite"），无需 CGO
@@ -36,6 +37,7 @@ import (
 	entCrud "github.com/tx7do/go-crud/entgo"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
+	"go-wind-admin/app/admin/service/internal/data/ent/migrate"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 )
 
@@ -59,9 +61,24 @@ func NewEntClientForTest(t *testing.T) *entCrud.EntClient[*ent.Client] {
 
 	client := ent.NewClient(ent.Driver(drv))
 	t.Cleanup(func() { client.Close() })
-	require.NoError(t, client.Schema.Create(context.Background()), "SQLite schema 迁移失败")
-
+	require.NoError(t, CreateUnrelatedSQLiteSchema(context.Background(), client), "SQLite schema 迁移失败")
 	return entCrud.NewEntClient[*ent.Client](client, drv)
+}
+
+// CreateUnrelatedSQLiteSchema serves non-GPU Ent tests that need a custom
+// driver (for example audit capture). GPU schema is only verified on PostgreSQL.
+func CreateUnrelatedSQLiteSchema(ctx context.Context, client *ent.Client) error {
+	// GPU persistence has PostgreSQL JSON constraints and is verified solely by
+	// quota_pg against the official migration chain. Unrelated Ent tests retain
+	// their SQLite fixture without manufacturing a weaker GPU schema.
+	tables := make([]*schema.Table, 0, len(migrate.Tables))
+	for _, table := range migrate.Tables {
+		if table.Name == "sys_gpu_usage_sync" || table.Name == "sys_gpu_delete_acceptances" {
+			continue
+		}
+		tables = append(tables, table)
+	}
+	return migrate.Create(ctx, client.Schema, tables)
 }
 
 // NewSystemViewerCtx 返回注入了平台级 SystemViewer 的 context，

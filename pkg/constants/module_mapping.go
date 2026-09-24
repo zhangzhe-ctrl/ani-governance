@@ -9,9 +9,12 @@ import (
 // 新增服务时必须在此登记，否则其 API 的 business_module 将为 UNSPECIFIED，
 // 租户白名单过滤会把 UNSPECIFIED 视为"不在任何白名单内"而拒绝访问。
 var ServiceTagToBusinessModule = map[string]identityV1.Module{
-	"NetworkService":     identityV1.Module_NETWORK,
-	"AdminPortalService": identityV1.Module_DASHBOARD,
-	"DashboardService":   identityV1.Module_DASHBOARD,
+	"AcceleratorAdminService": identityV1.Module_ACCELERATOR,
+	"AcceleratorService":      identityV1.Module_ACCELERATOR,
+	"QuotaSelfService":        identityV1.Module_TENANT,
+	"NetworkService":          identityV1.Module_NETWORK,
+	"AdminPortalService":      identityV1.Module_DASHBOARD,
+	"DashboardService":        identityV1.Module_DASHBOARD,
 
 	"UserService":        identityV1.Module_OPM,
 	"OrgUnitService":     identityV1.Module_OPM,
@@ -24,13 +27,13 @@ var ServiceTagToBusinessModule = map[string]identityV1.Module{
 	"PermissionService":      identityV1.Module_PERMISSION,
 	"PermissionGroupService": identityV1.Module_PERMISSION,
 
-	"DictTypeService":     identityV1.Module_DICT,
-	"DictEntryService":    identityV1.Module_DICT,
-	"LanguageService":     identityV1.Module_SYSTEM,
-	"TaskService":         identityV1.Module_TASK,
-	"LoginPolicyService":  identityV1.Module_SYSTEM,
-	"ConfigService":       identityV1.Module_SYSTEM,
-	"AccessKeyService":    identityV1.Module_SYSTEM,
+	"DictTypeService":    identityV1.Module_DICT,
+	"DictEntryService":   identityV1.Module_DICT,
+	"LanguageService":    identityV1.Module_SYSTEM,
+	"TaskService":        identityV1.Module_TASK,
+	"LoginPolicyService": identityV1.Module_SYSTEM,
+	"ConfigService":      identityV1.Module_SYSTEM,
+	"AccessKeyService":   identityV1.Module_SYSTEM,
 
 	"TenantService":    identityV1.Module_TENANT,
 	"PlanService":      identityV1.Module_TENANT,

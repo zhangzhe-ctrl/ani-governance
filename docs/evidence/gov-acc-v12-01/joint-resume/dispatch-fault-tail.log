@@ -1,0 +1,14 @@
+=== RUN   TestJointDispatchFailuresAndStop
+=== RUN   TestJointDispatchFailuresAndStop/invalid_ack_operation
+=== RUN   TestJointDispatchFailuresAndStop/invalid_ack_resource
+=== RUN   TestJointDispatchFailuresAndStop/invalid_ack_accepted
+=== RUN   TestJointDispatchFailuresAndStop/invalid_ack_json
+=== NAME  TestJointDispatchFailuresAndStop
+    dispatch_failure_test.go:184: four malformed ACKs remained charged/blocked; PostgreSQL-blocked worker canceled and stopped without later owner call; restart recovered
+--- PASS: TestJointDispatchFailuresAndStop (5.49s)
+    --- PASS: TestJointDispatchFailuresAndStop/invalid_ack_operation (1.08s)
+    --- PASS: TestJointDispatchFailuresAndStop/invalid_ack_resource (0.42s)
+    --- PASS: TestJointDispatchFailuresAndStop/invalid_ack_accepted (0.42s)
+    --- PASS: TestJointDispatchFailuresAndStop/invalid_ack_json (0.42s)
+PASS
+ok  	go-wind-admin/app/admin/service/tests/gpucontract	6.033s

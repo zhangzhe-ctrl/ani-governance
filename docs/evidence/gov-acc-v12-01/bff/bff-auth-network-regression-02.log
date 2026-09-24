@@ -1,0 +1,5 @@
+ok  	go-wind-admin/pkg/middleware/auth	0.010s
+ok  	go-wind-admin/pkg/authorizer	0.027s
+ok  	go-wind-admin/pkg/constants	0.008s
+ok  	go-wind-admin/app/admin/service/internal/data	1.491s
+ok  	go-wind-admin/app/admin/service/internal/service	5.376s

@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
 	"os"
 	"strings"
@@ -12,6 +13,9 @@ import (
 	"entgo.io/ent/dialect/sql/schema"
 	"go-wind-admin/app/admin/service/internal/data/ent/migrate"
 )
+
+//go:embed constraints.sql
+var deferredConstraints string
 
 func main() {
 	// Ent edges cannot express a tenant-preserving composite foreign key. Keep
@@ -43,6 +47,38 @@ func main() {
 	planQuotas := mustTable(migrate.Tables, "sys_plan_quotas")
 	definitions := mustTable(migrate.Tables, "sys_quota_definitions")
 	tenants := mustTable(migrate.Tables, "sys_tenants")
+	sync := mustTable(migrate.Tables, "sys_gpu_usage_sync")
+	deletes := mustTable(migrate.Tables, "sys_gpu_delete_acceptances")
+	// The shared TenantID mixin is nullable for unrelated legacy entities.
+	// Ledger tenancy is mandatory; this authoritative exporter owns that override.
+	for _, table := range []*schema.Table{accounts, operations, charges, receipts, sync, deletes} {
+		column(table, "tenant_id").Nullable = false
+	}
+	column(planQuotas, "plan_id").Nullable = false
+	column(planQuotas, "quota_value").Nullable = false
+	for _, ref := range []string{"create_operation_id", "delete_operation_id"} {
+		deletes.ForeignKeys = append(deletes.ForeignKeys, &schema.ForeignKey{
+			Symbol:     "sys_gpu_delete_acceptances_" + ref + "_fkey",
+			Columns:    []*schema.Column{column(deletes, "tenant_id"), column(deletes, ref)},
+			RefTable:   operations,
+			RefColumns: []*schema.Column{column(operations, "tenant_id"), column(operations, "operation_id")},
+			OnDelete:   schema.Restrict,
+		})
+	}
+	operations.ForeignKeys = append(operations.ForeignKeys, &schema.ForeignKey{
+		Symbol:     "sys_quota_operations_tenant_resource_mapping_fkey",
+		Columns:    []*schema.Column{column(operations, "tenant_id"), column(operations, "resource_tenant_id")},
+		RefTable:   tenants,
+		RefColumns: []*schema.Column{column(tenants, "id"), column(tenants, "resource_tenant_id")},
+		OnDelete:   schema.Restrict,
+	})
+	sync.ForeignKeys = append(sync.ForeignKeys, &schema.ForeignKey{
+		Symbol:     "sys_gpu_usage_sync_tenant_operation_fkey",
+		Columns:    []*schema.Column{column(sync, "tenant_id"), column(sync, "operation_id"), column(sync, "resource_tenant_id"), column(sync, "owner_service"), column(sync, "resource_id")},
+		RefTable:   operations,
+		RefColumns: []*schema.Column{column(operations, "tenant_id"), column(operations, "operation_id"), column(operations, "resource_tenant_id"), column(operations, "owner_service"), column(operations, "resource_id")},
+		OnDelete:   schema.Restrict,
+	})
 
 	// account/operation/charge/receipt 到 tenant 的 FK 使用 RESTRICT：
 	// 存在配额账本的租户不得物理删除。
@@ -75,14 +111,8 @@ func main() {
 		},
 	)
 
-	// DELETE 操作通过 (tenant_id,create_operation_id) 复合 FK 关联原创建操作。
-	operations.ForeignKeys = append(operations.ForeignKeys, &schema.ForeignKey{
-		Symbol:     "sys_quota_operations_create_operation_fkey",
-		Columns:    []*schema.Column{column(operations, "tenant_id"), column(operations, "create_operation_id")},
-		RefTable:   operations,
-		RefColumns: []*schema.Column{column(operations, "tenant_id"), column(operations, "operation_id")},
-		OnDelete:   schema.Restrict,
-	})
+	// The self-reference must be emitted after Ent's unique index; PostgreSQL
+	// cannot create it inside the table before that index exists.
 
 	// 套餐配额政策的 quota_code 引用目录（code 为目录业务唯一键）。
 	planQuotas.ForeignKeys = append(planQuotas.ForeignKeys, &schema.ForeignKey{
@@ -105,6 +135,7 @@ func main() {
 		lines[i] = strings.TrimRight(lines[i], " \t")
 	}
 	fmt.Print(strings.Join(lines, "\n"))
+	fmt.Print(deferredConstraints)
 }
 
 // mustTable 在导出表中查找指定表，缺失即 panic（导出期失败优于生成不一致的 schema）。

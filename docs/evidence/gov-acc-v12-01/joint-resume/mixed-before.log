@@ -1,0 +1,7 @@
+=== RUN   TestJointMixedCharges
+    mixed_test.go:126: [DEBUG-mixed-resume] op=f0b84998-0771-4dd1-abcf-aac92766130b state=QUEUED attempts=0
+    mixed_test.go:68: timed out: incomplete original DELETE vector stops before owner
+--- FAIL: TestJointMixedCharges (21.99s)
+FAIL
+FAIL	go-wind-admin/app/admin/service/tests/gpucontract	22.544s
+FAIL

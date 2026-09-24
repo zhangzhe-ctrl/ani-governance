@@ -18,6 +18,8 @@ enum Enforcement {
   ENFORCEMENT_UNSPECIFIED = 0;   // 未指定
   LEGACY_CONFIG_ONLY = 1;        // 仅套餐配置/统计，不强制拦截
   LAB_ONLY = 2;                  // 仅实验构建可执行（如 gpu.count）
+  ENFORCED = 3;                  // Registered owner/action admission capability
+  NOT_ENABLED = 4;               // No production owner/action admission capability
 }
 
 // 配额目录项

@@ -174,3 +174,30 @@ help:
 .PHONY: build_admin
 build_admin:
 	go build -trimpath -ldflags "-s -w" -o bin/admin ./app/admin/service/cmd/admin
+
+# GPU quota slice: source generation and software-only gates. Run on the task's
+# authorized Fedora host with its private caches and explicitly migrated PG DSN.
+.PHONY: verify-quota-sqlc verify-gpu verify-gpu-regressions verify-gpu-audit
+verify-quota-sqlc:
+	bash scripts/verify-quota-schema.sh
+	bash scripts/verify-quota-sqlc.sh
+
+verify-gpu: verify-quota-sqlc verify-gpu-regressions verify-gpu-audit
+
+verify-gpu-regressions:
+	@test -n "$(QUOTA_LAB_PG_DSN)" || (echo 'QUOTA_LAB_PG_DSN required'; exit 1)
+	go version
+	go list -m github.com/zhangzhe-ctrl/ani-accelerator-service
+	bash scripts/verify-gpu-format.sh
+	go build -o /dev/null ./app/admin/service/cmd/server
+	go build -tags quota_lab -o /dev/null ./app/admin/service/cmd/server
+	go build -o /dev/null ./app/admin/service/cmd/admin
+	go test ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
+	go test -tags quota_pg ./app/admin/service/internal/data -run 'TestQuota|TestPlanQuota' -count=1 -timeout=15m
+	go test -tags quota_pg ./app/admin/service/internal/service -run 'TestPlanQuota' -count=1 -timeout=10m
+	go test -race -tags quota_pg ./app/admin/service/internal/data -run 'TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard|TestQuotaPostgresPolicyChanges|TestQuotaGpu|TestQuotaProcess' -count=1 -timeout=20m
+	go test -race ./app/admin/service/internal/service -run 'TestGpu|TestQuotaDurable|TestAccelerator' -count=1 -timeout=10m
+	QUOTA_LAB_PG_DSN="$${QUOTA_LAB_REGRESSION_DSN:-$$QUOTA_LAB_PG_DSN}" bash scripts/accelerator-acceptance/lab-regression.sh
+
+verify-gpu-audit:
+	bash scripts/verify-gpu-audit.sh

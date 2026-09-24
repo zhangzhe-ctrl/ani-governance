@@ -1,0 +1,74 @@
+=== RUN   TestPlanQuotaPostgresListCompatibility
+=== RUN   TestPlanQuotaPostgresListCompatibility/empty
+=== RUN   TestPlanQuotaPostgresListCompatibility/numeric-query
+=== RUN   TestPlanQuotaPostgresListCompatibility/and-or
+=== RUN   TestPlanQuotaPostgresListCompatibility/numeric-in
+=== RUN   TestPlanQuotaPostgresListCompatibility/not-in
+=== RUN   TestPlanQuotaPostgresListCompatibility/range
+=== RUN   TestPlanQuotaPostgresListCompatibility/nullable-neq
+=== RUN   TestPlanQuotaPostgresListCompatibility/null
+=== RUN   TestPlanQuotaPostgresListCompatibility/not-null
+=== RUN   TestPlanQuotaPostgresListCompatibility/contains
+=== RUN   TestPlanQuotaPostgresListCompatibility/icontains
+=== RUN   TestPlanQuotaPostgresListCompatibility/prefix
+=== RUN   TestPlanQuotaPostgresListCompatibility/iprefix
+=== RUN   TestPlanQuotaPostgresListCompatibility/suffix
+=== RUN   TestPlanQuotaPostgresListCompatibility/isuffix
+=== RUN   TestPlanQuotaPostgresListCompatibility/exact
+=== RUN   TestPlanQuotaPostgresListCompatibility/iexact
+=== RUN   TestPlanQuotaPostgresListCompatibility/regex
+=== RUN   TestPlanQuotaPostgresListCompatibility/iregex
+=== RUN   TestPlanQuotaPostgresListCompatibility/search
+=== RUN   TestPlanQuotaPostgresListCompatibility/blank-search
+=== RUN   TestPlanQuotaPostgresListCompatibility/aip
+=== RUN   TestPlanQuotaPostgresListCompatibility/quoted-literal
+=== RUN   TestPlanQuotaPostgresListCompatibility/sorting-page-offset
+=== RUN   TestPlanQuotaPostgresListCompatibility/token-mask
+=== RUN   TestPlanQuotaPostgresListCompatibility/invalid-field-does-not-expand
+--- PASS: TestPlanQuotaPostgresListCompatibility (0.07s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/empty (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/numeric-query (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/and-or (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/numeric-in (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/not-in (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/range (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/nullable-neq (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/null (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/not-null (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/contains (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/icontains (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/prefix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/iprefix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/suffix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/isuffix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/exact (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/iexact (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/regex (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/iregex (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/search (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/blank-search (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/aip (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/quoted-literal (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/sorting-page-offset (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/token-mask (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/invalid-field-does-not-expand (0.00s)
+=== RUN   TestPlanQuotaRepoPostgres_Create
+--- PASS: TestPlanQuotaRepoPostgres_Create (0.02s)
+=== RUN   TestPlanQuotaRepoPostgres_ListFilter
+--- PASS: TestPlanQuotaRepoPostgres_ListFilter (0.02s)
+=== RUN   TestPlanQuotaRepoPostgres_Get
+--- PASS: TestPlanQuotaRepoPostgres_Get (0.01s)
+=== RUN   TestPlanQuotaRepoPostgres_QuotaTypeReadView
+--- PASS: TestPlanQuotaRepoPostgres_QuotaTypeReadView (0.03s)
+=== RUN   TestPlanQuotaRepoPostgres_Update
+--- PASS: TestPlanQuotaRepoPostgres_Update (0.01s)
+=== RUN   TestPlanQuotaRepoPostgres_Delete
+--- PASS: TestPlanQuotaRepoPostgres_Delete (0.01s)
+=== RUN   TestPlanQuotaRepoPostgres_QuotaCodeCompat
+--- PASS: TestPlanQuotaRepoPostgres_QuotaCodeCompat (0.02s)
+=== RUN   TestPlanQuotaRepoPostgres_DuplicateCodeRejected
+--- PASS: TestPlanQuotaRepoPostgres_DuplicateCodeRejected (0.02s)
+=== RUN   TestQuotaPostgresPolicyChanges
+--- PASS: TestQuotaPostgresPolicyChanges (0.19s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	0.449s

@@ -82,6 +82,8 @@ const (
 	Enforcement_ENFORCEMENT_UNSPECIFIED Enforcement = 0 // 未指定
 	Enforcement_LEGACY_CONFIG_ONLY      Enforcement = 1 // 仅套餐配置/统计，不强制拦截
 	Enforcement_LAB_ONLY                Enforcement = 2 // 仅实验构建可执行（如 gpu.count）
+	Enforcement_ENFORCED                Enforcement = 3 // Registered owner/action admission capability
+	Enforcement_NOT_ENABLED             Enforcement = 4 // No production owner/action admission capability
 )
 
 // Enum value maps for Enforcement.
@@ -90,11 +92,15 @@ var (
 		0: "ENFORCEMENT_UNSPECIFIED",
 		1: "LEGACY_CONFIG_ONLY",
 		2: "LAB_ONLY",
+		3: "ENFORCED",
+		4: "NOT_ENABLED",
 	}
 	Enforcement_value = map[string]int32{
 		"ENFORCEMENT_UNSPECIFIED": 0,
 		"LEGACY_CONFIG_ONLY":      1,
 		"LAB_ONLY":                2,
+		"ENFORCED":                3,
+		"NOT_ENABLED":             4,
 	}
 )
 
@@ -320,11 +326,13 @@ const file_quota_service_v1_quota_catalog_proto_rawDesc = "" +
 	"\x1bACCOUNTING_KIND_UNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +
 	"CONCURRENT\x10\x01\x12\v\n" +
-	"\aCOUNTER\x10\x02*P\n" +
+	"\aCOUNTER\x10\x02*o\n" +
 	"\vEnforcement\x12\x1b\n" +
 	"\x17ENFORCEMENT_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12LEGACY_CONFIG_ONLY\x10\x01\x12\f\n" +
-	"\bLAB_ONLY\x10\x02B\xbe\x01\n" +
+	"\bLAB_ONLY\x10\x02\x12\f\n" +
+	"\bENFORCED\x10\x03\x12\x0f\n" +
+	"\vNOT_ENABLED\x10\x04B\xbe\x01\n" +
 	"\x14com.quota.service.v1B\x11QuotaCatalogProtoP\x01Z1go-wind-admin/api/gen/go/quota/service/v1;quotapb\xa2\x02\x03QSX\xaa\x02\x10Quota.Service.V1\xca\x02\x10Quota\\Service\\V1\xe2\x02\x1cQuota\\Service\\V1\\GPBMetadata\xea\x02\x12Quota::Service::V1b\x06proto3"
 
 var (

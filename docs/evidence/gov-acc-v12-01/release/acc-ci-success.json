@@ -1,0 +1,15 @@
+{
+  "repository": "zhangzhe-ctrl/ani-accelerator-service",
+  "branch": "codex/governance-accelerator-v1.2",
+  "sha": "1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3",
+  "run_url": "https://github.com/zhangzhe-ctrl/ani-accelerator-service/actions/runs/35949990504",
+  "job_url": "https://github.com/zhangzhe-ctrl/ani-accelerator-service/actions/runs/35949990504/job/107476239052",
+  "trigger": "push",
+  "triggered_at": "2026-09-24T03:05:00Z",
+  "conclusion": "success",
+  "duration": "3m14s",
+  "verify_job_duration": "3m11s",
+  "observation": "Public GitHub Actions run page read on 2026-09-24; page explicitly identifies commit, branch, Status Success and verify job. Initial API receipt was in_progress; subsequent shared-IP API rate limit does not override this completed run.",
+  "warning": "checkout/setup-go Node.js 20 action runtime deprecation warning; job successful",
+  "boundary": "Exact published Accelerator SHA CI only; not Governance CI, GPU hardware or production-owner verification."
+}

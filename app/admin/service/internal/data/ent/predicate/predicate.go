@@ -27,6 +27,12 @@ type DictEntryI18n func(*sql.Selector)
 // DictType is the predicate function for dicttype builders.
 type DictType func(*sql.Selector)
 
+// GpuDeleteAcceptance is the predicate function for gpudeleteacceptance builders.
+type GpuDeleteAcceptance func(*sql.Selector)
+
+// GpuUsageSync is the predicate function for gpuusagesync builders.
+type GpuUsageSync func(*sql.Selector)
+
 // InternalMessage is the predicate function for internalmessage builders.
 type InternalMessage func(*sql.Selector)
 

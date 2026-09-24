@@ -1,0 +1,7 @@
+940573e12b7f8a4f8965217cb6b9dd653a50067332a880b587e76f8b8d19593a  api/gen/go/catalog/service/v1/accelerator.pb.go
+117768e3b36e3ec61e49a3e1d922c35dc7416a9f0a7e3b676035730df51f7c7a  api/gen/go/admin/service/v1/i_accelerator_grpc.pb.go
+78c988959dc6426e373200fdf21bb6cd5dfadbb314ec221e1501dc022d82a409  api/gen/go/admin/service/v1/i_accelerator_http.pb.go
+9c82d6f14a276534aca8a3fb1ac891ec815640e0314d2512f9d7411e865af774  api/gen/go/admin/service/v1/i_accelerator.pb.go
+9f9df8ea596104422914c3cd8d02e8d7c21e65646667172ddbe6da091af97581  api/gen/go/identity/service/v1/module.pb.go
+8f76fcdc3de52b9bbf5877477df82155f62476553feb6cffd93856c0e952360a  api/gen/go/quota/service/v1/quota_catalog.pb.go
+a66d25ae155a828ec7cf4ba1eff055814c52e1afab4efe8c709e75b36de7d279  app/admin/service/cmd/server/assets/openapi.yaml

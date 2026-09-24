@@ -1,0 +1,14 @@
+=== RUN   TestQuotaGpuRestrictedRoleAndExplicitIsolation
+--- PASS: TestQuotaGpuRestrictedRoleAndExplicitIsolation (0.08s)
+=== RUN   TestQuotaGpuDeleteReleaseAndProjectionRecovery
+--- PASS: TestQuotaGpuDeleteReleaseAndProjectionRecovery (0.12s)
+=== RUN   TestQuotaGpuAtomicCancelAndSameKey
+--- PASS: TestQuotaGpuAtomicCancelAndSameKey (0.28s)
+=== RUN   TestQuotaPostgresConcurrentLimit
+--- PASS: TestQuotaPostgresConcurrentLimit (0.54s)
+=== RUN   TestQuotaPostgresCancelClaimRace
+--- PASS: TestQuotaPostgresCancelClaimRace (0.18s)
+=== RUN   TestQuotaPostgresLeaseGenerationGuard
+--- PASS: TestQuotaPostgresLeaseGenerationGuard (0.10s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	2.464s

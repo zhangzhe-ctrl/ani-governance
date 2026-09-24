@@ -59,7 +59,7 @@ var (
 		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "描述"},
 		{Name: "module", Type: field.TypeString, Nullable: true, Comment: "所属业务模块"},
 		{Name: "module_description", Type: field.TypeString, Nullable: true, Comment: "业务模块描述"},
-		{Name: "business_module", Type: field.TypeEnum, Nullable: true, Comment: "所属业务功能模块（用于套餐白名单过滤）", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "TASK", "MODEL", "NETWORK"}},
+		{Name: "business_module", Type: field.TypeEnum, Nullable: true, Comment: "所属业务功能模块（用于套餐白名单过滤）", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "TASK", "MODEL", "NETWORK", "ACCELERATOR"}},
 		{Name: "operation", Type: field.TypeString, Nullable: true, Comment: "接口操作名"},
 		{Name: "path", Type: field.TypeString, Nullable: true, Comment: "接口路径"},
 		{Name: "method", Type: field.TypeString, Nullable: true, Comment: "请求方法"},
@@ -462,6 +462,75 @@ var (
 				Name:    "idx_sys_dict_types_sort_order",
 				Unique:  false,
 				Columns: []*schema.Column{SysDictTypesColumns[8]},
+			},
+		},
+	}
+	// SysGpuDeleteAcceptancesColumns holds the columns for the "sys_gpu_delete_acceptances" table.
+	SysGpuDeleteAcceptancesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Default: 0},
+		{Name: "actor_type", Type: field.TypeString},
+		{Name: "actor_id", Type: field.TypeString},
+		{Name: "action", Type: field.TypeString},
+		{Name: "idempotency_key", Type: field.TypeString},
+		{Name: "request_hash", Type: field.TypeString},
+		{Name: "create_operation_id", Type: field.TypeString},
+		{Name: "delete_operation_id", Type: field.TypeString},
+		{Name: "result", Type: field.TypeString},
+	}
+	// SysGpuDeleteAcceptancesTable holds the schema information for the "sys_gpu_delete_acceptances" table.
+	SysGpuDeleteAcceptancesTable = &schema.Table{
+		Name:       "sys_gpu_delete_acceptances",
+		Columns:    SysGpuDeleteAcceptancesColumns,
+		PrimaryKey: []*schema.Column{SysGpuDeleteAcceptancesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_gpu_delete_acceptances_idempotency",
+				Unique:  true,
+				Columns: []*schema.Column{SysGpuDeleteAcceptancesColumns[2], SysGpuDeleteAcceptancesColumns[3], SysGpuDeleteAcceptancesColumns[4], SysGpuDeleteAcceptancesColumns[5], SysGpuDeleteAcceptancesColumns[6]},
+			},
+			{
+				Name:    "uix_sys_gpu_delete_acceptances_operation",
+				Unique:  true,
+				Columns: []*schema.Column{SysGpuDeleteAcceptancesColumns[2], SysGpuDeleteAcceptancesColumns[9]},
+			},
+		},
+	}
+	// SysGpuUsageSyncColumns holds the columns for the "sys_gpu_usage_sync" table.
+	SysGpuUsageSyncColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Default: 0},
+		{Name: "operation_id", Type: field.TypeString},
+		{Name: "resource_tenant_id", Type: field.TypeString},
+		{Name: "owner_service", Type: field.TypeString},
+		{Name: "resource_id", Type: field.TypeString},
+		{Name: "revision", Type: field.TypeInt64, Default: 1},
+		{Name: "state", Type: field.TypeString},
+		{Name: "payload_json", Type: field.TypeString, Size: 2147483647},
+		{Name: "payload_hash", Type: field.TypeString},
+		{Name: "acked_revision", Type: field.TypeInt64, Default: 0},
+		{Name: "lease_generation", Type: field.TypeInt64, Default: 0},
+		{Name: "lease_owner", Type: field.TypeString, Nullable: true},
+		{Name: "lease_until", Type: field.TypeTime, Nullable: true},
+		{Name: "attempt_count", Type: field.TypeInt, Default: 0},
+		{Name: "retry_blocked", Type: field.TypeBool, Default: false},
+		{Name: "next_attempt_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_error_code", Type: field.TypeString, Nullable: true},
+	}
+	// SysGpuUsageSyncTable holds the schema information for the "sys_gpu_usage_sync" table.
+	SysGpuUsageSyncTable = &schema.Table{
+		Name:       "sys_gpu_usage_sync",
+		Columns:    SysGpuUsageSyncColumns,
+		PrimaryKey: []*schema.Column{SysGpuUsageSyncColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_gpu_usage_sync_tenant_operation",
+				Unique:  true,
+				Columns: []*schema.Column{SysGpuUsageSyncColumns[4], SysGpuUsageSyncColumns[5]},
 			},
 		},
 	}
@@ -1879,7 +1948,7 @@ var (
 		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
 		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
 		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
-		{Name: "module", Type: field.TypeEnum, Nullable: true, Comment: "功能模块", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "TASK", "MODEL", "NETWORK"}},
+		{Name: "module", Type: field.TypeEnum, Nullable: true, Comment: "功能模块", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "TASK", "MODEL", "NETWORK", "ACCELERATOR"}},
 		{Name: "plan_id", Type: field.TypeUint32, Nullable: true},
 	}
 	// SysPlanModulesTable holds the schema information for the "sys_plan_modules" table.
@@ -2281,6 +2350,11 @@ var (
 		PrimaryKey: []*schema.Column{SysQuotaOperationsColumns[0]},
 		Indexes: []*schema.Index{
 			{
+				Name:    "uix_sys_quota_operations_usage_ref",
+				Unique:  true,
+				Columns: []*schema.Column{SysQuotaOperationsColumns[4], SysQuotaOperationsColumns[5], SysQuotaOperationsColumns[6], SysQuotaOperationsColumns[11], SysQuotaOperationsColumns[7]},
+			},
+			{
 				Name:    "uix_sys_quota_operations_tenant_id_operation_id",
 				Unique:  true,
 				Columns: []*schema.Column{SysQuotaOperationsColumns[4], SysQuotaOperationsColumns[5]},
@@ -2326,7 +2400,7 @@ var (
 			{
 				Name:    "uix_sys_quota_release_receipts_owner_event",
 				Unique:  true,
-				Columns: []*schema.Column{SysQuotaReleaseReceiptsColumns[4], SysQuotaReleaseReceiptsColumns[5]},
+				Columns: []*schema.Column{SysQuotaReleaseReceiptsColumns[2], SysQuotaReleaseReceiptsColumns[4], SysQuotaReleaseReceiptsColumns[5]},
 			},
 		},
 	}
@@ -2730,6 +2804,11 @@ var (
 			},
 		},
 		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_tenants_id_resource_tenant",
+				Unique:  true,
+				Columns: []*schema.Column{SysTenantsColumns[0], SysTenantsColumns[8]},
+			},
 			{
 				Name:    "idx_sys_tenant_name",
 				Unique:  true,
@@ -3244,6 +3323,8 @@ var (
 		SysDictEntriesTable,
 		SysDictEntryI18nTable,
 		SysDictTypesTable,
+		SysGpuDeleteAcceptancesTable,
+		SysGpuUsageSyncTable,
 		InternalMessagesTable,
 		InternalMessageCategoriesTable,
 		InternalMessageRecipientsTable,
@@ -3331,6 +3412,21 @@ func init() {
 		Table:     "sys_dict_types",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
+	}
+	SysGpuDeleteAcceptancesTable.Annotation = &entsql.Annotation{
+		Table: "sys_gpu_delete_acceptances",
+	}
+	SysGpuDeleteAcceptancesTable.Annotation.Checks = map[string]string{
+		"sys_gpu_delete_acceptances_result_ck":          "result IN ('LOCAL_CANCELED','OWNER_DELETE')",
+		"sys_gpu_delete_acceptances_tenant_positive_ck": "tenant_id > 0",
+	}
+	SysGpuUsageSyncTable.Annotation = &entsql.Annotation{
+		Table: "sys_gpu_usage_sync",
+	}
+	SysGpuUsageSyncTable.Annotation.Checks = map[string]string{
+		"sys_gpu_usage_sync_payload_ref_ck":       "(jsonb_typeof(payload_json::jsonb) = 'object' AND payload_json::jsonb->'ref' IS NOT NULL AND jsonb_typeof(payload_json::jsonb->'ref') = 'object' AND (payload_json::jsonb->'ref'->>'tenant_id') IS NOT NULL AND payload_json::jsonb->'ref'->>'tenant_id' = resource_tenant_id AND (payload_json::jsonb->'ref'->>'owner_service') IS NOT NULL AND payload_json::jsonb->'ref'->>'owner_service' = owner_service AND (payload_json::jsonb->'ref'->>'resource_id') IS NOT NULL AND payload_json::jsonb->'ref'->>'resource_id' = resource_id AND (payload_json::jsonb->'ref'->>'create_operation_id') IS NOT NULL AND payload_json::jsonb->'ref'->>'create_operation_id' = operation_id AND (payload_json::jsonb->>'payload_digest') IS NOT NULL AND payload_json::jsonb->>'payload_digest' = payload_hash) IS TRUE",
+		"sys_gpu_usage_sync_revision_positive_ck": "revision IN (1,2) AND acked_revision >= 0 AND acked_revision <= revision AND ((revision=1 AND state='DECLARED') OR (revision=2 AND state='ENDED')) AND ((payload_json::jsonb->>'revision')::bigint=revision AND (payload_json::jsonb->>'state')::bigint=revision) IS TRUE",
+		"sys_gpu_usage_sync_tenant_positive_ck":   "tenant_id > 0",
 	}
 	InternalMessagesTable.Annotation = &entsql.Annotation{
 		Table:     "internal_messages",

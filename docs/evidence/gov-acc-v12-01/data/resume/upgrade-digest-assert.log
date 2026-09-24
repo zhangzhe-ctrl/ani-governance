@@ -1,0 +1,1 @@
+PASS: 51 old tables preserve exact row count and canonical JSON digest; only two catalog definitions and two empty GPU tables added

@@ -1,0 +1,10 @@
+=== RUN   TestQuotaGpuRestrictedRoleAndExplicitIsolation
+    quota_gpu_pg_test.go:79: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-data-mutation/app/admin/service/internal/data/quota_gpu_pg_test.go:79
+        	Error:      	Should be true
+        	Test:       	TestQuotaGpuRestrictedRoleAndExplicitIsolation
+--- FAIL: TestQuotaGpuRestrictedRoleAndExplicitIsolation (0.08s)
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/data	0.107s
+FAIL
+mutation_test_exit=1

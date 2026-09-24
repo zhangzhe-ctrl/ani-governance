@@ -1,5 +1,7 @@
 # QUOTA-GPU-LOCAL-01 证据索引
 
+> 2026-09-23 追加偏差说明（GOV-ACC-V12-01）：以下结论保留其历史范围。当时通用账本使用 Ent/部分手写 SQL，不是 pgx＋sqlc 全量实现；历史通过不豁免本批 no-RLS、受限运行角色、显式租户及 sqlc 门禁。本批重新迁移同一账本供非 GPU 与 quota_lab 共用，新的执行结果另存 `docs/evidence/gov-acc-v12-01/`，不得据此段推断新代码已通过。
+
 - 日期：2026-09-22（同日第二批补齐残留项）
 - 基线：业务源码核对点 5a5d0d8；执行时 HEAD 5c2dd57（仅多出本批计划文档提交，无业务源码差异）
 - 范围：docs/quota-gpu-local-execution-plan.md P0～P8，本地隔离环境（真实 PostgreSQL 16 容器、独立进程模拟器）

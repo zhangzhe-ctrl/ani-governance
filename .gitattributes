@@ -71,3 +71,9 @@ Dockerfile   text eol=lf
 # Immutable upstream snapshots: preserve exact bytes for Go and Buf digests.
 # In particular, locked BSR Proto sources may use CRLF.
 third_party/tx7do/** -text -eol -whitespace
+
+# Preserve raw acceptance logs, PostgreSQL aligned output and recorded commands.
+# Source files and authored Markdown retain the normal whitespace checks.
+docs/evidence/gov-acc-v12-01/**/*.log -whitespace
+docs/evidence/gov-acc-v12-01/joint-resume/**/command -whitespace
+docs/evidence/gov-acc-v12-01/pause-check.txt -whitespace

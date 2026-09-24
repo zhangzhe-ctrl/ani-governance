@@ -1,0 +1,12 @@
+=== RUN   TestEntClientRejectsStartupMigration
+--- PASS: TestEntClientRejectsStartupMigration (0.00s)
+=== RUN   TestQuotaGpuProductionPgxComposition
+=== RUN   TestQuotaGpuProductionPgxComposition/false
+=== RUN   TestQuotaGpuProductionPgxComposition/true
+--- PASS: TestQuotaGpuProductionPgxComposition (0.01s)
+    --- PASS: TestQuotaGpuProductionPgxComposition/false (0.01s)
+    --- PASS: TestQuotaGpuProductionPgxComposition/true (0.01s)
+=== RUN   TestQuotaGpuDeleteReleaseAndProjectionRecovery
+--- PASS: TestQuotaGpuDeleteReleaseAndProjectionRecovery (0.08s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	0.131s

@@ -26,6 +26,8 @@ Thumbs.db
 *.cert
 *.key
 *.log
+# Reviewed, redacted acceptance evidence for this task is part of delivery.
+!docs/evidence/gov-acc-v12-01/**/*.log
 bin/
 # 隔离实验镜像产物（scripts/lab/build-images.sh 默认输出目录）
 build/

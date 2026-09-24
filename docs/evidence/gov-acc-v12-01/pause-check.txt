@@ -1,0 +1,23 @@
+           ?column?           | count 
+------------------------------+-------
+ gpu_original_charge_mismatch |     0
+(1 row)
+
+         ?column?         | count 
+--------------------------+-------
+ account_charge_imbalance |     0
+(1 row)
+
+        ?column?         | count 
+-------------------------+-------
+ open_other_transactions |     0
+(1 row)
+
+ dispatch_state  | count 
+-----------------+-------
+ ACKED           |    26
+ CANCELED_UNSENT |    19
+ DISPATCHING     |     1
+ QUEUED          |     1
+(4 rows)
+

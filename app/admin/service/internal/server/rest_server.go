@@ -178,6 +178,7 @@ func NewRestServer(
 	accessKeyService *service.AccessKeyService,
 	configService *service.ConfigService,
 	networkService *service.NetworkService,
+	acceleratorService *service.AcceleratorService,
 	// extraRouteRegistrar 仅 lab 构建传入（实验路由注册钩子）；正式构建为 nil。
 	extraRouteRegistrar func(*http.Server),
 ) (*http.Server, error) {
@@ -250,6 +251,9 @@ func NewRestServer(
 	registerAccessKeyHTTP(srv, accessKeyService)
 	adminV1.RegisterConfigServiceHTTPServer(srv, configService)
 	adminV1.RegisterNetworkServiceHTTPServer(srv, networkService)
+	adminV1.RegisterAcceleratorAdminServiceHTTPServer(srv, acceleratorService)
+	adminV1.RegisterAcceleratorServiceHTTPServer(srv, acceleratorService)
+	adminV1.RegisterQuotaSelfServiceHTTPServer(srv, acceleratorService)
 
 	if cfg.GetServer().GetRest().GetEnableSwagger() {
 		swaggerUI.RegisterSwaggerUIServerWithOption(

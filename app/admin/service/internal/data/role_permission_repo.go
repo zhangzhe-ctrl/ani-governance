@@ -4,13 +4,13 @@ import (
 	"context"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	entCrud "github.com/tx7do/go-crud/entgo"
 	"github.com/tx7do/go-utils/copierutil"
 	"github.com/tx7do/go-utils/mapper"
 	"github.com/tx7do/go-utils/timeutil"
 	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolepermission"
@@ -224,6 +224,8 @@ func (r *RolePermissionRepo) ListPermissionIDs(ctx context.Context, roleID uint3
 	q := r.entClient.Client().RolePermission.Query().
 		Where(
 			rolepermission.RoleIDEQ(roleID),
+			rolepermission.StatusEQ(rolepermission.StatusOn),
+			rolepermission.EffectEQ(rolepermission.EffectAllow),
 		)
 
 	intIDs, err := q.
@@ -245,6 +247,8 @@ func (r *RolePermissionRepo) ListPermissionIDsByRoleIDs(ctx context.Context, rol
 	q := r.entClient.Client().RolePermission.Query().
 		Where(
 			rolepermission.RoleIDIn(roleIDs...),
+			rolepermission.StatusEQ(rolepermission.StatusOn),
+			rolepermission.EffectEQ(rolepermission.EffectAllow),
 		)
 
 	intIDs, err := q.

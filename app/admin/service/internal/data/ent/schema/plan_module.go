@@ -45,6 +45,7 @@ func (PlanModule) Fields() []ent.Field {
 				"Task", "TASK",
 				"Model", "MODEL",
 				"Network", "NETWORK",
+				"Accelerator", "ACCELERATOR",
 			).
 			Optional().
 			Nillable(),

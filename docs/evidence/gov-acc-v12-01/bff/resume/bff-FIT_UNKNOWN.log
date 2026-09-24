@@ -1,0 +1,61 @@
+=== RUN   TestAcceleratorJointHTTP
+    accelerator_joint_http_test.go:299: HTTP POST /admin/v1/accelerator/clusters -> 200
+    accelerator_joint_http_test.go:304: HTTP POST /admin/v1/accelerator/clusters -> 409
+    accelerator_joint_http_test.go:299: HTTP POST /admin/v1/accelerator/pools -> 200
+    accelerator_joint_http_test.go:299: HTTP POST /admin/v1/accelerator/supply-groups:adopt -> 200
+    accelerator_joint_http_test.go:299: HTTP POST /admin/v1/accelerator/profiles -> 200
+    accelerator_joint_http_test.go:299: HTTP POST /admin/v1/accelerator/supply-groups/45182356-5cbf-4505-8615-0248fe233814:set-admission -> 200
+    accelerator_joint_http_test.go:315: HTTP POST /admin/v1/accelerator/supply-groups/45182356-5cbf-4505-8615-0248fe233814:set-admission -> 409
+    accelerator_joint_http_test.go:340: HTTP GET /admin/v1/accelerator/clusters?page_size=1 -> 200
+    accelerator_joint_http_test.go:340: HTTP GET /admin/v1/accelerator/pools?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 200
+    accelerator_joint_http_test.go:340: HTTP GET /admin/v1/accelerator/supply-groups?pool_id=8214b422-e0bd-4700-a8d1-7593c0208cae -> 200
+    accelerator_joint_http_test.go:340: HTTP GET /admin/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 200
+    accelerator_joint_http_test.go:340: HTTP GET /admin/v1/accelerator/devices?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 200
+    accelerator_joint_http_test.go:340: HTTP GET /admin/v1/accelerator/bindings?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 200
+    accelerator_joint_http_test.go:340: HTTP GET /admin/v1/accelerator/capacity?include_devices=true&profile_id=a58e1bc6-1433-4c8a-a0ec-e3a143da3b0c&profile_version=1 -> 200
+    accelerator_joint_http_test.go:369: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 200
+    accelerator_joint_http_test.go:370: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 403
+    accelerator_joint_http_test.go:371: HTTP GET /api/v1/accelerator/profiles/a58e1bc6-1433-4c8a-a0ec-e3a143da3b0c?profile_version=1 -> 200
+    accelerator_joint_http_test.go:374: HTTP GET /api/v1/accelerator/capacity?profile_id=a58e1bc6-1433-4c8a-a0ec-e3a143da3b0c&profile_version=1 -> 200
+    accelerator_joint_http_test.go:389: HTTP POST /api/v1/accelerator/admission-preview -> 200
+    accelerator_joint_http_test.go:400: preview expected gpu_fit=FIT_UNKNOWN with sufficient quota; ledger unchanged
+    accelerator_joint_http_test.go:404: HTTP POST /api/v1/accelerator/admission-preview -> 400
+    accelerator_joint_http_test.go:412: HTTP GET /api/v1/accelerator/usages -> 200
+    accelerator_joint_http_test.go:413: HTTP GET /api/v1/accelerator/usages?owner_service=unknown-owner -> 400
+    accelerator_joint_http_test.go:414: HTTP GET /api/v1/accelerator/usages/unknown-owner/7cd80f39-b718-4637-9604-0ea54a585ac6 -> 404
+    accelerator_joint_http_test.go:415: HTTP GET /api/v1/accelerator/usages?page_size=1 -> 200
+    accelerator_joint_http_test.go:420: HTTP GET /api/v1/accelerator/usages?page_size=1 -> 200
+    accelerator_joint_http_test.go:422: HTTP GET /api/v1/accelerator/usages?page_size=1&page_token=opaque-redacted -> 200
+    accelerator_joint_http_test.go:424: HTTP GET /api/v1/accelerator/usages?page_size=1&page_token=opaque-redacted -> 403
+    accelerator_joint_http_test.go:427: HTTP GET /api/v1/accelerator/usages?page_size=1&page_token=opaque-redacted -> 403
+    accelerator_joint_http_test.go:428: HTTP GET /api/v1/accelerator/usages?page_size=1&page_token=opaque-redacted&state=ENDED -> 400
+    accelerator_joint_http_test.go:429: HTTP GET /api/v1/accelerator/usages?page_token=opaque-redacted -> 400
+    accelerator_joint_http_test.go:430: HTTP GET /api/v1/accelerator/profiles?page_token=opaque-redacted -> 400
+    accelerator_joint_http_test.go:431: HTTP GET /api/v1/accelerator/usages?page_size=200 -> 200
+    accelerator_joint_http_test.go:432: HTTP GET /api/v1/me/quota-accounts?tenant_id=9102 -> 200
+    accelerator_joint_http_test.go:435: HTTP GET /admin/v1/tenants/1/quota-accounts -> 200
+    accelerator_joint_http_test.go:437: HTTP GET /admin/v1/tenants/1/quota-accounts -> 404
+    accelerator_joint_http_test.go:438: HTTP GET /admin/v1/tenants/1/quota-accounts -> 401
+    accelerator_joint_http_test.go:439: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 401
+    accelerator_joint_http_test.go:440: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 401
+    accelerator_joint_http_test.go:441: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 403
+    accelerator_joint_http_test.go:442: HTTP GET /admin/v1/accelerator/clusters -> 403
+    accelerator_joint_http_test.go:443: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 403
+    accelerator_joint_http_test.go:444: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8&page_size=201 -> 400
+    accelerator_joint_http_test.go:445: HTTP GET /api/v1/accelerator/profiles/0fdf8c55-168a-4748-8e76-854e4ebc08b1?profile_version=1 -> 404
+    accelerator_joint_http_test.go:457: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 403
+    accelerator_joint_http_test.go:483: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 403
+    accelerator_joint_http_test.go:483: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 403
+    accelerator_joint_http_test.go:483: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 403
+    accelerator_joint_http_test.go:483: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 403
+    accelerator_joint_http_test.go:490: HTTP GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8 -> 403
+    accelerator_joint_http_test.go:491: HTTP GET /api/v1/me/quota-accounts -> 200
+    accelerator_joint_http_test.go:506: HTTP GET /api/v1/accelerator/usages/ani-inference/5852af17-ee43-4fd6-b54d-855b91843414 -> 200
+    accelerator_joint_http_test.go:508: HTTP GET /api/v1/accelerator/usages/ani-inference/5852af17-ee43-4fd6-b54d-855b91843414 -> 404
+    accelerator_joint_http_test.go:509: HTTP GET /api/v1/accelerator/usages/ani-inference/5852af17-ee43-4fd6-b54d-855b91843414/bindings -> 404
+    accelerator_joint_http_test.go:512: HTTP GET /api/v1/accelerator/usages/ani-inference/5852af17-ee43-4fd6-b54d-855b91843414/bindings -> 200
+    accelerator_joint_http_test.go:521: HTTP GET /api/v1/accelerator/usages/ani-inference/57f144b8-0dae-4442-8cfb-4992e1f43f66 -> 404
+    accelerator_joint_http_test.go:530: PASS: twenty HTTP BFFs, production JWT/cache + tenant/module/Casbin gates, exact downstream mTLS delegation, nonempty binding redaction; isolated software fixture, hardware_observed=false
+--- PASS: TestAcceleratorJointHTTP (0.87s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/service	0.908s

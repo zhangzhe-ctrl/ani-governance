@@ -1,0 +1,6 @@
+=== RUN   TestJointPolicyRevocationRecovery
+    policy_recovery_test.go:166: revoked grant did not reject delegated Resolve rpc error: code = PermissionDenied desc = DELEGATION_DENIED
+--- FAIL: TestJointPolicyRevocationRecovery (0.54s)
+FAIL
+FAIL	go-wind-admin/app/admin/service/tests/gpucontract	1.073s
+FAIL

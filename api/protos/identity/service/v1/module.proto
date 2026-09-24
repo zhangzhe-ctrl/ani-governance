@@ -19,4 +19,5 @@ enum Module {
   TASK = 10;            // 任务管理
   NETWORK = 12;         // 网络资源
   MODEL = 11;           // 模型目录
+  ACCELERATOR = 13;     // GPU supply and tenant read views
 }

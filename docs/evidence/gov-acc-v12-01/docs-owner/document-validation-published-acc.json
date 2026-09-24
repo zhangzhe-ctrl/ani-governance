@@ -1,0 +1,26 @@
+{
+  "checked_at": "2026-09-24T03:13:51.859322+00:00",
+  "status": "pass",
+  "documents": [
+    {
+      "document": "gpu-owner-integration-guide-final.md",
+      "sha256": "dc45423b2d1832526be00a77b8e487e0261505ce3772e21ac8867beba54171bc",
+      "relative_links_resolved": 22
+    },
+    {
+      "document": "governance-accelerator-v1.2-operations.md",
+      "sha256": "d8da0f09847a53e788258fb1f2c3f4911f1d72bd5c1e0c8451f6d7178a52fa84",
+      "relative_links_resolved": 28
+    }
+  ],
+  "checks": [
+    "relative links resolve in Fedora source",
+    "fixed published Acc SHA/module string",
+    "four existing frozen digests and Unicode/int64 SHA example"
+  ],
+  "limitations": [
+    "documentation validation only",
+    "no migration/service/shared joint task executed",
+    "final Governance release/source/CI/cleanup recorded separately by coordinator"
+  ]
+}

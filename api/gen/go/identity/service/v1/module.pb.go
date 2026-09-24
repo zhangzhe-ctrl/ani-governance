@@ -38,6 +38,7 @@ const (
 	Module_TASK               Module = 10 // 任务管理
 	Module_NETWORK            Module = 12 // 网络资源
 	Module_MODEL              Module = 11 // 模型目录
+	Module_ACCELERATOR        Module = 13 // GPU supply and tenant read views
 )
 
 // Enum value maps for Module.
@@ -55,6 +56,7 @@ var (
 		10: "TASK",
 		12: "NETWORK",
 		11: "MODEL",
+		13: "ACCELERATOR",
 	}
 	Module_value = map[string]int32{
 		"MODULE_UNSPECIFIED": 0,
@@ -69,6 +71,7 @@ var (
 		"TASK":               10,
 		"NETWORK":            12,
 		"MODEL":              11,
+		"ACCELERATOR":        13,
 	}
 )
 
@@ -103,7 +106,7 @@ var File_identity_service_v1_module_proto protoreflect.FileDescriptor
 
 const file_identity_service_v1_module_proto_rawDesc = "" +
 	"\n" +
-	" identity/service/v1/module.proto\x12\x13identity.service.v1\x1a$gnostic/openapi/v3/annotations.proto*\xab\x01\n" +
+	" identity/service/v1/module.proto\x12\x13identity.service.v1\x1a$gnostic/openapi/v3/annotations.proto*\xbc\x01\n" +
 	"\x06Module\x12\x16\n" +
 	"\x12MODULE_UNSPECIFIED\x10\x00\x12\r\n" +
 	"\tDASHBOARD\x10\x01\x12\a\n" +
@@ -120,7 +123,8 @@ const file_identity_service_v1_module_proto_rawDesc = "" +
 	"\x04TASK\x10\n" +
 	"\x12\v\n" +
 	"\aNETWORK\x10\f\x12\t\n" +
-	"\x05MODEL\x10\vB\xcd\x01\n" +
+	"\x05MODEL\x10\v\x12\x0f\n" +
+	"\vACCELERATOR\x10\rB\xcd\x01\n" +
 	"\x17com.identity.service.v1B\vModuleProtoP\x01Z7go-wind-admin/api/gen/go/identity/service/v1;identitypb\xa2\x02\x03ISX\xaa\x02\x13Identity.Service.V1\xca\x02\x13Identity\\Service\\V1\xe2\x02\x1fIdentity\\Service\\V1\\GPBMetadata\xea\x02\x15Identity::Service::V1b\x06proto3"
 
 var (

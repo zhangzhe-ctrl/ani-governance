@@ -1,0 +1,33 @@
+=== RUN   TestJointDispatchFailuresAndStop
+=== RUN   TestJointDispatchFailuresAndStop/invalid_ack_operation
+=== RUN   TestJointDispatchFailuresAndStop/invalid_ack_resource
+=== RUN   TestJointDispatchFailuresAndStop/invalid_ack_accepted
+=== RUN   TestJointDispatchFailuresAndStop/invalid_ack_json
+=== NAME  TestJointDispatchFailuresAndStop
+    dispatch_failure_test.go:184: four malformed ACKs remained charged/blocked; PostgreSQL-blocked worker canceled and stopped without later owner call; restart recovered
+--- PASS: TestJointDispatchFailuresAndStop (4.85s)
+    --- PASS: TestJointDispatchFailuresAndStop/invalid_ack_operation (0.45s)
+    --- PASS: TestJointDispatchFailuresAndStop/invalid_ack_resource (0.42s)
+    --- PASS: TestJointDispatchFailuresAndStop/invalid_ack_accepted (0.42s)
+    --- PASS: TestJointDispatchFailuresAndStop/invalid_ack_json (0.42s)
+=== RUN   TestJointSoftwareContract
+    joint_test.go:525: mixed full DELETE vector recovered; GPU ENDED preceded non-GPU cumulative refunds
+    joint_test.go:526: known zero capacity accepted: 8 devices, 88 scoped fixture transitions
+    joint_test.go:526: real JWT/HTTP BFF capacity WAIT_FOR_CAPACITY passed
+    joint_test.go:526: real JWT/HTTP BFF capacity FIT_UNKNOWN passed
+    joint_test.go:526: unknown capacity accepted without inventory reservation
+--- PASS: TestJointSoftwareContract (115.28s)
+=== RUN   TestJointMixedCharges
+    mixed_test.go:68: mixed full DELETE vector recovered; GPU ENDED preceded non-GPU cumulative refunds
+--- PASS: TestJointMixedCharges (4.23s)
+=== RUN   TestJointPolicyRevocationRecovery
+    policy_recovery_test.go:355: AUTH-03/RELEASE-06: original Resolve allowed, isolated zero-grant Resolve denied; actual owner mTLS refund succeeded while tenant OFF/expired/quota zero and DELETE unacknowledged; old operation Sync reached DECLARED then ENDED with zero user grants
+--- PASS: TestJointPolicyRevocationRecovery (3.63s)
+=== RUN   TestJointResolvedSnapshotRace
+    snapshot_race_test.go:296: CREATE-03 two real delegated Resolve responses, identical semantic digest=07263ab447632c04f15e6138952a999ef4a3a1c2d0a4aaa35265565283f88408; winner process=1 canonical_sha256=986913db06c9a69b587452c6231a21030f77263cb392837ae70b417dfb8d67e1; loser and replays preserved original full vector and single charge
+--- PASS: TestJointResolvedSnapshotRace (1.21s)
+=== RUN   TestJointSyncFailureRecovery
+    sync_failure_test.go:250: real mTLS unavailable/deadline/receiver conflict retained; immutable retries converged; independent dispatch/refund and later revision recovered
+--- PASS: TestJointSyncFailureRecovery (11.14s)
+PASS
+ok  	go-wind-admin/app/admin/service/tests/gpucontract	140.884s
