@@ -161,6 +161,10 @@ func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out
 		}
 	}
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
+		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+		if clockErr != nil {
+			return clockErr
+		}
 		ctx := appViewer.NewSystemViewerContext(ctx)
 		tenant, err := lockQuotaTenant(ctx, tx, in.TenantID)
 		if ent.IsNotFound(err) {
@@ -213,7 +217,7 @@ func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out
 			if !ok {
 				return QuotaErrNotConfigured("quota not configured: " + it.QuotaCode)
 			}
-			if err = tx.QuotaAccount.Create().SetCreatedAt(time.Now()).SetUpdatedAt(time.Now()).SetTenantID(in.TenantID).SetQuotaCode(it.QuotaCode).OnConflictColumns(quotaaccount.FieldTenantID, quotaaccount.FieldQuotaCode).Ignore().Exec(ctx); err != nil {
+			if err = tx.QuotaAccount.Create().SetCreatedAt(databaseNow).SetUpdatedAt(databaseNow).SetTenantID(in.TenantID).SetQuotaCode(it.QuotaCode).OnConflictColumns(quotaaccount.FieldTenantID, quotaaccount.FieldQuotaCode).Ignore().Exec(ctx); err != nil {
 				return err
 			}
 			acc, e := tx.QuotaAccount.Query().Where(quotaaccount.TenantIDEQ(in.TenantID), quotaaccount.QuotaCodeEQ(it.QuotaCode)).ForUpdate().Only(ctx)
@@ -224,14 +228,14 @@ func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out
 				return QuotaErrExceeded("quota exceeded: " + it.QuotaCode)
 			}
 		}
-		op, err = tx.QuotaOperation.Create().SetCreatedAt(time.Now()).SetUpdatedAt(time.Now()).SetOperationID(generateUUID()).SetTenantID(in.TenantID).SetResourceTenantID(in.ResourceTenantID).SetResourceID(in.ResourceID).SetActorType(in.ActorType).SetActorID(in.ActorID).SetOwnerService(in.OwnerService).SetAction(in.Action).SetIdempotencyKey(in.IdempotencyKey).SetRequestHash(in.RequestHash).SetCanonicalRequest(in.CanonicalRequest).SetDispatchState(quotaoperation.DispatchState("QUEUED")).Save(ctx)
+		op, err = tx.QuotaOperation.Create().SetCreatedAt(databaseNow).SetUpdatedAt(databaseNow).SetOperationID(generateUUID()).SetTenantID(in.TenantID).SetResourceTenantID(in.ResourceTenantID).SetResourceID(in.ResourceID).SetActorType(in.ActorType).SetActorID(in.ActorID).SetOwnerService(in.OwnerService).SetAction(in.Action).SetIdempotencyKey(in.IdempotencyKey).SetRequestHash(in.RequestHash).SetCanonicalRequest(in.CanonicalRequest).SetDispatchState(quotaoperation.DispatchState("QUEUED")).Save(ctx)
 		if err != nil {
 			return err
 		}
 		charges := make([]*ent.QuotaCharge, 0, len(items))
 		byCode := map[string]string{}
 		for _, it := range items {
-			c, e := tx.QuotaCharge.Create().SetCreatedAt(time.Now()).SetUpdatedAt(time.Now()).SetChargeID(generateUUID()).SetTenantID(in.TenantID).SetOperationID(op.OperationID).SetQuotaCode(it.QuotaCode).SetOriginalUnits(it.Units).Save(ctx)
+			c, e := tx.QuotaCharge.Create().SetCreatedAt(databaseNow).SetUpdatedAt(databaseNow).SetChargeID(generateUUID()).SetTenantID(in.TenantID).SetOperationID(op.OperationID).SetQuotaCode(it.QuotaCode).SetOriginalUnits(it.Units).Save(ctx)
 			if e != nil {
 				return e
 			}
@@ -257,7 +261,11 @@ func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out
 	return out, nil
 }
 func changeAccount(ctx context.Context, tx *ent.Tx, tenant uint32, code string, delta int64) error {
-	n, e := tx.QuotaAccount.Update().SetUpdatedAt(time.Now()).Where(quotaaccount.TenantIDEQ(tenant), quotaaccount.QuotaCodeEQ(code), quotaAccountNonnegative(delta)).AddOccupiedUnits(delta).AddVersion(1).Save(ctx)
+	databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+	if clockErr != nil {
+		return clockErr
+	}
+	n, e := tx.QuotaAccount.Update().SetUpdatedAt(databaseNow).Where(quotaaccount.TenantIDEQ(tenant), quotaaccount.QuotaCodeEQ(code), quotaAccountNonnegative(delta)).AddOccupiedUnits(delta).AddVersion(1).Save(ctx)
 	if e != nil {
 		return e
 	}
@@ -282,6 +290,10 @@ func (r *QuotaLedgerRepo) Release(ctx context.Context, in *QuotaReleaseInput) (o
 		return nil, releaseErrInvalid("incomplete release")
 	}
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
+		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+		if clockErr != nil {
+			return clockErr
+		}
 		ctx := appViewer.NewSystemViewerContext(ctx)
 		// Sole owner-scoped locator: certificate owner plus original CREATE, before
 		// explicit tenant locking. Caller-provided tenant never authorizes a refund.
@@ -371,7 +383,7 @@ func (r *QuotaLedgerRepo) Release(ctx context.Context, in *QuotaReleaseInput) (o
 				if e = changeAccount(ctx, tx, tid, c.QuotaCode, -delta); e != nil {
 					return e
 				}
-				if _, e = tx.QuotaCharge.Update().SetUpdatedAt(time.Now()).Where(quotacharge.TenantIDEQ(tid), quotacharge.ChargeIDEQ(c.ChargeID), quotacharge.ReleasedUnitsLTE(total), quotacharge.OriginalUnitsGTE(total)).SetReleasedUnits(total).Save(ctx); e != nil {
+				if _, e = tx.QuotaCharge.Update().SetUpdatedAt(databaseNow).Where(quotacharge.TenantIDEQ(tid), quotacharge.ChargeIDEQ(c.ChargeID), quotacharge.ReleasedUnitsLTE(total), quotacharge.OriginalUnitsGTE(total)).SetReleasedUnits(total).Save(ctx); e != nil {
 					return e
 				}
 			}
@@ -380,12 +392,16 @@ func (r *QuotaLedgerRepo) Release(ctx context.Context, in *QuotaReleaseInput) (o
 		if replayed {
 			return nil
 		}
-		return tx.QuotaReleaseReceipt.Create().SetCreatedAt(time.Now()).SetReceiptID(generateUUID()).SetTenantID(tid).SetOwnerService(in.OwnerService).SetReleaseEventID(in.ReleaseEventID).SetPayloadHash(in.PayloadHash).SetPayloadJSON(in.PayloadJSON).Exec(ctx)
+		return tx.QuotaReleaseReceipt.Create().SetCreatedAt(databaseNow).SetReceiptID(generateUUID()).SetTenantID(tid).SetOwnerService(in.OwnerService).SetReleaseEventID(in.ReleaseEventID).SetPayloadHash(in.PayloadHash).SetPayloadJSON(in.PayloadJSON).Exec(ctx)
 	})
 	return out, err
 }
 
 func cancelLocked(ctx context.Context, tx *ent.Tx, op *ent.QuotaOperation, charges []*ent.QuotaCharge) error {
+	databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+	if clockErr != nil {
+		return clockErr
+	}
 	if op.DispatchState == "CANCELED_UNSENT" {
 		if op.AttemptCount != 0 || len(charges) == 0 {
 			return QuotaErrInvalid("inconsistent local cancellation")
@@ -420,11 +436,11 @@ func cancelLocked(ctx context.Context, tx *ent.Tx, op *ent.QuotaOperation, charg
 		if e := changeAccount(ctx, tx, *op.TenantID, c.QuotaCode, -delta); e != nil {
 			return e
 		}
-		if _, e := tx.QuotaCharge.Update().SetUpdatedAt(time.Now()).Where(quotacharge.TenantIDEQ(*op.TenantID), quotacharge.ChargeIDEQ(c.ChargeID), quotacharge.ReleasedUnitsLTE(c.OriginalUnits), quotacharge.OriginalUnitsGTE(c.OriginalUnits)).SetReleasedUnits(c.OriginalUnits).Save(ctx); e != nil {
+		if _, e := tx.QuotaCharge.Update().SetUpdatedAt(databaseNow).Where(quotacharge.TenantIDEQ(*op.TenantID), quotacharge.ChargeIDEQ(c.ChargeID), quotacharge.ReleasedUnitsLTE(c.OriginalUnits), quotacharge.OriginalUnitsGTE(c.OriginalUnits)).SetReleasedUnits(c.OriginalUnits).Save(ctx); e != nil {
 			return e
 		}
 	}
-	n, e := tx.QuotaOperation.Update().SetUpdatedAt(time.Now()).Where(quotaoperation.TenantIDEQ(*op.TenantID), quotaoperation.OperationIDEQ(op.OperationID), quotaoperation.DispatchStateEQ(quotaoperation.DispatchStateQueued), quotaoperation.AttemptCountEQ(0)).SetDispatchState(quotaoperation.DispatchStateCanceledUnsent).SetLastErrorCode("LOCAL_CANCEL").Save(ctx)
+	n, e := tx.QuotaOperation.Update().SetUpdatedAt(databaseNow).Where(quotaoperation.TenantIDEQ(*op.TenantID), quotaoperation.OperationIDEQ(op.OperationID), quotaoperation.DispatchStateEQ(quotaoperation.DispatchStateQueued), quotaoperation.AttemptCountEQ(0)).SetDispatchState(quotaoperation.DispatchStateCanceledUnsent).SetLastErrorCode("LOCAL_CANCEL").Save(ctx)
 	if e != nil {
 		return e
 	}
@@ -455,6 +471,10 @@ func (r *QuotaLedgerRepo) CreateDeleteOperation(ctx context.Context, in *QuotaDe
 		return nil, QuotaErrInvalid("incomplete delete input")
 	}
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
+		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+		if clockErr != nil {
+			return clockErr
+		}
 		ctx := appViewer.NewSystemViewerContext(ctx)
 		tid := in.TenantID
 		if _, e := lockQuotaTenant(ctx, tx, tid); e != nil {
@@ -520,7 +540,7 @@ func (r *QuotaLedgerRepo) CreateDeleteOperation(ctx context.Context, in *QuotaDe
 			state = "CANCELED_UNSENT"
 		}
 		// DELETE carries the exact original frozen request, never a newly resolved plan.
-		op, e := tx.QuotaOperation.Create().SetCreatedAt(time.Now()).SetUpdatedAt(time.Now()).SetOperationID(generateUUID()).SetTenantID(tid).SetResourceTenantID(original.ResourceTenantID).SetResourceID(original.ResourceID).SetNillableCreateOperationID(&original.OperationID).SetActorType(in.ActorType).SetActorID(in.ActorID).SetOwnerService(in.OwnerService).SetAction(in.Action).SetIdempotencyKey(in.IdempotencyKey).SetRequestHash(in.RequestHash).SetCanonicalRequest(original.CanonicalRequest).SetDispatchState(quotaoperation.DispatchState(state)).Save(ctx)
+		op, e := tx.QuotaOperation.Create().SetCreatedAt(databaseNow).SetUpdatedAt(databaseNow).SetOperationID(generateUUID()).SetTenantID(tid).SetResourceTenantID(original.ResourceTenantID).SetResourceID(original.ResourceID).SetNillableCreateOperationID(&original.OperationID).SetActorType(in.ActorType).SetActorID(in.ActorID).SetOwnerService(in.OwnerService).SetAction(in.Action).SetIdempotencyKey(in.IdempotencyKey).SetRequestHash(in.RequestHash).SetCanonicalRequest(original.CanonicalRequest).SetDispatchState(quotaoperation.DispatchState(state)).Save(ctx)
 		if e != nil {
 			return e
 		}
@@ -529,7 +549,7 @@ func (r *QuotaLedgerRepo) CreateDeleteOperation(ctx context.Context, in *QuotaDe
 			if local {
 				result = "LOCAL_CANCELED"
 			}
-			if e = tx.GpuDeleteAcceptance.Create().SetCreatedAt(time.Now()).SetTenantID(tid).SetActorType(in.ActorType).SetActorID(in.ActorID).SetAction(in.Action).SetIdempotencyKey(in.IdempotencyKey).SetRequestHash(in.RequestHash).SetCreateOperationID(original.OperationID).SetDeleteOperationID(op.OperationID).SetResult(result).Exec(ctx); e != nil {
+			if e = tx.GpuDeleteAcceptance.Create().SetCreatedAt(databaseNow).SetTenantID(tid).SetActorType(in.ActorType).SetActorID(in.ActorID).SetAction(in.Action).SetIdempotencyKey(in.IdempotencyKey).SetRequestHash(in.RequestHash).SetCreateOperationID(original.OperationID).SetDeleteOperationID(op.OperationID).SetResult(result).Exec(ctx); e != nil {
 				return e
 			}
 		}
@@ -671,6 +691,10 @@ func (r *QuotaLedgerRepo) ClaimDispatchable(ctx context.Context, worker string, 
 	for _, candidate := range candidates {
 		var claimed *ClaimedOperation
 		e := r.transaction(ctx, func(tx *ent.Tx) error {
+			databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+			if clockErr != nil {
+				return clockErr
+			}
 			ctx := appViewer.NewSystemViewerContext(ctx)
 			// Tenant-first lock order serializes cancellation, release and worker claim.
 			if _, e := lockQuotaTenant(ctx, tx, *candidate.TenantID); e != nil {
@@ -696,7 +720,7 @@ func (r *QuotaLedgerRepo) ClaimDispatchable(ctx context.Context, worker string, 
 				code := "ORIGINAL_CHARGES_INVALID"
 				delay := min(30*time.Second, time.Second<<min(max(op.AttemptCount-1, 0), 5))
 				next := time.Now().Add(delay)
-				n, e := tx.QuotaOperation.Update().SetUpdatedAt(time.Now()).Where(quotaoperation.TenantIDEQ(*op.TenantID), quotaoperation.OperationIDEQ(op.OperationID), quotaoperation.LeaseGenerationEQ(op.LeaseGeneration), quotaoperation.DispatchStateEQ(quotaoperation.DispatchStateDispatching)).SetDispatchState(quotaoperation.DispatchStateUnknown).SetNillableNextAttemptAt(&next).SetNillableLastErrorCode(&code).SetRetryBlocked(false).Save(ctx)
+				n, e := tx.QuotaOperation.Update().SetUpdatedAt(databaseNow).Where(quotaoperation.TenantIDEQ(*op.TenantID), quotaoperation.OperationIDEQ(op.OperationID), quotaoperation.LeaseGenerationEQ(op.LeaseGeneration), quotaoperation.DispatchStateEQ(quotaoperation.DispatchStateDispatching)).SetDispatchState(quotaoperation.DispatchStateUnknown).SetNillableNextAttemptAt(&next).SetNillableLastErrorCode(&code).SetRetryBlocked(false).Save(ctx)
 				if e != nil {
 					return e
 				}
@@ -729,8 +753,12 @@ func (r *QuotaLedgerRepo) ClaimDispatchable(ctx context.Context, worker string, 
 }
 func (r *QuotaLedgerRepo) AckDispatched(ctx context.Context, tid uint32, id string, generation int64, ack string) (ok bool, err error) {
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
+		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+		if clockErr != nil {
+			return clockErr
+		}
 		ctx := appViewer.NewSystemViewerContext(ctx)
-		n, e := tx.QuotaOperation.Update().SetUpdatedAt(time.Now()).Where(quotaoperation.TenantIDEQ(tid), quotaoperation.OperationIDEQ(id), quotaoperation.LeaseGenerationEQ(generation), quotaoperation.DispatchStateEQ(quotaoperation.DispatchStateDispatching)).SetDispatchState(quotaoperation.DispatchStateAcked).SetNillableAckJSON(&ack).Save(ctx)
+		n, e := tx.QuotaOperation.Update().SetUpdatedAt(databaseNow).Where(quotaoperation.TenantIDEQ(tid), quotaoperation.OperationIDEQ(id), quotaoperation.LeaseGenerationEQ(generation), quotaoperation.DispatchStateEQ(quotaoperation.DispatchStateDispatching)).SetDispatchState(quotaoperation.DispatchStateAcked).SetNillableAckJSON(&ack).Save(ctx)
 		ok = n == 1
 		return e
 	})
@@ -738,8 +766,12 @@ func (r *QuotaLedgerRepo) AckDispatched(ctx context.Context, tid uint32, id stri
 }
 func (r *QuotaLedgerRepo) MarkUnknown(ctx context.Context, tid uint32, id string, generation int64, next time.Time, code string, blocked bool) (ok bool, err error) {
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
+		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+		if clockErr != nil {
+			return clockErr
+		}
 		ctx := appViewer.NewSystemViewerContext(ctx)
-		n, e := tx.QuotaOperation.Update().SetUpdatedAt(time.Now()).Where(quotaoperation.TenantIDEQ(tid), quotaoperation.OperationIDEQ(id), quotaoperation.LeaseGenerationEQ(generation), quotaoperation.DispatchStateEQ(quotaoperation.DispatchStateDispatching)).SetDispatchState(quotaoperation.DispatchStateUnknown).SetNillableNextAttemptAt(&next).SetNillableLastErrorCode(&code).SetRetryBlocked(blocked).Save(ctx)
+		n, e := tx.QuotaOperation.Update().SetUpdatedAt(databaseNow).Where(quotaoperation.TenantIDEQ(tid), quotaoperation.OperationIDEQ(id), quotaoperation.LeaseGenerationEQ(generation), quotaoperation.DispatchStateEQ(quotaoperation.DispatchStateDispatching)).SetDispatchState(quotaoperation.DispatchStateUnknown).SetNillableNextAttemptAt(&next).SetNillableLastErrorCode(&code).SetRetryBlocked(blocked).Save(ctx)
 		ok = n == 1
 		return e
 	})
@@ -747,8 +779,12 @@ func (r *QuotaLedgerRepo) MarkUnknown(ctx context.Context, tid uint32, id string
 }
 func (r *QuotaLedgerRepo) ResumeDispatch(ctx context.Context, tid uint32, id string) error {
 	return r.transaction(ctx, func(tx *ent.Tx) error {
+		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+		if clockErr != nil {
+			return clockErr
+		}
 		ctx := appViewer.NewSystemViewerContext(ctx)
-		n, e := tx.QuotaOperation.Update().SetUpdatedAt(time.Now()).Where(quotaoperation.TenantIDEQ(tid), quotaoperation.OperationIDEQ(id), quotaoperation.RetryBlockedEQ(true)).SetRetryBlocked(false).Modify(func(u *entsql.UpdateBuilder) {
+		n, e := tx.QuotaOperation.Update().SetUpdatedAt(databaseNow).Where(quotaoperation.TenantIDEQ(tid), quotaoperation.OperationIDEQ(id), quotaoperation.RetryBlockedEQ(true)).SetRetryBlocked(false).Modify(func(u *entsql.UpdateBuilder) {
 			u.Set(quotaoperation.FieldNextAttemptAt, entsql.Expr("CURRENT_TIMESTAMP"))
 		}).Save(ctx)
 		if e != nil {

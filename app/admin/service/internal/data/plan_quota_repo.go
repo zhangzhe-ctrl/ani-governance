@@ -4,7 +4,6 @@ import (
 	"context"
 	"math"
 	"strings"
-	"time"
 
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	entCrud "github.com/tx7do/go-crud/entgo"
@@ -204,11 +203,15 @@ func (r *PlanQuotaRepo) Create(ctx context.Context, req *identityV1.CreatePlanQu
 		return QuotaErrInvalid("valid plan/code/value required")
 	}
 	return r.transaction(ctx, func(tx *ent.Tx) error {
+		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+		if clockErr != nil {
+			return clockErr
+		}
 		ctx := appViewer.NewSystemViewerContext(ctx)
 		if _, e := lockQuotaPlan(ctx, tx, d.GetPlanId(), supportsRowLock(r.entClient)); e != nil {
 			return e
 		}
-		return tx.PlanQuota.Create().SetCreatedAt(time.Now()).SetUpdatedAt(time.Now()).SetPlanID(d.GetPlanId()).SetQuotaCode(code).SetNillableQuotaType(legacyQuotaType(code)).SetQuotaValue(d.GetQuotaValue()).SetNillableCreatedBy(d.CreatedBy).Exec(ctx)
+		return tx.PlanQuota.Create().SetCreatedAt(databaseNow).SetUpdatedAt(databaseNow).SetPlanID(d.GetPlanId()).SetQuotaCode(code).SetNillableQuotaType(legacyQuotaType(code)).SetQuotaValue(d.GetQuotaValue()).SetNillableCreatedBy(d.CreatedBy).Exec(ctx)
 	})
 }
 func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQuotaRequest) error {
@@ -239,6 +242,10 @@ func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQu
 		return QuotaErrInvalid("valid quota value required")
 	}
 	return r.transaction(ctx, func(tx *ent.Tx) error {
+		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+		if clockErr != nil {
+			return clockErr
+		}
 		ctx := appViewer.NewSystemViewerContext(ctx)
 		row, e := tx.PlanQuota.Query().Where(planquota.IDEQ(req.GetId())).WithPlan().Only(ctx)
 		if e != nil {
@@ -258,7 +265,7 @@ func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQu
 		if setValue {
 			row.QuotaValue = req.Data.QuotaValue
 		}
-		builder := tx.PlanQuota.Update().SetUpdatedAt(time.Now()).Where(planquota.IDEQ(row.ID), planquota.HasPlanWith(plan.IDEQ(row.Edges.Plan.ID))).SetQuotaCode(row.QuotaCode).SetNillableQuotaValue(row.QuotaValue).SetNillableUpdatedBy(req.Data.UpdatedBy)
+		builder := tx.PlanQuota.Update().SetUpdatedAt(databaseNow).Where(planquota.IDEQ(row.ID), planquota.HasPlanWith(plan.IDEQ(row.Edges.Plan.ID))).SetQuotaCode(row.QuotaCode).SetNillableQuotaValue(row.QuotaValue).SetNillableUpdatedBy(req.Data.UpdatedBy)
 		if row.QuotaType == nil {
 			builder.ClearQuotaType()
 		} else {

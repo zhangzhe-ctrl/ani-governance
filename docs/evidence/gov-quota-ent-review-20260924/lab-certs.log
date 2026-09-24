@@ -1,0 +1,10 @@
+Certificate request self-signature ok
+subject=CN=ani-governance
+Certificate request self-signature ok
+subject=CN=ani-gpu-simulator
+Certificate request self-signature ok
+subject=CN=other-service
+Certificate request self-signature ok
+subject=CN=same-owner-alias
+Certificate request self-signature ok
+subject=CN=mixed-owner

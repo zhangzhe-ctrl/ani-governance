@@ -1,0 +1,9 @@
+=== RUN   TestQuotaGpuRestrictedRoleAndExplicitIsolation
+    quota_gpu_pg_test.go:120: 
+        	Error Trace:	/home/chabking/gov-quota-ent-20260924-QZNFqX/source/app/admin/service/internal/data/quota_gpu_pg_test.go:120
+        	Error:      	Should be true
+        	Test:       	TestQuotaGpuRestrictedRoleAndExplicitIsolation
+--- FAIL: TestQuotaGpuRestrictedRoleAndExplicitIsolation (0.10s)
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/data	0.133s
+FAIL

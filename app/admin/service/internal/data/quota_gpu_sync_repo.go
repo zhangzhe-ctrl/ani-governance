@@ -108,8 +108,12 @@ func (r *QuotaLedgerRepo) ClaimGpuUsageSync(ctx context.Context, worker string, 
 }
 func (r *QuotaLedgerRepo) AckGpuUsageSync(ctx context.Context, tid uint32, id string, revision, generation int64) (ok bool, err error) {
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
+		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+		if clockErr != nil {
+			return clockErr
+		}
 		ctx := appViewer.NewSystemViewerContext(ctx)
-		n, e := tx.GpuUsageSync.Update().SetUpdatedAt(time.Now()).Where(gpuusagesync.TenantIDEQ(tid), gpuusagesync.OperationIDEQ(id), gpuusagesync.RevisionEQ(revision), gpuusagesync.LeaseGenerationEQ(generation), gpuusagesync.LeaseUntilNotNil(), gpuSyncUnacked).SetAckedRevision(revision).ClearLeaseUntil().ClearLastErrorCode().Save(ctx)
+		n, e := tx.GpuUsageSync.Update().SetUpdatedAt(databaseNow).Where(gpuusagesync.TenantIDEQ(tid), gpuusagesync.OperationIDEQ(id), gpuusagesync.RevisionEQ(revision), gpuusagesync.LeaseGenerationEQ(generation), gpuusagesync.LeaseUntilNotNil(), gpuSyncUnacked).SetAckedRevision(revision).ClearLeaseUntil().ClearLastErrorCode().Save(ctx)
 		ok = n == 1
 		return e
 	})
@@ -117,8 +121,12 @@ func (r *QuotaLedgerRepo) AckGpuUsageSync(ctx context.Context, tid uint32, id st
 }
 func (r *QuotaLedgerRepo) RetryGpuUsageSync(ctx context.Context, tid uint32, id string, revision, generation int64, next time.Time, code string) (ok bool, err error) {
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
+		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+		if clockErr != nil {
+			return clockErr
+		}
 		ctx := appViewer.NewSystemViewerContext(ctx)
-		n, e := tx.GpuUsageSync.Update().SetUpdatedAt(time.Now()).Where(gpuusagesync.TenantIDEQ(tid), gpuusagesync.OperationIDEQ(id), gpuusagesync.RevisionEQ(revision), gpuusagesync.LeaseGenerationEQ(generation), gpuusagesync.LeaseUntilNotNil(), gpuSyncUnacked).ClearLeaseUntil().SetNillableNextAttemptAt(&next).SetNillableLastErrorCode(&code).Save(ctx)
+		n, e := tx.GpuUsageSync.Update().SetUpdatedAt(databaseNow).Where(gpuusagesync.TenantIDEQ(tid), gpuusagesync.OperationIDEQ(id), gpuusagesync.RevisionEQ(revision), gpuusagesync.LeaseGenerationEQ(generation), gpuusagesync.LeaseUntilNotNil(), gpuSyncUnacked).ClearLeaseUntil().SetNillableNextAttemptAt(&next).SetNillableLastErrorCode(&code).Save(ctx)
 		ok = n == 1
 		return e
 	})
@@ -161,8 +169,12 @@ func (r *QuotaLedgerRepo) LoadGpuProjectionSource(ctx context.Context, tid uint3
 // business dispatch or balances. A later source revision re-enables projection.
 func (r *QuotaLedgerRepo) BlockGpuUsageSync(ctx context.Context, tid uint32, id string, revision, generation int64, code string) (ok bool, err error) {
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
+		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+		if clockErr != nil {
+			return clockErr
+		}
 		ctx := appViewer.NewSystemViewerContext(ctx)
-		n, e := tx.GpuUsageSync.Update().SetUpdatedAt(time.Now()).Where(gpuusagesync.TenantIDEQ(tid), gpuusagesync.OperationIDEQ(id), gpuusagesync.RevisionEQ(revision), gpuusagesync.LeaseGenerationEQ(generation), gpuusagesync.LeaseUntilNotNil(), gpuSyncUnacked).SetRetryBlocked(true).ClearLeaseUntil().SetNillableLastErrorCode(&code).Save(ctx)
+		n, e := tx.GpuUsageSync.Update().SetUpdatedAt(databaseNow).Where(gpuusagesync.TenantIDEQ(tid), gpuusagesync.OperationIDEQ(id), gpuusagesync.RevisionEQ(revision), gpuusagesync.LeaseGenerationEQ(generation), gpuusagesync.LeaseUntilNotNil(), gpuSyncUnacked).SetRetryBlocked(true).ClearLeaseUntil().SetNillableLastErrorCode(&code).Save(ctx)
 		ok = n == 1
 		return e
 	})

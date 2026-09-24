@@ -974,3 +974,7 @@ HTTP 不接受 tenant/actor/context 作为身份来源；服务从已验证 Prin
 删除 Conn.Raw/pgx 事务桥接、Governance sqlc 生成代码与强制门禁，保留显式 tenant 条件、
 行锁/租约代次校验、既有数据库约束及版本迁移。历史验收不自动计入本次回归，
 当前验证见 [Ent 修复记录](evidence/gov-quota-ent-20260924/README.md)。整体接口登记仍未结项。
+
+### 2026-09-24：Governance Ent 审核整改
+
+套餐配额列表恢复已接受的 SEARCH 空白、数值和时间字段语义；字段白名单、参数绑定、原分页/过滤、鉴权入口和报文不变。配额及 usage sync 的持久化时间恢复同一 PostgreSQL 事务时间。补充事务异常回滚与生产 SQL 审计断言，修复完整 checkout 格式门禁、Ent race 选择及 CI 证据 artifact。具体修改与执行证据见 [审核整改记录](evidence/gov-quota-ent-review-20260924/README.md)。本批不新增接口、权限、数据库迁移或生产启用事实。

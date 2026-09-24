@@ -55,6 +55,20 @@ func planQuotaCondition(c *paginationV1.FilterCondition) (quotaFilter, error) {
 		return nil, QuotaErrInvalid("unknown plan quota filter field")
 	}
 	op := c.GetOp()
+	// SEARCH uses the historical JSON text representation for every accepted
+	// field. Handle it before numeric/time comparison parsing, including blank
+	// searches. #>> '{}' extracts scalar JSON text without JSON string quotes.
+	if op == paginationV1.Operator_SEARCH {
+		value := c.GetValue()
+		return func(s *entsql.Selector) *entsql.Predicate {
+			if strings.TrimSpace(value) == "" {
+				return entsql.ExprP("TRUE")
+			}
+			return entsql.P(func(b *entsql.Builder) {
+				b.WriteString("to_tsvector(coalesce(to_jsonb(").Ident(s.C(field)).WriteString(") #>> '{}', '')) @@ plainto_tsquery(").Arg(value).WriteByte(')')
+			})
+		}, nil
+	}
 	if op == paginationV1.Operator_IS_NULL {
 		return func(s *entsql.Selector) *entsql.Predicate { return entsql.IsNull(s.C(field)) }, nil
 	}
@@ -126,16 +140,7 @@ func planQuotaCondition(c *paginationV1.FilterCondition) (quotaFilter, error) {
 		}, nil
 	}
 	value := c.GetValue()
-	if op == paginationV1.Operator_SEARCH {
-		return func(s *entsql.Selector) *entsql.Predicate {
-			if strings.TrimSpace(value) == "" {
-				return entsql.ExprP("TRUE")
-			}
-			return entsql.P(func(b *entsql.Builder) {
-				b.WriteString("to_tsvector(coalesce(").Ident(s.C(field)).WriteString(", '')) @@ plainto_tsquery(").Arg(value).WriteByte(')')
-			})
-		}, nil
-	}
+
 	pattern := regexp.QuoteMeta(value)
 	operator := " ~ "
 	switch op {

@@ -46,6 +46,25 @@ type quotaLockedTenant struct {
 	DatabaseNow time.Time
 }
 
+// quotaDatabaseNow reads PostgreSQL's transaction timestamp through the same
+// Ent transaction as the mutations. A constant SELECT has no dependency on
+// catalog rows and preserves now() semantics even across multiple writes.
+func quotaDatabaseNow(ctx context.Context, tx *ent.Tx) (time.Time, error) {
+	var rows []struct {
+		Now time.Time `json:"database_now"`
+	}
+	err := tx.QuotaDefinition.Query().Modify(func(s *entsql.Selector) {
+		*s = *entsql.Dialect(s.Dialect()).SelectExpr(entsql.Expr("CURRENT_TIMESTAMP AS database_now"))
+	}).Scan(ctx, &rows)
+	if err != nil {
+		return time.Time{}, err
+	}
+	if len(rows) != 1 {
+		return time.Time{}, fmt.Errorf("quota transaction clock returned %d rows", len(rows))
+	}
+	return rows[0].Now, nil
+}
+
 // Admission, refunds, cancellation and dispatch claims take the tenant lock
 // first. Read database time on this same transaction for subscription expiry.
 func lockQuotaTenant(ctx context.Context, tx *ent.Tx, id uint32) (*quotaLockedTenant, error) {
@@ -110,20 +129,28 @@ func quotaLeaseUntil(lease time.Duration) entsql.Querier {
 	})
 }
 func claimQuotaOperation(ctx context.Context, tx *ent.Tx, tid uint32, id, worker string, lease time.Duration) (*ent.QuotaOperation, error) {
+	databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+	if clockErr != nil {
+		return nil, clockErr
+	}
 	op, err := tx.QuotaOperation.Query().Where(quotaoperation.TenantIDEQ(tid), quotaoperation.OperationIDEQ(id), quotaDispatchDue).ForUpdate().Only(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return tx.QuotaOperation.UpdateOne(op).SetUpdatedAt(time.Now()).Where(quotaoperation.TenantIDEQ(tid), quotaoperation.OperationIDEQ(id), quotaDispatchDue).
+	return tx.QuotaOperation.UpdateOne(op).SetUpdatedAt(databaseNow).Where(quotaoperation.TenantIDEQ(tid), quotaoperation.OperationIDEQ(id), quotaDispatchDue).
 		SetDispatchState(quotaoperation.DispatchStateDispatching).AddAttemptCount(1).AddLeaseGeneration(1).SetLeaseOwner(worker).
 		Modify(func(u *entsql.UpdateBuilder) { u.Set(quotaoperation.FieldLeaseUntil, quotaLeaseUntil(lease)) }).Save(ctx)
 }
 func claimGpuUsageSync(ctx context.Context, tx *ent.Tx, tid uint32, id, worker string, lease time.Duration) (*ent.GpuUsageSync, error) {
+	databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+	if clockErr != nil {
+		return nil, clockErr
+	}
 	row, err := tx.GpuUsageSync.Query().Where(gpuusagesync.TenantIDEQ(tid), gpuusagesync.OperationIDEQ(id), gpuSyncDue).ForUpdate().Only(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return tx.GpuUsageSync.UpdateOne(row).SetUpdatedAt(time.Now()).Where(gpuusagesync.TenantIDEQ(tid), gpuusagesync.OperationIDEQ(id), gpuSyncDue).
+	return tx.GpuUsageSync.UpdateOne(row).SetUpdatedAt(databaseNow).Where(gpuusagesync.TenantIDEQ(tid), gpuusagesync.OperationIDEQ(id), gpuSyncDue).
 		AddAttemptCount(1).AddLeaseGeneration(1).SetLeaseOwner(worker).
 		Modify(func(u *entsql.UpdateBuilder) { u.Set(gpuusagesync.FieldLeaseUntil, quotaLeaseUntil(lease)) }).Save(ctx)
 }
@@ -131,14 +158,18 @@ func claimGpuUsageSync(ctx context.Context, tx *ent.Tx, tid uint32, id, worker s
 // New revisions invalidate the old lease atomically. Late projections cannot
 // overwrite a newer revision, payload, retry decision or acknowledgement.
 func upsertGpuUsageSync(ctx context.Context, tx *ent.Tx, v *ent.GpuUsageSync) error {
-	err := tx.GpuUsageSync.Create().SetCreatedAt(time.Now()).SetUpdatedAt(time.Now()).SetTenantID(*v.TenantID).SetOperationID(v.OperationID).
+	databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
+	if clockErr != nil {
+		return clockErr
+	}
+	err := tx.GpuUsageSync.Create().SetCreatedAt(databaseNow).SetUpdatedAt(databaseNow).SetTenantID(*v.TenantID).SetOperationID(v.OperationID).
 		SetRevision(v.Revision).SetState(v.State).SetPayloadJSON(v.PayloadJSON).SetPayloadHash(v.PayloadHash).
 		SetResourceTenantID(v.ResourceTenantID).SetOwnerService(v.OwnerService).SetResourceID(v.ResourceID).
 		OnConflict(entsql.ConflictColumns(gpuusagesync.FieldTenantID, gpuusagesync.FieldOperationID),
 			entsql.UpdateWhere(entsql.LT(gpuusagesync.FieldRevision, entsql.Expr("EXCLUDED.revision")))).
 		Update(func(u *ent.GpuUsageSyncUpsert) {
 			u.SetRevision(v.Revision).SetState(v.State).SetPayloadJSON(v.PayloadJSON).SetPayloadHash(v.PayloadHash).
-				SetRetryBlocked(false).ClearNextAttemptAt().ClearLeaseOwner().ClearLeaseUntil().AddLeaseGeneration(1).SetUpdatedAt(time.Now())
+				SetRetryBlocked(false).ClearNextAttemptAt().ClearLeaseOwner().ClearLeaseUntil().AddLeaseGeneration(1).SetUpdatedAt(databaseNow)
 		}).Exec(ctx)
 	// Ent upsert requests RETURNING id. A rejected older/equal revision
 	// returns no row, which is the intended conditional no-op.

@@ -1,0 +1,236 @@
+=== RUN   TestPlanQuotaPostgresListCompatibility
+=== RUN   TestPlanQuotaPostgresListCompatibility/empty
+=== RUN   TestPlanQuotaPostgresListCompatibility/timestamp-offset
+=== RUN   TestPlanQuotaPostgresListCompatibility/timestamp-bound
+=== RUN   TestPlanQuotaPostgresListCompatibility/numeric-query
+=== RUN   TestPlanQuotaPostgresListCompatibility/and-or
+=== RUN   TestPlanQuotaPostgresListCompatibility/numeric-in
+=== RUN   TestPlanQuotaPostgresListCompatibility/not-in
+=== RUN   TestPlanQuotaPostgresListCompatibility/range
+=== RUN   TestPlanQuotaPostgresListCompatibility/nullable-neq
+=== RUN   TestPlanQuotaPostgresListCompatibility/null
+=== RUN   TestPlanQuotaPostgresListCompatibility/not-null
+=== RUN   TestPlanQuotaPostgresListCompatibility/contains
+=== RUN   TestPlanQuotaPostgresListCompatibility/icontains
+=== RUN   TestPlanQuotaPostgresListCompatibility/prefix
+=== RUN   TestPlanQuotaPostgresListCompatibility/iprefix
+=== RUN   TestPlanQuotaPostgresListCompatibility/suffix
+=== RUN   TestPlanQuotaPostgresListCompatibility/isuffix
+=== RUN   TestPlanQuotaPostgresListCompatibility/exact
+=== RUN   TestPlanQuotaPostgresListCompatibility/iexact
+=== RUN   TestPlanQuotaPostgresListCompatibility/regex
+=== RUN   TestPlanQuotaPostgresListCompatibility/iregex
+=== RUN   TestPlanQuotaPostgresListCompatibility/search
+=== RUN   TestPlanQuotaPostgresListCompatibility/blank-search
+=== RUN   TestPlanQuotaPostgresListCompatibility/aip
+=== RUN   TestPlanQuotaPostgresListCompatibility/quoted-literal
+=== RUN   TestPlanQuotaPostgresListCompatibility/sorting-page-offset
+=== RUN   TestPlanQuotaPostgresListCompatibility/token-mask
+=== RUN   TestPlanQuotaPostgresListCompatibility/invalid-field-does-not-expand
+--- PASS: TestPlanQuotaPostgresListCompatibility (0.11s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/empty (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/timestamp-offset (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/timestamp-bound (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/numeric-query (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/and-or (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/numeric-in (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/not-in (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/range (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/nullable-neq (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/null (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/not-null (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/contains (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/icontains (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/prefix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/iprefix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/suffix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/isuffix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/exact (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/iexact (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/regex (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/iregex (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/search (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/blank-search (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/aip (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/quoted-literal (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/sorting-page-offset (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/token-mask (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/invalid-field-does-not-expand (0.00s)
+=== RUN   TestPlanQuotaRepoPostgres_Create
+--- PASS: TestPlanQuotaRepoPostgres_Create (0.04s)
+=== RUN   TestPlanQuotaRepoPostgres_ListFilter
+--- PASS: TestPlanQuotaRepoPostgres_ListFilter (0.02s)
+=== RUN   TestPlanQuotaRepoPostgres_Get
+--- PASS: TestPlanQuotaRepoPostgres_Get (0.02s)
+=== RUN   TestPlanQuotaRepoPostgres_QuotaTypeReadView
+--- PASS: TestPlanQuotaRepoPostgres_QuotaTypeReadView (0.03s)
+=== RUN   TestPlanQuotaRepoPostgres_Update
+--- PASS: TestPlanQuotaRepoPostgres_Update (0.05s)
+=== RUN   TestPlanQuotaRepoPostgres_Delete
+--- PASS: TestPlanQuotaRepoPostgres_Delete (0.02s)
+=== RUN   TestQuotaGpuCatalogPagingLimits
+--- PASS: TestQuotaGpuCatalogPagingLimits (0.01s)
+=== RUN   TestPlanQuotaRepoPostgres_QuotaCodeCompat
+--- PASS: TestPlanQuotaRepoPostgres_QuotaCodeCompat (0.03s)
+=== RUN   TestPlanQuotaRepoPostgres_DuplicateCodeRejected
+--- PASS: TestPlanQuotaRepoPostgres_DuplicateCodeRejected (0.02s)
+=== RUN   TestQuotaCodeMap_Mappings
+--- PASS: TestQuotaCodeMap_Mappings (0.00s)
+=== RUN   TestQuotaEntMutationHookRollback
+time=2026-09-24T15:48:34.419+08:00 level=ERROR msg="quota transaction: test charge hook rejection"
+--- PASS: TestQuotaEntMutationHookRollback (0.03s)
+=== RUN   TestQuotaEntTransactionHooks
+--- PASS: TestQuotaEntTransactionHooks (0.01s)
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/partial_gpu
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/excess_gpu
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/duplicate_charge
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/duplicate_code_wrong_id
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/wrong_charge
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/wrong_code
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/delete_is_not_original_create
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/unknown_original_create
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/other_known_original_create
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/valid_non_gpu_then_invalid_gpu
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/valid_gpu_then_invalid_non_gpu
+--- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic (0.07s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/partial_gpu (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/excess_gpu (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/duplicate_charge (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/duplicate_code_wrong_id (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/wrong_charge (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/wrong_code (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/delete_is_not_original_create (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/unknown_original_create (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/other_known_original_create (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/valid_non_gpu_then_invalid_gpu (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/valid_gpu_then_invalid_non_gpu (0.00s)
+=== RUN   TestQuotaGpuPlanSwitchSerializesAdmissionAndDatabaseExpiry
+--- PASS: TestQuotaGpuPlanSwitchSerializesAdmissionAndDatabaseExpiry (0.15s)
+=== RUN   TestQuotaGpuClaimRechecksDueAfterTenantLock
+--- PASS: TestQuotaGpuClaimRechecksDueAfterTenantLock (0.06s)
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/wrong_owner
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/unknown_resource
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/known_resource_other_tenant
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/missing_gpu_charge
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/empty_original_charges
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/wrong_original_units
+=== RUN   TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/corrupt_frozen_vector
+--- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic (0.18s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/wrong_owner (0.04s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/unknown_resource (0.02s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/known_resource_other_tenant (0.02s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/missing_gpu_charge (0.02s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/empty_original_charges (0.02s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/wrong_original_units (0.02s)
+    --- PASS: TestQuotaGpuDeleteInvalidBindingAndChargesAtomic/corrupt_frozen_vector (0.03s)
+=== RUN   TestQuotaGpuProductionEntComposition
+=== RUN   TestQuotaGpuProductionEntComposition/false
+=== RUN   TestQuotaGpuProductionEntComposition/true
+--- PASS: TestQuotaGpuProductionEntComposition (0.07s)
+    --- PASS: TestQuotaGpuProductionEntComposition/false (0.04s)
+    --- PASS: TestQuotaGpuProductionEntComposition/true (0.03s)
+=== RUN   TestQuotaGpuRestrictedRoleAndExplicitIsolation
+--- PASS: TestQuotaGpuRestrictedRoleAndExplicitIsolation (0.05s)
+=== RUN   TestQuotaGpuDeleteReleaseAndProjectionRecovery
+--- PASS: TestQuotaGpuDeleteReleaseAndProjectionRecovery (0.07s)
+=== RUN   TestQuotaGpuAtomicCancelAndSameKey
+--- PASS: TestQuotaGpuAtomicCancelAndSameKey (0.11s)
+=== RUN   TestQuotaGpuRestoredProjectionContinuation
+    quota_gpu_pg_test.go:294: separate populated-restore gate
+--- SKIP: TestQuotaGpuRestoredProjectionContinuation (0.00s)
+=== RUN   TestQuotaGpuProjectionNullAndForeignRefConstraints
+--- PASS: TestQuotaGpuProjectionNullAndForeignRefConstraints (0.04s)
+=== RUN   TestQuotaPostgresOccupyBasics
+--- PASS: TestQuotaPostgresOccupyBasics (0.03s)
+=== RUN   TestQuotaPostgresConcurrentLimit
+--- PASS: TestQuotaPostgresConcurrentLimit (0.18s)
+=== RUN   TestQuotaPostgresReleaseCumulative
+--- PASS: TestQuotaPostgresReleaseCumulative (0.04s)
+=== RUN   TestQuotaPostgresCancelUnsent
+--- PASS: TestQuotaPostgresCancelUnsent (0.04s)
+=== RUN   TestQuotaPostgresCompositeFK
+--- PASS: TestQuotaPostgresCompositeFK (0.03s)
+=== RUN   TestQuotaPostgresTenantDeleteProtection
+--- PASS: TestQuotaPostgresTenantDeleteProtection (0.03s)
+=== RUN   TestQuotaPostgresInvariants
+--- PASS: TestQuotaPostgresInvariants (0.04s)
+=== RUN   TestQuotaPostgresExpiredTenant
+--- PASS: TestQuotaPostgresExpiredTenant (0.02s)
+=== RUN   TestQuotaPostgresMultiVector
+--- PASS: TestQuotaPostgresMultiVector (0.03s)
+=== RUN   TestQuotaPostgresTwoInstances
+--- PASS: TestQuotaPostgresTwoInstances (0.18s)
+=== RUN   TestQuotaPostgresReleaseBeforeAck
+--- PASS: TestQuotaPostgresReleaseBeforeAck (0.04s)
+=== RUN   TestQuotaPostgresCancelClaimRace
+--- PASS: TestQuotaPostgresCancelClaimRace (0.13s)
+=== RUN   TestQuotaPostgresLeaseGenerationGuard
+--- PASS: TestQuotaPostgresLeaseGenerationGuard (0.09s)
+=== RUN   TestQuotaPostgresStorageUnavailable
+--- PASS: TestQuotaPostgresStorageUnavailable (0.00s)
+=== RUN   TestQuotaPostgresSyntheticItem
+--- PASS: TestQuotaPostgresSyntheticItem (0.03s)
+=== RUN   TestQuotaPostgresPolicyChanges
+--- PASS: TestQuotaPostgresPolicyChanges (0.09s)
+=== RUN   TestQuotaPostgresReleaseAfterExpiry
+--- PASS: TestQuotaPostgresReleaseAfterExpiry (0.03s)
+=== RUN   TestQuotaPostgresZeroLimit
+--- PASS: TestQuotaPostgresZeroLimit (0.02s)
+=== RUN   TestQuotaProcessChild
+    quota_process_pg_test.go:72: OS subprocess helper
+--- SKIP: TestQuotaProcessChild (0.00s)
+=== RUN   TestQuotaProcessCommitRecovery
+=== RUN   TestQuotaProcessCommitRecovery/occupy/before
+    quota_process_pg_test.go:324: DB-03 occupy before COMMIT: OS pid=2425751 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/occupy/after
+    quota_process_pg_test.go:324: DB-03 occupy after COMMIT: OS pid=2425772 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/cancel/before
+    quota_process_pg_test.go:324: DB-03 cancel before COMMIT: OS pid=2425793 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/cancel/after
+    quota_process_pg_test.go:324: DB-03 cancel after COMMIT: OS pid=2425814 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/delete/before
+    quota_process_pg_test.go:324: DB-03 delete before COMMIT: OS pid=2425835 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/delete/after
+    quota_process_pg_test.go:324: DB-03 delete after COMMIT: OS pid=2425859 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/release/before
+    quota_process_pg_test.go:324: DB-03 release before COMMIT: OS pid=2425880 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/release/after
+    quota_process_pg_test.go:324: DB-03 release after COMMIT: OS pid=2425901 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/sync/before
+    quota_process_pg_test.go:324: DB-03 sync before COMMIT: OS pid=2425922 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/sync/after
+    quota_process_pg_test.go:324: DB-03 sync after COMMIT: OS pid=2425943 SIGKILL, response absent, durable state and two fresh-process replays verified
+--- PASS: TestQuotaProcessCommitRecovery (1.57s)
+    --- PASS: TestQuotaProcessCommitRecovery/occupy/before (0.15s)
+    --- PASS: TestQuotaProcessCommitRecovery/occupy/after (0.15s)
+    --- PASS: TestQuotaProcessCommitRecovery/cancel/before (0.17s)
+    --- PASS: TestQuotaProcessCommitRecovery/cancel/after (0.17s)
+    --- PASS: TestQuotaProcessCommitRecovery/delete/before (0.18s)
+    --- PASS: TestQuotaProcessCommitRecovery/delete/after (0.15s)
+    --- PASS: TestQuotaProcessCommitRecovery/release/before (0.16s)
+    --- PASS: TestQuotaProcessCommitRecovery/release/after (0.16s)
+    --- PASS: TestQuotaProcessCommitRecovery/sync/before (0.14s)
+    --- PASS: TestQuotaProcessCommitRecovery/sync/after (0.14s)
+=== RUN   TestQuotaProcessDeleteClaimRace
+    quota_process_pg_test.go:386: DELETE-02 iteration=0 independent OS pids=2425965,2425966 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=1 independent OS pids=2425986,2425987 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=2 independent OS pids=2426009,2426010 local_canceled=false original_claims=1 attempts=1 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=3 independent OS pids=2426030,2426031 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=4 independent OS pids=2426051,2426052 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=5 independent OS pids=2426072,2426073 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=6 independent OS pids=2426093,2426094 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=7 independent OS pids=2426114,2426115 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=8 independent OS pids=2426135,2426136 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=9 independent OS pids=2426156,2426157 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=10 independent OS pids=2426179,2426180 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=11 independent OS pids=2426200,2426201 local_canceled=true original_claims=0 attempts=0 balances consistent
+--- PASS: TestQuotaProcessDeleteClaimRace (1.53s)
+=== RUN   TestQuotaGpuSyncLeaseRetryAndBlock
+--- PASS: TestQuotaGpuSyncLeaseRetryAndBlock (1.36s)
+=== RUN   TestQuotaGpuOldPopulatedUpgradeReplay
+    quota_upgrade_pg_test.go:18: requires separately upgraded populated old backup
+--- SKIP: TestQuotaGpuOldPopulatedUpgradeReplay (0.00s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	6.727s

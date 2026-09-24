@@ -28,6 +28,8 @@ Thumbs.db
 *.log
 # Reviewed, redacted acceptance evidence for this task is part of delivery.
 !docs/evidence/gov-acc-v12-01/**/*.log
+!docs/evidence/gov-quota-ent-20260924/*.log
+!docs/evidence/gov-quota-ent-review-20260924/*.log
 bin/
 # 隔离实验镜像产物（scripts/lab/build-images.sh 默认输出目录）
 build/

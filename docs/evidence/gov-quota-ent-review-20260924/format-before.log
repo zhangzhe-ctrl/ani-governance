@@ -1,0 +1,6 @@
+app/admin/service/internal/data/login_audit_log_repo.go
+app/admin/service/internal/data/operation_audit_log_repo.go
+pkg/authorizer/authorizer_test.go
+pkg/middleware/logging/api_audit_log_test.go
+pkg/middleware/logging/login_audit_log_test.go
+pkg/middleware/logging/operation_audit_log_test.go

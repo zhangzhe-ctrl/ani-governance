@@ -11,7 +11,7 @@
 
 ## 验证状态
 
-基线为 `a7b3c4b25f6b86f7f7ff6a952d546d6a0b7aa663`，当前工作区修复尚未提交。实际执行源码已按 [source.sha256](source.sha256) 与远端副本逐文件核对，生成检查后再次通过 [最终核对](source-check-final.log)；[deleted-files.txt](deleted-files.txt) 中的旧执行路径在远端同样不存在。
+基线为 `a7b3c4b25f6b86f7f7ff6a952d546d6a0b7aa663`，本次 Ent 改造已提交并发布为 `479db091a97dc51376a864d06409f76f84ac0139`；以下记录是该版本当时的隔离验证，不是后续整改版本的验收。实际执行源码已按 [source.sha256](source.sha256) 与远端副本逐文件核对，生成检查后再次通过 [最终核对](source-check-final.log)；[deleted-files.txt](deleted-files.txt) 中的旧执行路径在远端同样不存在。
 
 | 检查 | 状态与证据 |
 |---|---|
@@ -46,4 +46,8 @@ bash scripts/verify-gpu-format.sh
 
 远端测试容器、测试卷及本次任务专用 Go 缓存已清理，源码与日志保留，见 [cleanup.log](cleanup.log)。
 
-未部署、未推送。历史 pgx/sqlc 证据仍只证明历史版本，不计入本次 Ent 修复验收。
+未部署。已推送 `479db09`，该提交 GitHub CI 在格式阶段失败（run `35973339978`），不提供后续门禁通过证据。历史 pgx/sqlc 证据仍只证明历史版本，不计入本次 Ent 修复验收。
+
+## 审核后的证据补充
+
+本目录原始日志曾被仓库 `*.log` 忽略规则排除；现从原 Fedora 隔离目录补入供复核，没有重写失败或跳过状态。原格式通过发生在源码副本，与完整 Git checkout 的增量格式范围不同，不能视为 CI 格式通过。后续整改、完整 checkout 验证和历史恢复结果见 [整改记录](../gov-quota-ent-review-20260924/README.md)。

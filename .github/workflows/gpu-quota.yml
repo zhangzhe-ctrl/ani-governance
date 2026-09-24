@@ -49,6 +49,30 @@ jobs:
           echo "QUOTA_LAB_CERTS_DIR=$RUNNER_TEMP/quota-lab/certs" >> "$GITHUB_ENV"
           echo 'QUOTA_LAB_PG_ADMIN_DSN=postgres://postgres@127.0.0.1:5432/postgres?sslmode=disable' >> "$GITHUB_ENV"
       - name: Ent generation, source, PG, tenancy, and race gates
-        run: make verify-gpu
+        run: |
+          mkdir -p "$RUNNER_TEMP/quota-evidence"
+          {
+            git rev-parse HEAD
+            git status --porcelain
+            go version
+            psql -X -At -d postgres -c 'SELECT version()'
+            printf '%s\n' 'command: make verify-gpu'
+            date -u +%FT%TZ
+          } > "$RUNNER_TEMP/quota-evidence/environment.txt"
+          git ls-files -z | xargs -0 sha256sum > "$RUNNER_TEMP/quota-evidence/source.sha256"
+          set +e
+          make verify-gpu 2>&1 | tee "$RUNNER_TEMP/quota-evidence/verify.log"
+          status=${PIPESTATUS[0]}
+          printf '%s\n' "$status" > "$RUNNER_TEMP/quota-evidence/verify.exit"
+          date -u +%FT%TZ > "$RUNNER_TEMP/quota-evidence/finished.txt"
+          exit "$status"
+      - name: Preserve verification evidence on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quota-ent-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/quota-evidence/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Coverage boundary
         run: echo 'This job proves the quota data slice only. Cross-repository mTLS BFF, durable test owner, and provider replay require the separate GOV-ACC-V12-01 joint assembly.'

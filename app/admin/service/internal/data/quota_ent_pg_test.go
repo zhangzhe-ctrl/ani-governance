@@ -4,8 +4,12 @@ package data
 
 import (
 	"context"
+	entsql "entgo.io/ent/dialect/sql"
 	"errors"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotacharge"
+	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
 	"testing"
+	"time"
 
 	entgo "entgo.io/ent"
 	"github.com/stretchr/testify/require"
@@ -41,6 +45,7 @@ func TestQuotaEntMutationHookRollback(t *testing.T) {
 	ctx := appViewer.NewSystemViewerContext(context.Background())
 	require.Zero(t, c.Client().QuotaOperation.Query().Where(quotaoperation.TenantIDEQ(tid)).CountX(ctx))
 	require.Zero(t, c.Client().QuotaAccount.Query().Where(quotaaccount.TenantIDEQ(tid)).CountX(ctx))
+	require.Zero(t, c.Client().QuotaCharge.Query().Where(quotacharge.TenantIDEQ(tid)).CountX(ctx))
 }
 
 func TestQuotaEntTransactionHooks(t *testing.T) {
@@ -71,5 +76,109 @@ func TestQuotaEntTransactionHooks(t *testing.T) {
 			require.Equal(t, 1, commits)
 			require.Equal(t, 0, rollbacks)
 		}
+	}
+}
+
+// Database time is the contract for persistence timestamps, not the process
+// clock. The hook reads CURRENT_TIMESTAMP through the very same Ent transaction.
+func TestQuotaEntDatabaseTimestamps(t *testing.T) {
+	c := newLedgerPGClient(t)
+	cleanLedger(t, c)
+	r := newTestRepo(c)
+	tid, pid := seedTenantPlan(t, c, "ent-database-clock", 20)
+	in := gpuLedgerInput(t, c.Client(), tid, pid)
+	checked := 0
+	check := func(next entgo.Mutator) entgo.Mutator {
+		return entgo.MutateFunc(func(ctx context.Context, m entgo.Mutation) (entgo.Value, error) {
+			client := m.(interface{ Client() *ent.Client }).Client()
+			var rows []struct {
+				Now time.Time `json:"database_now"`
+			}
+			err := client.Tenant.Query().Where(tenant.IDEQ(tid)).Modify(func(s *entsql.Selector) {
+				s.SelectExpr(entsql.Expr("CURRENT_TIMESTAMP AS database_now"))
+			}).Scan(ctx, &rows)
+			if err != nil {
+				return nil, err
+			}
+			require.Len(t, rows, 1)
+			for _, field := range []string{"created_at", "updated_at"} {
+				if value, ok := m.Field(field); ok {
+					require.True(t, rows[0].Now.Equal(value.(time.Time)), "%s.%s must use transaction time", m.Type(), field)
+					checked++
+				}
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	c.Client().QuotaAccount.Use(check)
+	c.Client().QuotaOperation.Use(check)
+	c.Client().QuotaCharge.Use(check)
+	c.Client().GpuUsageSync.Use(check)
+	c.Client().GpuDeleteAcceptance.Use(check)
+	c.Client().QuotaReleaseReceipt.Use(check)
+	c.Client().PlanQuota.Use(check)
+	ctx := context.Background()
+	created, err := r.Occupy(ctx, in)
+	require.NoError(t, err)
+	require.NoError(t, r.UpsertGpuUsageProjection(ctx, tid, created.OperationID, 1, "DECLARED", gpuProjectionPayload(in, created.OperationID, 1, "clock"), "clock"))
+	claims, err := r.ClaimGpuUsageSync(ctx, "clock-worker", time.Minute, 10)
+	require.NoError(t, err)
+	require.Len(t, claims, 1)
+	ok, err := r.AckGpuUsageSync(ctx, tid, created.OperationID, 1, claims[0].LeaseGeneration)
+	require.NoError(t, err)
+	require.True(t, ok)
+	require.NoError(t, r.CancelUnsent(ctx, tid, created.OperationID))
+	require.Greater(t, checked, 15)
+}
+
+func TestQuotaEntTransactionFailures(t *testing.T) {
+	for _, mode := range []string{"panic", "cancel", "commit-error"} {
+		t.Run(mode, func(t *testing.T) {
+			c := newLedgerPGClient(t)
+			cleanLedger(t, c)
+			ctx, cancel := context.WithCancel(appViewer.NewSystemViewerContext(context.Background()))
+			defer cancel()
+			failure := errors.New("injected commit failure")
+			rollbacks := 0
+			var id uint32
+			run := func() error {
+				return quotaTransaction(ctx, c.Client(), func(tx *ent.Tx) error {
+					tx.OnRollback(func(next ent.Rollbacker) ent.Rollbacker {
+						return ent.RollbackFunc(func(ctx context.Context, tx *ent.Tx) error { rollbacks++; return next.Rollback(ctx, tx) })
+					})
+					p, err := tx.Plan.Create().SetName("must-rollback-" + mode).Save(ctx)
+					if err != nil {
+						return err
+					}
+					id = p.ID
+					switch mode {
+					case "panic":
+						panic("quota transaction panic")
+					case "cancel":
+						cancel()
+						return ctx.Err()
+					case "commit-error":
+						tx.OnCommit(func(ent.Committer) ent.Committer {
+							return ent.CommitFunc(func(context.Context, *ent.Tx) error { return failure })
+						})
+					}
+					return nil
+				})
+			}
+			if mode == "panic" {
+				require.PanicsWithValue(t, "quota transaction panic", func() { _ = run() })
+			} else {
+				err := run()
+				if mode == "cancel" {
+					require.ErrorIs(t, err, context.Canceled)
+				} else {
+					require.ErrorIs(t, err, failure)
+				}
+			}
+			require.Equal(t, 1, rollbacks)
+			require.NotZero(t, id)
+			_, err := c.Client().Plan.Get(appViewer.NewSystemViewerContext(context.Background()), id)
+			require.True(t, ent.IsNotFound(err), "failed transaction must not persist its writes: %v", err)
+		})
 	}
 }

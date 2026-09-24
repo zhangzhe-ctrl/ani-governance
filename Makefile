@@ -195,7 +195,7 @@ verify-gpu-regressions:
 	go test ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
 	go test -tags quota_pg ./app/admin/service/internal/data -run 'TestQuota|TestPlanQuota' -count=1 -timeout=15m
 	go test -tags quota_pg ./app/admin/service/internal/service -run 'TestPlanQuota' -count=1 -timeout=10m
-	go test -race -tags quota_pg ./app/admin/service/internal/data -run 'TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard|TestQuotaPostgresPolicyChanges|TestQuotaGpu|TestQuotaProcess' -count=1 -timeout=20m
+	go test -race -tags quota_pg ./app/admin/service/internal/data -run 'TestQuotaEnt|TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard|TestQuotaPostgresPolicyChanges|TestQuotaGpu|TestQuotaProcess' -count=1 -timeout=20m
 	go test -race ./app/admin/service/internal/service -run 'TestGpu|TestQuotaDurable|TestAccelerator' -count=1 -timeout=10m
 	QUOTA_LAB_PG_DSN="$${QUOTA_LAB_REGRESSION_DSN:-$$QUOTA_LAB_PG_DSN}" bash scripts/accelerator-acceptance/lab-regression.sh
 

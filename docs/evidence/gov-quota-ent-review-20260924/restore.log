@@ -1,0 +1,4 @@
+=== RUN   TestQuotaGpuRestoredProjectionContinuation
+--- PASS: TestQuotaGpuRestoredProjectionContinuation (0.02s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	0.050s

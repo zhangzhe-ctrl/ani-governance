@@ -1,0 +1,20 @@
+=== RUN   TestQuotaEntDatabaseTimestamps
+    quota_ent_pg_test.go:102: 
+        	Error Trace:	/home/chabking/gov-ent-review-fix-20260924/source/app/admin/service/internal/data/quota_ent_pg_test.go:102
+        	            				/home/chabking/gov-ent-review-fix-20260924/mod/entgo.io/ent@v0.14.6/ent.go:384
+        	            				/home/chabking/gov-ent-review-fix-20260924/source/app/admin/service/internal/data/ent/ent.go:618
+        	            				/home/chabking/gov-ent-review-fix-20260924/source/app/admin/service/internal/data/ent/quotaaccount_create.go:131
+        	            				/home/chabking/gov-ent-review-fix-20260924/source/app/admin/service/internal/data/ent/quotaaccount_create.go:145
+        	            				/home/chabking/gov-ent-review-fix-20260924/source/app/admin/service/internal/data/ent/quotaaccount_create.go:525
+        	            				/home/chabking/gov-ent-review-fix-20260924/source/app/admin/service/internal/data/quota_ledger_repo.go:216
+        	            				/home/chabking/gov-ent-review-fix-20260924/source/app/admin/service/internal/data/quota_ent.go:36
+        	            				/home/chabking/gov-ent-review-fix-20260924/source/app/admin/service/internal/data/quota_ledger_repo.go:44
+        	            				/home/chabking/gov-ent-review-fix-20260924/source/app/admin/service/internal/data/quota_ledger_repo.go:163
+        	            				/home/chabking/gov-ent-review-fix-20260924/source/app/admin/service/internal/data/quota_ent_pg_test.go:117
+        	Error:      	Should be true
+        	Test:       	TestQuotaEntDatabaseTimestamps
+        	Messages:   	QuotaAccount.created_at must use transaction time
+--- FAIL: TestQuotaEntDatabaseTimestamps (0.03s)
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/data	0.062s
+FAIL

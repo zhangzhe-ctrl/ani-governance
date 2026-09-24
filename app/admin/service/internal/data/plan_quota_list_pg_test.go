@@ -68,6 +68,10 @@ func TestPlanQuotaPostgresListCompatibility(t *testing.T) {
 		{"iregex", condition("quota_code", paginationV1.Operator_IREGEXP, `^GPU\.C`), []string{"gpu.count"}},
 		{"search", condition("quota_type", paginationV1.Operator_SEARCH, "storage"), []string{"storage.bytes"}},
 		{"blank-search", condition("quota_type", paginationV1.Operator_SEARCH, " "), []string{"user.count", "storage.bytes", "gpu.count", "gpu.shared_memory_mib"}},
+		{"numeric-blank-search", condition("quota_value", paginationV1.Operator_SEARCH, " "), []string{"user.count", "storage.bytes", "gpu.count", "gpu.shared_memory_mib"}},
+		{"numeric-search", condition("quota_value", paginationV1.Operator_SEARCH, "10"), []string{"user.count"}},
+		{"timestamp-blank-search", condition("created_at", paginationV1.Operator_SEARCH, " "), []string{"user.count", "storage.bytes", "gpu.count", "gpu.shared_memory_mib"}},
+		{"timestamp-search", condition("created_at", paginationV1.Operator_SEARCH, all.Items[0].CreatedAt.AsTime().Format("2006-01-02")), []string{"user.count", "storage.bytes", "gpu.count", "gpu.shared_memory_mib"}},
 		{"aip", &paginationV1.PagingRequest{FilteringType: &paginationV1.PagingRequest_Filter{Filter: `quota_value > 10 AND quota_value <= 20`}}, []string{"storage.bytes"}},
 		{"quoted-literal", condition("quota_code", paginationV1.Operator_EQ, `gpu.count") || @.id > 0 || ("`), nil},
 	}

@@ -1,0 +1,89 @@
+=== RUN   TestPlanQuotaPostgresListCompatibility
+=== RUN   TestPlanQuotaPostgresListCompatibility/empty
+=== RUN   TestPlanQuotaPostgresListCompatibility/timestamp-offset
+=== RUN   TestPlanQuotaPostgresListCompatibility/timestamp-bound
+=== RUN   TestPlanQuotaPostgresListCompatibility/numeric-query
+=== RUN   TestPlanQuotaPostgresListCompatibility/and-or
+=== RUN   TestPlanQuotaPostgresListCompatibility/numeric-in
+=== RUN   TestPlanQuotaPostgresListCompatibility/not-in
+=== RUN   TestPlanQuotaPostgresListCompatibility/range
+=== RUN   TestPlanQuotaPostgresListCompatibility/nullable-neq
+=== RUN   TestPlanQuotaPostgresListCompatibility/null
+=== RUN   TestPlanQuotaPostgresListCompatibility/not-null
+=== RUN   TestPlanQuotaPostgresListCompatibility/contains
+=== RUN   TestPlanQuotaPostgresListCompatibility/icontains
+=== RUN   TestPlanQuotaPostgresListCompatibility/prefix
+=== RUN   TestPlanQuotaPostgresListCompatibility/iprefix
+=== RUN   TestPlanQuotaPostgresListCompatibility/suffix
+=== RUN   TestPlanQuotaPostgresListCompatibility/isuffix
+=== RUN   TestPlanQuotaPostgresListCompatibility/exact
+=== RUN   TestPlanQuotaPostgresListCompatibility/iexact
+=== RUN   TestPlanQuotaPostgresListCompatibility/regex
+=== RUN   TestPlanQuotaPostgresListCompatibility/iregex
+=== RUN   TestPlanQuotaPostgresListCompatibility/search
+=== RUN   TestPlanQuotaPostgresListCompatibility/blank-search
+=== RUN   TestPlanQuotaPostgresListCompatibility/numeric-blank-search
+=== RUN   TestPlanQuotaPostgresListCompatibility/numeric-search
+=== RUN   TestPlanQuotaPostgresListCompatibility/timestamp-blank-search
+=== RUN   TestPlanQuotaPostgresListCompatibility/timestamp-search
+=== RUN   TestPlanQuotaPostgresListCompatibility/aip
+=== RUN   TestPlanQuotaPostgresListCompatibility/quoted-literal
+=== RUN   TestPlanQuotaPostgresListCompatibility/sorting-page-offset
+=== RUN   TestPlanQuotaPostgresListCompatibility/token-mask
+=== RUN   TestPlanQuotaPostgresListCompatibility/invalid-field-does-not-expand
+--- PASS: TestPlanQuotaPostgresListCompatibility (0.07s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/empty (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/timestamp-offset (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/timestamp-bound (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/numeric-query (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/and-or (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/numeric-in (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/not-in (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/range (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/nullable-neq (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/null (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/not-null (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/contains (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/icontains (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/prefix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/iprefix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/suffix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/isuffix (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/exact (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/iexact (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/regex (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/iregex (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/search (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/blank-search (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/numeric-blank-search (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/numeric-search (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/timestamp-blank-search (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/timestamp-search (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/aip (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/quoted-literal (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/sorting-page-offset (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/token-mask (0.00s)
+    --- PASS: TestPlanQuotaPostgresListCompatibility/invalid-field-does-not-expand (0.00s)
+=== RUN   TestQuotaEntMutationHookRollback
+time=2026-09-24T16:46:17.343+08:00 level=ERROR msg="quota transaction: test charge hook rejection"
+--- PASS: TestQuotaEntMutationHookRollback (0.03s)
+=== RUN   TestQuotaEntTransactionHooks
+--- PASS: TestQuotaEntTransactionHooks (0.01s)
+=== RUN   TestQuotaEntDatabaseTimestamps
+--- PASS: TestQuotaEntDatabaseTimestamps (0.05s)
+=== RUN   TestQuotaEntTransactionFailures
+=== RUN   TestQuotaEntTransactionFailures/panic
+=== RUN   TestQuotaEntTransactionFailures/cancel
+=== RUN   TestQuotaEntTransactionFailures/commit-error
+--- PASS: TestQuotaEntTransactionFailures (0.04s)
+    --- PASS: TestQuotaEntTransactionFailures/panic (0.02s)
+    --- PASS: TestQuotaEntTransactionFailures/cancel (0.01s)
+    --- PASS: TestQuotaEntTransactionFailures/commit-error (0.01s)
+=== RUN   TestQuotaGpuProductionEntComposition
+=== RUN   TestQuotaGpuProductionEntComposition/false
+=== RUN   TestQuotaGpuProductionEntComposition/true
+--- PASS: TestQuotaGpuProductionEntComposition (0.07s)
+    --- PASS: TestQuotaGpuProductionEntComposition/false (0.03s)
+    --- PASS: TestQuotaGpuProductionEntComposition/true (0.04s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	0.298s

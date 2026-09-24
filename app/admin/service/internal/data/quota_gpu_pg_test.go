@@ -6,8 +6,11 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"go-wind-admin/pkg/audit"
 	"os"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -54,8 +57,49 @@ func TestQuotaGpuProductionEntComposition(t *testing.T) {
 			}))
 			cleanLedger(t, client)
 			tid, _ := seedTenantPlan(t, client, "ent-production", 10)
-			accepted, e := r.Occupy(context.Background(), occupyInput(tid, "actor", uuid.NewString(), 2))
+			events := make([]audit.AuditEvent, 0)
+			accCtx := context.WithValue(context.Background(), audit.AccumulatorKey(), &events)
+			accepted, e := r.Occupy(accCtx, occupyInput(tid, "actor", uuid.NewString(), 2))
 			require.NoError(t, e)
+			require.NotEmpty(t, events)
+			reads, writes := 0, 0
+			for _, event := range events {
+				require.True(t, event.DataMasked)
+				require.Equal(t, sha256Hex(event.SqlText), event.SqlDigest)
+				if event.Dialect == "tx" {
+					if event.IsWrite {
+						writes++
+					} else {
+						reads++
+					}
+				}
+			}
+			require.Positive(t, reads)
+			require.Positive(t, writes)
+			// Audit records describe executed statements, including rolled-back
+			// attempts. Their presence is not a claim that the transaction committed.
+			events = nil
+			abort := errors.New("audit rollback fixture")
+			var rollbackID uint32
+			require.ErrorIs(t, r.transaction(accCtx, func(tx *ent.Tx) error {
+				ctx := appViewer.NewSystemViewerContext(accCtx)
+				p, err := tx.Plan.Create().SetName("audit-rollback-sensitive-value").Save(ctx)
+				if err != nil {
+					return err
+				}
+				rollbackID = p.ID
+				return abort
+			}), abort)
+			require.NotEmpty(t, events)
+			rollbackWrite := false
+			for _, event := range events {
+				require.NotContains(t, event.SqlText, "audit-rollback-sensitive-value")
+				require.Equal(t, sha256Hex(event.SqlText), event.SqlDigest)
+				rollbackWrite = rollbackWrite || (event.Dialect == "tx" && event.IsWrite && strings.Contains(event.SqlText, "sys_plans"))
+			}
+			require.True(t, rollbackWrite)
+			_, e = client.Client().Plan.Get(appViewer.NewSystemViewerContext(context.Background()), rollbackID)
+			require.True(t, ent.IsNotFound(e))
 			require.NoError(t, r.CancelUnsent(context.Background(), tid, accepted.OperationID))
 			balances, e := r.RecomputeInvariants(context.Background(), tid)
 			require.NoError(t, e)
