@@ -2,23 +2,24 @@ package data
 
 import (
 	"context"
-	"errors"
 	"math"
 	"strings"
+	"time"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	entCrud "github.com/tx7do/go-crud/entgo"
+	"github.com/tx7do/go-utils/copierutil"
 	"github.com/tx7do/go-utils/mapper"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
-	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
-	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
-	q "go-wind-admin/app/admin/service/internal/data/quotasql"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
+	"go-wind-admin/app/admin/service/internal/data/ent"
+	"go-wind-admin/app/admin/service/internal/data/ent/plan"
+	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
+	appViewer "go-wind-admin/pkg/entgo/viewer"
 )
 
 type PlanQuotaRepo struct {
@@ -29,22 +30,33 @@ type PlanQuotaRepo struct {
 }
 
 func NewPlanQuotaRepo(ctx *bootstrap.Context, c *entCrud.EntClient[*ent.Client]) *PlanQuotaRepo {
-	return &PlanQuotaRepo{entClient: c, log: ctx.NewLoggerHelper("plan-quota/repo/admin-service")}
+	r := &PlanQuotaRepo{entClient: c, log: ctx.NewLoggerHelper("plan-quota/repo/admin-service")}
+	r.init()
+	return r
 }
-func (r *PlanQuotaRepo) init() {}
-func (r *PlanQuotaRepo) transaction(ctx context.Context, fn func(*q.Queries) error) error {
-	err := quotaTransaction(ctx, r.entClient.DB(), fn)
-	var pgerr *pgconn.PgError
-	if errors.As(err, &pgerr) && pgerr.Code == "23505" {
+func (r *PlanQuotaRepo) init() {
+	if r.mapper == nil {
+		r.mapper = mapper.NewCopierMapper[identityV1.PlanQuota, ent.PlanQuota]()
+	}
+	if r.quotaTypeConv == nil {
+		r.quotaTypeConv = mapper.NewEnumTypeConverter[identityV1.PlanQuota_QuotaType, planquota.QuotaType](identityV1.PlanQuota_QuotaType_name, identityV1.PlanQuota_QuotaType_value)
+	}
+	r.mapper.AppendConverters(copierutil.NewTimeStringConverterPair())
+	r.mapper.AppendConverters(copierutil.NewTimeTimestamppbConverterPair())
+	r.mapper.AppendConverters(r.quotaTypeConv.NewConverterPair())
+}
+func (r *PlanQuotaRepo) transaction(ctx context.Context, fn func(*ent.Tx) error) error {
+	err := quotaTransaction(ctx, r.entClient.Client(), fn)
+	if ent.IsConstraintError(err) {
 		return QuotaErrIdempotencyConflict("plan already has this quota code")
 	}
-	if errors.Is(err, pgx.ErrNoRows) {
+	if ent.IsNotFound(err) {
 		return identityV1.ErrorNotFound("plan quota not found")
 	}
 	return err
 }
-func planQuotaDTO(v q.SysPlanQuota) *identityV1.PlanQuota {
-	out := &identityV1.PlanQuota{Id: ptr(uint32(v.ID)), PlanId: ptr(uint32(v.PlanID)), QuotaCode: ptr(v.QuotaCode), QuotaType: ProjectLegacyTypeForRead(v.QuotaCode), QuotaValue: ptr(uint64(v.QuotaValue))}
+func planQuotaDTO(v *ent.PlanQuota) *identityV1.PlanQuota {
+	out := &identityV1.PlanQuota{Id: ptr(uint32(v.ID)), PlanId: ptr(v.Edges.Plan.ID), QuotaCode: ptr(v.QuotaCode), QuotaType: ProjectLegacyTypeForRead(v.QuotaCode), QuotaValue: v.QuotaValue}
 	if v.CreatedAt != nil {
 		out.CreatedAt = timestamppb.New(*v.CreatedAt)
 	}
@@ -110,18 +122,27 @@ func (r *PlanQuotaRepo) List(ctx context.Context, req *paginationV1.PagingReques
 	if e != nil {
 		return nil, e
 	}
-	err = r.transaction(ctx, func(tx *q.Queries) error {
-		rows, e := tx.ListPlanQuotas(ctx, params.ListPlanQuotasParams)
+	err = r.transaction(ctx, func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(ctx)
+		builder := tx.PlanQuota.Query().Where(params.filter)
+		total, e := builder.Clone().Count(ctx)
 		if e != nil {
 			return e
 		}
-		total, e := tx.CountPlanQuotas(ctx, q.CountPlanQuotasParams{Predicate: params.countPredicate, SearchTerms: params.SearchTerms})
+		if params.afterID != nil {
+			builder.Where(planquota.IDGT(*params.afterID))
+		}
+		builder.Order(params.order...).WithPlan().Offset(params.offset)
+		if params.limit != nil {
+			builder.Limit(*params.limit)
+		}
+		rows, e := builder.All(ctx)
 		if e != nil {
 			return e
 		}
-		out = &identityV1.ListPlanQuotaResponse{Total: uint64(total)}
+		out = &identityV1.ListPlanQuotaResponse{Total: uint64(total), Items: make([]*identityV1.PlanQuota, 0, len(rows))}
 		for _, v := range rows {
-			dto := planQuotaDTO(q.SysPlanQuota(v))
+			dto := planQuotaDTO(v)
 			applyPlanQuotaReadMask(dto, mask)
 			out.Items = append(out.Items, dto)
 		}
@@ -137,8 +158,9 @@ func (r *PlanQuotaRepo) Get(ctx context.Context, req *identityV1.GetPlanQuotaReq
 	if e != nil {
 		return nil, e
 	}
-	err = r.transaction(ctx, func(tx *q.Queries) error {
-		v, e := tx.GetPlanQuota(ctx, int64(req.GetId()))
+	err = r.transaction(ctx, func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(ctx)
+		v, e := tx.PlanQuota.Query().Where(planquota.IDEQ(req.GetId())).WithPlan().Only(ctx)
 		if e == nil {
 			out = planQuotaDTO(v)
 			applyPlanQuotaReadMask(out, mask)
@@ -148,9 +170,10 @@ func (r *PlanQuotaRepo) Get(ctx context.Context, req *identityV1.GetPlanQuotaReq
 	return
 }
 func (r *PlanQuotaRepo) IsExist(ctx context.Context, id uint32) (ok bool, err error) {
-	err = r.transaction(ctx, func(tx *q.Queries) error {
-		_, e := tx.GetPlanQuota(ctx, int64(id))
-		if errors.Is(e, pgx.ErrNoRows) {
+	err = r.transaction(ctx, func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(ctx)
+		_, e := tx.PlanQuota.Query().Where(planquota.IDEQ(id)).WithPlan().Only(ctx)
+		if ent.IsNotFound(e) {
 			return nil
 		}
 		ok = e == nil
@@ -158,17 +181,18 @@ func (r *PlanQuotaRepo) IsExist(ctx context.Context, id uint32) (ok bool, err er
 	})
 	return
 }
-func legacyTypeString(code string) *string {
+func legacyQuotaType(code string) *planquota.QuotaType {
 	if v, ok := CodeToLegacyEntType(code); ok {
-		return ptr(string(v))
+		return &v
 	}
 	return nil
 }
-func int64Pointer(v *uint32) *int64 {
-	if v == nil {
-		return nil
+func lockQuotaPlan(ctx context.Context, tx *ent.Tx, id uint32, lock bool) (*ent.Plan, error) {
+	query := tx.Plan.Query().Where(plan.IDEQ(id))
+	if lock {
+		query.ForUpdate()
 	}
-	return ptr(int64(*v))
+	return query.Only(ctx)
 }
 func (r *PlanQuotaRepo) Create(ctx context.Context, req *identityV1.CreatePlanQuotaRequest) error {
 	if req == nil || req.Data == nil {
@@ -179,11 +203,12 @@ func (r *PlanQuotaRepo) Create(ctx context.Context, req *identityV1.CreatePlanQu
 	if !ok || d.GetPlanId() == 0 || d.QuotaValue == nil || d.GetQuotaValue() > math.MaxInt64 {
 		return QuotaErrInvalid("valid plan/code/value required")
 	}
-	return r.transaction(ctx, func(tx *q.Queries) error {
-		if _, e := tx.LockPlanExclusive(ctx, int64(d.GetPlanId())); e != nil {
+	return r.transaction(ctx, func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(ctx)
+		if _, e := lockQuotaPlan(ctx, tx, d.GetPlanId(), supportsRowLock(r.entClient)); e != nil {
 			return e
 		}
-		return tx.InsertPlanQuota(ctx, q.InsertPlanQuotaParams{PlanID: int64(d.GetPlanId()), QuotaCode: code, QuotaType: legacyTypeString(code), QuotaValue: int64(d.GetQuotaValue()), CreatedBy: int64Pointer(d.CreatedBy)})
+		return tx.PlanQuota.Create().SetCreatedAt(time.Now()).SetUpdatedAt(time.Now()).SetPlanID(d.GetPlanId()).SetQuotaCode(code).SetNillableQuotaType(legacyQuotaType(code)).SetQuotaValue(d.GetQuotaValue()).SetNillableCreatedBy(d.CreatedBy).Exec(ctx)
 	})
 }
 func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQuotaRequest) error {
@@ -213,31 +238,38 @@ func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQu
 	if setValue && (req.Data.QuotaValue == nil || req.Data.GetQuotaValue() > math.MaxInt64) {
 		return QuotaErrInvalid("valid quota value required")
 	}
-	return r.transaction(ctx, func(tx *q.Queries) error {
-		row, e := tx.GetPlanQuota(ctx, int64(req.GetId()))
+	return r.transaction(ctx, func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(ctx)
+		row, e := tx.PlanQuota.Query().Where(planquota.IDEQ(req.GetId())).WithPlan().Only(ctx)
 		if e != nil {
 			return e
 		}
-		if _, e = tx.LockPlanExclusive(ctx, row.PlanID); e != nil {
+		if _, e = lockQuotaPlan(ctx, tx, row.Edges.Plan.ID, supportsRowLock(r.entClient)); e != nil {
 			return e
 		}
-		row, e = tx.GetPlanQuota(ctx, row.ID)
+		row, e = tx.PlanQuota.Query().Where(planquota.IDEQ(row.ID)).WithPlan().Only(ctx)
 		if e != nil {
 			return e
 		}
 		if setCode {
 			row.QuotaCode = code
-			row.QuotaType = legacyTypeString(code)
+			row.QuotaType = legacyQuotaType(code)
 		}
 		if setValue {
-			row.QuotaValue = int64(req.Data.GetQuotaValue())
+			row.QuotaValue = req.Data.QuotaValue
 		}
-		n, e := tx.UpdatePlanQuota(ctx, q.UpdatePlanQuotaParams{ID: row.ID, PlanID: row.PlanID, QuotaCode: row.QuotaCode, QuotaType: row.QuotaType, QuotaValue: row.QuotaValue, UpdatedBy: int64Pointer(req.Data.UpdatedBy)})
+		builder := tx.PlanQuota.Update().SetUpdatedAt(time.Now()).Where(planquota.IDEQ(row.ID), planquota.HasPlanWith(plan.IDEQ(row.Edges.Plan.ID))).SetQuotaCode(row.QuotaCode).SetNillableQuotaValue(row.QuotaValue).SetNillableUpdatedBy(req.Data.UpdatedBy)
+		if row.QuotaType == nil {
+			builder.ClearQuotaType()
+		} else {
+			builder.SetQuotaType(*row.QuotaType)
+		}
+		n, e := builder.Save(ctx)
 		if e != nil {
 			return e
 		}
 		if n != 1 {
-			return pgx.ErrNoRows
+			return &ent.NotFoundError{}
 		}
 		return nil
 	})
@@ -246,20 +278,21 @@ func (r *PlanQuotaRepo) Delete(ctx context.Context, id uint32) error {
 	if id == 0 {
 		return QuotaErrInvalid("id required")
 	}
-	return r.transaction(ctx, func(tx *q.Queries) error {
-		row, e := tx.GetPlanQuota(ctx, int64(id))
+	return r.transaction(ctx, func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(ctx)
+		row, e := tx.PlanQuota.Query().Where(planquota.IDEQ(id)).WithPlan().Only(ctx)
 		if e != nil {
 			return e
 		}
-		if _, e = tx.LockPlanExclusive(ctx, row.PlanID); e != nil {
+		if _, e = lockQuotaPlan(ctx, tx, row.Edges.Plan.ID, supportsRowLock(r.entClient)); e != nil {
 			return e
 		}
-		n, e := tx.DeletePlanQuota(ctx, q.DeletePlanQuotaParams{ID: row.ID, PlanID: row.PlanID})
+		n, e := tx.PlanQuota.Delete().Where(planquota.IDEQ(row.ID), planquota.HasPlanWith(plan.IDEQ(row.Edges.Plan.ID))).Exec(ctx)
 		if e != nil {
 			return e
 		}
 		if n != 1 {
-			return pgx.ErrNoRows
+			return &ent.NotFoundError{}
 		}
 		return nil
 	})

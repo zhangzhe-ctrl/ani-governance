@@ -5,8 +5,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 )
 
-// Unrelated Ent tenant/plan CRUD retains its existing dialect lock handling.
-// Quota persistence itself is PostgreSQL-only and always locks via sqlc.
+// PostgreSQL tenant and plan writes use Ent row locks. SQLite test fixtures
+// rely on their single-writer transaction instead.
 func supportsRowLock(c *entCrud.EntClient[*ent.Client]) bool {
 	return c.Driver() != nil && c.Driver().Dialect() == "postgres"
 }

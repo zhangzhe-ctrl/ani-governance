@@ -9,7 +9,10 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	q "go-wind-admin/app/admin/service/internal/data/quotasql"
+
+	"go-wind-admin/app/admin/service/internal/data/ent"
+	"go-wind-admin/app/admin/service/internal/data/ent/gpuusagesync"
+	appViewer "go-wind-admin/pkg/entgo/viewer"
 )
 
 func TestQuotaGpuSyncLeaseRetryAndBlock(t *testing.T) {
@@ -25,11 +28,12 @@ func TestQuotaGpuSyncLeaseRetryAndBlock(t *testing.T) {
 	id := accepted.OperationID
 	payload := gpuProjectionPayload(in, id, 1, "declared-lease")
 	require.NoError(t, r.UpsertGpuUsageProjection(ctx, tid, id, 1, "DECLARED", payload, "declared-lease"))
-	read := func() q.SysGpuUsageSync {
-		var row q.SysGpuUsageSync
-		require.NoError(t, r.transaction(ctx, func(tx *q.Queries) error {
+	read := func() *ent.GpuUsageSync {
+		var row *ent.GpuUsageSync
+		require.NoError(t, r.transaction(ctx, func(tx *ent.Tx) error {
+			ctx := appViewer.NewSystemViewerContext(ctx)
 			var e error
-			row, e = tx.GetGpuUsageSync(ctx, q.GetGpuUsageSyncParams{TenantID: int64(tid), OperationID: id})
+			row, e = tx.GpuUsageSync.Query().Where(gpuusagesync.TenantIDEQ(tid), gpuusagesync.OperationIDEQ(id)).Only(ctx)
 			return e
 		}))
 		return row
@@ -100,8 +104,9 @@ func TestQuotaGpuSyncLeaseRetryAndBlock(t *testing.T) {
 	require.NoError(t, e)
 	require.False(t, ok)
 	var databaseNow time.Time
-	require.NoError(t, r.transaction(ctx, func(tx *q.Queries) error {
-		tenant, e := tx.LockTenant(ctx, int64(tid))
+	require.NoError(t, r.transaction(ctx, func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(ctx)
+		tenant, e := lockQuotaTenant(ctx, tx, tid)
 		databaseNow = tenant.DatabaseNow
 		return e
 	}))
@@ -110,7 +115,7 @@ func TestQuotaGpuSyncLeaseRetryAndBlock(t *testing.T) {
 	require.NoError(t, e)
 	require.True(t, ok)
 	row := read()
-	require.Equal(t, payload, row.PayloadJson)
+	require.Equal(t, payload, row.PayloadJSON)
 	require.Equal(t, "declared-lease", row.PayloadHash)
 	require.NotNil(t, row.LastErrorCode)
 	require.Equal(t, "RPC_UNAVAILABLE", *row.LastErrorCode)
@@ -137,7 +142,7 @@ func TestQuotaGpuSyncLeaseRetryAndBlock(t *testing.T) {
 	require.True(t, ok)
 	row = read()
 	require.True(t, row.RetryBlocked)
-	require.Equal(t, payload, row.PayloadJson)
+	require.Equal(t, payload, row.PayloadJSON)
 	require.Equal(t, "PAYLOAD_CONFLICT", *row.LastErrorCode)
 	v, e = r.ClaimGpuUsageSync(ctx, "blocked", time.Second, 1)
 	require.NoError(t, e)
@@ -181,6 +186,6 @@ func TestQuotaGpuSyncLeaseRetryAndBlock(t *testing.T) {
 	row = read()
 	require.Equal(t, int64(2), row.AckedRevision)
 	require.Nil(t, row.LastErrorCode)
-	require.Equal(t, terminal, row.PayloadJson)
+	require.Equal(t, terminal, row.PayloadJSON)
 	balance(0, 0)
 }

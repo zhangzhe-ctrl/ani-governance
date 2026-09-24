@@ -86,7 +86,12 @@ func TestQuotaGpuReleaseNegativeVectorsAtomic(t *testing.T) {
 			require.Equal(t, before, after)
 			unchanged, e := r.GetChargesForOperation(ctx, tid, accepted.OperationID)
 			require.NoError(t, e)
-			require.Equal(t, charges, unchanged)
+			// Compare all persisted fields; Ent results also carry private driver/hook state.
+			beforeJSON, e := json.Marshal(charges)
+			require.NoError(t, e)
+			afterJSON, e := json.Marshal(unchanged)
+			require.NoError(t, e)
+			require.JSONEq(t, string(beforeJSON), string(afterJSON))
 			count, e := c.Client().QuotaReleaseReceipt.Query().Count(sys)
 			require.NoError(t, e)
 			require.Equal(t, receipts, count)

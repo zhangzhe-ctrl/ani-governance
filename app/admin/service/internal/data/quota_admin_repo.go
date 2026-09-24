@@ -8,10 +8,16 @@ import (
 	entCrud "github.com/tx7do/go-crud/entgo"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	q "go-wind-admin/app/admin/service/internal/data/quotasql"
+	"go-wind-admin/app/admin/service/internal/data/ent/plan"
+	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotaaccount"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotadefinition"
+	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
+	appViewer "go-wind-admin/pkg/entgo/viewer"
 )
 
 type QuotaAdminRepo struct {
@@ -36,8 +42,9 @@ func NewQuotaAdminRepo(ctx *bootstrap.Context, c *entCrud.EntClient[*ent.Client]
 	return &QuotaAdminRepo{entClient: c, log: ctx.NewLoggerHelper("quota-admin/repo/admin-service")}
 }
 func (r *QuotaAdminRepo) ListDefinitions(ctx context.Context, req *paginationV1.PagingRequest) (out *adminV1.ListQuotaDefinitionsResponse, err error) {
-	err = quotaTransaction(ctx, r.entClient.DB(), func(tx *q.Queries) error {
-		defs, e := tx.ListDefinitions(ctx)
+	err = quotaTransaction(ctx, r.entClient.Client(), func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(ctx)
+		defs, e := tx.QuotaDefinition.Query().Order(ent.Asc(quotadefinition.FieldCode)).All(ctx)
 		if e != nil {
 			return e
 		}
@@ -55,7 +62,7 @@ func (r *QuotaAdminRepo) ListDefinitions(ctx context.Context, req *paginationV1.
 			end = int(min(uint64(start)+uint64(req.GetLimit()), uint64(len(defs))))
 		}
 		for _, d := range defs[start:end] {
-			out.Items = append(out.Items, &quotapb.QuotaDefinition{Code: d.Code, DisplayName: d.DisplayName, Unit: d.Unit, AccountingKind: mapAccountingKind(d.AccountingKind), Enforcement: r.enforcement(d.Code)})
+			out.Items = append(out.Items, &quotapb.QuotaDefinition{Code: d.Code, DisplayName: d.DisplayName, Unit: d.Unit, AccountingKind: mapAccountingKind(string(d.AccountingKind)), Enforcement: r.enforcement(d.Code)})
 		}
 		return nil
 	})
@@ -65,22 +72,23 @@ func (r *QuotaAdminRepo) ListTenantAccounts(ctx context.Context, tid uint32) (ou
 	if tid == 0 {
 		return nil, QuotaErrInvalid("tenant required")
 	}
-	err = quotaTransaction(ctx, r.entClient.DB(), func(tx *q.Queries) error {
-		t, e := tx.GetTenant(ctx, int64(tid))
+	err = quotaTransaction(ctx, r.entClient.Client(), func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(ctx)
+		t, e := tx.Tenant.Query().Where(tenant.IDEQ(tid), tenant.IDGT(0)).Only(ctx)
 		if e != nil {
-			return notFound(e)
+			return e
 		}
 		limits := map[string]int64{}
 		if t.PlanID != nil {
-			policies, e := tx.ListPlanPolicies(ctx, *t.PlanID)
+			policies, e := tx.PlanQuota.Query().Where(planquota.HasPlanWith(plan.IDEQ(*t.PlanID))).Order(ent.Asc(planquota.FieldQuotaCode)).All(ctx)
 			if e != nil {
 				return e
 			}
 			for _, p := range policies {
-				limits[p.QuotaCode] = p.QuotaValue
+				limits[p.QuotaCode] = int64(*p.QuotaValue)
 			}
 		}
-		accs, e := tx.ListAccounts(ctx, int64(tid))
+		accs, e := tx.QuotaAccount.Query().Where(quotaaccount.TenantIDEQ(tid)).Order(ent.Asc(quotaaccount.FieldQuotaCode)).All(ctx)
 		if e != nil {
 			return e
 		}
@@ -88,7 +96,7 @@ func (r *QuotaAdminRepo) ListTenantAccounts(ctx context.Context, tid uint32) (ou
 		for _, a := range accs {
 			occupied[a.QuotaCode] = a.OccupiedUnits
 		}
-		defs, e := tx.ListDefinitions(ctx)
+		defs, e := tx.QuotaDefinition.Query().Order(ent.Asc(quotadefinition.FieldCode)).All(ctx)
 		if e != nil {
 			return e
 		}
@@ -106,8 +114,9 @@ func (r *QuotaAdminRepo) ListTenantAccounts(ctx context.Context, tid uint32) (ou
 	return
 }
 func (r *QuotaAdminRepo) HasPlanQuotaPolicy(ctx context.Context, id uint32, code string) (ok bool, err error) {
-	err = quotaTransaction(ctx, r.entClient.DB(), func(tx *q.Queries) error {
-		rows, e := tx.ListPlanPolicies(ctx, int64(id))
+	err = quotaTransaction(ctx, r.entClient.Client(), func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(ctx)
+		rows, e := tx.PlanQuota.Query().Where(planquota.HasPlanWith(plan.IDEQ(id))).Order(ent.Asc(planquota.FieldQuotaCode)).All(ctx)
 		if e != nil {
 			return e
 		}

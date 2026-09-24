@@ -6,18 +6,18 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
+	entsql "entgo.io/ent/dialect/sql"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	"github.com/tx7do/go-crud/pagination"
 	paginationFilter "github.com/tx7do/go-crud/pagination/filter"
 	"github.com/tx7do/go-crud/pagination/paginator"
 	paginationSorting "github.com/tx7do/go-crud/pagination/sorting"
-	q "go-wind-admin/app/admin/service/internal/data/quotasql"
+	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
+	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
 )
 
-// These are JSONPath expressions, bound as data to the fixed sqlc queries.
-// Field identifiers are enumerated and all values are JSON-encoded; no SQL text
-// or dynamic SQL execution is exposed by this adapter.
 func planQuotaField(raw string) (string, bool) {
 	for _, field := range []string{"id", "plan_id", "quota_code", "quota_type", "quota_value", "created_at", "updated_at", "deleted_at", "created_by", "updated_by", "deleted_by"} {
 		if strings.ReplaceAll(strings.ToLower(raw), "_", "") == strings.ReplaceAll(field, "_", "") {
@@ -26,61 +26,57 @@ func planQuotaField(raw string) (string, bool) {
 	}
 	return "", false
 }
-func planQuotaLiteral(field, value string) (string, error) {
+
+func planQuotaFilterValue(field, value string) (any, error) {
 	switch field {
 	case "id", "plan_id", "quota_value", "created_by", "updated_by", "deleted_by":
-		n, e := strconv.ParseInt(value, 10, 64)
-		if e != nil {
-			return "", QuotaErrInvalid("invalid numeric quota filter")
+		v, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return nil, QuotaErrInvalid("invalid numeric quota filter")
 		}
-		return strconv.FormatInt(n, 10), nil
-	default:
-		b, _ := json.Marshal(value)
-		if strings.HasSuffix(field, "_at") {
-			return string(b) + ".datetime()", nil
-		}
-		return string(b), nil
+		return v, nil
 	}
+	if strings.HasSuffix(field, "_at") {
+		for _, format := range []string{time.RFC3339Nano, "2006-01-02"} {
+			if v, err := time.Parse(format, value); err == nil {
+				return v, nil
+			}
+		}
+		return nil, QuotaErrInvalid("invalid timestamp quota filter")
+	}
+	return value, nil
 }
-func planQuotaCondition(c *paginationV1.FilterCondition, searches *[]map[string]string) (string, error) {
+
+type quotaFilter func(*entsql.Selector) *entsql.Predicate
+
+func planQuotaCondition(c *paginationV1.FilterCondition) (quotaFilter, error) {
 	field, ok := planQuotaField(c.GetField())
 	if !ok {
-		return "", QuotaErrInvalid("unknown plan quota filter field")
+		return nil, QuotaErrInvalid("unknown plan quota filter field")
 	}
-	key := "@." + field
-	switch c.GetOp() {
-	case paginationV1.Operator_SEARCH:
-		if strings.TrimSpace(c.GetValue()) == "" {
-			return "1 == 1", nil
-		}
-		index := len(*searches)
-		*searches = append(*searches, map[string]string{"field": field, "value": c.GetValue()})
-		return "@._search[" + strconv.Itoa(index) + "] == true", nil
-	case paginationV1.Operator_IS_NULL:
-		return key + " == null", nil
-	case paginationV1.Operator_IS_NOT_NULL:
-		return key + " != null", nil
+	op := c.GetOp()
+	if op == paginationV1.Operator_IS_NULL {
+		return func(s *entsql.Selector) *entsql.Predicate { return entsql.IsNull(s.C(field)) }, nil
 	}
-	nullKey := key
-	if strings.HasSuffix(field, "_at") {
-		key += ".datetime()"
+	if op == paginationV1.Operator_IS_NOT_NULL {
+		return func(s *entsql.Selector) *entsql.Predicate { return entsql.NotNull(s.C(field)) }, nil
 	}
 	values := c.GetValues()
 	if len(values) == 0 {
 		values = []string{c.GetValue()}
 	}
-	if c.GetOp() == paginationV1.Operator_IN || c.GetOp() == paginationV1.Operator_NIN || c.GetOp() == paginationV1.Operator_BETWEEN {
+	if op == paginationV1.Operator_IN || op == paginationV1.Operator_NIN || op == paginationV1.Operator_BETWEEN {
 		if len(c.GetValues()) == 0 {
 			var raw []json.RawMessage
-			if e := json.Unmarshal([]byte(c.GetValue()), &raw); e != nil {
-				return "", QuotaErrInvalid("filter requires an array")
+			if json.Unmarshal([]byte(c.GetValue()), &raw) != nil {
+				return nil, QuotaErrInvalid("filter requires an array")
 			}
 			values = nil
 			for _, v := range raw {
 				var text string
 				if len(v) > 0 && v[0] == '"' {
-					if e := json.Unmarshal(v, &text); e != nil {
-						return "", QuotaErrInvalid("invalid filter value")
+					if json.Unmarshal(v, &text) != nil {
+						return nil, QuotaErrInvalid("invalid filter value")
 					}
 				} else {
 					text = string(v)
@@ -89,110 +85,135 @@ func planQuotaCondition(c *paginationV1.FilterCondition, searches *[]map[string]
 			}
 		}
 	}
-	literals := make([]string, 0, len(values))
-	for _, v := range values {
-		literal, e := planQuotaLiteral(field, v)
+	if len(values) == 0 {
+		return nil, QuotaErrInvalid("empty quota filter values")
+	}
+	args := make([]any, 0, len(values))
+	for _, value := range values {
+		v, e := planQuotaFilterValue(field, value)
 		if e != nil {
-			return "", e
+			return nil, e
 		}
-		literals = append(literals, literal)
+		args = append(args, v)
 	}
-	if len(literals) == 0 {
-		return "", QuotaErrInvalid("empty quota filter values")
+	if op == paginationV1.Operator_BETWEEN && len(args) != 2 {
+		return nil, QuotaErrInvalid("between requires two bounds")
 	}
-	compare := map[paginationV1.Operator]string{paginationV1.Operator_EQ: " == ", paginationV1.Operator_NEQ: " != ", paginationV1.Operator_EXACT: " == ", paginationV1.Operator_GT: " > ", paginationV1.Operator_GTE: " >= ", paginationV1.Operator_LT: " < ", paginationV1.Operator_LTE: " <= "}
-	if op, ok := compare[c.GetOp()]; ok {
-		return "(" + nullKey + " != null && " + key + op + literals[0] + ")", nil
-	}
-	switch c.GetOp() {
-	case paginationV1.Operator_IN, paginationV1.Operator_NIN:
-		parts := make([]string, 0, len(literals))
-		for _, v := range literals {
-			parts = append(parts, key+" == "+v)
-		}
-		out := "(" + strings.Join(parts, " || ") + ")"
-		if c.GetOp() == paginationV1.Operator_NIN {
-			out = "(" + nullKey + " != null && !(" + out + "))"
-		}
-		return out, nil
-	case paginationV1.Operator_BETWEEN:
-		if len(literals) != 2 {
-			return "", QuotaErrInvalid("between requires two bounds")
-		}
-		return "(" + key + " >= " + literals[0] + " && " + key + " <= " + literals[1] + ")", nil
+	switch op {
+	case paginationV1.Operator_EQ, paginationV1.Operator_EXACT, paginationV1.Operator_NEQ, paginationV1.Operator_GT, paginationV1.Operator_GTE, paginationV1.Operator_LT, paginationV1.Operator_LTE, paginationV1.Operator_IN, paginationV1.Operator_NIN, paginationV1.Operator_BETWEEN:
+		return func(s *entsql.Selector) *entsql.Predicate {
+			col := s.C(field)
+			switch op {
+			case paginationV1.Operator_EQ, paginationV1.Operator_EXACT:
+				return entsql.EQ(col, args[0])
+			case paginationV1.Operator_NEQ:
+				return entsql.NEQ(col, args[0])
+			case paginationV1.Operator_GT:
+				return entsql.GT(col, args[0])
+			case paginationV1.Operator_GTE:
+				return entsql.GTE(col, args[0])
+			case paginationV1.Operator_LT:
+				return entsql.LT(col, args[0])
+			case paginationV1.Operator_LTE:
+				return entsql.LTE(col, args[0])
+			case paginationV1.Operator_IN:
+				return entsql.In(col, args...)
+			case paginationV1.Operator_NIN:
+				return entsql.NotIn(col, args...)
+			default:
+				return entsql.And(entsql.GTE(col, args[0]), entsql.LTE(col, args[1]))
+			}
+		}, nil
 	}
 	value := c.GetValue()
-	flags := ""
+	if op == paginationV1.Operator_SEARCH {
+		return func(s *entsql.Selector) *entsql.Predicate {
+			if strings.TrimSpace(value) == "" {
+				return entsql.ExprP("TRUE")
+			}
+			return entsql.P(func(b *entsql.Builder) {
+				b.WriteString("to_tsvector(coalesce(").Ident(s.C(field)).WriteString(", '')) @@ plainto_tsquery(").Arg(value).WriteByte(')')
+			})
+		}, nil
+	}
 	pattern := regexp.QuoteMeta(value)
-	switch c.GetOp() {
+	operator := " ~ "
+	switch op {
 	case paginationV1.Operator_CONTAINS:
 	case paginationV1.Operator_ICONTAINS:
-		flags = "i"
+		operator = " ~* "
 	case paginationV1.Operator_STARTS_WITH:
 		pattern = "^" + pattern
 	case paginationV1.Operator_ISTARTS_WITH:
 		pattern = "^" + pattern
-		flags = "i"
+		operator = " ~* "
 	case paginationV1.Operator_ENDS_WITH:
 		pattern += "$"
 	case paginationV1.Operator_IENDS_WITH:
 		pattern += "$"
-		flags = "i"
+		operator = " ~* "
 	case paginationV1.Operator_IEXACT:
 		pattern = "^" + pattern + "$"
-		flags = "i"
+		operator = " ~* "
 	case paginationV1.Operator_REGEXP:
 		pattern = value
 	case paginationV1.Operator_IREGEXP:
 		pattern = value
-		flags = "i"
+		operator = " ~* "
 	default:
-		return "", QuotaErrInvalid("unsupported quota filter operator")
+		return nil, QuotaErrInvalid("unsupported quota filter operator")
 	}
-	p, _ := json.Marshal(pattern)
-	out := key + " like_regex " + string(p)
-	if flags != "" {
-		out += " flag \"" + flags + "\""
-	}
-	return out, nil
+	return func(s *entsql.Selector) *entsql.Predicate {
+		return entsql.P(func(b *entsql.Builder) { b.Ident(s.C(field)).WriteString(operator).Arg(pattern) })
+	}, nil
 }
-func planQuotaExpr(expr *paginationV1.FilterExpr, depth int, searches *[]map[string]string) (string, error) {
+
+func planQuotaExpr(expr *paginationV1.FilterExpr, depth int) (quotaFilter, error) {
 	if expr == nil {
-		return "1 == 1", nil
+		return func(*entsql.Selector) *entsql.Predicate { return entsql.ExprP("TRUE") }, nil
 	}
 	if depth > 32 {
-		return "", QuotaErrInvalid("filter nesting too deep")
+		return nil, QuotaErrInvalid("filter nesting too deep")
 	}
-	op := " && "
-	if expr.GetType() == paginationV1.ExprType_OR {
-		op = " || "
-	} else if expr.GetType() != paginationV1.ExprType_AND {
-		return "", QuotaErrInvalid("unknown filter group")
+	if expr.GetType() != paginationV1.ExprType_AND && expr.GetType() != paginationV1.ExprType_OR {
+		return nil, QuotaErrInvalid("unknown filter group")
 	}
-	parts := []string{}
+	var parts []quotaFilter
 	for _, c := range expr.GetConditions() {
-		v, e := planQuotaCondition(c, searches)
+		p, e := planQuotaCondition(c)
 		if e != nil {
-			return "", e
+			return nil, e
 		}
-		parts = append(parts, "("+v+")")
+		parts = append(parts, p)
 	}
 	for _, g := range expr.GetGroups() {
-		v, e := planQuotaExpr(g, depth+1, searches)
+		p, e := planQuotaExpr(g, depth+1)
 		if e != nil {
-			return "", e
+			return nil, e
 		}
-		parts = append(parts, "("+v+")")
+		parts = append(parts, p)
 	}
-	if len(parts) == 0 {
-		return "1 == 1", nil
-	}
-	return strings.Join(parts, op), nil
+	return func(s *entsql.Selector) *entsql.Predicate {
+		if len(parts) == 0 {
+			return entsql.ExprP("TRUE")
+		}
+		ps := make([]*entsql.Predicate, 0, len(parts))
+		for _, p := range parts {
+			ps = append(ps, p(s))
+		}
+		if expr.GetType() == paginationV1.ExprType_OR {
+			return entsql.Or(ps...)
+		}
+		return entsql.And(ps...)
+	}, nil
 }
 
 type planQuotaListQuery struct {
-	q.ListPlanQuotasParams
-	countPredicate string
+	filter  predicate.PlanQuota
+	order   []planquota.OrderOption
+	limit   *int
+	offset  int
+	afterID *uint32
 }
 
 func planQuotaListParams(req *paginationV1.PagingRequest) (planQuotaListQuery, error) {
@@ -207,14 +228,11 @@ func planQuotaListParams(req *paginationV1.PagingRequest) (planQuotaListQuery, e
 	if e != nil {
 		return out, QuotaErrInvalid("invalid quota filter")
 	}
-	searches := []map[string]string{}
-	predicate, e := planQuotaExpr(expr, 0, &searches)
+	filter, e := planQuotaExpr(expr, 0)
 	if e != nil {
 		return out, e
 	}
-	out.Predicate = "$ ? (" + predicate + ")"
-	out.countPredicate = out.Predicate
-	out.SearchTerms, _ = json.Marshal(searches)
+	out.filter = func(s *entsql.Selector) { s.Where(filter(s)) }
 	sortings := req.GetSorting()
 	if len(sortings) == 0 && req.GetOrderBy() != "" {
 		sortings, e = paginationSorting.NewOrderByStringConverter().Convert(req.GetOrderBy())
@@ -222,62 +240,58 @@ func planQuotaListParams(req *paginationV1.PagingRequest) (planQuotaListQuery, e
 			return out, QuotaErrInvalid("invalid quota order")
 		}
 	}
-	keys := []map[string]any{}
-	for _, s := range sortings {
-		field, ok := planQuotaField(s.GetField())
+	for _, order := range sortings {
+		field, ok := planQuotaField(order.GetField())
 		if !ok {
 			return out, QuotaErrInvalid("unknown quota sort field")
 		}
-		direction := 1
-		if s.GetDirection() == paginationV1.Sorting_DESC {
-			direction = -1
-		}
-		keys = append(keys, map[string]any{"field": field, "direction": direction})
+		desc := order.GetDirection() == paginationV1.Sorting_DESC
+		out.order = append(out.order, func(s *entsql.Selector) {
+			if desc {
+				s.OrderBy(entsql.Desc(s.C(field)))
+			} else {
+				s.OrderBy(s.C(field))
+			}
+		})
 	}
-	out.SortKeys, _ = json.Marshal(keys)
+	out.order = append(out.order, planquota.ByID())
 	if req.GetNoPaging() {
-		out.PageLimit = nil
 		if paginator.NoPagingMaxLimit > 0 {
-			out.PageLimit = ptr(int64(paginator.NoPagingMaxLimit))
+			out.limit = ptr(int(paginator.NoPagingMaxLimit))
 		}
-		out.PageOffset = 0
 		return out, nil
 	}
-	// Keep the original PagingRequest precedence and paired-field semantics.
-	clamp := func(n int64) int64 {
+	clamp := func(n int64) int {
 		if n < 1 {
 			n = 1
 		}
 		if paginator.MaxLimit > 0 && n > int64(paginator.MaxLimit) {
 			n = int64(paginator.MaxLimit)
 		}
-		return n
+		return int(n)
 	}
 	if req.Page != nil && req.PageSize != nil {
 		limit := clamp(int64(req.GetPageSize()))
-		page := int64(req.GetPage())
-		if page < 1 {
-			page = 1
-		}
-		out.PageLimit = &limit
-		out.PageOffset = (page - 1) * limit
+		page := max(1, int64(req.GetPage()))
+		out.limit = &limit
+		out.offset = int(page-1) * limit
 	} else if req.Offset != nil && req.Limit != nil {
 		if req.GetOffset() > math.MaxInt64 {
 			return out, QuotaErrInvalid("quota offset overflow")
 		}
-		out.PageLimit = ptr(clamp(int64(req.GetLimit())))
-		out.PageOffset = int64(req.GetOffset())
+		out.limit = ptr(clamp(int64(req.GetLimit())))
+		out.offset = int(req.GetOffset())
 	} else if req.Token != nil && req.Offset != nil {
 		if req.GetOffset() > math.MaxInt64 {
 			return out, QuotaErrInvalid("quota page size overflow")
 		}
-		out.PageLimit = ptr(clamp(int64(req.GetOffset())))
+		out.limit = ptr(clamp(int64(req.GetOffset())))
 		if req.GetToken() != "" {
 			lastID, ok := pagination.VerifyAndDecode(req.GetToken(), pagination.TokenSecret())
-			if !ok {
+			if !ok || lastID < 0 || lastID > math.MaxUint32 {
 				return out, QuotaErrInvalid("invalid or tampered pagination token")
 			}
-			out.Predicate = "$ ? ((" + predicate + ") && @.id > " + strconv.FormatInt(lastID, 10) + ")"
+			out.afterID = ptr(uint32(lastID))
 		}
 	}
 	return out, nil

@@ -964,3 +964,13 @@ HTTP 不接受 tenant/actor/context 作为身份来源；服务从已验证 Prin
 本批隔离软件联调的 20 HTTP BFF、当前权限撤销、真实下游 mTLS、ENDED 后非空绑定脱敏及
 非 GPU 回归已通过，详见 [BFF 验收证据](evidence/gov-acc-v12-01/bff/README.md)。这些结果不表示
 真实 GPU 调度或生产 owner 已启用；原始失败日志与修复边界一并保留。
+
+
+## 2026-09-24 即时修复：Governance 配额恢复 Ent
+
+用户明确纠正：pgx/sqlc 要求仅针对 Acc，Governance 配额迁移不在该要求范围内。
+本次复用 QUOTA-01～04 和 ACC-01～19，不新增或变更接口、报文、权限及套餐关系。
+完整配额账本、套餐配额、投递、DELETE/释放和 GPU usage sync 改为 Ent 查询及单个 Ent 事务；
+删除 Conn.Raw/pgx 事务桥接、Governance sqlc 生成代码与强制门禁，保留显式 tenant 条件、
+行锁/租约代次校验、既有数据库约束及版本迁移。历史验收不自动计入本次回归，
+当前验证见 [Ent 修复记录](evidence/gov-quota-ent-20260924/README.md)。整体接口登记仍未结项。

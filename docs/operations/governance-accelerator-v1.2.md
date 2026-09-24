@@ -14,11 +14,13 @@ Acc 固定为已发布提交 `1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3`；Gov �
 
 ## 2. 唯一结构与查询来源
 
+2026-09-24 纠正：pgx/sqlc 要求仅适用于 Acc。此前把 Gov 配额账本一起迁移属于范围扩大，现已恢复 Ent。既有版本迁移与数据约束保留，本次不改 schema、不要求重跑迁移。旧验收记录只证明其对应历史实现，当前 Ent 回归证据另行记录。
+
 | 范围 | 权威链及执行职责 |
 |---|---|
 | Gov 结构 | `app/admin/service/internal/data/ent/schema/` → 固定 Ent v0.14.6 + `cmd/schema/constraints.sql` → `app/admin/service/schema.sql` → 审查后的 Atlas 版本迁移 |
-| Gov 查询 | 上述 schema.sql → `sqlc.yaml` + `internal/data/quotasql/queries/*.sql` → 固定 sqlc v1.30.0 的 pgx 生成方法；完整通用 quota、plan quota、dispatch、DELETE、release 和 sync 共用它 |
-| Gov 原子事务 | `quotaTransaction` 在 database/sql Raw callback 内取得 pgx 连接并拥有一个 pgx.Tx；生成查询绑定同一事务。Ent 值只作兼容 DTO，没有同账本的第二次 Ent 提交 |
+| Gov 查询 | Ent schema → Ent 生成的 Query/Create/Update/Delete；完整通用 quota、plan quota、dispatch、DELETE、release 和 sync 直接使用 Ent |
+| Gov 原子事务 | `quotaTransaction` 通过 `ent.Client.Tx` 创建单个 `ent.Tx`，全部查询和写入由该事务执行并提交/回滚；没有 Conn.Raw、pgx 事务或 sqlc 桥接 |
 | Acc 结构/查询 | 固定上游正式 migrations → sqlc；不将设计 SQL 或 Gov schema 复制为 Acc 结构来源 |
 
 Gov 版本迁移按 [migrations](../../migrations/) 现有链执行：初始 `20260921134442_initial`、既有 quota expand/constraints `20260922190000`/`20260922190100`，再到本批：
@@ -153,7 +155,7 @@ sha256sum "$GOV_BACKUP_FILE" > "$GOV_BACKUP_FILE.sha256"
 
 ## 8. 验证入口和历史暂停
 
-Gov `make verify-gpu` 包含结构/sqlc无漂移、生产手写SQL/driver/Ent边界扫描、格式、正式/lab/admin构建、受影响单元/真实PG/race、lab及固定漏洞/secret审计。运行方式见[数据层复跑说明](../evidence/gov-acc-v12-01/data-layer.md)。普通 data suite 会清理它自己的测试账本，**只能使用其独立 data 库**；不能把 joint-B、owner或恢复业务库DSN传给它。
+Gov `make verify-gpu` 包含Ent/结构生成无漂移、配额 Ent 执行边界扫描、格式、正式/lab/admin构建、受影响单元/真实PG/race、lab及固定漏洞/secret审计。运行方式见[数据层复跑说明](../evidence/gov-acc-v12-01/data-layer.md)。普通 data suite 会清理它自己的测试账本，**只能使用其独立 data 库**；不能把 joint-B、owner或恢复业务库DSN传给它。
 
 跨仓真实软件联调仍须另跑 `scripts/accelerator-acceptance/run-joint-contract.sh`、BFF和正式A边界脚本，使用明确不同 A/B DSN/CA/config。Acc 使用其固定版本的 `make verify`。所有结果落入[95项验收结果表](../evidence/gov-acc-v12-01/acceptance-results.md)，记录精确版本、source manifest、命令/退出码、原始失败与复跑，不用 component PASS 代替整项。
 

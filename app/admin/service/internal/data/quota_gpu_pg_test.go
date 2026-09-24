@@ -17,10 +17,10 @@ import (
 	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
-	"go-wind-admin/app/admin/service/internal/data/ent"
-	q "go-wind-admin/app/admin/service/internal/data/quotasql"
-	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"google.golang.org/protobuf/encoding/protojson"
+
+	"go-wind-admin/app/admin/service/internal/data/ent"
+	appViewer "go-wind-admin/pkg/entgo/viewer"
 )
 
 //go:embed testdata/gpu/role_and_rls.sql
@@ -32,7 +32,7 @@ var gpuNullTenant string
 //go:embed testdata/gpu/temp_forbidden.sql
 var gpuTempForbidden string
 
-func TestQuotaGpuProductionPgxComposition(t *testing.T) {
+func TestQuotaGpuProductionEntComposition(t *testing.T) {
 	for _, trace := range []bool{false, true} {
 		t.Run(fmt.Sprint(trace), func(t *testing.T) {
 			dsn := os.Getenv("QUOTA_LAB_PG_DSN")
@@ -47,7 +47,23 @@ func TestQuotaGpuProductionPgxComposition(t *testing.T) {
 			defer cleanup()
 			require.Equal(t, "postgres", cfg.Data.Database.GetDriver(), "composition must not mutate caller config")
 			r := NewQuotaLedgerRepo(app, client)
-			require.NoError(t, r.transaction(context.Background(), func(tx *q.Queries) error { _, e := tx.ListDefinitions(context.Background()); return e }))
+			require.NoError(t, r.transaction(context.Background(), func(tx *ent.Tx) error {
+				ctx := appViewer.NewSystemViewerContext(context.Background())
+				_, e := tx.QuotaDefinition.Query().All(ctx)
+				return e
+			}))
+			cleanLedger(t, client)
+			tid, _ := seedTenantPlan(t, client, "ent-production", 10)
+			accepted, e := r.Occupy(context.Background(), occupyInput(tid, "actor", uuid.NewString(), 2))
+			require.NoError(t, e)
+			require.NoError(t, r.CancelUnsent(context.Background(), tid, accepted.OperationID))
+			balances, e := r.RecomputeInvariants(context.Background(), tid)
+			require.NoError(t, e)
+			require.NotEmpty(t, balances)
+			for _, balance := range balances {
+				require.True(t, balance.Balanced)
+				require.Zero(t, balance.OccupiedUnits)
+			}
 		})
 	}
 }
@@ -108,8 +124,9 @@ func TestQuotaGpuRestrictedRoleAndExplicitIsolation(t *testing.T) {
 	require.True(t, ent.IsNotFound(e))
 	charges, e := r.GetChargesForOperation(ctx, a, original.OperationID)
 	require.NoError(t, e)
-	e = r.transaction(ctx, func(tx *q.Queries) error {
-		_, e := tx.InsertCharge(ctx, q.InsertChargeParams{ChargeID: uuid.NewString(), TenantID: int64(b), OperationID: original.OperationID, QuotaCode: charges[0].QuotaCode, OriginalUnits: 1})
+	e = r.transaction(ctx, func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(ctx)
+		_, e := tx.QuotaCharge.Create().SetChargeID(uuid.NewString()).SetTenantID(b).SetOperationID(original.OperationID).SetQuotaCode(charges[0].QuotaCode).SetOriginalUnits(1).Save(ctx)
 		return e
 	})
 	require.Error(t, e, "cross-tenant FK must reject known other-tenant UUID")
@@ -308,18 +325,30 @@ func TestQuotaGpuProjectionNullAndForeignRefConstraints(t *testing.T) {
 	in := gpuLedgerInput(t, c.Client(), tid, pid)
 	created, e := r.Occupy(ctx, in)
 	require.NoError(t, e)
-	params := q.UpsertGpuUsageSyncParams{TenantID: int64(tid), OperationID: created.OperationID, Revision: 1, State: "DECLARED", PayloadHash: "digest", ResourceTenantID: in.ResourceTenantID, OwnerService: in.OwnerService, ResourceID: in.ResourceID}
+	params := ent.GpuUsageSync{TenantID: &tid, OperationID: created.OperationID, Revision: 1, State: "DECLARED", PayloadHash: "digest", ResourceTenantID: in.ResourceTenantID, OwnerService: in.OwnerService, ResourceID: in.ResourceID}
 	for _, payload := range []string{`null`, `{}`, `{"revision":1,"state":1,"payload_digest":"digest","ref":null}`, `{"revision":null,"state":1,"payload_digest":"digest","ref":{}}`} {
-		params.PayloadJson = payload
-		e = r.transaction(ctx, func(tx *q.Queries) error { _, e := tx.UpsertGpuUsageSync(ctx, params); return e })
+		params.PayloadJSON = payload
+		e = r.transaction(ctx, func(tx *ent.Tx) error {
+			ctx := appViewer.NewSystemViewerContext(context.Background())
+			e := upsertGpuUsageSync(ctx, tx, &params)
+			return e
+		})
 		require.Error(t, e, "JSON NULL may not bypass a CHECK")
 	}
-	params.PayloadJson = gpuProjectionPayload(in, created.OperationID, 1, "digest")
+	params.PayloadJSON = gpuProjectionPayload(in, created.OperationID, 1, "digest")
 	params.ResourceTenantID = uuid.NewString()
-	e = r.transaction(ctx, func(tx *q.Queries) error { _, e := tx.UpsertGpuUsageSync(ctx, params); return e })
+	e = r.transaction(ctx, func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(context.Background())
+		e := upsertGpuUsageSync(ctx, tx, &params)
+		return e
+	})
 	require.Error(t, e, "JSON ref must match relational columns")
 	params.ResourceTenantID = in.ResourceTenantID
-	params.TenantID = int64(tid) + 100000
-	e = r.transaction(ctx, func(tx *q.Queries) error { _, e := tx.UpsertGpuUsageSync(ctx, params); return e })
+	params.TenantID = ptr(tid + 100000)
+	e = r.transaction(ctx, func(tx *ent.Tx) error {
+		ctx := appViewer.NewSystemViewerContext(context.Background())
+		e := upsertGpuUsageSync(ctx, tx, &params)
+		return e
+	})
 	require.Error(t, e, "original ref FK must retain tenant")
 }

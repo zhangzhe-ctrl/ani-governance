@@ -8,7 +8,7 @@
 
 | 层 | 本文所需能力及版本门槛 | 当前边界 |
 |---|---|---|
-| Governance | 最低实现版本为 **`bd9ad1a33bbe8ce28f4faeb19bfc9ee494ae8a84`**：`GpuAcceptance`、schema 2 canonical、`gpu-metering-v1`、完整 pgx/sqlc 配额账本、DELETE acceptance、独立 usage sync、严格 ACK/GPU release 校验 | 源码 manifest、版本对和后续证据提交写入[交付记录](../evidence/gov-acc-v12-01/release/closeout.md)。任务起点 `0fbe1a69e49cc23dc7a1696b62f68c34a7c6a48a` 不包含这些能力 |
+| Governance | 最低实现版本为 **`bd9ad1a33bbe8ce28f4faeb19bfc9ee494ae8a84`**：`GpuAcceptance`、schema 2 canonical、`gpu-metering-v1`、完整配额账本（当前已恢复 Ent；下列 SHA 为历史交付版本）、DELETE acceptance、独立 usage sync、严格 ACK/GPU release 校验 | 源码 manifest、版本对和后续证据提交写入[交付记录](../evidence/gov-acc-v12-01/release/closeout.md)。任务起点 `0fbe1a69e49cc23dc7a1696b62f68c34a7c6a48a` 不包含这些能力 |
 | Accelerator | 最低固定交付 SHA `1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3`；`accelerator.v1`、`accelerator.integration.v1`、22 RPC、公开附件及本批运行时整改 | 已发布的任务分支提交；这不表示生产部署、真实 owner 或硬件已经通过 |
 | 跨仓依赖 | 本仓 [go.mod](../../go.mod) / [go.sum](../../go.sum) 固定 `v0.0.0-20260924030150-1d32dd9a9173`，对应上行 Acc SHA | 上述 Gov 实现与该模块已完成 Fedora 软件验收；精确CI状态和用户接受不等待Gov CI的边界见交付记录。旧API基线联调不能认证新模块 |
 | 当前 owner | `ani-inference`，固定单 owner 的 ref、身份、公钥和查询约束 | 支持这一合同标识不等于已经注册正式 Inference adapter；第二 owner 未实现 |
@@ -117,11 +117,11 @@ baseline 排除自身摘要/验证/观察证据引用；spec 是 `{spec,baseline
 
 ## 6. 创建：先授权重放，再受理新请求
 
-`AcceptGpuCreate` 的实际顺序是当前 Principal/业务授权 → 规范化请求和可信租户映射 → 原幂等读取 → 仅新请求检查 registry/业务/Resolve → plan 和完整向量校验 → 单 pgx 事务 Occupy → 唤醒 dispatch。
+`AcceptGpuCreate` 的实际顺序是当前 Principal/业务授权 → 规范化请求和可信租户映射 → 原幂等读取 → 仅新请求检查 registry/业务/Resolve → plan 和完整向量校验 → 单 Ent 事务 Occupy → 唤醒 dispatch。
 
 已授权同 key 同内容重放直接返回原 operation/resource/charge IDs；从原 canonical 核验原 plan，不再 Resolve。目录 CLOSED、F 改变、解析服务不可用、adapter 临时移除或新建关闭都不能触发第二次占额。当前权限仍先校验；同 key 异内容冲突，不能用原记录泄漏绕过授权。
 
-新请求 Resolve 在事务外，持久 canonical 冻结业务内容及摘要、原 GPU 请求、完整 plan、计量版本和全部 quota items。并发请求即使各自 Resolve 到不同快照，最终由 Occupy 同一事务裁定幂等胜者；原 operation、全部 charges 和账户更新一次提交，任一维度不足全部回滚。不得重新引入 Ent Tx 与 pgx Tx 两次提交。
+新请求 Resolve 在事务外，持久 canonical 冻结业务内容及摘要、原 GPU 请求、完整 plan、计量版本和全部 quota items。并发请求即使各自 Resolve 到不同快照，最终由 Occupy 同一事务裁定幂等胜者；原 operation、全部 charges 和账户更新一次提交，任一维度不足全部回滚。Governance 内部统一使用一个 Ent Tx，不得拆成两次提交。
 
 容量是参考值。合法 plan、有额度且执行能力启用时，容量已知为零或 UNKNOWN 可以接受等待；配置漂移、未验证、CLOSED 导致的 Resolve 错误则拒绝新受理。不存在第二次 reserved→allocated 扣额。无需在 owner 创建工作负载前注册 Consumer，也不等待 usage projection 建立才接受业务命令。
 
@@ -191,7 +191,7 @@ Gov 先校验原完整 charge 集合。通知只要含任一 GPU item，就必�
 
 混合业务仍允许先仅对非 GPU charge 报告合法累计部分释放。GPU 完全释放后可以 ENDED，不必等待无关存储等 charge 归零；仅非 GPU 释放不能结束 GPU。完整原向量验证和 GPU 子集终态判断不能合并为“第一笔 charge 是否已退”。
 
-累计语义为 `new_total=max(saved_total, reported_total)`，本次 delta 为差值；同事件同内容重试和新事件重复累计值不会双退，乱序不会负退。相同事件异内容冲突。Gov 在同一 pgx 事务保存 receipt、charge 累计值和账户更新，整个通知原子提交。
+累计语义为 `new_total=max(saved_total, reported_total)`，本次 delta 为差值；同事件同内容重试和新事件重复累计值不会双退，乱序不会负退。相同事件异内容冲突。Gov 在同一 Ent 事务保存 receipt、charge 累计值和账户更新，整个通知原子提交。
 
 owner 在关闭完成事务中持久写入通知 outbox，保存原事件和完整报文；Gov 不可用或响应丢失时重发相同内容，收到有效响应后再持久确认 outbox。owner 重启必须扫描未确认通知。不能在内存中“发一次即可”，不能先删除关闭记录再等待通知成功。
 
@@ -222,7 +222,7 @@ Gov usage worker 周期分页重扫原 CREATE 和完整 charges，派生同一 r
 
 当前 `QuotaLedgerRepo.ResumeDispatch` 是保留原命令的受控恢复原语；实验控制路由不进入正式构建，不能在生产调用测试 `/control/*`。本文不声称存在正式通用 unblock RPC 或 sync 解除阻断 CLI。接入正式 owner 前须落实授权运维入口，记录原 tenant/operation/revision/generation、错误、原 payload/hash、修复证据及操作者；修复后重投原内容，禁止绕过摘要/FK、手工清 charge 或新造 CREATE ID。
 
-数据恢复先关闭新受理和相关 worker，保留备份及脱敏证据；旧版本不能读 schema 2 canonical/新增模块时不可直接回滚二进制。不得自动 DROP/DOWN 带业务的新表。运行账号使用非 owner、非 superuser、无 BYPASSRLS/DDL/TEMP 权限；业务查询通过显式 tenant 的 pgx/sqlc，RLS/policy 不作为隔离后门。
+数据恢复先关闭新受理和相关 worker，保留备份及脱敏证据；旧版本不能读 schema 2 canonical/新增模块时不可直接回滚二进制。不得自动 DROP/DOWN 带业务的新表。运行账号使用非 owner、非 superuser、无 BYPASSRLS/DDL/TEMP 权限；Governance 业务查询通过显式 tenant 条件的 Ent，Acc 使用 pgx/sqlc，RLS/policy 不作为隔离后门。
 
 ## 11. 接入验收模板
 

@@ -60,12 +60,8 @@ app/admin/service/internal/data/quota_gpu_pg_test.go
 app/admin/service/internal/data/quota_gpu_sync_repo.go
 app/admin/service/internal/data/quota_ledger_pg_test.go
 app/admin/service/internal/data/quota_ledger_repo.go
-app/admin/service/internal/data/quota_pgx.go
+app/admin/service/internal/data/quota_ent.go
 app/admin/service/internal/data/quota_process_pg_test.go
-app/admin/service/internal/data/quotasql/db.go
-app/admin/service/internal/data/quotasql/ledger.sql.go
-app/admin/service/internal/data/quotasql/models.go
-app/admin/service/internal/data/quotasql/plan.sql.go
 app/admin/service/internal/data/quota_sync_lease_pg_test.go
 app/admin/service/internal/data/quota_upgrade_pg_test.go
 app/admin/service/internal/data/role_permission_repo.go
@@ -103,3 +99,4 @@ app/admin/service/tests/gpucontract/snapshot_race_test.go
 app/admin/service/tests/gpucontract/sync_failure_test.go
 pkg/constants/module_mapping.go
 pkg/constants/module_mapping_test.go
+app/admin/service/internal/data/quota_ent_pg_test.go

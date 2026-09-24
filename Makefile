@@ -177,12 +177,12 @@ build_admin:
 
 # GPU quota slice: source generation and software-only gates. Run on the task's
 # authorized Fedora host with its private caches and explicitly migrated PG DSN.
-.PHONY: verify-quota-sqlc verify-gpu verify-gpu-regressions verify-gpu-audit
-verify-quota-sqlc:
+.PHONY: verify-quota-ent verify-gpu verify-gpu-regressions verify-gpu-audit
+verify-quota-ent:
 	bash scripts/verify-quota-schema.sh
-	bash scripts/verify-quota-sqlc.sh
+	python3 scripts/check-quota-ent.py
 
-verify-gpu: verify-quota-sqlc verify-gpu-regressions verify-gpu-audit
+verify-gpu: verify-quota-ent verify-gpu-regressions verify-gpu-audit
 
 verify-gpu-regressions:
 	@test -n "$(QUOTA_LAB_PG_DSN)" || (echo 'QUOTA_LAB_PG_DSN required'; exit 1)

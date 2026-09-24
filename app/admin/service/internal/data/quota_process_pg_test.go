@@ -25,7 +25,7 @@ import (
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 )
 
-// Only the test connection installs this tracer. Production pgx/sqlc transactions
+// Only the test connection installs this tracer. Production Ent transactions
 // run unchanged. Start blocks before COMMIT reaches PG; End blocks only after PG
 // acknowledges successful COMMIT and before the repository returns its response.
 type quotaCommitTrace struct{ point, marker string }
