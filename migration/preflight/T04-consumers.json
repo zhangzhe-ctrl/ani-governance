@@ -1,0 +1,174 @@
+{
+ "aliases_present": {
+  "github.com/tx7do/go-utils/crypto": [
+   "gocrypto",
+   "utilCrypto",
+   "utilcrypto"
+  ]
+ },
+ "consumer_files_inside_pkg_localdeps": 0,
+ "consumer_files_repo_own": 21,
+ "consumer_files_total": 21,
+ "consumers_inside_pkg_localdeps": [],
+ "mapped_packages": {
+  "github.com/tx7do/go-utils/aggregator": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "github.com/tx7do/go-utils/captcha": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "github.com/tx7do/go-utils/crypto": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "github.com/tx7do/go-utils/jwtutil": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "github.com/tx7do/go-utils/password": "go-wind-admin/pkg/localdeps/go-utils/password"
+ },
+ "not_generated_code_untouched": true,
+ "packages_left_on_old_path_this_round": {
+  "github.com/tx7do/go-utils/copierutil": {
+   "count": 0,
+   "files": []
+  },
+  "github.com/tx7do/go-utils/fieldmaskutil": {
+   "count": 0,
+   "files": []
+  },
+  "github.com/tx7do/go-utils/id": {
+   "count": 3,
+   "files": [
+    "app/admin/service/internal/service/internal_message_service.go",
+    "pkg/localdeps/go-crud/entgo/mixin/snowflake_id.go",
+    "pkg/middleware/logging/utils.go"
+   ]
+  },
+  "github.com/tx7do/go-utils/mapper": {
+   "count": 0,
+   "files": []
+  },
+  "github.com/tx7do/go-utils/sliceutil": {
+   "count": 0,
+   "files": []
+  },
+  "github.com/tx7do/go-utils/stringcase": {
+   "count": 0,
+   "files": []
+  },
+  "github.com/tx7do/go-utils/timeutil": {
+   "count": 22,
+   "files": [
+    "app/admin/service/internal/data/api_audit_log_repo.go",
+    "app/admin/service/internal/data/internal_message_recipient_repo.go",
+    "app/admin/service/internal/data/membership_org_unit_repo.go",
+    "app/admin/service/internal/data/membership_position_repo.go",
+    "app/admin/service/internal/data/membership_repo.go",
+    "app/admin/service/internal/data/membership_role_repo.go",
+    "app/admin/service/internal/data/org_unit_repo.go",
+    "app/admin/service/internal/data/position_repo.go",
+    "app/admin/service/internal/data/role_metadata_repo.go",
+    "app/admin/service/internal/data/role_permission_repo.go",
+    "app/admin/service/internal/data/tenant_repo.go",
+    "app/admin/service/internal/data/user_org_unit_repo.go",
+    "app/admin/service/internal/data/user_position_repo.go",
+    "app/admin/service/internal/data/user_repo.go",
+    "app/admin/service/internal/data/user_repo_test.go",
+    "app/admin/service/internal/data/user_role_repo.go",
+    "app/admin/service/internal/service/authentication_service.go",
+    "app/admin/service/internal/service/internal_message_service.go",
+    "pkg/constants/default_data.go",
+    "pkg/localdeps/go-utils/copierutil/converters.go",
+    "pkg/localdeps/go-utils/copierutil/converters_test.go",
+    "pkg/middleware/logging/login_audit_log.go"
+   ]
+  },
+  "github.com/tx7do/go-utils/trans": {
+   "count": 0,
+   "files": []
+  }
+ },
+ "per_package": {
+  "github.com/tx7do/go-utils/aggregator": {
+   "aliases": [],
+   "count": 7,
+   "files": [
+    "app/admin/service/internal/service/internal_message_service.go",
+    "app/admin/service/internal/service/org_unit_service.go",
+    "app/admin/service/internal/service/permission_service.go",
+    "app/admin/service/internal/service/position_service.go",
+    "app/admin/service/internal/service/role_service.go",
+    "app/admin/service/internal/service/tenant_service.go",
+    "app/admin/service/internal/service/user_service.go"
+   ],
+   "generated_files": [],
+   "target_import": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+   "test_files": []
+  },
+  "github.com/tx7do/go-utils/captcha": {
+   "aliases": [],
+   "count": 3,
+   "files": [
+    "app/admin/service/internal/data/data.go",
+    "app/admin/service/internal/service/authentication_service.go",
+    "app/admin/service/internal/service/authentication_service_sqlite_test.go"
+   ],
+   "generated_files": [],
+   "target_import": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "test_files": [
+    "app/admin/service/internal/service/authentication_service_sqlite_test.go"
+   ]
+  },
+  "github.com/tx7do/go-utils/crypto": {
+   "aliases": [
+    "gocrypto",
+    "utilCrypto",
+    "utilcrypto"
+   ],
+   "count": 7,
+   "files": [
+    "app/admin/service/internal/data/user_credential_repo.go",
+    "app/admin/service/internal/data/user_credential_repo_sqlite_test.go",
+    "app/admin/service/internal/data/user_repo_test.go",
+    "app/admin/service/internal/service/authentication_service_sqlite_test.go",
+    "app/admin/service/internal/service/user_profile_service_sqlite_test.go",
+    "scripts/model-lab/probe.go",
+    "scripts/network-lab/probe.go"
+   ],
+   "generated_files": [],
+   "target_import": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+   "test_files": [
+    "app/admin/service/internal/data/user_credential_repo_sqlite_test.go",
+    "app/admin/service/internal/data/user_repo_test.go",
+    "app/admin/service/internal/service/authentication_service_sqlite_test.go",
+    "app/admin/service/internal/service/user_profile_service_sqlite_test.go"
+   ]
+  },
+  "github.com/tx7do/go-utils/jwtutil": {
+   "aliases": [],
+   "count": 2,
+   "files": [
+    "app/admin/service/internal/data/authenticator.go",
+    "app/admin/service/internal/data/mfa_challenge_cache.go"
+   ],
+   "generated_files": [],
+   "target_import": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+   "test_files": []
+  },
+  "github.com/tx7do/go-utils/password": {
+   "aliases": [],
+   "count": 7,
+   "files": [
+    "app/admin/service/internal/data/data.go",
+    "app/admin/service/internal/data/repo_testkit5.go",
+    "app/admin/service/internal/data/user_credential_repo.go",
+    "app/admin/service/internal/data/user_credential_repo_sqlite_test.go",
+    "app/admin/service/internal/service/account_invitation_test.go",
+    "app/admin/service/internal/service/authentication_service_sqlite_test.go",
+    "app/admin/service/internal/service/user_service_sqlite_test.go"
+   ],
+   "generated_files": [],
+   "target_import": "go-wind-admin/pkg/localdeps/go-utils/password",
+   "test_files": [
+    "app/admin/service/internal/data/user_credential_repo_sqlite_test.go",
+    "app/admin/service/internal/service/account_invitation_test.go",
+    "app/admin/service/internal/service/authentication_service_sqlite_test.go",
+    "app/admin/service/internal/service/user_service_sqlite_test.go"
+   ]
+  }
+ },
+ "scanned_go_files": 1329,
+ "task": "T04",
+ "tool": "migrate_imports scan (frozen, source _agent/.../tools/migrate_imports.go)"
+}

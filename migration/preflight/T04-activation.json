@@ -1,0 +1,393 @@
+{
+ "activation_from": "T04/extraction.json (verdict OK, three-way provenance) + T04/consumers.json",
+ "consumers_count": 21,
+ "consumers_rewired": [
+  "app/admin/service/internal/data/authenticator.go",
+  "app/admin/service/internal/data/data.go",
+  "app/admin/service/internal/data/mfa_challenge_cache.go",
+  "app/admin/service/internal/data/repo_testkit5.go",
+  "app/admin/service/internal/data/user_credential_repo.go",
+  "app/admin/service/internal/data/user_credential_repo_sqlite_test.go",
+  "app/admin/service/internal/data/user_repo_test.go",
+  "app/admin/service/internal/service/account_invitation_test.go",
+  "app/admin/service/internal/service/authentication_service.go",
+  "app/admin/service/internal/service/authentication_service_sqlite_test.go",
+  "app/admin/service/internal/service/internal_message_service.go",
+  "app/admin/service/internal/service/org_unit_service.go",
+  "app/admin/service/internal/service/permission_service.go",
+  "app/admin/service/internal/service/position_service.go",
+  "app/admin/service/internal/service/role_service.go",
+  "app/admin/service/internal/service/tenant_service.go",
+  "app/admin/service/internal/service/user_profile_service_sqlite_test.go",
+  "app/admin/service/internal/service/user_service.go",
+  "app/admin/service/internal/service/user_service_sqlite_test.go",
+  "scripts/model-lab/probe.go",
+  "scripts/network-lab/probe.go"
+ ],
+ "files_placed": 56,
+ "go_files_placed": 47,
+ "go_version": null,
+ "import_map": {
+  "github.com/tx7do/go-utils/aggregator": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "github.com/tx7do/go-utils/captcha": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "github.com/tx7do/go-utils/crypto": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "github.com/tx7do/go-utils/jwtutil": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "github.com/tx7do/go-utils/password": "go-wind-admin/pkg/localdeps/go-utils/password"
+ },
+ "non_go_placed": [
+  "pkg/localdeps/go-utils/aggregator/LICENSE",
+  "pkg/localdeps/go-utils/aggregator/README.md",
+  "pkg/localdeps/go-utils/captcha/LICENSE",
+  "pkg/localdeps/go-utils/captcha/README.md",
+  "pkg/localdeps/go-utils/crypto/LICENSE",
+  "pkg/localdeps/go-utils/crypto/README.md",
+  "pkg/localdeps/go-utils/jwtutil/LICENSE",
+  "pkg/localdeps/go-utils/password/LICENSE",
+  "pkg/localdeps/go-utils/password/README.md"
+ ],
+ "placed_files": [
+  {
+   "is_go": false,
+   "sha256_at_place": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+   "staged": "T04/stage/go-utils/aggregator/LICENSE",
+   "target_path": "pkg/localdeps/go-utils/aggregator/LICENSE"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "99db63430b360ab263afce96ada9a86047a0f0e7b7634716dece43c864e0489b",
+   "staged": "T04/stage/go-utils/aggregator/README.md",
+   "target_path": "pkg/localdeps/go-utils/aggregator/README.md"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "f7ebdbd1c8326960691f0ee7a35d811e08dd794d5ecd6896f7803e2ddc9a4e29",
+   "staged": "T04/stage/go-utils/aggregator/dataloader.go",
+   "target_path": "pkg/localdeps/go-utils/aggregator/dataloader.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "164afdcb20c48a621dcb0e1cc8745414cecf3eba47ad6c6995733fd3222dca6b",
+   "staged": "T04/stage/go-utils/aggregator/dataloader_test.go",
+   "target_path": "pkg/localdeps/go-utils/aggregator/dataloader_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "cd7c9e168daeb2a754de90c8f412985b2eaab69fb424ef05c5e6dfb5198ca8f8",
+   "staged": "T04/stage/go-utils/aggregator/facebook_dataloader.go",
+   "target_path": "pkg/localdeps/go-utils/aggregator/facebook_dataloader.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "1ceff9a1f3eb67074c24c859554aa0de5ef91bc8bf15e920231259835c879f12",
+   "staged": "T04/stage/go-utils/aggregator/facebook_dataloader_test.go",
+   "target_path": "pkg/localdeps/go-utils/aggregator/facebook_dataloader_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "7c9f883ba275ced29cc053a1908183446931822214e163890384dc58de5dfa20",
+   "staged": "T04/stage/go-utils/aggregator/options.go",
+   "target_path": "pkg/localdeps/go-utils/aggregator/options.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "ab18711897ea65a3d4f941c8143fc95be45593d9cae730c7b0e81df363c0bfe5",
+   "staged": "T04/stage/go-utils/aggregator/parallel.go",
+   "target_path": "pkg/localdeps/go-utils/aggregator/parallel.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "d49bf1a1880ba269071c8c8099b72fcc2c5d3c619dcf02a49b78b64d187b0366",
+   "staged": "T04/stage/go-utils/aggregator/parallel_test.go",
+   "target_path": "pkg/localdeps/go-utils/aggregator/parallel_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "a0451bbfb2098d8ea23c2f8b587ed301c86d4b6fe1207b76c3f47e792cff1ea5",
+   "staged": "T04/stage/go-utils/aggregator/populate.go",
+   "target_path": "pkg/localdeps/go-utils/aggregator/populate.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "5ce99fe9142df62f190025c8f6919808a92cf1e692a5eaa525342b2d95676ac2",
+   "staged": "T04/stage/go-utils/aggregator/populate_test.go",
+   "target_path": "pkg/localdeps/go-utils/aggregator/populate_test.go"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+   "staged": "T04/stage/go-utils/captcha/LICENSE",
+   "target_path": "pkg/localdeps/go-utils/captcha/LICENSE"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "e70beefe83e96dfe2dfcce5ef20fc7d757c0de10137a030564881f227d133226",
+   "staged": "T04/stage/go-utils/captcha/README.md",
+   "target_path": "pkg/localdeps/go-utils/captcha/README.md"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "daf67c784a27f0942e929cbeef7d14007732c89286c9a1c32120ad62b9a06f66",
+   "staged": "T04/stage/go-utils/captcha/captcha.go",
+   "target_path": "pkg/localdeps/go-utils/captcha/captcha.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "285fa7c9d1da6a9003721a86de77c0297a5f359c77f34cb446b71e223569b780",
+   "staged": "T04/stage/go-utils/captcha/captcha_test.go",
+   "target_path": "pkg/localdeps/go-utils/captcha/captcha_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "c036d2dbe583e0024fe9d9fff3d0e12e78ec5dd4052aa39bf14428b28de718ea",
+   "staged": "T04/stage/go-utils/captcha/example_test.go",
+   "target_path": "pkg/localdeps/go-utils/captcha/example_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "3dd43e5285e2945bdf4be344d2fb137f9bbaa2c2b7ebc536df0ffce4c9e6609a",
+   "staged": "T04/stage/go-utils/captcha/options.go",
+   "target_path": "pkg/localdeps/go-utils/captcha/options.go"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+   "staged": "T04/stage/go-utils/crypto/LICENSE",
+   "target_path": "pkg/localdeps/go-utils/crypto/LICENSE"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "3a8904412ad9dd9ab3420ee49b792727d22ce068b10b7fbfce4a349c65dabc19",
+   "staged": "T04/stage/go-utils/crypto/README.md",
+   "target_path": "pkg/localdeps/go-utils/crypto/README.md"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "c9176cd4c8acc0ad6f815b6bbf19a860f6bca35f3ead6a542bd913d37c81f56c",
+   "staged": "T04/stage/go-utils/crypto/aes.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/aes.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "093e7c5f02765c2a349c98a51cce0b1edf740aeabea4d852b917b5ae20fc65fc",
+   "staged": "T04/stage/go-utils/crypto/aes_test.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/aes_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "c72e04cca5ad16e4a722c0b69fdbb1e198e717d217ea34558c43c01eb3da648e",
+   "staged": "T04/stage/go-utils/crypto/ecdsa_ecdh.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/ecdsa_ecdh.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "f8bb02799efe110749bf6d2950182427a740d5cbc45f68032a8e6169abbd6879",
+   "staged": "T04/stage/go-utils/crypto/ecdsa_ecdh_test.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/ecdsa_ecdh_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "d819d76ad07b4336fd9db1dc64789308b6220d886e92cd53569bd467827c378d",
+   "staged": "T04/stage/go-utils/crypto/hmac.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/hmac.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "37ee537b4284343226785adeb18375343bfc1ba1fdb186e07f208b72e549f73b",
+   "staged": "T04/stage/go-utils/crypto/hmac_test.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/hmac_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "402eb5ffeb77cb5af6de9186280cf1ef1694f1de80ffd503eea30141ab4c40df",
+   "staged": "T04/stage/go-utils/crypto/interface.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/interface.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "b66584e0183484c641f27318ad6536fa1545736c0a65da2bf0b2bf3e6f4c5417",
+   "staged": "T04/stage/go-utils/crypto/rsa.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/rsa.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "7e25b9183822e0c6685aaa260e2c39c05b600ef747ac20468f033fabe5671ddb",
+   "staged": "T04/stage/go-utils/crypto/rsa_test.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/rsa_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "1e015bb06e8c6a0e5c86730417f0f1ed319b99e49939d0c6cc8084f3428aa939",
+   "staged": "T04/stage/go-utils/crypto/sha.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/sha.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "f99fd07b06392ebbeeebb4b8ed01ee4dff1e199726f58167a40fe0fbad658f3e",
+   "staged": "T04/stage/go-utils/crypto/sm2.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/sm2.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "804b7d77025090683804d477bdc9d6d9b9f5a0688ef6452152f1fb91f33936ed",
+   "staged": "T04/stage/go-utils/crypto/sm2_test.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/sm2_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "8e04bf47b584cb8f4166d5d5aee4a98b695612cac64573a53d9d67ec8ce8107e",
+   "staged": "T04/stage/go-utils/crypto/sm3.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/sm3.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "60f3e660d718483afc9f7fba476adaba9897b030798b71fbedb4c1eebc331cd4",
+   "staged": "T04/stage/go-utils/crypto/sm3_test.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/sm3_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "caaaafdc4fedf8140e0ec10771e0bb93b41585d9fd64a358ac53f408fb412a31",
+   "staged": "T04/stage/go-utils/crypto/sm4.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/sm4.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "b9b05005b98e74dd137dc5ce15eebf676b56cf83f14572e4ecf371aaaf9e2162",
+   "staged": "T04/stage/go-utils/crypto/sm4_test.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/sm4_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "9674042338cc5261530813a8dd384dba3b6052c3b125587876e97d641e832be7",
+   "staged": "T04/stage/go-utils/crypto/utils.go",
+   "target_path": "pkg/localdeps/go-utils/crypto/utils.go"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+   "staged": "T04/stage/go-utils/jwtutil/LICENSE",
+   "target_path": "pkg/localdeps/go-utils/jwtutil/LICENSE"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "a59f3b52d36e1df8579e5250116024086374a140883c669a05c6e0d4f966bf75",
+   "staged": "T04/stage/go-utils/jwtutil/jwt.go",
+   "target_path": "pkg/localdeps/go-utils/jwtutil/jwt.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "c9ea805f92d46a4717a2a1fe8692507417d397e2e19d76c85520fe66be283524",
+   "staged": "T04/stage/go-utils/jwtutil/jwt_test.go",
+   "target_path": "pkg/localdeps/go-utils/jwtutil/jwt_test.go"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+   "staged": "T04/stage/go-utils/password/LICENSE",
+   "target_path": "pkg/localdeps/go-utils/password/LICENSE"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "ee47c216ca60e34709a4bbd75cd2b2260d598147d9b503fe6e102164621f06c6",
+   "staged": "T04/stage/go-utils/password/README.md",
+   "target_path": "pkg/localdeps/go-utils/password/README.md"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "c693d9edd2e3ba384b6adbeeede5e9d0b46ea99cc68396537c666f4f66e0f87c",
+   "staged": "T04/stage/go-utils/password/argon2.go",
+   "target_path": "pkg/localdeps/go-utils/password/argon2.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "489dc1019d183e88459db1b6f2cc959ca30fc278d6eed0e22fe751b76f64014f",
+   "staged": "T04/stage/go-utils/password/argon2_test.go",
+   "target_path": "pkg/localdeps/go-utils/password/argon2_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "fbf378de576129d0a4648bfbbd8aa3c777f961489bb2f05715578cca158473d2",
+   "staged": "T04/stage/go-utils/password/bcrypt.go",
+   "target_path": "pkg/localdeps/go-utils/password/bcrypt.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "335f5e3fa8f90d6699b0811669831e8e59871fdd270eee96a5eff4666183f3da",
+   "staged": "T04/stage/go-utils/password/bcrypt_test.go",
+   "target_path": "pkg/localdeps/go-utils/password/bcrypt_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "84c02f1b5a681065fc9ea3397a32cc3699d15cbe4e4a9a12fd3598fcc17a1113",
+   "staged": "T04/stage/go-utils/password/ecdsa_ecdh.go",
+   "target_path": "pkg/localdeps/go-utils/password/ecdsa_ecdh.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "de910497ea2c64510df89dc307e6a64addb018525f14dd4a351965c54cbf4542",
+   "staged": "T04/stage/go-utils/password/ecdsa_ecdh_test.go",
+   "target_path": "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "6339187aedd113a9e24074b771eaca8e5e5f3544399753ed4b2769d99e3d0cbc",
+   "staged": "T04/stage/go-utils/password/hmac.go",
+   "target_path": "pkg/localdeps/go-utils/password/hmac.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "80dddcd21f60504a7a58b03ee6c218aa51a0762ceda9959993f48615be5e68ee",
+   "staged": "T04/stage/go-utils/password/hmac_test.go",
+   "target_path": "pkg/localdeps/go-utils/password/hmac_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "a9c062b4bf201241aa91ece8e200bd21d9cd02991e5163f81862043f71478875",
+   "staged": "T04/stage/go-utils/password/interface.go",
+   "target_path": "pkg/localdeps/go-utils/password/interface.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "6c72fad2fc8d4ea60eb33ae96e0e1fae11a3677e6077da0dbe7f14b3127b198c",
+   "staged": "T04/stage/go-utils/password/pbkdf2.go",
+   "target_path": "pkg/localdeps/go-utils/password/pbkdf2.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "3050917414bbd8e60f941099accf82930e208bd67dd9d4f958447fb49e07de39",
+   "staged": "T04/stage/go-utils/password/pbkdf2_test.go",
+   "target_path": "pkg/localdeps/go-utils/password/pbkdf2_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "e5f21d93c6655611bb201a0decdf02c1f58dfd102f6b68e034f82069e1a742a8",
+   "staged": "T04/stage/go-utils/password/rsa.go",
+   "target_path": "pkg/localdeps/go-utils/password/rsa.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "ec1bacd186d06d865d934dbdd741f80fab75c5d0157f3ac544a42df052e178b8",
+   "staged": "T04/stage/go-utils/password/rsa_test.go",
+   "target_path": "pkg/localdeps/go-utils/password/rsa_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "dedcc1dd8f39ecd0feadd278e150187a5f37839f454f4de42915b7a93cec4725",
+   "staged": "T04/stage/go-utils/password/sha.go",
+   "target_path": "pkg/localdeps/go-utils/password/sha.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "902d79fe68fe333c9a7406d3eff70cf7bb690581436f5017889fb51ae9651148",
+   "staged": "T04/stage/go-utils/password/sha_test.go",
+   "target_path": "pkg/localdeps/go-utils/password/sha_test.go"
+  }
+ ],
+ "problems": [],
+ "rewrite": {
+  "invocable_targets": 68,
+  "reported_changed": 22,
+  "written": true
+ },
+ "task": "T04"
+}

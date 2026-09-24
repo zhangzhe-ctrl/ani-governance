@@ -1,0 +1,657 @@
+{
+ "accepted_head_advanced": false,
+ "accepted_head_value": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+ "changed_files": [
+  {
+   "count": 56,
+   "kind": "added",
+   "path": "pkg/localdeps/go-utils/{aggregator,captcha,crypto,jwtutil,password}",
+   "reason": "47 Go files and 9 non-Go files (LICENSE, README.md) taken whole from the locked modules. Every file was hash-verified against the archive entry and the module cache before placement; the only content change in any Go file is the import block (guard/equiv below). Package names, import aliases, LICENSE and README travel with the code."
+  },
+  {
+   "count": 21,
+   "kind": "modified",
+   "path": "21 consumer files in app/admin/service/internal/{data,service} and scripts/{model,network}-lab/probe.go",
+   "reason": "import path change only. migrate_imports guard proves non-import AST and Go directives identical for 21/21 files against accepted_head 8e5dbde."
+  },
+  {
+   "count": 1,
+   "kind": "modified",
+   "path": "go.mod",
+   "reason": "4 dependency lines lose the '// indirect' annotation (dataloader/v7, base64Captcha, tjfoc/gmsm, go-captcha/v2) because pkg/localdeps now imports them directly. No version changed, go.sum is byte-identical, nothing was added or removed."
+  }
+ ],
+ "commands": [
+  {
+   "command": "/home/ubuntu/tx7do-pilot-run/migrate_imports guard -root . -base 8e5dbdeec677405a44d263e814c2938cefe8bf20 -files /home/ubuntu/tx7do-pilot-run/T04/consumers.txt -out /home/ubuntu/tx7do-pilot-run/T04/guard-postgofmt.json",
+   "exit": 0,
+   "name": "ev-guard-postgofmt"
+  },
+  {
+   "command": "make build_only",
+   "exit": 0,
+   "name": "ev-build-only"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go test -count=1 -tags quota_pg ./pkg/localdeps/go-utils/password/... ./pkg/localdeps/go-utils/crypto/... ./pkg/localdeps/go-utils/jwtutil/... ./pkg/localdeps/go-utils/aggregator/... ./app/admin/service/internal/data/... ./app/admin/service/internal/service/...",
+   "exit": 1,
+   "name": "ev-smoke"
+  },
+  {
+   "command": "go test -count=1 ./pkg/localdeps/go-utils/captcha/... ./pkg/localdeps/go-utils/jwtutil/... ./pkg/localdeps/go-utils/aggregator/...",
+   "exit": 1,
+   "name": "ev-captcha-smoke"
+  },
+  {
+   "command": "go test -vet=off -count=1 ./pkg/localdeps/go-utils/captcha/...",
+   "exit": 1,
+   "name": "ev-captcha-vetoff"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go test -count=1 -tags quota_pg ./app/admin/service/internal/data/... ./app/admin/service/internal/service/...",
+   "exit": 1,
+   "name": "ev-ref-smoke"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go test -count=1 -tags quota_pg ./app/admin/service/internal/data/... ./app/admin/service/internal/service/...",
+   "exit": 1,
+   "name": "ev-ref-full"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go test -mod=readonly -count=1 -p 1 -tags quota_pg ./app/admin/service/internal/data ./app/admin/service/internal/data/ent ./app/admin/service/internal/service",
+   "exit": 1,
+   "name": "ev-ref-gateA"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go test -mod=readonly -count=1 -p 1 -tags quota_pg ./app/admin/service/internal/data ./app/admin/service/internal/data/ent ./app/admin/service/internal/service",
+   "exit": 1,
+   "name": "ev-mig-gateA"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go test -count=1 -tags quota_pg -run TestPlanQuota ./app/admin/service/internal/data/... ./app/admin/service/internal/service/...",
+   "exit": 1,
+   "name": "ev-quota-iso-ref"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go test -count=1 -tags quota_pg -run TestPlanQuota ./app/admin/service/internal/data/... ./app/admin/service/internal/service/...",
+   "exit": 1,
+   "name": "ev-quota-iso-ref2"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go test -count=1 -tags quota_pg -run TestPlanQuota ./app/admin/service/internal/data/... ./app/admin/service/internal/service/...",
+   "exit": 1,
+   "name": "ev-quota-iso-mig"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go test -mod=readonly -count=1 -p 1 -json -v -tags quota_pg ./pkg/localdeps/go-utils/aggregator ./pkg/localdeps/go-utils/crypto ./pkg/localdeps/go-utils/jwtutil ./pkg/localdeps/go-utils/password ./app/admin/service/internal/data ./app/admin/service/internal/data/ent ./app/admin/service/internal/service",
+   "exit": 1,
+   "name": "ev-tests-main"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go test -mod=readonly -count=1 -p 1 -json -v -vet=off -tags quota_pg ./pkg/localdeps/go-utils/captcha",
+   "exit": 1,
+   "name": "ev-tests-captcha"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go test -mod=readonly -count=1 -p 1 -json -v -tags quota_pg ./app/admin/service/internal/data ./app/admin/service/internal/data/ent ./app/admin/service/internal/service",
+   "exit": 1,
+   "name": "ev-ref-tests"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/pristine-captcha.sh",
+   "exit": 1,
+   "name": "ev-pristine-captcha"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/pristine-password.sh",
+   "exit": 1,
+   "name": "ev-pristine-password"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go vet ./...",
+   "exit": 1,
+   "name": "ev-vet-repo"
+  },
+  {
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T04/with_t04_env.sh go vet ./...",
+   "exit": 1,
+   "name": "ev-ref-vet-repo"
+  },
+  {
+   "command": "python3 tools/migration/require_tests.py --required migration/preflight/T04-required-profile.json --log <tests-all.jsonl>",
+   "exit": 1,
+   "name": "required-gate"
+  },
+  {
+   "command": "python3 /home/ubuntu/tx7do-pilot-run/t04_residual.py",
+   "exit": 0,
+   "name": "residual-scan"
+  }
+ ],
+ "conclusion": "BLOCKED",
+ "consumer_differential": {
+  "method": "go test -json per-test status, pre-migration 8e5dbde vs T04 tree, identical flags, identical freshly provisioned lab, -p 1",
+  "migrated_tests": 602,
+  "only_in_migrated": [],
+  "only_in_reference": [],
+  "reference_tests": 602,
+  "status_diffs": [],
+  "verdict": "no T04 consumer regression"
+ },
+ "decision_needed": {
+  "options": [
+   {
+    "choice": "accept T04 as PASS with 15 upstream-red cases disclosed and permanently excluded from the repository's own required sets in a later round, keeping -vet=off for pkg/localdeps/go-utils/captcha",
+    "id": "a"
+   },
+   {
+    "choice": "activate the sources and resources only and do not import the upstream *_test.go files for captcha and for password's ecdsa_ecdh_test.go, covering those behaviours with repository-owned tests instead (needs a waiver of \u4fdd\u7559\u6d4b\u8bd5 / \u7981\u6b62\u5220\u9664\u6d4b\u8bd5 for these three files)",
+    "id": "b"
+   },
+   {
+    "choice": "make the red cases pass by adding a test-only resource bootstrap plus a font and background images from go-captcha's own assets, which adds a new non-tx7do dependency and binary assets of a different provenance (needs a waiver of \u4e0d\u5347\u7ea7\u6216\u65b0\u589e\u975etx7do\u4f9d\u8d56 and a licence check)",
+    "id": "c"
+   },
+   {
+    "choice": "split captcha (and password's ECDH) out of T04 into a separate batch so T05 and T06 can proceed on the packages whose gates are green",
+    "id": "d"
+   },
+   {
+    "choice": "keep T04 BLOCKED as recorded here and stop group B until the upstream owner fixes the tests",
+    "id": "e"
+   }
+  ],
+  "question": "T04 cannot reach a green required gate without one of the following, and each crosses a boundary this task may not cross alone.",
+  "recommendation": "d, then re-run the T04 gate for the four remaining packages only; it keeps every frozen rule intact and unblocks T05/T06, which do not import the image drivers or ECDH."
+ },
+ "evidence_files": [
+  "migration/preflight/T04-activation.json",
+  "migration/preflight/T04-archives.json",
+  "migration/preflight/T04-consumers.json",
+  "migration/preflight/T04-equiv-gofmt.json",
+  "migration/preflight/T04-equiv-placed.json",
+  "migration/preflight/T04-extraction.json",
+  "migration/preflight/T04-gated-tests.json",
+  "migration/preflight/T04-guard-postgofmt.json",
+  "migration/preflight/T04-guard.json",
+  "migration/preflight/T04-import-map.json",
+  "migration/preflight/T04-pristine-transcripts.json",
+  "migration/preflight/T04-profile-packages.json",
+  "migration/preflight/T04-require-final.json",
+  "migration/preflight/T04-required-profile.json",
+  "migration/preflight/T04-residual-deps.json",
+  "migration/preflight/T04-tests-summary.json",
+  "migration/preflight/T04-upstream-red.json"
+ ],
+ "findings": [
+  {
+   "detail": "9 captcha image-driver cases (TestGenerate_/TestSaveAndVerify_/TestVerify_..._WithTolerance for Slide, Click and Rotate) fail with 'graph image is invalid', 'freetype: DrawText called with a nil font' or 'no image': go-captcha/v2 v2.0.5 requires the caller to supply background images and a truetype font from disk (see its own tests/base.go, which reads files from paths the module zip does not contain) and the upstream tests never do. TestECDHCrypto_EncryptAndVerify builds two independent ECDHCrypto instances and expects the second keypair to verify the first one's output. Both proofs are reproduced offline against byte-identical copies of the module cache (T04-pristine-transcripts.json, T04-upstream-red.json): the placed packages fail exactly the same 14 captcha and 1 password cases in the same order, and pass the same 39 and 10.",
+   "id": "T04-F1",
+   "not_done": "no test deleted, skipped, renamed or edited; no assertion weakened; no resource file or new dependency smuggled in to make a red case green",
+   "severity": "blocking",
+   "title": "10 named cases and 5 examples fail inside the locked upstream modules themselves"
+  },
+  {
+   "detail": "The shipped example_test.go has six malformed example names, so vet rejects the package and the tests only run under -vet=off. Proven identical by running go vet inside the pristine module copy (same six messages). This task's gate therefore passes -vet=off for that one package, which is a relaxation and is recorded as such. Repo-wide 'go vet ./...' was already red at 8e5dbde on one pre-existing copylocks error (accelerator_joint_http_test.go:503, not a T04 file); T04 adds the 6 captcha lines to that already-failing run.",
+   "id": "T04-F2",
+   "severity": "blocking",
+   "title": "pkg/localdeps/go-utils/captcha cannot be tested with go test's default vet"
+  },
+  {
+   "detail": "carried over unchanged as T03-F4: dbbootstrap.Initialize accepts a truncated catalog where the test requires an error. Measured identical on both trees with the same fresh lab, so it is a repository defect, not a takeover regression. It asserts production behaviour, which the fixture-repair authorization excludes.",
+   "id": "T04-F3",
+   "severity": "pre-existing, reported",
+   "title": "TestBootstrapPostgres fails when its precondition is met"
+  },
+  {
+   "detail": "t04_importers.py still had OUT pointing at T03/, so running it replaced T03 working files under /home/ubuntu/tx7do-pilot-run/T03. Nothing accepted was lost: every affected file had a committed copy in migration/preflight/ and was restored with git show HEAD:migration/preflight/<file>. The T03 acceptance verdict and its evidence in the repository are unaffected. Later T04 scripts write only under T04/.",
+   "id": "T04-F4",
+   "severity": "process accident, disclosed",
+   "title": "an earlier T04 helper overwrote T03's temporary evidence directory"
+  },
+  {
+   "detail": "enttest.NewQuotaPGClient truncates the quota catalog on every construction, so a shared stale lab makes unrelated quota cases fail. The first differential runs without -p 1 showed failures moving between runs; a further lab-reset bug (skipping sql/gpu/ops/task_roles.sql because its CREATE ROLE is not idempotent also dropped the database ACL) produced a false TestQuotaGpuRestrictedRoleAndExplicitIsolation failure until the REVOKE/GRANT pair was re-applied. After those fixes both trees report exactly the same 602 test statuses.",
+   "id": "T04-F5",
+   "severity": "method note",
+   "title": "lab re-provisioning and -p 1 are prerequisites, not options"
+  }
+ ],
+ "lineage": {
+  "branch": "task/tx7do-takeover",
+  "end_sha": "f161a27f4a3395931a5d927960c8400967eb05ea",
+  "end_sha_note": "code commit on task/tx7do-takeover, named by this ledger-only commit which changes no source; migration/accepted_head stays at 8e5dbde because T04 is not accepted",
+  "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "start_sha": "b97001ef02822638ee206c56f3d75f23121bdeef",
+  "start_sha_note": "T03 acceptance plus its ledger commit; migration/accepted_head read 8e5dbde before any edit and the worktree was clean apart from the untracked _agent/ plan directory",
+  "worktree_at_start": "clean; 21 consumer files, go.mod and 5 new pkg/localdeps directories are the only T04 changes, no unrelated file was touched"
+ },
+ "non_import_changes": [
+  {
+   "detail": "Zero. equiv proves non-import AST and Go directives equivalent for 47/47 placed Go files against their archive originals and 21/1 consumer files against accepted_head.",
+   "item": "business and tool logic"
+  },
+  {
+   "detail": "The import rewrite dirtied formatting in 18 files; gofmt -w was applied and proven formatting-only by file-level equiv (18/18). app/admin/service/internal/data/mfa_challenge_cache.go was already unformatted at 8e5dbde and was deliberately left alone, so 'go run cmd/gofmt -l' over the repo still lists it: the count goes 2 -> 4 lines, not 0.",
+   "item": "gofmt"
+  },
+  {
+   "detail": "None of the five packages uses go:embed; the archives record embed_directives_in_go_sources as empty, so no embedded resource had to be carried.",
+   "item": "embed directives and resources"
+  }
+ ],
+ "not_verified": [
+  {
+   "gate": "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY",
+   "reason": "carried over from T03: needs an external production-shaped dump and a restore window",
+   "result": "not_run"
+  },
+  {
+   "gate": "production cutover",
+   "reason": "T04 changes dependency resolution only; nothing was deployed",
+   "result": "not_verified"
+  }
+ ],
+ "phase": "B (password, crypto, JWT, captcha and aggregator takeover)",
+ "pushed_merged_deployed": false,
+ "raw_logs_location": "/home/ubuntu/tx7do-pilot-run/T04/ (run_checked.sh .command/.log/.exit sets plus the -json logs); DSN files are deliberately outside the repository",
+ "required_tests": {
+  "examples_note": "the five failing upstream Example functions are not Test* cases and are therefore not in the required profile; they are recorded in T04-upstream-red.json (examples_also_red) and adding them would move the bad count from 10 to 15 without changing the verdict. T03's profile kept Example cases (1 entry, passing); the rule difference is disclosed here.",
+  "executed_totals": {
+   "migrated_tree_only": {
+    "test_fail": 16,
+    "test_pass": 718,
+    "test_skip": 7
+   }
+  },
+  "gated_not_run": {
+   "cases": [
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/data",
+     "Test": "TestBootstrapPostgres",
+     "reason": "app/admin/service/internal/data/bootstrap_postgres_test.go:22 requires GOV_BOOTSTRAP_TEST_DSN against a fresh schema; fails identically at accepted_head and after T04 (pre-existing defect, finding T03-F4)"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/data",
+     "Test": "TestQuotaGpuOldPopulatedUpgradeReplay",
+     "reason": "quota_upgrade_pg_test.go:18 requires separately upgraded populated old backup (QUOTA_UPGRADE_VERIFY)"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/data",
+     "Test": "TestQuotaGpuRestoredProjectionContinuation",
+     "reason": "quota_gpu_pg_test.go:338 separate populated-restore gate (QUOTA_RESTORE_VERIFY)"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/data",
+     "Test": "TestQuotaProcessChild",
+     "reason": "quota_process_pg_test.go:72 OS subprocess helper (QUOTA_PROCESS_SPEC)"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/service",
+     "Test": "TestAcceleratorFormalSessionRefresh",
+     "reason": "accelerator_joint_http_test.go:539 requires the explicit private formal process fixture"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/service",
+     "Test": "TestAcceleratorJointHTTP",
+     "reason": "accelerator_joint_http_test.go:66 requires isolated joint B PostgreSQL, Redis and Accelerator helper"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/service",
+     "Test": "TestOnboardingAPIRegistration",
+     "reason": "account_invitation_test.go:309 requires disposable PostgreSQL"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/service",
+     "Test": "TestOnboardingConcurrentAcceptance",
+     "reason": "account_invitation_test.go:241 requires disposable PostgreSQL"
+    }
+   ],
+   "count": 8,
+   "recorded_as": "not_run with the repository's own precondition reason; identical behaviour measured on the pre-migration tree (T04-tests-summary.json tests_reference_consumers: 594 pass / 1 fail / 7 skip)"
+  },
+  "mandated_by_T04_md": [
+   {
+    "cases": "password: TestEncryptAndVerify/VerifyCredential for bcrypt, sha, argon2, pbkdf2 plus the bcrypt cost and format assertions",
+    "item": "\u65e7\u5bc6\u7801\u54c8\u5e0c\u53ef\u9a8c\u8bc1",
+    "result": "pass (identical in the pristine upstream copy)"
+   },
+   {
+    "cases": "crypto: AES/SM2/SM3/SM4/RSA/HMAC suites incl. the shipped test vectors and error-input cases; no AES decode was swapped for this repo's GCM helper",
+    "item": "\u73b0\u6709AES\u6d4b\u8bd5\u5411\u91cf\u548c\u9519\u8bef\u8f93\u5165\u884c\u4e3a\u4e0d\u53d8",
+    "result": "pass except TestECDHCrypto_EncryptAndVerify, which fails in the pristine upstream module too"
+   },
+   {
+    "cases": "jwtutil: 19 cases incl. VerifyJWT, audience, algorithm and expiry boundaries; unverified parsing is never used as authentication",
+    "item": "JWT\u5de5\u5177\u8fb9\u754c",
+    "result": "19/19 pass, 0 skip"
+   },
+   {
+    "cases": "captcha: TestSaveAndVerify, TestVerifyWithoutDelete, TestVerify_WrongAnswer, TestVerifyExpired, TestNewCaptcha* and the digit/string/math/chinese generation cases \u2014 every case T04.md names",
+    "item": "\u9a8c\u8bc1\u7801\u4e00\u6b21\u6027/\u8fc7\u671f\u884c\u4e3a\uff08\u9694\u79bbRedis\u6216\u73b0\u6709\u6d4b\u8bd5\u66ff\u8eab\uff09",
+    "result": "pass against the task-owned throwaway redis; no external captcha vendor and no business redis was contacted"
+   },
+   {
+    "cases": "aggregator: 23 cases (List/Get batching, loader semantics)",
+    "item": "\u5173\u8054\u6279\u91cf\u7ed3\u679c\u4e0d\u53d8",
+    "result": "23/23 pass, 0 skip"
+   },
+   {
+    "item": "\u968f\u673a\u503c\u4e0d\u6309\u5b57\u8282\u6bd4\u8f83\uff0c\u53ea\u9a8c\u5408\u540c",
+    "note": "no assertion in this task compares a random byte string; the placed code keeps its own randomness and was not edited",
+    "result": "respected"
+   },
+   {
+    "cases": "602 tests in data, data/ent and service, measured with identical flags on a freshly provisioned lab on both trees",
+    "item": "\u6d88\u8d39\u8005\u884c\u4e3a\u4e0d\u53d8",
+    "result": "no T04 consumer regression"
+   }
+  ],
+  "nonpass_detail": {
+   "tests_captcha_separate": [
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::ExampleGetRemainingTime",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::ExampleNewCaptcha_ChineseCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::ExampleNewCaptcha_DigitCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::ExampleNewCaptcha_MathCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::ExampleNewCaptcha_OptionsPattern",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestGenerate_ClickCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestGenerate_RotateCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestGenerate_SlideCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestSaveAndVerify_ClickCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestSaveAndVerify_RotateCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestSaveAndVerify_SlideCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestVerify_ClickCaptcha_WithTolerance",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestVerify_RotateCaptcha_WithTolerance",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestVerify_SlideCaptcha_WithTolerance"
+   ],
+   "tests_main_scope": [
+    "go-wind-admin/app/admin/service/internal/data::TestBootstrapPostgres",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuOldPopulatedUpgradeReplay",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuRestoredProjectionContinuation",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaProcessChild",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorFormalSessionRefresh",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorJointHTTP",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingAPIRegistration",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingConcurrentAcceptance",
+    "go-wind-admin/pkg/localdeps/go-utils/password::TestECDHCrypto_EncryptAndVerify"
+   ],
+   "tests_pristine_captcha": [
+    "github.com/tx7do/go-utils/captcha::ExampleGetRemainingTime",
+    "github.com/tx7do/go-utils/captcha::ExampleNewCaptcha_ChineseCaptcha",
+    "github.com/tx7do/go-utils/captcha::ExampleNewCaptcha_DigitCaptcha",
+    "github.com/tx7do/go-utils/captcha::ExampleNewCaptcha_MathCaptcha",
+    "github.com/tx7do/go-utils/captcha::ExampleNewCaptcha_OptionsPattern",
+    "github.com/tx7do/go-utils/captcha::TestGenerate_ClickCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestGenerate_RotateCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestGenerate_SlideCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestSaveAndVerify_ClickCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestSaveAndVerify_RotateCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestSaveAndVerify_SlideCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestVerify_ClickCaptcha_WithTolerance",
+    "github.com/tx7do/go-utils/captcha::TestVerify_RotateCaptcha_WithTolerance",
+    "github.com/tx7do/go-utils/captcha::TestVerify_SlideCaptcha_WithTolerance"
+   ],
+   "tests_pristine_password": [
+    "github.com/tx7do/go-utils/password::TestECDHCrypto_EncryptAndVerify"
+   ],
+   "tests_reference_consumers": [
+    "go-wind-admin/app/admin/service/internal/data::TestBootstrapPostgres",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuOldPopulatedUpgradeReplay",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuRestoredProjectionContinuation",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaProcessChild",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorFormalSessionRefresh",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorJointHTTP",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingAPIRegistration",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingConcurrentAcceptance"
+   ]
+  },
+  "packages_in_profile": {
+   "gated_excluded": 8,
+   "listing_flags_by_group": {
+    "default_vet": [
+     "./app/admin/service/internal/data",
+     "./app/admin/service/internal/service",
+     "./pkg/localdeps/go-utils/aggregator",
+     "./pkg/localdeps/go-utils/crypto",
+     "./pkg/localdeps/go-utils/jwtutil",
+     "./pkg/localdeps/go-utils/password"
+    ],
+    "vet_off": [
+     "./pkg/localdeps/go-utils/captcha"
+    ],
+    "why": "the shipped upstream example_test.go fails go test's default vet pass; listing it with -vet=off keeps its 20 Test functions in the gate. Example functions are not Test functions, so the five failing upstream Examples are recorded in upstream-red.json instead."
+   },
+   "module": "go-wind-admin",
+   "package_patterns": [
+    "./app/admin/service/internal/data",
+    "./app/admin/service/internal/service",
+    "./pkg/localdeps/go-utils/aggregator",
+    "./pkg/localdeps/go-utils/captcha",
+    "./pkg/localdeps/go-utils/crypto",
+    "./pkg/localdeps/go-utils/jwtutil",
+    "./pkg/localdeps/go-utils/password"
+   ],
+   "packages_with_tests": {
+    "go-wind-admin/app/admin/service/internal/data": 301,
+    "go-wind-admin/app/admin/service/internal/service": 176,
+    "go-wind-admin/pkg/localdeps/go-utils/aggregator": 23,
+    "go-wind-admin/pkg/localdeps/go-utils/captcha": 35,
+    "go-wind-admin/pkg/localdeps/go-utils/crypto": 33,
+    "go-wind-admin/pkg/localdeps/go-utils/jwtutil": 19,
+    "go-wind-admin/pkg/localdeps/go-utils/password": 11
+   },
+   "packages_without_test_files": [],
+   "probe_dirs_without_test_surface": [
+    "./scripts/model-lab",
+    "./scripts/network-lab"
+   ],
+   "profile_cases": 590,
+   "tags": [
+    "quota_pg"
+   ]
+  },
+  "profile_final": {
+   "bad_test_detail": [
+    {
+     "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+     "Test": "TestGenerate_ClickCaptcha",
+     "observed_nonpass": [
+      "fail"
+     ],
+     "status": "fail"
+    },
+    {
+     "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+     "Test": "TestGenerate_RotateCaptcha",
+     "observed_nonpass": [
+      "fail"
+     ],
+     "status": "fail"
+    },
+    {
+     "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+     "Test": "TestGenerate_SlideCaptcha",
+     "observed_nonpass": [
+      "fail"
+     ],
+     "status": "fail"
+    },
+    {
+     "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+     "Test": "TestSaveAndVerify_ClickCaptcha",
+     "observed_nonpass": [
+      "fail"
+     ],
+     "status": "fail"
+    },
+    {
+     "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+     "Test": "TestSaveAndVerify_RotateCaptcha",
+     "observed_nonpass": [
+      "fail"
+     ],
+     "status": "fail"
+    },
+    {
+     "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+     "Test": "TestSaveAndVerify_SlideCaptcha",
+     "observed_nonpass": [
+      "fail"
+     ],
+     "status": "fail"
+    },
+    {
+     "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+     "Test": "TestVerify_ClickCaptcha_WithTolerance",
+     "observed_nonpass": [
+      "fail"
+     ],
+     "status": "fail"
+    },
+    {
+     "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+     "Test": "TestVerify_RotateCaptcha_WithTolerance",
+     "observed_nonpass": [
+      "fail"
+     ],
+     "status": "fail"
+    },
+    {
+     "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+     "Test": "TestVerify_SlideCaptcha_WithTolerance",
+     "observed_nonpass": [
+      "fail"
+     ],
+     "status": "fail"
+    },
+    {
+     "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+     "Test": "TestECDHCrypto_EncryptAndVerify",
+     "observed_nonpass": [
+      "fail"
+     ],
+     "status": "fail"
+    }
+   ],
+   "bad_tests": 10,
+   "failed_packages": [
+    "go-wind-admin/app/admin/service/internal/data",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "go-wind-admin/pkg/localdeps/go-utils/password"
+   ],
+   "pass": false,
+   "required": 590,
+   "required_profile_entries": 590
+  },
+  "runs": {
+   "tests_captcha_separate": {
+    "command_file": "ev-tests-captcha.command",
+    "exit": 1,
+    "log": "T04/tests-captcha.jsonl",
+    "note": "captcha alone, -vet=off (upstream example_test.go fails go vet identically on the pristine module)",
+    "package_fail": 1,
+    "package_pass": 0,
+    "test_fail": 14,
+    "test_pass": 39,
+    "test_skip": 0
+   },
+   "tests_main_scope": {
+    "command_file": "ev-tests-main.command",
+    "exit": 1,
+    "log": "T04/tests-main.jsonl",
+    "note": "6 packages: aggregator, crypto, jwtutil, password + the three consumer packages (-p 1, default vet)",
+    "package_fail": 2,
+    "package_pass": 5,
+    "test_fail": 2,
+    "test_pass": 679,
+    "test_skip": 7
+   },
+   "tests_pristine_captcha": {
+    "command_file": "ev-pristine-captcha.command",
+    "exit": 1,
+    "log": "T04/tests-pristine-captcha.jsonl",
+    "note": "unmodified locked upstream module copy (go-utils/captcha@v0.0.4), offline GOPROXY=off",
+    "package_fail": 1,
+    "package_pass": 0,
+    "test_fail": 14,
+    "test_pass": 39,
+    "test_skip": 0
+   },
+   "tests_pristine_password": {
+    "command_file": "ev-pristine-password.command",
+    "exit": 1,
+    "log": "T04/tests-pristine-password.jsonl",
+    "note": "unmodified locked upstream module copy (go-utils/password@v0.0.2), offline GOPROXY=off",
+    "package_fail": 1,
+    "package_pass": 0,
+    "test_fail": 1,
+    "test_pass": 10,
+    "test_skip": 0
+   },
+   "tests_reference_consumers": {
+    "command_file": "ev-ref-tests.command",
+    "exit": 1,
+    "log": "T04/tests-ref.jsonl",
+    "note": "pre-migration tree at accepted_head 8e5dbde, same three consumer packages, same flags, fresh lab",
+    "package_fail": 1,
+    "package_pass": 2,
+    "test_fail": 1,
+    "test_pass": 594,
+    "test_skip": 7
+   }
+  },
+  "verdict_rule": "require_tests.py counts skip/fail/missing/not_run as failure. The profile is generated from every test the touched packages list, minus the repository-precondition cases recorded in T04-gated-tests.json. No case was deleted, renamed, skipped or edited."
+ },
+ "residual_dependencies": {
+  "distinct_old_packages": 27,
+  "files_still_importing_tx7do": 401,
+  "note": "the upstream go-utils module stays in go.mod until the remaining in-module packages (timeutil and id) are taken over in T10; T04.md forbids deleting it early.",
+  "of_which_inside_pkg_localdeps": 19,
+  "of_which_repo_own_code": 382,
+  "old_paths_still_in_entry_graph": [
+   "github.com/tx7do/go-utils/stringcase",
+   "github.com/tx7do/go-utils/trans"
+  ],
+  "repo_own_files_still_importing_T04_paths": 0,
+  "repo_own_files_still_importing_any_activated_path_T03_T04": 0,
+  "verdict": "PASS",
+  "why": "these old paths are pulled in only by modules T04 keeps external (kratos-bootstrap/bootstrap, go-crud/entgo, go-utils/timeutil), never by a repo-owned import"
+ },
+ "schema_version": "t04-receipt/1",
+ "source_package_versions": {
+  "activated": {
+   "github.com/tx7do/go-utils": "v1.1.40 (hosts the in-module packages password, crypto, jwtutil, captcha, aggregator as separate modules)",
+   "github.com/tx7do/go-utils/aggregator": "as locked in go.sum",
+   "github.com/tx7do/go-utils/captcha": "v0.0.4",
+   "github.com/tx7do/go-utils/crypto": "as locked in go.sum",
+   "github.com/tx7do/go-utils/jwtutil": "as locked in go.sum",
+   "github.com/tx7do/go-utils/password": "v0.0.2"
+  },
+  "note": "verified read-only against third_party/tx7do/manifest.json and SHA256SUMS plus the go.sum locks before activation (migration/preflight/T04-archives.json)",
+  "underlying_libraries_unchanged": {
+   "github.com/golang-jwt/jwt/v5": "version untouched",
+   "github.com/graph-gophers/dataloader/v7": "v7.1.3, only the // indirect annotation dropped",
+   "github.com/mojocn/base64Captcha": "v1.3.8, only the // indirect annotation dropped",
+   "github.com/tjfoc/gmsm": "v1.4.1, only the // indirect annotation dropped",
+   "github.com/wenlng/go-captcha/v2": "v2.0.5, only the // indirect annotation dropped",
+   "golang.org/x/crypto": "version untouched",
+   "note": "no second crypto, captcha or batching library was introduced; go.sum is byte-identical to the pre-task file (c5af448918da03714ef5c38d5f1448e206fe5d05bd1c41165df1f6e8ac8b17da)"
+  }
+ },
+ "status": "BLOCKED",
+ "status_note": "All five packages are activated as ordinary packages under pkg/localdeps, every determinable gate passes, and the consumer suites are provably unchanged. The named required gate is still red: 10 test cases plus 5 example functions shipped by the locked upstream modules fail for reasons that exist in those modules, and the captcha package cannot be built under go test's default vet. Clearing them needs a decision this task is not allowed to take alone (see decision_needed); none of them is a regression introduced by the takeover.",
+ "superseded_runs": {
+  "note": "ev-quota-iso-*, ev-ref-smoke, ev-ref-full and ev-smoke ran before -p 1 and the lab re-provisioning protocol were established; the same suites measured with -p 1 on a fresh lab (ev-ref-gateA/ev-mig-gateA/ev-tests-main/ev-ref-tests) supersede them. They are kept because the evidence protocol records every command actually run.",
+  "what_was_wrong": "go test defaults to parallel package binaries, and enttest.NewQuotaPGClient runs testdata/quota_cleanup.sql on every construction while documenting that suites sharing that database must be serialised. Without -p 1 the data and service binaries deleted each other's rows and failures moved between runs. AGENTS.md and the master goal both require \u5371\u9669\u6570\u636e\u5e93\u6d4b\u8bd5\u4e32\u884c."
+ },
+ "task": "T04",
+ "test_environment": {
+  "isolated_instances": [
+   "guard PostgreSQL tx7do-t07-guard-pg 127.0.0.1:55432 (GUARD_TEST_PG_DSN) plus its lab companion gov_acc_data / gov_acc_lab (QUOTA_LAB_PG_DSN / QUOTA_LAB_REGRESSION_DSN)",
+   "task-owned throwaway redis container tx7do-t04-captcha-redis (redis:7-alpine, 127.0.0.1:6379, --save '' --appendonly no), needed only because the upstream captcha tests hardcode localhost:6379",
+   "disposable bootstrap database ani_t04_bootstrap_test"
+  ],
+  "provisioning": "T04/lab-reset.sh re-creates gov_acc_data/gov_acc_lab from the repository sql/ and migrations/ before every quota-PG gate run; the fresh database reports 54 tables, plans=0, quotas=0, definitions=6, tenants=0 (migration/preflight/T04-pristine-transcripts.json)",
+  "serialisation": "-p 1 mandatory for any command touching data + service with -tags quota_pg",
+  "untouched": "quota-gpu-local-01-pg (42193) and every business database; no DSN or secret value is stored in the repository and run_checked.sh records argv only"
+ }
+}

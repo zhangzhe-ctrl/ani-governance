@@ -1,0 +1,45 @@
+{
+ "tags": [
+  "quota_pg"
+ ],
+ "module": "go-wind-admin",
+ "package_patterns": [
+  "./app/admin/service/internal/data",
+  "./app/admin/service/internal/service",
+  "./pkg/localdeps/go-utils/aggregator",
+  "./pkg/localdeps/go-utils/captcha",
+  "./pkg/localdeps/go-utils/crypto",
+  "./pkg/localdeps/go-utils/jwtutil",
+  "./pkg/localdeps/go-utils/password"
+ ],
+ "probe_dirs_without_test_surface": [
+  "./scripts/model-lab",
+  "./scripts/network-lab"
+ ],
+ "listing_flags_by_group": {
+  "default_vet": [
+   "./app/admin/service/internal/data",
+   "./app/admin/service/internal/service",
+   "./pkg/localdeps/go-utils/aggregator",
+   "./pkg/localdeps/go-utils/crypto",
+   "./pkg/localdeps/go-utils/jwtutil",
+   "./pkg/localdeps/go-utils/password"
+  ],
+  "vet_off": [
+   "./pkg/localdeps/go-utils/captcha"
+  ],
+  "why": "the shipped upstream example_test.go fails go test's default vet pass; listing it with -vet=off keeps its 20 Test functions in the gate. Example functions are not Test functions, so the five failing upstream Examples are recorded in upstream-red.json instead."
+ },
+ "packages_with_tests": {
+  "go-wind-admin/app/admin/service/internal/data": 301,
+  "go-wind-admin/app/admin/service/internal/service": 176,
+  "go-wind-admin/pkg/localdeps/go-utils/aggregator": 23,
+  "go-wind-admin/pkg/localdeps/go-utils/captcha": 35,
+  "go-wind-admin/pkg/localdeps/go-utils/crypto": 33,
+  "go-wind-admin/pkg/localdeps/go-utils/jwtutil": 19,
+  "go-wind-admin/pkg/localdeps/go-utils/password": 11
+ },
+ "packages_without_test_files": [],
+ "profile_cases": 590,
+ "gated_excluded": 8
+}

@@ -1,0 +1,7 @@
+{
+ "github.com/tx7do/go-utils/aggregator": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+ "github.com/tx7do/go-utils/captcha": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+ "github.com/tx7do/go-utils/crypto": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+ "github.com/tx7do/go-utils/jwtutil": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+ "github.com/tx7do/go-utils/password": "go-wind-admin/pkg/localdeps/go-utils/password"
+}
