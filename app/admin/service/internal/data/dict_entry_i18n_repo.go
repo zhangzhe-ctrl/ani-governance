@@ -6,10 +6,10 @@ import (
 
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 
-	"github.com/tx7do/go-utils/copierutil"
-	"github.com/tx7do/go-utils/mapper"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
+	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"

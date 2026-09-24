@@ -21,8 +21,8 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib" // database/sql pgx 驱动
 
 	"github.com/stretchr/testify/require"
-	"github.com/tx7do/go-utils/mapper"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 

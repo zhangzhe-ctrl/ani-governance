@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tx7do/go-utils/mapper"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 

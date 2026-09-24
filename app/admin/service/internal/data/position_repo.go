@@ -11,9 +11,9 @@ import (
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
-	"github.com/tx7do/go-utils/copierutil"
-	"github.com/tx7do/go-utils/mapper"
 	"github.com/tx7do/go-utils/timeutil"
+	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/position"

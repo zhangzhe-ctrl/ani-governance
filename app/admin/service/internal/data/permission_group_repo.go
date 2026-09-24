@@ -14,8 +14,8 @@ import (
 	"github.com/tx7do/go-crud/pagination"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
-	"github.com/tx7do/go-utils/copierutil"
-	"github.com/tx7do/go-utils/mapper"
+	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/permission"

@@ -9,8 +9,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
-	"github.com/tx7do/go-utils/fieldmaskutil"
-	"github.com/tx7do/go-utils/stringcase"
+	"go-wind-admin/pkg/localdeps/go-utils/fieldmaskutil"
+	"go-wind-admin/pkg/localdeps/go-utils/stringcase"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"

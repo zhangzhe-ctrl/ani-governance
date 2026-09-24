@@ -15,8 +15,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
 	"go-wind-admin/app/admin/service/internal/data/ent/task"
 
-	"github.com/tx7do/go-utils/copierutil"
-	"github.com/tx7do/go-utils/mapper"
+	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 
 	taskV1 "go-wind-admin/api/gen/go/task/service/v1"
 )

@@ -10,8 +10,8 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/tx7do/go-wind/log"
 
-	"github.com/tx7do/go-utils/fieldmaskutil"
-	"github.com/tx7do/go-utils/mapper"
+	"go-wind-admin/pkg/localdeps/go-utils/fieldmaskutil"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	"google.golang.org/protobuf/proto"

@@ -16,7 +16,7 @@ import (
 
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
-	"github.com/tx7do/go-utils/mapper"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entTask "go-wind-admin/app/admin/service/internal/data/ent/task"

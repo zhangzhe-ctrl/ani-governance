@@ -10,9 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/stretchr/testify/require"
 	"github.com/tx7do/go-utils/crypto"
-	"github.com/tx7do/go-utils/mapper"
 	"github.com/tx7do/go-utils/password"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 

@@ -6,7 +6,7 @@ import (
 	"unicode"
 
 	"github.com/jinzhu/inflection"
-	"github.com/tx7do/go-utils/stringcase"
+	"go-wind-admin/pkg/localdeps/go-utils/stringcase"
 )
 
 var (

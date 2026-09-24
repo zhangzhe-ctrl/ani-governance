@@ -31,8 +31,8 @@ import (
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/tx7do/go-utils/mapper"
 	"github.com/tx7do/go-utils/password"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/loginpolicy"

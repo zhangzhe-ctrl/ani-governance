@@ -15,8 +15,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/internalmessagecategory"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
 
-	"github.com/tx7do/go-utils/copierutil"
-	"github.com/tx7do/go-utils/mapper"
+	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 
 	internalMessageV1 "go-wind-admin/api/gen/go/internal_message/service/v1"
 )

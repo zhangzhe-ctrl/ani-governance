@@ -22,8 +22,8 @@ import (
 
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 
-	"github.com/tx7do/go-utils/copierutil"
-	"github.com/tx7do/go-utils/mapper"
+	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 )
 
 type PolicyEvaluationLogRepo struct {

@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/tx7do/go-utils/stringcase"
+	"go-wind-admin/pkg/localdeps/go-utils/stringcase"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 

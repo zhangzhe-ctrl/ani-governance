@@ -1,0 +1,284 @@
+{
+ "activation_from": "T03/extraction.json (verdict OK, three-way provenance) + T03/consumers.json",
+ "consumers_count": 95,
+ "consumers_rewired": [
+  "app/admin/service/internal/data/access_key_repo.go",
+  "app/admin/service/internal/data/api_audit_log_repo.go",
+  "app/admin/service/internal/data/api_audit_log_repo_sqlite_test.go",
+  "app/admin/service/internal/data/api_repo.go",
+  "app/admin/service/internal/data/api_repo_sqlite_test.go",
+  "app/admin/service/internal/data/config_repo.go",
+  "app/admin/service/internal/data/config_repo_test.go",
+  "app/admin/service/internal/data/data_access_audit_log_repo.go",
+  "app/admin/service/internal/data/data_access_audit_log_repo_sqlite_test.go",
+  "app/admin/service/internal/data/dict_entry_i18n_repo.go",
+  "app/admin/service/internal/data/dict_entry_i18n_repo_sqlite_test.go",
+  "app/admin/service/internal/data/dict_entry_repo.go",
+  "app/admin/service/internal/data/dict_entry_repo_sqlite_test.go",
+  "app/admin/service/internal/data/dict_type_repo.go",
+  "app/admin/service/internal/data/dict_type_repo_sqlite_test.go",
+  "app/admin/service/internal/data/internal_message_category_repo.go",
+  "app/admin/service/internal/data/internal_message_recipient_repo.go",
+  "app/admin/service/internal/data/internal_message_recipient_repo_sqlite_test.go",
+  "app/admin/service/internal/data/internal_message_repo.go",
+  "app/admin/service/internal/data/internal_message_repo_sqlite_test.go",
+  "app/admin/service/internal/data/language_repo.go",
+  "app/admin/service/internal/data/language_repo_sqlite_test.go",
+  "app/admin/service/internal/data/login_audit_log_repo.go",
+  "app/admin/service/internal/data/login_audit_log_repo_sqlite_test.go",
+  "app/admin/service/internal/data/login_policy_repo.go",
+  "app/admin/service/internal/data/login_policy_repo_sqlite_test.go",
+  "app/admin/service/internal/data/membership_org_unit_repo.go",
+  "app/admin/service/internal/data/membership_org_unit_repo_sqlite_test.go",
+  "app/admin/service/internal/data/membership_position_repo.go",
+  "app/admin/service/internal/data/membership_position_repo_sqlite_test.go",
+  "app/admin/service/internal/data/membership_repo.go",
+  "app/admin/service/internal/data/membership_repo_sqlite_test.go",
+  "app/admin/service/internal/data/membership_role_repo.go",
+  "app/admin/service/internal/data/membership_role_repo_sqlite_test.go",
+  "app/admin/service/internal/data/menu_repo.go",
+  "app/admin/service/internal/data/menu_repo_sync_test.go",
+  "app/admin/service/internal/data/menu_repo_test.go",
+  "app/admin/service/internal/data/notification_channel_repo.go",
+  "app/admin/service/internal/data/notification_channel_repo_sqlite_test.go",
+  "app/admin/service/internal/data/operation_audit_log_repo.go",
+  "app/admin/service/internal/data/operation_audit_log_repo_sqlite_test.go",
+  "app/admin/service/internal/data/org_unit_repo.go",
+  "app/admin/service/internal/data/org_unit_repo_sqlite_test.go",
+  "app/admin/service/internal/data/permission_audit_log_repo.go",
+  "app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go",
+  "app/admin/service/internal/data/permission_group_repo.go",
+  "app/admin/service/internal/data/permission_group_repo_sqlite_test.go",
+  "app/admin/service/internal/data/permission_repo.go",
+  "app/admin/service/internal/data/permission_repo_sqlite_test.go",
+  "app/admin/service/internal/data/plan_module_repo.go",
+  "app/admin/service/internal/data/plan_module_repo_sqlite_test.go",
+  "app/admin/service/internal/data/plan_quota_repo.go",
+  "app/admin/service/internal/data/plan_quota_repo_sqlite_test.go",
+  "app/admin/service/internal/data/plan_repo.go",
+  "app/admin/service/internal/data/plan_repo_sqlite_test.go",
+  "app/admin/service/internal/data/policy_evaluation_log_repo.go",
+  "app/admin/service/internal/data/policy_evaluation_log_repo_sqlite_test.go",
+  "app/admin/service/internal/data/position_repo.go",
+  "app/admin/service/internal/data/position_repo_sqlite_test.go",
+  "app/admin/service/internal/data/quota_ledger_pg_test.go",
+  "app/admin/service/internal/data/repo_testkit.go",
+  "app/admin/service/internal/data/repo_testkit2.go",
+  "app/admin/service/internal/data/repo_testkit3.go",
+  "app/admin/service/internal/data/repo_testkit4.go",
+  "app/admin/service/internal/data/repo_testkit5.go",
+  "app/admin/service/internal/data/role_metadata_repo.go",
+  "app/admin/service/internal/data/role_metadata_repo_sqlite_test.go",
+  "app/admin/service/internal/data/role_permission_repo.go",
+  "app/admin/service/internal/data/role_permission_repo_sqlite_test.go",
+  "app/admin/service/internal/data/role_repo.go",
+  "app/admin/service/internal/data/role_repo_sqlite_test.go",
+  "app/admin/service/internal/data/task_repo.go",
+  "app/admin/service/internal/data/task_repo_sqlite_test.go",
+  "app/admin/service/internal/data/tenant_repo.go",
+  "app/admin/service/internal/data/tenant_repo_sqlite_test.go",
+  "app/admin/service/internal/data/user_credential_repo.go",
+  "app/admin/service/internal/data/user_credential_repo_sqlite_test.go",
+  "app/admin/service/internal/data/user_org_unit_repo.go",
+  "app/admin/service/internal/data/user_org_unit_repo_sqlite_test.go",
+  "app/admin/service/internal/data/user_position_repo.go",
+  "app/admin/service/internal/data/user_position_repo_sqlite_test.go",
+  "app/admin/service/internal/data/user_repo.go",
+  "app/admin/service/internal/data/user_repo_sqlite_test.go",
+  "app/admin/service/internal/data/user_repo_test.go",
+  "app/admin/service/internal/data/user_role_repo.go",
+  "app/admin/service/internal/data/user_role_repo_sqlite_test.go",
+  "app/admin/service/internal/service/admin_portal_service.go",
+  "app/admin/service/internal/service/permission_service.go",
+  "app/admin/service/internal/service/user_service.go",
+  "pkg/localdeps/go-crud/entgo/field/utils.go",
+  "pkg/localdeps/go-crud/entgo/filter/filter_processor.go",
+  "pkg/localdeps/go-crud/entgo/repository.go",
+  "pkg/localdeps/go-crud/entgo/update/update.go",
+  "pkg/utils/converter/api.go",
+  "pkg/utils/slice.go"
+ ],
+ "files_placed": 26,
+ "go_files_placed": 21,
+ "go_version": null,
+ "import_map": {
+  "github.com/tx7do/go-utils/copierutil": "go-wind-admin/pkg/localdeps/go-utils/copierutil",
+  "github.com/tx7do/go-utils/fieldmaskutil": "go-wind-admin/pkg/localdeps/go-utils/fieldmaskutil",
+  "github.com/tx7do/go-utils/mapper": "go-wind-admin/pkg/localdeps/go-utils/mapper",
+  "github.com/tx7do/go-utils/sliceutil": "go-wind-admin/pkg/localdeps/go-utils/sliceutil",
+  "github.com/tx7do/go-utils/stringcase": "go-wind-admin/pkg/localdeps/go-utils/stringcase",
+  "github.com/tx7do/go-utils/trans": "go-wind-admin/pkg/localdeps/go-utils/trans"
+ },
+ "non_go_placed": [
+  "pkg/localdeps/go-utils/LICENSE",
+  "pkg/localdeps/go-utils/copierutil/LICENSE",
+  "pkg/localdeps/go-utils/fieldmaskutil/README.md",
+  "pkg/localdeps/go-utils/mapper/LICENSE",
+  "pkg/localdeps/go-utils/stringcase/README.md"
+ ],
+ "placed_files": [
+  {
+   "is_go": false,
+   "sha256_at_place": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+   "staged": "T03/stage/go-utils/LICENSE",
+   "target_path": "pkg/localdeps/go-utils/LICENSE"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+   "staged": "T03/stage/go-utils/copierutil/LICENSE",
+   "target_path": "pkg/localdeps/go-utils/copierutil/LICENSE"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "1237e9bbfa6d3c9c5574125e4df2d5d90f45e478dc9782c7b9fcd1e6c28928fd",
+   "staged": "T03/stage/go-utils/copierutil/converters.go",
+   "target_path": "pkg/localdeps/go-utils/copierutil/converters.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "e1ec1782333a6f8baea54c944381e37c8a940ddd12acd3d9ac9f26a678f2ecfe",
+   "staged": "T03/stage/go-utils/copierutil/converters_test.go",
+   "target_path": "pkg/localdeps/go-utils/copierutil/converters_test.go"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "0f3b564b28e7e436e37313dec9332c83ad06afdb7c111ac4dd4547613813c74d",
+   "staged": "T03/stage/go-utils/fieldmaskutil/README.md",
+   "target_path": "pkg/localdeps/go-utils/fieldmaskutil/README.md"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "1a9ef536b2ed45b54bc2ecb09bb0abbeaa5e83b6948e7c3cd7b128270dd6917e",
+   "staged": "T03/stage/go-utils/fieldmaskutil/fieldmaskutil.go",
+   "target_path": "pkg/localdeps/go-utils/fieldmaskutil/fieldmaskutil.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "8114f5721aee1670eaf07cfd93e96ee53b6ea65a093f0c5a05b12aadb029af2e",
+   "staged": "T03/stage/go-utils/fieldmaskutil/fieldmaskutil_test.go",
+   "target_path": "pkg/localdeps/go-utils/fieldmaskutil/fieldmaskutil_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "a5ff0fdd6741214bc3a9ce4dea90c7918b4e5910bcdc5567a544db6c26d15ae8",
+   "staged": "T03/stage/go-utils/fieldmaskutil/nested_mask.go",
+   "target_path": "pkg/localdeps/go-utils/fieldmaskutil/nested_mask.go"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+   "staged": "T03/stage/go-utils/mapper/LICENSE",
+   "target_path": "pkg/localdeps/go-utils/mapper/LICENSE"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "dfcd0236bbfd229625d5d307785f50efc10bd27cc9d92dcc70c4a535d638fe8c",
+   "staged": "T03/stage/go-utils/mapper/enum_converter.go",
+   "target_path": "pkg/localdeps/go-utils/mapper/enum_converter.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "7d133d371445caf29846c8c4a663bcd0c8a7fac2d782f30e7fc17dcc3b835b0b",
+   "staged": "T03/stage/go-utils/mapper/interface.go",
+   "target_path": "pkg/localdeps/go-utils/mapper/interface.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "ac4040592ff2ff5c5563ff885ebf4ebfaf71773e774e46811613c2b866eb6597",
+   "staged": "T03/stage/go-utils/mapper/mapper.go",
+   "target_path": "pkg/localdeps/go-utils/mapper/mapper.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "c465096cfbeb9fde6a4d8150100f24df55da86ada78acd4e256668dcd2ded7fe",
+   "staged": "T03/stage/go-utils/mapper/mapper_test.go",
+   "target_path": "pkg/localdeps/go-utils/mapper/mapper_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "462b038375c07cf7f82ff4119c964bc194dd942ed1407e4a3b2fb80c3b95ef12",
+   "staged": "T03/stage/go-utils/sliceutil/sliceutils.go",
+   "target_path": "pkg/localdeps/go-utils/sliceutil/sliceutils.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "2758ee43e0190233f79e9e5d2f7881e091d6679d59ef891879463ae13d34611d",
+   "staged": "T03/stage/go-utils/sliceutil/sliceutils_test.go",
+   "target_path": "pkg/localdeps/go-utils/sliceutil/sliceutils_test.go"
+  },
+  {
+   "is_go": false,
+   "sha256_at_place": "4d89b08237130d0f09784c7f95b5a4aa441fc0f6244c66c3930b51ea8d5a2496",
+   "staged": "T03/stage/go-utils/stringcase/README.md",
+   "target_path": "pkg/localdeps/go-utils/stringcase/README.md"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "978cc5866acbe77c4a72a89b4605e9a8f472904356e269afdbde361a4d170ab8",
+   "staged": "T03/stage/go-utils/stringcase/camel_case.go",
+   "target_path": "pkg/localdeps/go-utils/stringcase/camel_case.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "694087839f2d8d863807437e241801c6ac3c8456c403dd9e8d98e4eb51807f23",
+   "staged": "T03/stage/go-utils/stringcase/camel_case_test.go",
+   "target_path": "pkg/localdeps/go-utils/stringcase/camel_case_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "d767717e2f8f856b860af408da503cb4b6b877077bb292a88bea7b3fa5641c3b",
+   "staged": "T03/stage/go-utils/stringcase/kebab_case.go",
+   "target_path": "pkg/localdeps/go-utils/stringcase/kebab_case.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "52173f8ce65e2b9119fa9becdf8f1b0afab1eb5e20bbc6d32e9bdf8958454150",
+   "staged": "T03/stage/go-utils/stringcase/kebab_case_test.go",
+   "target_path": "pkg/localdeps/go-utils/stringcase/kebab_case_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "36fbeb5438d6dc44d1e60b588d88e59a8469556efe635dedbe99ad660d8aacb8",
+   "staged": "T03/stage/go-utils/stringcase/snake_case.go",
+   "target_path": "pkg/localdeps/go-utils/stringcase/snake_case.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "46a50c53969fa0e3a0d6fae556150361235349761a81f57528df27f9766b878b",
+   "staged": "T03/stage/go-utils/stringcase/snake_case_test.go",
+   "target_path": "pkg/localdeps/go-utils/stringcase/snake_case_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "5aed79f99eadb7c7f43b4645cbaad7fb45e4383c2db5bc207dc2971181670b48",
+   "staged": "T03/stage/go-utils/stringcase/split.go",
+   "target_path": "pkg/localdeps/go-utils/stringcase/split.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "7e22b043bf4934018b6efa51f9cd1a901d84ff1e37be76b8a0c1b8ea76586629",
+   "staged": "T03/stage/go-utils/stringcase/split_test.go",
+   "target_path": "pkg/localdeps/go-utils/stringcase/split_test.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "271a87554141874744b2408420e98d39a65167330eb8ff52fbf50adb7407a1ea",
+   "staged": "T03/stage/go-utils/stringcase/utils.go",
+   "target_path": "pkg/localdeps/go-utils/stringcase/utils.go"
+  },
+  {
+   "is_go": true,
+   "sha256_at_place": "a5d5510ed3ef707c87449f7ba6173b1ce139cdff8536827d0717170594d1dd41",
+   "staged": "T03/stage/go-utils/stringcase/utils_test.go",
+   "target_path": "pkg/localdeps/go-utils/stringcase/utils_test.go"
+  }
+ ],
+ "problems": [],
+ "rewrite": {
+  "invocable_targets": 116,
+  "reported_changed": 99,
+  "written": true
+ },
+ "task": "T03"
+}

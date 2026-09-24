@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tx7do/go-utils/sliceutil"
+	"go-wind-admin/pkg/localdeps/go-utils/sliceutil"
 )
 
 func FilterBlacklist(data []string, blacklist []string) []string {

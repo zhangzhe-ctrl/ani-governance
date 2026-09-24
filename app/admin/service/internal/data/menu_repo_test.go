@@ -8,7 +8,7 @@ import (
 
 	entgoUpdate "go-wind-admin/pkg/localdeps/go-crud/entgo/update"
 
-	"github.com/tx7do/go-utils/fieldmaskutil"
+	"go-wind-admin/pkg/localdeps/go-utils/fieldmaskutil"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"

@@ -1,0 +1,178 @@
+{
+ "activated_import_paths": [
+  "github.com/tx7do/go-utils/copierutil",
+  "github.com/tx7do/go-utils/fieldmaskutil",
+  "github.com/tx7do/go-utils/mapper",
+  "github.com/tx7do/go-utils/sliceutil",
+  "github.com/tx7do/go-utils/stringcase"
+ ],
+ "closure": {
+  "already_active_from_T02": [
+   "github.com/tx7do/go-utils/trans"
+  ],
+  "deliberately_left_on_old_path_by_T03_md": [
+   "github.com/tx7do/go-utils/timeutil"
+  ],
+  "non_tx7do_external_dependencies_kept": [
+   "fmt",
+   "github.com/jinzhu/copier",
+   "github.com/stretchr/testify/assert",
+   "golang.org/x/exp/constraints",
+   "google.golang.org/protobuf/proto",
+   "google.golang.org/protobuf/reflect/protoreflect",
+   "google.golang.org/protobuf/types/known/durationpb",
+   "google.golang.org/protobuf/types/known/fieldmaskpb",
+   "google.golang.org/protobuf/types/known/timestamppb",
+   "reflect",
+   "regexp",
+   "strconv",
+   "strings",
+   "testing",
+   "time",
+   "unicode",
+   "unicode/utf8"
+  ],
+  "resolved_by_this_activation_set": [
+   "github.com/tx7do/go-utils/sliceutil",
+   "github.com/tx7do/go-utils/stringcase",
+   "github.com/tx7do/go-utils/trans"
+  ],
+  "tx7do_imports_seen_in_staged_sources": [
+   "github.com/tx7do/go-utils/sliceutil",
+   "github.com/tx7do/go-utils/stringcase",
+   "github.com/tx7do/go-utils/timeutil",
+   "github.com/tx7do/go-utils/trans"
+  ],
+  "unresolved_tx7do_imports": []
+ },
+ "hash_failures": [],
+ "modules": [
+  {
+   "embed_resources": [],
+   "file_count": 18,
+   "files_license_count": 1,
+   "files_source_count": 8,
+   "files_test_count": 7,
+   "go_directives": [],
+   "license_files_declared": [
+    {
+     "path": "github.com/tx7do/go-utils@v1.1.40/LICENSE",
+     "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+    }
+   ],
+   "module": "github.com/tx7do/go-utils",
+   "package_dirs": [
+    "fieldmaskutil",
+    "sliceutil",
+    "stringcase"
+   ],
+   "packages": [
+    "fieldmaskutil",
+    "sliceutil",
+    "sliceutil_test",
+    "stringcase"
+   ],
+   "safety_clean": true,
+   "safety_findings": {
+    "absolute_or_traversal": [],
+    "duplicate_targets": [],
+    "outside_prefix": [],
+    "symlinks_or_devices": []
+   },
+   "subdirs_selected": [
+    "stringcase",
+    "sliceutil",
+    "fieldmaskutil"
+   ],
+   "suffix": "go-utils",
+   "tx7do_imports": [
+    "github.com/tx7do/go-utils/sliceutil",
+    "github.com/tx7do/go-utils/stringcase"
+   ],
+   "version": "v1.1.40",
+   "zip_matches_manifest": true,
+   "zip_sha256": "90af2ce0742081bbee8fae0ab1ea99f42355977086f7406d60f7658792e9471e"
+  },
+  {
+   "embed_resources": [],
+   "file_count": 5,
+   "files_license_count": 1,
+   "files_source_count": 3,
+   "files_test_count": 1,
+   "go_directives": [],
+   "license_files_declared": [
+    {
+     "path": "github.com/tx7do/go-utils/mapper@v0.0.3/LICENSE",
+     "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+    }
+   ],
+   "module": "github.com/tx7do/go-utils/mapper",
+   "package_dirs": [],
+   "packages": [
+    "mapper"
+   ],
+   "safety_clean": true,
+   "safety_findings": {
+    "absolute_or_traversal": [],
+    "duplicate_targets": [],
+    "outside_prefix": [],
+    "symlinks_or_devices": []
+   },
+   "subdirs_selected": null,
+   "suffix": "go-utils/mapper",
+   "tx7do_imports": [],
+   "version": "v0.0.3",
+   "zip_matches_manifest": true,
+   "zip_sha256": "e85dfe7d3123ad5c93e36ca3c6dfeeac5ef0aacfc2e7ad32ca3a3e134667e4d6"
+  },
+  {
+   "embed_resources": [],
+   "file_count": 3,
+   "files_license_count": 1,
+   "files_source_count": 1,
+   "files_test_count": 1,
+   "go_directives": [],
+   "license_files_declared": [
+    {
+     "path": "github.com/tx7do/go-utils/copierutil@v0.0.8/LICENSE",
+     "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+    }
+   ],
+   "module": "github.com/tx7do/go-utils/copierutil",
+   "package_dirs": [],
+   "packages": [
+    "copierutil"
+   ],
+   "safety_clean": true,
+   "safety_findings": {
+    "absolute_or_traversal": [],
+    "duplicate_targets": [],
+    "outside_prefix": [],
+    "symlinks_or_devices": []
+   },
+   "subdirs_selected": null,
+   "suffix": "go-utils/copierutil",
+   "tx7do_imports": [
+    "github.com/tx7do/go-utils/timeutil",
+    "github.com/tx7do/go-utils/trans"
+   ],
+   "version": "v0.0.8",
+   "zip_matches_manifest": true,
+   "zip_sha256": "5a40a43bb0de27f2a37119621278a36de0c7eb60ea7cb92f38b81c93099a37ab"
+  }
+ ],
+ "schema_version": 1,
+ "task": "T03-pre-activation",
+ "totals": {
+  "all_byte_identical_to_archive": true,
+  "all_three_way_match": true,
+  "embed": 0,
+  "files_staged": 26,
+  "license": 3,
+  "other": 2,
+  "source": 12,
+  "test": 9
+ },
+ "verdict": "OK",
+ "wrote_into_repo": false
+}
