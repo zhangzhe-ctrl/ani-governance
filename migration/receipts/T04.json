@@ -650,6 +650,13 @@
   "note": "ev-quota-iso-*, ev-ref-smoke, ev-ref-full and ev-smoke ran before -p 1 and the lab re-provisioning protocol were established; the same suites measured with -p 1 on a fresh lab (ev-ref-gateA/ev-mig-gateA/ev-tests-main/ev-ref-tests) supersede them. They are kept because the evidence protocol records every command actually run.",
   "what_was_wrong": "go test defaults to parallel package binaries, and enttest.NewQuotaPGClient runs testdata/quota_cleanup.sql on every construction while documenting that suites sharing that database must be serialised. Without -p 1 the data and service binaries deleted each other's rows and failures moved between runs. AGENTS.md and the master goal both require \u5371\u9669\u6570\u636e\u5e93\u6d4b\u8bd5\u4e32\u884c."
  },
+ "supplemental_authorization": {
+  "effect": "the BLOCKED conclusion above stays as the recorded scene; the acceptance scope is amended to repair the confirmed example/ECDH defects and to carry exactly the 9 never-enabled image-driver tests as KNOWN_BASELINE_FAILURE, with -vet=off removed from every release command",
+  "plan_file_sha256": "502e384172a8fd68df9bf31152d104c90bd629f6c398acbd1d41e05f80dbbb33",
+  "plan_section": "### T04 \u8865\u5145\u6388\u6743\uff1a\u4fee\u590d\u786e\u5b9a\u7684\u6d4b\u8bd5/\u793a\u4f8b\u7f3a\u9677\u5e76\u6709\u9650\u4fdd\u7559\u5df2\u77e5\u7f3a\u9677",
+  "previous_findings_corrected": "T04-F1 wording about go-captcha resources is replaced by the source-level diagnosis in section 2 of the authorization",
+  "recorded_in": "migration/receipts/T04-authorization-known-defects.json"
+ },
  "task": "T04",
  "test_environment": {
   "isolated_instances": [
