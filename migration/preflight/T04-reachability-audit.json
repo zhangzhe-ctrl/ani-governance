@@ -1,0 +1,265 @@
+{
+ "accepted_head_unchanged": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+ "action": "authorization section 1 (scope and reachability) + section 2 (corrected diagnosis)",
+ "preserved": "branch task/tx7do-takeover, T02-B1 and T07 patches, all failure logs; nothing reverted, re-run or pushed",
+ "probes": [
+  {
+   "check": "only production construction site of the captcha client",
+   "command": "grep -rn captcha.NewCaptcha(\\|NewCaptchaWithConfig(\\|\\.SetConfig( --include=*.go app pkg scripts",
+   "exit": 0,
+   "outside_owner_lines": 2,
+   "outside_owner_output": [
+    "app/admin/service/internal/data/data.go:51:\tcaptchaInstance := captcha.NewCaptcha(rdb,",
+    "app/admin/service/internal/service/authentication_service_sqlite_test.go:162:\tcaptchaClient := captcha.NewCaptcha(rdb,"
+   ],
+   "owner_package": "pkg/localdeps/go-utils/captcha",
+   "raw_lines": 16,
+   "raw_output": [
+    "app/admin/service/internal/data/data.go:51:\tcaptchaInstance := captcha.NewCaptcha(rdb,",
+    "app/admin/service/internal/service/authentication_service_sqlite_test.go:162:\tcaptchaClient := captcha.NewCaptcha(rdb,",
+    "pkg/localdeps/go-utils/captcha/captcha.go:31://\tcap := captcha.NewCaptcha(rdb,",
+    "pkg/localdeps/go-utils/captcha/captcha.go:48:func NewCaptchaWithConfig(rdb *redis.Client, config *Config) *Captcha {",
+    "pkg/localdeps/go-utils/captcha/example_test.go:19:\tcaptchaInstance := captcha.NewCaptcha(rdb,",
+    "pkg/localdeps/go-utils/captcha/example_test.go:38:\tcaptchaInstance := captcha.NewCaptcha(rdb,",
+    "pkg/localdeps/go-utils/captcha/example_test.go:56:\tcaptchaInstance := captcha.NewCaptcha(rdb,",
+    "pkg/localdeps/go-utils/captcha/example_test.go:73:\tcaptchaInstance := captcha.NewCaptcha(rdb,",
+    "pkg/localdeps/go-utils/captcha/example_test.go:90:\tcaptchaInstance := captcha.NewCaptcha(rdb,",
+    "pkg/localdeps/go-utils/captcha/example_test.go:118:\tcaptchaInstance := captcha.NewCaptcha(rdb,",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:67:func TestNewCaptchaWithConfig(t *testing.T) {",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:76:\t\tcaptchaInstance := NewCaptchaWithConfig(rdb, config)",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:83:\t\tcaptchaInstance := NewCaptchaWithConfig(rdb, nil)",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:698:\tcaptchaInstance := NewCaptchaWithConfig(rdb, config)",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:717:\tcaptchaInstance.SetConfig(newConfig)",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:730:\tcaptchaInstance.SetConfig(nil)"
+   ]
+  },
+  {
+   "check": "captcha driver literals outside the package",
+   "command": "grep -rn DriverSlide\\|DriverClick\\|DriverRotate --include=*.go app pkg scripts",
+   "exit": 0,
+   "outside_owner_lines": 0,
+   "outside_owner_output": [],
+   "owner_package": "pkg/localdeps/go-utils/captcha",
+   "raw_lines": 24,
+   "raw_output": [
+    "pkg/localdeps/go-utils/captcha/captcha.go:147:\tif c.config.DriverType == DriverSlide {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:152:\tif c.config.DriverType == DriverClick {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:157:\tif c.config.DriverType == DriverRotate {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:500:\tif c.config.DriverType == DriverSlide {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:503:\t} else if c.config.DriverType == DriverClick {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:506:\t} else if c.config.DriverType == DriverRotate {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:642:\tif c.config.DriverType == DriverSlide {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:644:\t} else if c.config.DriverType == DriverClick {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:646:\t} else if c.config.DriverType == DriverRotate {",
+    "pkg/localdeps/go-utils/captcha/options.go:15:\tDriverSlide   DriverType = \"slide\"   // \u6ed1\u52a8\u62fc\u56fe\u9a8c\u8bc1\u7801",
+    "pkg/localdeps/go-utils/captcha/options.go:16:\tDriverClick   DriverType = \"click\"   // \u70b9\u51fb\u6587\u5b57\u9a8c\u8bc1\u7801",
+    "pkg/localdeps/go-utils/captcha/options.go:17:\tDriverRotate  DriverType = \"rotate\"  // \u65cb\u8f6c\u9a8c\u8bc1\u7801",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:165:\t\tWithDriverType(DriverSlide),",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:225:\t\tWithDriverType(DriverSlide),",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:261:\t\tWithDriverType(DriverSlide),",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:297:\t\tWithDriverType(DriverClick),",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:326:\t\tWithDriverType(DriverClick),",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:373:\t\tWithDriverType(DriverClick),",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:414:\t\tWithDriverType(DriverRotate),",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:445:\t\tWithDriverType(DriverRotate),",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:481:\t\tWithDriverType(DriverRotate),",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:819:\t\tWithDriverType(DriverSlide),",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:844:\t\tWithDriverType(DriverClick),",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:874:\t\tWithDriverType(DriverRotate),"
+   ]
+  },
+  {
+   "check": "mutation of the captcha config object outside the package",
+   "command": "grep -rn captcha\\.Config\\|GetConfig()\\.DriverType\\|config\\.DriverType --include=*.go app pkg scripts",
+   "exit": 0,
+   "outside_owner_lines": 0,
+   "outside_owner_output": [],
+   "owner_package": "pkg/localdeps/go-utils/captcha",
+   "raw_lines": 18,
+   "raw_output": [
+    "pkg/localdeps/go-utils/captcha/captcha.go:147:\tif c.config.DriverType == DriverSlide {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:152:\tif c.config.DriverType == DriverClick {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:157:\tif c.config.DriverType == DriverRotate {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:163:\tswitch c.config.DriverType {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:500:\tif c.config.DriverType == DriverSlide {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:503:\t} else if c.config.DriverType == DriverClick {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:506:\t} else if c.config.DriverType == DriverRotate {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:642:\tif c.config.DriverType == DriverSlide {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:644:\t} else if c.config.DriverType == DriverClick {",
+    "pkg/localdeps/go-utils/captcha/captcha.go:646:\t} else if c.config.DriverType == DriverRotate {",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:49:\t\tassert.Equal(t, DriverDigit, captchaInstance.config.DriverType)",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:61:\t\tassert.Equal(t, DriverString, captchaInstance.config.DriverType)",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:73:\t\tconfig.DriverType = DriverMath",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:78:\t\tassert.Equal(t, DriverMath, captchaInstance.config.DriverType)",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:85:\t\tassert.Equal(t, DriverDigit, captchaInstance.config.DriverType)",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:695:\tconfig.DriverType = DriverString",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:712:\tassert.Equal(t, DriverDigit, captchaInstance.GetConfig().DriverType)",
+    "pkg/localdeps/go-utils/captcha/captcha_test.go:719:\tassert.Equal(t, DriverMath, captchaInstance.GetConfig().DriverType)"
+   ]
+  },
+  {
+   "check": "ECC/ECDH constructors referenced outside the password package",
+   "command": "grep -rn NewECDHCrypto\\|NewECDSACrypto\\|ECDHCrypto\\|ECDSACrypto --include=*.go app pkg scripts",
+   "exit": 0,
+   "outside_owner_lines": 0,
+   "outside_owner_output": [],
+   "owner_package": "pkg/localdeps/go-utils/password",
+   "raw_lines": 23,
+   "raw_output": [
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:14:// ECDSACrypto \u5b9e\u73b0\u57fa\u4e8e ECDSA \u7684\u52a0\u5bc6\u548c\u9a8c\u8bc1",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:15:type ECDSACrypto struct {",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:20:// NewECDSACrypto \u521b\u5efa\u4e00\u4e2a\u65b0\u7684 ECDSACrypto \u5b9e\u4f8b",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:21:func NewECDSACrypto() (*ECDSACrypto, error) {",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:26:\treturn &ECDSACrypto{",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:33:func (e *ECDSACrypto) Encrypt(plainPassword string) (string, error) {",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:49:func (e *ECDSACrypto) Verify(plainPassword, encrypted string) (bool, error) {",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:68:// ECDHCrypto \u5b9e\u73b0\u57fa\u4e8e ECDH \u7684\u5bc6\u94a5\u4ea4\u6362",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:69:type ECDHCrypto struct {",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:74:// NewECDHCrypto \u521b\u5efa\u4e00\u4e2a\u65b0\u7684 ECDHCrypto \u5b9e\u4f8b",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:75:func NewECDHCrypto() (*ECDHCrypto, error) {",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:80:\treturn &ECDHCrypto{",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:87:func (e *ECDHCrypto) Encrypt(plainPassword string) (string, error) {",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:97:func (e *ECDHCrypto) Verify(plainPassword, encrypted string) (bool, error) {",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh.go:124:func (e *ECDHCrypto) DeriveSharedSecret(publicKey string) ([]byte, error) {",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go:7:func TestECDSACrypto_EncryptAndVerify(t *testing.T) {",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go:8:\tcrypto, err := NewECDSACrypto()",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go:10:\t\tt.Fatalf(\"\u521b\u5efa ECDSACrypto \u5b9e\u4f8b\u5931\u8d25: %v\", err)",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go:32:func TestECDHCrypto_EncryptAndVerify(t *testing.T) {",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go:33:\tcrypto1, err := NewECDHCrypto()",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go:35:\t\tt.Fatalf(\"\u521b\u5efa ECDHCrypto \u5b9e\u4f8b1\u5931\u8d25: %v\", err)",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go:38:\tcrypto2, err := NewECDHCrypto()",
+    "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go:40:\t\tt.Fatalf(\"\u521b\u5efa ECDHCrypto \u5b9e\u4f8b2\u5931\u8d25: %v\", err)"
+   ]
+  },
+  {
+   "check": "every argument handed to the password algorithm factory",
+   "command": "grep -rn CreateCrypto( --include=*.go .",
+   "exit": 0,
+   "outside_owner_lines": 1,
+   "outside_owner_output": [
+    "./app/admin/service/internal/data/data.go:43:\tcrypto, err := password.CreateCrypto(\"bcrypt\")"
+   ],
+   "owner_package": "pkg/localdeps/go-utils/password",
+   "raw_lines": 2,
+   "raw_output": [
+    "./app/admin/service/internal/data/data.go:43:\tcrypto, err := password.CreateCrypto(\"bcrypt\")",
+    "./pkg/localdeps/go-utils/password/interface.go:17:func CreateCrypto(algorithm string) (Crypto, error) {"
+   ]
+  },
+  {
+   "check": "rpc surface that could carry a driver or algorithm choice",
+   "command": "grep -rn GenerateCaptcha (\\|VerifyCaptcha ( --include=*.proto api/protos",
+   "exit": 0,
+   "outside_owner_lines": 4,
+   "outside_owner_output": [
+    "api/protos/authentication/service/v1/authentication.proto:64:  rpc GenerateCaptcha (google.protobuf.Empty) returns (GenerateCaptchaResponse) {}",
+    "api/protos/authentication/service/v1/authentication.proto:67:  rpc VerifyCaptcha (VerifyCaptchaRequest) returns (VerifyCaptchaResponse) {}",
+    "api/protos/admin/service/v1/i_authentication.proto:101:  rpc GenerateCaptcha (google.protobuf.Empty) returns (authentication.service.v1.GenerateCaptchaResponse) {",
+    "api/protos/admin/service/v1/i_authentication.proto:112:  rpc VerifyCaptcha (authentication.service.v1.VerifyCaptchaRequest) returns (authentication.service.v1.VerifyCaptchaResponse) {"
+   ],
+   "owner_package": "-",
+   "raw_lines": 4,
+   "raw_output": [
+    "api/protos/authentication/service/v1/authentication.proto:64:  rpc GenerateCaptcha (google.protobuf.Empty) returns (GenerateCaptchaResponse) {}",
+    "api/protos/authentication/service/v1/authentication.proto:67:  rpc VerifyCaptcha (VerifyCaptchaRequest) returns (VerifyCaptchaResponse) {}",
+    "api/protos/admin/service/v1/i_authentication.proto:101:  rpc GenerateCaptcha (google.protobuf.Empty) returns (authentication.service.v1.GenerateCaptchaResponse) {",
+    "api/protos/admin/service/v1/i_authentication.proto:112:  rpc VerifyCaptcha (authentication.service.v1.VerifyCaptchaRequest) returns (authentication.service.v1.VerifyCaptchaResponse) {"
+   ]
+  },
+  {
+   "check": "config files for a captcha driver or password algorithm key",
+   "command": "grep -rn -i captcha\\|driver_type\\|algorithm\\|bcrypt\\|argon2\\|pbkdf2\\|ecdh app/admin/service/configs",
+   "exit": 0,
+   "outside_owner_lines": 3,
+   "outside_owner_output": [
+    "app/admin/service/configs/auth.yaml:18:    #   openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out jwt_private_key.pem",
+    "app/admin/service/configs/server.yaml:16:        - \"X-Captcha-Id\"",
+    "app/admin/service/configs/server.yaml:17:        - \"X-Captcha-Value\""
+   ],
+   "owner_package": "-",
+   "raw_lines": 3,
+   "raw_output": [
+    "app/admin/service/configs/auth.yaml:18:    #   openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out jwt_private_key.pem",
+    "app/admin/service/configs/server.yaml:16:        - \"X-Captcha-Id\"",
+    "app/admin/service/configs/server.yaml:17:        - \"X-Captcha-Value\""
+   ]
+  }
+ ],
+ "recorded_at_head": "7640c9230248db2893c6c58d6c63d2ca73c7d9c6",
+ "section_1_findings": {
+  "NewCaptcha_still_fixed_string_driver": {
+   "options": "WithDriverType(captcha.DriverString), WithExpire(10m), WithKeyPrefix(<project>:captcha), WithStringCount(6), WithStringSource(29-char unambiguous alphabet)",
+   "site": "app/admin/service/internal/data/data.go:50-58",
+   "wiring": "app/admin/service/cmd/server/wiring_ent.go:77 is the only production construction; it is passed to service.NewAuthenticationService at wiring_ent.go:171"
+  },
+  "NewPasswordCrypto_still_fixed_bcrypt": {
+   "call": "password.CreateCrypto(\"bcrypt\") with a literal, panic on error",
+   "site": "app/admin/service/internal/data/data.go:42-47",
+   "wiring": "wiring_ent.go:76 -> data.NewUserCredentialRepo(..., passwordCrypto, ...) at wiring_ent.go:97"
+  },
+  "config_cannot_select_a_driver": {
+   "config_files": "no captcha driver or password algorithm key exists in app/admin/service/configs; the only matches are the CORS header names X-Captcha-Id / X-Captcha-Value",
+   "construction_order": "both clients are built once in wiring before any database row exists, and nothing re-reads configuration into them afterwards",
+   "runtime_config": "ConfigRepo is read only for password-policy integers (user_credential_repo.go:460,508,610,691: max age, min length, history count); none of them names an algorithm or a driver"
+  },
+  "generate_entry_carries_no_choice": {
+   "rpc": "GenerateCaptcha takes google.protobuf.Empty (api/protos/authentication/service/v1/authentication.proto:64, admin route GET /api/v1/auth/captcha); VerifyCaptcha carries only captcha_id and user_input",
+   "service": "authentication_service.go:1015-1031 calls Generate()/Save() with no argument; :1034-1035 passes captcha_id/user_input to Verify()"
+  },
+  "insufficient_evidence_not_used": "a grep miss alone and the 602-case consumer pass are not the basis of this verdict; the basis is the single construction site per client, the argument list of those constructors, the request type of the only RPC that generates a captcha, the absence of any config key, and the factory's case list",
+  "machine_check": {
+   "allowed_repo_owned_sites": {
+    "ECC/ECDH constructors referenced outside the password package": [],
+    "captcha driver literals outside the package": [],
+    "every argument handed to the password algorithm factory": [
+     "./app/admin/service/internal/data/data.go",
+     "app/admin/service/internal/data/data.go"
+    ],
+    "mutation of the captcha config object outside the package": [
+     "app/admin/service/internal/data/data.go"
+    ],
+    "only production construction site of the captcha client": [
+     "app/admin/service/internal/data/data.go",
+     "app/admin/service/internal/service/authentication_service_sqlite_test.go"
+    ]
+   },
+   "violations": []
+  },
+  "mutators_are_unreachable": {
+   "ecdh": "password.CreateCrypto only has cases for bcrypt, pbkdf2 and argon2, so ECDHCrypto cannot even be obtained through the factory; NewECDHCrypto/NewECDSACrypto/ECDHCrypto/ECDSACrypto appear nowhere outside the password package",
+   "exported_but_unused": "Captcha.SetConfig (captcha.go:617) and GetConfig (captcha.go:612) exist, and NewCaptchaWithConfig (captcha.go:48) accepts a whole Config, but no repo-owned file calls any of them",
+   "slide_click_rotate_literals": "no DriverSlide/DriverClick/DriverRotate token appears anywhere outside pkg/localdeps/go-utils/captcha"
+  },
+  "verdict": "The three image drivers and ECDHCrypto are not enabled by the business and no request, configuration value or runtime path can switch them on. Every repo-owned hit is one of the accounted construction sites, and the remaining hits are inside the owned upstream package where the driver switch necessarily lives."
+ },
+ "section_2_corrected_diagnosis": {
+  "captcha_v0.0.4": {
+   "consequence": "this is a production-code gap in the locked upstream implementation, not a missing test asset. Making it work would mean setting driver resources in the implementation, which section 3 forbids, and injecting a configured object into the private driver fields and claiming the default NewCaptcha is fixed is explicitly out of bounds",
+   "initClickCaptcha": "captcha.go:305-343 sets chars only (a hardcoded Chinese alphabet when the config has none); no font resource is registered, so the library reaches freetype DrawText with a nil font",
+   "initRotateCaptcha": "captcha.go:412-424 calls rotate.NewBuilder() with no resource at all and comments that rotate 'uses built-in default images', which v2.0.5 does not provide, so it fails with 'no image'",
+   "initSlideCaptcha": "captcha.go:59-87 gives the builder a background only, and that background is a hand-painted 300x220 gradient produced by loadDefaultBackground (captcha.go:91), not a puzzle/tile image; the tile and range-graph resources go-captcha's slide generator requires are never set, so Generate() fails inside the library with 'graph image is invalid'"
+  },
+  "password_v0.0.2": {
+   "DeriveSharedSecret": "ecdsa_ecdh.go:124-140 base64-decodes a bare public key (no ecdh$ prefix), unmarshals it and returns sharedX.Bytes()",
+   "Encrypt": "ecdsa_ecdh.go:87-95 ignores the plaintext apart from the empty check and returns 'ecdh$' + base64(elliptic.Marshal(pubX, pubY)) - it outputs the public key",
+   "Verify": "ecdsa_ecdh.go:97-121 parses the peer key out of the envelope, computes sharedX = ScalarMult(peerPub, priv.D), and compares sha256(sharedX.Bytes()) with sha256([]byte(plainPassword))",
+   "consequence": "two different instances can absolutely agree, because both derive the same x-coordinate; the shipped test failed only because it passed the literal string 'test message' as the secret. Rewriting the test to use one instance, or flipping the expected true to false, would hide the contract instead of testing it"
+  },
+  "replaces": "the wording in receipts/T04.json finding T04-F1 and preflight/T04-upstream-red.json that described the nine failures as 'the image drivers need resource images and a font that the module never ships' and the ECDH failure as 'cannot hold for separate keypairs'",
+  "upstream_red_logs_kept": "the earlier failing logs stay in /home/ubuntu/tx7do-pilot-run/T04/ and in preflight/T04-pristine-transcripts.json; an identical pristine failure is evidence of provenance, never a substitute for a pass"
+ },
+ "t04_code_commit": "f161a27f4a3395931a5d927960c8400967eb05ea",
+ "t04_input_sha": "b97001ef02822638ee206c56f3d75f23121bdeef",
+ "task": "T04",
+ "tested_source_hashes": {
+  "app/admin/service/cmd/server/wiring_ent.go": "149b27315ac469780dcfb82356661ede3b5cd92e81bcd4b327206f2ae2233741",
+  "app/admin/service/internal/data/data.go": "783b90306f6efc586dcddd49611401f99c8e9cd792e9632ed64c142dd46a4636",
+  "app/admin/service/internal/service/authentication_service.go": "60b27d215034cd56fa87145a984453e978576487054e6b8448a5bfe26816886a",
+  "pkg/localdeps/go-utils/captcha/captcha.go": "daf67c784a27f0942e929cbeef7d14007732c89286c9a1c32120ad62b9a06f66",
+  "pkg/localdeps/go-utils/captcha/example_test.go": "8ef23aa020150ffb1d42274f062148c7dd0c118ff5a0ba99d1b85bb22cf92198",
+  "pkg/localdeps/go-utils/captcha/options.go": "3dd43e5285e2945bdf4be344d2fb137f9bbaa2c2b7ebc536df0ffce4c9e6609a",
+  "pkg/localdeps/go-utils/password/ecdsa_ecdh.go": "84c02f1b5a681065fc9ea3397a32cc3699d15cbe4e4a9a12fd3598fcc17a1113",
+  "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go": "de910497ea2c64510df89dc307e6a64addb018525f14dd4a351965c54cbf4542",
+  "pkg/localdeps/go-utils/password/interface.go": "a9c062b4bf201241aa91ece8e200bd21d9cd02991e5163f81862043f71478875"
+ }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestGenerate_ClickCaptcha"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestGenerate_RotateCaptcha"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestGenerate_SlideCaptcha"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestSaveAndVerify_ClickCaptcha"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestSaveAndVerify_RotateCaptcha"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestSaveAndVerify_SlideCaptcha"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestVerify_ClickCaptcha_WithTolerance"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestVerify_RotateCaptcha_WithTolerance"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestVerify_SlideCaptcha_WithTolerance"
+  }
+]

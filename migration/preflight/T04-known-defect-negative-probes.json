@@ -1,0 +1,131 @@
+{
+ "meaning": "deliberately injected faults; a non-zero checker exit is the expected result",
+ "checker": "tools/migration/known_defects.py",
+ "probes": [
+  {
+   "probe": "error content differs from the pristine copy",
+   "expected_blocker": "SIGNATURE_MISMATCH: TestGenerate_ClickCaptcha",
+   "checker_exit": 1,
+   "blocking": [
+    "SIGNATURE_MISMATCH: TestGenerate_ClickCaptcha"
+   ],
+   "statuses": [
+    "KNOWN_BASELINE_FAILURE",
+    "SIGNATURE_MISMATCH"
+   ],
+   "as_expected": true
+  },
+  {
+   "probe": "assertion site moved",
+   "expected_blocker": "SIGNATURE_MISMATCH: TestGenerate_ClickCaptcha",
+   "checker_exit": 1,
+   "blocking": [
+    "SIGNATURE_MISMATCH: TestGenerate_ClickCaptcha"
+   ],
+   "statuses": [
+    "KNOWN_BASELINE_FAILURE",
+    "SIGNATURE_MISMATCH"
+   ],
+   "as_expected": true
+  },
+  {
+   "probe": "defect unexpectedly passes",
+   "expected_blocker": "XPASS",
+   "checker_exit": 1,
+   "blocking": [
+    "XPASS (must be traced, not silently accepted): TestGenerate_ClickCaptcha"
+   ],
+   "statuses": [
+    "KNOWN_BASELINE_FAILURE",
+    "XPASS"
+   ],
+   "as_expected": true
+  },
+  {
+   "probe": "test missing from the run",
+   "expected_blocker": "MISSING_RUN",
+   "checker_exit": 1,
+   "blocking": [
+    "MISSING_RUN: TestGenerate_ClickCaptcha"
+   ],
+   "statuses": [
+    "KNOWN_BASELINE_FAILURE",
+    "MISSING_RUN"
+   ],
+   "as_expected": true
+  },
+  {
+   "probe": "test skipped",
+   "expected_blocker": "SKIP",
+   "checker_exit": 1,
+   "blocking": [
+    "SKIP: TestGenerate_ClickCaptcha"
+   ],
+   "statuses": [
+    "KNOWN_BASELINE_FAILURE",
+    "SKIP"
+   ],
+   "as_expected": true
+  },
+  {
+   "probe": "tagged run is green",
+   "expected_blocker": "TAGGED_RUN_IS_GREEN",
+   "checker_exit": 1,
+   "blocking": [
+    "XPASS (must be traced, not silently accepted): TestGenerate_ClickCaptcha",
+    "XPASS (must be traced, not silently accepted): TestGenerate_RotateCaptcha",
+    "XPASS (must be traced, not silently accepted): TestGenerate_SlideCaptcha",
+    "XPASS (must be traced, not silently accepted): TestSaveAndVerify_ClickCaptcha",
+    "XPASS (must be traced, not silently accepted): TestSaveAndVerify_RotateCaptcha",
+    "XPASS (must be traced, not silently accepted): TestSaveAndVerify_SlideCaptcha",
+    "XPASS (must be traced, not silently accepted): TestVerify_ClickCaptcha_WithTolerance",
+    "XPASS (must be traced, not silently accepted): TestVerify_RotateCaptcha_WithTolerance",
+    "XPASS (must be traced, not silently accepted): TestVerify_SlideCaptcha_WithTolerance",
+    "TAGGED_RUN_IS_GREEN: the known defects did not reproduce; nothing may be labelled"
+   ],
+   "statuses": [
+    "XPASS"
+   ],
+   "as_expected": true
+  },
+  {
+   "probe": "new failure outside the list",
+   "expected_blocker": "NEW_FAILURES_IN_TAGGED_RUN",
+   "checker_exit": 1,
+   "blocking": [
+    "NEW_FAILURES_IN_TAGGED_RUN: ['TestSaveAndVerify']"
+   ],
+   "statuses": [
+    "KNOWN_BASELINE_FAILURE"
+   ],
+   "as_expected": true
+  },
+  {
+   "probe": "isolated test body edited",
+   "expected_blocker": "MOVED_TEST_NOT_VERBATIM",
+   "checker_exit": 1,
+   "blocking": [
+    "MOVED_TEST_NOT_VERBATIM: TestGenerate_SlideCaptcha"
+   ],
+   "statuses": [
+    "KNOWN_BASELINE_FAILURE"
+   ],
+   "as_expected": true
+  },
+  {
+   "probe": "panic preserved",
+   "expected_blocker": "PANIC_PRESERVED",
+   "checker_exit": 1,
+   "blocking": [
+    "PANIC_PRESERVED (reported verbatim, never generalised): TestGenerate_ClickCaptcha"
+   ],
+   "statuses": [
+    "KNOWN_BASELINE_FAILURE",
+    "PANIC_PRESERVED"
+   ],
+   "as_expected": true
+  }
+ ],
+ "all_as_expected": true,
+ "note": "these runs are negative controls and are excluded from any pass/fail tally"
+}

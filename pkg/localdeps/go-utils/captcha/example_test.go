@@ -3,37 +3,124 @@ package captcha_test
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 	"go-wind-admin/pkg/localdeps/go-utils/captcha"
 )
 
-// ExampleNewCaptcha_OptionsPattern 使用 Options 模式创建验证码（推荐）
-func ExampleNewCaptcha_OptionsPattern() {
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
+// newExampleRedis 启动一个只属于当前示例的 miniredis 实例，调用方负责 Close。
+func newExampleRedis() (*miniredis.Miniredis, *redis.Client, error) {
+	mr := miniredis.NewMiniRedis()
+	if err := mr.Start(); err != nil {
+		return nil, nil, err
+	}
+	rdb := redis.NewClient(&redis.Options{Addr: mr.Addr()})
+	if err := rdb.Ping(context.Background()).Err(); err != nil {
+		_ = rdb.Close()
+		mr.Close()
+		return nil, nil, err
+	}
+	return mr, rdb, nil
+}
 
-	// 使用 Options 模式 - 字符串验证码
+func exampleAnswerInSource(answer, source string) bool {
+	if answer == "" {
+		return false
+	}
+	for _, char := range answer {
+		if !strings.ContainsRune(source, char) {
+			return false
+		}
+	}
+	return true
+}
+
+func exampleAnswerIsDigits(answer string) bool {
+	if answer == "" {
+		return false
+	}
+	for _, char := range answer {
+		if char < '0' || char > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+func exampleAnswerIsInteger(answer string) bool {
+	return exampleAnswerIsDigits(strings.TrimPrefix(answer, "-"))
+}
+
+// ExampleNewCaptcha_optionsPattern 使用 Options 模式创建验证码（推荐）
+func ExampleNewCaptcha_optionsPattern() {
+	mr, rdb, err := newExampleRedis()
+	if err != nil {
+		fmt.Println("test redis unavailable:", err)
+		return
+	}
+	defer mr.Close()
+	defer rdb.Close()
+
+	const source = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 	captchaInstance := captcha.NewCaptcha(rdb,
 		captcha.WithDriverType(captcha.DriverString),
 		captcha.WithExpire(10*time.Minute),
 		captcha.WithKeyPrefix("myapp:captcha"),
 		captcha.WithStringCount(6),
-		captcha.WithStringSource("ABCDEFGHJKLMNPQRSTUVWXYZ23456789"),
+		captcha.WithStringSource(source),
 	)
 
-	id, _, answer, _ := captchaInstance.Generate()
-	fmt.Printf("字符串验证码ID: %s, 长度: %d\n", id, len(answer))
+	id, b64s, answer, err := captchaInstance.Generate()
+	if err != nil {
+		fmt.Println("generate failed:", err)
+		return
+	}
+
+	ctx := context.Background()
+	if err := captchaInstance.Save(ctx, id, answer); err != nil {
+		fmt.Println("save failed:", err)
+		return
+	}
+
+	accepted, err := captchaInstance.Verify(ctx, id, answer)
+	if err != nil {
+		fmt.Println("verify failed:", err)
+		return
+	}
+	replay, err := captchaInstance.Verify(ctx, id, answer)
+	if err != nil {
+		fmt.Println("replay verify failed:", err)
+		return
+	}
+
+	fmt.Println("id issued:", id != "")
+	fmt.Println("image encoded:", strings.HasPrefix(b64s, "data:image/png;base64,"))
+	fmt.Println("answer length:", len(answer))
+	fmt.Println("answer uses configured source:", exampleAnswerInSource(answer, source))
+	fmt.Println("correct answer accepted:", accepted)
+	fmt.Println("answer accepted only once:", !replay)
+
 	// Output:
+	// id issued: true
+	// image encoded: true
+	// answer length: 6
+	// answer uses configured source: true
+	// correct answer accepted: true
+	// answer accepted only once: true
 }
 
-// ExampleNewCaptcha_DigitCaptcha 数字验证码示例
-func ExampleNewCaptcha_DigitCaptcha() {
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
+// ExampleNewCaptcha_digitCaptcha 数字验证码示例
+func ExampleNewCaptcha_digitCaptcha() {
+	mr, rdb, err := newExampleRedis()
+	if err != nil {
+		fmt.Println("test redis unavailable:", err)
+		return
+	}
+	defer mr.Close()
+	defer rdb.Close()
 
 	captchaInstance := captcha.NewCaptcha(rdb,
 		captcha.WithDriverType(captcha.DriverDigit),
@@ -42,33 +129,96 @@ func ExampleNewCaptcha_DigitCaptcha() {
 		captcha.WithDigitWidth(240),
 	)
 
-	id, _, answer, _ := captchaInstance.Generate()
-	fmt.Printf("数字验证码ID: %s, 答案: %s\n", id, answer)
+	id, b64s, answer, err := captchaInstance.Generate()
+	if err != nil {
+		fmt.Println("generate failed:", err)
+		return
+	}
+
+	ctx := context.Background()
+	if err := captchaInstance.Save(ctx, id, answer); err != nil {
+		fmt.Println("save failed:", err)
+		return
+	}
+	accepted, err := captchaInstance.Verify(ctx, id, answer)
+	if err != nil {
+		fmt.Println("verify failed:", err)
+		return
+	}
+
+	fmt.Println("id issued:", id != "")
+	fmt.Println("image encoded:", strings.HasPrefix(b64s, "data:image/png;base64,"))
+	fmt.Println("answer length:", len(answer))
+	fmt.Println("answer is digits:", exampleAnswerIsDigits(answer))
+	fmt.Println("correct answer accepted:", accepted)
+
 	// Output:
+	// id issued: true
+	// image encoded: true
+	// answer length: 4
+	// answer is digits: true
+	// correct answer accepted: true
 }
 
-// ExampleNewCaptcha_MathCaptcha 算术验证码示例
-func ExampleNewCaptcha_MathCaptcha() {
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
+// ExampleNewCaptcha_mathCaptcha 算术验证码示例
+func ExampleNewCaptcha_mathCaptcha() {
+	mr, rdb, err := newExampleRedis()
+	if err != nil {
+		fmt.Println("test redis unavailable:", err)
+		return
+	}
+	defer mr.Close()
+	defer rdb.Close()
 
 	captchaInstance := captcha.NewCaptcha(rdb,
 		captcha.WithDriverType(captcha.DriverMath),
 	)
 
-	id, question, answer, _ := captchaInstance.Generate()
-	fmt.Printf("算术验证码ID: %s\n", id)
-	fmt.Printf("问题: %s\n", question)
-	fmt.Printf("答案: %s\n", answer)
+	id, question, answer, err := captchaInstance.Generate()
+	if err != nil {
+		fmt.Println("generate failed:", err)
+		return
+	}
+
+	ctx := context.Background()
+	if err := captchaInstance.Save(ctx, id, answer); err != nil {
+		fmt.Println("save failed:", err)
+		return
+	}
+	accepted, err := captchaInstance.Verify(ctx, id, answer)
+	if err != nil {
+		fmt.Println("verify failed:", err)
+		return
+	}
+	rejected, err := captchaInstance.Verify(ctx, id, "not-a-number")
+	if err != nil {
+		fmt.Println("wrong-answer verify failed:", err)
+		return
+	}
+
+	fmt.Println("id issued:", id != "")
+	fmt.Println("question non-empty:", question != "")
+	fmt.Println("answer is integer:", exampleAnswerIsInteger(answer))
+	fmt.Println("correct answer accepted:", accepted)
+	fmt.Println("wrong answer rejected:", !rejected)
+
 	// Output:
+	// id issued: true
+	// question non-empty: true
+	// answer is integer: true
+	// correct answer accepted: true
+	// wrong answer rejected: true
 }
 
-// ExampleNewCaptcha_ChineseCaptcha 中文验证码示例
-func ExampleNewCaptcha_ChineseCaptcha() {
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
+// ExampleNewCaptcha_chineseCaptcha 中文验证码示例
+func ExampleNewCaptcha_chineseCaptcha() {
+	mr, rdb, err := newExampleRedis()
+	if err != nil {
+		fmt.Println("test redis unavailable:", err)
+		return
+	}
+	defer mr.Close()
+	defer rdb.Close()
 
 	captchaInstance := captcha.NewCaptcha(rdb,
 		captcha.WithDriverType(captcha.DriverChinese),
@@ -76,60 +226,129 @@ func ExampleNewCaptcha_ChineseCaptcha() {
 		captcha.WithChineseLanguage("zh"),
 	)
 
-	id, _, answer, _ := captchaInstance.Generate()
-	fmt.Printf("中文验证码ID: %s, 字符数: %d\n", id, len([]rune(answer)))
+	id, b64s, answer, err := captchaInstance.Generate()
+	if err != nil {
+		fmt.Println("generate failed:", err)
+		return
+	}
+
+	ctx := context.Background()
+	if err := captchaInstance.Save(ctx, id, answer); err != nil {
+		fmt.Println("save failed:", err)
+		return
+	}
+	accepted, err := captchaInstance.Verify(ctx, id, answer)
+	if err != nil {
+		fmt.Println("verify failed:", err)
+		return
+	}
+
+	fmt.Println("id issued:", id != "")
+	fmt.Println("image encoded:", strings.HasPrefix(b64s, "data:image/png;base64,"))
+	fmt.Println("answer rune count:", len([]rune(answer)))
+	fmt.Println("correct answer accepted:", accepted)
+
 	// Output:
+	// id issued: true
+	// image encoded: true
+	// answer rune count: 4
+	// correct answer accepted: true
 }
 
-// ExampleVerifyWithoutDelete 验证但不删除示例
-func ExampleVerifyWithoutDelete() {
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
+// ExampleCaptcha_VerifyWithoutDelete 验证但不删除示例
+func ExampleCaptcha_VerifyWithoutDelete() {
+	mr, rdb, err := newExampleRedis()
+	if err != nil {
+		fmt.Println("test redis unavailable:", err)
+		return
+	}
+	defer mr.Close()
+	defer rdb.Close()
 
 	captchaInstance := captcha.NewCaptcha(rdb,
 		captcha.WithExpire(5*time.Minute),
 		captcha.WithKeyPrefix("myapp:captcha"),
 	)
-	id, _, answer, _ := captchaInstance.Generate()
+	id, _, answer, err := captchaInstance.Generate()
+	if err != nil {
+		fmt.Println("generate failed:", err)
+		return
+	}
 
 	ctx := context.Background()
-	_ = captchaInstance.Save(ctx, id, answer)
+	if err := captchaInstance.Save(ctx, id, answer); err != nil {
+		fmt.Println("save failed:", err)
+		return
+	}
 
 	// 第一次验证（不删除）
-	isValid1, _ := captchaInstance.VerifyWithoutDelete(ctx, id, answer)
-	fmt.Printf("第一次验证: %v\n", isValid1)
+	isValid1, err := captchaInstance.VerifyWithoutDelete(ctx, id, answer)
+	if err != nil {
+		fmt.Println("first verify failed:", err)
+		return
+	}
 
 	// 第二次验证（仍然有效）
-	isValid2, _ := captchaInstance.VerifyWithoutDelete(ctx, id, answer)
-	fmt.Printf("第二次验证: %v\n", isValid2)
+	isValid2, err := captchaInstance.VerifyWithoutDelete(ctx, id, answer)
+	if err != nil {
+		fmt.Println("second verify failed:", err)
+		return
+	}
+
+	stillExists, err := captchaInstance.Exists(ctx, id)
+	if err != nil {
+		fmt.Println("exists failed:", err)
+		return
+	}
+
+	fmt.Println("first verify:", isValid1)
+	fmt.Println("second verify:", isValid2)
+	fmt.Println("captcha still stored:", stillExists)
 
 	// Output:
-	// 第一次验证: true
-	// 第二次验证: true
+	// first verify: true
+	// second verify: true
+	// captcha still stored: true
 }
 
-// ExampleGetRemainingTime 获取剩余时间示例
-func ExampleGetRemainingTime() {
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
+// ExampleCaptcha_GetRemainingTime 获取剩余时间示例
+func ExampleCaptcha_GetRemainingTime() {
+	mr, rdb, err := newExampleRedis()
+	if err != nil {
+		fmt.Println("test redis unavailable:", err)
+		return
+	}
+	defer mr.Close()
+	defer rdb.Close()
 
+	const expire = 5 * time.Minute
 	captchaInstance := captcha.NewCaptcha(rdb,
-		captcha.WithExpire(5*time.Minute),
+		captcha.WithExpire(expire),
 		captcha.WithKeyPrefix("myapp:captcha"),
 	)
-	id, _, answer, _ := captchaInstance.Generate()
+	id, _, answer, err := captchaInstance.Generate()
+	if err != nil {
+		fmt.Println("generate failed:", err)
+		return
+	}
 
 	ctx := context.Background()
-	_ = captchaInstance.Save(ctx, id, answer)
+	if err := captchaInstance.Save(ctx, id, answer); err != nil {
+		fmt.Println("save failed:", err)
+		return
+	}
 
 	// 获取剩余时间
 	ttl, err := captchaInstance.GetRemainingTime(ctx, id)
 	if err != nil {
-		panic(err)
+		fmt.Println("get remaining time failed:", err)
+		return
 	}
 
-	fmt.Printf("验证码剩余时间: %v\n", ttl)
+	fmt.Println("ttl is positive:", ttl > 0)
+	fmt.Println("ttl within configured window:", ttl <= expire)
+
 	// Output:
+	// ttl is positive: true
+	// ttl within configured window: true
 }

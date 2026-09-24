@@ -1,0 +1,198 @@
+{
+ "purpose": "exact, separately reviewable patches for the approved T04 test-only changes",
+ "authorisation": "migration/receipts/T04-authorization-known-defects.json",
+ "production_files_changed": [],
+ "patches": [
+  {
+   "id": "P1",
+   "title": "captcha examples: approved renames, real assertions, task-owned miniredis",
+   "scope": "test-only",
+   "files": [
+    {
+     "path": "pkg/localdeps/go-utils/captcha/example_test.go",
+     "before_sha256": "8ef23aa020150ffb1d42274f062148c7dd0c118ff5a0ba99d1b85bb22cf92198",
+     "after_sha256": "14325f4fe24a3de7a094862434c7407e83b01ada24926eb5bf24386bf351387d"
+    }
+   ],
+   "file": "migration/patches/T04/P1-captcha-examples.patch",
+   "diff_exit_code_meaning": "1 means the files differ",
+   "diff_exit": 1,
+   "sha256_of_patch": "44a25d219ef77cb63dd6fb8459aa44f9b882b2137382d0f90f24e04f8a8538d0"
+  },
+  {
+   "id": "P2",
+   "title": "captcha test environment: miniredis instance replaces localhost+FlushDB helper",
+   "scope": "test-only",
+   "files": [
+    {
+     "path": "pkg/localdeps/go-utils/captcha/captcha_test.go",
+     "before_sha256": "285fa7c9d1da6a9003721a86de77c0297a5f359c77f34cb446b71e223569b780",
+     "after_sha256": "0be662ac89c303dcc498e9cd1b36b8f500954a553f428ffa2d9a18146222101d"
+    }
+   ],
+   "file": "migration/patches/T04/P2-captcha-test-redis-helper.patch",
+   "diff_exit_code_meaning": "1 means the files differ",
+   "diff_exit": 1,
+   "sha256_of_patch": "858213525116fb37e09e5cf19c5acbbe92c8a7c4dd37b3bba558e270eaaf0221"
+  },
+  {
+   "id": "P3",
+   "title": "captcha known defects: the nine image tests moved verbatim behind //go:build upstream_known_defects",
+   "scope": "test-only",
+   "files": [
+    {
+     "path": "pkg/localdeps/go-utils/captcha/captcha_test.go",
+     "before_sha256": "0be662ac89c303dcc498e9cd1b36b8f500954a553f428ffa2d9a18146222101d",
+     "after_sha256": "27524267f575356192a349c564b8c900b39a751bdff728c5013165bc8afb5304"
+    },
+    {
+     "path": "pkg/localdeps/go-utils/captcha/upstream_known_defects_test.go",
+     "before_sha256": null,
+     "after_sha256": "68b28aa3da67d07a0a54e804bab655a761ea792c6ea0830aa093b8a83020a811"
+    }
+   ],
+   "file": "migration/patches/T04/P3-captcha-known-defect-move.patch",
+   "diff_exit_code_meaning": "1 means the files differ",
+   "diff_exit": 1,
+   "sha256_of_patch": "5a1a8f5270df83c2ee3cc16a83192129a283ba7d9847eea0e50fc559839e81c1"
+  },
+  {
+   "id": "P4",
+   "title": "password ECDH: contract-correct cross-instance key agreement test",
+   "scope": "test-only",
+   "files": [
+    {
+     "path": "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go",
+     "before_sha256": "de910497ea2c64510df89dc307e6a64addb018525f14dd4a351965c54cbf4542",
+     "after_sha256": "3b0d118ac9c85c4b2de98c80326553429f9d1330fb21d63977e2d75496ba6d76"
+    }
+   ],
+   "file": "migration/patches/T04/P4-password-ecdh-contract-test.patch",
+   "diff_exit_code_meaning": "1 means the files differ",
+   "diff_exit": 1,
+   "sha256_of_patch": "3c935abdc2af3e5787d167198c8fd098a5795cfcce7c4d49f3e3708ffad43470"
+  }
+ ],
+ "example_renames": [
+  {
+   "old": "ExampleNewCaptcha_OptionsPattern",
+   "new": "ExampleNewCaptcha_optionsPattern"
+  },
+  {
+   "old": "ExampleNewCaptcha_DigitCaptcha",
+   "new": "ExampleNewCaptcha_digitCaptcha"
+  },
+  {
+   "old": "ExampleNewCaptcha_MathCaptcha",
+   "new": "ExampleNewCaptcha_mathCaptcha"
+  },
+  {
+   "old": "ExampleNewCaptcha_ChineseCaptcha",
+   "new": "ExampleNewCaptcha_chineseCaptcha"
+  },
+  {
+   "old": "ExampleVerifyWithoutDelete",
+   "new": "ExampleCaptcha_VerifyWithoutDelete"
+  },
+  {
+   "old": "ExampleGetRemainingTime",
+   "new": "ExampleCaptcha_GetRemainingTime"
+  }
+ ],
+ "known_defect_tests": [
+  "TestGenerate_SlideCaptcha",
+  "TestSaveAndVerify_SlideCaptcha",
+  "TestVerify_SlideCaptcha_WithTolerance",
+  "TestGenerate_ClickCaptcha",
+  "TestSaveAndVerify_ClickCaptcha",
+  "TestVerify_ClickCaptcha_WithTolerance",
+  "TestGenerate_RotateCaptcha",
+  "TestSaveAndVerify_RotateCaptcha",
+  "TestVerify_RotateCaptcha_WithTolerance"
+ ],
+ "moved_verbatim": true,
+ "moved_verbatim_evidence": "independently re-checked in this session: the 9 bodies in upstream_known_defects_test.go are byte-identical to the archived locked source migration/patches/T04/orig/captcha-captcha_test.go; confirmed by tools/migration/known_defects.py --moved-file/--locked-file (all identical_to_locked_source=true) and by an independent python body diff; report migration/preflight/T04-known-defects.json",
+ "verification_replay_2026-09-25": {
+  "head": "7640c92",
+  "vet_captcha_default_exit": 0,
+  "vet_password_default_exit": 0,
+  "local_captcha_default_and_examples_exit": 0,
+  "local_password_default_exit": 0,
+  "patched_pristine_captcha_default_and_examples_exit": 0,
+  "patched_pristine_password_ecdh_exit": 0,
+  "known_defects_checker_verdict": "PASS",
+  "known_defects_status_counts": {"KNOWN_BASELINE_FAILURE": 9},
+  "known_defects_candidate_exit": 1,
+  "known_defects_reference_exit": 1,
+  "consumer_build_exit": 0,
+  "consumer_service_login_captcha_bcrypt_test_exit": 0,
+  "pre_existing_copylocks": {
+   "note": "pre-existing repo-wide finding, unrelated to T04, present in committed HEAD and not introduced by these test-only patches; recorded by file/location/diagnostic only; it neither disables repo-wide vet nor absorbs the 6 example diagnostics; it is not part of go test's default vet subset so it does not gate the release commands",
+   "file": "app/admin/service/internal/service/accelerator_joint_http_test.go",
+   "location": "503:9",
+   "diagnostic": "assignment copies lock value to ref: ...GpuUsageRef contains protoimpl.MessageState contains sync.Mutex"
+  }
+ },
+ "patch_hashes": {
+  "migration/patches/T04/P2-captcha-test-redis-helper.patch": "858213525116fb37e09e5cf19c5acbbe92c8a7c4dd37b3bba558e270eaaf0221",
+  "migration/patches/T04/P4-password-ecdh-contract-test.patch": "3c935abdc2af3e5787d167198c8fd098a5795cfcce7c4d49f3e3708ffad43470",
+  "migration/patches/T04/P1-captcha-examples.patch": "44a25d219ef77cb63dd6fb8459aa44f9b882b2137382d0f90f24e04f8a8538d0",
+  "migration/patches/T04/P3-captcha-known-defect-move.patch": "5a1a8f5270df83c2ee3cc16a83192129a283ba7d9847eea0e50fc559839e81c1"
+ },
+ "patch_application_check": {
+  "patches_applied": [
+   {
+    "patch": "P1-captcha-examples",
+    "exit": 0,
+    "output": [
+     "patching file pkg/localdeps/go-utils/captcha/example_test.go"
+    ]
+   },
+   {
+    "patch": "P2-captcha-test-redis-helper",
+    "exit": 0,
+    "output": [
+     "patching file pkg/localdeps/go-utils/captcha/captcha_test.go"
+    ]
+   },
+   {
+    "patch": "P3-captcha-known-defect-move",
+    "exit": 0,
+    "output": [
+     "patching file pkg/localdeps/go-utils/captcha/captcha_test.go",
+     "patching file pkg/localdeps/go-utils/captcha/upstream_known_defects_test.go"
+    ]
+   },
+   {
+    "patch": "P4-password-ecdh-contract-test",
+    "exit": 0,
+    "output": [
+     "patching file pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go"
+    ]
+   }
+  ],
+  "files": [
+   {
+    "path": "pkg/localdeps/go-utils/captcha/example_test.go",
+    "identical_to_working_tree": true,
+    "sha256": "14325f4fe24a3de7a094862434c7407e83b01ada24926eb5bf24386bf351387d"
+   },
+   {
+    "path": "pkg/localdeps/go-utils/captcha/captcha_test.go",
+    "identical_to_working_tree": true,
+    "sha256": "27524267f575356192a349c564b8c900b39a751bdff728c5013165bc8afb5304"
+   },
+   {
+    "path": "pkg/localdeps/go-utils/captcha/upstream_known_defects_test.go",
+    "identical_to_working_tree": true,
+    "sha256": "68b28aa3da67d07a0a54e804bab655a761ea792c6ea0830aa093b8a83020a811"
+   },
+   {
+    "path": "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go",
+    "identical_to_working_tree": true,
+    "sha256": "3b0d118ac9c85c4b2de98c80326553429f9d1330fb21d63977e2d75496ba6d76"
+   }
+  ],
+  "all_identical": true
+ }
+}
