@@ -18,9 +18,9 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/stretchr/testify/require"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	"github.com/tx7do/go-utils/trans"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/tx7do/kratos-transport/transport/sse"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/enttest"

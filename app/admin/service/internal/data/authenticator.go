@@ -14,7 +14,7 @@ import (
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 
 	"github.com/tx7do/go-utils/jwtutil"
-	"github.com/tx7do/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	authnEngine "github.com/tx7do/kratos-authn/engine"
 	authnJwt "github.com/tx7do/kratos-authn/engine/jwt"

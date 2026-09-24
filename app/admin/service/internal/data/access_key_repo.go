@@ -8,11 +8,11 @@ import (
 	"entgo.io/ent/privacy"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	entCrud "github.com/tx7do/go-crud/entgo"
 	"github.com/tx7do/go-utils/copierutil"
 	"github.com/tx7do/go-utils/mapper"
-	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	accesskeyV1 "go-wind-admin/api/gen/go/access_key/service/v1"

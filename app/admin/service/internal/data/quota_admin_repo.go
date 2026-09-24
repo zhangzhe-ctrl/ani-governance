@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	entCrud "github.com/tx7do/go-crud/entgo"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	quotapb "go-wind-admin/api/gen/go/quota/service/v1"

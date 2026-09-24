@@ -4,14 +4,14 @@ import (
 	"context"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
-	entCrud "github.com/tx7do/go-crud/entgo"
 	"github.com/tx7do/go-utils/copierutil"
 	"github.com/tx7do/go-utils/mapper"
 	"github.com/tx7do/go-utils/sliceutil"
 	"github.com/tx7do/go-utils/timeutil"
-	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/membership"
@@ -665,6 +665,7 @@ func (r *MembershipRepo) ListMembershipRelationIDs(ctx context.Context, userID u
 
 	return
 }
+
 // upsertMembership 更新或插入 Membership 记录
 func (r *MembershipRepo) upsertMembership(ctx context.Context, tx *ent.Tx, data *identityV1.Membership) (*ent.Membership, error) {
 	now := time.Now()

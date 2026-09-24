@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/golang-jwt/jwt/v5"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	authn "github.com/tx7do/kratos-authn/engine"

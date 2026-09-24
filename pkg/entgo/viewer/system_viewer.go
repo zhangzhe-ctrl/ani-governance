@@ -3,7 +3,7 @@ package viewer
 import (
 	"context"
 
-	"github.com/tx7do/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 )
 
 // SystemViewer describes a system-viewer.

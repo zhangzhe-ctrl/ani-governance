@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/tx7do/go-utils/timeutil"
-	"github.com/tx7do/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	configV1 "go-wind-admin/api/gen/go/config/service/v1"

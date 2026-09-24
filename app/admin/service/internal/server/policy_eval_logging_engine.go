@@ -12,8 +12,8 @@ import (
 
 	"github.com/go-kratos/kratos/v2/transport"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/tx7do/go-utils/trans"
 	authzEngine "github.com/tx7do/kratos-authz/engine"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
@@ -119,7 +119,7 @@ func (e *evalLoggingEngine) resolvePolicyCached(ctx context.Context, subject, pa
 }
 
 // traceIDFromContext 取链路追踪ID：优先 W3C TraceContext 的 traceparent 头
-//（格式 00-{trace-id}-{span-id}-{flags}，取 trace-id 段）；无则回退 X-Request-Id，
+// （格式 00-{trace-id}-{span-id}-{flags}，取 trace-id 段）；无则回退 X-Request-Id，
 // 与 api/operation/data_access 审计的 request_id 同源，可跨日志关联同一请求。
 func traceIDFromContext(ctx context.Context) string {
 	tr, ok := transport.FromServerContext(ctx)

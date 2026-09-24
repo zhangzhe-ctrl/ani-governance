@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/errors"
-	"github.com/tx7do/go-utils/trans"
 	networkv1 "github.com/zhangzhe-ctrl/ani-network-service/api/network/v1"
 	authv1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	catalogv1 "go-wind-admin/api/gen/go/catalog/service/v1"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"go-wind-admin/pkg/middleware/auth"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

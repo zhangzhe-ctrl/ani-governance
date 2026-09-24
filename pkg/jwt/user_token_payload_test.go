@@ -5,8 +5,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
-	"github.com/tx7do/go-utils/trans"
 	authn "github.com/tx7do/kratos-authn/engine"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 )

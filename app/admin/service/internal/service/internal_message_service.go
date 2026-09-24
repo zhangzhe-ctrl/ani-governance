@@ -7,16 +7,16 @@ import (
 	"strconv"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"github.com/hibiken/asynq"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	"github.com/tx7do/go-crud/viewer"
 	"github.com/tx7do/go-utils/aggregator"
 	"github.com/tx7do/go-utils/id"
 	"github.com/tx7do/go-utils/timeutil"
-	"github.com/tx7do/go-utils/trans"
-	"github.com/hibiken/asynq"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/tx7do/kratos-transport/transport/sse"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"
@@ -25,8 +25,8 @@ import (
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	internalMessageV1 "go-wind-admin/api/gen/go/internal_message/service/v1"
 
-	"go-wind-admin/pkg/middleware/auth"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
+	"go-wind-admin/pkg/middleware/auth"
 	"go-wind-admin/pkg/task"
 )
 
@@ -77,7 +77,7 @@ type InternalMessageService struct {
 	userRepo                     data.UserRepo
 
 	internalMessagePublisher InternalMessagePublisher
-	taskEnqueuer            TaskEnqueuer
+	taskEnqueuer             TaskEnqueuer
 	authenticator            *data.Authenticator
 	clientType               authenticationV1.ClientType
 }

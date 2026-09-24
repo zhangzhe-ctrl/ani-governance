@@ -1,8 +1,8 @@
 package data
 
 import (
-	entCrud "github.com/tx7do/go-crud/entgo"
 	"go-wind-admin/app/admin/service/internal/data/ent"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 )
 
 // PostgreSQL tenant and plan writes use Ent row locks. SQLite test fixtures

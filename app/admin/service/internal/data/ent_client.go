@@ -9,10 +9,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 
-	entCrud "github.com/tx7do/go-crud/entgo"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	entBootstrap "github.com/tx7do/kratos-bootstrap/database/ent"
+	entBootstrap "go-wind-admin/pkg/localdeps/kratos-bootstrap/database/ent"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	_ "go-wind-admin/app/admin/service/internal/data/ent/runtime"

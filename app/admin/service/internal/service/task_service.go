@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/hibiken/asynq"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"
@@ -46,9 +46,9 @@ type TaskService struct {
 
 	taskScheduler TaskScheduler
 
-	userRepo        data.UserRepo
-	taskRepo        *data.TaskRepo
-	tenantUsageRepo *data.TenantUsageRepo
+	userRepo            data.UserRepo
+	taskRepo            *data.TaskRepo
+	tenantUsageRepo     *data.TenantUsageRepo
 	auditLogArchiveRepo *data.AuditLogArchiveRepo
 }
 
@@ -60,10 +60,10 @@ func NewTaskService(
 	auditLogArchiveRepo *data.AuditLogArchiveRepo,
 ) *TaskService {
 	svc := &TaskService{
-		log:             ctx.NewLoggerHelper("task/service/admin-service"),
-		taskRepo:        taskRepo,
-		userRepo:        userRepo,
-		tenantUsageRepo: tenantUsageRepo,
+		log:                 ctx.NewLoggerHelper("task/service/admin-service"),
+		taskRepo:            taskRepo,
+		userRepo:            userRepo,
+		tenantUsageRepo:     tenantUsageRepo,
 		auditLogArchiveRepo: auditLogArchiveRepo,
 	}
 

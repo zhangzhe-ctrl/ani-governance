@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/stretchr/testify/require"
 	"github.com/tx7do/go-utils/mapper"
-	"github.com/tx7do/go-utils/trans"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"

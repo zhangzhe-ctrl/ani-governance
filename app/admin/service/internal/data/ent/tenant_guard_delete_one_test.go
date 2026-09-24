@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/tx7do/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 
 	"go-wind-admin/app/admin/service/internal/data/ent/dicttype"
 )

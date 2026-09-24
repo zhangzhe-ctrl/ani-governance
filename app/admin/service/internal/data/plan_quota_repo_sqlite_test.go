@@ -9,12 +9,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/tx7do/go-utils/mapper"
-	"github.com/tx7do/go-utils/trans"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	entCrud "github.com/tx7do/go-crud/entgo"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"

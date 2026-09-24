@@ -8,8 +8,8 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/transport"
 	http "github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/tx7do/go-crud/viewer"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 	"go.opentelemetry.io/otel/trace"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"

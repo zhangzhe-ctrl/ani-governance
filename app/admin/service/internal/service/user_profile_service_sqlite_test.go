@@ -28,13 +28,13 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
 	gocrypto "github.com/tx7do/go-utils/crypto"
-	"github.com/tx7do/go-utils/trans"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
 
-	entCrud "github.com/tx7do/go-crud/entgo"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
@@ -77,9 +77,9 @@ func (s *userProfileUserRepoStub) Update(_ context.Context, req *identityV1.Upda
 // entClient 供落库断言，tokenCache 即注入 authenticator 的同一实例
 // （跨包私有字段无法直接取，供改密吊销链路的令牌键断言）。
 type userProfileServiceTestEnv struct {
-	svc       *UserProfileService
-	stub      *userProfileUserRepoStub
-	entClient *entCrud.EntClient[*ent.Client]
+	svc        *UserProfileService
+	stub       *userProfileUserRepoStub
+	entClient  *entCrud.EntClient[*ent.Client]
 	tokenCache *data.UserTokenCache
 }
 

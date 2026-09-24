@@ -6,10 +6,10 @@ import (
 
 	"google.golang.org/genproto/protobuf/field_mask"
 
-	entgoUpdate "github.com/tx7do/go-crud/entgo/update"
+	entgoUpdate "go-wind-admin/pkg/localdeps/go-crud/entgo/update"
 
 	"github.com/tx7do/go-utils/fieldmaskutil"
-	"github.com/tx7do/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 )

@@ -9,7 +9,7 @@ import (
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
 
-	"github.com/tx7do/go-crud/entgo/mixin"
+	"go-wind-admin/pkg/localdeps/go-crud/entgo/mixin"
 )
 
 // Tenant holds the schema definition for the Tenant entity.

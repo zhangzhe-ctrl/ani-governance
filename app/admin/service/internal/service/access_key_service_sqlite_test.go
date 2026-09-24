@@ -6,14 +6,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tx7do/go-crud/viewer"
-	"github.com/tx7do/go-utils/trans"
 	accesskeyV1 "go-wind-admin/api/gen/go/access_key/service/v1"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent/role"
 	"go-wind-admin/app/admin/service/internal/data/enttest"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"go-wind-admin/pkg/middleware/auth"
 )
 

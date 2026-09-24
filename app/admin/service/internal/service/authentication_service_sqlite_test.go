@@ -41,8 +41,8 @@ import (
 	"github.com/tx7do/go-utils/captcha"
 	utilCrypto "github.com/tx7do/go-utils/crypto"
 	"github.com/tx7do/go-utils/password"
-	"github.com/tx7do/go-utils/trans"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	ktransport "github.com/go-kratos/kratos/v2/transport"

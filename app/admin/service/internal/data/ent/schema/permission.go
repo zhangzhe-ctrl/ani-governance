@@ -7,7 +7,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
-	"github.com/tx7do/go-crud/entgo/mixin"
+	"go-wind-admin/pkg/localdeps/go-crud/entgo/mixin"
 )
 
 type Permission struct {

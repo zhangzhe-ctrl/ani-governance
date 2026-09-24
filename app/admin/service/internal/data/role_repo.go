@@ -6,22 +6,22 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	entCrud "github.com/tx7do/go-crud/entgo"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
 	"github.com/tx7do/go-utils/copierutil"
 	"github.com/tx7do/go-utils/mapper"
-	"github.com/tx7do/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
 	"go-wind-admin/app/admin/service/internal/data/ent/role"
 
-	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
+	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 
 	"go-wind-admin/pkg/constants"
 	"go-wind-admin/pkg/utils"
@@ -777,6 +777,7 @@ func (r *RoleRepo) ListPermissionIDsByRoleCodes(ctx context.Context, roleCodes [
 
 	return r.rolePermissionRepo.ListPermissionIDsByRoleIDs(ctx, roleIDs)
 }
+
 // assignPermissionsToRole 分配权限给角色
 func (r *RoleRepo) assignPermissionsToRole(ctx context.Context, tx *ent.Tx,
 	tenantID, operatorID uint32,

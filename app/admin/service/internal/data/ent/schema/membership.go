@@ -7,7 +7,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
-	"github.com/tx7do/go-crud/entgo/mixin"
+	"go-wind-admin/pkg/localdeps/go-crud/entgo/mixin"
 )
 
 // tenant_id 为 NULL 或者 0 时代表全局或个人系统成员。

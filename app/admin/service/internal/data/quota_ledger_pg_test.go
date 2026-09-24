@@ -27,7 +27,7 @@ import (
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	entsql "entgo.io/ent/dialect/sql"
-	entCrud "github.com/tx7do/go-crud/entgo"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"

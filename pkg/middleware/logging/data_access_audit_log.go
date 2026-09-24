@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/tx7do/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"
 	"go-wind-admin/pkg/audit"

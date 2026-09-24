@@ -28,17 +28,17 @@ import (
 
 	"github.com/hibiken/asynq"
 	"github.com/stretchr/testify/require"
-	"github.com/tx7do/go-utils/trans"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	crudViewer "github.com/tx7do/go-crud/viewer"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+	crudViewer "go-wind-admin/pkg/localdeps/go-crud/viewer"
 
-	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
+	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	taskV1 "go-wind-admin/api/gen/go/task/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
@@ -98,10 +98,10 @@ func newTaskServiceForTest(t *testing.T, scheduler TaskScheduler, withTenantUsag
 	t.Helper()
 	entClient := enttest.NewEntClientForTest(t)
 	svc := &TaskService{
-		log:                bLogger.NewHelper(bLogger.NopLogger()),
-		taskRepo:           data.NewTaskRepoForTest(entClient),
-		userRepo:           nil,
-		tenantUsageRepo:    nil,
+		log:                 bLogger.NewHelper(bLogger.NopLogger()),
+		taskRepo:            data.NewTaskRepoForTest(entClient),
+		userRepo:            nil,
+		tenantUsageRepo:     nil,
 		auditLogArchiveRepo: nil,
 	}
 	if withTenantUsage {
@@ -538,4 +538,3 @@ func TestTaskService_ConvertTaskOption(t *testing.T) {
 	})
 	require.Len(t, opts, 9, "全部 9 个任务选项都应转换为 asynq 选项")
 }
-

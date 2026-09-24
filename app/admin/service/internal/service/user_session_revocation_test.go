@@ -7,8 +7,8 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
-	"github.com/tx7do/go-utils/trans"
 	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"

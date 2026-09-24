@@ -19,10 +19,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/stretchr/testify/require"
-	entCrud "github.com/tx7do/go-crud/entgo"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/quotaoperation"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 )
 
 // Only the test connection installs this tracer. Production Ent transactions

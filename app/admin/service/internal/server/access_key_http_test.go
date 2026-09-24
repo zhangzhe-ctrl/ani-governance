@@ -9,10 +9,10 @@ import (
 
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/stretchr/testify/require"
-	"github.com/tx7do/go-utils/trans"
 	accesskeyV1 "go-wind-admin/api/gen/go/access_key/service/v1"
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	"go-wind-admin/app/admin/service/internal/service"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

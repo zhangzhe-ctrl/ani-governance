@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/tx7do/go-utils/trans"
 	accesskeyV1 "go-wind-admin/api/gen/go/access_key/service/v1"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"testing"
