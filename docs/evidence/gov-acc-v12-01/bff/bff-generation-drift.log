@@ -1,0 +1,7 @@
+api/gen/go/catalog/service/v1/accelerator.pb.go: 成功
+api/gen/go/admin/service/v1/i_accelerator_grpc.pb.go: 成功
+api/gen/go/admin/service/v1/i_accelerator_http.pb.go: 成功
+api/gen/go/admin/service/v1/i_accelerator.pb.go: 成功
+api/gen/go/identity/service/v1/module.pb.go: 成功
+api/gen/go/quota/service/v1/quota_catalog.pb.go: 成功
+app/admin/service/cmd/server/assets/openapi.yaml: 成功

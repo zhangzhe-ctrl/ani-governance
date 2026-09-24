@@ -157,6 +157,8 @@ func mapProtoModuleToEnt(m identityV1.Module) planmodule.Module {
 		return planmodule.ModuleTask
 	case identityV1.Module_NETWORK:
 		return planmodule.ModuleNetwork
+	case identityV1.Module_ACCELERATOR:
+		return planmodule.ModuleAccelerator
 	case identityV1.Module_MODEL:
 		return planmodule.ModuleModel
 	default:
@@ -188,6 +190,8 @@ func mapApiBusinessModuleToProto(m api.BusinessModule) identityV1.Module {
 		return identityV1.Module_TASK
 	case api.BusinessModuleNetwork:
 		return identityV1.Module_NETWORK
+	case api.BusinessModuleAccelerator:
+		return identityV1.Module_ACCELERATOR
 	case api.BusinessModuleModel:
 		return identityV1.Module_MODEL
 	default:

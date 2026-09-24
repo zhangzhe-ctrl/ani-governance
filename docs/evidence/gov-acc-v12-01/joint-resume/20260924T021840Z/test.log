@@ -1,0 +1,9 @@
+=== RUN   TestJointSoftwareContract
+    joint_test.go:525: mixed full DELETE vector recovered; GPU ENDED preceded non-GPU cumulative refunds
+    joint_test.go:526: known zero capacity accepted: 7 devices, 55 scoped fixture transitions
+    joint_test.go:526: real JWT/HTTP BFF capacity WAIT_FOR_CAPACITY passed
+    joint_test.go:526: real JWT/HTTP BFF capacity FIT_UNKNOWN passed
+    joint_test.go:526: unknown capacity accepted without inventory reservation
+--- PASS: TestJointSoftwareContract (123.78s)
+PASS
+ok  	go-wind-admin/app/admin/service/tests/gpucontract	124.322s

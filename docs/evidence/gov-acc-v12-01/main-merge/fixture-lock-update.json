@@ -1,0 +1,9 @@
+{
+  "reason": "main removes OPA authz configuration only; fixed PEM fixture bytes unchanged",
+  "pem_blocks": 2,
+  "unchanged_pem": true,
+  "old_file_sha256": "d5a922ed44b74a225e06b82a753d5372d6e1a4742ea6c47651c312e5aa95701c",
+  "new_file_sha256": "70ef28aa92222e871217582d11956d29f0d73bd017152d555e1cae69aac52417",
+  "updated": "scripts/gpu-audit-fixture-sha256.txt",
+  "allowlist_scope": "unchanged"
+}

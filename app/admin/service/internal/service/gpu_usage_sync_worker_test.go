@@ -1,0 +1,78 @@
+package service
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"testing"
+	"time"
+
+	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
+	"go-wind-admin/app/admin/service/internal/data/ent"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotaoperation"
+)
+
+func TestQuotaRetryBackoffBound(t *testing.T) {
+	for attempt, seconds := range []int{1, 1, 2, 4, 8, 16, 30, 30} {
+		if got := backoffForAttempt(attempt); got != time.Duration(seconds)*time.Second {
+			t.Fatalf("attempt %d: %s, want %ds", attempt, got, seconds)
+		}
+	}
+}
+
+func TestGpuProjectionOnlyGpuTerminal(t *testing.T) {
+	p, _, _ := gpuVector(t)
+	body := json.RawMessage(`{"name":"<&中文>"}`)
+	sum := sha256.Sum256(body)
+	c := GpuCanonical{SchemaVersion: 2, GpuRequest: p.Request, GpuPlan: p, BusinessPayload: body, BusinessPayloadDigest: hex.EncodeToString(sum[:]), MeteringVersion: GpuMeteringVersion, QuotaItems: []GpuQuotaItem{{QuotaCode: GpuSharedQuotaCode, Units: 12288}, {QuotaCode: "storage.bytes", Units: 20}}}
+	raw, err := gpuCanonicalJSON(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	now := time.Date(2026, 9, 23, 0, 0, 0, 123, time.UTC)
+	tid := uint32(1)
+	op := &ent.QuotaOperation{TenantID: &tid, CreatedAt: &now, OperationID: "10000000-0000-4000-8000-000000000001", ResourceID: "10000000-0000-4000-8000-000000000002", ResourceTenantID: "10000000-0000-4000-8000-000000000003", OwnerService: "ani-inference", CanonicalRequest: string(raw), DispatchState: quotaoperation.DispatchStateAcked, AttemptCount: 1}
+	charges := []*ent.QuotaCharge{{TenantID: &tid, OperationID: op.OperationID, ChargeID: "gpu", QuotaCode: GpuSharedQuotaCode, OriginalUnits: 12288}, {TenantID: &tid, OperationID: op.OperationID, ChargeID: "storage", QuotaCode: "storage.bytes", OriginalUnits: 20}}
+	declared, e := deriveGpuProjection(op, charges, false)
+	if e != nil || declared.Revision != 1 {
+		t.Fatal(declared, e)
+	}
+	charges[1].ReleasedUnits = 20
+	nonGpu, e := deriveGpuProjection(op, charges, true)
+	if e != nil || nonGpu.Revision != 1 || nonGpu.PayloadDigest != declared.PayloadDigest {
+		t.Fatal(nonGpu, e)
+	}
+	charges[0].ReleasedUnits = 1
+	partial, e := deriveGpuProjection(op, charges, true)
+	if e != nil || partial.Revision != 1 {
+		t.Fatal(partial, e)
+	}
+	charges[0].ReleasedUnits = 12288
+	charges[1].ReleasedUnits = 0
+	if _, e = deriveGpuProjection(op, charges, false); e == nil {
+		t.Fatal("full GPU release without delete accepted")
+	}
+	ended, e := deriveGpuProjection(op, charges, true)
+	if e != nil || ended.Revision != 2 || ended.EndReason != acc.UsageEndReason_OWNER_RESOURCE_RELEASED {
+		t.Fatal(ended, e)
+	}
+	if ended.SourceOperationCreatedAt != declared.SourceOperationCreatedAt {
+		t.Fatal("created_at changed")
+	}
+	if _, e = deriveGpuProjection(op, nil, true); e == nil {
+		t.Fatal("empty charges ended")
+	}
+	if _, e = deriveGpuProjection(op, charges[1:], true); e == nil {
+		t.Fatal("missing GPU charge accepted")
+	}
+	op.DispatchState = quotaoperation.DispatchStateCanceledUnsent
+	op.AttemptCount = 0
+	if _, e = deriveGpuProjection(op, charges, true); e == nil {
+		t.Fatal("partial local refund accepted")
+	}
+	charges[1].ReleasedUnits = 20
+	canceled, e := deriveGpuProjection(op, charges, true)
+	if e != nil || canceled.EndReason != acc.UsageEndReason_GOVERNANCE_CANCELED_UNSENT {
+		t.Fatal(canceled, e)
+	}
+}

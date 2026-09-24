@@ -1,0 +1,27 @@
+{
+  "date_utc": "2026-09-24",
+  "branch": "codex/governance-accelerator-v1.2",
+  "accelerator": {
+    "origin": "https://github.com/zhangzhe-ctrl/ani-accelerator-service.git",
+    "sha": "1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3",
+    "remote_sha": "1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3",
+    "push": "ordinary non-force push; per-command SSH-over-443 transport substitution, saved origin unchanged",
+    "ci": "success",
+    "ci_run": "https://github.com/zhangzhe-ctrl/ani-accelerator-service/actions/runs/35949990504"
+  },
+  "governance": {
+    "origin": "git@github.com:zhangzhe-ctrl/ani-governance.git",
+    "implementation_sha": "bd9ad1a33bbe8ce28f4faeb19bfc9ee494ae8a84",
+    "remote_sha": "bd9ad1a33bbe8ce28f4faeb19bfc9ee494ae8a84",
+    "tree": "2ef3ff43c3f26daa4ab3e622de38f364702d20ac",
+    "push": "ordinary non-force new-branch push; per-command core.sshCommand uses ssh.github.com port 443; saved origin unchanged",
+    "remote_verification": "git ls-remote --heads returned exact implementation SHA",
+    "fedora_verification": "clean clone from local Git bundle reproduced exact commit and tree; 1535 final joint manifest files matched; committed tree secret scan exit 0",
+    "ci": "in_progress",
+    "ci_run": "https://github.com/zhangzhe-ctrl/ani-governance/actions/runs/35952056513",
+    "ci_job": "https://github.com/zhangzhe-ctrl/ani-governance/actions/runs/35952056513/job/107482489756",
+    "ci_disposition": "User explicitly waived waiting/success requirement on 2026-09-24; SHIP-03 remains not_verified. Last observed In progress at 03:40:16Z."
+  },
+  "module": "github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9173",
+  "scope": "Authorized task branches only. No main merge, tag or production deployment. Later evidence-only closeout commits are identified separately and their exact CI is queried after push."
+}

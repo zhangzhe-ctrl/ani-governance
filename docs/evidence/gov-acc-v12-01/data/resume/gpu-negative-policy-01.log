@@ -1,0 +1,26 @@
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/partial_gpu
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/excess_gpu
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/duplicate_charge
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/duplicate_code_wrong_id
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/wrong_charge
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/wrong_code
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/delete_is_not_original_create
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/unknown_original_create
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/valid_non_gpu_then_invalid_gpu
+=== RUN   TestQuotaGpuReleaseNegativeVectorsAtomic/valid_gpu_then_invalid_non_gpu
+--- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic (0.24s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/partial_gpu (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/excess_gpu (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/duplicate_charge (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/duplicate_code_wrong_id (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/wrong_charge (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/wrong_code (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/delete_is_not_original_create (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/unknown_original_create (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/valid_non_gpu_then_invalid_gpu (0.00s)
+    --- PASS: TestQuotaGpuReleaseNegativeVectorsAtomic/valid_gpu_then_invalid_non_gpu (0.00s)
+=== RUN   TestQuotaGpuPlanSwitchSerializesAdmissionAndDatabaseExpiry
+--- PASS: TestQuotaGpuPlanSwitchSerializesAdmissionAndDatabaseExpiry (0.16s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	0.445s

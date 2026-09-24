@@ -1,0 +1,4 @@
+=== RUN   TestQuotaGpuCatalogPagingLimits
+--- PASS: TestQuotaGpuCatalogPagingLimits (0.01s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	0.040s

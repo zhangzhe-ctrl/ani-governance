@@ -1,0 +1,4 @@
+=== RUN   TestAcceleratorFormalSessionRefresh
+--- PASS: TestAcceleratorFormalSessionRefresh (0.09s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/service	0.124s

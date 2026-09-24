@@ -1,0 +1,15 @@
+{
+	"Path": "github.com/zhangzhe-ctrl/ani-accelerator-service",
+	"Version": "v0.0.0-20260924030150-1d32dd9a9173",
+	"Info": "/home/chabking/gov-acc-v12-01-20260923/cache/gov-bff-mod/cache/download/github.com/zhangzhe-ctrl/ani-accelerator-service/@v/v0.0.0-20260924030150-1d32dd9a9173.info",
+	"GoMod": "/home/chabking/gov-acc-v12-01-20260923/cache/gov-bff-mod/cache/download/github.com/zhangzhe-ctrl/ani-accelerator-service/@v/v0.0.0-20260924030150-1d32dd9a9173.mod",
+	"Zip": "/home/chabking/gov-acc-v12-01-20260923/cache/gov-bff-mod/cache/download/github.com/zhangzhe-ctrl/ani-accelerator-service/@v/v0.0.0-20260924030150-1d32dd9a9173.zip",
+	"Dir": "/home/chabking/gov-acc-v12-01-20260923/cache/gov-bff-mod/github.com/zhangzhe-ctrl/ani-accelerator-service@v0.0.0-20260924030150-1d32dd9a9173",
+	"Sum": "h1:lXrsyPsOQ0M8Tsy6aWcw8k5IL4h59uhy3Ysf62palrU=",
+	"GoModSum": "h1:3mSqLUcRMc++eiZuqICo56tFwoKZ9jr34tepPvWcOsM=",
+	"Origin": {
+		"VCS": "git",
+		"URL": "https://github.com/zhangzhe-ctrl/ani-accelerator-service",
+		"Hash": "1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3"
+	}
+}

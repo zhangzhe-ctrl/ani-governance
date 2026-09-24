@@ -1,0 +1,41 @@
+{
+  "layer": "A",
+  "ordinary_binary": true,
+  "quota_lab": false,
+  "hardware_observed": false,
+  "started_at": "2026-09-23T13:55:25Z",
+  "checks": [
+    {
+      "path": "/admin/v1/quota-definitions",
+      "status": 200,
+      "gpu_enforcement": {
+        "gpu.physical.count": "NOT_ENABLED",
+        "gpu.shared_memory_mib": "NOT_ENABLED"
+      }
+    },
+    {
+      "path": "/api/v1/me/quota-accounts",
+      "status": 200,
+      "trusted_tenant": 1
+    },
+    {
+      "path": "/api/v1/quota-lab/gpu-allocations",
+      "status": 404
+    },
+    {
+      "path": "/api/v1/quota-lab/operations/test",
+      "status": 404
+    },
+    {
+      "path": "/fault",
+      "status": 404
+    },
+    {
+      "path": "/control",
+      "status": 404
+    }
+  ],
+  "status": "pass",
+  "process_exit": 0,
+  "finished_at": "2026-09-23T13:55:26Z"
+}

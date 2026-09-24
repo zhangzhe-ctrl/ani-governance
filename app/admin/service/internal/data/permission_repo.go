@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
@@ -594,7 +594,13 @@ func (r *PermissionRepo) TruncateBizPermissions(ctx context.Context) error {
 
 // ListApiIDsByPermissionIDs 列出权限关联的API资源ID列表
 func (r *PermissionRepo) ListApiIDsByPermissionIDs(ctx context.Context, permissionIDs []uint32) ([]uint32, error) {
-	apiIDs, err := r.permissionApiRepo.ListApiIDs(ctx, permissionIDs)
+	// Policy loading must not revive an explicitly disabled permission.
+	activeIDs, err := r.entClient.Client().Permission.Query().
+		Where(permission.IDIn(permissionIDs...), permission.StatusEQ(permission.StatusOn)).IDs(ctx)
+	if err != nil {
+		return nil, permissionV1.ErrorInternalServerError("query active permissions failed")
+	}
+	apiIDs, err := r.permissionApiRepo.ListApiIDs(ctx, activeIDs)
 	if err != nil {
 		return nil, err
 	}

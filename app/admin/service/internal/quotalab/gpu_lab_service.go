@@ -13,15 +13,16 @@ import (
 	"strconv"
 	"strings"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	"github.com/google/uuid"
 	"github.com/go-kratos/kratos/v2/transport"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/google/uuid"
+	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 
 	quotalabpb "go-wind-admin/api/gen/go/quota_lab/service/v1"
 
 	"go-wind-admin/app/admin/service/internal/data"
+	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/service"
 	"go-wind-admin/pkg/middleware/auth"
 )
@@ -66,10 +67,10 @@ const (
 // requireTenantUser 实验入口要求真实租户用户；平台 tenant=0 不代租户创建（AUTH-03）。
 func requireTenantUser(ctx context.Context) (*auth.Principal, error) {
 	p, err := auth.PrincipalFromContext(ctx)
-	if err != nil || p == nil {
+	if err != nil {
 		return nil, err
 	}
-	if p.Type != auth.SubjectUser || p.TenantID == 0 || p.ID == 0 {
+	if p == nil || p.Type != auth.SubjectUser || p.TenantID == 0 || p.ID == 0 {
 		return nil, data.QuotaErrNotFound("resource not found")
 	}
 	return p, nil
@@ -119,11 +120,6 @@ func (s *QuotaLabService) CreateGpuAllocation(ctx context.Context, req *quotalab
 	if err != nil {
 		return nil, err
 	}
-	// 适配器缺失或配置不全时，新操作在占额前拒绝（§8.2）。
-	if !s.registry.HasAdapter(labOwnerService, labActionCreate) {
-		return nil, data.QuotaErrAdapterUnavailable("gpu simulator adapter is not configured")
-	}
-
 	actor, err := p.Actor()
 	if err != nil {
 		return nil, err
@@ -136,6 +132,15 @@ func (s *QuotaLabService) CreateGpuAllocation(ctx context.Context, req *quotalab
 		return nil, err
 	}
 	resourceID := uuid.NewString()
+	old, err := s.ledger.FindIdempotentOperation(ctx, p.TenantID, string(p.Type), strconv.FormatUint(uint64(p.ID), 10), labActionCreate, key)
+	if err != nil && !ent.IsNotFound(err) {
+		return nil, err
+	}
+	if old != nil {
+		resourceID = old.ResourceID // retain historical lab hash semantics on replay
+	} else if !s.registry.HasAdapter(labOwnerService, labActionCreate) {
+		return nil, data.QuotaErrAdapterUnavailable("gpu simulator adapter is not configured")
+	}
 	requestHash := canonicalHash(
 		"v1",
 		fmt.Sprintf("tenant:%d", p.TenantID),

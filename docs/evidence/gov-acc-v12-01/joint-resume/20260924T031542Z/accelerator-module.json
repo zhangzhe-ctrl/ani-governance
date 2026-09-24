@@ -1,0 +1,11 @@
+{
+	"Path": "github.com/zhangzhe-ctrl/ani-accelerator-service",
+	"Version": "v0.0.0-20260924030150-1d32dd9a9173",
+	"Time": "2026-09-24T03:01:50Z",
+	"Indirect": true,
+	"Dir": "/home/chabking/gov-acc-v12-01-20260923/cache/gov-main-mod/github.com/zhangzhe-ctrl/ani-accelerator-service@v0.0.0-20260924030150-1d32dd9a9173",
+	"GoMod": "/home/chabking/gov-acc-v12-01-20260923/cache/gov-main-mod/cache/download/github.com/zhangzhe-ctrl/ani-accelerator-service/@v/v0.0.0-20260924030150-1d32dd9a9173.mod",
+	"GoVersion": "1.26.7",
+	"Sum": "h1:lXrsyPsOQ0M8Tsy6aWcw8k5IL4h59uhy3Ysf62palrU=",
+	"GoModSum": "h1:3mSqLUcRMc++eiZuqICo56tFwoKZ9jr34tepPvWcOsM="
+}

@@ -130,16 +130,16 @@ func (a *GpuSimulatorAdapter) Dispatch(ctx context.Context, cmd *service.QuotaDi
 			return nil, fmt.Errorf("canonical request is missing name")
 		}
 		reply, err := a.client.AcceptCreate(ctx, &quotalabpb.AcceptCreateRequest{
-			OperationId:     cmd.OperationID,
-			ResourceId:      cmd.ResourceID,
-			TenantId:        cmd.ResourceTenantID,
-			Actor:           cmd.Actor,
-			RequestHash:     cmd.RequestHash,
-			Name:            name,
-			GpuCount:        gpuCount,
-			ChargeId:        cmd.Charges[0].ChargeID,
-			QuotaCode:       cmd.Charges[0].QuotaCode,
-			ChargedUnits:    cmd.Charges[0].ChargedUnits,
+			OperationId:  cmd.OperationID,
+			ResourceId:   cmd.ResourceID,
+			TenantId:     cmd.ResourceTenantID,
+			Actor:        cmd.Actor.Type + ":" + cmd.Actor.ID,
+			RequestHash:  cmd.RequestHash,
+			Name:         name,
+			GpuCount:     gpuCount,
+			ChargeId:     cmd.Charges[0].ChargeID,
+			QuotaCode:    cmd.Charges[0].QuotaCode,
+			ChargedUnits: cmd.Charges[0].ChargedUnits,
 		})
 		if err != nil {
 			return nil, err
@@ -147,17 +147,20 @@ func (a *GpuSimulatorAdapter) Dispatch(ctx context.Context, cmd *service.QuotaDi
 		return []byte(fmt.Sprintf(`{"operation_id":%q,"resource_id":%q,"accepted":%t}`,
 			reply.GetOperationId(), reply.GetResourceId(), reply.GetAccepted())), nil
 	case "LAB_GPU_DELETE":
+		if len(cmd.Charges) != 1 || cmd.Charges[0].QuotaCode != data.QuotaCodeGpuCount {
+			return nil, fmt.Errorf("LAB_GPU_DELETE expects the complete single gpu.count charge")
+		}
 		if cmd.CreateOperationID == "" {
 			return nil, fmt.Errorf("LAB_GPU_DELETE requires create_operation_id")
 		}
 		reply, err := a.client.AcceptDelete(ctx, &quotalabpb.AcceptDeleteRequest{
-			OperationId:      cmd.OperationID,
+			OperationId:       cmd.OperationID,
 			CreateOperationId: cmd.CreateOperationID,
-			ResourceId:       cmd.ResourceID,
-			TenantId:         cmd.ResourceTenantID,
-			Actor:            cmd.Actor,
-			RequestHash:      cmd.RequestHash,
-			ChargeId:         cmd.Charges[0].ChargeID,
+			ResourceId:        cmd.ResourceID,
+			TenantId:          cmd.ResourceTenantID,
+			Actor:             cmd.Actor.Type + ":" + cmd.Actor.ID,
+			RequestHash:       cmd.RequestHash,
+			ChargeId:          cmd.Charges[0].ChargeID,
 		})
 		if err != nil {
 			return nil, err

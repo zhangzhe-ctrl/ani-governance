@@ -1,0 +1,37 @@
+{
+  "checked_at": "2026-09-24T03:42:44.147350+00:00",
+  "status": "pass",
+  "cleanup_exit": 0,
+  "task_processes": 0,
+  "containers": [
+    {
+      "engine": "docker",
+      "name": "gov-acc-v12-01-acc",
+      "container_absent": true,
+      "volume_absent": true
+    },
+    {
+      "engine": "podman",
+      "name": "gov-acc-v12-01-gov-pg",
+      "container_absent": true,
+      "volume_absent": true
+    },
+    {
+      "engine": "podman",
+      "name": "gov-acc-v12-01-bff-redis",
+      "container_absent": true,
+      "volume_absent": true
+    }
+  ],
+  "reviewed_private_files_remaining": 0,
+  "task_cache_directories_remaining": 0,
+  "reviewed_listeners_remaining": [],
+  "recovery_directory": "/home/chabking/gov-acc-v12-01-20260923/recovery/final-20260924T034035Z",
+  "backup_file_permissions": "0600",
+  "backup_sha256_check": "pass",
+  "custom_database_dumps": 19,
+  "cluster_dumps": 2,
+  "backup_manifest_sha256": "fdd4fbfec0c6ccec25d326b10678caa85287945f63f7be347125c103a81da583",
+  "retained": "Source checkouts, evidence, version locks, pinned tools, pre-existing dumps and final protected backups. Backup may contain role password hashes and test sessions; not public evidence. No fresh restore claimed by cleanup; earlier populated restore tests are separate.",
+  "ci_exception": "User explicitly instructed proceeding without waiting for CI success."
+}

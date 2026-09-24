@@ -1,0 +1,5 @@
+=== RUN   TestJointPolicyRevocationRecovery
+    policy_recovery_test.go:355: AUTH-03/RELEASE-06: original Resolve allowed, isolated zero-grant Resolve denied; actual owner mTLS refund succeeded while tenant OFF/expired/quota zero and DELETE unacknowledged; old operation Sync reached DECLARED then ENDED with zero user grants
+--- PASS: TestJointPolicyRevocationRecovery (7.95s)
+PASS
+ok  	go-wind-admin/app/admin/service/tests/gpucontract	8.502s

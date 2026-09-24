@@ -413,6 +413,10 @@ github.com/zclconf/go-cty-yaml v1.2.0 h1:GDyL4+e/Qe/S0B7YaecMLbVvAR/Mp21CXMOSiCT
 github.com/zclconf/go-cty-yaml v1.2.0/go.mod h1:9YLUH4g7lOhVWqUbctnVlZ5KLpg7JAprQNgxSZ1Gyxs=
 github.com/zeebo/xxh3 v1.1.0 h1:s7DLGDK45Dyfg7++yxI0khrfwq9661w9EN78eP/UZVs=
 github.com/zeebo/xxh3 v1.1.0/go.mod h1:IisAie1LELR4xhVinxWS5+zf1lA4p0MW4T+w+W07F5s=
+github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260923100416-9f9712198488 h1:u4xCarDl/Ep1kHv9WdChO7CeiUI+MoLKdi/W9ifrW9U=
+github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260923100416-9f9712198488/go.mod h1:3mSqLUcRMc++eiZuqICo56tFwoKZ9jr34tepPvWcOsM=
+github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9173 h1:lXrsyPsOQ0M8Tsy6aWcw8k5IL4h59uhy3Ysf62palrU=
+github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9173/go.mod h1:3mSqLUcRMc++eiZuqICo56tFwoKZ9jr34tepPvWcOsM=
 github.com/zhangzhe-ctrl/ani-network-service v0.0.0-20260917165536-66f787bd3013 h1:okNzS3wnxxZpDearNfZta5rZCxhaPQOiXbV9Wbx7T90=
 github.com/zhangzhe-ctrl/ani-network-service v0.0.0-20260917165536-66f787bd3013/go.mod h1:RLYm2oPaEB37fmuVweaLnrdIDKJONKmotYenETWOyVE=
 go.einride.tech/aip v0.86.3 h1:jg80Ec4XBPYg1i7avzrl3MJol/dUwmMMLHtcmEMyxgM=

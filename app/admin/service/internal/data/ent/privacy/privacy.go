@@ -279,6 +279,54 @@ func (f DictTypeMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutati
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.DictTypeMutation", m)
 }
 
+// The GpuDeleteAcceptanceQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type GpuDeleteAcceptanceQueryRuleFunc func(context.Context, *ent.GpuDeleteAcceptanceQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f GpuDeleteAcceptanceQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.GpuDeleteAcceptanceQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.GpuDeleteAcceptanceQuery", q)
+}
+
+// The GpuDeleteAcceptanceMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type GpuDeleteAcceptanceMutationRuleFunc func(context.Context, *ent.GpuDeleteAcceptanceMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f GpuDeleteAcceptanceMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.GpuDeleteAcceptanceMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.GpuDeleteAcceptanceMutation", m)
+}
+
+// The GpuUsageSyncQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type GpuUsageSyncQueryRuleFunc func(context.Context, *ent.GpuUsageSyncQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f GpuUsageSyncQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.GpuUsageSyncQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.GpuUsageSyncQuery", q)
+}
+
+// The GpuUsageSyncMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type GpuUsageSyncMutationRuleFunc func(context.Context, *ent.GpuUsageSyncMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f GpuUsageSyncMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.GpuUsageSyncMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.GpuUsageSyncMutation", m)
+}
+
 // The InternalMessageQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type InternalMessageQueryRuleFunc func(context.Context, *ent.InternalMessageQuery) error
@@ -1384,6 +1432,10 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.DictTypeQuery:
 		return q.Filter(), nil
+	case *ent.GpuDeleteAcceptanceQuery:
+		return q.Filter(), nil
+	case *ent.GpuUsageSyncQuery:
+		return q.Filter(), nil
 	case *ent.InternalMessageQuery:
 		return q.Filter(), nil
 	case *ent.InternalMessageCategoryQuery:
@@ -1492,6 +1544,10 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.DictEntryI18nMutation:
 		return m.Filter(), nil
 	case *ent.DictTypeMutation:
+		return m.Filter(), nil
+	case *ent.GpuDeleteAcceptanceMutation:
+		return m.Filter(), nil
+	case *ent.GpuUsageSyncMutation:
 		return m.Filter(), nil
 	case *ent.InternalMessageMutation:
 		return m.Filter(), nil

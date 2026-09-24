@@ -1,0 +1,7 @@
+Version:	v1.12.0
+ModuleSum:	h1:OuFUYNhnjpju7RNArOVPPchFPWNobGfhrHODDPKcgZs=
+GoVersion:	go1.26.7-X:nodwarf5
+OS:		linux
+Arch:		amd64
+d63eb287bacea526fd1b0b0356f406e428900d3f230f316fe6aec107d7801910  /home/chabking/gov-acc-v12-01-20260923/bin/cyclonedx-gomod
+[90m11:27AM[0m [33mWRN[0m [1mfailed to determine version of main module[0m [36merror=[0m[31m[1m"no git repository found"[0m[0m

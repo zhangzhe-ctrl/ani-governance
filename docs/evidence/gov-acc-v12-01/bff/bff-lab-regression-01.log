@@ -1,0 +1,43 @@
+=== RUN   TestSimPG_AUTH05_CertNegatives
+    integration_pg_test.go:453: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/quotalab/simulator/integration_pg_test.go:453
+        	Error:      	Not equal: 
+        	            	expected: 0x5
+        	            	actual  : 0x7
+        	Test:       	TestSimPG_AUTH05_CertNegatives
+--- FAIL: TestSimPG_AUTH05_CertNegatives (2.19s)
+=== RUN   TestSimPG_FAIL03_AckLostRetryNoDuplication
+--- PASS: TestSimPG_FAIL03_AckLostRetryNoDuplication (0.95s)
+=== RUN   TestSimPG_FAIL04_RecoverAfterProviderCommit
+--- PASS: TestSimPG_FAIL04_RecoverAfterProviderCommit (0.69s)
+=== RUN   TestSimPG_FAIL05_06_PartialCleanupThenRecover
+--- PASS: TestSimPG_FAIL05_06_PartialCleanupThenRecover (0.74s)
+=== RUN   TestSimPG_FAIL08_09_16_PartialReleaseNotifyRetry
+    integration_pg_test.go:571: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/quotalab/simulator/integration_pg_test.go:321
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/quotalab/simulator/integration_pg_test.go:571
+        	Error:      	Received unexpected error:
+        	            	error: code = 403 reason = QUOTA_ADMISSION_DENIED message = resource tenant mapping mismatch metadata = map[] cause = <nil>
+        	Test:       	TestSimPG_FAIL08_09_16_PartialReleaseNotifyRetry
+--- FAIL: TestSimPG_FAIL08_09_16_PartialReleaseNotifyRetry (0.67s)
+=== RUN   TestSimPG_FAIL14_ReplayCreateAfterFullRelease
+--- PASS: TestSimPG_FAIL14_ReplayCreateAfterFullRelease (0.70s)
+=== RUN   TestSimPG_FAIL17_ContractErrorThenResume
+    integration_pg_test.go:658: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/quotalab/simulator/integration_pg_test.go:321
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/quotalab/simulator/integration_pg_test.go:658
+        	Error:      	Received unexpected error:
+        	            	error: code = 403 reason = QUOTA_ADMISSION_DENIED message = resource tenant mapping mismatch metadata = map[] cause = <nil>
+        	Test:       	TestSimPG_FAIL17_ContractErrorThenResume
+--- FAIL: TestSimPG_FAIL17_ContractErrorThenResume (0.70s)
+=== RUN   TestSimPG_CON06_ConcurrentDeleteAndAbort
+    integration_pg_test.go:701: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/quotalab/simulator/integration_pg_test.go:321
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/quotalab/simulator/integration_pg_test.go:701
+        	Error:      	Received unexpected error:
+        	            	error: code = 403 reason = QUOTA_ADMISSION_DENIED message = resource tenant mapping mismatch metadata = map[] cause = <nil>
+        	Test:       	TestSimPG_CON06_ConcurrentDeleteAndAbort
+--- FAIL: TestSimPG_CON06_ConcurrentDeleteAndAbort (0.70s)
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/quotalab/simulator	7.883s
+FAIL

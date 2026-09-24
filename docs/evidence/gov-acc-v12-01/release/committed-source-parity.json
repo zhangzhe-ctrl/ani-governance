@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-09-24T03:36:26.396323+00:00",
+  "governance_sha": "bd9ad1a33bbe8ce28f4faeb19bfc9ee494ae8a84",
+  "governance_tree": "2ef3ff43c3f26daa4ab3e622de38f364702d20ac",
+  "accelerator_sha": "1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3",
+  "module": "v0.0.0-20260924030150-1d32dd9a9173",
+  "make05": {
+    "files": 1492,
+    "differences": [
+      "app/admin/service/tests/gpucontract/policy_recovery_test.go",
+      "scripts/accelerator-acceptance/run-joint-contract.sh"
+    ]
+  },
+  "joint_final_race": {
+    "files": 1535,
+    "differences": []
+  },
+  "verdict": "pass",
+  "boundary": "2 make05 test/runner deltas exactly covered by final joint normal/race. Later additions are delivery documents, evidence, Git raw-log whitespace attributes and independently syntax/read-only checked cleanup script, not production changes."
+}

@@ -3,1140 +3,731 @@ package data
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"errors"
 	"fmt"
+	kratosErrors "github.com/go-kratos/kratos/v2/errors"
 	"sort"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	entCrud "github.com/tx7do/go-crud/entgo"
-	"github.com/tx7do/go-utils/trans"
-
+	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/ent/plan"
-	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
-	"go-wind-admin/app/admin/service/internal/data/ent/quotaaccount"
-	"go-wind-admin/app/admin/service/internal/data/ent/quotacharge"
 	"go-wind-admin/app/admin/service/internal/data/ent/quotaoperation"
-	"go-wind-admin/app/admin/service/internal/data/ent/quotareleasereceipt"
-	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
-
-	appViewer "go-wind-admin/pkg/entgo/viewer"
+	q "go-wind-admin/app/admin/service/internal/data/quotasql"
 )
 
-// QuotaLedgerRepo 实现单次占额、累计释放与未发撤销的纯数据库事务（计划 §7/§9/§8.3）。
-// 不使用 Redis/内存计数；锁顺序按 §7.1 固定；网络 RPC 不出现在任何事务内。
 type QuotaLedgerRepo struct {
 	entClient *entCrud.EntClient[*ent.Client]
 	log       *bLogger.Helper
 }
 
-func NewQuotaLedgerRepo(
-	ctx *bootstrap.Context,
-	entClient *entCrud.EntClient[*ent.Client],
-) *QuotaLedgerRepo {
-	return &QuotaLedgerRepo{
-		entClient: entClient,
-		log:       ctx.NewLoggerHelper("quota-ledger/repo/admin-service"),
-	}
+func NewQuotaLedgerRepo(ctx *bootstrap.Context, c *entCrud.EntClient[*ent.Client]) *QuotaLedgerRepo {
+	return &QuotaLedgerRepo{c, ctx.NewLoggerHelper("quota-ledger/repo/admin-service")}
 }
-
-// ── 输入/输出合同 ─────────────────────────────────────────────
-
-// QuotaOccupyItem 一次占额中的一项配额。
-type QuotaOccupyItem struct {
-	QuotaCode string
-	Units     int64
+func NewQuotaLedgerRepoForTest(c *entCrud.EntClient[*ent.Client], log *bLogger.Helper) *QuotaLedgerRepo {
+	return &QuotaLedgerRepo{c, log}
 }
-
-// QuotaOccupyInput 占额输入；字段在提交后不可改写（§6.3）。
-type QuotaOccupyInput struct {
-	TenantID         uint32
-	ResourceTenantID string // 持久 resource_tenant_id（可信 Principal 解析）
-	ResourceID       string // 创建操作随原操作持久化的稳定资源 ID
-	ActorType        string
-	ActorID          string
-	OwnerService     string
-	Action           string
-	IdempotencyKey   string // 必须为 UUID
-	RequestHash      string // 规范请求哈希（不含 request-id/时间戳/新 UUID）
-	CanonicalRequest string // 经校验业务参数（schema_version=1）
-	Items            []QuotaOccupyItem
+func (r *QuotaLedgerRepo) DB() *sql.DB                   { return r.entClient.DB() }
+func (r *QuotaLedgerRepo) EntClientForTest() *ent.Client { return r.entClient.Client() }
+func (r *QuotaLedgerRepo) transaction(ctx context.Context, fn func(*q.Queries) error) error {
+	return quotaTransaction(ctx, r.entClient.DB(), fn)
 }
-
-// QuotaOccupyResult 占额结果。
-type QuotaOccupyResult struct {
-	OperationID string
-	ResourceID  string
-	ChargeIDs   []string // 与输入 Items 顺序一致
-	Replayed    bool     // 命中同内容幂等记录
-}
-
-// QuotaReleaseInput 累计释放输入（协议形态已由 server 层校验）。
-type QuotaReleaseInput struct {
-	OwnerService   string // 来自已验证证书精确 SAN
-	ReleaseEventID string
-	OperationID    string
-	Reason         string
-	PayloadHash    string
-	PayloadJSON    string
-	Items          []QuotaReleaseItemInput
-}
-
-// QuotaReleaseItemInput 单笔累计释放。
-type QuotaReleaseItemInput struct {
-	ChargeID      string
-	QuotaCode     string
-	ReleasedTotal int64
-}
-
-// QuotaReleaseResult 单笔回执结果。
-type QuotaReleaseResult struct {
-	ChargeID      string
-	AppliedDelta  int64
-	ReleasedTotal int64
-}
-
 func generateUUID() string { return uuid.NewString() }
+func ptr[T any](v T) *T    { return &v }
 
-// supportsRowLock 仅 PostgreSQL 支持 FOR UPDATE/FOR SHARE；
-// SQLite（测试内存库）单写者无并发，跳过行锁方言分支。
-func supportsRowLock(c *entCrud.EntClient[*ent.Client]) bool {
-	return c.Driver() != nil && c.Driver().Dialect() == "postgres"
+type QuotaOccupyItem struct {
+	QuotaCode string `json:"quota_code"`
+	Units     int64  `json:"units"`
+}
+type QuotaOccupyInput struct {
+	TenantID                                                                                                              uint32
+	ResourceTenantID, ResourceID, ActorType, ActorID, OwnerService, Action, IdempotencyKey, RequestHash, CanonicalRequest string
+	Items                                                                                                                 []QuotaOccupyItem
+}
+type QuotaOccupyResult struct {
+	OperationID, ResourceID string
+	ChargeIDs               []string
+	Replayed                bool
+}
+type QuotaReleaseInput struct {
+	OwnerService, ReleaseEventID, OperationID, Reason, PayloadHash, PayloadJSON string
+	Items                                                                       []QuotaReleaseItemInput
+}
+type QuotaReleaseItemInput struct {
+	ChargeID, QuotaCode string
+	ReleasedTotal       int64
+}
+type QuotaReleaseResult struct {
+	ChargeID                    string
+	AppliedDelta, ReleasedTotal int64
+}
+type QuotaDeleteInput struct {
+	TenantID                                                                                            uint32
+	ActorType, ActorID, OwnerService, Action, IdempotencyKey, RequestHash, CanonicalRequest, ResourceID string
+}
+type QuotaDeleteResult struct {
+	OperationID, CreateOperationID, ChargeID, ResourceID string
+	ChargeIDs                                            []string
+	Replayed, LocalCanceled                              bool
+}
+type QuotaChargeRef struct {
+	ChargeID, QuotaCode string
+	ChargedUnits        int64
+}
+type ClaimedOperation struct {
+	ID, TenantID                                                                                                                          uint32
+	OperationID, ResourceTenantID, ResourceID, CreateOperationID, ActorType, ActorID, OwnerService, Action, RequestHash, CanonicalRequest string
+	LeaseGeneration                                                                                                                       int64
+	AttemptCount                                                                                                                          int
+	Charges                                                                                                                               []QuotaChargeRef
+}
+type InvariantRow struct {
+	TenantID                       uint32
+	QuotaCode                      string
+	OccupiedUnits, ChargeRemainder int64
+	Balanced                       bool
 }
 
-// ── 一次占额事务（§7.2） ──────────────────────────────────────
-
-// Occupy 在一个 PostgreSQL 事务内完成：锁 tenant → FOR SHARE plan →
-// 幂等检查 → 目录/政策校验 → account 检查并增量 → 保存 operation(QUEUED)+charges。
-// 提交成功前不产生任何下游调用；提交失败禁止转发（由调用方保证）。
-func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (*QuotaOccupyResult, error) {
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-
-	if in == nil || len(in.Items) == 0 {
-		return nil, QuotaErrInvalid("empty quota items")
+func operationDTO(v q.SysQuotaOperation) *ent.QuotaOperation {
+	return &ent.QuotaOperation{ID: uint32(v.ID), TenantID: ptr(uint32(v.TenantID)), CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt, DeletedAt: v.DeletedAt, OperationID: v.OperationID, ResourceTenantID: v.ResourceTenantID, ResourceID: v.ResourceID, CreateOperationID: v.CreateOperationID, ActorType: v.ActorType, ActorID: v.ActorID, OwnerService: v.OwnerService, Action: v.Action, IdempotencyKey: v.IdempotencyKey, RequestHash: v.RequestHash, CanonicalRequest: v.CanonicalRequest, DispatchState: quotaoperation.DispatchState(v.DispatchState), AttemptCount: int(v.AttemptCount), LeaseGeneration: v.LeaseGeneration, RetryBlocked: v.RetryBlocked, LastErrorCode: v.LastErrorCode, NextAttemptAt: v.NextAttemptAt, LeaseOwner: v.LeaseOwner, LeaseUntil: v.LeaseUntil, AckJSON: v.AckJson}
+}
+func chargeDTO(v q.SysQuotaCharge) *ent.QuotaCharge {
+	return &ent.QuotaCharge{ID: uint32(v.ID), TenantID: ptr(uint32(v.TenantID)), CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt, DeletedAt: v.DeletedAt, ChargeID: v.ChargeID, OperationID: v.OperationID, QuotaCode: v.QuotaCode, OriginalUnits: v.OriginalUnits, ReleasedUnits: v.ReleasedUnits}
+}
+func notFound(err error) error {
+	if errors.Is(err, pgx.ErrNoRows) {
+		return &ent.NotFoundError{}
 	}
-	if in.IdempotencyKey == "" || in.RequestHash == "" || in.CanonicalRequest == "" {
-		return nil, QuotaErrInvalid("idempotency key, request hash and canonical request are required")
+	return err
+}
+func chargeIDs(charges []q.SysQuotaCharge) []string {
+	out := make([]string, len(charges))
+	for i, c := range charges {
+		out[i] = c.ChargeID
 	}
-	if in.ResourceTenantID == "" || in.ResourceID == "" || in.OwnerService == "" || in.Action == "" {
-		return nil, QuotaErrInvalid("resource tenant, resource id, owner service and action are required")
-	}
-	for _, it := range in.Items {
-		if it.Units <= 0 {
-			return nil, QuotaErrInvalid("quota units must be positive")
-		}
-		if it.QuotaCode == "" {
-			return nil, QuotaErrInvalid("quota_code is required")
-		}
-	}
-
-	tx, err := r.entClient.Client().Tx(sysCtx)
-	if err != nil {
-		r.log.Errorf(ctx, "occupy: start tx failed: %s", err.Error())
-		return nil, QuotaErrStorageUnavailable("start transaction failed")
-	}
-	rollback := func() { _ = tx.Rollback() }
-	rowLock := supportsRowLock(r.entClient)
-
-	// 1. tenant 行 FOR UPDATE：准入与政策读串行化。
-	tq := tx.Tenant.Query().Where(tenant.IDEQ(in.TenantID))
-	if supportsRowLock(r.entClient) {
-		tq = tq.ForUpdate()
-	}
-	t, err := tq.Only(sysCtx)
-	if ent.IsNotFound(err) {
-		rollback()
-		return nil, QuotaErrAdmissionDenied("tenant not found")
-	} else if err != nil {
-		rollback()
-		r.log.Errorf(ctx, "occupy: lock tenant failed: %s", err.Error())
-		return nil, QuotaErrStorageUnavailable("lock tenant failed")
-	}
-	if t.Status == nil || *t.Status != tenant.StatusOn {
-		rollback()
-		return nil, QuotaErrAdmissionDenied("tenant is not active")
-	}
-	// 到期：expired_at 为 nil 或数据库当前时间严格小于到期时间；相等视为到期。
-	// 无论 READONLY/BLOCK_LOGIN/FREEZE，新占额一律拒绝，不等定时任务。
-	if t.ExpiredAt != nil && !t.ExpiredAt.IsZero() && !t.ExpiredAt.After(time.Now()) {
-		rollback()
-		return nil, QuotaErrAdmissionDenied("tenant subscription expired")
-	}
-	planId := uint32(0)
-	if t.PlanID != nil {
-		planId = *t.PlanID
-	}
-	if planId == 0 {
-		rollback()
-		return nil, QuotaErrNotConfigured("tenant has no subscription plan")
-	}
-
-	// 2. 当前 plan 行 FOR SHARE：政策写入（FOR UPDATE）与占额读相互串行化。
-	plq := tx.Plan.Query().Where(plan.IDEQ(planId))
-	if supportsRowLock(r.entClient) {
-		plq = plq.ForShare()
-	}
-	if _, err = plq.Only(sysCtx); ent.IsNotFound(err) {
-		rollback()
-		return nil, QuotaErrNotConfigured("plan not found")
-	} else if err != nil {
-		rollback()
-		r.log.Errorf(ctx, "occupy: lock plan failed: %s", err.Error())
-		return nil, QuotaErrStorageUnavailable("lock plan failed")
-	}
-
-	// 3. 幂等：同 (tenant,actor_type,actor_id,action,idempotency_key) 记录。
-	existing, err := tx.QuotaOperation.Query().
-		Where(
-			quotaoperation.TenantIDEQ(in.TenantID),
-			quotaoperation.ActorTypeEQ(in.ActorType),
-			quotaoperation.ActorIDEQ(in.ActorID),
-			quotaoperation.ActionEQ(in.Action),
-			quotaoperation.IdempotencyKeyEQ(in.IdempotencyKey),
-		).
-		Only(sysCtx)
-	if err == nil {
-		// 命中：内容一致返回既有 operation；不同则冲突。不得再次扣额。
-		if existing.RequestHash != in.RequestHash {
-			rollback()
-			return nil, QuotaErrIdempotencyConflict("idempotency key reused with different payload")
-		}
-		existingCharges, cerr := tx.QuotaCharge.Query().
-			Where(quotacharge.TenantIDEQ(in.TenantID), quotacharge.OperationIDEQ(existing.OperationID)).
-			All(sysCtx)
-		if cerr != nil {
-			rollback()
-			r.log.Errorf(ctx, "occupy: query existing charges failed: %s", cerr.Error())
-			return nil, QuotaErrStorageUnavailable("query charges failed")
-		}
-		chargeIDs := make([]string, 0, len(existingCharges))
-		for _, c := range existingCharges {
-			chargeIDs = append(chargeIDs, c.ChargeID)
-		}
-		rollback()
-		return &QuotaOccupyResult{
-			OperationID: existing.OperationID,
-			ResourceID:  existing.ResourceID,
-			ChargeIDs:   chargeIDs,
-			Replayed:    true,
-		}, nil
-	} else if !ent.IsNotFound(err) {
-		rollback()
-		r.log.Errorf(ctx, "occupy: idempotency lookup failed: %s", err.Error())
-		return nil, QuotaErrStorageUnavailable("idempotency lookup failed")
-	}
-
-	// 4. 对每个配额项（按 quota_code 排序）检查政策并锁定账户。
-	items := make([]QuotaOccupyItem, len(in.Items))
-	copy(items, in.Items)
-	sort.Slice(items, func(i, j int) bool { return items[i].QuotaCode < items[j].QuotaCode })
-
-	policies, perr := tx.PlanQuota.Query().
-		Where(planquota.HasPlanWith(plan.IDEQ(planId))).
-		All(sysCtx)
-	if perr != nil {
-		rollback()
-		r.log.Errorf(ctx, "occupy: query plan policies failed: %s", perr.Error())
-		return nil, QuotaErrStorageUnavailable("query plan policies failed")
-	}
-	policyByCode := make(map[string]int64, len(policies))
-	for _, pq := range policies {
-		if pq.QuotaValue != nil {
-			policyByCode[pq.QuotaCode] = int64(*pq.QuotaValue)
-		}
-	}
-	limits := make(map[string]int64, len(items))
-	for _, it := range items {
-		limit, ok := policyByCode[it.QuotaCode]
-		if !ok {
-			// 缺少配额项表示不允许申请，不能解释为无限制。
-			rollback()
-			return nil, QuotaErrNotConfigured("quota not configured in plan: " + it.QuotaCode)
-		}
-		limits[it.QuotaCode] = limit
-	}
-
-	accounts := make(map[string]*ent.QuotaAccount, len(items))
-	for _, it := range items {
-		acc, aerr := lockOrCreateAccount(sysCtx, tx, in.TenantID, it.QuotaCode, rowLock)
-		if aerr != nil {
-			rollback()
-			r.log.Errorf(ctx, "occupy: lock account failed: %s", aerr.Error())
-			return nil, QuotaErrStorageUnavailable("lock quota account failed")
-		}
-		accounts[it.QuotaCode] = acc
-		// 安全算术：occupied+units<=limit（数量均为非负 int64，减法无溢出）。
-		if acc.OccupiedUnits > limits[it.QuotaCode]-it.Units {
-			rollback()
-			return nil, QuotaErrExceeded("quota exceeded for " + it.QuotaCode)
-		}
-	}
-
-	// 5. 保存 operation(QUEUED)、charges 与 occupied 增量。
-	op, err := tx.QuotaOperation.Create().
-		SetOperationID(generateUUID()).
-		SetTenantID(in.TenantID).
-		SetResourceTenantID(in.ResourceTenantID).
-		SetResourceID(in.ResourceID).
-		SetActorType(in.ActorType).
-		SetActorID(in.ActorID).
-		SetOwnerService(in.OwnerService).
-		SetAction(in.Action).
-		SetIdempotencyKey(in.IdempotencyKey).
-		SetRequestHash(in.RequestHash).
-		SetCanonicalRequest(in.CanonicalRequest).
-		SetDispatchState(quotaoperation.DispatchStateQueued).
-		Save(sysCtx)
-	if err != nil {
-		rollback()
-		if ent.IsConstraintError(err) {
-			// 幂等唯一键并发竞争：唯一约束兜底。
-			return nil, QuotaErrIdempotencyConflict("concurrent idempotency conflict")
-		}
-		r.log.Errorf(ctx, "occupy: save operation failed: %s", err.Error())
-		return nil, QuotaErrStorageUnavailable("save operation failed")
-	}
-
-	chargeIDs := make([]string, 0, len(items))
-	for _, it := range items {
-		charge, cerr := tx.QuotaCharge.Create().
-			SetChargeID(generateUUID()).
-			SetTenantID(in.TenantID).
-			SetOperationID(op.OperationID).
-			SetQuotaCode(it.QuotaCode).
-			SetOriginalUnits(it.Units).
-			SetReleasedUnits(0).
-			Save(sysCtx)
-		if cerr != nil {
-			rollback()
-			r.log.Errorf(ctx, "occupy: save charge failed: %s", cerr.Error())
-			return nil, QuotaErrStorageUnavailable("save charge failed")
-		}
-		chargeIDs = append(chargeIDs, charge.ChargeID)
-
-		acc := accounts[it.QuotaCode]
-		if _, uerr := tx.QuotaAccount.UpdateOneID(acc.ID).
-			SetOccupiedUnits(acc.OccupiedUnits + it.Units).
-			AddVersion(1).
-			Save(sysCtx); uerr != nil {
-			rollback()
-			r.log.Errorf(ctx, "occupy: update account failed: %s", uerr.Error())
-			return nil, QuotaErrStorageUnavailable("update quota account failed")
-		}
-	}
-
-	if err = tx.Commit(); err != nil {
-		r.log.Errorf(ctx, "occupy: commit failed: %s", err.Error())
-		return nil, QuotaErrStorageUnavailable("commit failed")
-	}
-	return &QuotaOccupyResult{OperationID: op.OperationID, ResourceID: in.ResourceID, ChargeIDs: chargeIDs}, nil
+	return out
+}
+func isGPUCode(code string) bool {
+	return code == "gpu.physical.count" || code == "gpu.shared_memory_mib"
 }
 
-// lockOrCreateAccount 读取并锁定账户；不存在时插入（唯一冲突后重读锁定）。
-func lockOrCreateAccount(ctx context.Context, tx *ent.Tx, tenantId uint32, code string, rowLock bool) (*ent.QuotaAccount, error) {
-	aq := tx.QuotaAccount.Query().
-		Where(quotaaccount.TenantIDEQ(tenantId), quotaaccount.QuotaCodeEQ(code))
-	if rowLock {
-		aq = aq.ForUpdate()
+// validateFrozenCharges checks the entire immutable business vector for GPU
+// operations. Legacy operations retain their historical non-GPU semantics.
+func validateFrozenCharges(canonical string, charges []q.SysQuotaCharge) error {
+	gpu := false
+	for _, c := range charges {
+		gpu = gpu || isGPUCode(c.QuotaCode)
 	}
-	acc, err := aq.Only(ctx)
-	if err == nil {
-		return acc, nil
+	var frozen struct {
+		SchemaVersion int               `json:"schema_version"`
+		GpuPlan       json.RawMessage   `json:"gpu_plan"`
+		QuotaItems    []QuotaOccupyItem `json:"quota_items"`
 	}
-	if !ent.IsNotFound(err) {
-		return nil, err
+	if err := json.Unmarshal([]byte(canonical), &frozen); err != nil {
+		return QuotaErrInvalid("invalid immutable GPU request")
 	}
-	if err = tx.QuotaAccount.Create().
-		SetTenantID(tenantId).
-		SetQuotaCode(code).
-		SetOccupiedUnits(0).
-		SetVersion(0).
-		OnConflict().
-		DoNothing().
-		Exec(ctx); err != nil {
-		return nil, err
+	for _, item := range frozen.QuotaItems {
+		gpu = gpu || isGPUCode(item.QuotaCode)
 	}
-	rq := tx.QuotaAccount.Query().
-		Where(quotaaccount.TenantIDEQ(tenantId), quotaaccount.QuotaCodeEQ(code))
-	if rowLock {
-		rq = rq.ForUpdate()
+	if !gpu && frozen.SchemaVersion != 2 && len(frozen.GpuPlan) == 0 {
+		return nil
 	}
-	return rq.Only(ctx)
-}
-
-// ── 累计释放（§9.2） ─────────────────────────────────────────
-
-// Release 处理内部 mTLS 退额 RPC 的账本事务。
-// incoming_total 是自创建以来累计可退还数量：new_total=max(stored,incoming)；
-// delta=new_total-stored；occupied-=delta。任一非法整笔回滚。
-// 不检查套餐到期、租户状态、余额是否超限或原用户 token；仍严格验证 owner 与账本归属。
-func (r *QuotaLedgerRepo) Release(ctx context.Context, in *QuotaReleaseInput) ([]QuotaReleaseResult, error) {
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-
-	if in == nil || len(in.Items) == 0 {
-		return nil, releaseErrInvalid("items must not be empty")
+	if len(frozen.QuotaItems) != len(charges) || len(charges) == 0 {
+		return QuotaErrInvalid("incomplete immutable charge vector")
 	}
-
-	// 0. 先按不可变 charge 定位 tenant（§7.1 退额锁顺序）。
-	charges0, err := r.entClient.Client().QuotaCharge.Query().
-		Where(quotacharge.ChargeIDIn(chargeIDsOf(in.Items)...)).
-		All(sysCtx)
-	if err != nil {
-		r.log.Errorf(ctx, "release: locate charges failed: %s", err.Error())
-		return nil, releaseErrUnavailable("locate charges failed")
-	}
-	if len(charges0) != len(in.Items) {
-		return nil, releaseErrNotFound("unknown charge")
-	}
-	tenantId := derefUint32(charges0[0].TenantID)
-
-	tx, err := r.entClient.Client().Tx(sysCtx)
-	if err != nil {
-		r.log.Errorf(ctx, "release: start tx failed: %s", err.Error())
-		return nil, releaseErrUnavailable("start transaction failed")
-	}
-	rollback := func() { _ = tx.Rollback() }
-	rowLock := supportsRowLock(r.entClient)
-
-	// 1. tenant 行 FOR UPDATE。
-	relq := tx.Tenant.Query().Where(tenant.IDEQ(tenantId))
-	if rowLock {
-		relq = relq.ForUpdate()
-	}
-	if _, err = relq.Only(sysCtx); err != nil {
-		rollback()
-		r.log.Errorf(ctx, "release: lock tenant failed: %s", err.Error())
-		return nil, releaseErrUnavailable("lock tenant failed")
-	}
-
-	// 2. 原创建 operation 必须存在且属于同租户；owner 从证书取出。
-	op, err := tx.QuotaOperation.Query().
-		Where(
-			quotaoperation.OperationIDEQ(in.OperationID),
-			quotaoperation.TenantIDEQ(tenantId),
-		).
-		Only(sysCtx)
-	if ent.IsNotFound(err) {
-		rollback()
-		return nil, releaseErrNotFound("unknown operation")
-	} else if err != nil {
-		rollback()
-		r.log.Errorf(ctx, "release: query operation failed: %s", err.Error())
-		return nil, releaseErrUnavailable("query operation failed")
-	}
-	// 同 CA 的另一服务不能退他人额度。
-	if op.OwnerService != in.OwnerService {
-		rollback()
-		return nil, releaseErrPermissionDenied("release not allowed for this owner")
-	}
-
-	// 3. 回执幂等：同 event 同内容返回当前权威累计；同 ID 不同内容冲突。
-	existingReceipt, err := tx.QuotaReleaseReceipt.Query().
-		Where(
-			quotareleasereceipt.OwnerServiceEQ(in.OwnerService),
-			quotareleasereceipt.ReleaseEventIDEQ(in.ReleaseEventID),
-		).
-		Only(sysCtx)
-	if err == nil {
-		if existingReceipt.PayloadHash != in.PayloadHash {
-			rollback()
-			return nil, releaseErrConflict("release_event_id reused with different payload")
+	expected := map[string]int64{}
+	for _, it := range frozen.QuotaItems {
+		if it.Units <= 0 || expected[it.QuotaCode] != 0 {
+			return QuotaErrInvalid("invalid immutable charge vector")
 		}
-		results, gerr := authoritativeTotals(sysCtx, tx, tenantId, in.Items)
-		if gerr != nil {
-			rollback()
-			return nil, gerr
+		expected[it.QuotaCode] = it.Units
+	}
+	for _, c := range charges {
+		if expected[c.QuotaCode] != c.OriginalUnits {
+			return QuotaErrInvalid("immutable charge vector mismatch")
 		}
-		rollback()
-		return results, nil
-	} else if !ent.IsNotFound(err) {
-		rollback()
-		r.log.Errorf(ctx, "release: receipt lookup failed: %s", err.Error())
-		return nil, releaseErrUnavailable("receipt lookup failed")
-	}
-
-	// 4. 校验并处理各 item（原子：任一非法整笔回滚）。
-	sort.Slice(in.Items, func(i, j int) bool { return in.Items[i].ChargeID < in.Items[j].ChargeID })
-	results := make([]QuotaReleaseResult, 0, len(in.Items))
-	occupiedDeltaByAccount := make(map[uint32]int64, len(in.Items))
-	for _, item := range in.Items {
-		cq := tx.QuotaCharge.Query().
-			Where(
-				quotacharge.ChargeIDEQ(item.ChargeID),
-				quotacharge.TenantIDEQ(tenantId),
-			)
-		if rowLock {
-			cq = cq.ForUpdate()
-		}
-		charge, cerr := cq.Only(sysCtx)
-		if ent.IsNotFound(cerr) {
-			rollback()
-			return nil, releaseErrNotFound("unknown charge")
-		} else if cerr != nil {
-			rollback()
-			r.log.Errorf(ctx, "release: lock charge failed: %s", cerr.Error())
-			return nil, releaseErrUnavailable("lock charge failed")
-		}
-		// 计量 code 不匹配 / 跨 operation 的 charge 一律拒绝。
-		if charge.QuotaCode != item.QuotaCode {
-			rollback()
-			return nil, releaseErrConflict("quota_code mismatch for charge " + item.ChargeID)
-		}
-		if charge.OperationID != in.OperationID {
-			rollback()
-			return nil, releaseErrConflict("charge does not belong to operation " + in.OperationID)
-		}
-		// 0<=incoming<=original。
-		if item.ReleasedTotal < 0 || item.ReleasedTotal > charge.OriginalUnits {
-			rollback()
-			return nil, releaseErrConflict("released_total out of range for charge " + item.ChargeID)
-		}
-		newTotal := charge.ReleasedUnits
-		if item.ReleasedTotal > newTotal {
-			newTotal = item.ReleasedTotal
-		}
-		delta := newTotal - charge.ReleasedUnits
-		if delta > 0 {
-			if _, uerr := tx.QuotaCharge.UpdateOneID(charge.ID).
-				SetReleasedUnits(newTotal).
-				Save(sysCtx); uerr != nil {
-				rollback()
-				r.log.Errorf(ctx, "release: update charge failed: %s", uerr.Error())
-				return nil, releaseErrUnavailable("update charge failed")
-			}
-			auq := tx.QuotaAccount.Query().
-				Where(quotaaccount.TenantIDEQ(tenantId), quotaaccount.QuotaCodeEQ(charge.QuotaCode))
-			if rowLock {
-				auq = auq.ForUpdate()
-			}
-			acc, aerr := auq.Only(sysCtx)
-			if aerr != nil {
-				rollback()
-				r.log.Errorf(ctx, "release: lock account failed: %s", aerr.Error())
-				return nil, releaseErrUnavailable("lock quota account failed")
-			}
-			if acc.OccupiedUnits-delta < 0 {
-				rollback()
-				return nil, releaseErrConflict("release would make occupied negative")
-			}
-			occupiedDeltaByAccount[acc.ID] += delta
-		}
-		results = append(results, QuotaReleaseResult{
-			ChargeID:      charge.ChargeID,
-			AppliedDelta:  delta,
-			ReleasedTotal: newTotal,
-		})
-	}
-
-	for accID, delta := range occupiedDeltaByAccount {
-		if delta > 0 {
-			if _, uerr := tx.QuotaAccount.UpdateOneID(accID).
-				AddOccupiedUnits(-delta).
-				AddVersion(1).
-				Save(sysCtx); uerr != nil {
-				rollback()
-				r.log.Errorf(ctx, "release: update account failed: %s", uerr.Error())
-				return nil, releaseErrUnavailable("update quota account failed")
-			}
-		}
-	}
-
-	// 5. 回执与账本修改同事务提交（数据库错误返回 Unavailable，owner 保留重试）。
-	if _, err = tx.QuotaReleaseReceipt.Create().
-		SetReceiptID(generateUUID()).
-		SetTenantID(tenantId).
-		SetOwnerService(in.OwnerService).
-		SetReleaseEventID(in.ReleaseEventID).
-		SetPayloadHash(in.PayloadHash).
-		SetPayloadJSON(in.PayloadJSON).
-		Save(sysCtx); err != nil {
-		rollback()
-		r.log.Errorf(ctx, "release: save receipt failed: %s", err.Error())
-		return nil, releaseErrUnavailable("save receipt failed")
-	}
-
-	if err = tx.Commit(); err != nil {
-		r.log.Errorf(ctx, "release: commit failed: %s", err.Error())
-		return nil, releaseErrUnavailable("commit failed")
-	}
-	return results, nil
-}
-
-// authoritativeTotals 幂等重放路径：返回各 charge 当前权威累计（不同 event_id
-// 携带相同累计值不重复退额；旧累计值晚到是合法 no-op）。
-func authoritativeTotals(ctx context.Context, tx *ent.Tx, tenantId uint32, items []QuotaReleaseItemInput) ([]QuotaReleaseResult, error) {
-	results := make([]QuotaReleaseResult, 0, len(items))
-	for _, item := range items {
-		charge, err := tx.QuotaCharge.Query().
-			Where(quotacharge.ChargeIDEQ(item.ChargeID), quotacharge.TenantIDEQ(tenantId)).
-			Only(ctx)
-		if ent.IsNotFound(err) {
-			return nil, releaseErrNotFound("unknown charge")
-		} else if err != nil {
-			return nil, releaseErrUnavailable("query charge failed")
-		}
-		results = append(results, QuotaReleaseResult{
-			ChargeID:      charge.ChargeID,
-			AppliedDelta:  0,
-			ReleasedTotal: charge.ReleasedUnits,
-		})
-	}
-	return results, nil
-}
-
-func chargeIDsOf(items []QuotaReleaseItemInput) []string {
-	ids := make([]string, 0, len(items))
-	for _, it := range items {
-		ids = append(ids, it.ChargeID)
-	}
-	return ids
-}
-
-// ── 未发送本地撤销（§8.3） ───────────────────────────────────
-
-// CancelUnsent 撤销从未尝试发送的操作：operation 必须 QUEUED 且 attempt_count=0。
-// 同一事务内：锁 tenant → 锁 operation 标记 CANCELED_UNSENT（封闭 worker 领取）→
-// 全额退还 charge 并写本地原因记录。
-func (r *QuotaLedgerRepo) CancelUnsent(ctx context.Context, operationID string) error {
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-
-	// 先用不可变归属定位 tenant。
-	op0, err := r.entClient.Client().QuotaOperation.Query().
-		Where(quotaoperation.OperationIDEQ(operationID)).
-		Only(sysCtx)
-	if ent.IsNotFound(err) {
-		return QuotaErrNotFound("operation not found")
-	} else if err != nil {
-		r.log.Errorf(ctx, "cancel: locate operation failed: %s", err.Error())
-		return QuotaErrStorageUnavailable("locate operation failed")
-	}
-	tenantId := derefUint32(op0.TenantID)
-
-	tx, err := r.entClient.Client().Tx(sysCtx)
-	if err != nil {
-		return QuotaErrStorageUnavailable("start transaction failed")
-	}
-	rollback := func() { _ = tx.Rollback() }
-
-	cql := supportsRowLock(r.entClient)
-	caq := tx.Tenant.Query().Where(tenant.IDEQ(tenantId))
-	if cql {
-		caq = caq.ForUpdate()
-	}
-	if _, err = caq.Only(sysCtx); err != nil {
-		rollback()
-		return QuotaErrStorageUnavailable("lock tenant failed")
-	}
-	oq := tx.QuotaOperation.Query().
-		Where(quotaoperation.OperationIDEQ(operationID), quotaoperation.TenantIDEQ(tenantId))
-	if cql {
-		oq = oq.ForUpdate()
-	}
-	op, err := oq.Only(sysCtx)
-	if ent.IsNotFound(err) {
-		rollback()
-		return QuotaErrNotFound("operation not found")
-	} else if err != nil {
-		rollback()
-		return QuotaErrStorageUnavailable("lock operation failed")
-	}
-	// 只允许 QUEUED 且 attempt_count=0；任何发送尝试发生后必须走 owner 协议。
-	if op.DispatchState != quotaoperation.DispatchStateQueued || op.AttemptCount != 0 {
-		rollback()
-		return QuotaErrInvalid("operation is no longer cancelable without owner protocol")
-	}
-	if _, err = tx.QuotaOperation.UpdateOneID(op.ID).
-		SetDispatchState(quotaoperation.DispatchStateCanceledUnsent).
-		SetNillableLastErrorCode(trans.Ptr("LOCAL_CANCEL")).
-		Save(sysCtx); err != nil {
-		rollback()
-		return QuotaErrStorageUnavailable("mark canceled failed")
-	}
-
-	// 全额退还对应 charge。
-	chq := tx.QuotaCharge.Query().
-		Where(quotacharge.TenantIDEQ(tenantId), quotacharge.OperationIDEQ(operationID))
-	if cql {
-		chq = chq.ForUpdate()
-	}
-	charges, err := chq.All(sysCtx)
-	if err != nil {
-		rollback()
-		return QuotaErrStorageUnavailable("lock charges failed")
-	}
-	occupiedDeltaByAccount := make(map[uint32]int64, len(charges))
-	for _, charge := range charges {
-		delta := charge.OriginalUnits - charge.ReleasedUnits
-		if delta <= 0 {
-			continue
-		}
-		if _, uerr := tx.QuotaCharge.UpdateOneID(charge.ID).
-			SetReleasedUnits(charge.OriginalUnits).
-			Save(sysCtx); uerr != nil {
-			rollback()
-			return QuotaErrStorageUnavailable("refund charge failed")
-		}
-		acq := tx.QuotaAccount.Query().
-			Where(quotaaccount.TenantIDEQ(tenantId), quotaaccount.QuotaCodeEQ(charge.QuotaCode))
-		if cql {
-			acq = acq.ForUpdate()
-		}
-		acc, aerr := acq.Only(sysCtx)
-		if aerr != nil {
-			rollback()
-			return QuotaErrStorageUnavailable("lock account failed")
-		}
-		occupiedDeltaByAccount[acc.ID] += delta
-	}
-	for accID, delta := range occupiedDeltaByAccount {
-		if delta > 0 {
-			if _, uerr := tx.QuotaAccount.UpdateOneID(accID).
-				AddOccupiedUnits(-delta).
-				AddVersion(1).
-				Save(sysCtx); uerr != nil {
-				rollback()
-				return QuotaErrStorageUnavailable("update account failed")
-			}
-		}
-	}
-
-	if err = tx.Commit(); err != nil {
-		r.log.Errorf(ctx, "cancel: commit failed: %s", err.Error())
-		return QuotaErrStorageUnavailable("commit failed")
 	}
 	return nil
 }
 
-// ── 不变量重算（INV-01） ─────────────────────────────────────
-
-// InvariantRow 单租户单编码的恒等式重算结果。
-type InvariantRow struct {
-	TenantID        uint32
-	QuotaCode       string
-	OccupiedUnits   int64
-	ChargeRemainder int64
-	Balanced        bool
-}
-
-// RecomputeInvariants 用 SQL 重算 account.occupied_units 与
-// SUM(charge.original-released) 的恒等式（tenantId=0 表示全部租户）。
-func (r *QuotaLedgerRepo) RecomputeInvariants(ctx context.Context, tenantId uint32) ([]InvariantRow, error) {
-	rows, err := r.entClient.DB().QueryContext(ctx, `
-SELECT a.tenant_id, a.quota_code, a.occupied_units,
-       COALESCE(SUM(c.original_units - c.released_units), 0) AS charge_remainder
-FROM sys_quota_accounts a
-LEFT JOIN sys_quota_charges c
-       ON c.tenant_id = a.tenant_id AND c.quota_code = a.quota_code
-WHERE ($1 = 0 OR a.tenant_id = $1)
-GROUP BY a.tenant_id, a.quota_code, a.occupied_units
-ORDER BY a.tenant_id, a.quota_code`, tenantId)
+func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out *QuotaOccupyResult, err error) {
+	if in == nil || in.TenantID == 0 || len(in.Items) == 0 || in.IdempotencyKey == "" || in.RequestHash == "" || in.CanonicalRequest == "" || in.ResourceTenantID == "" || in.ResourceID == "" || in.OwnerService == "" || in.Action == "" || in.ActorType == "" || in.ActorID == "" {
+		return nil, QuotaErrInvalid("incomplete quota input")
+	}
+	items := append([]QuotaOccupyItem(nil), in.Items...)
+	sort.Slice(items, func(i, j int) bool { return items[i].QuotaCode < items[j].QuotaCode })
+	for i, it := range items {
+		if it.Units <= 0 || it.QuotaCode == "" || (i > 0 && items[i-1].QuotaCode == it.QuotaCode) {
+			return nil, QuotaErrInvalid("invalid or duplicate quota item")
+		}
+	}
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		tenant, err := tx.LockTenant(ctx, int64(in.TenantID))
+		if errors.Is(err, pgx.ErrNoRows) {
+			return QuotaErrAdmissionDenied("tenant not found")
+		}
+		if err != nil {
+			return err
+		}
+		// Replay precedes current subscription/capability checks and reuses the first snapshot.
+		op, err := tx.GetIdempotentOperation(ctx, q.GetIdempotentOperationParams{TenantID: int64(in.TenantID), ActorType: in.ActorType, ActorID: in.ActorID, Action: in.Action, IdempotencyKey: in.IdempotencyKey})
+		if err == nil {
+			if op.RequestHash != in.RequestHash || op.OwnerService != in.OwnerService {
+				return QuotaErrIdempotencyConflict("idempotency payload mismatch")
+			}
+			charges, e := tx.ListCharges(ctx, q.ListChargesParams{TenantID: int64(in.TenantID), OperationID: op.OperationID})
+			if e != nil {
+				return e
+			}
+			if e = validateFrozenCharges(op.CanonicalRequest, charges); e != nil {
+				return e
+			}
+			out = &QuotaOccupyResult{op.OperationID, op.ResourceID, chargeIDs(charges), true}
+			return nil
+		}
+		if !errors.Is(err, pgx.ErrNoRows) {
+			return err
+		}
+		if tenant.ResourceTenantID != in.ResourceTenantID {
+			return QuotaErrAdmissionDenied("resource tenant mapping mismatch")
+		}
+		if tenant.Status == nil || *tenant.Status != "ON" || (tenant.ExpiredAt != nil && !tenant.ExpiredAt.After(tenant.DatabaseNow)) {
+			return QuotaErrAdmissionDenied("tenant is inactive or expired")
+		}
+		if tenant.PlanID == nil || *tenant.PlanID == 0 {
+			return QuotaErrNotConfigured("tenant has no plan")
+		}
+		if _, err = tx.LockPlanShared(ctx, *tenant.PlanID); err != nil {
+			return err
+		}
+		policies, err := tx.ListPlanPolicies(ctx, *tenant.PlanID)
+		if err != nil {
+			return err
+		}
+		limits := map[string]int64{}
+		for _, p := range policies {
+			limits[p.QuotaCode] = p.QuotaValue
+		}
+		for _, it := range items {
+			limit, ok := limits[it.QuotaCode]
+			if !ok {
+				return QuotaErrNotConfigured("quota not configured: " + it.QuotaCode)
+			}
+			if err = tx.EnsureAccount(ctx, q.EnsureAccountParams{TenantID: int64(in.TenantID), QuotaCode: it.QuotaCode}); err != nil {
+				return err
+			}
+			acc, e := tx.LockAccount(ctx, q.LockAccountParams{TenantID: int64(in.TenantID), QuotaCode: it.QuotaCode})
+			if e != nil {
+				return e
+			}
+			if it.Units > limit || acc.OccupiedUnits > limit-it.Units {
+				return QuotaErrExceeded("quota exceeded: " + it.QuotaCode)
+			}
+		}
+		op, err = tx.InsertOperation(ctx, q.InsertOperationParams{OperationID: generateUUID(), TenantID: int64(in.TenantID), ResourceTenantID: in.ResourceTenantID, ResourceID: in.ResourceID, ActorType: in.ActorType, ActorID: in.ActorID, OwnerService: in.OwnerService, Action: in.Action, IdempotencyKey: in.IdempotencyKey, RequestHash: in.RequestHash, CanonicalRequest: in.CanonicalRequest, DispatchState: "QUEUED"})
+		if err != nil {
+			return err
+		}
+		charges := make([]q.SysQuotaCharge, 0, len(items))
+		byCode := map[string]string{}
+		for _, it := range items {
+			c, e := tx.InsertCharge(ctx, q.InsertChargeParams{ChargeID: generateUUID(), TenantID: int64(in.TenantID), OperationID: op.OperationID, QuotaCode: it.QuotaCode, OriginalUnits: it.Units})
+			if e != nil {
+				return e
+			}
+			charges = append(charges, c)
+			byCode[it.QuotaCode] = c.ChargeID
+			if e = changeAccount(ctx, tx, int64(in.TenantID), it.QuotaCode, it.Units); e != nil {
+				return e
+			}
+		}
+		if err = validateFrozenCharges(op.CanonicalRequest, charges); err != nil {
+			return err
+		}
+		ids := make([]string, len(in.Items))
+		for i, it := range in.Items {
+			ids[i] = byCode[it.QuotaCode]
+		}
+		out = &QuotaOccupyResult{op.OperationID, op.ResourceID, ids, false}
+		return nil
+	})
 	if err != nil {
-		return nil, err
+		return nil, r.storageError(ctx, err)
 	}
-	defer func() { _ = rows.Close() }()
-
-	out := make([]InvariantRow, 0, 8)
-	for rows.Next() {
-		var row InvariantRow
-		if err = rows.Scan(&row.TenantID, &row.QuotaCode, &row.OccupiedUnits, &row.ChargeRemainder); err != nil {
-			return nil, err
-		}
-		row.Balanced = row.OccupiedUnits == row.ChargeRemainder
-		out = append(out, row)
-	}
-	return out, rows.Err()
+	return out, nil
 }
-
-var _ = sql.ErrNoRows
-var _ = fmt.Stringer(nil)
-
-// ── 投递 worker 支持方法（§8.2） ─────────────────────────────
-
-// ClaimedOperation 一次成功领取的操作。
-type ClaimedOperation struct {
-	ID                uint32
-	TenantID          uint32
-	OperationID       string
-	ResourceTenantID  string
-	ResourceID        string
-	CreateOperationID string
-	ActorType         string
-	ActorID           string
-	OwnerService      string
-	Action            string
-	RequestHash       string
-	CanonicalRequest  string
-	LeaseGeneration   int64
-	AttemptCount      int
-	Charges           []QuotaChargeRef
-}
-
-// claimCandidate 候选条件：QUEUED/UNKNOWN/DISPATCHING(租约过期)，
-// 未被 retry_blocked，next_attempt_at 到期或为空。
-const claimCandidateSQL = `
-SELECT id FROM sys_quota_operations
-WHERE retry_blocked = false
-  AND (next_attempt_at IS NULL OR next_attempt_at <= now())
-  AND dispatch_state IN ('QUEUED', 'UNKNOWN')
-   OR (dispatch_state = 'DISPATCHING' AND (lease_until IS NULL OR lease_until <= now()))
-ORDER BY created_at
-LIMIT $1`
-
-// ClaimDispatchable 领取待投递操作：每条在独立事务内锁定并提交 DISPATCHING；
-// 领取事务先提交，网络调用由调用方随后进行（§8.2）。
-func (r *QuotaLedgerRepo) ClaimDispatchable(ctx context.Context, workerOwner string, lease time.Duration, limit int) ([]ClaimedOperation, error) {
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-	rowLock := supportsRowLock(r.entClient)
-
-	rows, err := r.entClient.DB().QueryContext(sysCtx, claimCandidateSQL, limit)
-	if err != nil {
-		return nil, err
+func changeAccount(ctx context.Context, tx *q.Queries, tenant int64, code string, delta int64) error {
+	n, e := tx.ChangeAccount(ctx, q.ChangeAccountParams{TenantID: tenant, QuotaCode: code, Delta: delta})
+	if e != nil {
+		return e
 	}
-	ids := make([]uint32, 0, limit)
-	for rows.Next() {
-		var id uint32
-		if err = rows.Scan(&id); err != nil {
-			_ = rows.Close()
-			return nil, err
-		}
-		ids = append(ids, id)
+	if n != 1 {
+		return fmt.Errorf("quota account invariant violation")
 	}
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-	_ = rows.Close()
-
-	claimed := make([]ClaimedOperation, 0, len(ids))
-	for _, id := range ids {
-		tx, terr := r.entClient.Client().Tx(sysCtx)
-		if terr != nil {
-			return claimed, terr
-		}
-		oq := tx.QuotaOperation.Query().Where(quotaoperation.IDEQ(id))
-		if rowLock {
-			oq = oq.ForUpdate()
-		}
-		op, oerr := oq.Only(sysCtx)
-		if oerr != nil {
-			_ = tx.Rollback()
-			continue // 已被其他 worker 领取/删除
-		}
-		claimable := op.DispatchState == quotaoperation.DispatchStateQueued ||
-			op.DispatchState == quotaoperation.DispatchStateUnknown ||
-			(op.DispatchState == quotaoperation.DispatchStateDispatching &&
-				op.LeaseUntil != nil && !op.LeaseUntil.After(time.Now()))
-		if !claimable || op.RetryBlocked {
-			_ = tx.Rollback()
-			continue
-		}
-		gen := op.LeaseGeneration + 1
-		charges, cerr := tx.QuotaCharge.Query().
-			Where(quotacharge.TenantIDEQ(derefUint32(op.TenantID)), quotacharge.OperationIDEQ(op.OperationID)).
-			All(sysCtx)
-		if cerr != nil {
-			_ = tx.Rollback()
-			continue
-		}
-		refs := make([]QuotaChargeRef, 0, len(charges))
-		for _, c := range charges {
-			refs = append(refs, QuotaChargeRef{ChargeID: c.ChargeID, QuotaCode: c.QuotaCode, ChargedUnits: c.OriginalUnits})
-		}
-		now := time.Now()
-		upq := tx.QuotaOperation.UpdateOneID(op.ID).
-			SetDispatchState(quotaoperation.DispatchStateDispatching).
-			AddAttemptCount(1).
-			SetLeaseGeneration(gen).
-			SetLeaseOwner(workerOwner).
-			SetLeaseUntil(now.Add(lease))
-		if _, uerr := upq.Save(sysCtx); uerr != nil {
-			_ = tx.Rollback()
-			continue
-		}
-		if cerr = tx.Commit(); cerr != nil {
-			continue
-		}
-		createOpID := ""
-		if op.CreateOperationID != nil {
-			createOpID = *op.CreateOperationID
-		}
-		claimed = append(claimed, ClaimedOperation{
-			ID:                op.ID,
-			TenantID:          derefUint32(op.TenantID),
-			OperationID:       op.OperationID,
-			ResourceTenantID:  op.ResourceTenantID,
-			ResourceID:        op.ResourceID,
-			CreateOperationID: createOpID,
-			ActorType:         op.ActorType,
-			ActorID:           op.ActorID,
-			OwnerService:      op.OwnerService,
-			Action:            op.Action,
-			RequestHash:       op.RequestHash,
-			CanonicalRequest:  op.CanonicalRequest,
-			LeaseGeneration:   gen,
-			AttemptCount:      op.AttemptCount + 1,
-			Charges:           refs,
-		})
-	}
-	return claimed, nil
+	return nil
 }
-
-// AckDispatched 成功回写 ACKED：必须匹配领取时的 lease_generation 和
-// DISPATCHING 前态（旧 worker 迟到回写被拒绝，FAIL-18）。
-func (r *QuotaLedgerRepo) AckDispatched(ctx context.Context, operationID string, generation int64, ackJSON string) (bool, error) {
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-	cnt, err := r.entClient.Client().QuotaOperation.Update().
-		Where(
-			quotaoperation.OperationIDEQ(operationID),
-			quotaoperation.LeaseGenerationEQ(generation),
-			quotaoperation.DispatchStateEQ(quotaoperation.DispatchStateDispatching),
-		).
-		SetDispatchState(quotaoperation.DispatchStateAcked).
-		SetNillableAckJSON(trans.Ptr(ackJSON)).
-		Save(sysCtx)
-	return cnt == 1, err
-}
-
-// MarkUnknown 发送结果不确定/永久合同错误回写：保持占额；
-// retryBlocked=true 时暂停自动重试（FAIL-17）。
-func (r *QuotaLedgerRepo) MarkUnknown(ctx context.Context, operationID string, generation int64, nextAttempt time.Time, lastErrCode string, retryBlocked bool) (bool, error) {
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-	upd := r.entClient.Client().QuotaOperation.Update().
-		Where(
-			quotaoperation.OperationIDEQ(operationID),
-			quotaoperation.LeaseGenerationEQ(generation),
-			quotaoperation.DispatchStateEQ(quotaoperation.DispatchStateDispatching),
-		).
-		SetDispatchState(quotaoperation.DispatchStateUnknown).
-		SetNextAttemptAt(nextAttempt).
-		SetRetryBlocked(retryBlocked).
-		SetNillableLastErrorCode(trans.Ptr(lastErrCode))
-	cnt, err := upd.Save(sysCtx)
-	return cnt == 1, err
-}
-
-// ResumeDispatch 解除 retry_blocked 暂停：保留原 operation/charge/request_hash，
-// 恢复后由正常 worker 重试原命令（FAIL-17）。仅允许 lab 控制钩子调用并记录审计。
-func (r *QuotaLedgerRepo) ResumeDispatch(ctx context.Context, operationID string) error {
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-	cnt, err := r.entClient.Client().QuotaOperation.Update().
-		Where(quotaoperation.OperationIDEQ(operationID), quotaoperation.RetryBlockedEQ(true)).
-		SetRetryBlocked(false).
-		SetNextAttemptAt(time.Now()).
-		Save(sysCtx)
-	if err != nil {
+func (r *QuotaLedgerRepo) storageError(ctx context.Context, err error) error {
+	// Preserve typed business errors; never leak connection errors or storage
+	// diagnostics through the BFF (including a closed pool/unreachable DB).
+	var business *kratosErrors.Error
+	if errors.As(err, &business) {
 		return err
 	}
-	if cnt == 0 {
-		return QuotaErrNotFound("no blocked operation with this id")
+	r.log.Errorf(ctx, "quota transaction: %v", err)
+	return QuotaErrStorageUnavailable("quota transaction failed")
+}
+
+func (r *QuotaLedgerRepo) Release(ctx context.Context, in *QuotaReleaseInput) (out []QuotaReleaseResult, err error) {
+	if in == nil || len(in.Items) == 0 || in.OwnerService == "" || in.OperationID == "" || in.ReleaseEventID == "" || in.PayloadHash == "" {
+		return nil, releaseErrInvalid("incomplete release")
+	}
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		// Sole owner-scoped locator: certificate owner plus original CREATE, before
+		// explicit tenant locking. Caller-provided tenant never authorizes a refund.
+		tid, e := tx.LocateReleaseOwnerOperation(ctx, q.LocateReleaseOwnerOperationParams{OperationID: in.OperationID, OwnerService: in.OwnerService})
+		if errors.Is(e, pgx.ErrNoRows) {
+			return releaseErrPermissionDenied("release owner or operation mismatch")
+		}
+		if e != nil {
+			return e
+		}
+		if _, e = tx.LockTenant(ctx, tid); e != nil {
+			return e
+		}
+		op, e := tx.LockOperation(ctx, q.LockOperationParams{TenantID: tid, OperationID: in.OperationID})
+		if e != nil {
+			return e
+		}
+		charges, e := tx.LockCharges(ctx, q.LockChargesParams{TenantID: tid, OperationID: in.OperationID})
+		if e != nil {
+			return e
+		}
+		if e = validateFrozenCharges(op.CanonicalRequest, charges); e != nil {
+			return releaseErrConflict("invalid original charge vector")
+		}
+		byID := map[string]q.SysQuotaCharge{}
+		for _, c := range charges {
+			byID[c.ChargeID] = c
+		}
+		incoming := map[string]QuotaReleaseItemInput{}
+		gpu := false
+		for _, it := range in.Items {
+			c, ok := byID[it.ChargeID]
+			if !ok {
+				return releaseErrNotFound("unknown charge")
+			}
+			if _, duplicate := incoming[it.ChargeID]; duplicate {
+				return releaseErrInvalid("duplicate charge")
+			}
+			if c.QuotaCode != it.QuotaCode || it.ReleasedTotal < 0 || it.ReleasedTotal > c.OriginalUnits {
+				return releaseErrConflict("invalid charge total or code")
+			}
+			incoming[it.ChargeID] = it
+			gpu = gpu || isGPUCode(it.QuotaCode)
+		}
+		if gpu {
+			for _, c := range charges {
+				if isGPUCode(c.QuotaCode) {
+					it, ok := incoming[c.ChargeID]
+					if !ok || it.ReleasedTotal != c.OriginalUnits {
+						return releaseErrConflict("GPU release requires complete original GPU vector and full cumulative totals")
+					}
+				}
+			}
+			has, e := tx.HasDeleteIntent(ctx, q.HasDeleteIntentParams{TenantID: tid, CreateOperationID: &in.OperationID, OwnerService: in.OwnerService})
+			if e != nil {
+				return e
+			}
+			if !has {
+				return releaseErrConflict("GPU release requires persisted DELETE intent")
+			}
+			if in.Reason != "RESOURCE_RELEASED" && in.Reason != "ABORTED_CLEANED" {
+				return releaseErrConflict("invalid GPU release reason")
+			}
+		}
+		receipt, e := tx.GetReleaseReceipt(ctx, q.GetReleaseReceiptParams{TenantID: tid, OwnerService: in.OwnerService, ReleaseEventID: in.ReleaseEventID})
+		replayed := e == nil
+		if replayed && receipt.PayloadHash != in.PayloadHash {
+			return releaseErrConflict("event payload mismatch")
+		}
+		if e != nil && !errors.Is(e, pgx.ErrNoRows) {
+			return e
+		}
+		out = make([]QuotaReleaseResult, 0, len(in.Items))
+		for _, c := range charges {
+			it, ok := incoming[c.ChargeID]
+			if !ok {
+				continue
+			}
+			total := c.ReleasedUnits
+			delta := int64(0)
+			if !replayed && it.ReleasedTotal > total {
+				delta = it.ReleasedTotal - total
+				total = it.ReleasedTotal
+				if _, e = tx.LockAccount(ctx, q.LockAccountParams{TenantID: tid, QuotaCode: c.QuotaCode}); e != nil {
+					return e
+				}
+				if e = changeAccount(ctx, tx, tid, c.QuotaCode, -delta); e != nil {
+					return e
+				}
+				if _, e = tx.SetReleasedTotal(ctx, q.SetReleasedTotalParams{TenantID: tid, ChargeID: c.ChargeID, ReleasedUnits: total}); e != nil {
+					return e
+				}
+			}
+			out = append(out, QuotaReleaseResult{c.ChargeID, delta, total})
+		}
+		if replayed {
+			return nil
+		}
+		return tx.InsertReleaseReceipt(ctx, q.InsertReleaseReceiptParams{ReceiptID: generateUUID(), TenantID: tid, OwnerService: in.OwnerService, ReleaseEventID: in.ReleaseEventID, PayloadHash: in.PayloadHash, PayloadJson: in.PayloadJSON})
+	})
+	return out, err
+}
+
+func cancelLocked(ctx context.Context, tx *q.Queries, op q.SysQuotaOperation, charges []q.SysQuotaCharge) error {
+	if op.DispatchState == "CANCELED_UNSENT" {
+		if op.AttemptCount != 0 || len(charges) == 0 {
+			return QuotaErrInvalid("inconsistent local cancellation")
+		}
+		if e := validateFrozenCharges(op.CanonicalRequest, charges); e != nil {
+			return e
+		}
+		for _, charge := range charges {
+			if charge.ReleasedUnits != charge.OriginalUnits {
+				return QuotaErrInvalid("local cancellation has incomplete refunds")
+			}
+		}
+		return nil
+	}
+	if op.DispatchState != "QUEUED" || op.AttemptCount != 0 {
+		return QuotaErrInvalid("owner closure required after a send attempt")
+	}
+	if len(charges) == 0 {
+		return QuotaErrInvalid("missing original charges")
+	}
+	if e := validateFrozenCharges(op.CanonicalRequest, charges); e != nil {
+		return e
+	}
+	for _, c := range charges {
+		delta := c.OriginalUnits - c.ReleasedUnits
+		if delta == 0 {
+			continue
+		}
+		if _, e := tx.LockAccount(ctx, q.LockAccountParams{TenantID: op.TenantID, QuotaCode: c.QuotaCode}); e != nil {
+			return e
+		}
+		if e := changeAccount(ctx, tx, op.TenantID, c.QuotaCode, -delta); e != nil {
+			return e
+		}
+		if _, e := tx.SetReleasedTotal(ctx, q.SetReleasedTotalParams{TenantID: op.TenantID, ChargeID: c.ChargeID, ReleasedUnits: c.OriginalUnits}); e != nil {
+			return e
+		}
+	}
+	n, e := tx.SetCanceledUnsent(ctx, q.SetCanceledUnsentParams{TenantID: op.TenantID, OperationID: op.OperationID})
+	if e != nil {
+		return e
+	}
+	if n != 1 {
+		return QuotaErrInvalid("operation concurrently claimed")
 	}
 	return nil
 }
-
-// GetOperationForUser 按 operation_id + tenant 读取投递状态（QUOTA-LAB-04）；
-// 禁止无租户 GetByID 后原样返回（§6.8）。
-func (r *QuotaLedgerRepo) GetOperationForUser(ctx context.Context, tenantId uint32, operationID string) (*ent.QuotaOperation, error) {
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-	op, err := r.entClient.Client().QuotaOperation.Query().
-		Where(
-			quotaoperation.OperationIDEQ(operationID),
-			quotaoperation.TenantIDEQ(tenantId),
-		).
-		Only(sysCtx)
-	return op, err
-}
-
-// QuotaChargeRef 命令携带的占额明细（service 层投递命令复用）。
-type QuotaChargeRef struct {
-	ChargeID     string
-	QuotaCode    string
-	ChargedUnits int64
-}
-
-// ── 删除操作登记（§6.2：DELETE 不新建 charge、不新增占额） ────
-
-// QuotaDeleteInput 删除操作输入。
-type QuotaDeleteInput struct {
-	TenantID        uint32
-	ActorType       string
-	ActorID         string
-	OwnerService    string
-	Action          string
-	IdempotencyKey  string
-	RequestHash     string
-	CanonicalRequest string
-	ResourceID      string
-}
-
-// QuotaDeleteResult 删除操作登记结果。
-type QuotaDeleteResult struct {
-	OperationID       string
-	CreateOperationID string
-	ChargeID          string // 原创建 charge（供转发命令与归属校验）
-	ResourceID        string
-	Replayed          bool
-}
-
-// CreateDeleteOperation 登记删除操作：按 (tenant,owner,resource_id,create IS NULL)
-// 定位原创建操作并持久保存 create_operation_id（重启后不依赖内存关联）。
-func (r *QuotaLedgerRepo) CreateDeleteOperation(ctx context.Context, in *QuotaDeleteInput) (*QuotaDeleteResult, error) {
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-	if in == nil || in.IdempotencyKey == "" || in.RequestHash == "" || in.CanonicalRequest == "" || in.ResourceID == "" {
-		return nil, QuotaErrInvalid("delete operation input is incomplete")
-	}
-
-	tx, err := r.entClient.Client().Tx(sysCtx)
-	if err != nil {
-		return nil, QuotaErrStorageUnavailable("start transaction failed")
-	}
-	rollback := func() { _ = tx.Rollback() }
-
-	// 幂等：同删除 key 同内容返回既有操作；不同内容冲突。
-	existing, err := tx.QuotaOperation.Query().
-		Where(
-			quotaoperation.TenantIDEQ(in.TenantID),
-			quotaoperation.ActorTypeEQ(in.ActorType),
-			quotaoperation.ActorIDEQ(in.ActorID),
-			quotaoperation.ActionEQ(in.Action),
-			quotaoperation.IdempotencyKeyEQ(in.IdempotencyKey),
-		).
-		Only(sysCtx)
-	if err == nil {
-		if existing.RequestHash != in.RequestHash {
-			rollback()
-			return nil, QuotaErrIdempotencyConflict("idempotency key reused with different payload")
+func (r *QuotaLedgerRepo) CancelUnsent(ctx context.Context, tid uint32, id string) error {
+	return r.transaction(ctx, func(tx *q.Queries) error {
+		if _, e := tx.LockTenant(ctx, int64(tid)); e != nil {
+			return e
 		}
-		origOpID := ""
-		if existing.CreateOperationID != nil {
-			origOpID = *existing.CreateOperationID
+		op, e := tx.LockOperation(ctx, q.LockOperationParams{TenantID: int64(tid), OperationID: id})
+		if e != nil {
+			return e
 		}
-		chargeID := ""
-		if origOpID != "" {
-			if ch, cerr := tx.QuotaCharge.Query().
-				Where(quotacharge.TenantIDEQ(in.TenantID), quotacharge.OperationIDEQ(origOpID)).
-				First(sysCtx); cerr == nil {
-				chargeID = ch.ChargeID
+		charges, e := tx.LockCharges(ctx, q.LockChargesParams{TenantID: int64(tid), OperationID: id})
+		if e != nil {
+			return e
+		}
+		return cancelLocked(ctx, tx, op, charges)
+	})
+}
+func (r *QuotaLedgerRepo) CreateDeleteOperation(ctx context.Context, in *QuotaDeleteInput) (out *QuotaDeleteResult, err error) {
+	if in == nil || in.TenantID == 0 || in.IdempotencyKey == "" || in.RequestHash == "" || in.ResourceID == "" || in.OwnerService == "" || in.ActorType == "" || in.ActorID == "" || in.Action == "" || in.CanonicalRequest == "" {
+		return nil, QuotaErrInvalid("incomplete delete input")
+	}
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		tid := int64(in.TenantID)
+		if _, e := tx.LockTenant(ctx, tid); e != nil {
+			return e
+		}
+		existing, e := tx.GetIdempotentOperation(ctx, q.GetIdempotentOperationParams{TenantID: tid, ActorType: in.ActorType, ActorID: in.ActorID, Action: in.Action, IdempotencyKey: in.IdempotencyKey})
+		replay := e == nil
+		if replay && (existing.RequestHash != in.RequestHash || existing.OwnerService != in.OwnerService || existing.ResourceID != in.ResourceID) {
+			return QuotaErrIdempotencyConflict("delete idempotency mismatch")
+		}
+		if e != nil && !errors.Is(e, pgx.ErrNoRows) {
+			return e
+		}
+		original, e := tx.FindCreateOperation(ctx, q.FindCreateOperationParams{TenantID: tid, OwnerService: in.OwnerService, ResourceID: in.ResourceID})
+		if errors.Is(e, pgx.ErrNoRows) {
+			return QuotaErrNotFound("resource not found")
+		}
+		if e != nil {
+			return e
+		}
+		original, e = tx.LockOperation(ctx, q.LockOperationParams{TenantID: tid, OperationID: original.OperationID})
+		if e != nil {
+			return e
+		}
+		charges, e := tx.LockCharges(ctx, q.LockChargesParams{TenantID: tid, OperationID: original.OperationID})
+		if e != nil {
+			return e
+		}
+		if len(charges) == 0 {
+			return QuotaErrInvalid("missing original charge vector")
+		}
+		if e = validateFrozenCharges(original.CanonicalRequest, charges); e != nil {
+			return e
+		}
+		gpu := false
+		for _, charge := range charges {
+			gpu = gpu || isGPUCode(charge.QuotaCode)
+		}
+		if replay {
+			if existing.CreateOperationID == nil || *existing.CreateOperationID != original.OperationID {
+				return QuotaErrIdempotencyConflict("delete origin mismatch")
+			}
+			if gpu {
+				accepted, e := tx.GetGpuDeleteAcceptance(ctx, q.GetGpuDeleteAcceptanceParams{TenantID: tid, DeleteOperationID: existing.OperationID})
+				if e != nil {
+					return e
+				}
+				if accepted.CreateOperationID != original.OperationID || accepted.RequestHash != in.RequestHash {
+					return QuotaErrIdempotencyConflict("GPU delete acceptance mismatch")
+				}
+			}
+			out = deleteResult(existing, charges, true)
+			return nil
+		}
+		local := original.DispatchState == "CANCELED_UNSENT" || (original.DispatchState == "QUEUED" && original.AttemptCount == 0)
+		if local {
+			if e = cancelLocked(ctx, tx, original, charges); e != nil {
+				return e
 			}
 		}
-		rollback()
-		return &QuotaDeleteResult{
-			OperationID:       existing.OperationID,
-			CreateOperationID: origOpID,
-			ChargeID:          chargeID,
-			ResourceID:        existing.ResourceID,
-			Replayed:          true,
-		}, nil
-	} else if !ent.IsNotFound(err) {
-		rollback()
-		r.log.Errorf(ctx, "delete op: idempotency lookup failed: %s", err.Error())
-		return nil, QuotaErrStorageUnavailable("idempotency lookup failed")
-	}
-
-	// 原创建操作必须存在且属于本租户（跨租户统一 404，不泄露存在性）。
-	createOp, err := tx.QuotaOperation.Query().
-		Where(
-			quotaoperation.TenantIDEQ(in.TenantID),
-			quotaoperation.OwnerServiceEQ(in.OwnerService),
-			quotaoperation.ResourceIDEQ(in.ResourceID),
-			quotaoperation.CreateOperationIDIsNil(),
-		).
-		Only(sysCtx)
-	if ent.IsNotFound(err) {
-		rollback()
-		return nil, QuotaErrNotFound("resource not found")
-	} else if err != nil {
-		rollback()
-		r.log.Errorf(ctx, "delete op: locate create operation failed: %s", err.Error())
-		return nil, QuotaErrStorageUnavailable("locate create operation failed")
-	}
-
-	origCharge, err := tx.QuotaCharge.Query().
-		Where(quotacharge.TenantIDEQ(in.TenantID), quotacharge.OperationIDEQ(createOp.OperationID)).
-		First(sysCtx)
-	if ent.IsNotFound(err) {
-		rollback()
-		return nil, QuotaErrNotFound("original charge not found")
-	} else if err != nil {
-		rollback()
-		return nil, QuotaErrStorageUnavailable("query original charge failed")
-	}
-
-	op, err := tx.QuotaOperation.Create().
-		SetOperationID(generateUUID()).
-		SetTenantID(in.TenantID).
-		SetResourceTenantID(createOp.ResourceTenantID).
-		SetResourceID(createOp.ResourceID).
-		SetNillableCreateOperationID(trans.Ptr(createOp.OperationID)).
-		SetActorType(in.ActorType).
-		SetActorID(in.ActorID).
-		SetOwnerService(in.OwnerService).
-		SetAction(in.Action).
-		SetIdempotencyKey(in.IdempotencyKey).
-		SetRequestHash(in.RequestHash).
-		SetCanonicalRequest(in.CanonicalRequest).
-		SetDispatchState(quotaoperation.DispatchStateQueued).
-		Save(sysCtx)
-	if err != nil {
-		rollback()
-		if ent.IsConstraintError(err) {
-			return nil, QuotaErrIdempotencyConflict("concurrent idempotency conflict")
+		state := "QUEUED"
+		if local {
+			state = "CANCELED_UNSENT"
 		}
-		r.log.Errorf(ctx, "delete op: save failed: %s", err.Error())
-		return nil, QuotaErrStorageUnavailable("save delete operation failed")
+		// DELETE carries the exact original frozen request, never a newly resolved plan.
+		op, e := tx.InsertOperation(ctx, q.InsertOperationParams{OperationID: generateUUID(), TenantID: tid, ResourceTenantID: original.ResourceTenantID, ResourceID: original.ResourceID, CreateOperationID: &original.OperationID, ActorType: in.ActorType, ActorID: in.ActorID, OwnerService: in.OwnerService, Action: in.Action, IdempotencyKey: in.IdempotencyKey, RequestHash: in.RequestHash, CanonicalRequest: original.CanonicalRequest, DispatchState: state})
+		if e != nil {
+			return e
+		}
+		if gpu {
+			result := "OWNER_DELETE"
+			if local {
+				result = "LOCAL_CANCELED"
+			}
+			if e = tx.InsertGpuDeleteAcceptance(ctx, q.InsertGpuDeleteAcceptanceParams{TenantID: tid, ActorType: in.ActorType, ActorID: in.ActorID, Action: in.Action, IdempotencyKey: in.IdempotencyKey, RequestHash: in.RequestHash, CreateOperationID: original.OperationID, DeleteOperationID: op.OperationID, Result: result}); e != nil {
+				return e
+			}
+		}
+		out = deleteResult(op, charges, false)
+		return nil
+	})
+	return out, err
+}
+func deleteResult(op q.SysQuotaOperation, charges []q.SysQuotaCharge, replay bool) *QuotaDeleteResult {
+	result := &QuotaDeleteResult{OperationID: op.OperationID, ResourceID: op.ResourceID, ChargeIDs: chargeIDs(charges), Replayed: replay, LocalCanceled: op.DispatchState == "CANCELED_UNSENT"}
+	if op.CreateOperationID != nil {
+		result.CreateOperationID = *op.CreateOperationID
 	}
-
-	if err = tx.Commit(); err != nil {
-		r.log.Errorf(ctx, "delete op: commit failed: %s", err.Error())
-		return nil, QuotaErrStorageUnavailable("commit failed")
+	if len(charges) == 1 {
+		result.ChargeID = charges[0].ChargeID
 	}
-	return &QuotaDeleteResult{
-		OperationID:       op.OperationID,
-		CreateOperationID: createOp.OperationID,
-		ChargeID:          origCharge.ChargeID,
-		ResourceID:        createOp.ResourceID,
-	}, nil
+	return result
 }
 
-// FindCreateOperationByResource 按 (tenant,owner,resource_id) 定位创建操作
-// 及其 charge（GET 转发与归属校验共用）。
-func (r *QuotaLedgerRepo) FindCreateOperationByResource(ctx context.Context, tenantId uint32, owner, resourceID string) (*ent.QuotaOperation, *ent.QuotaCharge, error) {
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-	op, err := r.entClient.Client().QuotaOperation.Query().
-		Where(
-			quotaoperation.TenantIDEQ(tenantId),
-			quotaoperation.OwnerServiceEQ(owner),
-			quotaoperation.ResourceIDEQ(resourceID),
-			quotaoperation.CreateOperationIDIsNil(),
-		).
-		Only(sysCtx)
-	if err != nil {
-		return nil, nil, err
+func (r *QuotaLedgerRepo) FindIdempotentOperation(ctx context.Context, tid uint32, actorType, actorID, action, key string) (out *ent.QuotaOperation, err error) {
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		v, e := tx.GetIdempotentOperation(ctx, q.GetIdempotentOperationParams{TenantID: int64(tid), ActorType: actorType, ActorID: actorID, Action: action, IdempotencyKey: key})
+		if e == nil {
+			out = operationDTO(v)
+		}
+		return e
+	})
+	return out, notFound(err)
+}
+func (r *QuotaLedgerRepo) GetOperationForUser(ctx context.Context, tid uint32, id string) (out *ent.QuotaOperation, err error) {
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		v, e := tx.GetOperation(ctx, q.GetOperationParams{TenantID: int64(tid), OperationID: id})
+		if e == nil {
+			out = operationDTO(v)
+		}
+		return e
+	})
+	return out, notFound(err)
+}
+func (r *QuotaLedgerRepo) GetCreateOperationByResource(ctx context.Context, tid uint32, owner, resource string) (out *ent.QuotaOperation, err error) {
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		v, e := tx.FindCreateOperation(ctx, q.FindCreateOperationParams{TenantID: int64(tid), OwnerService: owner, ResourceID: resource})
+		if e == nil {
+			out = operationDTO(v)
+		}
+		return e
+	})
+	return out, notFound(err)
+}
+func (r *QuotaLedgerRepo) GetChargesForOperation(ctx context.Context, tid uint32, id string) (out []*ent.QuotaCharge, err error) {
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		v, e := tx.ListCharges(ctx, q.ListChargesParams{TenantID: int64(tid), OperationID: id})
+		if e != nil {
+			return e
+		}
+		if len(v) == 0 {
+			return &ent.NotFoundError{}
+		}
+		for _, c := range v {
+			out = append(out, chargeDTO(c))
+		}
+		return nil
+	})
+	return out, err
+}
+func (r *QuotaLedgerRepo) GetChargeForOperation(ctx context.Context, tid uint32, id string) (*ent.QuotaCharge, error) {
+	cs, e := r.GetChargesForOperation(ctx, tid, id)
+	if e != nil {
+		return nil, e
 	}
-	charge, err := r.entClient.Client().QuotaCharge.Query().
-		Where(quotacharge.TenantIDEQ(tenantId), quotacharge.OperationIDEQ(op.OperationID)).
-		First(sysCtx)
-	if err != nil {
-		return nil, nil, err
+	if len(cs) != 1 {
+		return nil, QuotaErrInvalid("single-charge interface cannot represent the complete operation")
 	}
-	return op, charge, nil
+	return cs[0], nil
+}
+func (r *QuotaLedgerRepo) FindCreateOperationByResource(ctx context.Context, tid uint32, owner, resource string) (*ent.QuotaOperation, *ent.QuotaCharge, error) {
+	op, e := r.GetCreateOperationByResource(ctx, tid, owner, resource)
+	if e != nil {
+		return nil, nil, e
+	}
+	c, e := r.GetChargeForOperation(ctx, tid, op.OperationID)
+	return op, c, e
+}
+func (r *QuotaLedgerRepo) RecomputeInvariants(ctx context.Context, tid uint32) (out []InvariantRow, err error) {
+	if tid == 0 {
+		return nil, QuotaErrInvalid("tenant is required")
+	}
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		rows, e := tx.RecomputeTenantInvariants(ctx, int64(tid))
+		if e != nil {
+			return e
+		}
+		for _, v := range rows {
+			out = append(out, InvariantRow{uint32(v.TenantID), v.QuotaCode, v.OccupiedUnits, v.ChargeRemainder, v.OccupiedUnits == v.ChargeRemainder})
+		}
+		return nil
+	})
+	return
 }
 
-// GetChargeForOperation 返回操作的第一笔 charge（删除命令与查询响应使用）。
-func (r *QuotaLedgerRepo) GetChargeForOperation(ctx context.Context, tenantId uint32, operationID string) (*ent.QuotaCharge, error) {
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-	return r.entClient.Client().QuotaCharge.Query().
-		Where(quotacharge.TenantIDEQ(tenantId), quotacharge.OperationIDEQ(operationID)).
-		First(sysCtx)
+// Global scanning is bounded and returns the tenant. Every claim, read and CAS
+// after that scan is explicitly tenant scoped.
+func (r *QuotaLedgerRepo) ClaimDispatchable(ctx context.Context, worker string, lease time.Duration, limit int) (out []ClaimedOperation, err error) {
+	if limit < 1 || limit > 100 || worker == "" || lease <= 0 {
+		return nil, QuotaErrInvalid("invalid worker claim")
+	}
+	var candidates []q.ScanGlobalDispatchCandidatesRow
+	if err = r.transaction(ctx, func(tx *q.Queries) error {
+		var e error
+		candidates, e = tx.ScanGlobalDispatchCandidates(ctx, int32(limit))
+		return e
+	}); err != nil {
+		return nil, err
+	}
+	for _, candidate := range candidates {
+		var claimed *ClaimedOperation
+		e := r.transaction(ctx, func(tx *q.Queries) error {
+			// Tenant-first lock order serializes cancellation, release and worker claim.
+			if _, e := tx.LockTenant(ctx, candidate.TenantID); e != nil {
+				return e
+			}
+			op, e := tx.ClaimOperation(ctx, q.ClaimOperationParams{TenantID: candidate.TenantID, OperationID: candidate.OperationID, LeaseOwner: &worker, LeaseMicros: max(1, lease.Microseconds())})
+			if e != nil {
+				return e
+			}
+			origin := op.OperationID
+			if op.CreateOperationID != nil {
+				origin = *op.CreateOperationID
+			}
+			charges, e := tx.ListCharges(ctx, q.ListChargesParams{TenantID: op.TenantID, OperationID: origin})
+			if e != nil {
+				return e
+			}
+			if len(charges) == 0 || validateFrozenCharges(op.CanonicalRequest, charges) != nil {
+				// Keep the failed claim and its diagnostic durable. Rolling this
+				// transaction back would repeatedly select the same broken vector
+				// without recording an attempt and could starve healthy operations.
+				// A repaired original vector is retried without changing accounting.
+				code := "ORIGINAL_CHARGES_INVALID"
+				delay := min(30*time.Second, time.Second<<min(max(op.AttemptCount-1, 0), 5))
+				next := time.Now().Add(delay)
+				n, e := tx.MarkOperationUnknown(ctx, q.MarkOperationUnknownParams{TenantID: op.TenantID, OperationID: op.OperationID, LeaseGeneration: op.LeaseGeneration, NextAttemptAt: &next, LastErrorCode: &code})
+				if e != nil {
+					return e
+				}
+				if n != 1 {
+					return QuotaErrInvalid("failed to retain invalid original charge claim")
+				}
+				return nil
+			}
+			v := ClaimedOperation{ID: uint32(op.ID), TenantID: uint32(op.TenantID), OperationID: op.OperationID, ResourceTenantID: op.ResourceTenantID, ResourceID: op.ResourceID, ActorType: op.ActorType, ActorID: op.ActorID, OwnerService: op.OwnerService, Action: op.Action, RequestHash: op.RequestHash, CanonicalRequest: op.CanonicalRequest, LeaseGeneration: op.LeaseGeneration, AttemptCount: int(op.AttemptCount)}
+			if op.CreateOperationID != nil {
+				v.CreateOperationID = *op.CreateOperationID
+			}
+			for _, c := range charges {
+				v.Charges = append(v.Charges, QuotaChargeRef{c.ChargeID, c.QuotaCode, c.OriginalUnits})
+			}
+			claimed = &v
+			return nil
+		})
+		if errors.Is(e, pgx.ErrNoRows) {
+			continue
+		}
+		if e != nil {
+			return out, e
+		}
+		if claimed != nil {
+			out = append(out, *claimed)
+		}
+	}
+	return out, nil
 }
-
-// NewQuotaLedgerRepoForTest 供集成测试白盒构造（不连库、不播种）。
-func NewQuotaLedgerRepoForTest(c *entCrud.EntClient[*ent.Client], log *bLogger.Helper) *QuotaLedgerRepo {
-	return &QuotaLedgerRepo{entClient: c, log: log}
+func (r *QuotaLedgerRepo) AckDispatched(ctx context.Context, tid uint32, id string, generation int64, ack string) (ok bool, err error) {
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		n, e := tx.AckOperation(ctx, q.AckOperationParams{TenantID: int64(tid), OperationID: id, LeaseGeneration: generation, AckJson: &ack})
+		ok = n == 1
+		return e
+	})
+	return
 }
-
-// DB 暴露底层 sql.DB（集成测试与运维只读检查使用）。
-func (r *QuotaLedgerRepo) DB() *sql.DB { return r.entClient.DB() }
-
-// EntClientForTest 暴露 ent client（测试 fixture 构造使用）。
-func (r *QuotaLedgerRepo) EntClientForTest() *ent.Client { return r.entClient.Client() }
+func (r *QuotaLedgerRepo) MarkUnknown(ctx context.Context, tid uint32, id string, generation int64, next time.Time, code string, blocked bool) (ok bool, err error) {
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		n, e := tx.MarkOperationUnknown(ctx, q.MarkOperationUnknownParams{TenantID: int64(tid), OperationID: id, LeaseGeneration: generation, NextAttemptAt: &next, LastErrorCode: &code, RetryBlocked: blocked})
+		ok = n == 1
+		return e
+	})
+	return
+}
+func (r *QuotaLedgerRepo) ResumeDispatch(ctx context.Context, tid uint32, id string) error {
+	return r.transaction(ctx, func(tx *q.Queries) error {
+		n, e := tx.ResumeOperation(ctx, q.ResumeOperationParams{TenantID: int64(tid), OperationID: id})
+		if e != nil {
+			return e
+		}
+		if n != 1 {
+			return QuotaErrNotFound("blocked operation not found")
+		}
+		return nil
+	})
+}

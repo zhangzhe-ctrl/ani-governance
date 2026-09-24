@@ -92,6 +92,30 @@ func (f DictTypeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DictTypeMutation", m)
 }
 
+// The GpuDeleteAcceptanceFunc type is an adapter to allow the use of ordinary
+// function as GpuDeleteAcceptance mutator.
+type GpuDeleteAcceptanceFunc func(context.Context, *ent.GpuDeleteAcceptanceMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f GpuDeleteAcceptanceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.GpuDeleteAcceptanceMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GpuDeleteAcceptanceMutation", m)
+}
+
+// The GpuUsageSyncFunc type is an adapter to allow the use of ordinary
+// function as GpuUsageSync mutator.
+type GpuUsageSyncFunc func(context.Context, *ent.GpuUsageSyncMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f GpuUsageSyncFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.GpuUsageSyncMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GpuUsageSyncMutation", m)
+}
+
 // The InternalMessageFunc type is an adapter to allow the use of ordinary
 // function as InternalMessage mutator.
 type InternalMessageFunc func(context.Context, *ent.InternalMessageMutation) (ent.Value, error)

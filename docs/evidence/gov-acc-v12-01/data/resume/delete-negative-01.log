@@ -1,0 +1,5 @@
+# go-wind-admin/app/admin/service/internal/data [go-wind-admin/app/admin/service/internal/data.test]
+app/admin/service/internal/data/quota_gpu_negative_pg_test.go:254:74: c.Client().QuotaCharge.UpdateOneID(charges[0].ID).SetOriginalUnits undefined (type *"go-wind-admin/app/admin/service/internal/data/ent".QuotaChargeUpdateOne has no field or method SetOriginalUnits)
+app/admin/service/internal/data/quota_gpu_negative_pg_test.go:258:69: c.Client().QuotaOperation.UpdateOneID(op.ID).SetCanonicalRequest undefined (type *"go-wind-admin/app/admin/service/internal/data/ent".QuotaOperationUpdateOne has no field or method SetCanonicalRequest)
+FAIL	go-wind-admin/app/admin/service/internal/data [build failed]
+FAIL

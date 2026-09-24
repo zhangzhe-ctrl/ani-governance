@@ -1,0 +1,216 @@
+bash scripts/verify-quota-schema.sh
+bash scripts/verify-quota-sqlc.sh
+quota SQL boundary: 19 files checked
+4071ea43dc42f3e0befdcb7b71a9c70bb11da1ed386301475497e84e4c5af827  sqlc.yaml
+be0e7e199344853d3326f956df57415885cdd06469eb193fe278e74f3cf976b3  app/admin/service/schema.sql
+ec75a52cf9cd0079289b423d2de01a5b5bd04dde702c21c96bff581308f18cca  app/admin/service/internal/data/quotasql/db.go
+e95c9d141ce169de6eca566db7d46a4f6e5d8c9ff3894eb6dbad0fea151bd5da  app/admin/service/internal/data/quotasql/ledger.sql.go
+47f229864c5c0cb7f72cc85332ce10ee90de2bf9c8df9126ab38b363dde0c610  app/admin/service/internal/data/quotasql/models.go
+cd8c32261be46aaf3f1369f891a6499d1642e5e2e053ec8ef35f38f00c089ffb  app/admin/service/internal/data/quotasql/plan.sql.go
+a3c17a87f25b75a9c056474a1fac6f99677b4045b02f9db2febc8eb91d9450cd  app/admin/service/internal/data/quotasql/queries/ledger.sql
+786be2a1e704da8db47b5e4498f7831b52bc4442f02389789964d1f638ab87ae  app/admin/service/internal/data/quotasql/queries/plan.sql
+v1.30.0
+0d78f76148ed0459d878b101fc61c9955ca73e06b0a5bc2725bb3592d6946266  /home/chabking/gov-acc-v12-01-20260923/bin/sqlc
+go version
+go version go1.26.7-X:nodwarf5 linux/amd64
+go list -m github.com/zhangzhe-ctrl/ani-accelerator-service
+github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9173
+bash scripts/verify-gpu-format.sh
+go build -o /dev/null ./app/admin/service/cmd/server
+go: downloading github.com/tx7do/kratos-bootstrap/api v0.0.45
+go: downloading github.com/tx7do/kratos-bootstrap/bootstrap v0.1.17
+go: downloading github.com/tx7do/kratos-bootstrap/logger v0.1.3
+go: downloading github.com/tx7do/kratos-transport/transport/asynq v1.3.14
+go: downloading github.com/tx7do/kratos-transport/transport/sse v1.3.8
+go: downloading github.com/tx7do/kratos-transport/transport v1.3.4
+go: downloading github.com/go-kratos/aegis v0.2.0
+go: downloading github.com/gorilla/mux v1.8.1
+go: downloading golang.org/x/sync v0.22.0
+go: downloading github.com/google/subcommands v1.2.0
+go: downloading github.com/olekukonko/tablewriter v1.1.4
+go: downloading github.com/spf13/cobra v1.10.2
+go: downloading github.com/tx7do/kratos-bootstrap/config v0.2.3
+go: downloading github.com/tx7do/kratos-bootstrap/registry v0.2.3
+go: downloading github.com/tx7do/kratos-bootstrap/tracer v0.1.5
+go: downloading golang.org/x/tools v0.49.0
+go: downloading go.opentelemetry.io/otel/trace v1.46.0
+go: downloading github.com/tx7do/kratos-transport/broker v1.3.3
+go: downloading go.opentelemetry.io/otel v1.46.0
+go: downloading gopkg.in/cenkalti/backoff.v1 v1.1.0
+go: downloading github.com/go-sql-driver/mysql v1.10.1
+go: downloading github.com/jackc/pgx/v5 v5.11.0
+go: downloading github.com/lib/pq v1.12.3
+go: downloading github.com/jinzhu/copier v0.4.0
+go: downloading github.com/redis/go-redis/v9 v9.22.0
+go: downloading github.com/tx7do/go-crud/pagination v0.0.16
+go: downloading github.com/tx7do/go-utils/captcha v0.0.4
+go: downloading github.com/tx7do/go-utils/copierutil v0.0.8
+go: downloading github.com/tx7do/go-utils/crypto v0.0.2
+go: downloading github.com/tx7do/go-utils/jwtutil v0.0.3
+go: downloading github.com/tx7do/go-utils/mapper v0.0.3
+go: downloading github.com/tx7do/go-utils/password v0.0.2
+go: downloading github.com/tx7do/kratos-authn v1.1.11
+go: downloading github.com/tx7do/kratos-authn/engine/jwt v1.1.11
+go: downloading github.com/tx7do/kratos-bootstrap/cache/redis v0.1.2
+go: downloading github.com/tx7do/kratos-bootstrap/database/ent v0.1.6
+go: downloading github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9173
+go: downloading github.com/zhangzhe-ctrl/ani-network-service v0.0.0-20260917165536-66f787bd3013
+go: downloading github.com/tx7do/kratos-authz v1.1.8
+go: downloading github.com/tx7do/kratos-authz/middleware v1.1.13
+go: downloading github.com/tx7do/kratos-bootstrap/rpc v0.1.3
+go: downloading github.com/tx7do/kratos-bootstrap/transport/asynq v0.0.7
+go: downloading github.com/tx7do/kratos-bootstrap/transport/sse v0.0.5
+go: downloading github.com/tx7do/kratos-swagger-ui v0.0.1
+go: downloading github.com/hibiken/asynq v0.26.0
+go: downloading github.com/pquerna/otp v1.5.0
+go: downloading github.com/tx7do/go-utils/aggregator v0.0.5
+go: downloading github.com/tx7do/kratos-authz/engine/casbin v1.1.12
+go: downloading github.com/getkin/kin-openapi v0.149.0
+go: downloading golang.org/x/crypto v0.56.0
+go: downloading github.com/go-playground/form/v4 v4.3.1
+go: downloading github.com/tx7do/kratos-transport/transport/keepalive v1.3.5
+go: downloading github.com/spf13/pflag v1.0.10
+go: downloading github.com/mattn/go-runewidth v0.0.28
+go: downloading github.com/olekukonko/errors v1.3.0
+go: downloading github.com/olekukonko/ll v0.1.8
+go: downloading go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.46.0
+go: downloading go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.46.0
+go: downloading go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.46.0
+go: downloading go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.46.0
+go: downloading go.opentelemetry.io/otel/exporters/zipkin v1.45.0
+go: downloading go.opentelemetry.io/otel/sdk v1.46.0
+go: downloading github.com/tx7do/kratos-transport/tracing v1.1.2
+go: downloading filippo.io/edwards25519 v1.2.0
+go: downloading github.com/jackc/pgpassfile v1.0.0
+go: downloading github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761
+go: downloading github.com/XSAM/otelsql v0.44.0
+go: downloading github.com/tx7do/go-crud/cache v0.0.2
+go: downloading github.com/tx7do/go-wind v0.0.2
+go: downloading github.com/tx7do/go-wind-plugins/encoding v0.0.1
+go: downloading github.com/tx7do/go-wind-plugins/encoding/json v0.0.1
+go: downloading go.einride.tech/aip v0.86.3
+go: downloading github.com/mojocn/base64Captcha v1.3.8
+go: downloading github.com/wenlng/go-captcha/v2 v2.0.5
+go: downloading github.com/tjfoc/gmsm v1.4.1
+go: downloading github.com/golang-jwt/jwt/v5 v5.3.1
+go: downloading golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa
+go: downloading github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
+go: downloading github.com/redis/go-redis/extra/redisotel/v9 v9.22.0
+go: downloading github.com/gorilla/handlers v1.5.2
+go: downloading github.com/swaggest/swgui v1.8.5
+go: downloading github.com/vearutop/statigz v1.5.0
+go: downloading github.com/mileusna/useragent v1.3.5
+go: downloading github.com/robfig/cron/v3 v3.0.1
+go: downloading golang.org/x/time v0.15.0
+go: downloading github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc
+go: downloading github.com/graph-gophers/dataloader/v7 v7.1.3
+go: downloading github.com/jinzhu/inflection v1.0.0
+go: downloading github.com/casbin/casbin/v2 v2.135.0
+go: downloading github.com/go-openapi/jsonpointer v1.0.0
+go: downloading github.com/oasdiff/yaml v0.1.1
+go: downloading github.com/santhosh-tekuri/jsonschema/v6 v6.0.3
+go: downloading github.com/clipperhouse/uax29/v2 v2.7.0
+go: downloading github.com/cespare/xxhash/v2 v2.3.0
+go: downloading github.com/goccy/go-json v0.10.6
+go: downloading github.com/clipperhouse/displaywidth v0.11.0
+go: downloading github.com/fatih/color v1.19.0
+go: downloading dario.cat/mergo v1.0.2
+go: downloading github.com/fsnotify/fsnotify v1.10.1
+go: downloading github.com/go-logr/logr v1.4.4
+go: downloading go.opentelemetry.io/otel/metric v1.46.0
+go: downloading go.opentelemetry.io/proto/otlp v1.11.0
+go: downloading github.com/go-logr/stdr v1.2.2
+go: downloading github.com/openzipkin/zipkin-go v0.4.3
+go: downloading github.com/jackc/puddle/v2 v2.2.2
+go: downloading go.uber.org/atomic v1.11.0
+go: downloading github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
+go: downloading golang.org/x/image v0.40.0
+go: downloading github.com/redis/go-redis/extra/rediscmd/v9 v9.22.0
+go: downloading buf.build/go/protovalidate v1.4.0
+go: downloading github.com/felixge/httpsnoop v1.1.0
+go: downloading github.com/spf13/cast v1.10.0
+go: downloading github.com/casbin/govaluate v1.10.0
+go: downloading github.com/oasdiff/yaml3 v0.0.14
+go: downloading github.com/mattn/go-colorable v0.1.15
+go: downloading github.com/mattn/go-isatty v0.0.24
+go: downloading go.opentelemetry.io/auto/sdk v1.2.1
+go: downloading github.com/cenkalti/backoff/v5 v5.0.3
+go: downloading github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0
+go: downloading github.com/shirou/gopsutil/v3 v3.24.5
+go: downloading buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.2
+go: downloading cel.dev/cel-go v0.32.0
+go: downloading github.com/bmatcuk/doublestar/v4 v4.10.0
+go: downloading github.com/tklauser/go-sysconf v0.4.0
+go: downloading cel.dev/expr v0.25.3
+go: downloading github.com/antlr4-go/antlr/v4 v4.13.1
+go: downloading github.com/tklauser/numcpus v0.12.0
+go build -tags quota_lab -o /dev/null ./app/admin/service/cmd/server
+go build -o /dev/null ./app/admin/service/cmd/admin
+go test ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
+go: downloading github.com/alicebob/miniredis/v2 v2.39.0
+go: downloading github.com/stretchr/testify v1.12.1
+go: downloading modernc.org/sqlite v1.58.0
+go: downloading github.com/yuin/gopher-lua v1.1.2
+go: downloading modernc.org/libc v1.75.7
+go: downloading github.com/dustin/go-humanize v1.0.1
+go: downloading modernc.org/mathutil v1.7.1
+go: downloading modernc.org/memory v1.12.1
+go: downloading github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec
+ok  	go-wind-admin/app/admin/service/internal/data	9.812s
+ok  	go-wind-admin/app/admin/service/internal/service	14.376s
+ok  	go-wind-admin/app/admin/service/internal/server	0.542s
+ok  	go-wind-admin/pkg/audit	0.006s
+ok  	go-wind-admin/pkg/authorizer	0.010s
+ok  	go-wind-admin/pkg/constants	0.012s
+ok  	go-wind-admin/pkg/crypto	0.006s
+ok  	go-wind-admin/pkg/entgo/viewer	0.008s
+ok  	go-wind-admin/pkg/fieldperm	0.008s
+ok  	go-wind-admin/pkg/jwt	0.018s
+ok  	go-wind-admin/pkg/mailer	0.113s
+ok  	go-wind-admin/pkg/metadata	0.007s
+ok  	go-wind-admin/pkg/middleware/auth	0.016s
+ok  	go-wind-admin/pkg/middleware/ent	0.009s
+ok  	go-wind-admin/pkg/middleware/logging	0.047s
+ok  	go-wind-admin/pkg/middleware/requestid	0.009s
+ok  	go-wind-admin/pkg/netutil	0.011s
+ok  	go-wind-admin/pkg/password	0.002s
+ok  	go-wind-admin/pkg/serviceid	0.004s
+?   	go-wind-admin/pkg/task	[no test files]
+ok  	go-wind-admin/pkg/utils	0.004s
+ok  	go-wind-admin/pkg/utils/converter	0.010s
+go test -tags quota_pg ./app/admin/service/internal/data -run 'TestQuota|TestPlanQuota' -count=1 -timeout=15m
+ok  	go-wind-admin/app/admin/service/internal/data	6.436s
+go test -tags quota_pg ./app/admin/service/internal/service -run 'TestPlanQuota' -count=1 -timeout=10m
+ok  	go-wind-admin/app/admin/service/internal/service	0.123s
+go test -race -tags quota_pg ./app/admin/service/internal/data -run 'TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard|TestQuotaPostgresPolicyChanges|TestQuotaGpu|TestQuotaProcess' -count=1 -timeout=20m
+ok  	go-wind-admin/app/admin/service/internal/data	54.571s
+go test -race ./app/admin/service/internal/service -run 'TestGpu|TestQuotaDurable|TestAccelerator' -count=1 -timeout=10m
+ok  	go-wind-admin/app/admin/service/internal/service	1.159s
+QUOTA_LAB_PG_DSN="${QUOTA_LAB_REGRESSION_DSN:-$QUOTA_LAB_PG_DSN}" bash scripts/accelerator-acceptance/lab-regression.sh
+=== RUN   TestSimPG_AUTH05_CertNegatives
+--- PASS: TestSimPG_AUTH05_CertNegatives (1.18s)
+=== RUN   TestSimPG_FAIL03_AckLostRetryNoDuplication
+--- PASS: TestSimPG_FAIL03_AckLostRetryNoDuplication (0.90s)
+=== RUN   TestSimPG_FAIL04_RecoverAfterProviderCommit
+--- PASS: TestSimPG_FAIL04_RecoverAfterProviderCommit (0.65s)
+=== RUN   TestSimPG_FAIL05_06_PartialCleanupThenRecover
+--- PASS: TestSimPG_FAIL05_06_PartialCleanupThenRecover (0.69s)
+=== RUN   TestSimPG_FAIL08_09_16_PartialReleaseNotifyRetry
+--- PASS: TestSimPG_FAIL08_09_16_PartialReleaseNotifyRetry (0.73s)
+=== RUN   TestSimPG_FAIL14_ReplayCreateAfterFullRelease
+--- PASS: TestSimPG_FAIL14_ReplayCreateAfterFullRelease (0.96s)
+=== RUN   TestSimPG_FAIL17_ContractErrorThenResume
+--- PASS: TestSimPG_FAIL17_ContractErrorThenResume (0.71s)
+=== RUN   TestSimPG_CON06_ConcurrentDeleteAndAbort
+--- PASS: TestSimPG_CON06_ConcurrentDeleteAndAbort (0.67s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/quotalab/simulator	7.030s
+bash scripts/verify-gpu-audit.sh
+Scanner: govulncheck@v1.7.0
+	mod	github.com/zricethezav/gitleaks/v8	v8.30.1	h1:PmEvCfVI7ti9dV3s5aMZUY7sS2GxRvG3yzih7E+cS3w=
+db273bbd80764c12e4f48961f766be3ccec2acb31f70cbd479eac41094b455ab  /home/chabking/gov-acc-v12-01-20260923/acc/.tools/bin/govulncheck
+e5f6e51b7d7ce5f463e62e2961ac0f867a7da2d0ca32fde896eea71c274f9f64  /home/chabking/gov-acc-v12-01-20260923/acc/.tools/bin/gitleaks
+app/admin/service/configs/auth.yaml: 失败
+app/admin/service/internal/data/authenticator_test.go: 成功
+sha256sum: 警告：1 个校验和不匹配
+make: *** [Makefile:203：verify-gpu-audit] 错误 1

@@ -1,0 +1,15 @@
+{
+  "production_pid": 1085537,
+  "binary_sha256": "8010247de88904934dfbb326dbca06f5421d20bf1a3d9f3e4c07a6bb8a5ca8b6",
+  "container": "gov-acc-v12-01-acc",
+  "started_at": "2026-09-24T03:01:02Z",
+  "ready_before": 200,
+  "ready_during": 503,
+  "health_during": 200,
+  "ready_after": 200,
+  "group_sha256_before": "822c25e9a680c3d06df024afde624c01964f4850abaaf335e60050702813823f",
+  "group_sha256_after": "822c25e9a680c3d06df024afde624c01964f4850abaaf335e60050702813823f",
+  "same_production_process": true,
+  "status": "pass",
+  "finished_at": "2026-09-24T03:01:08Z"
+}

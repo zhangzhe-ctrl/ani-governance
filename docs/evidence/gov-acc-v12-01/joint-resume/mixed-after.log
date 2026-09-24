@@ -1,0 +1,5 @@
+=== RUN   TestJointMixedCharges
+    mixed_test.go:68: mixed full DELETE vector recovered; GPU ENDED preceded non-GPU cumulative refunds
+--- PASS: TestJointMixedCharges (4.56s)
+PASS
+ok  	go-wind-admin/app/admin/service/tests/gpucontract	5.200s

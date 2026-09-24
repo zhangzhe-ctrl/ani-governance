@@ -88,16 +88,17 @@ func (c *GovernanceControl) workerPause(w http.ResponseWriter, r *http.Request) 
 func (c *GovernanceControl) dispatchResume(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		OperationID string `json:"operation_id"`
+		TenantID    uint32 `json:"tenant_id"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	if req.OperationID == "" {
-		http.Error(w, "operation_id required", 400)
+	if req.OperationID == "" || req.TenantID == 0 {
+		http.Error(w, "operation_id and tenant_id required", 400)
 		return
 	}
-	if err := c.ledger.ResumeDispatch(r.Context(), req.OperationID); err != nil {
+	if err := c.ledger.ResumeDispatch(r.Context(), req.TenantID, req.OperationID); err != nil {
 		c.audit.Store(req.OperationID, fmt.Sprintf("resume failed: %v at %s", err, time.Now().Format(time.RFC3339)))
 		http.Error(w, err.Error(), 500)
 		return

@@ -10,6 +10,7 @@ package data
 import (
 	"context"
 	"database/sql"
+	"embed"
 	"fmt"
 	"os"
 	"strings"
@@ -20,20 +21,21 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib" // database/sql pgx 驱动
 
 	"github.com/stretchr/testify/require"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/tx7do/go-utils/mapper"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
-	entCrud "github.com/tx7do/go-crud/entgo"
 	entsql "entgo.io/ent/dialect/sql"
+	entCrud "github.com/tx7do/go-crud/entgo"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
+	"go-wind-admin/app/admin/service/internal/data/ent/plan"
 	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
 	"go-wind-admin/app/admin/service/internal/data/ent/quotaaccount"
-	"go-wind-admin/app/admin/service/internal/data/ent/plan"
-	"go-wind-admin/app/admin/service/internal/data/ent/quotadefinition"
 	"go-wind-admin/app/admin/service/internal/data/ent/quotacharge"
+	"go-wind-admin/app/admin/service/internal/data/ent/quotadefinition"
 	"go-wind-admin/app/admin/service/internal/data/ent/quotaoperation"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
@@ -62,13 +64,16 @@ func cleanLedger(t *testing.T, c *entCrud.EntClient[*ent.Client]) {
 	t.Helper()
 	ctx := context.Background()
 	for _, stmt := range []string{
-		"DELETE FROM sys_quota_release_receipts",
-		"DELETE FROM sys_quota_charges",
-		"DELETE FROM sys_quota_operations",
-		"DELETE FROM sys_quota_accounts",
-		"DELETE FROM sys_plan_quotas",
-		"DELETE FROM sys_plans",
-		"DELETE FROM sys_tenants",
+		quotaPGSQL("historical_01.sql"),
+		quotaPGSQL("historical_02.sql"),
+		quotaPGSQL("historical_03.sql"),
+		quotaPGSQL("historical_04.sql"),
+		quotaPGSQL("historical_05.sql"),
+		quotaPGSQL("historical_06.sql"),
+		quotaPGSQL("historical_07.sql"),
+		quotaPGSQL("historical_08.sql"),
+		quotaPGSQL("historical_09.sql"),
+		quotaPGSQL("historical_10.sql"),
 	} {
 		if _, err := c.DB().ExecContext(ctx, stmt); err != nil {
 			t.Fatalf("clean ledger %q: %v", stmt, err)
@@ -77,6 +82,8 @@ func cleanLedger(t *testing.T, c *entCrud.EntClient[*ent.Client]) {
 }
 
 // seedTenantPlan 创建租户与套餐并设置 gpu.count 政策，返回 (tenantID, planID)。
+var quotaTestTenantMappings sync.Map
+
 func seedTenantPlan(t *testing.T, c *entCrud.EntClient[*ent.Client], name string, gpuLimit uint64) (uint32, uint32) {
 	t.Helper()
 	ctx := appViewer.NewSystemViewerContext(context.Background())
@@ -93,6 +100,7 @@ func seedTenantPlan(t *testing.T, c *entCrud.EntClient[*ent.Client], name string
 		SetQuotaCode(QuotaCodeGpuCount).
 		SetQuotaValue(gpuLimit).
 		Exec(ctx))
+	quotaTestTenantMappings.Store(tn.ID, tn.ResourceTenantID)
 	return tn.ID, plan.ID
 }
 
@@ -136,10 +144,18 @@ func deleteTenantReq(tenantId uint32) *identityV1.DeleteTenantRequest {
 	}
 }
 
+func testResourceTenantID(id uint32) string {
+	v, _ := quotaTestTenantMappings.Load(id)
+	if v == nil {
+		return "11111111-1111-4111-8111-111111111111"
+	}
+	return v.(string)
+}
+
 func occupyInput(tenantId uint32, actor string, key string, units int64) *QuotaOccupyInput {
 	return &QuotaOccupyInput{
 		TenantID:         tenantId,
-		ResourceTenantID: "11111111-1111-4111-8111-111111111111",
+		ResourceTenantID: testResourceTenantID(tenantId),
 		ResourceID:       "22222222-2222-4222-8222-" + fmt.Sprintf("%012d", time.Now().UnixNano()%1_000_000_000_000)[:12],
 		ActorType:        "user",
 		ActorID:          actor,
@@ -326,7 +342,7 @@ func TestQuotaPostgresCancelUnsent(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, int64(2), accountOccupied(t, c, tenantId, QuotaCodeGpuCount))
 
-	require.NoError(t, repo.CancelUnsent(context.Background(), res.OperationID))
+	require.NoError(t, repo.CancelUnsent(context.Background(), tenantId, res.OperationID))
 	require.Equal(t, int64(0), accountOccupied(t, c, tenantId, QuotaCodeGpuCount))
 
 	ctx := appViewer.NewSystemViewerContext(context.Background())
@@ -342,7 +358,7 @@ func TestQuotaPostgresCancelUnsent(t *testing.T) {
 		AddAttemptCount(1).
 		Save(ctx)
 	require.NoError(t, err)
-	require.Error(t, repo.CancelUnsent(context.Background(), res2.OperationID))
+	require.Error(t, repo.CancelUnsent(context.Background(), tenantId, res2.OperationID))
 	require.Equal(t, int64(1), accountOccupied(t, c, tenantId, QuotaCodeGpuCount))
 }
 
@@ -360,15 +376,13 @@ func TestQuotaPostgresCompositeFK(t *testing.T) {
 	// 用 tenant B 的身份插入指向 A 操作的 charge：复合 FK (tenant_id, operation_id) 拒绝。
 	op := opByOperationID(t, c, resA.OperationID)
 	_, err = c.DB().ExecContext(context.Background(),
-		`INSERT INTO sys_quota_charges (tenant_id, charge_id, operation_id, quota_code, original_units, released_units, created_at, updated_at)
-		 VALUES ($1, $2, $3, $4, 1, 0, now(), now())`,
+		quotaPGSQL("historical_11.sql"),
 		tenantB, "55555555-5555-4555-8555-555555555555", op.OperationID, QuotaCodeGpuCount)
 	require.Error(t, err, "跨租户 charge 必须被复合 FK 拒绝")
 
 	// 同理：receipt 指向不存在租户归属（tenant FK RESTRICT）。
 	_, err = c.DB().ExecContext(context.Background(),
-		`INSERT INTO sys_quota_release_receipts (tenant_id, receipt_id, owner_service, release_event_id, payload_hash, payload_json, created_at)
-		 VALUES ($1, $2, $3, $4, 'h', 'p', now())`,
+		quotaPGSQL("historical_12.sql"),
 		424242, "66666666-6666-4666-8666-666666666666", QuotaCodeOwnerLab, "70000000-0000-4000-8000-000000000099")
 	require.Error(t, err, "不存在的租户必须被 tenant FK 拒绝")
 }
@@ -547,7 +561,7 @@ func TestQuotaPostgresReleaseBeforeAck(t *testing.T) {
 	require.Equal(t, int64(0), accountOccupied(t, c, tenantId, QuotaCodeGpuCount))
 
 	// 迟到 ACK：写回成功但占额保持 0（不复活）。
-	ok, err := repo.AckDispatched(context.Background(), res.OperationID, 1, `{}`)
+	ok, err := repo.AckDispatched(context.Background(), tenantId, res.OperationID, 1, `{}`)
 	require.NoError(t, err)
 	require.True(t, ok)
 	require.Equal(t, int64(0), accountOccupied(t, c, tenantId, QuotaCodeGpuCount))
@@ -569,7 +583,7 @@ func TestQuotaPostgresCancelClaimRace(t *testing.T) {
 		var wg sync.WaitGroup
 		raceErr := make(chan error, 2)
 		wg.Add(2)
-		go func() { defer wg.Done(); raceErr <- repo.CancelUnsent(context.Background(), res.OperationID) }()
+		go func() { defer wg.Done(); raceErr <- repo.CancelUnsent(context.Background(), tenantId, res.OperationID) }()
 		go func() {
 			defer wg.Done()
 			ops, err := repo.ClaimDispatchable(context.Background(), "w-race", 15*time.Second, 8)
@@ -605,7 +619,7 @@ func TestQuotaPostgresCancelClaimRace(t *testing.T) {
 		}
 		_ = occ
 		// 清理本轮账本供下一轮。
-		_, _ = c.DB().ExecContext(ctx, "DELETE FROM sys_quota_release_receipts; DELETE FROM sys_quota_charges; DELETE FROM sys_quota_operations; DELETE FROM sys_quota_accounts")
+		_, _ = c.DB().ExecContext(ctx, quotaPGSQL("historical_13.sql"))
 	}
 }
 
@@ -643,16 +657,16 @@ func TestQuotaPostgresLeaseGenerationGuard(t *testing.T) {
 	require.Equal(t, int64(2), genB, "takeover must increment generation")
 
 	// 旧 worker 迟到回写：被 generation 检查拒绝。
-	ok, err := repo.AckDispatched(context.Background(), res.OperationID, genA, `{}`)
+	ok, err := repo.AckDispatched(context.Background(), tenantId, res.OperationID, genA, `{}`)
 	require.NoError(t, err)
 	require.False(t, ok, "stale generation writeback must be rejected")
-	_, err = repo.MarkUnknown(context.Background(), res.OperationID, genA, time.Now(), "STALE", false)
+	_, err = repo.MarkUnknown(context.Background(), tenantId, res.OperationID, genA, time.Now(), "STALE", false)
 	require.NoError(t, err)
-	okU, _ := repo.MarkUnknown(context.Background(), res.OperationID, genA, time.Now(), "STALE", false)
+	okU, _ := repo.MarkUnknown(context.Background(), tenantId, res.OperationID, genA, time.Now(), "STALE", false)
 	require.False(t, okU, "stale unknown writeback must be rejected")
 
 	// 新 worker ACK：成功，且状态不会被旧回写复活。
-	ok, err = repo.AckDispatched(context.Background(), res.OperationID, genB, `{"accepted":true}`)
+	ok, err = repo.AckDispatched(context.Background(), tenantId, res.OperationID, genB, `{"accepted":true}`)
 	require.NoError(t, err)
 	require.True(t, ok)
 	ctx := appViewer.NewSystemViewerContext(context.Background())
@@ -742,28 +756,44 @@ func TestQuotaPostgresPolicyChanges(t *testing.T) {
 
 	// POL-01：上限降到 4 → available=0，新申请拒绝，不自动退额。
 	ctx := appViewer.NewSystemViewerContext(context.Background())
-	_, err := c.Client().PlanQuota.Update().Where(
-		planquota.HasPlanWith(plan.IDEQ(planId)), planquota.QuotaCodeEQ(QuotaCodeGpuCount)).
-		SetQuotaValue(4).Save(ctx)
+	policy, err := c.Client().PlanQuota.Query().Where(planquota.HasPlanWith(plan.IDEQ(planId)), planquota.QuotaCodeEQ(QuotaCodeGpuCount)).Only(ctx)
+	require.NoError(t, err)
+	policyRepo := newPlanQuotaRepoPostgres(t, c)
+	setLimit := func(value uint64) error {
+		return policyRepo.Update(ctx, &identityV1.UpdatePlanQuotaRequest{Id: policy.ID, Data: &identityV1.PlanQuota{QuotaValue: &value}, UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"quota_value"}}})
+	}
+	err = setLimit(4)
 	require.NoError(t, err)
 	_, err = repo.Occupy(context.Background(), occupyInput(tenantId, "7",
 		"db000000-0000-4000-8000-000000000001", 1))
 	require.Error(t, err)
 	require.Equal(t, "QUOTA_EXCEEDED", codeOf(t, err))
 	require.Equal(t, int64(6), accountOccupied(t, c, tenantId, QuotaCodeGpuCount), "no auto eviction")
+	adminRepo := &QuotaAdminRepo{entClient: c}
+	views, err := adminRepo.ListTenantAccounts(context.Background(), tenantId)
+	require.NoError(t, err)
+	found := false
+	for _, v := range views.Items {
+		if v.QuotaCode == QuotaCodeGpuCount {
+			found = true
+			require.Equal(t, "4", v.Limit)
+			require.Equal(t, "6", v.Occupied)
+			require.Equal(t, "0", v.Available)
+			require.True(t, v.OverLimit)
+		}
+	}
+	require.True(t, found)
 
 	// POL-02：降额与新占额并发 —— 数据库提交顺序串行化，
 	// 最终占用必须 ≤ max(旧限,新限) 且恒等式成立。
 	var wg sync.WaitGroup
-	lowered := make(chan struct{})
+	require.NoError(t, setLimit(8))
+	lowered := make(chan error, 1)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		time.Sleep(20 * time.Millisecond)
-		_, _ = c.Client().PlanQuota.Update().Where(
-			planquota.HasPlanWith(plan.IDEQ(planId)), planquota.QuotaCodeEQ(QuotaCodeGpuCount)).
-			SetQuotaValue(8).Save(ctx)
-		close(lowered)
+		lowered <- setLimit(7)
 	}()
 	for i := 0; i < 4; i++ {
 		wg.Add(1)
@@ -775,6 +805,7 @@ func TestQuotaPostgresPolicyChanges(t *testing.T) {
 		}(i)
 	}
 	wg.Wait()
+	require.NoError(t, <-lowered)
 	occ := accountOccupied(t, c, tenantId, QuotaCodeGpuCount)
 	require.LessOrEqual(t, occ, int64(8), "no admission beyond any committed limit")
 	rows, err := repo.RecomputeInvariants(context.Background(), tenantId)
@@ -846,4 +877,15 @@ func TestQuotaPostgresZeroLimit(t *testing.T) {
 	require.Error(t, err)
 	require.Equal(t, "QUOTA_EXCEEDED", codeOf(t, err))
 	_ = planId
+}
+
+//go:embed testdata/quota/*.sql
+var quotaPGSources embed.FS
+
+func quotaPGSQL(name string) string {
+	contents, err := quotaPGSources.ReadFile("testdata/quota/" + name)
+	if err != nil {
+		panic(err)
+	}
+	return string(contents)
 }

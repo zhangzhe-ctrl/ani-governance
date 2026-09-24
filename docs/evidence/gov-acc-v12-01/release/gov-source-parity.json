@@ -1,0 +1,30 @@
+{
+  "timestamp_utc": "2026-09-24T03:23:27.199969+00:00",
+  "source": "local current delivery tree transferred via rsync; no local hashing",
+  "comparison": "verify-gpu-05-source.sha256",
+  "scope": "all paths in make05 manifest, plus new files under app/api/pkg/migrations/sql/scripts; docs excluded from parity and included in final secret scan",
+  "expected_files": 1492,
+  "matched_files": 1490,
+  "changed": [
+    {
+      "path": "app/admin/service/tests/gpucontract/policy_recovery_test.go",
+      "category": "test_or_fixture",
+      "tested_sha256": "39db6bb79e109c3d6c571619f2373587c1aacda3535a8ba8d37d4421240214f6",
+      "current_sha256": "8516f583c720ed0f213556662199ffb65839086278ebaae3f9c5485f1a0f89ca"
+    },
+    {
+      "path": "scripts/accelerator-acceptance/run-joint-contract.sh",
+      "category": "verification_or_delivery",
+      "tested_sha256": "fe3a8d42bc530f4749baa1edec1f9f262050eb4c5d378c8a960184e64d9300ab",
+      "current_sha256": "06e0f9fd8038cb1989b6b2a4e3042b08c65d72f4677434a6654dc0dc39ef0d2e"
+    }
+  ],
+  "missing": [],
+  "added": [],
+  "runtime_query_schema_module_parity": "pass",
+  "delta_validation": {
+    "scope": "two changed test/runner files only",
+    "normal": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031542Z",
+    "race": "docs/evidence/gov-acc-v12-01/joint-resume/20260924T031813Z"
+  }
+}

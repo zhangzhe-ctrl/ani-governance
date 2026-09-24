@@ -78,7 +78,7 @@ func (QuotaReleaseReceipt) Mixin() []ent.Mixin {
 // Indexes of the QuotaReleaseReceipt.
 func (QuotaReleaseReceipt) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("owner_service", "release_event_id").Unique().
+		index.Fields("tenant_id", "owner_service", "release_event_id").Unique().
 			StorageKey("uix_sys_quota_release_receipts_owner_event"),
 	}
 }

@@ -1,0 +1,7 @@
+{
+  "staged_tree": "8c54aa82d711c517e1115b5dc05be14959055a36",
+  "files": 1744,
+  "differences": [],
+  "status": "pass",
+  "scope": "all non-doc files after reviewed fixture-lock update matched the Fedora verified source; original full make stopped at old fixture digest, audit retry covers that only delta"
+}

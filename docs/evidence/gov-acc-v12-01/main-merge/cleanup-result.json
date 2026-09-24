@@ -1,0 +1,7 @@
+{
+  "container_absent": true,
+  "private_caches_and_certificates_absent": true,
+  "backup_mode": "0o600",
+  "backup_sha256": "42ec3398029f98bd0467fe78cc28643f0bab1c413b8a55b83d6ec3d60d73544d",
+  "pass": true
+}

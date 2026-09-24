@@ -1,0 +1,5 @@
+go: downloading github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260923100416-9f9712198488
+=== RUN   TestQuotaGpuRestoredProjectionContinuation
+--- PASS: TestQuotaGpuRestoredProjectionContinuation (0.04s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	0.072s

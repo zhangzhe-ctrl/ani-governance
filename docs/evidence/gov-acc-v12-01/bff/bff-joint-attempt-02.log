@@ -1,0 +1,13 @@
+=== RUN   TestAcceleratorJointHTTP
+    accelerator_joint_http_test.go:293: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/accelerator_joint_http_test.go:201
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/accelerator_joint_http_test.go:293
+        	Error:      	Not equal: 
+        	            	expected: 403
+        	            	actual  : 200
+        	Test:       	TestAcceleratorJointHTTP
+        	Messages:   	GET /api/v1/accelerator/profiles?cluster_id=16d14807-46ae-41f9-825b-97af766c21b8: {"items":[{"profile_id":"a58e1bc6-1433-4c8a-a0ec-e3a143da3b0c","profile_version":"1","display_name":"joint-6gib","spec":{"group_id":"45182356-5cbf-4505-8615-0248fe233814","mode":"SHARED_FIXED","model_key":"nvidia-test","shared_memory_mib":"6144","core_limit_percent":25,"max_devices_per_replica":1,"isolation_class":"SOFTWARE_COOPERATIVE"},"published":true}],"next_page_token":""}
+--- FAIL: TestAcceleratorJointHTTP (1.29s)
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/service	1.327s
+FAIL

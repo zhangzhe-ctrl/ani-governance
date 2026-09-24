@@ -1,0 +1,42 @@
+=== RUN   TestGpuCapabilityRequiresSameOwnerActions
+=== RUN   TestGpuCapabilityRequiresSameOwnerActions/complete
+=== RUN   TestGpuCapabilityRequiresSameOwnerActions/missing-delete
+=== RUN   TestGpuCapabilityRequiresSameOwnerActions/foreign-delete
+=== RUN   TestGpuCapabilityRequiresSameOwnerActions/foreign-create
+--- PASS: TestGpuCapabilityRequiresSameOwnerActions (0.00s)
+    --- PASS: TestGpuCapabilityRequiresSameOwnerActions/complete (0.00s)
+    --- PASS: TestGpuCapabilityRequiresSameOwnerActions/missing-delete (0.00s)
+    --- PASS: TestGpuCapabilityRequiresSameOwnerActions/foreign-delete (0.00s)
+    --- PASS: TestGpuCapabilityRequiresSameOwnerActions/foreign-create (0.00s)
+=== RUN   TestGpuFrozenCanonicalVectors
+--- PASS: TestGpuFrozenCanonicalVectors (0.00s)
+=== RUN   TestGpuCanonicalRejectsSemanticMutations
+=== RUN   TestGpuCanonicalRejectsSemanticMutations/extra-gpu
+=== RUN   TestGpuCanonicalRejectsSemanticMutations/runtime
+=== RUN   TestGpuCanonicalRejectsSemanticMutations/overflow
+=== RUN   TestGpuCanonicalRejectsSemanticMutations/negative
+=== RUN   TestGpuCanonicalRejectsSemanticMutations/factor
+=== RUN   TestGpuCanonicalRejectsSemanticMutations/double-charge
+=== RUN   TestGpuCanonicalRejectsSemanticMutations/replicas
+--- PASS: TestGpuCanonicalRejectsSemanticMutations (0.00s)
+    --- PASS: TestGpuCanonicalRejectsSemanticMutations/extra-gpu (0.00s)
+    --- PASS: TestGpuCanonicalRejectsSemanticMutations/runtime (0.00s)
+    --- PASS: TestGpuCanonicalRejectsSemanticMutations/overflow (0.00s)
+    --- PASS: TestGpuCanonicalRejectsSemanticMutations/negative (0.00s)
+    --- PASS: TestGpuCanonicalRejectsSemanticMutations/factor (0.00s)
+    --- PASS: TestGpuCanonicalRejectsSemanticMutations/double-charge (0.00s)
+    --- PASS: TestGpuCanonicalRejectsSemanticMutations/replicas (0.00s)
+=== RUN   TestGpuCanonicalUnicodeNullInteger
+--- PASS: TestGpuCanonicalUnicodeNullInteger (0.00s)
+=== RUN   TestGpuCanonicalRejectsFloatMessages
+--- PASS: TestGpuCanonicalRejectsFloatMessages (0.00s)
+=== RUN   TestGpuCanonicalDiffersFromDirectProtoJSONHash
+--- PASS: TestGpuCanonicalDiffersFromDirectProtoJSONHash (0.00s)
+=== RUN   TestQuotaDurableAckFields
+--- PASS: TestQuotaDurableAckFields (0.00s)
+=== RUN   TestGpuChargesCompleteAndOrderIndependent
+--- PASS: TestGpuChargesCompleteAndOrderIndependent (0.00s)
+=== RUN   TestGpuProjectionOnlyGpuTerminal
+--- PASS: TestGpuProjectionOnlyGpuTerminal (0.00s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/service	0.045s

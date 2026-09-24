@@ -1,0 +1,48 @@
+=== RUN   TestQuotaProcessCommitRecovery
+=== RUN   TestQuotaProcessCommitRecovery/occupy/before
+    quota_process_pg_test.go:324: DB-03 occupy before COMMIT: OS pid=1014561 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/occupy/after
+    quota_process_pg_test.go:324: DB-03 occupy after COMMIT: OS pid=1014582 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/cancel/before
+    quota_process_pg_test.go:324: DB-03 cancel before COMMIT: OS pid=1014603 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/cancel/after
+    quota_process_pg_test.go:324: DB-03 cancel after COMMIT: OS pid=1014626 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/delete/before
+    quota_process_pg_test.go:324: DB-03 delete before COMMIT: OS pid=1014647 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/delete/after
+    quota_process_pg_test.go:324: DB-03 delete after COMMIT: OS pid=1014668 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/release/before
+    quota_process_pg_test.go:324: DB-03 release before COMMIT: OS pid=1014689 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/release/after
+    quota_process_pg_test.go:324: DB-03 release after COMMIT: OS pid=1014710 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/sync/before
+    quota_process_pg_test.go:324: DB-03 sync before COMMIT: OS pid=1014731 SIGKILL, response absent, durable state and two fresh-process replays verified
+=== RUN   TestQuotaProcessCommitRecovery/sync/after
+    quota_process_pg_test.go:324: DB-03 sync after COMMIT: OS pid=1014755 SIGKILL, response absent, durable state and two fresh-process replays verified
+--- PASS: TestQuotaProcessCommitRecovery (1.71s)
+    --- PASS: TestQuotaProcessCommitRecovery/occupy/before (0.19s)
+    --- PASS: TestQuotaProcessCommitRecovery/occupy/after (0.16s)
+    --- PASS: TestQuotaProcessCommitRecovery/cancel/before (0.20s)
+    --- PASS: TestQuotaProcessCommitRecovery/cancel/after (0.17s)
+    --- PASS: TestQuotaProcessCommitRecovery/delete/before (0.17s)
+    --- PASS: TestQuotaProcessCommitRecovery/delete/after (0.16s)
+    --- PASS: TestQuotaProcessCommitRecovery/release/before (0.17s)
+    --- PASS: TestQuotaProcessCommitRecovery/release/after (0.17s)
+    --- PASS: TestQuotaProcessCommitRecovery/sync/before (0.15s)
+    --- PASS: TestQuotaProcessCommitRecovery/sync/after (0.16s)
+=== RUN   TestQuotaProcessDeleteClaimRace
+    quota_process_pg_test.go:386: DELETE-02 iteration=0 independent OS pids=1014777,1014778 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=1 independent OS pids=1014798,1014799 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=2 independent OS pids=1014819,1014820 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=3 independent OS pids=1014840,1014841 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=4 independent OS pids=1014861,1014862 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=5 independent OS pids=1014882,1014883 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=6 independent OS pids=1014906,1014907 local_canceled=false original_claims=1 attempts=1 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=7 independent OS pids=1014927,1014928 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=8 independent OS pids=1014948,1014949 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=9 independent OS pids=1014969,1014970 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=10 independent OS pids=1014990,1014991 local_canceled=true original_claims=0 attempts=0 balances consistent
+    quota_process_pg_test.go:386: DELETE-02 iteration=11 independent OS pids=1015011,1015012 local_canceled=true original_claims=0 attempts=0 balances consistent
+--- PASS: TestQuotaProcessDeleteClaimRace (1.55s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	3.295s

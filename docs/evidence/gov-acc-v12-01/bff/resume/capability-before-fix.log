@@ -1,0 +1,19 @@
+=== RUN   TestGpuCapabilityRequiresSameOwnerActions
+=== RUN   TestGpuCapabilityRequiresSameOwnerActions/complete
+=== RUN   TestGpuCapabilityRequiresSameOwnerActions/missing-delete
+=== RUN   TestGpuCapabilityRequiresSameOwnerActions/foreign-delete
+    gpu_acceptance_test.go:54: execution enabled=true, want false
+=== RUN   TestGpuCapabilityRequiresSameOwnerActions/foreign-create
+    gpu_acceptance_test.go:54: execution enabled=true, want false
+--- FAIL: TestGpuCapabilityRequiresSameOwnerActions (0.00s)
+    --- PASS: TestGpuCapabilityRequiresSameOwnerActions/complete (0.00s)
+    --- PASS: TestGpuCapabilityRequiresSameOwnerActions/missing-delete (0.00s)
+    --- FAIL: TestGpuCapabilityRequiresSameOwnerActions/foreign-delete (0.00s)
+    --- FAIL: TestGpuCapabilityRequiresSameOwnerActions/foreign-create (0.00s)
+=== RUN   TestGpuCanonicalRejectsFloatMessages
+--- PASS: TestGpuCanonicalRejectsFloatMessages (0.00s)
+=== RUN   TestGpuCanonicalDiffersFromDirectProtoJSONHash
+--- PASS: TestGpuCanonicalDiffersFromDirectProtoJSONHash (0.00s)
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/service	0.036s
+FAIL

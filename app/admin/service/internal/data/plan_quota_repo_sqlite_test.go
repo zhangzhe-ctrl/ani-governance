@@ -1,3 +1,5 @@
+//go:build quota_pg
+
 package data
 
 import (
@@ -5,10 +7,10 @@ import (
 	"fmt"
 	"testing"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/stretchr/testify/require"
 	"github.com/tx7do/go-utils/mapper"
 	"github.com/tx7do/go-utils/trans"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
@@ -21,14 +23,14 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/enttest"
 )
 
-// newPlanQuotaRepoSqlite 在给定 enttest client 上白盒构造 PlanQuotaRepo，
+// newPlanQuotaRepoPostgres 在给定 enttest client 上白盒构造 PlanQuotaRepo，
 // 逐字段复刻 NewPlanQuotaRepo 的 mapper/converter 初始化，再调用 init()。
-func newPlanQuotaRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.Client]) *PlanQuotaRepo {
+func newPlanQuotaRepoPostgres(t *testing.T, entClient *entCrud.EntClient[*ent.Client]) *PlanQuotaRepo {
 	t.Helper()
 	repo := &PlanQuotaRepo{
 		entClient: entClient,
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
-		mapper:     mapper.NewCopierMapper[identityV1.PlanQuota, ent.PlanQuota](),
+		mapper:    mapper.NewCopierMapper[identityV1.PlanQuota, ent.PlanQuota](),
 		quotaTypeConv: mapper.NewEnumTypeConverter[identityV1.PlanQuota_QuotaType, planquota.QuotaType](
 			identityV1.PlanQuota_QuotaType_name, identityV1.PlanQuota_QuotaType_value,
 		),
@@ -37,12 +39,12 @@ func newPlanQuotaRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.Clie
 	return repo
 }
 
-// TestPlanQuotaRepoSqlite_Create 带父 plan 创建配额项，
+// TestPlanQuotaRepoPostgres_Create 带父 plan 创建配额项，
 // 直查断言：行落库、(plan_quota → plan) 外键真实落库到请求指定的父行。
 // 历史上这里条件写反导致 plan_id 落库为 NULL，本用例为其回归测试。
-func TestPlanQuotaRepoSqlite_Create(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
-	repo := newPlanQuotaRepoSqlite(t, entClient)
+func TestPlanQuotaRepoPostgres_Create(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
+	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
@@ -57,11 +59,11 @@ func TestPlanQuotaRepoSqlite_Create(t *testing.T) {
 			QuotaValue: trans.Ptr(uint64(100)),
 		},
 	})
-	require.NoError(t, err, "repo.Create 应写入 SQLite 成功")
+	require.NoError(t, err, "repo.Create 应写入 PostgreSQL 成功")
 
 	rows, err := entClient.Client().PlanQuota.Query().All(ctx)
 	require.NoError(t, err)
-	require.Len(t, rows, 1, "SQLite 中应有 1 条 plan_quota 记录")
+	require.Len(t, rows, 1, "PostgreSQL 中应有 1 条 plan_quota 记录")
 	require.NotNil(t, rows[0].QuotaType, "quota_type 枚举应经 converter 落库")
 	require.Equal(t, planquota.QuotaTypeUserLimit, *rows[0].QuotaType, "quota_type 枚举应落为 USER_LIMIT")
 	require.NotNil(t, rows[0].QuotaValue)
@@ -75,11 +77,11 @@ func TestPlanQuotaRepoSqlite_Create(t *testing.T) {
 	require.Equal(t, 1, linked, "plan_quota 的 plan 外键应指向请求的父套餐，而非 NULL")
 }
 
-// TestPlanQuotaRepoSqlite_ListFilter 验证 List 的等值过滤（quota_type 列）与
+// TestPlanQuotaRepoPostgres_ListFilter 验证 List 的等值过滤（quota_type 列）与
 // 列表路径上 PlanId 从父套餐边正确回填。
-func TestPlanQuotaRepoSqlite_ListFilter(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
-	repo := newPlanQuotaRepoSqlite(t, entClient)
+func TestPlanQuotaRepoPostgres_ListFilter(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
+	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
@@ -137,10 +139,10 @@ func TestPlanQuotaRepoSqlite_ListFilter(t *testing.T) {
 	}
 }
 
-// TestPlanQuotaRepoSqlite_Get 验证 Get 命中/未命中。
-func TestPlanQuotaRepoSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
-	repo := newPlanQuotaRepoSqlite(t, entClient)
+// TestPlanQuotaRepoPostgres_Get 验证 Get 命中/未命中。
+func TestPlanQuotaRepoPostgres_Get(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
+	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
@@ -172,19 +174,19 @@ func TestPlanQuotaRepoSqlite_Get(t *testing.T) {
 	require.Error(t, err, "不存在的 ID 查询应返回错误")
 }
 
-// TestPlanQuotaRepoSqlite_QuotaTypeReadView 验证全部 3 个配额类型枚举值经
+// TestPlanQuotaRepoPostgres_QuotaTypeReadView 验证全部 3 个配额类型枚举值经
 // converter 落库后，在读路径（Get 按主键 / List）的 DTO 视图如实呈现。
 //
 // 枚举字段读视图机制注记：实体侧 quota_type 为可空指针枚举列
 // （*planquota.QuotaType），DTO 侧为可选指针字段。mapper 的枚举转换对
-//（经 &srcType/&dstType 取址注册）恰为指针↔指针形态的键，指针对字段能被
+// （经 &srcType/&dstType 取址注册）恰为指针↔指针形态的键，指针对字段能被
 // copier 直接转换赋值——与值型实体枚举列（如 position.type、
 // notification_channel.type）读侧被丢弃的情形不同。本测试将该读视图行为钉死。
 // 注：PLAN_QUOTA_TYPE_UNSPECIFIED 为 ent schema 未声明的值，直传会触发
 // ValueType 系校验失败（写路径无零值守卫），故只覆盖 3 个合法值。
-func TestPlanQuotaRepoSqlite_QuotaTypeReadView(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
-	repo := newPlanQuotaRepoSqlite(t, entClient)
+func TestPlanQuotaRepoPostgres_QuotaTypeReadView(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
+	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 
 	cases := []struct {
@@ -240,11 +242,11 @@ func TestPlanQuotaRepoSqlite_QuotaTypeReadView(t *testing.T) {
 	}
 }
 
-// TestPlanQuotaRepoSqlite_Update 验证 Update 掩码内字段（quota_value）更新、
+// TestPlanQuotaRepoPostgres_Update 验证 Update 掩码内字段（quota_value）更新、
 // quota_type 与父套餐外键不受影响。
-func TestPlanQuotaRepoSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
-	repo := newPlanQuotaRepoSqlite(t, entClient)
+func TestPlanQuotaRepoPostgres_Update(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
+	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
@@ -287,10 +289,10 @@ func TestPlanQuotaRepoSqlite_Update(t *testing.T) {
 	require.Equal(t, 1, linked, "更新不应改变 plan_quota 的父套餐外键")
 }
 
-// TestPlanQuotaRepoSqlite_Delete 验证 Delete 后行数归零。
-func TestPlanQuotaRepoSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
-	repo := newPlanQuotaRepoSqlite(t, entClient)
+// TestPlanQuotaRepoPostgres_Delete 验证 Delete 后行数归零。
+func TestPlanQuotaRepoPostgres_Delete(t *testing.T) {
+	entClient := enttest.NewQuotaPGClient(t)
+	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := enttest.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().

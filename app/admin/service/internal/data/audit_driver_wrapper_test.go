@@ -24,6 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
+	"go-wind-admin/app/admin/service/internal/data/enttest"
 	"go-wind-admin/pkg/audit"
 )
 
@@ -38,7 +39,7 @@ func newAuditWrappedClient(t *testing.T) (*ent.Client, context.Context, *[]audit
 	t.Cleanup(func() { _ = drv.Close() })
 	client := ent.NewClient(ent.Driver(&auditDriver{drv}))
 	t.Cleanup(func() { _ = client.Close() })
-	require.NoError(t, client.Schema.Create(context.Background()), "SQLite schema 迁移失败")
+	require.NoError(t, enttest.CreateUnrelatedSQLiteSchema(context.Background(), client), "SQLite schema 迁移失败")
 
 	events := make([]audit.AuditEvent, 0)
 	accCtx := context.WithValue(context.Background(), audit.AccumulatorKey(), &events)

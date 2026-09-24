@@ -168,6 +168,7 @@ func (QuotaOperation) Mixin() []ent.Mixin {
 // Indexes of the QuotaOperation.
 func (QuotaOperation) Indexes() []ent.Index {
 	return []ent.Index{
+		index.Fields("tenant_id", "operation_id", "resource_tenant_id", "owner_service", "resource_id").Unique().StorageKey("uix_sys_quota_operations_usage_ref"),
 		index.Fields("tenant_id", "operation_id").Unique().
 			StorageKey("uix_sys_quota_operations_tenant_id_operation_id"),
 		// operation 幂等唯一键：同租户同主体同动作同幂等键。

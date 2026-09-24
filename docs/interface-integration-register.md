@@ -902,3 +902,65 @@ x-ani-authz:
 - FIELD-CLEANUP-ISSUE-05：`policy_engine` 枚举变化不产生迁移，既有 `OPA` 值行不受影响，但服务已不再支持该引擎（见 [OPA 移除记录](opa-removal-plan.md)）。
 
 本轮验证：`go build ./...`、`go vet ./...`、`go test ./pkg/middleware/logging/...` 通过；`make api` / `make openapi` / `make ent` 重新生成并复核 diff 只含本次变更；新迁移在独立开发库 `migrate apply` 通过（4 条 DROP COLUMN）后开发库已回收。真实库迁移、回滚演练与前端展示未验证（`not_verified`）。
+
+## 功能组：Accelerator v1.2 管理与租户 BFF（GOV-ACC-V12-01）
+
+2026-09-23 本批新增独立 `ACCELERATOR=13` 模块，保留旧枚举。正式依赖固定为
+`github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260923100416-9f9712198488`；
+实际测试/后续升级版本以本批证据锁为准。以下为实现合同登记，运行通过状态须引用本批证据，不能继承历史 QUOTA-LAB 结论。
+
+| 编号 | 方法/路径 | 下游 RPC / 语义 | 权限 |
+| --- | --- | --- | --- |
+| ACC-01 | GET /admin/v1/accelerator/clusters | ListClusters | accelerator:cluster:list |
+| ACC-02 | POST /admin/v1/accelerator/clusters | RegisterCluster；data.display_name/connection_ref/idempotency_key | accelerator:cluster:register |
+| ACC-03 | GET /admin/v1/accelerator/pools | ListPools；cluster_id | accelerator:pool:list |
+| ACC-04 | POST /admin/v1/accelerator/pools | CreatePool；data.cluster_id/display_name/idempotency_key | accelerator:pool:create |
+| ACC-05 | GET /admin/v1/accelerator/supply-groups | ListSupplyGroups；pool_id | accelerator:supply-group:list |
+| ACC-06 | POST /admin/v1/accelerator/supply-groups:adopt | AdoptSupplyGroup；data 中固定节点、baseline、mode、queue；无 verification 写字段 | accelerator:supply-group:adopt |
+| ACC-07 | POST /admin/v1/accelerator/supply-groups/{group_id}:set-admission | SetAdmission；data.expected_version/desired/reason/idempotency_key | accelerator:supply-group:set-admission |
+| ACC-08 | GET /admin/v1/accelerator/profiles | AdminListProfiles；cluster_id | accelerator:profile:admin-list |
+| ACC-09 | POST /admin/v1/accelerator/profiles | PublishProfile；data.spec/expected_group_version/verification_ref/idempotency_key | accelerator:profile:publish |
+| ACC-10 | GET /admin/v1/accelerator/devices | ListDevices；cluster_id、可选 group_id | accelerator:device:list |
+| ACC-11 | GET /admin/v1/accelerator/bindings | AdminListBindings；cluster_id、可选 physical_device_id；包括未关联事实 | accelerator:binding:admin-list |
+| ACC-12 | GET /admin/v1/accelerator/capacity | AdminGetCapacity；profile_id/profile_version/include_devices | accelerator:capacity:admin-get |
+| ACC-13 | GET /api/v1/accelerator/profiles | ListProfiles；cluster_id、可选 mode | accelerator:profile:list |
+| ACC-14 | GET /api/v1/accelerator/profiles/{profile_id} | GetProfile；具体 profile_version | accelerator:profile:get |
+| ACC-15 | GET /api/v1/accelerator/capacity | GetCapacity；具体 profile/version；租户合同无 include_devices 字段，永不返回设备明细 | accelerator:capacity:get |
+| ACC-16 | POST /api/v1/accelerator/admission-preview | ResolveGpuRequest + CheckGpuFit + 本租户额度；只读，不返回 plan/runtime | accelerator:admission:preview |
+| ACC-17 | GET /api/v1/accelerator/usages | ListGpuUsages；可选 owner_service/state | accelerator:usage:list |
+| ACC-18 | GET /api/v1/accelerator/usages/{owner_service}/{resource_id} | 本库可信原 CREATE 构造 ref → GetGpuUsage | accelerator:usage:get |
+| ACC-19 | GET /api/v1/accelerator/usages/{owner_service}/{resource_id}/bindings | 同上 → ListBindings；返回独立脱敏 DTO | accelerator:binding:list |
+| QUOTA-04 | GET /api/v1/me/quota-accounts | 复用 QUOTA-02 账户读模型；tenant 来自 Principal | quota:account:self-read |
+
+ACC-01～12 需要用户 JWT、平台身份及对应当前角色权限；平台身份不伪造下游 tenant=0。
+ACC-13～19 需要用户 JWT、有效租户、套餐 `ACCELERATOR` 模块、当前角色权限；QUOTA-04
+归既有 `TENANT` 模块，不要求 GPU 模块。AK/SK 白名单不增加上述路由。
+上述 Governance 授权不能代替 Accelerator 启动配置中的 actor/action/tenant/cluster grant。
+
+HTTP 不接受 tenant/actor/context 作为身份来源；服务从已验证 Principal 分列主体 type/id，
+从持久 ResourceTenantID 映射取得 UUID。出站重建 metadata，清除 Bearer 和外部 identity headers。
+客户端叶证书要求唯一精确 URI SAN `spiffe://ani.internal/service/ani-governance`，TLS≥1.3，
+服务器由受管 CA 与配置的精确 DNS SAN 验证。配置见 `configs/accelerator.env.example`。
+
+写请求保持 `{data:{...}}`；新增字段固定 snake_case；uint64/int64 按 protobuf JSON 为十进制字符串。
+列表用 `page_size`（0 默认50，最大200）、`page_token`，响应 `next_page_token`；不伪造 total。
+租户 DTO 不含 physical UUID、Pod 身份、原始 evidence、水位、source_fact_ref、完整 plan/runtime。
+缺投影是 `USAGE_PROJECTION_NOT_READY`，不表示业务资源不存在；投影/ACK 不表示 Ready 或删除完成。
+错误保留受限机器 reason，400/401/403/404/409/412/503/504 分别对应合同失败，原始下游正文不公开。
+
+先执行 `admin sync-apis --dry-run`、复核后执行 `admin sync-apis`，再显式应用
+`sql/patches/20260923_accelerator_permissions.sql` 登记精确权限关联。脚本不授予角色、不启用套餐、
+不默认分配额度；部署方按明确租户/角色/套餐授权并刷新运行实例策略。接口目录存在不代表已授权。
+
+`SyncGpuUsage` 仅独立恢复 worker 以 Governance 服务身份调用，不受当前用户委托撤销或套餐到期阻断；
+`ObserveRelease` 仅 owner 直连，本批没有 Governance 公网代理。正式 registry 无生产 GPU owner，
+新建仍失败关闭；预览的 owner_execution_readiness 取受控业务绑定，测试装配不能开启正式目录。
+
+真实 HTTP 权限撤销验收发现历史策略装载未过滤禁用的 role-permission。该批将策略装载限制为
+启用角色、启用 ALLOW 关联、启用权限和启用 API；禁用后必须刷新实例策略，旧 JWT 不因此获得
+已撤销 API 权限。此修复也作用于共用该授权链的既有路由，需运行 Network/权限回归；初次失败
+与修复后复跑分别保留，不修改历史批次结论。
+
+本批隔离软件联调的 20 HTTP BFF、当前权限撤销、真实下游 mTLS、ENDED 后非空绑定脱敏及
+非 GPU 回归已通过，详见 [BFF 验收证据](evidence/gov-acc-v12-01/bff/README.md)。这些结果不表示
+真实 GPU 调度或生产 owner 已启用；原始失败日志与修复边界一并保留。

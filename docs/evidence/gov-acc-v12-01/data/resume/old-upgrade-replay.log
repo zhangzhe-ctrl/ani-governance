@@ -1,0 +1,4 @@
+=== RUN   TestQuotaGpuOldPopulatedUpgradeReplay
+--- PASS: TestQuotaGpuOldPopulatedUpgradeReplay (0.03s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	0.090s

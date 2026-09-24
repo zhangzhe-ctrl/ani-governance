@@ -1,0 +1,5 @@
+=== RUN   TestJointSyncFailureRecovery
+    sync_failure_test.go:203: real mTLS unavailable/deadline/contract failures retained; immutable retries converged; independent dispatch/refund and later revision recovered
+--- PASS: TestJointSyncFailureRecovery (8.60s)
+PASS
+ok  	go-wind-admin/app/admin/service/tests/gpucontract	9.138s

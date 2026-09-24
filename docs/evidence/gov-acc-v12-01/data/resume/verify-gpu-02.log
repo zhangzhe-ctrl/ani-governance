@@ -1,0 +1,92 @@
+bash scripts/verify-quota-schema.sh
+bash scripts/verify-quota-sqlc.sh
+quota SQL boundary: 15 files checked
+4071ea43dc42f3e0befdcb7b71a9c70bb11da1ed386301475497e84e4c5af827  sqlc.yaml
+64526f4f3c5db72579347c2de0dcbae60a3a7800efba07bd503655ef8901b577  app/admin/service/schema.sql
+ec75a52cf9cd0079289b423d2de01a5b5bd04dde702c21c96bff581308f18cca  app/admin/service/internal/data/quotasql/db.go
+797958327becdb142470ec55a9f26b9a713c5e7c293b557cdb78e03eec6bb0d1  app/admin/service/internal/data/quotasql/ledger.sql.go
+b3cad4d5f351b5786b67b29505e7731dad49a2d648e3df14ed034f7d51b52378  app/admin/service/internal/data/quotasql/models.go
+cd8c32261be46aaf3f1369f891a6499d1642e5e2e053ec8ef35f38f00c089ffb  app/admin/service/internal/data/quotasql/plan.sql.go
+19abf36df2e736d8195e733fc4e28964db3c3a682118b231552cdeec55211087  app/admin/service/internal/data/quotasql/queries/ledger.sql
+786be2a1e704da8db47b5e4498f7831b52bc4442f02389789964d1f638ab87ae  app/admin/service/internal/data/quotasql/queries/plan.sql
+v1.30.0
+0d78f76148ed0459d878b101fc61c9955ca73e06b0a5bc2725bb3592d6946266  /home/chabking/gov-acc-v12-01-20260923/bin/sqlc
+bash scripts/verify-gpu-format.sh
+go build -o /dev/null ./app/admin/service/cmd/server
+go build -tags quota_lab -o /dev/null ./app/admin/service/cmd/server
+go build -o /dev/null ./app/admin/service/cmd/admin
+go test ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
+--- FAIL: TestAuditDriver_CollectsQueryEvent (0.01s)
+    audit_driver_wrapper_test.go:57: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/audit_driver_wrapper_test.go:41
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/audit_driver_wrapper_test.go:57
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuditDriver_CollectsQueryEvent
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuditDriver_CollectsWriteEvent (0.01s)
+    audit_driver_wrapper_test.go:76: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/audit_driver_wrapper_test.go:41
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/audit_driver_wrapper_test.go:76
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuditDriver_CollectsWriteEvent
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuditDriver_TxEvents (0.01s)
+    audit_driver_wrapper_test.go:100: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/audit_driver_wrapper_test.go:41
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/audit_driver_wrapper_test.go:100
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuditDriver_TxEvents
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuditDriver_SinkAndNoAccumulator (0.01s)
+    audit_driver_wrapper_test.go:133: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/audit_driver_wrapper_test.go:41
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/audit_driver_wrapper_test.go:133
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuditDriver_SinkAndNoAccumulator
+        	Messages:   	SQLite schema 迁移失败
+username:"UserName1" realname:"RealName1" address:"Address"
+[ ]
+[]
+<nil>
+name 2
+password
+client_credentials
+refresh_token
+bearer
+mac
+加密后:h1EAUNtwVm48wiz7iW1sjw==
+解密后:admin
+IntArray:  [1]
+IntArray:  [3]
+Int32:  1
+Int32:  3
+Username 
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/data	9.697s
+ok  	go-wind-admin/app/admin/service/internal/service	14.562s
+ok  	go-wind-admin/app/admin/service/internal/server	0.545s
+ok  	go-wind-admin/pkg/audit	0.005s
+ok  	go-wind-admin/pkg/authorizer	0.023s
+ok  	go-wind-admin/pkg/constants	0.009s
+ok  	go-wind-admin/pkg/crypto	0.006s
+ok  	go-wind-admin/pkg/entgo/viewer	0.013s
+ok  	go-wind-admin/pkg/fieldperm	0.008s
+ok  	go-wind-admin/pkg/jwt	0.009s
+ok  	go-wind-admin/pkg/mailer	0.108s
+ok  	go-wind-admin/pkg/metadata	0.007s
+ok  	go-wind-admin/pkg/middleware/auth	0.010s
+ok  	go-wind-admin/pkg/middleware/ent	0.008s
+ok  	go-wind-admin/pkg/middleware/logging	0.074s
+ok  	go-wind-admin/pkg/middleware/requestid	0.006s
+ok  	go-wind-admin/pkg/netutil	0.013s
+ok  	go-wind-admin/pkg/password	0.002s
+ok  	go-wind-admin/pkg/serviceid	0.006s
+?   	go-wind-admin/pkg/task	[no test files]
+ok  	go-wind-admin/pkg/utils	0.004s
+ok  	go-wind-admin/pkg/utils/converter	0.013s
+FAIL
+make: *** [Makefile:193：verify-gpu-regressions] 错误 1

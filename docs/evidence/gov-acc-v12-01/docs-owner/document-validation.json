@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-09-24T02:28:28.777901+00:00",
+  "status": "pass",
+  "document_sha256": "915a7379edb0f3cbe7ee88a8a74e221b6340f3ddcdfbcd6123f286731440c899",
+  "relative_links_checked": 21,
+  "checks": [
+    "relative links resolve in Fedora gov-main",
+    "four digests match existing frozen vector file",
+    "Unicode/int64 canonical example exact SHA-256",
+    "6144MiB factors and rejection arithmetic",
+    "ObserveRelease RELEASE_UNKNOWN enum"
+  ],
+  "limitations": [
+    "document/source checks only; no new acceptance conclusion",
+    "minimum release SHAs and dependency version await final coordinator lock"
+  ]
+}

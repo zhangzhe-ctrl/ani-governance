@@ -1,0 +1,5 @@
+=== RUN   TestJointResolvedSnapshotRace
+    snapshot_race_test.go:296: CREATE-03 two real delegated Resolve responses, identical semantic digest=07263ab447632c04f15e6138952a999ef4a3a1c2d0a4aaa35265565283f88408; winner process=1 canonical_sha256=986913db06c9a69b587452c6231a21030f77263cb392837ae70b417dfb8d67e1; loser and replays preserved original full vector and single charge
+--- PASS: TestJointResolvedSnapshotRace (1.25s)
+PASS
+ok  	go-wind-admin/app/admin/service/tests/gpucontract	1.795s

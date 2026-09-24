@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bash",
+    "/home/chabking/gov-acc-v12-01-20260923/gov-bff/scripts/accelerator-acceptance/bff-joint.sh"
+  ],
+  "exit_code": 0,
+  "expected_fit": "FIT_UNKNOWN",
+  "finished_at": "2026-09-24T02:21:04.542539977Z",
+  "started_at": "2026-09-24T02:20:58.429569583Z"
+}

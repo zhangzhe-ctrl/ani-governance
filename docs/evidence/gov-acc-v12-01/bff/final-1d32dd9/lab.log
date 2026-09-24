@@ -1,0 +1,18 @@
+=== RUN   TestSimPG_AUTH05_CertNegatives
+--- PASS: TestSimPG_AUTH05_CertNegatives (1.14s)
+=== RUN   TestSimPG_FAIL03_AckLostRetryNoDuplication
+--- PASS: TestSimPG_FAIL03_AckLostRetryNoDuplication (0.90s)
+=== RUN   TestSimPG_FAIL04_RecoverAfterProviderCommit
+--- PASS: TestSimPG_FAIL04_RecoverAfterProviderCommit (1.49s)
+=== RUN   TestSimPG_FAIL05_06_PartialCleanupThenRecover
+--- PASS: TestSimPG_FAIL05_06_PartialCleanupThenRecover (0.72s)
+=== RUN   TestSimPG_FAIL08_09_16_PartialReleaseNotifyRetry
+--- PASS: TestSimPG_FAIL08_09_16_PartialReleaseNotifyRetry (1.34s)
+=== RUN   TestSimPG_FAIL14_ReplayCreateAfterFullRelease
+--- PASS: TestSimPG_FAIL14_ReplayCreateAfterFullRelease (1.39s)
+=== RUN   TestSimPG_FAIL17_ContractErrorThenResume
+--- PASS: TestSimPG_FAIL17_ContractErrorThenResume (0.83s)
+=== RUN   TestSimPG_CON06_ConcurrentDeleteAndAbort
+--- PASS: TestSimPG_CON06_ConcurrentDeleteAndAbort (2.48s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/quotalab/simulator	10.836s

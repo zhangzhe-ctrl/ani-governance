@@ -1,0 +1,7 @@
+{
+  "staged_tree": "cbc1e3e32fb1fee15e4404a14cb9ebf127175477",
+  "files": 1744,
+  "differences": [],
+  "status": "pass",
+  "scope": "all non-doc staged files matched the Fedora regenerated and tested source byte-for-byte"
+}

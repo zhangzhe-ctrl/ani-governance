@@ -156,6 +156,7 @@ func (Tenant) Mixin() []ent.Mixin {
 // Indexes of the Tenant.
 func (Tenant) Indexes() []ent.Index {
 	return []ent.Index{
+		index.Fields("id", "resource_tenant_id").Unique().StorageKey("uix_sys_tenants_id_resource_tenant"),
 		// 保持 name 唯一
 		index.Fields("name").
 			Unique().

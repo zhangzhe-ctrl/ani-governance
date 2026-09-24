@@ -1,0 +1,568 @@
+ok  	go-wind-admin/pkg/middleware/auth	0.010s
+ok  	go-wind-admin/pkg/authorizer	0.021s
+ok  	go-wind-admin/pkg/constants	0.008s
+--- FAIL: TestPermissionApiRepoSqlite_AssignAndListAndDelete (0.01s)
+    permission_api_repo_sqlite_test.go:31: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_api_repo_sqlite_test.go:31
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionApiRepoSqlite_AssignAndListAndDelete
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionApiRepoSqlite_AssignApisReplaces (0.01s)
+    permission_api_repo_sqlite_test.go:77: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_api_repo_sqlite_test.go:77
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionApiRepoSqlite_AssignApisReplaces
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionApiRepoSqlite_DeleteByPermissionIDs (0.01s)
+    permission_api_repo_sqlite_test.go:123: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_api_repo_sqlite_test.go:123
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionApiRepoSqlite_DeleteByPermissionIDs
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionAuditLogRepoSqlite_Create (0.01s)
+    permission_audit_log_repo_sqlite_test.go:42: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go:28
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go:42
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionAuditLogRepoSqlite_Create
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionAuditLogRepoSqlite_ActionEnumPairs (0.01s)
+    permission_audit_log_repo_sqlite_test.go:89: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go:28
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go:89
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionAuditLogRepoSqlite_ActionEnumPairs
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionAuditLogRepoSqlite_ListFilterAndPaging (0.01s)
+    permission_audit_log_repo_sqlite_test.go:133: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go:28
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go:133
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionAuditLogRepoSqlite_ListFilterAndPaging
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionAuditLogRepoSqlite_Get (0.01s)
+    permission_audit_log_repo_sqlite_test.go:215: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go:28
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go:215
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionAuditLogRepoSqlite_Get
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionAuditLogRepoSqlite_CountAndIsExist (0.01s)
+    permission_audit_log_repo_sqlite_test.go:247: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go:28
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go:247
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionAuditLogRepoSqlite_CountAndIsExist
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionGroupRepoSqlite_Create (0.01s)
+    permission_group_repo_sqlite_test.go:42: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_group_repo_sqlite_test.go:42
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionGroupRepoSqlite_Create
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionGroupRepoSqlite_CreateTreePath (0.01s)
+    permission_group_repo_sqlite_test.go:77: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_group_repo_sqlite_test.go:77
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionGroupRepoSqlite_CreateTreePath
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionGroupRepoSqlite_ListContainsFilter (0.01s)
+    permission_group_repo_sqlite_test.go:112: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_group_repo_sqlite_test.go:112
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionGroupRepoSqlite_ListContainsFilter
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionGroupRepoSqlite_Get (0.01s)
+    permission_group_repo_sqlite_test.go:161: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_group_repo_sqlite_test.go:161
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionGroupRepoSqlite_Get
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionGroupRepoSqlite_Update (0.01s)
+    permission_group_repo_sqlite_test.go:192: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_group_repo_sqlite_test.go:192
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionGroupRepoSqlite_Update
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionGroupRepoSqlite_Delete (0.01s)
+    permission_group_repo_sqlite_test.go:229: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_group_repo_sqlite_test.go:229
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionGroupRepoSqlite_Delete
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionGroupRepoSqlite_ListByIDs (0.01s)
+    permission_group_repo_sqlite_test.go:284: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_group_repo_sqlite_test.go:284
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionGroupRepoSqlite_ListByIDs
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionRepoSqlite_Create (0.01s)
+    permission_repo_sqlite_test.go:51: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_repo_sqlite_test.go:51
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionRepoSqlite_Create
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionRepoSqlite_ListContainsFilter (0.01s)
+    permission_repo_sqlite_test.go:76: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_repo_sqlite_test.go:76
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionRepoSqlite_ListContainsFilter
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionRepoSqlite_Get (0.01s)
+    permission_repo_sqlite_test.go:143: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_repo_sqlite_test.go:143
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionRepoSqlite_Get
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionRepoSqlite_CodesAndIdsLookup (0.01s)
+    permission_repo_sqlite_test.go:190: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_repo_sqlite_test.go:190
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionRepoSqlite_CodesAndIdsLookup
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionRepoSqlite_Update (0.01s)
+    permission_repo_sqlite_test.go:230: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_repo_sqlite_test.go:230
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionRepoSqlite_Update
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionRepoSqlite_Delete (0.01s)
+    permission_repo_sqlite_test.go:265: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/permission_repo_sqlite_test.go:265
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionRepoSqlite_Delete
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestRolePermissionRepoSqlite_EnumReadViewBackfill (0.01s)
+    role_permission_repo_sqlite_test.go:51: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/role_permission_repo_sqlite_test.go:51
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestRolePermissionRepoSqlite_EnumReadViewBackfill
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestTenantAccessCheckerDecisionMatrix (0.08s)
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/租户不存在_failclosed (0.01s)
+        tenant_access_checker_sqlite_test.go:60: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:60
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/租户不存在_failclosed
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/租户状态OFF_拒绝 (0.01s)
+        tenant_access_checker_sqlite_test.go:66: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:66
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/租户状态OFF_拒绝
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/租户状态FREEZE_拒绝 (0.01s)
+        tenant_access_checker_sqlite_test.go:73: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:73
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/租户状态FREEZE_拒绝
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/租户状态EXPIRED_拒绝 (0.01s)
+        tenant_access_checker_sqlite_test.go:80: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:80
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/租户状态EXPIRED_拒绝
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/API表无记录_failclosed (0.01s)
+        tenant_access_checker_sqlite_test.go:87: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:87
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/API表无记录_failclosed
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/API未归类模块_拒绝 (0.01s)
+        tenant_access_checker_sqlite_test.go:94: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:94
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/API未归类模块_拒绝
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/租户未挂套餐_拒绝 (0.01s)
+        tenant_access_checker_sqlite_test.go:102: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:102
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/租户未挂套餐_拒绝
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/套餐白名单不含模块_拒绝 (0.01s)
+        tenant_access_checker_sqlite_test.go:110: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:110
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/套餐白名单不含模块_拒绝
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/白名单命中_放行 (0.01s)
+        tenant_access_checker_sqlite_test.go:121: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:121
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/白名单命中_放行
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/未到期READONLY_写方法放行 (0.01s)
+        tenant_access_checker_sqlite_test.go:131: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:131
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/未到期READONLY_写方法放行
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/到期READONLY_GET放行 (0.01s)
+        tenant_access_checker_sqlite_test.go:140: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:140
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/到期READONLY_GET放行
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/到期READONLY_写方法拒绝 (0.01s)
+        tenant_access_checker_sqlite_test.go:154: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:154
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/到期READONLY_写方法拒绝
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestTenantAccessCheckerDecisionMatrix/到期BLOCKLOGIN_无只读门控 (0.01s)
+        tenant_access_checker_sqlite_test.go:166: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:38
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/tenant_access_checker_sqlite_test.go:166
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestTenantAccessCheckerDecisionMatrix/到期BLOCKLOGIN_无只读门控
+            	Messages:   	SQLite schema 迁移失败
+password
+client_credentials
+refresh_token
+bearer
+mac
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/data	0.304s
+--- FAIL: TestAuthSvcSqlite_LoginGrantDispatch (0.01s)
+    authentication_service_sqlite_test.go:365: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:365
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_LoginGrantDispatch
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_LoginWithoutCaptcha (0.03s)
+    --- FAIL: TestAuthSvcSqlite_LoginWithoutCaptcha/no_transport (0.01s)
+        authentication_service_sqlite_test.go:396: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:396
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestAuthSvcSqlite_LoginWithoutCaptcha/no_transport
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestAuthSvcSqlite_LoginWithoutCaptcha/no_captcha_headers (0.01s)
+        authentication_service_sqlite_test.go:396: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:396
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestAuthSvcSqlite_LoginWithoutCaptcha/no_captcha_headers
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestAuthSvcSqlite_LoginWithoutCaptcha/blank_legacy_headers (0.01s)
+        authentication_service_sqlite_test.go:396: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:396
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestAuthSvcSqlite_LoginWithoutCaptcha/blank_legacy_headers
+            	Messages:   	SQLite schema 迁移失败
+    --- FAIL: TestAuthSvcSqlite_LoginWithoutCaptcha/invalid_legacy_headers (0.01s)
+        authentication_service_sqlite_test.go:396: 
+            	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+            	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:396
+            	Error:      	Received unexpected error:
+            	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+            	Test:       	TestAuthSvcSqlite_LoginWithoutCaptcha/invalid_legacy_headers
+            	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_LoginTenantResolution (0.01s)
+    authentication_service_sqlite_test.go:414: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:414
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_LoginTenantResolution
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_LoginPolicyGate (0.01s)
+    authentication_service_sqlite_test.go:455: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:455
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_LoginPolicyGate
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_LoginCredentialFailures (0.01s)
+    authentication_service_sqlite_test.go:507: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:507
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_LoginCredentialFailures
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_LoginFullPlatformChain (0.01s)
+    authentication_service_sqlite_test.go:559: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:559
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_LoginFullPlatformChain
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_LoginRateLimiterLockout (0.01s)
+    authentication_service_sqlite_test.go:623: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:623
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_LoginRateLimiterLockout
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_LoginMfaGate (0.01s)
+    authentication_service_sqlite_test.go:655: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:655
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_LoginMfaGate
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_TenantLoginChain (0.01s)
+    authentication_service_sqlite_test.go:685: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:685
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_TenantLoginChain
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_AuthorizationDeniedBranches (0.01s)
+    authentication_service_sqlite_test.go:734: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:734
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_AuthorizationDeniedBranches
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_DisabledTenantViaRefresh (0.01s)
+    authentication_service_sqlite_test.go:774: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:774
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_DisabledTenantViaRefresh
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_LogoutAndRevocation (0.01s)
+    authentication_service_sqlite_test.go:796: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:796
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_LogoutAndRevocation
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_RefreshTokenFlow (0.01s)
+    authentication_service_sqlite_test.go:843: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:843
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_RefreshTokenFlow
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_ValidateTokenBranches (0.01s)
+    authentication_service_sqlite_test.go:911: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:911
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_ValidateTokenBranches
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_WhoAmI (0.01s)
+    authentication_service_sqlite_test.go:951: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:951
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_WhoAmI
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_GenerateAndVerifyCaptcha (0.01s)
+    authentication_service_sqlite_test.go:970: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:970
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_GenerateAndVerifyCaptcha
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_PasswordLoginAdapter (0.01s)
+    authentication_service_sqlite_test.go:1086: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:1086
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_PasswordLoginAdapter
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_PlatformPasswordLoginGate (0.01s)
+    authentication_service_sqlite_test.go:1153: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:1153
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_PlatformPasswordLoginGate
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestAuthSvcSqlite_CookieHelperGuards (0.01s)
+    authentication_service_sqlite_test.go:1197: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:154
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/authentication_service_sqlite_test.go:1197
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestAuthSvcSqlite_CookieHelperGuards
+        	Messages:   	SQLite schema 迁移失败
+ERROR msg=network VPC RPC failed: rpc error: code = DeadlineExceeded desc = private dependency detail
+ERROR msg=network VPC RPC failed: rpc error: code = NotFound desc = private dependency detail
+ERROR msg=network VPC RPC failed: rpc error: code = InvalidArgument desc = private dependency detail
+ERROR msg=network VPC RPC failed: rpc error: code = PermissionDenied desc = private dependency detail
+ERROR msg=network VPC RPC failed: rpc error: code = Unauthenticated desc = private dependency detail
+ERROR msg=network VPC RPC failed: rpc error: code = Unavailable desc = private dependency detail
+--- FAIL: TestPermissionGroupServiceSqlite_ListAssemblesTree (0.01s)
+    permission_group_service_sqlite_test.go:43: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/permission_group_service_sqlite_test.go:43
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionGroupServiceSqlite_ListAssemblesTree
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionGroupServiceSqlite_CreateAndGet (0.01s)
+    permission_group_service_sqlite_test.go:76: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/permission_group_service_sqlite_test.go:76
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionGroupServiceSqlite_CreateAndGet
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionGroupServiceSqlite_Update (0.01s)
+    permission_group_service_sqlite_test.go:143: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/permission_group_service_sqlite_test.go:143
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionGroupServiceSqlite_Update
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionService_SyncPermissions_MenuAndApiDerived (0.01s)
+    permission_service_test.go:94: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/permission_service_test.go:56
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/permission_service_test.go:94
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionService_SyncPermissions_MenuAndApiDerived
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionService_ListAndGetTenantScoping (0.01s)
+    permission_service_test.go:178: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/permission_service_test.go:56
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/permission_service_test.go:178
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionService_ListAndGetTenantScoping
+        	Messages:   	SQLite schema 迁移失败
+--- FAIL: TestPermissionService_CreateUpdateDelete (0.01s)
+    permission_service_test.go:239: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/data/enttest/enttest.go:62
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/permission_service_test.go:56
+        	            				/home/chabking/gov-acc-v12-01-20260923/gov-bff/app/admin/service/internal/service/permission_service_test.go:239
+        	Error:      	Received unexpected error:
+        	            	sql/schema: create "sys_gpu_usage_sync" table: SQL logic error: unrecognized token: ":" (1)
+        	Test:       	TestPermissionService_CreateUpdateDelete
+        	Messages:   	SQLite schema 迁移失败
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/service	0.244s
+FAIL

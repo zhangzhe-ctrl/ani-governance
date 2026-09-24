@@ -1,0 +1,20 @@
+{
+  "bom_format": "CycloneDX",
+  "spec_version": "1.6",
+  "components": 210,
+  "dependency_nodes": 211,
+  "main_component": {
+    "bom-ref": "pkg:golang/go-wind-admin?type=module",
+    "type": "application",
+    "name": "go-wind-admin",
+    "purl": "pkg:golang/go-wind-admin?goarch=amd64&goos=linux&type=module"
+  },
+  "accelerator_components": [
+    {
+      "name": "github.com/zhangzhe-ctrl/ani-accelerator-service",
+      "version": "v0.0.0-20260924030150-1d32dd9a9173"
+    }
+  ],
+  "sha256": "eb1fdd264a1f6ac3035b67921f285f62406bd38ad90b0867a888b13eff952664",
+  "source_scope": "Gov current module graph from the delivery snapshot; tests and standard library included; no Git metadata copied so main module version absent; final Git SHA verified separately"
+}

@@ -58,6 +58,9 @@ func (p *AuthorizerProvider) ProvidePolicies(_ context.Context) (authorizer.Perm
 		if role.GetCode() == "" {
 			continue
 		}
+		if role.GetStatus() != permissionV1.Role_ON {
+			continue
+		}
 		if constants.IsTemplateRoleCode(role.GetCode()) {
 			continue
 		}
@@ -83,6 +86,9 @@ func (p *AuthorizerProvider) ProvidePolicies(_ context.Context) (authorizer.Perm
 		var authorizerDataArray authorizer.PermissionDataArray
 		for _, api := range apis {
 			if api == nil {
+				continue
+			}
+			if api.GetStatus() != permissionV1.Api_ON {
 				continue
 			}
 			if api.GetPath() == "" || api.GetMethod() == "" {

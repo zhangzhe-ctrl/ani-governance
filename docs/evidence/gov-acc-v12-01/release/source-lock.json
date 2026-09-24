@@ -1,0 +1,21 @@
+{
+  "date_utc": "2026-09-24",
+  "governance_base": "0fbe1a69e49cc23dc7a1696b62f68c34a7c6a48a",
+  "accelerator_sha": "1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3",
+  "accelerator_module": "v0.0.0-20260924030150-1d32dd9a9173",
+  "local_staged_tree": "c8dc3123eba699c099b586f8a73e7100910379fb",
+  "fedora_imported_tree": "c8dc3123eba699c099b586f8a73e7100910379fb",
+  "tree_parity": "pass",
+  "method": "git archive of immutable local staged tree transferred to Fedora gov-release-source; git init and git add -f -A there reproduced identical git write-tree, covering complete tracked contents and executable modes including AGENTS, contracts, vectors, source, tests, evidence and cleanup script",
+  "manifest": "gov-full-source.sha256",
+  "runtime_parity": "gov-source-parity.json: all production/query/schema/module files identical to complete make verify-gpu-05; two later test/runner files passed final joint normal and race",
+  "receipt_boundary": "This source-lock receipt, copied full manifest, final secret-scan receipts and subsequent publication/cleanup status documents are produced after this immutable snapshot. They do not change runtime source. Exact delivery commit/tree and subsequent documentation commits are checked separately at publication; no impossible self-referential file hash is claimed.",
+  "checks": {
+    "make_verify_gpu": "pass",
+    "joint_normal": "pass; 140.884s",
+    "joint_race": "pass; 161.297s",
+    "formal_A_to_A": "pass",
+    "hardware_observed": false,
+    "production_owner": "not_verified"
+  }
+}

@@ -1,0 +1,17 @@
+--- FAIL: TestQuotaPostgresStorageUnavailable (0.00s)
+    quota_ledger_pg_test.go:693: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/quota_ledger_pg_test.go:693
+        	Error:      	Not equal: 
+        	            	expected: "QUOTA_STORAGE_UNAVAILABLE"
+        	            	actual  : ""
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1 +1 @@
+        	            	-QUOTA_STORAGE_UNAVAILABLE
+        	            	+
+        	Test:       	TestQuotaPostgresStorageUnavailable
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/data	1.728s
+FAIL

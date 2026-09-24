@@ -1,0 +1,6 @@
+2026-09-24T03:23:58Z
+command=cyclonedx-gomod mod -json -std -test -noserial -notimestamp -output <outside-source>/gov-sbom.cdx.json .
+scope=Go module dependency graph with standard library and test dependencies; not binary/runtime reachability or license validation
+output_exclusion=SBOM and execution logs initially outside source; source parity excludes docs/evidence; final secret scan includes SBOM
+exit=0
+2026-09-24T03:28:01Z

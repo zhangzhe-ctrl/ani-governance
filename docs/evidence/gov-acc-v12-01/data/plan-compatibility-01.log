@@ -1,0 +1,4 @@
+# go-wind-admin/app/admin/service/internal/data [go-wind-admin/app/admin/service/internal/data.test]
+app/admin/service/internal/data/plan_quota_repo.go:90:47: cannot use v (variable of struct type quotasql.ListPlanQuotasRow) as quotasql.SysPlanQuota value in argument to planQuotaDTO
+FAIL	go-wind-admin/app/admin/service/internal/data [build failed]
+FAIL

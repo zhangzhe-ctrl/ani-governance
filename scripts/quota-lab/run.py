@@ -344,6 +344,19 @@ def cmd_migrate(args):
     logd = run_dir / "logs"
     steps = []
 
+    # Simulator startup has no DDL. Its fixture schema is applied only by this
+    # explicit migration command, using the isolated administrator identity.
+    for kind, database in (("owner", "gpu_owner"), ("provider", "gpu_provider")):
+        schema = pathlib.Path("app/admin/service/internal/quotalab/simulator/testdata") / f"{kind}-schema.sql"
+        with schema.open("rb") as source:
+            result = subprocess.run(
+                ["docker", "exec", "-i", PG_CONTAINER, "psql", "-U", "postgres",
+                 "-d", database, "-v", "ON_ERROR_STOP=1"], stdin=source,
+                capture_output=True, timeout=120)
+        (logd / f"migrate-simulator-{kind}.log").write_bytes(result.stdout + result.stderr)
+        if result.returncode:
+            die(f"simulator {kind} explicit migration failed")
+
     def apply(db, amount, label, save=True):
         r = atlas_apply(run_dir, db, amount)
         if save:

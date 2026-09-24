@@ -14,11 +14,14 @@ import (
 // 在租户侧被误放行或误拒绝，因此任何改动都必须是有意识的、显式更新本测试的改动。
 func TestServiceTagToBusinessModuleExactMapping(t *testing.T) {
 	expected := map[string]identityV1.Module{
-		"AdminPortalService":    identityV1.Module_DASHBOARD,
-		"DashboardService":      identityV1.Module_DASHBOARD,
-		"MfaService":            identityV1.Module_SYSTEM,
-		"PlanModuleService":     identityV1.Module_TENANT,
-		"AuthenticationService": identityV1.Module_DASHBOARD,
+		"AcceleratorAdminService": identityV1.Module_ACCELERATOR,
+		"AcceleratorService":      identityV1.Module_ACCELERATOR,
+		"QuotaSelfService":        identityV1.Module_TENANT,
+		"AdminPortalService":      identityV1.Module_DASHBOARD,
+		"DashboardService":        identityV1.Module_DASHBOARD,
+		"MfaService":              identityV1.Module_SYSTEM,
+		"PlanModuleService":       identityV1.Module_TENANT,
+		"AuthenticationService":   identityV1.Module_DASHBOARD,
 
 		"UserService":        identityV1.Module_OPM,
 		"OrgUnitService":     identityV1.Module_OPM,
@@ -31,19 +34,19 @@ func TestServiceTagToBusinessModuleExactMapping(t *testing.T) {
 		"PermissionService":      identityV1.Module_PERMISSION,
 		"PermissionGroupService": identityV1.Module_PERMISSION,
 
-		"DictTypeService":     identityV1.Module_DICT,
-		"DictEntryService":    identityV1.Module_DICT,
-		"LanguageService":     identityV1.Module_SYSTEM,
-		"TaskService":         identityV1.Module_TASK,
-		"LoginPolicyService":  identityV1.Module_SYSTEM,
-		"ConfigService":       identityV1.Module_SYSTEM,
-		"AccessKeyService":    identityV1.Module_SYSTEM,
+		"DictTypeService":    identityV1.Module_DICT,
+		"DictEntryService":   identityV1.Module_DICT,
+		"LanguageService":    identityV1.Module_SYSTEM,
+		"TaskService":        identityV1.Module_TASK,
+		"LoginPolicyService": identityV1.Module_SYSTEM,
+		"ConfigService":      identityV1.Module_SYSTEM,
+		"AccessKeyService":   identityV1.Module_SYSTEM,
 
-		"TenantService":    identityV1.Module_TENANT,
+		"TenantService":     identityV1.Module_TENANT,
 		"QuotaAdminService": identityV1.Module_TENANT,
 		"QuotaLabService":   identityV1.Module_TENANT,
-		"PlanService":      identityV1.Module_TENANT,
-		"PlanQuotaService": identityV1.Module_TENANT,
+		"PlanService":       identityV1.Module_TENANT,
+		"PlanQuotaService":  identityV1.Module_TENANT,
 
 		"ApiAuditLogService":         identityV1.Module_LOG,
 		"LoginAuditLogService":       identityV1.Module_LOG,
@@ -77,10 +80,11 @@ func TestServiceTagToBusinessModuleReverseMapping(t *testing.T) {
 		identityV1.Module_DICT:             {"DictTypeService", "DictEntryService"},
 		identityV1.Module_SYSTEM:           {"MfaService", "LanguageService", "LoginPolicyService", "ConfigService", "AccessKeyService", "ServerMonitorService", "NotificationChannelService", "OnlineSessionService"},
 		identityV1.Module_TASK:             {"TaskService"},
-		identityV1.Module_TENANT:           {"TenantService", "PlanService", "PlanQuotaService", "PlanModuleService", "QuotaAdminService", "QuotaLabService"},
+		identityV1.Module_TENANT:           {"TenantService", "PlanService", "PlanQuotaService", "PlanModuleService", "QuotaAdminService", "QuotaLabService", "QuotaSelfService"},
 		identityV1.Module_LOG:              {"ApiAuditLogService", "LoginAuditLogService", "OperationAuditLogService", "DataAccessAuditLogService", "PermissionAuditLogService", "PolicyEvaluationLogService", "RedisCacheMonitorService"},
 		identityV1.Module_INTERNAL_MESSAGE: {"InternalMessageService", "InternalMessageCategoryService", "InternalMessageRecipientService"},
 		identityV1.Module_NETWORK:          {"NetworkService"},
+		identityV1.Module_ACCELERATOR:      {"AcceleratorAdminService", "AcceleratorService"},
 	}
 
 	actual := make(map[identityV1.Module][]string)

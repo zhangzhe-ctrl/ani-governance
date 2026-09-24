@@ -1,0 +1,8 @@
+=== RUN   TestJointMixedCharges
+    mixed_test.go:69: [DEBUG-mixed-resume] direct claim returned 0 records, error=error: code = 400 reason = INVALID_QUOTA_REQUEST message = incomplete immutable charge vector metadata = map[] cause = <nil>
+    mixed_test.go:129: [DEBUG-mixed-resume] op=eafa4d92-1919-42f3-aff4-a58533fa6a0a state=QUEUED attempts=0
+    mixed_test.go:69: timed out: incomplete original DELETE vector stops before owner
+--- FAIL: TestJointMixedCharges (21.39s)
+FAIL
+FAIL	go-wind-admin/app/admin/service/tests/gpucontract	21.930s
+FAIL

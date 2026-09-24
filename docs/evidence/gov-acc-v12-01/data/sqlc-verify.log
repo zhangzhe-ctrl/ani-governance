@@ -1,0 +1,11 @@
+quota SQL boundary: 11 files checked
+4071ea43dc42f3e0befdcb7b71a9c70bb11da1ed386301475497e84e4c5af827  sqlc.yaml
+64526f4f3c5db72579347c2de0dcbae60a3a7800efba07bd503655ef8901b577  app/admin/service/schema.sql
+ec75a52cf9cd0079289b423d2de01a5b5bd04dde702c21c96bff581308f18cca  app/admin/service/internal/data/quotasql/db.go
+d75c9a76d74544bb2c6436c5d30b61c585f341e0dcc855a86120a06c4c7a126f  app/admin/service/internal/data/quotasql/ledger.sql.go
+b3cad4d5f351b5786b67b29505e7731dad49a2d648e3df14ed034f7d51b52378  app/admin/service/internal/data/quotasql/models.go
+28d96fbf2a99f23a7cb6d4ee0928f66af8d2008dc68d523834cdf7f4839af4d6  app/admin/service/internal/data/quotasql/plan.sql.go
+67d10c62c029b2748e19327fb44569b822ba3a23f80fece2f324beb798092fc9  app/admin/service/internal/data/quotasql/queries/ledger.sql
+02a576a6fc634879de54034ff59db876a26683934c62c313b19cc9a0e51feda6  app/admin/service/internal/data/quotasql/queries/plan.sql
+v1.30.0
+0d78f76148ed0459d878b101fc61c9955ca73e06b0a5bc2725bb3592d6946266  /home/chabking/gov-acc-v12-01-20260923/bin/sqlc

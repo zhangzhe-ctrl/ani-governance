@@ -1,0 +1,1 @@
+DELETE FROM sys_quota_operations

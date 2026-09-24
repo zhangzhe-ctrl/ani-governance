@@ -1,0 +1,12 @@
+=== RUN   TestAuditDriver_CollectsQueryEvent
+--- PASS: TestAuditDriver_CollectsQueryEvent (0.05s)
+=== RUN   TestAuditDriver_CollectsWriteEvent
+--- PASS: TestAuditDriver_CollectsWriteEvent (0.04s)
+=== RUN   TestAuditDriver_TxEvents
+--- PASS: TestAuditDriver_TxEvents (0.04s)
+=== RUN   TestAuditDriver_SinkAndNoAccumulator
+--- PASS: TestAuditDriver_SinkAndNoAccumulator (0.04s)
+=== RUN   TestQuotaGpuSyncLeaseRetryAndBlock
+--- PASS: TestQuotaGpuSyncLeaseRetryAndBlock (1.49s)
+PASS
+ok  	go-wind-admin/app/admin/service/internal/data	1.710s

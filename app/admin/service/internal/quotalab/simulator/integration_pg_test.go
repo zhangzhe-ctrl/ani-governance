@@ -7,6 +7,7 @@ package simulator
 //
 // 环境要求（缺少必须 Fatal，不得 Skip）：
 //   QUOTA_LAB_PG_DSN      已完成迁移的 governance 库 DSN（账本侧）
+//   QUOTA_LAB_PG_ADMIN_DSN 仅用于显式创建/迁移/销毁独立模拟器库和角色
 //   QUOTA_LAB_CERTS_DIR   任务证书目录（ca.pem、ani-governance.pem/key、
 //                         ani-gpu-simulator.pem/key、other-service.pem/key）
 
@@ -15,14 +16,18 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"database/sql"
+	_ "embed"
 	"fmt"
 	"net"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/google/uuid"
@@ -32,8 +37,8 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 
-	entCrud "github.com/tx7do/go-crud/entgo"
 	entsql "entgo.io/ent/dialect/sql"
+	entCrud "github.com/tx7do/go-crud/entgo"
 
 	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"google.golang.org/grpc/codes"
@@ -45,23 +50,38 @@ import (
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 )
 
+//go:embed testdata/integration-queries.sql
+var integrationQueries string
+
+// Test-only named statements; fixture identifiers are quoted before substitution.
+func fixtureSQL(name string) string {
+	for _, section := range strings.Split(integrationQueries, "-- name: ") {
+		label, query, ok := strings.Cut(section, "\n")
+		if ok && label == name {
+			return strings.TrimSpace(query)
+		}
+	}
+	panic("missing simulator test query: " + name)
+}
+
 type simStack struct {
-	t          *testing.T
-	owner      *OwnerStore
-	provider   *ProviderStore
-	sim        *Simulator
-	grpcAddr   string
-	grpcStop   func()
-	ledger     *data.QuotaLedgerRepo
-	govAddr    string
-	govStop    func()
-	govClient  quotapb.QuotaReleaseServiceClient
-	notifier   *Notifier
-	tenantID     uint32
-	currentCharge string
-	certsDir   string
-	ownerDSN   string
-	providerDS string
+	t                *testing.T
+	owner            *OwnerStore
+	provider         *ProviderStore
+	sim              *Simulator
+	grpcAddr         string
+	grpcStop         func()
+	ledger           *data.QuotaLedgerRepo
+	govAddr          string
+	govStop          func()
+	govClient        quotapb.QuotaReleaseServiceClient
+	notifier         *Notifier
+	tenantID         uint32
+	resourceTenantID string
+	currentCharge    string
+	certsDir         string
+	ownerDSN         string
+	providerDS       string
 }
 
 func mustDSN(t *testing.T) string {
@@ -91,51 +111,64 @@ func freePort(t *testing.T) int {
 	return p
 }
 
-func createScratchDB(t *testing.T, baseDSN, name string) string {
+// Each simulator database is migrated explicitly with a separate admin identity.
+// Runtime stores are non-owner roles with DML only; startup performs no DDL.
+func createScratchDB(t *testing.T, kind string) string {
 	t.Helper()
-	admin := replaceDBName(baseDSN, "postgres")
-	db, err := sql.Open("pgx", admin)
+	adminDSN := os.Getenv("QUOTA_LAB_PG_ADMIN_DSN")
+	require.NotEmpty(t, adminDSN, "QUOTA_LAB_PG_ADMIN_DSN required for explicit isolated fixture migrations")
+	adminURL, err := url.Parse(adminDSN)
 	require.NoError(t, err)
-	defer func() { _ = db.Close() }()
-	_, _ = db.Exec("DROP DATABASE IF EXISTS " + name)
-	_, err = db.Exec("CREATE DATABASE " + name)
+	require.Contains(t, []string{"postgres", "postgresql"}, adminURL.Scheme)
+	adminURL.Path = "/postgres"
+	admin, err := sql.Open("pgx", adminURL.String())
 	require.NoError(t, err)
-	return replaceDBName(baseDSN, name)
+	defer admin.Close()
+	name := "qsim_" + strings.ReplaceAll(uuid.NewString(), "-", "")
+	roleName := name + "_runtime"
+	password := uuid.NewString()
+	qName, qRole := pgx.Identifier{name}.Sanitize(), pgx.Identifier{roleName}.Sanitize()
+	_, err = admin.Exec(fmt.Sprintf(fixtureSQL("CreateRole"), qRole, password))
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		cleanup, err := sql.Open("pgx", adminURL.String())
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		defer cleanup.Close()
+		_, err = cleanup.Exec(fmt.Sprintf(fixtureSQL("DropDatabase"), qName))
+		require.NoError(t, err)
+		_, err = cleanup.Exec(fmt.Sprintf(fixtureSQL("DropRole"), qRole))
+		require.NoError(t, err)
+	})
+	_, err = admin.Exec(fmt.Sprintf(fixtureSQL("CreateDatabase"), qName))
+	require.NoError(t, err)
+	fixtureURL := *adminURL
+	fixtureURL.Path = "/" + name
+	fixtureDB, err := sql.Open("pgx", fixtureURL.String())
+	require.NoError(t, err)
+	defer fixtureDB.Close()
+	schema, err := os.ReadFile(filepath.Join("testdata", kind+"-schema.sql"))
+	require.NoError(t, err)
+	_, err = fixtureDB.Exec(string(schema))
+	require.NoError(t, err)
+	_, err = fixtureDB.Exec(fmt.Sprintf(fixtureSQL("GrantRuntime"), qName, qRole))
+	require.NoError(t, err)
+	runtimeURL := fixtureURL
+	runtimeURL.User = url.UserPassword(roleName, password)
+	runtimeDB, err := sql.Open("pgx", runtimeURL.String())
+	require.NoError(t, err)
+	defer runtimeDB.Close()
+	assertRestrictedRuntime(t, runtimeDB)
+	return runtimeURL.String()
 }
 
-func dropDB(t *testing.T, baseDSN, name string) {
-	admin := replaceDBName(baseDSN, "postgres")
-	db, err := sql.Open("pgx", admin)
-	if err != nil {
-		return
-	}
-	defer func() { _ = db.Close() }()
-	_, _ = db.Exec("DROP DATABASE IF EXISTS " + name + " WITH (FORCE)")
-}
-
-func replaceDBName(dsn, newDB string) string {
-	// postgres://user@host:port/dbname?params
-	start := len("postgres://")
-	slash := -1
-	for i := start; i < len(dsn); i++ {
-		if dsn[i] == '/' {
-			slash = i
-		}
-	}
-	if slash < 0 {
-		return dsn + "/" + newDB
-	}
-	q := -1
-	for i := slash; i < len(dsn); i++ {
-		if dsn[i] == '?' {
-			q = i
-			break
-		}
-	}
-	if q < 0 {
-		return dsn[:slash+1] + newDB
-	}
-	return dsn[:slash+1] + newDB + dsn[q:]
+func assertRestrictedRuntime(t *testing.T, db *sql.DB) {
+	t.Helper()
+	var superuser, createDB, createRole, dbOwner, schemaCreate, temp bool
+	require.NoError(t, db.QueryRow(fixtureSQL("RuntimeAuthority")).Scan(&superuser, &createDB, &createRole, &dbOwner, &schemaCreate, &temp))
+	require.False(t, superuser || createDB || createRole || dbOwner || schemaCreate || temp, "runtime must be non-owner with no DDL/TEMP authority")
 }
 
 func newLedgerOnGovDB(t *testing.T) *data.QuotaLedgerRepo {
@@ -143,6 +176,7 @@ func newLedgerOnGovDB(t *testing.T) *data.QuotaLedgerRepo {
 	db, err := sql.Open("pgx", mustDSN(t))
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = db.Close() })
+	assertRestrictedRuntime(t, db)
 	drv := entsql.OpenDB("postgres", db)
 	t.Cleanup(func() { drv.Close() })
 	client := ent.NewClient(ent.Driver(drv))
@@ -152,16 +186,9 @@ func newLedgerOnGovDB(t *testing.T) *data.QuotaLedgerRepo {
 
 func newStack(t *testing.T) *simStack {
 	t.Helper()
-	base := mustDSN(t)
 	certs := mustCertsDir(t)
-	suffix := fmt.Sprintf("qsim_%d", time.Now().UnixNano()%1_000_000)
-
-	ownerDSN := createScratchDB(t, base, "owner_"+suffix)
-	provDSN := createScratchDB(t, base, "prov_"+suffix)
-	t.Cleanup(func() {
-		dropDB(t, base, "owner_"+suffix)
-		dropDB(t, base, "prov_"+suffix)
-	})
+	ownerDSN := createScratchDB(t, "owner")
+	provDSN := createScratchDB(t, "provider")
 
 	owner, err := OpenOwner(ownerDSN)
 	require.NoError(t, err)
@@ -193,7 +220,7 @@ func newStack(t *testing.T) *simStack {
 		CAFile:       filepath.Join(certs, "ca.pem"),
 		CertFile:     filepath.Join(certs, "ani-governance.pem"),
 		KeyFile:      filepath.Join(certs, "ani-governance.key"),
-		CertOwnerMap: map[string]string{"ani-gpu-simulator": "ani-gpu-simulator"},
+		CertOwnerMap: map[string]string{"ani-gpu-simulator": "ani-gpu-simulator", "ani-gpu-simulator-alias": "ani-gpu-simulator", "ani-second-owner": "ani-second-owner"},
 	}, ledger)
 	require.NoError(t, err)
 	require.NotNil(t, isrv)
@@ -210,7 +237,7 @@ func newStack(t *testing.T) *simStack {
 	require.NoError(t, err)
 
 	// 账本 fixture：租户 + 套餐 + gpu.count=8。
-	tenantID := ledgerFixture(t, ledger)
+	tenantID, resourceTenantID := ledgerFixture(t, ledger)
 
 	return &simStack{
 		t: t, owner: owner, provider: provider, sim: sim,
@@ -222,15 +249,16 @@ func newStack(t *testing.T) *simStack {
 			filepath.Join(certs, "ca.pem"),
 			filepath.Join(certs, "ani-gpu-simulator.pem"),
 			filepath.Join(certs, "ani-gpu-simulator.key")),
-		notifier: notifier,
-		tenantID:      tenantID,
-		currentCharge: "",
-		certsDir:      certs,
-		ownerDSN: ownerDSN, providerDS: provDSN,
+		notifier:         notifier,
+		tenantID:         tenantID,
+		resourceTenantID: resourceTenantID,
+		currentCharge:    "",
+		certsDir:         certs,
+		ownerDSN:         ownerDSN, providerDS: provDSN,
 	}
 }
 
-func ledgerFixture(t *testing.T, ledger *data.QuotaLedgerRepo) uint32 {
+func ledgerFixture(t *testing.T, ledger *data.QuotaLedgerRepo) (uint32, string) {
 	t.Helper()
 	ctx := appViewer.NewSystemViewerContext(context.Background())
 	c := ledger.EntClientForTest()
@@ -238,12 +266,11 @@ func ledgerFixture(t *testing.T, ledger *data.QuotaLedgerRepo) uint32 {
 	plan, err := c.Plan.Create().SetNillableName(ptrStr("qsim_plan_" + suffix)).Save(ctx)
 	require.NoError(t, err)
 	tn, err := c.Tenant.Create().SetName("qsim_tenant_" + suffix).SetCode("qsim_tenant_" + suffix).
-		SetNillablePlanID(&plan.ID).Save(ctx)
+		SetResourceTenantID(uuid.NewString()).SetNillablePlanID(&plan.ID).Save(ctx)
 	require.NoError(t, err)
 	require.NoError(t, c.PlanQuota.Create().SetPlanID(plan.ID).
 		SetQuotaCode(data.QuotaCodeGpuCount).SetQuotaValue(8).Exec(ctx))
-	_, _ = ledger.DB().ExecContext(ctx, "DELETE FROM sys_quota_operations; DELETE FROM sys_quota_charges; DELETE FROM sys_quota_accounts; DELETE FROM sys_quota_release_receipts")
-	return tn.ID
+	return tn.ID, tn.ResourceTenantID
 }
 
 func ptrStr(s string) *string { return &s }
@@ -288,7 +315,7 @@ func (s *simStack) occupy(t *testing.T, units int64, key string) *data.QuotaOccu
 	t.Helper()
 	res, err := s.ledger.Occupy(context.Background(), &data.QuotaOccupyInput{
 		TenantID:         s.tenantID,
-		ResourceTenantID: "11111111-1111-4111-8111-111111111111",
+		ResourceTenantID: s.resourceTenantID,
 		ResourceID:       uuidStr(),
 		ActorType:        "user", ActorID: "7",
 		OwnerService: "ani-gpu-simulator", Action: "LAB_GPU_CREATE",
@@ -301,11 +328,13 @@ func (s *simStack) occupy(t *testing.T, units int64, key string) *data.QuotaOccu
 	return res
 }
 
-func uuidStr() string { return fmt.Sprintf("%08x-0000-4000-8000-%012d", time.Now().UnixNano()&0xffffffff, time.Now().UnixNano()%1_000_000_000_000) }
+func uuidStr() string {
+	return fmt.Sprintf("%08x-0000-4000-8000-%012d", time.Now().UnixNano()&0xffffffff, time.Now().UnixNano()%1_000_000_000_000)
+}
 
 func (s *simStack) occupied(t *testing.T) int64 {
 	t.Helper()
-	return scalarI64(s.t, s.ledger, fmt.Sprintf(`SELECT coalesce(sum(occupied_units),0) FROM sys_quota_accounts WHERE quota_code='gpu.count' AND tenant_id=%d`, s.tenantID))
+	return scalarI64(s.t, s.ledger, fixtureSQL("Occupied"), s.tenantID)
 }
 
 func (s *simStack) facts(t *testing.T) int {
@@ -316,7 +345,7 @@ func (s *simStack) facts(t *testing.T) int {
 func (s *simStack) factsForCharge(t *testing.T, chargeID string) int {
 	t.Helper()
 	var n int
-	err := s.owner.db.QueryRow(`SELECT count(*) FROM sim_release_facts WHERE charge_id=$1`, chargeID).Scan(&n)
+	err := s.owner.db.QueryRow(fixtureSQL("FactCount"), chargeID).Scan(&n)
 	require.NoError(s.t, err)
 	return n
 }
@@ -324,7 +353,7 @@ func (s *simStack) factsForCharge(t *testing.T, chargeID string) int {
 func (s *simStack) allocatedUnits(t *testing.T) int {
 	t.Helper()
 	var n int
-	err := s.provider.db.QueryRow(`SELECT count(*) FROM sim_allocations WHERE state='allocated'`).Scan(&n)
+	err := s.provider.db.QueryRow(fixtureSQL("AllocationCount")).Scan(&n)
 	require.NoError(s.t, err)
 	return n
 }
@@ -332,25 +361,27 @@ func (s *simStack) allocatedUnits(t *testing.T) int {
 func (s *simStack) pendingNotifies(t *testing.T) int {
 	t.Helper()
 	var n int
-	err := s.owner.db.QueryRow(`SELECT count(*) FROM sim_notify_queue WHERE state='pending'`).Scan(&n)
+	err := s.owner.db.QueryRow(fixtureSQL("PendingNotifyCount")).Scan(&n)
 	require.NoError(s.t, err)
 	return n
 }
 
-func scalarI64(t *testing.T, ledger *data.QuotaLedgerRepo, q string) int64 {
+func scalarI64(t *testing.T, ledger *data.QuotaLedgerRepo, q string, args ...any) int64 {
 	t.Helper()
 	var v int64
-	err := ledger.DB().QueryRow(q).Scan(&v)
+	err := ledger.DB().QueryRow(q, args...).Scan(&v)
 	require.NoError(t, err)
 	return v
 }
 
-func chargeIDOfOp(opID string) string { return uuid.NewSHA1(uuid.NameSpaceURL, []byte("charge:"+opID)).String() }
+func chargeIDOfOp(opID string) string {
+	return uuid.NewSHA1(uuid.NameSpaceURL, []byte("charge:"+opID)).String()
+}
 
 func createIn(t *testing.T, s *simStack, opID, resID string, units int32, chargeID string) (bool, error) {
 	return s.sim.AcceptCreate(context.Background(), &AcceptCreateInput{
 		OperationID: opID, ResourceID: resID,
-		TenantID: "11111111-1111-4111-8111-111111111111",
+		TenantID: s.resourceTenantID,
 		Actor:    "governance:user:7", RequestHash: "h-" + opID,
 		Name: "n", GpuCount: units, ChargeID: chargeID,
 	})
@@ -359,7 +390,7 @@ func createIn(t *testing.T, s *simStack, opID, resID string, units int32, charge
 func deleteIn(t *testing.T, s *simStack, opID, createOpID, resID, chargeID string) (bool, error) {
 	return s.sim.AcceptDelete(context.Background(), &AcceptDeleteInput{
 		OperationID: opID, CreateOperationID: createOpID, ResourceID: resID,
-		TenantID: "11111111-1111-4111-8111-111111111111",
+		TenantID: s.resourceTenantID,
 		Actor:    "governance:user:7", RequestHash: "dh-" + opID, ChargeID: chargeID,
 	})
 }
@@ -379,7 +410,7 @@ func TestSimPG_AUTH05_CertNegatives(t *testing.T) {
 		defer cancel()
 		_, err = c.ReportQuotaRelease(ctx, &quotapb.ReportQuotaReleaseRequest{
 			ReleaseEventId: uuidStr(), OperationId: uuidStr(),
-			Items: []*quotapb.QuotaReleaseItem{{ChargeId: uuidStr(), QuotaCode: "gpu.count", ReleasedTotal: 1}},
+			Items:  []*quotapb.QuotaReleaseItem{{ChargeId: uuidStr(), QuotaCode: "gpu.count", ReleasedTotal: 1}},
 			Reason: quotapb.ReleaseReason_RESOURCE_RELEASED,
 		})
 		return err
@@ -416,7 +447,8 @@ func TestSimPG_AUTH05_CertNegatives(t *testing.T) {
 	require.Equal(t, "QUOTA_RELEASE_DENIED", firstSegment(st.Message()),
 		"same-CA other service must be rejected by identity mapping")
 
-	// 4) 正确证书 + 未知 charge → NotFound（正链可用）。
+	// 4) Correct certificate plus an unknown original operation is denied by
+	// the owner-scoped locator, without revealing another owner's operation.
 	_, err = s.govClient.ReportQuotaRelease(context.Background(), &quotapb.ReportQuotaReleaseRequest{
 		ReleaseEventId: uuidStr(), OperationId: uuidStr(),
 		Items:  []*quotapb.QuotaReleaseItem{{ChargeId: uuidStr(), QuotaCode: "gpu.count", ReleasedTotal: 1}},
@@ -425,7 +457,34 @@ func TestSimPG_AUTH05_CertNegatives(t *testing.T) {
 	require.Error(t, err)
 	st, ok = status.FromError(err)
 	require.True(t, ok)
-	require.Equal(t, codes.NotFound, st.Code())
+	require.Equal(t, codes.PermissionDenied, st.Code())
+
+	// DNS SAN aliases mapping to the same owner are accepted; an ambiguous
+	// certificate matching two different registered owners is rejected before
+	// any ledger mutation. This is the existing Gov DNS contract, separate from
+	// Accelerator's unique URI SAN contract.
+	original := s.occupy(t, 1, uuidStr())
+	charge := chargeOfOp(t, s, original.OperationID)
+	release := &quotapb.ReportQuotaReleaseRequest{
+		ReleaseEventId: uuidStr(), OperationId: original.OperationID,
+		Items:  []*quotapb.QuotaReleaseItem{{ChargeId: charge, QuotaCode: "gpu.count", ReleasedTotal: 1}},
+		Reason: quotapb.ReleaseReason_RESOURCE_RELEASED,
+	}
+	for _, variant := range []struct {
+		name     string
+		accepted bool
+	}{{"mixed-owner", false}, {"same-owner-alias", true}} {
+		client := newGovClient(t, s.govAddr, filepath.Join(certs, "ca.pem"), filepath.Join(certs, variant.name+".pem"), filepath.Join(certs, variant.name+".key"))
+		_, err = client.ReportQuotaRelease(context.Background(), release)
+		if variant.accepted {
+			require.NoError(t, err)
+			require.Zero(t, s.occupied(t))
+		} else {
+			require.Equal(t, codes.Unauthenticated, status.Code(err))
+			require.Contains(t, status.Convert(err).Message(), "ambiguous certificate identity")
+			require.EqualValues(t, 1, s.occupied(t))
+		}
+	}
 }
 
 func firstSegment(msg string) string {
@@ -446,7 +505,7 @@ func TestSimPG_FAIL03_AckLostRetryNoDuplication(t *testing.T) {
 	chargeID03 := uuidStr()
 	req := &quotalabpb.AcceptCreateRequest{
 		OperationId: opID, ResourceId: resID,
-		TenantId: "11111111-1111-4111-8111-111111111111",
+		TenantId: s.resourceTenantID,
 		Actor:    "governance:user:7", RequestHash: "h-" + opID,
 		Name: "fail03", GpuCount: 2, ChargeId: chargeID03,
 		QuotaCode: "gpu.count", ChargedUnits: 2,
@@ -480,18 +539,15 @@ func TestSimPG_FAIL03_AckLostRetryNoDuplication(t *testing.T) {
 func TestSimPG_FAIL04_RecoverAfterProviderCommit(t *testing.T) {
 	s := newStack(t)
 	opID, resID := uuidStr(), uuidStr()
-	tenant := "11111111-1111-4111-8111-111111111111"
+	tenant := s.resourceTenantID
 
 	// 构造中间态：owner 命令 accepted（未完成）+ provider 已分配 2 单元。
-	_, err := s.owner.db.Exec(`INSERT INTO sim_commands
-		(operation_id, tenant_id, resource_id, kind, status, actor, request_hash, name, gpu_count, charge_id)
-		VALUES ($1,$2,$3,'create','accepted','a','h4','n',2,'charge-4')`, opID, tenant, resID)
+	_, err := s.owner.db.Exec(fixtureSQL("InsertAcceptedCommand"), opID, tenant, resID)
 	require.NoError(t, err)
-	_, err = s.provider.db.Exec(`INSERT INTO sim_provider_ops (operation_id, tenant_id, resource_id) VALUES ($1,$2,$3)`, opID, tenant, resID)
+	_, err = s.provider.db.Exec(fixtureSQL("InsertProviderOperation"), opID, tenant, resID)
 	require.NoError(t, err)
 	for i := 1; i <= 2; i++ {
-		_, err = s.provider.db.Exec(`INSERT INTO sim_allocations (resource_id, ordinal, tenant_id, operation_id, state)
-			VALUES ($1,$2,$3,$4,'allocated')`, resID, i, tenant, opID)
+		_, err = s.provider.db.Exec(fixtureSQL("InsertAllocation"), resID, i, tenant, opID)
 		require.NoError(t, err)
 	}
 
@@ -501,7 +557,7 @@ func TestSimPG_FAIL04_RecoverAfterProviderCommit(t *testing.T) {
 
 	require.Equal(t, 2, s.allocatedUnits(t), "recovery must not re-allocate")
 	var status string
-	require.NoError(t, s.owner.db.QueryRow(`SELECT status FROM sim_commands WHERE operation_id=$1`, opID).Scan(&status))
+	require.NoError(t, s.owner.db.QueryRow(fixtureSQL("CommandStatus"), opID).Scan(&status))
 	require.Equal(t, StatusCompleted, status)
 }
 
@@ -521,7 +577,7 @@ func TestSimPG_FAIL05_06_PartialCleanupThenRecover(t *testing.T) {
 	require.Equal(t, 1, s.allocatedUnits(t), "unit 1 stays allocated (cleanup failed)")
 	require.Equal(t, 1, s.pendingNotifies(t), "notify enqueued with total=0")
 	var status string
-	require.NoError(t, s.owner.db.QueryRow(`SELECT status FROM sim_commands WHERE operation_id=$1`, opID).Scan(&status))
+	require.NoError(t, s.owner.db.QueryRow(fixtureSQL("CommandStatus"), opID).Scan(&status))
 	require.Equal(t, StatusAccepted, status, "dirty cleanup keeps command open for recovery")
 
 	// FAIL-06：撤销注入 → 重放/恢复继续清理并完成累计退额。
@@ -530,11 +586,10 @@ func TestSimPG_FAIL05_06_PartialCleanupThenRecover(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, s.facts(t), "unit 1 cleaned after injection removed")
 	require.Equal(t, 0, s.allocatedUnits(t), "no residual units after fence+cleanup")
-	require.NoError(t, s.owner.db.QueryRow(`SELECT status FROM sim_commands WHERE operation_id=$1`, opID).Scan(&status))
+	require.NoError(t, s.owner.db.QueryRow(fixtureSQL("CommandStatus"), opID).Scan(&status))
 	require.Equal(t, StatusAborted, status)
 	var total int
-	require.NoError(t, s.owner.db.QueryRow(`SELECT (payload_json::jsonb->'items'->0->>'released_total')::int
-		FROM sim_notify_queue WHERE charge_id=$1 AND state='pending' ORDER BY created_at DESC LIMIT 1`,
+	require.NoError(t, s.owner.db.QueryRow(fixtureSQL("ReleasedNotificationTotal"),
 		chargeIDOfOp(opID)).Scan(&total))
 	require.Equal(t, 1, total, "cumulative release must be 1 (unit 2 was never created)")
 }
@@ -584,7 +639,7 @@ func TestSimPG_FAIL08_09_16_PartialReleaseNotifyRetry(t *testing.T) {
 	// 恢复可达：同一通知投递 → Governance 释放 1。
 	require.NoError(t, s.notifier.DeliverPending(context.Background()))
 	require.Eventually(t, func() bool {
-		return scalarI64(t, s.ledger, fmt.Sprintf(`SELECT coalesce(sum(released_units),0) FROM sys_quota_charges WHERE charge_id='%s'`, charge)) == 1
+		return scalarI64(t, s.ledger, fixtureSQL("ReleasedChargeUnits"), s.tenantID, charge) == 1
 	}, 5*time.Second, 100*time.Millisecond)
 	require.Equal(t, int64(1), s.occupied(t), "partial refund: 2 -> 1")
 
@@ -602,7 +657,7 @@ func chargeOfOp(t *testing.T, s *simStack, opID string) string {
 	t.Helper()
 	var chargeID string
 	require.NoError(t, s.ledger.DB().QueryRow(
-		`SELECT charge_id FROM sys_quota_charges WHERE operation_id=$1`, opID).Scan(&chargeID))
+		fixtureSQL("OperationCharge"), s.tenantID, opID).Scan(&chargeID))
 	return chargeID
 }
 
@@ -643,7 +698,7 @@ func TestSimPG_FAIL17_ContractErrorThenResume(t *testing.T) {
 	badHash := &AcceptDeleteInput{
 		OperationID: "d-" + res.OperationID, CreateOperationID: res.OperationID,
 		ResourceID: res.ResourceID,
-		TenantID:   "11111111-1111-4111-8111-111111111111",
+		TenantID:   s.resourceTenantID,
 		Actor:      "a", RequestHash: "WRONG", ChargeID: charge,
 	}
 	_, err = s.sim.AcceptDelete(context.Background(), badHash)
@@ -652,14 +707,13 @@ func TestSimPG_FAIL17_ContractErrorThenResume(t *testing.T) {
 
 	ctx := appViewer.NewSystemViewerContext(context.Background())
 	_, e1 := s.ledger.DB().ExecContext(ctx,
-		`UPDATE sys_quota_operations SET dispatch_state='UNKNOWN', retry_blocked=true, last_error_code='SIMULATOR_CONFLICT'
-		 WHERE operation_id=$1`, res.OperationID)
+		fixtureSQL("InjectBlockedDispatch"), s.tenantID, res.OperationID)
 	require.NoError(t, e1)
 	require.Equal(t, int64(2), s.occupied(t), "blocked operation keeps the charge")
 
 	// ResumeDispatch：清除 retry_blocked，保留原 operation/charge/request_hash。
-	require.NoError(t, s.ledger.ResumeDispatch(ctx, res.OperationID))
-	blocked := scalarI64(t, s.ledger, fmt.Sprintf(`SELECT count(*) FROM sys_quota_operations WHERE operation_id='%s' AND retry_blocked`, res.OperationID))
+	require.NoError(t, s.ledger.ResumeDispatch(ctx, s.tenantID, res.OperationID))
+	blocked := scalarI64(t, s.ledger, fixtureSQL("BlockedOperationCount"), s.tenantID, res.OperationID)
 	require.Equal(t, int64(0), blocked)
 
 	// 撤销故障（正确 hash）→ 同一操作完成执行与清理 → 账本归零（不直接改余额）。
@@ -691,7 +745,7 @@ func TestSimPG_CON06_ConcurrentDeleteAndAbort(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		_, _ = s.provider.db.Exec(`UPDATE sim_provider_ops SET closed=true, execution_generation=execution_generation+1 WHERE operation_id=$1`, res.OperationID)
+		_, _ = s.provider.db.Exec(fixtureSQL("CloseProviderOperation"), res.OperationID)
 	}()
 	wg.Wait()
 
@@ -703,8 +757,7 @@ func TestSimPG_CON06_ConcurrentDeleteAndAbort(t *testing.T) {
 
 	// 同一 (charge_id, unit_ordinal) 只允许一个释放事实（唯一主键 + 去重）。
 	var dupFacts int
-	require.NoError(t, s.owner.db.QueryRow(`SELECT count(*) FROM (
-		SELECT charge_id, unit_ordinal FROM sim_release_facts GROUP BY charge_id, unit_ordinal HAVING count(*)>1) d`).Scan(&dupFacts))
+	require.NoError(t, s.owner.db.QueryRow(fixtureSQL("DuplicateFacts")).Scan(&dupFacts))
 	require.Equal(t, 0, dupFacts)
 	require.Equal(t, 4, s.facts(t), "each ordinal exactly one release fact")
 

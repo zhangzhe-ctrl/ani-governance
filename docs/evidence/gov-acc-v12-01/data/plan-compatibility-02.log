@@ -1,0 +1,34 @@
+=== RUN   TestPlanQuotaRepoPostgres_Create
+--- PASS: TestPlanQuotaRepoPostgres_Create (0.04s)
+=== RUN   TestPlanQuotaRepoPostgres_ListFilter
+    plan_quota_repo_sqlite_test.go:134: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/plan_quota_repo_sqlite_test.go:134
+        	Error:      	Received unexpected error:
+        	            	ERROR: syntax error at or near ")" of jsonpath input (SQLSTATE 42601)
+        	Test:       	TestPlanQuotaRepoPostgres_ListFilter
+--- FAIL: TestPlanQuotaRepoPostgres_ListFilter (0.04s)
+=== RUN   TestPlanQuotaRepoPostgres_Get
+--- PASS: TestPlanQuotaRepoPostgres_Get (0.03s)
+=== RUN   TestPlanQuotaRepoPostgres_QuotaTypeReadView
+    plan_quota_repo_sqlite_test.go:232: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/plan_quota_repo_sqlite_test.go:232
+        	Error:      	Received unexpected error:
+        	            	ERROR: syntax error at or near ")" of jsonpath input (SQLSTATE 42601)
+        	Test:       	TestPlanQuotaRepoPostgres_QuotaTypeReadView
+--- FAIL: TestPlanQuotaRepoPostgres_QuotaTypeReadView (0.04s)
+=== RUN   TestPlanQuotaRepoPostgres_Update
+--- PASS: TestPlanQuotaRepoPostgres_Update (0.03s)
+=== RUN   TestPlanQuotaRepoPostgres_Delete
+--- PASS: TestPlanQuotaRepoPostgres_Delete (0.03s)
+=== RUN   TestPlanQuotaRepoPostgres_QuotaCodeCompat
+    quota_code_map_pg_test.go:79: 
+        	Error Trace:	/home/chabking/gov-acc-v12-01-20260923/gov/app/admin/service/internal/data/quota_code_map_pg_test.go:79
+        	Error:      	Received unexpected error:
+        	            	ERROR: syntax error at or near ")" of jsonpath input (SQLSTATE 42601)
+        	Test:       	TestPlanQuotaRepoPostgres_QuotaCodeCompat
+--- FAIL: TestPlanQuotaRepoPostgres_QuotaCodeCompat (0.04s)
+=== RUN   TestPlanQuotaRepoPostgres_DuplicateCodeRejected
+--- PASS: TestPlanQuotaRepoPostgres_DuplicateCodeRejected (0.03s)
+FAIL
+FAIL	go-wind-admin/app/admin/service/internal/data	0.323s
+FAIL

@@ -189,6 +189,7 @@ func TestModuleMapping(t *testing.T) {
 		identityV1.Module_LOG:              {planmodule.ModuleLog, api.BusinessModuleLog},
 		identityV1.Module_INTERNAL_MESSAGE: {planmodule.ModuleInternalMessage, api.BusinessModuleInternalMessage},
 		identityV1.Module_TASK:             {planmodule.ModuleTask, api.BusinessModuleTask},
+		identityV1.Module_ACCELERATOR:      {planmodule.ModuleAccelerator, api.BusinessModuleAccelerator},
 	}
 
 	for protoMod, entMods := range pairs {

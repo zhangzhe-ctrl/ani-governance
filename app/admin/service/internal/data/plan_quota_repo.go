@@ -2,365 +2,265 @@ package data
 
 import (
 	"context"
+	"errors"
+	"math"
 	"strings"
-	"time"
 
-	"entgo.io/ent/dialect/sql"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	entCrud "github.com/tx7do/go-crud/entgo"
-
-	"github.com/tx7do/go-utils/copierutil"
 	"github.com/tx7do/go-utils/mapper"
-	"github.com/tx7do/go-utils/trans"
-
-	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/ent/plan"
-	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
-
-	appViewer "go-wind-admin/pkg/entgo/viewer"
-	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
-
+	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
+	"go-wind-admin/app/admin/service/internal/data/ent"
+	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
+	q "go-wind-admin/app/admin/service/internal/data/quotasql"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type PlanQuotaRepo struct {
-	entClient *entCrud.EntClient[*ent.Client]
-	log       *bLogger.Helper
-
-	mapper           *mapper.CopierMapper[identityV1.PlanQuota, ent.PlanQuota]
-	quotaTypeConv    *mapper.EnumTypeConverter[identityV1.PlanQuota_QuotaType, planquota.QuotaType]
-
-	repository *entCrud.Repository[
-		ent.PlanQuotaQuery, ent.PlanQuotaSelect,
-		ent.PlanQuotaCreate, ent.PlanQuotaCreateBulk,
-		ent.PlanQuotaUpdate, ent.PlanQuotaUpdateOne,
-		ent.PlanQuotaDelete,
-		predicate.PlanQuota,
-		identityV1.PlanQuota, ent.PlanQuota,
-	]
+	entClient     *entCrud.EntClient[*ent.Client]
+	log           *bLogger.Helper
+	mapper        *mapper.CopierMapper[identityV1.PlanQuota, ent.PlanQuota]
+	quotaTypeConv *mapper.EnumTypeConverter[identityV1.PlanQuota_QuotaType, planquota.QuotaType]
 }
 
-func NewPlanQuotaRepo(
-	ctx *bootstrap.Context,
-	entClient *entCrud.EntClient[*ent.Client],
-) *PlanQuotaRepo {
-	repo := &PlanQuotaRepo{
-		log:       ctx.NewLoggerHelper("plan-quota/repo/admin-service"),
-		entClient: entClient,
-		mapper:    mapper.NewCopierMapper[identityV1.PlanQuota, ent.PlanQuota](),
-		quotaTypeConv: mapper.NewEnumTypeConverter[identityV1.PlanQuota_QuotaType, planquota.QuotaType](
-			identityV1.PlanQuota_QuotaType_name, identityV1.PlanQuota_QuotaType_value,
-		),
-	}
-
-	repo.init()
-
-	return repo
+func NewPlanQuotaRepo(ctx *bootstrap.Context, c *entCrud.EntClient[*ent.Client]) *PlanQuotaRepo {
+	return &PlanQuotaRepo{entClient: c, log: ctx.NewLoggerHelper("plan-quota/repo/admin-service")}
 }
-
-func (r *PlanQuotaRepo) init() {
-	r.repository = entCrud.NewRepository[
-		ent.PlanQuotaQuery, ent.PlanQuotaSelect,
-		ent.PlanQuotaCreate, ent.PlanQuotaCreateBulk,
-		ent.PlanQuotaUpdate, ent.PlanQuotaUpdateOne,
-		ent.PlanQuotaDelete,
-		predicate.PlanQuota,
-		identityV1.PlanQuota, ent.PlanQuota,
-	](r.mapper)
-
-	r.mapper.AppendConverters(copierutil.NewTimeStringConverterPair())
-	r.mapper.AppendConverters(copierutil.NewTimeTimestamppbConverterPair())
-
-	r.mapper.AppendConverters(r.quotaTypeConv.NewConverterPair())
-}
-
-func (r *PlanQuotaRepo) Count(ctx context.Context, whereCond []func(s *sql.Selector)) (int, error) {
-	builder := r.entClient.Client().PlanQuota.Query()
-	if len(whereCond) != 0 {
-		builder.Modify(whereCond...)
+func (r *PlanQuotaRepo) init() {}
+func (r *PlanQuotaRepo) transaction(ctx context.Context, fn func(*q.Queries) error) error {
+	err := quotaTransaction(ctx, r.entClient.DB(), fn)
+	var pgerr *pgconn.PgError
+	if errors.As(err, &pgerr) && pgerr.Code == "23505" {
+		return QuotaErrIdempotencyConflict("plan already has this quota code")
 	}
-
-	count, err := builder.Count(ctx)
-	if err != nil {
-		r.log.Errorf(ctx, "query count failed: %s", err.Error())
-		return 0, identityV1.ErrorInternalServerError("query count failed")
+	if errors.Is(err, pgx.ErrNoRows) {
+		return identityV1.ErrorNotFound("plan quota not found")
 	}
-
-	return count, nil
-}
-
-func (r *PlanQuotaRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*identityV1.ListPlanQuotaResponse, error) {
-	if req == nil {
-		return nil, identityV1.ErrorBadRequest("invalid parameter")
-	}
-
-	builder := r.entClient.Client().PlanQuota.Query().WithPlan()
-
-	whereSelectors, _, err := r.repository.BuildListSelectorWithPaging(builder, req)
-	if err != nil {
-		r.log.Errorf(ctx, "parse list param error [%s]", err.Error())
-		return nil, identityV1.ErrorBadRequest("invalid query parameter")
-	}
-
-	entities, err := builder.All(ctx)
-	if err != nil {
-		r.log.Errorf(ctx, "query plan quota list failed: %s", err.Error())
-		return nil, identityV1.ErrorInternalServerError("query plan quota list failed")
-	}
-
-	dtos := make([]*identityV1.PlanQuota, 0, len(entities))
-	for _, entity := range entities {
-		dto := r.mapper.ToDTO(entity)
-		if entity.Edges.Plan != nil {
-			dto.PlanId = &entity.Edges.Plan.ID
-		}
-		projectQuotaCompatFields(dto, entity)
-		dtos = append(dtos, dto)
-	}
-
-	count, err := r.Count(ctx, whereSelectors)
-	if err != nil {
-		return nil, err
-	}
-
-	return &identityV1.ListPlanQuotaResponse{
-		Total: uint64(count),
-		Items: dtos,
-	}, nil
-}
-
-func (r *PlanQuotaRepo) IsExist(ctx context.Context, id uint32) (bool, error) {
-	exist, err := r.entClient.Client().PlanQuota.Query().
-		Where(planquota.IDEQ(id)).
-		Exist(ctx)
-	if err != nil {
-		r.log.Errorf(ctx, "query exist failed: %s", err.Error())
-		return false, identityV1.ErrorInternalServerError("query exist failed")
-	}
-	return exist, nil
-}
-
-func (r *PlanQuotaRepo) Get(ctx context.Context, req *identityV1.GetPlanQuotaRequest) (*identityV1.PlanQuota, error) {
-	if req == nil {
-		return nil, identityV1.ErrorBadRequest("invalid parameter")
-	}
-
-	builder := r.entClient.Client().PlanQuota.Query()
-
-	var whereCond []func(s *sql.Selector)
-	switch req.QueryBy.(type) {
-	default:
-	case *identityV1.GetPlanQuotaRequest_Id:
-		whereCond = append(whereCond, planquota.IDEQ(req.GetId()))
-	}
-
-	dto, err := r.repository.Get(ctx, builder, req.GetViewMask(), whereCond...)
-	if err != nil {
-		return nil, err
-	}
-
-	return dto, err
-}
-
-// projectQuotaCompatFields 统一读取投影：quota_code 权威；quota_type 仅旧三项
-// 保持一致旧枚举，gpu.count 等新项不输出旧枚举（nil→JSON 省略/UNSPECIFIED）。
-func projectQuotaCompatFields(dto *identityV1.PlanQuota, entity *ent.PlanQuota) {
-	dto.QuotaCode = trans.Ptr(entity.QuotaCode)
-	dto.QuotaType = ProjectLegacyTypeForRead(entity.QuotaCode)
-}
-
-func (r *PlanQuotaRepo) Create(ctx context.Context, req *identityV1.CreatePlanQuotaRequest) (err error) {
-	if req == nil || req.Data == nil {
-		return identityV1.ErrorBadRequest("invalid parameter")
-	}
-
-	// 计划 §5.2/§5.3：plan_id、quota_code、quota_value 必填；
-	// code/type 兼容解析集中在本映射文件，冲突/缺失回 400。
-	quotaCode, ok := ResolveQuotaCodeForWrite(req.Data.QuotaCode, req.Data.QuotaType)
-	if !ok {
-		return QuotaErrInvalid("quota_code is required and must be consistent with legacy quota_type")
-	}
-	if req.Data.PlanId == nil || *req.Data.PlanId == 0 {
-		return QuotaErrInvalid("plan_id is required")
-	}
-	if req.Data.QuotaValue == nil {
-		return QuotaErrInvalid("quota_value is required")
-	}
-
-	var tx *ent.Tx
-	tx, err = r.entClient.Client().Tx(ctx)
-	if err != nil {
-		r.log.Errorf(ctx, "start transaction failed: %s", err.Error())
-		return identityV1.ErrorInternalServerError("start transaction failed")
-	}
-	defer func() {
-		if err != nil {
-			if rollbackErr := tx.Rollback(); rollbackErr != nil {
-				r.log.Errorf(ctx, "transaction rollback failed: %s", rollbackErr.Error())
-			}
-			return
-		}
-		if commitErr := tx.Commit(); commitErr != nil {
-			r.log.Errorf(ctx, "transaction commit failed: %s", commitErr.Error())
-			err = identityV1.ErrorInternalServerError("transaction commit failed")
-		}
-	}()
-
-	// §7.1：套餐配额变更先 plan 行 FOR UPDATE，再写该 plan 的 quota 行；
-	// 不得反向再锁 tenant/account。占额路径对 plan 为 FOR SHARE，与此串行化。
-	// SQLite（单写者测试库）不支持行锁，按方言跳过。
-	sysCtx := appViewer.NewSystemViewerContext(ctx)
-	pq := tx.Plan.Query().Where(plan.IDEQ(*req.Data.PlanId))
-	if supportsRowLock(r.entClient) {
-		pq = pq.ForUpdate()
-	}
-	if _, err = pq.Only(sysCtx); ent.IsNotFound(err) {
-		return QuotaErrInvalid("plan not found")
-	} else if err != nil {
-		r.log.Errorf(ctx, "lock plan failed: %s", err.Error())
-		return identityV1.ErrorInternalServerError("lock plan failed")
-	}
-
-	builder := tx.PlanQuota.Create().
-		SetQuotaCode(quotaCode).
-		SetNillableQuotaValue(req.Data.QuotaValue).
-		SetNillableCreatedBy(req.Data.CreatedBy).
-		SetCreatedAt(time.Now())
-
-	// 旧三项保持旧枚举一致投影；gpu.count 等新项不写旧枚举（NULL 合法）。
-	if legacyType, ok := CodeToLegacyEntType(quotaCode); ok && req.Data.QuotaType != nil {
-		builder.SetQuotaType(legacyType)
-	}
-
-	if req.Data.PlanId != nil {
-		builder.SetPlanID(*req.Data.PlanId)
-	}
-
-	if req.Data.Id != nil {
-		builder.SetID(req.GetData().GetId())
-	}
-
-	if _, err = builder.Save(ctx); err != nil {
-		r.log.Errorf(ctx, "insert plan quota failed: %s", err.Error())
-		// 同套餐同 code 唯一冲突（含并发提交时数据库约束兜底）。
-		if ent.IsConstraintError(err) {
-			return QuotaErrIdempotencyConflict("plan already has a quota item with this quota_code")
-		}
-		return identityV1.ErrorInternalServerError("insert plan quota failed")
-	}
-
-	return nil
-}
-
-func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQuotaRequest) (err error) {
-	if req == nil || req.Data == nil {
-		return identityV1.ErrorBadRequest("invalid parameter")
-	}
-	if req.GetId() == 0 {
-		return identityV1.ErrorBadRequest("id is required")
-	}
-	// 计划 §5.3：Update 必须非空 updateMask；不允许 allowMissing 隐式创建
-	// 或改 planId。allowMissing 在 Service 层拒绝，这里再兜底。
-	if req.GetAllowMissing() {
-		return QuotaErrInvalid("allow_missing is not allowed for plan quotas")
-	}
-
-	// 变更 code/type 的 mask 兼容处理集中实现：两者同时出现仍须映射一致。
-	// mask 路径兼容 snake_case 与 lowerCamel（FieldMask JSON 合同为 lowerCamel）。
-	mask := req.GetUpdateMask().GetPaths()
-	has := func(name string) bool {
-		norm := strings.ReplaceAll(strings.ToLower(name), "_", "")
-		for _, p := range mask {
-			if strings.ReplaceAll(strings.ToLower(p), "_", "") == norm {
-				return true
-			}
-		}
-		return false
-	}
-	hasCode := has("quotaCode") || has("quotaType")
-	hasValue := has("quotaValue")
-	if has("planId") {
-		return QuotaErrInvalid("plan_id cannot be changed")
-	}
-	var resolvedCode string
-	var codeChanged bool
-	if hasCode {
-		resolvedCode, codeChanged = ResolveQuotaCodeForWrite(req.Data.QuotaCode, req.Data.QuotaType)
-		if !codeChanged {
-			return QuotaErrInvalid("quota_code is required and must be consistent with legacy quota_type")
-		}
-	}
-
-	var tx *ent.Tx
-	tx, err = r.entClient.Client().Tx(ctx)
-	if err != nil {
-		r.log.Errorf(ctx, "start transaction failed: %s", err.Error())
-		return identityV1.ErrorInternalServerError("start transaction failed")
-	}
-	defer func() {
-		if err != nil {
-			if rollbackErr := tx.Rollback(); rollbackErr != nil {
-				r.log.Errorf(ctx, "transaction rollback failed: %s", rollbackErr.Error())
-			}
-			return
-		}
-		if commitErr := tx.Commit(); commitErr != nil {
-			r.log.Errorf(ctx, "transaction commit failed: %s", commitErr.Error())
-			err = identityV1.ErrorInternalServerError("transaction commit failed")
-		}
-	}()
-
-	builder := tx.PlanQuota.UpdateOneID(req.GetId())
-	_, err = r.repository.UpdateOne(ctx, builder, req.Data, req.GetUpdateMask(),
-		func(dto *identityV1.PlanQuota) {
-			if codeChanged {
-				builder.SetQuotaCode(resolvedCode)
-				// 旧三项保持旧枚举一致投影；改为新项目时清掉旧枚举（NULL 合法）。
-				if legacyType, ok := CodeToLegacyEntType(resolvedCode); ok {
-					builder.SetQuotaType(legacyType)
-				} else {
-					builder.ClearQuotaType()
-				}
-			}
-			if hasValue {
-				builder.SetNillableQuotaValue(req.Data.QuotaValue)
-			}
-			builder.
-				SetNillableUpdatedBy(req.Data.UpdatedBy).
-				SetUpdatedAt(time.Now())
-		},
-		func(s *sql.Selector) {
-			s.Where(sql.EQ(planquota.FieldID, req.GetId()))
-		},
-	)
-	if err != nil {
-		r.log.Errorf(ctx, "update plan quota failed: %s", err.Error())
-		if ent.IsConstraintError(err) {
-			return QuotaErrIdempotencyConflict("plan already has a quota item with this quota_code")
-		}
-		return identityV1.ErrorInternalServerError("update plan quota failed")
-	}
-
 	return err
 }
-
+func planQuotaDTO(v q.SysPlanQuota) *identityV1.PlanQuota {
+	out := &identityV1.PlanQuota{Id: ptr(uint32(v.ID)), PlanId: ptr(uint32(v.PlanID)), QuotaCode: ptr(v.QuotaCode), QuotaType: ProjectLegacyTypeForRead(v.QuotaCode), QuotaValue: ptr(uint64(v.QuotaValue))}
+	if v.CreatedAt != nil {
+		out.CreatedAt = timestamppb.New(*v.CreatedAt)
+	}
+	if v.UpdatedAt != nil {
+		out.UpdatedAt = timestamppb.New(*v.UpdatedAt)
+	}
+	if v.DeletedAt != nil {
+		out.DeletedAt = timestamppb.New(*v.DeletedAt)
+	}
+	if v.CreatedBy != nil {
+		out.CreatedBy = ptr(uint32(*v.CreatedBy))
+	}
+	if v.UpdatedBy != nil {
+		out.UpdatedBy = ptr(uint32(*v.UpdatedBy))
+	}
+	if v.DeletedBy != nil {
+		out.DeletedBy = ptr(uint32(*v.DeletedBy))
+	}
+	return out
+}
+func projectQuotaCompatFields(dto *identityV1.PlanQuota, entity *ent.PlanQuota) {
+	dto.QuotaCode = ptr(entity.QuotaCode)
+	dto.QuotaType = ProjectLegacyTypeForRead(entity.QuotaCode)
+}
+func planQuotaReadMask(paths []string) (map[string]bool, error) {
+	if len(paths) == 0 {
+		return nil, nil
+	}
+	selected := map[string]bool{}
+	for _, p := range paths {
+		if p == "*" {
+			return nil, nil
+		}
+		field, ok := planQuotaField(p)
+		if !ok {
+			return nil, QuotaErrInvalid("invalid plan quota read mask")
+		}
+		selected[field] = true
+	}
+	return selected, nil
+}
+func applyPlanQuotaReadMask(dto *identityV1.PlanQuota, mask map[string]bool) {
+	if mask == nil {
+		return
+	}
+	m := dto.ProtoReflect()
+	m.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+		if !mask[string(f.Name())] {
+			m.Clear(f)
+		}
+		return true
+	})
+}
+func (r *PlanQuotaRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (out *identityV1.ListPlanQuotaResponse, err error) {
+	if req == nil {
+		return nil, QuotaErrInvalid("paging request required")
+	}
+	params, e := planQuotaListParams(req)
+	if e != nil {
+		return nil, e
+	}
+	mask, e := planQuotaReadMask(req.GetFieldMask().GetPaths())
+	if e != nil {
+		return nil, e
+	}
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		rows, e := tx.ListPlanQuotas(ctx, params.ListPlanQuotasParams)
+		if e != nil {
+			return e
+		}
+		total, e := tx.CountPlanQuotas(ctx, q.CountPlanQuotasParams{Predicate: params.countPredicate, SearchTerms: params.SearchTerms})
+		if e != nil {
+			return e
+		}
+		out = &identityV1.ListPlanQuotaResponse{Total: uint64(total)}
+		for _, v := range rows {
+			dto := planQuotaDTO(q.SysPlanQuota(v))
+			applyPlanQuotaReadMask(dto, mask)
+			out.Items = append(out.Items, dto)
+		}
+		return nil
+	})
+	return
+}
+func (r *PlanQuotaRepo) Get(ctx context.Context, req *identityV1.GetPlanQuotaRequest) (out *identityV1.PlanQuota, err error) {
+	if req == nil || req.GetId() == 0 {
+		return nil, QuotaErrInvalid("id required")
+	}
+	mask, e := planQuotaReadMask(req.GetViewMask().GetPaths())
+	if e != nil {
+		return nil, e
+	}
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		v, e := tx.GetPlanQuota(ctx, int64(req.GetId()))
+		if e == nil {
+			out = planQuotaDTO(v)
+			applyPlanQuotaReadMask(out, mask)
+		}
+		return e
+	})
+	return
+}
+func (r *PlanQuotaRepo) IsExist(ctx context.Context, id uint32) (ok bool, err error) {
+	err = r.transaction(ctx, func(tx *q.Queries) error {
+		_, e := tx.GetPlanQuota(ctx, int64(id))
+		if errors.Is(e, pgx.ErrNoRows) {
+			return nil
+		}
+		ok = e == nil
+		return e
+	})
+	return
+}
+func legacyTypeString(code string) *string {
+	if v, ok := CodeToLegacyEntType(code); ok {
+		return ptr(string(v))
+	}
+	return nil
+}
+func int64Pointer(v *uint32) *int64 {
+	if v == nil {
+		return nil
+	}
+	return ptr(int64(*v))
+}
+func (r *PlanQuotaRepo) Create(ctx context.Context, req *identityV1.CreatePlanQuotaRequest) error {
+	if req == nil || req.Data == nil {
+		return QuotaErrInvalid("invalid parameter")
+	}
+	d := req.Data
+	code, ok := ResolveQuotaCodeForWrite(d.QuotaCode, d.QuotaType)
+	if !ok || d.GetPlanId() == 0 || d.QuotaValue == nil || d.GetQuotaValue() > math.MaxInt64 {
+		return QuotaErrInvalid("valid plan/code/value required")
+	}
+	return r.transaction(ctx, func(tx *q.Queries) error {
+		if _, e := tx.LockPlanExclusive(ctx, int64(d.GetPlanId())); e != nil {
+			return e
+		}
+		return tx.InsertPlanQuota(ctx, q.InsertPlanQuotaParams{PlanID: int64(d.GetPlanId()), QuotaCode: code, QuotaType: legacyTypeString(code), QuotaValue: int64(d.GetQuotaValue()), CreatedBy: int64Pointer(d.CreatedBy)})
+	})
+}
+func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQuotaRequest) error {
+	if req == nil || req.Data == nil || req.GetId() == 0 || req.GetAllowMissing() || len(req.GetUpdateMask().GetPaths()) == 0 {
+		return QuotaErrInvalid("id and nonempty update mask required; allow_missing forbidden")
+	}
+	setCode, setValue := false, false
+	for _, field := range req.GetUpdateMask().GetPaths() {
+		switch strings.ReplaceAll(strings.ToLower(field), "_", "") {
+		case "quotacode", "quotatype":
+			setCode = true
+		case "quotavalue":
+			setValue = true
+		case "updatedby":
+		default:
+			return QuotaErrInvalid("immutable or unsupported plan quota field")
+		}
+	}
+	code := ""
+	if setCode {
+		var ok bool
+		code, ok = ResolveQuotaCodeForWrite(req.Data.QuotaCode, req.Data.QuotaType)
+		if !ok {
+			return QuotaErrInvalid("invalid quota code/type")
+		}
+	}
+	if setValue && (req.Data.QuotaValue == nil || req.Data.GetQuotaValue() > math.MaxInt64) {
+		return QuotaErrInvalid("valid quota value required")
+	}
+	return r.transaction(ctx, func(tx *q.Queries) error {
+		row, e := tx.GetPlanQuota(ctx, int64(req.GetId()))
+		if e != nil {
+			return e
+		}
+		if _, e = tx.LockPlanExclusive(ctx, row.PlanID); e != nil {
+			return e
+		}
+		row, e = tx.GetPlanQuota(ctx, row.ID)
+		if e != nil {
+			return e
+		}
+		if setCode {
+			row.QuotaCode = code
+			row.QuotaType = legacyTypeString(code)
+		}
+		if setValue {
+			row.QuotaValue = int64(req.Data.GetQuotaValue())
+		}
+		n, e := tx.UpdatePlanQuota(ctx, q.UpdatePlanQuotaParams{ID: row.ID, PlanID: row.PlanID, QuotaCode: row.QuotaCode, QuotaType: row.QuotaType, QuotaValue: row.QuotaValue, UpdatedBy: int64Pointer(req.Data.UpdatedBy)})
+		if e != nil {
+			return e
+		}
+		if n != 1 {
+			return pgx.ErrNoRows
+		}
+		return nil
+	})
+}
 func (r *PlanQuotaRepo) Delete(ctx context.Context, id uint32) error {
 	if id == 0 {
-		return identityV1.ErrorBadRequest("invalid parameter")
+		return QuotaErrInvalid("id required")
 	}
-
-	if err := r.entClient.Client().PlanQuota.DeleteOneID(id).Exec(ctx); err != nil {
-		if ent.IsNotFound(err) {
-			return identityV1.ErrorNotFound("plan quota not found")
+	return r.transaction(ctx, func(tx *q.Queries) error {
+		row, e := tx.GetPlanQuota(ctx, int64(id))
+		if e != nil {
+			return e
 		}
-
-		r.log.Errorf(ctx, "delete one data failed: %s", err.Error())
-
-		return identityV1.ErrorInternalServerError("delete failed")
-	}
-
-	return nil
+		if _, e = tx.LockPlanExclusive(ctx, row.PlanID); e != nil {
+			return e
+		}
+		n, e := tx.DeletePlanQuota(ctx, q.DeletePlanQuotaParams{ID: row.ID, PlanID: row.PlanID})
+		if e != nil {
+			return e
+		}
+		if n != 1 {
+			return pgx.ErrNoRows
+		}
+		return nil
+	})
 }

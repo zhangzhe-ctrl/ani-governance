@@ -1,0 +1,88 @@
+/home/chabking/gov-acc-v12-01-20260923/acc/.tools/bin/govulncheck -version | grep --fixed-strings --line-regexp "Scanner: govulncheck@v1.7.0"
+Scanner: govulncheck@v1.7.0
+test "$(go version -m /home/chabking/gov-acc-v12-01-20260923/acc/.tools/bin/govulncheck | awk '$1 == "mod" {print $2 "@" $3; exit}')" = "golang.org/x/vuln@v1.7.0"
+/home/chabking/gov-acc-v12-01-20260923/acc/.tools/bin/govulncheck -show version,verbose ./...
+Go: go1.26.7-X:nodwarf5
+Scanner: govulncheck@v1.7.0
+DB: https://vuln.go.dev
+DB updated: 2026-09-16 18:00:43 +0000 UTC
+
+Fetching vulnerabilities from the database...
+
+Checking the code against the vulnerabilities...
+
+The package pattern matched the following 13 root packages:
+  github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1
+  github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/integration/v1
+  github.com/zhangzhe-ctrl/ani-accelerator-service/internal/biz
+  github.com/zhangzhe-ctrl/ani-accelerator-service/internal/conf/v1
+  github.com/zhangzhe-ctrl/ani-accelerator-service/internal/data/accdb
+  github.com/zhangzhe-ctrl/ani-accelerator-service/internal/data
+  github.com/zhangzhe-ctrl/ani-accelerator-service/internal/data/provider
+  github.com/zhangzhe-ctrl/ani-accelerator-service/internal/server
+  github.com/zhangzhe-ctrl/ani-accelerator-service/internal/service
+  github.com/zhangzhe-ctrl/ani-accelerator-service/cmd/ani-accelerator-service
+  github.com/zhangzhe-ctrl/ani-accelerator-service/tests/contract
+  github.com/zhangzhe-ctrl/ani-accelerator-service/tests/runtime
+  github.com/zhangzhe-ctrl/ani-accelerator-service/tests/testkit
+Govulncheck scanned the following 42 modules and the go standard library:
+  github.com/zhangzhe-ctrl/ani-accelerator-service
+  github.com/NVIDIA/go-nvml@v0.13.0-1
+  github.com/beorn7/perks@v1.0.1
+  github.com/cespare/xxhash/v2@v2.3.0
+  github.com/fsnotify/fsnotify@v1.10.1
+  github.com/go-kratos/kratos/contrib/otel/v3@v3.0.0-20260515082355-1ddb58e407c5
+  github.com/go-kratos/kratos/v3@v3.0.0
+  github.com/go-logr/logr@v1.4.3
+  github.com/go-logr/stdr@v1.2.2
+  github.com/go-playground/form/v4@v4.3.0
+  github.com/google/uuid@v1.6.0
+  github.com/gorilla/mux@v1.8.1
+  github.com/gorilla/websocket@v1.5.4-0.20250319132907-e064f32e3674
+  github.com/jackc/pgpassfile@v1.0.0
+  github.com/jackc/pgservicefile@v0.0.0-20240606120523-5a60cdf6a761
+  github.com/jackc/pgx/v5@v5.9.2
+  github.com/jackc/puddle/v2@v2.2.2
+  github.com/munnerz/goautoneg@v0.0.0-20191010083416-a7dc8b61c822
+  github.com/prometheus/client_golang@v1.24.1
+  github.com/prometheus/client_model@v0.6.2
+  github.com/prometheus/common@v0.70.1
+  github.com/prometheus/otlptranslator@v1.0.0
+  github.com/prometheus/procfs@v0.21.1
+  go.opentelemetry.io/auto/sdk@v1.2.1
+  go.opentelemetry.io/otel@v1.44.0
+  go.opentelemetry.io/otel/exporters/prometheus@v0.66.0
+  go.opentelemetry.io/otel/metric@v1.44.0
+  go.opentelemetry.io/otel/sdk@v1.44.0
+  go.opentelemetry.io/otel/sdk/metric@v1.44.0
+  go.opentelemetry.io/otel/trace@v1.44.0
+  go.uber.org/automaxprocs@v1.6.0
+  golang.org/x/net@v0.58.0
+  golang.org/x/sync@v0.22.0
+  golang.org/x/sys@v0.47.0
+  golang.org/x/text@v0.41.0
+  google.golang.org/genproto/googleapis/api@v0.0.0-20260526163538-3dc84a4a5aaa
+  google.golang.org/genproto/googleapis/rpc@v0.0.0-20260526163538-3dc84a4a5aaa
+  google.golang.org/grpc@v1.83.2
+  google.golang.org/protobuf@v1.36.11
+  gopkg.in/yaml.v3@v3.0.1
+  k8s.io/cri-api@v0.35.3
+  k8s.io/kubelet@v0.35.3
+
+No vulnerabilities found.
+test "$(go version -m /home/chabking/gov-acc-v12-01-20260923/acc/.tools/bin/gitleaks | awk '$1 == "mod" {print $2 "@" $3; exit}')" = "github.com/zricethezav/gitleaks/v8@v8.30.1"
+/home/chabking/gov-acc-v12-01-20260923/acc/.tools/bin/gitleaks git --no-banner --no-color --redact --log-opts="--all" .
+11:00AM INF Unknown SCM platform. Use --platform to include links in findings. host=
+11:00AM INF 9 commits scanned.
+11:00AM INF scanned ~8425680 bytes (8.43 MB) in 6.39s
+11:00AM INF no leaks found
+/home/chabking/gov-acc-v12-01-20260923/acc/.tools/bin/gitleaks dir --no-banner --no-color --redact .
+11:00AM INF scanned ~5918176 bytes (5.92 MB) in 3.54s
+11:00AM INF no leaks found
+test "$(/home/chabking/gov-acc-v12-01-20260923/bin/cyclonedx-gomod version | awk -F '\t' '$1 == "Version:" {print $2}')" = "v1.12.0"
+test "$(go version -m /home/chabking/gov-acc-v12-01-20260923/bin/cyclonedx-gomod | awk '$1 == "mod" {print $2 "@" $3; exit}')" = "github.com/CycloneDX/cyclonedx-gomod@v1.12.0"
+./scripts/generate-sbom /home/chabking/gov-acc-v12-01-20260923/bin/cyclonedx-gomod
+[90m11:00AM[0m [33mWRN[0m [1mno licenses detected[0m [36mmodule=[0mgithub.com/zhangzhe-ctrl/ani-accelerator-service@v0.0.0-20000101000000-29a076dee83a
+generated /home/chabking/gov-acc-v12-01-20260923/acc-audit/docs/scaffold/bom.cdx.json from repository commit ba6d6d9fecbdd2c9d980649141284869cb2e63eb, source snapshot 29a076dee83a9b0c19526b0ead94cc8bda8aee62, tool SHA-256 d63eb287bacea526fd1b0b0356f406e428900d3f230f316fe6aec107d7801910
+./scripts/verify-supply-chain
+supply-chain evidence verified: components=41 notice_sha256=3b44929bdd575a570c42165d4fd4eac57a5055745d2ecf3f121aa6a084cf9230 license_review=synchronized
