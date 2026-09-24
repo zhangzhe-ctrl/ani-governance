@@ -89,6 +89,99 @@
   ],
   "not_run_is_not_pass": "Every entry above is not_run. none of them may be reported as passing, and the T02 pass does not substitute for them (master goal: 不能以T02通过代替后续安全和生成链验证).",
 
+  "pre_activation_work_completed": {
+    "note": "All of this is read-only on the repo: the takeover was staged in the task temp dir and measured, but not activated, because phase A is blocked on its database gates.",
+    "extraction": {
+      "script": "/home/ubuntu/tx7do-pilot-run/t07_extract.py",
+      "exit": 0,
+      "staged_root": "/home/ubuntu/tx7do-pilot-run/T07/stage",
+      "files_staged": 114,
+      "source": 90, "test": 18, "license": 5, "other": 1,
+      "three_way_archive_vs_module_cache_vs_staged_all_identical": true,
+      "hash_failures": [],
+      "go_embed_resources": 0,
+      "safety_findings": "clean for all five modules",
+      "modules": {
+        "github.com/tx7do/go-crud/viewer v0.0.7": "5 files, pkg viewer",
+        "github.com/tx7do/go-crud/entgo v0.0.55": "92 files, dirs (root) ent field filter interceptor mixin pagination rule sorting update",
+        "github.com/tx7do/go-crud/audit v0.0.3": "5 files, pkg audit",
+        "github.com/tx7do/go-crud/cache v0.0.2": "10 files, pkg cache",
+        "github.com/tx7do/kratos-bootstrap/database/ent v0.1.6": "2 files (client.go + LICENSE), pkg ent"
+      }
+    },
+    "activation_closure": {
+      "script": "/home/ubuntu/tx7do-pilot-run/t07_scope.py",
+      "plan": "migration/preflight/T07-activation-plan.json",
+      "roots": "the packages go list -deps reports as the repository's own live tx7do dependencies, plus every staged test package",
+      "packages_to_activate": 22,
+      "packages_not_activated_unreachable": [
+        "github.com/tx7do/go-crud/entgo/ent/hook",
+        "github.com/tx7do/go-crud/entgo/ent/privacy",
+        "github.com/tx7do/go-crud/entgo/ent/runtime",
+        "github.com/tx7do/go-crud/entgo/ent/schema"
+      ],
+      "files_to_activate": "104 Go/resource files plus the 5 module LICENSE files"
+    },
+    "consumer_inventory": {
+      "command": "migrate_imports scan -root . -files <1195 tracked .go files> -map T07/import-map.json (dry-run, no -write)",
+      "exit": 0,
+      "files_importing_an_activated_package": 262,
+      "generated_consumers": 0,
+      "handwritten": 163,
+      "test_files": 99,
+      "import_sites": {"go-crud/entgo": 93, "go-crud/entgo/mixin": 53, "go-utils/trans": 136, "go-crud/viewer": 22, "go-crud/entgo/update": 2, "go-crud/entgo/rule": 1, "kratos-bootstrap/database/ent": 1},
+      "largest_areas": "235 files under app/admin/service/internal (55 of them editable Ent schema files), the rest under pkg/entgo/viewer, pkg/middleware/{auth,ent,logging}, pkg/jwt, pkg/utils/converter"
+    },
+    "required_tests_carried_from_upstream": {
+      "count": 71,
+      "packages": 9,
+      "security_relevant_examples": [
+        "rule: 14 TestTenantPrivacy_* / TestInjectTenantWhereIntoBuilder_* fail-closed cases",
+        "filter: TestFilter_HostileFieldNeutralizedOnKnownTable / OnUnknownTable, TestStructuredFilter_FieldAllowlist",
+        "sorting: TestSorting_HostileFieldDropped", "field: TestFieldSelector_HostilePathDropped",
+        "update: TestEscapeSQLIdentifier, TestEscapeSQLLiteral, TestValidateIdentifier",
+        "mixin: TestIsSensitiveField, TestRedactNested",
+        "cache: TestSingleFlight_Do_*, TestCacheSupport_GetOrLoad_* with miniredis"
+      ],
+      "file": "migration/preflight/T07-activation-plan.json#required_tests",
+      "repo_guard_tests_still_required": ["TestTenantMutationGuard", "TestTenantMutationGuardAccessKey", "TestPositionDataScopeGuard", "TestOrgUnitPathExpansionTenantBounded"]
+    }
+  },
+
+  "findings_for_the_activation_step": [
+    {
+      "id": "T07-F1",
+      "topic": "T07 text 不复制不相关实体示例 vs the measured dependency graph",
+      "finding": "The upstream demo entities cannot simply be dropped. entgo's production packages field, filter and sorting import entgo/ent, and entgo/ent imports the menu and user example entities; go list -deps on the repository's own code already shows entgo/ent, ent/menu, ent/user, ent/migrate and ent/predicate in the live graph today. rule/tenant_mutation_test.go additionally imports ent/enttest and ent/user, and deleting a mandatory tenant test is forbidden. Under the plan's own rule 按必要 package 及完整关联闭包复制, the demo ent client is therefore a required closure member; only ent/hook, ent/privacy, ent/runtime and ent/schema are unreachable and excluded.",
+      "impact": "Records why 30 of the 104 activated files are upstream example-adjacent generated code, so the acceptance reviewer does not read them as scope creep."
+    },
+    {
+      "id": "T07-F2",
+      "topic": "go-utils/trans inside the T07 closure",
+      "finding": "Three activated packages (entgo root, entgo/cache and their dependents) import github.com/tx7do/go-utils/trans. trans was already activated in T02, so leaving these on the module path would keep the retired dependency alive in the entry-point graph. The import map therefore maps the exact package github.com/tx7do/go-utils/trans to go-wind-admin/pkg/localdeps/go-utils/trans. The go-utils module root is deliberately NOT mapped, because fieldmaskutil, id, mapper and stringcase stay on the old path until groups B.",
+      "impact": "Prevents a regression where T07 would silently re-introduce the T02 dependency."
+    },
+    {
+      "id": "T07-F3",
+      "topic": "no dependency change is required",
+      "finding": "The staged tests' only test-only external imports are github.com/alicebob/miniredis/v2, github.com/stretchr/testify/{assert,require} and google.golang.org/protobuf/encoding/protojson, all already locked by go.mod (miniredis v2.39.0, testify v1.12.1). Redis is served in-process by miniredis, so no Redis service is needed.",
+      "impact": "Activation in this round needs no go.mod/go.sum edit, keeping the module-file-unchanged gate intact."
+    },
+    {
+      "id": "T07-F4",
+      "topic": "generated code is not a consumer",
+      "finding": "Zero files in api/gen/go or app/admin/service/internal/data/ent (generated part) import a T07 package; the data/ent hits are the 55 editable schema files and the guard tests. Ent regeneration from schema, rather than hand-editing generated output, is therefore sufficient for the generated side.",
+      "impact": "Confirms the T07 instruction Ent从schema重新生成 is the right mechanism and bounds the non-import diff to imports only."
+    }
+  ],
+
+  "commands_added_this_step": [
+    {"name": "t07-extract", "command": "python3 /home/ubuntu/tx7do-pilot-run/t07_extract.py", "exit": 0},
+    {"name": "t07-scope", "command": "python3 /home/ubuntu/tx7do-pilot-run/t07_scope.py", "exit": 0},
+    {"name": "t07-repo-deps", "command": "go list -mod=readonly -deps ./app/... ./pkg/... ./tools/... (GOROOT 1.26.7, GOWORK=off, GOTOOLCHAIN=local)", "exit": 0},
+    {"name": "t07-scan-consumers", "command": "migrate_imports scan -root . -files T07/repo-go-files.txt -map T07/import-map.json -out T07/scan.json", "exit": 0, "note": "dry-run only, no -write"}
+  ],
+
   "preserved_scene": {
     "branch": "task/tx7do-takeover at 11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
     "source_modifications": "none",
