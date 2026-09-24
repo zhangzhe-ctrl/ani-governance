@@ -38,10 +38,10 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
-	"github.com/tx7do/go-utils/captcha"
-	utilCrypto "github.com/tx7do/go-utils/crypto"
-	"github.com/tx7do/go-utils/password"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/captcha"
+	utilCrypto "go-wind-admin/pkg/localdeps/go-utils/crypto"
+	"go-wind-admin/pkg/localdeps/go-utils/password"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/emptypb"
 

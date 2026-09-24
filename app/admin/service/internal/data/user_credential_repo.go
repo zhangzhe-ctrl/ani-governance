@@ -14,10 +14,10 @@ import (
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
-	"github.com/tx7do/go-utils/crypto"
-	"github.com/tx7do/go-utils/password"
 	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
+	"go-wind-admin/pkg/localdeps/go-utils/crypto"
 	"go-wind-admin/pkg/localdeps/go-utils/mapper"
+	"go-wind-admin/pkg/localdeps/go-utils/password"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"

@@ -9,13 +9,13 @@ import (
 
 	"github.com/hibiken/asynq"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	"github.com/tx7do/go-utils/aggregator"
 	"github.com/tx7do/go-utils/id"
 	"github.com/tx7do/go-utils/timeutil"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/tx7do/kratos-transport/transport/sse"
 	"go-wind-admin/pkg/localdeps/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-utils/aggregator"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/emptypb"
 

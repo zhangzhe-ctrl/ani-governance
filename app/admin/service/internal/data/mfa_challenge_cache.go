@@ -9,7 +9,7 @@ import (
 
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/redis/go-redis/v9"
-	"github.com/tx7do/go-utils/jwtutil"
+	"go-wind-admin/pkg/localdeps/go-utils/jwtutil"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"google.golang.org/protobuf/proto"
 

@@ -111,7 +111,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
-	github.com/graph-gophers/dataloader/v7 v7.1.3 // indirect
+	github.com/graph-gophers/dataloader/v7 v7.1.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.24.0 // indirect
@@ -128,7 +128,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.28 // indirect
 	github.com/mattn/go-sqlite3 v1.14.52 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
-	github.com/mojocn/base64Captcha v1.3.8 // indirect
+	github.com/mojocn/base64Captcha v1.3.8
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/oasdiff/yaml v0.1.1 // indirect
 	github.com/oasdiff/yaml3 v0.0.14 // indirect
@@ -152,7 +152,7 @@ require (
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/swaggest/swgui v1.8.5 // indirect
-	github.com/tjfoc/gmsm v1.4.1 // indirect
+	github.com/tjfoc/gmsm v1.4.1
 	github.com/tklauser/go-sysconf v0.4.0 // indirect
 	github.com/tklauser/numcpus v0.12.0 // indirect
 	github.com/tx7do/go-crud/audit v0.0.3 // indirect
@@ -167,7 +167,7 @@ require (
 	github.com/tx7do/kratos-transport/transport v1.3.4 // indirect
 	github.com/tx7do/kratos-transport/transport/keepalive v1.3.5 // indirect
 	github.com/vearutop/statigz v1.5.0 // indirect
-	github.com/wenlng/go-captcha/v2 v2.0.5 // indirect
+	github.com/wenlng/go-captcha/v2 v2.0.5
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zclconf/go-cty v1.19.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.2.0 // indirect

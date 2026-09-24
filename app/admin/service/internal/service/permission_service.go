@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/tx7do/go-utils/aggregator"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/aggregator"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"

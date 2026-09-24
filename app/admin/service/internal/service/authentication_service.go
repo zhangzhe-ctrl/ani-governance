@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tx7do/go-utils/captcha"
 	"github.com/tx7do/go-utils/timeutil"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/captcha"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"

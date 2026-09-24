@@ -27,8 +27,8 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
-	gocrypto "github.com/tx7do/go-utils/crypto"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	gocrypto "go-wind-admin/pkg/localdeps/go-utils/crypto"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/types/known/emptypb"
 
