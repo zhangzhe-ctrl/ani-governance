@@ -1,8 +1,8 @@
-# GOV-ACC-V12-01 逐项验收结果（交付冻结前）
+# GOV-ACC-V12-01 逐项验收结果（交付收尾）
 
 本表保留原 84 项和追加 11 项，共 95 个 ID，不修改 Accelerator 仓库
 `docs/plans/governance-accelerator-v1.2-acceptance.md` 的要求。核对时间为
-2026-09-24；这是已有运行结果的收口表，**不是本批软件完成声明**。
+2026-09-24；82项软件必验已通过，收尾与CI例外见[交付记录](release/closeout.md)。
 
 `pass` 只表示本行列出的要求在所列受测版本上已有相应断言；不代表最终模块、
 发布或硬件通过。`not_verified` 表示本行仍有明确子句或交付核验未闭合，同行已通过
@@ -16,7 +16,7 @@
 ## 版本与证据索引
 
 - Gov 起点 `0fbe1a69e49cc23dc7a1696b62f68c34a7c6a48a`；本批测试包含未提交改动，
-  不能把起点 SHA 标成最终实现。最终 Gov SHA、源码 manifest、模块锁及全门禁待冻结。
+  不能把起点 SHA 标成最终实现。正式实现提交为 `bd9ad1a33bbe8ce28f4faeb19bfc9ee494ae8a84`；完整树锁、1535项最终联合源码匹配及实际发布见 [release](release/publication.json)。
 - 最终 Gov 已用独立缓存、`GOWORK=off` 正常下载并消费
   `v0.0.0-20260924030150-1d32dd9a9173`，Acc 对应完整 SHA 为
   `1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3`。模块 sum、来源和版本见
@@ -158,9 +158,9 @@ C 为生产 reader 构造来源回放。
 | DOC-02 | pass | G无虚构生产业务RPC或“改名即接入”，URI/DNS分开；Fedora固定摘要/Unicode/MiB算式验证；真实业务接缝明确待owner实现 |
 | DOC-03 | pass | G最终Gov运行恢复手册与接口登记/生成OpenAPI/本结果表互链；显式迁移/noDDL、停机顺序、独立projection/永久block无公开恢复API、原charge修复、另库恢复/不自动DOWN均按源码写明；明确旧Acc R0手写SQL记载的历史性，以本批sqlc整改证据和运维增补为现状，不倒改历史 |
 | SHIP-01 | pass | Acc完整verify/受影响复验及最终SBOM/clean审计通过，1d32精确CI成功；Gov最终模块make05、J/J-race、普通A/BFF/lab通过，release/gov-source-parity.json与source-lock.json绑定受测源码；固定工具0可达漏洞、0未获准secret，SBOM已生成。历史失败保留，非可达依赖告警范围见data-layer |
-| SHIP-02 | not_verified | 用户已授权准确origin与任务分支非强推；Acc1d32已发布，Gov最终commit/push和两仓远端精确SHA由协调者登记，不合并main/tag |
-| SHIP-03 | not_verified | Acc1d32精确SHA GitHub verify已success，见release/acc-ci-success.json；Gov最终精确SHA真实CI及范围仍由协调者查询。Fedora命令PASS不代替GitHub CI |
-| SHIP-04 | not_verified | 暂停时备份和恢复输入已保留，A/B/任务PG为继续联调仍保留；最终停进程、任务资源清理/保留清单尚未执行，不删共享资源 |
+| SHIP-02 | pass | 两仓准确origin均核对；Acc1d32、Gov bd9ad1a均普通非强推到授权任务分支，git ls-remote精确SHA一致；Gov Git bundle在Fedora还原的commit/tree一致，见release/publication.json。没有main合并、tag或生产部署；后续纯证据提交另查精确CI |
+| SHIP-03 | not_verified | Acc1d32精确SHA真实CI已成功；Gov bd9ad1a实际Actions于03:40:16Z仍In progress。用户随后明确“ci没过就算了，直接走后面流程吧”，接受不等CI继续收尾；[决定与证据](release/ci-disposition.md)。不推测CI失败、不以Fedora门禁替代GitHub通过，后续证据提交也不等CI |
+| SHIP-04 | pass | release/cleanup-result.json与cleanup.log记录exit0；最终19DB custom dump、2 cluster dump和Redis备份0600/TOC/hash通过后，准确任务进程/3容器/3匿名卷/临时凭据/十个私有cache已清理；独立检查进程/监听/已审阅私有路径残留为0，旧新恢复备份和证据保留。用户接受不等待CI后执行，不碰共享资源 |
 | OWNER-01 | not_verified | 本批没有真实Inference/其他owner业务API、正式adapter和真实持久执行；独立PG测试owner不是该实现 |
 | OWNER-02 | not_verified | 无真实工作负载renderer防绕过、历史/替换Pod追踪、在途写封闭和GPU清理；测试墓碑/通知仅软件合同 |
 | OWNER-03 | not_verified | 仍只接受ani-inference合同标识；第二owner身份/公钥选择/查询隔离/正式装配未实现 |
@@ -189,24 +189,18 @@ C 为生产 reader 构造来源回放。
 
 ## 收口统计与剩余实证
 
-当前 95 行中 **83 pass、12 not_verified、0 fail**：82 项软件必验全部通过，
-SHIP-01 审计与候选门禁通过；SHIP-02/03/04 发布、CI与清理仍待实际回执；
+当前 95 行中 **85 pass、10 not_verified、0 fail**：82 项软件必验全部通过，
+SHIP-01/02/04 审计、发布与清理通过；SHIP-03按用户明确决定接受不等待CI，保留not_verified；
 OWNER/LIVE/DEPLOY 共9项按原需求保持 not_verified。没有删除或降低原验收要求。
 
 本次已用 D-neg、Q、R、O、J/J-race 关闭此前 CREATE-03/04、DELETE-06、
 RELEASE-02/03/06、AUTH-03、PROC-02/03/04 的实证缺口；BASE-03/04 与 DOC-01/03
 也已有最终模块和文档结果。无需把这些场景重复改成“待测试”。
 
-剩余最短清单：
+交付剩余边界：
 
-1. **BASE-01 已闭合**：[完整树锁](release/source-lock.json)及完整逐文件manifest覆盖交付源树；
-   Git提交/远端SHA作为后续发布回执，不把基线SHA当最终实现。
-2. **SHIP-01/02**：Gov最终提交对应的门禁/审计及源码一致记录，非强推发布和远端SHA；
-   Acc的已发布/审计事实不替Gov签收。文档、证据或SBOM后续改动应明确其受测边界。
-3. **SHIP-03**：查询Gov最终SHA真实GitHub CI结果和覆盖；SQLC-04已证明门禁接入和
-   Fedora实际执行，Acc CI已通过，但Gov workflow文件存在不等于该提交CI运行成功。
-4. **SHIP-04**：最后由协调者记录精确任务进程/容器/角色/证书/cache停止或保留动作、
-   备份hash与恢复入口。暂停记录/测试库cleanup不等于全任务已清理。
+1. SHIP-03 的 Governance CI 未确认成功，用户已明确接受继续收尾，不再作为本批阻塞。
+2. OWNER/LIVE/DEPLOY 九项按原范围保持 not_verified，后续真实 owner、硬件和生产工作另批验收。
+3. 最后纯证据提交不修改已受测生产代码；其精确SHA/远端一致性在外置发布回执及完成报告中记录。
 
-在 BASE-01 和交付条件实际闭合前，本表不自行宣布 Goal 完成。即使软件全部通过，
-正式owner、真实GPU、多owner及生产部署仍保持本批边界，不由软件fixture推升结论。
+软件合同通过不代表正式 owner 或真实 GPU 业务闭环通过。备份、清理、版本和授权CI例外见[收尾记录](release/closeout.md)。

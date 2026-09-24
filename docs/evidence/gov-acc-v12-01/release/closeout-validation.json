@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-09-24T03:46:40.355301+00:00",
+  "status": "pass",
+  "matrix_ids": 95,
+  "unique_ids": 95,
+  "source_requirement_set": "identical",
+  "counts": {
+    "pass": 85,
+    "not_verified": 10
+  },
+  "software_required": 82,
+  "software_pass": 82,
+  "relative_links": 155,
+  "changed_tracked_paths": "documentation only; no runtime source changed",
+  "ci_exception": "SHIP-03 accepted not_verified by explicit user instruction"
+}

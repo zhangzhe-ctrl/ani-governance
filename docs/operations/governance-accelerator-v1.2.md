@@ -1,10 +1,10 @@
 # GOV-ACC-V12-01 运行、迁移与恢复手册
 
-本手册描述本批交付实现的操作边界，配套[逐项验收结果](../evidence/gov-acc-v12-01/acceptance-results.md)、[数据层证据](../evidence/gov-acc-v12-01/data-layer.md)、[owner 接入指南](../contracts/gpu-owner-integration-guide.md)及[接口登记](../interface-integration-register.md)。操作步骤不等于已经执行；最终 Gov SHA、受测版本对、CI 和清理 manifest 由交付记录补齐。本批没有生产部署或真实 GPU 验收。
+本手册描述本批交付实现的操作边界，配套[逐项验收结果](../evidence/gov-acc-v12-01/acceptance-results.md)、[数据层证据](../evidence/gov-acc-v12-01/data-layer.md)、[owner 接入指南](../contracts/gpu-owner-integration-guide.md)及[接口登记](../interface-integration-register.md)。操作步骤不等于已经执行；实际版本、CI例外和已执行的清理见[收尾记录](../evidence/gov-acc-v12-01/release/closeout.md)。本批没有生产部署或真实 GPU 验收。
 
 ## 1. 版本与当前运行边界
 
-Acc 固定为已发布提交 `1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3`；Gov 的正式模块依赖为 `v0.0.0-20260924030150-1d32dd9a9173`，以本仓 [go.mod](../../go.mod)/[go.sum](../../go.sum)和最终版本锁为准。Gov 最低实现版本是包含本手册与本批 GPU 公共能力的交付提交，其精确 SHA 由交付版本记录外置保存，不在同一提交中自引用。历史 `9f9712198488` API 模块测试只能证明当时版本。
+Acc 固定为已发布提交 `1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3`；Gov 的正式模块依赖为 `v0.0.0-20260924030150-1d32dd9a9173`，以本仓 [go.mod](../../go.mod)/[go.sum](../../go.sum)和最终版本锁为准。Gov 最低实现版本为 `bd9ad1a33bbe8ce28f4faeb19bfc9ee494ae8a84`；后续纯证据提交不改变这些能力。历史 `9f9712198488` API 模块测试只能证明当时版本。
 
 正式构建目前没有 GPU owner adapter、业务创建 BFF 或退款 owner map；两个正式 code `gpu.physical.count`、`gpu.shared_memory_mib` 均为 `NOT_ENABLED`。只读/管理 Accelerator BFF 可以独立运行。配置下游地址、添加套餐额度或打开某个环境变量不会注册 owner。新创建必须在 Resolve/占额之前失败关闭；旧操作仍保留，不能因 adapter 缺失清账或退款。`gpu.count` 保持原 LAB 语义。
 
@@ -174,7 +174,7 @@ Acc运维也必须按新结构显式执行完整链：空库先 `bash scripts/mi
 
 ## 9. 清理与后续门禁
 
-本手册不声明资源已清理。最终 cleanup manifest 由协调者在完成所有受影响复验后记录：精确进程PID/命令/退出码、任务容器ID/标签、库/角色、临时凭据/cache/锁、实际动作与时间，以及保留备份/证据/恢复材料的路径和hash。先核对归属，确认无消费者后停止任务进程；只清任务资源，不清共享服务、共享数据库或他人cache。
+本批任务资源已按用户接受不等待CI的明确指示完成清理，见[实际检查回执](../evidence/gov-acc-v12-01/release/cleanup-result.json)及[日志](../evidence/gov-acc-v12-01/release/cleanup.log)。以下要求同样适用于未来隔离复跑的收尾；每次 cleanup manifest 应记录：精确进程PID/命令/退出码、任务容器ID/标签、库/角色、临时凭据/cache/锁、实际动作与时间，以及保留备份/证据/恢复材料的路径和hash。先核对归属，确认无消费者后停止任务进程；只清任务资源，不清共享服务、共享数据库或他人cache。
 
 历史 task 数据库/CA/helper是否保留，应逐项记录目的和恢复入口，不能笼统写“全部完成清理”。在备份恢复所需密钥/证书尚未有替代保存方式前，不删除唯一恢复输入。复测用例自己的临时库 cleanup 不代表整个 Goal 已清理。
 

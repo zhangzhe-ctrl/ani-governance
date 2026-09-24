@@ -8,9 +8,9 @@
 
 | 层 | 本文所需能力及版本门槛 | 当前边界 |
 |---|---|---|
-| Governance | 最低版本为**包含本指南和本批实现的 GOV-ACC-V12-01 交付提交**：`GpuAcceptance`、schema 2 canonical、`gpu-metering-v1`、完整 pgx/sqlc 配额账本、DELETE acceptance、独立 usage sync、严格 ACK/GPU release 校验 | 精确提交、源码 manifest 和版本对写入[交付版本记录入口](../evidence/gov-acc-v12-01/acceptance-results.md)，避免文档自引用其提交 SHA。任务起点 `0fbe1a69e49cc23dc7a1696b62f68c34a7c6a48a` 不包含这些能力 |
+| Governance | 最低实现版本为 **`bd9ad1a33bbe8ce28f4faeb19bfc9ee494ae8a84`**：`GpuAcceptance`、schema 2 canonical、`gpu-metering-v1`、完整 pgx/sqlc 配额账本、DELETE acceptance、独立 usage sync、严格 ACK/GPU release 校验 | 源码 manifest、版本对和后续证据提交写入[交付记录](../evidence/gov-acc-v12-01/release/closeout.md)。任务起点 `0fbe1a69e49cc23dc7a1696b62f68c34a7c6a48a` 不包含这些能力 |
 | Accelerator | 最低固定交付 SHA `1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3`；`accelerator.v1`、`accelerator.integration.v1`、22 RPC、公开附件及本批运行时整改 | 已发布的任务分支提交；这不表示生产部署、真实 owner 或硬件已经通过 |
-| 跨仓依赖 | 本仓 [go.mod](../../go.mod) / [go.sum](../../go.sum) 固定 `v0.0.0-20260924030150-1d32dd9a9173`，对应上行 Acc SHA | 最终 Gov 提交和该模块的受测版本对、门禁/CI回执仍须随交付记录冻结；旧 API 基线联调不能认证新模块 |
+| 跨仓依赖 | 本仓 [go.mod](../../go.mod) / [go.sum](../../go.sum) 固定 `v0.0.0-20260924030150-1d32dd9a9173`，对应上行 Acc SHA | 上述 Gov 实现与该模块已完成 Fedora 软件验收；精确CI状态和用户接受不等待Gov CI的边界见交付记录。旧API基线联调不能认证新模块 |
 | 当前 owner | `ani-inference`，固定单 owner 的 ref、身份、公钥和查询约束 | 支持这一合同标识不等于已经注册正式 Inference adapter；第二 owner 未实现 |
 | 未开放能力 | 任意 owner、自报 URL/RPC 转发、在线 GPU 扩缩、额外 GPU 容器/滚动副本、多设备容器 | 均不能仅改配置或更换名称启用 |
 
