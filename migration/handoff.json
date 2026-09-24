@@ -187,6 +187,28 @@
   "status": "BLOCKED",
   "task": "T04"
  },
+ "phase_B_T04_closure": {
+  "accepted_head_now": "586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
+  "conclusion": "T04 MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS",
+  "receipt": "migration/receipts/T04-closure-known-defects.json",
+  "superseded_record": "phase_B_T04_blocked above and receipts/T04.json (status BLOCKED) are kept as evidence; the authorization in receipts/T04-authorization-known-defects.json closed them.",
+  "reverified_this_session_not_carried_forward": true,
+  "known_defects_still_open": [
+   "the 9 graph-driver captcha tests are functionally broken upstream and are only isolated+recorded as KNOWN_BASELINE_FAILURE; they are NOT fixed"
+  ],
+  "delivery_wording_constraint": "no unconditional all-green claim; every later checkpoint and T15 must run BOTH the ordinary required gate and migration/required-known-defects.json (via tools/migration/known_defects.py) and, while the debt is carried, must use the same qualified wording.",
+  "next_task": "T05. Read _agent/ani-governance-tx7do-plan/goals/T05.md on entry only.",
+  "resume_check_before_editing": [
+   "git merge-base --is-ancestor 586c44a2bb07c881d46eb51575bb5ba0c9d8d69c HEAD",
+   "cat migration/accepted_head -> 586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
+   "git status --porcelain -> only '?? _agent/'",
+   "go vet ./pkg/localdeps/go-utils/captcha/ and ./password/ -> 0"
+  ],
+  "unverified_backlog": [
+   "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run (carried from T07)"
+  ],
+  "verdict": "MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS"
+ },
  "plan": {
   "master_goal": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
   "override": "This goal waives only the per-batch human-confirmation cadence of the old plan; functional, security, method-level and acceptance constraints stay in force.",
