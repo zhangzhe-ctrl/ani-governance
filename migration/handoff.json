@@ -1,187 +1,204 @@
 {
-  "schema_version": 1,
-  "recorded_at": "T03-T15 master goal, phase A entry",
-  "purpose": "Resume ledger for the continuous T03~T15 takeover. Recovery must re-check these SHAs against migration/receipts before any edit.",
-  "plan": {
-    "master_goal": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
-    "phase_order": [
-      "A=T07",
-      "B=T03,T04,T05,T06",
-      "C=T08,T09,T10",
-      "D=T11,T12,T13",
-      "E=T14,T15"
+ "co_run_note": {
+  "patch_strip_correction": "The T02 receipt recorded the reference build as `patch -p5 -d T02/t02b1-ref`. With the patch's a/ b/ labels a plain -p5 resolves to a bare `trans_test.go` inside -d; a nested pkg/localdeps/... layout under -d fails with 'can't find file to patch'. Reference dirs must be flat. This is an evidence-reproduction detail only; no repo file changed."
+ },
+ "handoff_item_1_preserve_current_work": {
+  "branch_created_from": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
+  "original_frozen_baseline_not_resumed_from": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "resume_head": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
+  "tested_code_sha": "28b6c954f4d399399720892dab8453b53482c4e7",
+  "verdict": "PASS - no unexplained source or build change; safe to continue from resume_head.",
+  "verification": {
+   "delta": {
+    "command": "git diff --name-status 28b6c954f4d399399720892dab8453b53482c4e7 HEAD",
+    "diffstat": "2 files changed, 5 insertions(+), 4 deletions(-)",
+    "exit": 0,
+    "matches_receipt_claim": true,
+    "output": [
+     "M\tmigration/accepted_head",
+     "M\tmigration/receipts/T02.json"
     ],
-    "override": "This goal waives only the per-batch human-confirmation cadence of the old plan; functional, security, method-level and acceptance constraints stay in force."
-  },
-  "handoff_item_1_preserve_current_work": {
-    "tested_code_sha": "28b6c954f4d399399720892dab8453b53482c4e7",
-    "resume_head": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
-    "work_branch": "task/tx7do-takeover",
-    "branch_created_from": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
-    "original_frozen_baseline_not_resumed_from": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
-    "verification": {
-      "is_descendant": {
-        "command": "git merge-base --is-ancestor 28b6c954f4d399399720892dab8453b53482c4e7 HEAD",
-        "exit": 0,
-        "result": "true"
-      },
-      "delta": {
-        "command": "git diff --name-status 28b6c954f4d399399720892dab8453b53482c4e7 HEAD",
-        "exit": 0,
-        "output": [
-          "M\tmigration/accepted_head",
-          "M\tmigration/receipts/T02.json"
-        ],
-        "diffstat": "2 files changed, 5 insertions(+), 4 deletions(-)",
-        "matches_receipt_claim": true,
-        "undocumented_source_or_build_changes": []
-      },
-      "working_tree": {
-        "command": "git status --porcelain",
-        "output": [
-          "?? _agent/"
-        ],
-        "note": "_agent/ is untracked plan material; per handoff item 5 it is deliberately not committed."
-      },
-      "module_files_untouched_since_T02": {
-        "go.mod_sha256": "f07eedc615890e510a89296c884bf515170d09ab13c1d94612df1740e6b76aba",
-        "go.sum_sha256": "c5af448918da03714ef5c38d5f1448e206fe5d05bd1c41165df1f6e8ac8b17da",
-        "unchanged_from_T01_record": true
-      },
-      "trans_not_recopied": {
-        "command": "find pkg/localdeps -type f",
-        "output": [
-          "pkg/localdeps/go-utils/trans/LICENSE",
-          "pkg/localdeps/go-utils/trans/to.go",
-          "pkg/localdeps/go-utils/trans/to_test.go",
-          "pkg/localdeps/go-utils/trans/trans.go",
-          "pkg/localdeps/go-utils/trans/trans_test.go"
-        ]
-      }
-    },
-    "verdict": "PASS - no unexplained source or build change; safe to continue from resume_head."
-  },
-  "handoff_item_2_approved_test_patch_still_exact": {
-    "patch": "migration/patches/T02-B1-trans-time-test.patch",
-    "production_source_equiv": [
-      {
-        "file": "pkg/localdeps/go-utils/trans/trans.go",
-        "command": "migrate_imports equiv -before T01/stage/trans/trans.go -after <local>",
-        "exit": 0,
-        "result": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
-      },
-      {
-        "file": "pkg/localdeps/go-utils/trans/to.go",
-        "command": "migrate_imports equiv -before T01/stage/trans/to.go -after <local>",
-        "exit": 0,
-        "result": "PASS"
-      },
-      {
-        "file": "pkg/localdeps/go-utils/trans/to_test.go",
-        "command": "migrate_imports equiv -before T01/stage/trans/to_test.go -after <local>",
-        "exit": 0,
-        "result": "PASS"
-      }
-    ],
-    "test_file_reference_rebuild": {
-      "steps": [
-        "copy pristine archive T01/stage/trans/trans_test.go into a fresh temp dir",
-        "patch -p5 -d <temp> -i migration/patches/T02-B1-trans-time-test.patch",
-        "compare sha256 with the repo file"
-      ],
-      "patch_exit": 0,
-      "reference_sha256": "89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e",
-      "repo_sha256": "89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e",
-      "identical": true,
-      "original_archive_sha256_for_contrast": "d71c0cebafde6000a7479e8b4fff9473bdfa43df69cb51ce3e5a550b72ce807b",
-      "equiv_and_all_test_go_checks_still_enabled": true,
-      "Test_Trans_retained": true
-    },
-    "verdict": "PASS - the only deviation is the approved T02-B1 test patch, byte-for-byte."
-  },
-  "phase_A_closure": {
-    "recorded_at": "T07 PASS, phase A closed",
-    "verdict": "PASS",
-    "accepted_head_now": "a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
-    "receipt": "migration/receipts/T07.json",
-    "resume_check_before_editing": [
-      "git rev-parse HEAD must be a descendant of a17cf5293b599a68e053e9fd1be4ebc8246cecd4 on task/tx7do-takeover",
-      "cat migration/accepted_head must equal a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
-      "the T07-B1 fixture patch must still apply reversed cleanly to app/admin/service/internal/data/ent/tenant_guard_test.go (migration/patches/T07-B1-accesskey-guard-fixture.patch)"
-    ],
-    "authorization_now_in_force": "The master goal gained \u300c### \u6d4b\u8bd5\u5939\u5177\u4fee\u590d\u7684\u6709\u9650\u6388\u6743\u300d (8 conditions) on 2026-09-25, which pre-authorizes reproducible-pre-existing, data-preparation-only fixture repair inside the same task. It does not weaken any functional, security or acceptance gate, and it does not extend to changing assertions.",
-    "next_task": "T03 (group B). Read _agent/ani-governance-tx7do-plan/goals/T03.md on entry only.",
-    "environment_still_live": [
-      "tx7do-t07-guard-pg -> GUARD_TEST_PG_DSN (127.0.0.1:55432)",
-      "tx7do-t07-acc-lab-pg -> QUOTA_LAB_PG_DSN (127.0.0.1:55433)"
-    ],
-    "unverified_backlog": "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY remain not_run (need an external production-shaped dump/restore window, outside every group's authorized scope so far)."
-  },
-  "phase_B_T03_closure": {
-    "verdict": "PASS",
-    "recorded_at": "T03 complete, group B in progress",
-    "result_sha": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
-    "ledger_commit": "this commit (names 8e5dbde, changes no source)",
-    "accepted_head_now": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
-    "receipt": "migration/receipts/T03.json",
-    "activated": {
-      "github.com/tx7do/go-utils": "v1.1.40 (stringcase, sliceutil, fieldmaskutil)",
-      "github.com/tx7do/go-utils/mapper": "v0.0.3",
-      "github.com/tx7do/go-utils/copierutil": "v0.0.8"
-    },
-    "still_external_on_purpose": [
-      "github.com/tx7do/go-utils/timeutil (T10; no second copy was made)",
-      "github.com/tx7do/kratos-bootstrap/* (T10)",
-      "github.com/tx7do/go-crud/api + pagination Proto (T05/T06)"
-    ],
-    "resume_check_before_editing": [
-      "git merge-base --is-ancestor 8e5dbdeec677405a44d263e814c2938cefe8bf20 HEAD",
-      "cat migration/accepted_head  -> 8e5dbdeec677405a44d263e814c2938cefe8bf20",
-      "git status --porcelain      -> only '?? _agent/'",
-      "git diff --name-only 8e5dbde -- pkg/localdeps/go-utils go.mod  -> empty"
-    ],
-    "required_tests_gate": {
-      "required": 599,
-      "pass": 599,
-      "fail": 0,
-      "skip": 0,
-      "missing": 0,
-      "not_run": 0,
-      "builder": "/home/ubuntu/tx7do-pilot-run/t03_profile.py builds the profile from the packages the task touched, never hand-picked",
-      "gated_excluded": 8
-    },
-    "disclosed_not_fixed": [
-      "T03-F4 TestBootstrapPostgres fails at bootstrap_postgres_test.go:58 on a freshly created *_bootstrap_test database in both the accepted_head baseline and the migrated tree (pre-existing; production-behaviour assertion, outside the fixture authorization)",
-      "T03-F5 go vet 'assignment copies lock value' at accelerator_joint_http_test.go:503, identical at accepted_head, file untouched by T03"
-    ],
-    "environment_still_live": {
-      "containers": [
-        "tx7do-t07-guard-pg (127.0.0.1:55432)",
-        "tx7do-t07-acc-lab-pg (127.0.0.1:55433)"
-      ],
-      "databases_added_by_T03": [
-        "ani_t03_bootstrap_test",
-        "ani_t03base_bootstrap_test (each dropped and recreated before every run)"
-      ],
-      "never_touched": "quota-gpu-local-01-pg",
-      "helper": "bash /home/ubuntu/tx7do-pilot-run/T03/with_t03_env.sh <command> exports the pinned toolchain plus every task-owned DSN; GOV_BOOTSTRAP_DB selects the bootstrap database"
-    },
-    "worktrees_open": [
-      "/home/ubuntu/tx7do-pilot-run/T07/premigrate-ref (accepted T07 evidence)",
-      "/home/ubuntu/tx7do-pilot-run/T03/base-ref (a17cf52 baseline used for the gated comparisons)"
-    ],
-    "next_task": "T04. Read _agent/ani-governance-tx7do-plan/goals/T04.md on entry only.",
-    "unverified_backlog": [
-      "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run (carried from T07)"
-    ],
-    "constraints_still_in_force": [
-      "no push, no merge, no deploy",
-      "_agent/ is not committed",
-      "missing/skip/fail/not_run is not success",
-      "one batch at a time, receipts in ledger-only follow-up commits"
+    "undocumented_source_or_build_changes": []
+   },
+   "is_descendant": {
+    "command": "git merge-base --is-ancestor 28b6c954f4d399399720892dab8453b53482c4e7 HEAD",
+    "exit": 0,
+    "result": "true"
+   },
+   "module_files_untouched_since_T02": {
+    "go.mod_sha256": "f07eedc615890e510a89296c884bf515170d09ab13c1d94612df1740e6b76aba",
+    "go.sum_sha256": "c5af448918da03714ef5c38d5f1448e206fe5d05bd1c41165df1f6e8ac8b17da",
+    "unchanged_from_T01_record": true
+   },
+   "trans_not_recopied": {
+    "command": "find pkg/localdeps -type f",
+    "output": [
+     "pkg/localdeps/go-utils/trans/LICENSE",
+     "pkg/localdeps/go-utils/trans/to.go",
+     "pkg/localdeps/go-utils/trans/to_test.go",
+     "pkg/localdeps/go-utils/trans/trans.go",
+     "pkg/localdeps/go-utils/trans/trans_test.go"
     ]
+   },
+   "working_tree": {
+    "command": "git status --porcelain",
+    "note": "_agent/ is untracked plan material; per handoff item 5 it is deliberately not committed.",
+    "output": [
+     "?? _agent/"
+    ]
+   }
   },
-  "co_run_note": {
-    "patch_strip_correction": "The T02 receipt recorded the reference build as `patch -p5 -d T02/t02b1-ref`. With the patch's a/ b/ labels a plain -p5 resolves to a bare `trans_test.go` inside -d; a nested pkg/localdeps/... layout under -d fails with 'can't find file to patch'. Reference dirs must be flat. This is an evidence-reproduction detail only; no repo file changed."
-  }
+  "work_branch": "task/tx7do-takeover"
+ },
+ "handoff_item_2_approved_test_patch_still_exact": {
+  "patch": "migration/patches/T02-B1-trans-time-test.patch",
+  "production_source_equiv": [
+   {
+    "command": "migrate_imports equiv -before T01/stage/trans/trans.go -after <local>",
+    "exit": 0,
+    "file": "pkg/localdeps/go-utils/trans/trans.go",
+    "result": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+   },
+   {
+    "command": "migrate_imports equiv -before T01/stage/trans/to.go -after <local>",
+    "exit": 0,
+    "file": "pkg/localdeps/go-utils/trans/to.go",
+    "result": "PASS"
+   },
+   {
+    "command": "migrate_imports equiv -before T01/stage/trans/to_test.go -after <local>",
+    "exit": 0,
+    "file": "pkg/localdeps/go-utils/trans/to_test.go",
+    "result": "PASS"
+   }
+  ],
+  "test_file_reference_rebuild": {
+   "Test_Trans_retained": true,
+   "equiv_and_all_test_go_checks_still_enabled": true,
+   "identical": true,
+   "original_archive_sha256_for_contrast": "d71c0cebafde6000a7479e8b4fff9473bdfa43df69cb51ce3e5a550b72ce807b",
+   "patch_exit": 0,
+   "reference_sha256": "89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e",
+   "repo_sha256": "89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e",
+   "steps": [
+    "copy pristine archive T01/stage/trans/trans_test.go into a fresh temp dir",
+    "patch -p5 -d <temp> -i migration/patches/T02-B1-trans-time-test.patch",
+    "compare sha256 with the repo file"
+   ]
+  },
+  "verdict": "PASS - the only deviation is the approved T02-B1 test patch, byte-for-byte."
+ },
+ "phase_A_closure": {
+  "accepted_head_now": "a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
+  "authorization_now_in_force": "The master goal gained \u300c### \u6d4b\u8bd5\u5939\u5177\u4fee\u590d\u7684\u6709\u9650\u6388\u6743\u300d (8 conditions) on 2026-09-25, which pre-authorizes reproducible-pre-existing, data-preparation-only fixture repair inside the same task. It does not weaken any functional, security or acceptance gate, and it does not extend to changing assertions.",
+  "environment_still_live": [
+   "tx7do-t07-guard-pg -> GUARD_TEST_PG_DSN (127.0.0.1:55432)",
+   "tx7do-t07-acc-lab-pg -> QUOTA_LAB_PG_DSN (127.0.0.1:55433)"
+  ],
+  "next_task": "T03 (group B). Read _agent/ani-governance-tx7do-plan/goals/T03.md on entry only.",
+  "receipt": "migration/receipts/T07.json",
+  "recorded_at": "T07 PASS, phase A closed",
+  "resume_check_before_editing": [
+   "git rev-parse HEAD must be a descendant of a17cf5293b599a68e053e9fd1be4ebc8246cecd4 on task/tx7do-takeover",
+   "cat migration/accepted_head must equal a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
+   "the T07-B1 fixture patch must still apply reversed cleanly to app/admin/service/internal/data/ent/tenant_guard_test.go (migration/patches/T07-B1-accesskey-guard-fixture.patch)"
+  ],
+  "unverified_backlog": "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY remain not_run (need an external production-shaped dump/restore window, outside every group's authorized scope so far).",
+  "verdict": "PASS"
+ },
+ "phase_B_T03_closure": {
+  "accepted_head_now": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+  "activated": {
+   "github.com/tx7do/go-utils": "v1.1.40 (stringcase, sliceutil, fieldmaskutil)",
+   "github.com/tx7do/go-utils/copierutil": "v0.0.8",
+   "github.com/tx7do/go-utils/mapper": "v0.0.3"
+  },
+  "constraints_still_in_force": [
+   "no push, no merge, no deploy",
+   "_agent/ is not committed",
+   "missing/skip/fail/not_run is not success",
+   "one batch at a time, receipts in ledger-only follow-up commits"
+  ],
+  "disclosed_not_fixed": [
+   "T03-F4 TestBootstrapPostgres fails at bootstrap_postgres_test.go:58 on a freshly created *_bootstrap_test database in both the accepted_head baseline and the migrated tree (pre-existing; production-behaviour assertion, outside the fixture authorization)",
+   "T03-F5 go vet 'assignment copies lock value' at accelerator_joint_http_test.go:503, identical at accepted_head, file untouched by T03"
+  ],
+  "environment_still_live": {
+   "containers": [
+    "tx7do-t07-guard-pg (127.0.0.1:55432)",
+    "tx7do-t07-acc-lab-pg (127.0.0.1:55433)"
+   ],
+   "databases_added_by_T03": [
+    "ani_t03_bootstrap_test",
+    "ani_t03base_bootstrap_test (each dropped and recreated before every run)"
+   ],
+   "helper": "bash /home/ubuntu/tx7do-pilot-run/T03/with_t03_env.sh <command> exports the pinned toolchain plus every task-owned DSN; GOV_BOOTSTRAP_DB selects the bootstrap database",
+   "never_touched": "quota-gpu-local-01-pg"
+  },
+  "ledger_commit": "this commit (names 8e5dbde, changes no source)",
+  "next_task": "T04. Read _agent/ani-governance-tx7do-plan/goals/T04.md on entry only.",
+  "receipt": "migration/receipts/T03.json",
+  "recorded_at": "T03 complete, group B in progress",
+  "required_tests_gate": {
+   "builder": "/home/ubuntu/tx7do-pilot-run/t03_profile.py builds the profile from the packages the task touched, never hand-picked",
+   "fail": 0,
+   "gated_excluded": 8,
+   "missing": 0,
+   "not_run": 0,
+   "pass": 599,
+   "required": 599,
+   "skip": 0
+  },
+  "result_sha": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+  "resume_check_before_editing": [
+   "git merge-base --is-ancestor 8e5dbdeec677405a44d263e814c2938cefe8bf20 HEAD",
+   "cat migration/accepted_head  -> 8e5dbdeec677405a44d263e814c2938cefe8bf20",
+   "git status --porcelain      -> only '?? _agent/'",
+   "git diff --name-only 8e5dbde -- pkg/localdeps/go-utils go.mod  -> empty"
+  ],
+  "still_external_on_purpose": [
+   "github.com/tx7do/go-utils/timeutil (T10; no second copy was made)",
+   "github.com/tx7do/kratos-bootstrap/* (T10)",
+   "github.com/tx7do/go-crud/api + pagination Proto (T05/T06)"
+  ],
+  "unverified_backlog": [
+   "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run (carried from T07)"
+  ],
+  "verdict": "PASS",
+  "worktrees_open": [
+   "/home/ubuntu/tx7do-pilot-run/T07/premigrate-ref (accepted T07 evidence)",
+   "/home/ubuntu/tx7do-pilot-run/T03/base-ref (a17cf52 baseline used for the gated comparisons)"
+  ]
+ },
+ "phase_B_T04_blocked": {
+  "accepted_head_unchanged": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+  "blocked_on": "10 named cases + 5 examples shipped by the locked upstream modules (9 captcha image drivers, TestECDHCrypto_EncryptAndVerify) and go test's default vet rejection of pkg/localdeps/go-utils/captcha; all reproduced offline against byte-identical module-cache copies",
+  "code_commit": "f161a27f4a3395931a5d927960c8400967eb05ea",
+  "everything_else": "provenance, guard 21/21, equiv 47/47 + gofmt 18/18, build_only, residual scan and the 602-test consumer differential all passed",
+  "group_B_paused": true,
+  "ledger_commit_at_record": "8a4e652b6b9678be77113f69300cd343d18fef9e",
+  "raw_evidence": "/home/ubuntu/tx7do-pilot-run/T04/ and migration/preflight/T04-*.json",
+  "resume_instructions": [
+   "read migration/receipts/T04.json (decision_needed.recorded_decision) before any edit",
+   "re-provision the lab with /home/ubuntu/tx7do-pilot-run/T04/lab-reset.sh and keep -p 1 for data+service",
+   "keep the task-owned redis tx7do-t04-captcha-redis up if the captcha gate is re-measured",
+   "do not start T05/T06 until the upstream-red disposition is authorized"
+  ],
+  "status": "BLOCKED",
+  "task": "T04"
+ },
+ "plan": {
+  "master_goal": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
+  "override": "This goal waives only the per-batch human-confirmation cadence of the old plan; functional, security, method-level and acceptance constraints stay in force.",
+  "phase_order": [
+   "A=T07",
+   "B=T03,T04,T05,T06",
+   "C=T08,T09,T10",
+   "D=T11,T12,T13",
+   "E=T14,T15"
+  ]
+ },
+ "purpose": "Resume ledger for the continuous T03~T15 takeover. Recovery must re-check these SHAs against migration/receipts before any edit.",
+ "recorded_at": "T03-T15 master goal, phase A entry",
+ "schema_version": 1
 }

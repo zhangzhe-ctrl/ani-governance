@@ -162,7 +162,14 @@
    }
   ],
   "question": "T04 cannot reach a green required gate without one of the following, and each crosses a boundary this task may not cross alone.",
-  "recommendation": "d, then re-run the T04 gate for the four remaining packages only; it keeps every frozen rule intact and unblocks T05/T06, which do not import the image drivers or ECDH."
+  "recommendation": "d, then re-run the T04 gate for the four remaining packages only; it keeps every frozen rule intact and unblocks T05/T06, which do not import the image drivers or ECDH.",
+  "recorded_decision": {
+   "choice": "keep T04 BLOCKED and pause group B until the upstream owner fixes the tests or a new authorization is given",
+   "consequence": "T05 and T06 do not start; migration/accepted_head stays at 8e5dbde; the two local commits (code f161a27f4a3395931a5d927960c8400967eb05ea, ledger) remain the preserved scene",
+   "made_by": "user",
+   "option": "e",
+   "recorded_at_head": "8a4e652b6b9678be77113f69300cd343d18fef9e"
+  }
  },
  "evidence_files": [
   "migration/preflight/T04-activation.json",
