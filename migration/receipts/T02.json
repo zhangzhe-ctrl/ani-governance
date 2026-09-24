@@ -1,0 +1,275 @@
+{
+  "task": "T02",
+  "status": "PASS",
+  "status_note": "PASS with one user-approved test-only fix (T02-B1). Production implementation changes: 0. Tests removed or skipped: 0. The only non-import difference from the locked archive is the approved test patch. This PASS covers only the trans source-code local takeover pilot.",
+  "baseline_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "base_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "result_sha": null,
+  "result_sha_note": "Filled with the pilot commit SHA after the check passed; see migration/accepted_head.",
+  "start_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "end_sha": null,
+  "approved_files": [
+    "pkg/localdeps/go-utils/trans/to.go",
+    "pkg/localdeps/go-utils/trans/to_test.go",
+    "pkg/localdeps/go-utils/trans/trans.go",
+    "pkg/localdeps/go-utils/trans/trans_test.go (approved T02-B1 test-only patch)",
+    "pkg/localdeps/go-utils/trans/LICENSE",
+    "pkg/jwt/user_token_payload.go (trans import path only)",
+    "migration/active-import-map.json",
+    "migration/source-manifest.json",
+    "migration/patches/T02-B1-trans-time-test.patch",
+    "migration/receipts/T00.json",
+    "migration/receipts/T01.json",
+    "migration/receipts/T02.json",
+    "migration/accepted_head",
+    "tools/migration/{migrate_imports.go,require_tests.py,run_checked.sh}",
+    "migration/{baseline.json,file-plan.json,required-tests.json,required-pilot.json}"
+  ],
+  "changed_files": [
+    {
+      "path": "pkg/jwt/user_token_payload.go",
+      "state": "modified",
+      "diff_stat": "1 file changed, 1 insertion(+), 1 deletion(-)",
+      "change": "import \"github.com/tx7do/go-utils/trans\" -> \"go-wind-admin/pkg/localdeps/go-utils/trans\"",
+      "alias_preserved": "no named import before or after; trans.* call sites unchanged",
+      "other_imports_touched": 0,
+      "method_bodies_changed": 0,
+      "signatures_changed": 0,
+      "types_changed": 0,
+      "constants_changed": 0,
+      "token_fields_changed": 0
+    },
+    {
+      "path": "pkg/localdeps/go-utils/trans/{to.go,to_test.go,trans.go,trans_test.go,LICENSE}",
+      "state": "new",
+      "change": "4 of 5 files byte-identical to the v1.1.40 archive; trans_test.go carries the single approved T02-B1 test patch"
+    },
+    {
+      "path": "migration/active-import-map.json",
+      "state": "new",
+      "change": "exactly one entry: {\"github.com/tx7do/go-utils/trans\":\"go-wind-admin/pkg/localdeps/go-utils/trans\"}"
+    },
+    {
+      "path": "migration/patches/T02-B1-trans-time-test.patch",
+      "state": "new",
+      "change": "the exact approved Test_Trans time-block patch, 1 hunk, 9 added / 4 removed lines"
+    },
+    {
+      "path": "migration/source-manifest.json",
+      "state": "new",
+      "change": "per-file provenance; target paths corrected to pkg/localdeps/go-utils/trans (4 records) with reason; activations marked; T02-B1 deviation record added with original and patched hashes"
+    },
+    {
+      "path": "migration/{baseline.json,file-plan.json,required-tests.json,required-pilot.json}",
+      "state": "new",
+      "change": "T00 ledgers; required-tests.json still lists Test_Trans as mandatory and was never edited to accommodate the failure"
+    }
+  ],
+  "business_code_changed": {
+    "existing_business_files_touched": ["pkg/jwt/user_token_payload.go"],
+    "count": 1,
+    "allowed_scope_exceeded": false
+  },
+  "source_modules": [
+    {
+      "module": "github.com/tx7do/go-utils",
+      "version": "v1.1.40",
+      "version_changed": false,
+      "upstream_commit": "67ec3305fb0494389482534a6692b71d4e388786",
+      "zip_sha256": "90af2ce0742081bbee8fae0ab1ea99f42355977086f7406d60f7658792e9471e",
+      "package_taken_over": "trans",
+      "local_import_path": "go-wind-admin/pkg/localdeps/go-utils/trans",
+      "go_mod_sha256": "f07eedc615890e510a89296c884bf515170d09ab13c1d94612df1740e6b76aba",
+      "go_sum_sha256": "c5af448918da03714ef5c38d5f1448e206fe5d05bd1c41165df1f6e8ac8b17da",
+      "go_mod_or_go_sum_edited": false,
+      "vendor_used": false,
+      "module_cache_modified": false,
+      "replace_directive_added": false,
+      "nested_go_mod_added": false
+    }
+  ],
+  "three_way_source_verification": {
+    "purpose": "section 一 of the T02-B1 authorisation: confirm the reported implementation before editing any expectation",
+    "upstream_selection": {
+      "command": "go list -mod=readonly -json github.com/tx7do/go-utils/trans",
+      "Dir": "/home/ubuntu/go/pkg/mod/github.com/tx7do/go-utils@v1.1.40/trans",
+      "Module.Path": "github.com/tx7do/go-utils",
+      "Module.Version": "v1.1.40",
+      "Module.Replace": "absent — not replaced",
+      "Module.Sum": "h1:PA6ZpBRbYZNUc3xiSP6oRhMGa9iCXLzF5pwvZHJmpZQ=",
+      "matches_go_sum_line_323": true
+    },
+    "build_overlay_check": {
+      "commands": "go env GOWORK GOFLAGS overlay GO111MODULE GOMODCACHE",
+      "GOWORK": "off",
+      "GOFLAGS": "-mod=mod (overridden per-command by explicit -mod=readonly)",
+      "overlay": "empty — no compile-time file substitution",
+      "GO111MODULE": "empty",
+      "GOMODCACHE": "/home/ubuntu/go/pkg/mod",
+      "verdict": "no overlay or workspace setting redirects any of the three sources"
+    },
+    "trans_test_go_sha256": {
+      "archive_staged_T01": "d71c0cebafde6000a7479e8b4fff9473bdfa43df69cb51ce3e5a550b72ce807b",
+      "module_cache_v1.1.40": "d71c0cebafde6000a7479e8b4fff9473bdfa43df69cb51ce3e5a550b72ce807b",
+      "local_before_patch": "d71c0cebafde6000a7479e8b4fff9473bdfa43df69cb51ce3e5a550b72ce807b",
+      "diffs": "none"
+    },
+    "trans_go_sha256": {
+      "archive_staged_T01": "806c6161ea86c5f4a2995bfbe84572a03b5868d9a97942931cd6f0854b4270e5",
+      "module_cache_v1.1.40": "806c6161ea86c5f4a2995bfbe84572a03b5868d9a97942931cd6f0854b4270e5",
+      "local": "806c6161ea86c5f4a2995bfbe84572a03b5868d9a97942931cd6f0854b4270e5",
+      "diffs": "none",
+      "Time": "func Time(a time.Time) *time.Time { return &a }  (trans.go:163-165)",
+      "TimeValue": "func TimeValue(a *time.Time) time.Time { if a == nil { return time.Now() }; return *a }  (trans.go:167-172)"
+    },
+    "conclusion": "All three sources agree and nil returns the current time. The user's correction is right: the earlier report's claim that line 169 compared against a zero time was wrong. The failure locations, the non-determinism diagnosis and the inherited-not-introduced attribution stand, so per section 一 the report is corrected and work continues.",
+    "report_correction": "Line 169 asserted equality between two independent time.Now() readings (the outer one and the one inside TimeValue(nil)), not equality with a zero time. Line 168 compared a fresh reading to an earlier snapshot.",
+    "evidence_reuse": "No prior failing run was repeated to manufacture evidence; the two earlier local attempts and the upstream control run are cited as-is."
+  },
+  "method_protection": {
+    "result": "PASS — every exported method retained with unchanged implementation",
+    "Ptr": "unchanged (generic, to.go)",
+    "SliceOfPtrs": "unchanged (variadic generic, to.go)",
+    "value_pointer_slice_conversions": "unchanged (trans.go)",
+    "Time_and_TimeValue": "unchanged (trans.go:163-172); the patch touches only the test",
+    "uuid_conversions": "unchanged (ToUuidPtr / UUID helpers in trans.go)",
+    "package_name": "trans, preserved",
+    "build_directives": "//go:build go1.18 and // +build go1.18 retained verbatim in to.go",
+    "unused_exported_methods_stripped": 0,
+    "tests_removed": 0,
+    "tests_skipped": 0,
+    "production_files_changed": 0
+  },
+  "non_import_changes": [
+    {
+      "file": "pkg/localdeps/go-utils/trans/trans_test.go",
+      "approved": "T02-B1",
+      "scope": "Test_Trans time block only, plus an explanatory comment",
+      "production_impact": "none — test-only correction",
+      "patch": "migration/patches/T02-B1-trans-time-test.patch"
+    }
+  ],
+  "directive_changes": [],
+  "gate_results": {
+    "T02.1_activation": "PASS (5 files placed; 4 byte-identical, 1 with the approved patch)",
+    "T02.2_rewrite": "PASS (dry-run then -write, changed_files == [pkg/jwt/user_token_payload.go], count 1)",
+    "T02.3_equiv_guard_invariants": "PASS (production equiv 3/3 exit 0, 2 guard exit 0, go.mod/go.sum/ZIP hashes unchanged)",
+    "T02.4_go_list_proofs": "PASS (Module.Main=true, local Dir, pkg/jwt real Imports point at local trans)",
+    "T02.5_mandatory_test_after_fix": "PASS (go test exit 0; require_tests full pass=true 7/7, pilot pass=true 3/3; 0 fail, 0 skip)",
+    "T02.6_commit_and_accept_head": "executed after the gate passed"
+  },
+  "required_tests": [
+    {"Package": "go-wind-admin/pkg/jwt", "Test": "TestNewUserTokenPayload", "status": "pass"},
+    {"Package": "go-wind-admin/pkg/jwt", "Test": "TestNewUserTokenDataScopesRoundTrip", "status": "pass"},
+    {"Package": "go-wind-admin/pkg/jwt", "Test": "TestNewUserTokenPayloadWithClaimsLegacyDsFallback", "status": "pass"},
+    {"Package": "go-wind-admin/pkg/localdeps/go-utils/trans", "Test": "TestPtr", "status": "pass"},
+    {"Package": "go-wind-admin/pkg/localdeps/go-utils/trans", "Test": "TestSliceOfPtrs", "status": "pass"},
+    {"Package": "go-wind-admin/pkg/localdeps/go-utils/trans", "Test": "Test_Trans", "status": "pass", "note": "was the T02-B1 blocker; passes with the approved test-only patch and remains a mandatory item"},
+    {"Package": "go-wind-admin/pkg/localdeps/go-utils/trans", "Test": "TestUUID", "status": "pass"},
+    {"Package": "go-wind-admin/pkg/jwt", "Test": "(package result)", "status": "pass"},
+    {"Package": "go-wind-admin/pkg/localdeps/go-utils/trans", "Test": "(package result)", "status": "pass"}
+  ],
+  "test_totals": {
+    "pass_events": 63,
+    "fail": 0,
+    "skip": 0,
+    "note": "includes subtests; ledger checks are name-exact"
+  },
+  "required_test_ledger": {
+    "pilot": {"ledger": "migration/required-pilot.json", "output": {"pass": true, "required": 3, "bad_tests": [], "failed_packages": []}, "exit": 0},
+    "full": {"ledger": "migration/required-tests.json", "output": {"pass": true, "required": 7, "bad_tests": [], "failed_packages": []}, "exit": 0, "edited_to_accommodate_failure": false},
+    "scope_relaxed": false
+  },
+  "prior_failure_record_retained": {
+    "deleted": false,
+    "rewritten_as_success": false,
+    "files": [
+      "T02/post-change-tests.log (exit 1)",
+      "T02/attempt2-local-trans.log (exit 1)",
+      "T02/control-upstream-trans-test.log (exit 1)",
+      "T02/require-tests-full.log (exit 1)",
+      "T02/require-tests-pilot.log (exit 1)",
+      "migration/receipts/T02.json history entry T02-B1 (superseded by this PASS)"
+    ],
+    "original_hashes_kept": {
+      "trans_test.go_archive": "d71c0cebafde6000a7479e8b4fff9473bdfa43df69cb51ce3e5a550b72ce807b",
+      "trans_test.go_patched": "89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e"
+    }
+  },
+  "commands": [
+    {"name": "rewrite-dryrun", "step": "T02.2", "exit": 0, "result": "dry_run=true, count=1, changed_files=[pkg/jwt/user_token_payload.go]"},
+    {"name": "rewrite-write", "step": "T02.2", "exit": 0, "result": "dry_run=false, count=1, same single file"},
+    {"name": "equiv-to", "step": "T02.3", "exit": 0},
+    {"name": "equiv-to-test", "step": "T02.3", "exit": 0},
+    {"name": "equiv-trans", "step": "T02.3", "exit": 0},
+    {"name": "equiv-trans-test", "step": "T02.3 (pre-patch)", "exit": 0},
+    {"name": "guard-pre-change", "step": "T02.3", "exit": 0},
+    {"name": "guard-post-change", "step": "T02.3", "exit": 0},
+    {"name": "golist-local-trans", "step": "T02.4", "exit": 0},
+    {"name": "golist-pkg-jwt", "step": "T02.4", "exit": 0},
+    {"name": "post-change-tests", "step": "T02.5 attempt 1", "exit": 1, "result": "Test_Trans fail"},
+    {"name": "require-tests-pilot", "step": "T02.5 attempt 1", "exit": 1},
+    {"name": "require-tests-full", "step": "T02.5 attempt 1", "exit": 1},
+    {"name": "attempt2-local-trans", "step": "T02.5 determinism", "exit": 1},
+    {"name": "control-upstream-trans-test", "step": "T02.5 attribution", "exit": 1},
+    {"name": "T02B1: patch-apply-to-reference-copy", "step": "T02.3 verification", "command": "patch -p5 -d T02/t02b1-ref -i migration/patches/T02-B1-trans-time-test.patch", "exit": 0, "result": "patched copy == local file, both 89f2d7ff..."},
+    {"name": "T02B1: equiv-negative-control", "step": "T02.3 verification", "command": "migrate_imports equiv -before T01/stage/trans/trans_test.go -after local trans_test.go", "exit": 1, "result": "non-import AST changed — proves equiv still active and no _test.go exclusion exists"},
+    {"name": "T02B1: equiv-trans-post", "step": "T02.3 verification", "exit": 0},
+    {"name": "T02B1: equiv-to-post", "step": "T02.3 verification", "exit": 0},
+    {"name": "T02B1: equiv-to-test-post", "step": "T02.3 verification", "exit": 0},
+    {"name": "T02B1: guard-post", "step": "T02.3 verification", "exit": 0},
+    {"name": "T02R-post-change-tests", "step": "T02.5 final gate", "command": "go test -mod=readonly ./pkg/localdeps/go-utils/trans ./pkg/jwt -count=1 -json", "exit": 0},
+    {"name": "T02R-require-tests-full", "step": "T02.5 final gate", "exit": 0, "result": "pass=true, required=7, bad_tests=[], failed_packages=[]"},
+    {"name": "T02R-require-tests-pilot", "step": "T02.5 final gate", "exit": 0, "result": "pass=true, required=3, bad_tests=[], failed_packages=[]"},
+    {"name": "T02R-golist-local-trans", "step": "T02.4 re-verify", "exit": 0},
+    {"name": "T02R-golist-pkg-jwt", "step": "T02.4 re-verify", "exit": 0},
+    {"name": "sha256sum go.mod go.sum v1.1.40.zip", "step": "T02.3 invariants", "exit": 0},
+    {"name": "sha256sum -c third_party/tx7do/SHA256SUMS", "step": "section 五", "exit": 1, "result": "237 OK, 4 metadata FAILED"}
+  ],
+  "archive_metadata_findings": {
+    "verification": "sha256sum -c third_party/tx7do/SHA256SUMS over 241 entries: 237 OK, 4 FAILED",
+    "stale_entries": [
+      {
+        "path": "third_party/tx7do/README.md",
+        "impact": "human-facing description of the backup area; no module source, no build input"
+      },
+      {
+        "path": "third_party/tx7do/locks/go.mod",
+        "impact": "historical dependency snapshot copy; the build resolves from the repository root go.mod, which is unchanged"
+      },
+      {
+        "path": "third_party/tx7do/locks/go.sum",
+        "impact": "historical lockfile snapshot copy; not consulted by any command run in this pilot"
+      },
+      {
+        "path": "third_party/tx7do/manifest.json",
+        "impact": "self-description recording repository go.mod/go.sum hashes 3e5006b3.../a588a677... from commit 2e75263d (2026-09-19) while HEAD d27847b has f07eedc6.../c5af4489...; it also records go-utils v1.1.40 and the ZIP hash that this pilot independently verified"
+      }
+    ],
+    "non_blocking_rationale": "The target ZIP, its .info and .mod, all module source artifacts and the production source were independently verified this round (ZIP 90af2ce0... matches manifest; extracted trans.go/trans_test.go match the module cache and go.sum's h1). The drift is confined to the archive's own snapshot/description metadata and does not touch any content the build consumes, so it is recorded non-blocking rather than repaired.",
+    "old_checksum_table_overwritten": false,
+    "target_archive_content_inconsistency": false,
+    "other_packages": "archive issues for packages not yet taken over are deferred to before their own activation, as instructed",
+    "verification_json": "third_party/tx7do/verification.json hashes OK; its full_offline_build field remains not_verified"
+  },
+  "remaining_tx_packages": [
+    "github.com/tx7do/go-utils/trans is the only taken-over package; its import is rewritten in exactly one business file.",
+    "The other 67 tx7do packages in the T00 closure remain planned and resolve from go.mod/go.sum and the module cache.",
+    "pkg/jwt _test.go files still import github.com/tx7do/go-utils/trans. T02.2 forbids touching files off the approved list and T02.4 allows this state, so it is the intended residual, not an oversight.",
+    "Other callers of the upstream trans are unaffected; the upstream dependency is still declared."
+  ],
+  "not_verified": [
+    "identity / tenant isolation / authorisation behaviour — out of scope and untouched",
+    "runtime equivalence beyond the trans package's own tests; equiv and guard compare non-import AST and Go directives only",
+    "full-repo gates (make test / make lint) not run, per the no-cold-run rule and the make build ban",
+    "upstream license compliance conclusion; only verbatim LICENSE preservation was checked",
+    "full offline build from third_party/tx7do",
+    "the optional T02 overlay negative experiment — NOT_RUN: no overlay was applied to a temporary test copy, because the accepted three-way source check and the equiv negative control already bound the change",
+    "generators and tool closure (gow v1.0.3, buf, protoc, protoc-gen-go-redact) — carried from T00",
+    "guard environment (GUARD_TEST_PG_DSN unset, no disposable guard database) — carried from T00",
+    "cause of the archive metadata hash drift — recorded as stale snapshot/description metadata, root cause not investigated"
+  ],
+  "blocking_findings": [],
+  "next_allowed_task": null,
+  "stop_note": "STOP after T02 as instructed. T07 and any later master goals are not executed. Nothing was pushed, deployed or merged."
+}

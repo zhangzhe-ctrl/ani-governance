@@ -1,0 +1,14 @@
+[
+  {
+    "Package": "go-wind-admin/pkg/jwt",
+    "Test": "TestNewUserTokenPayload"
+  },
+  {
+    "Package": "go-wind-admin/pkg/jwt",
+    "Test": "TestNewUserTokenDataScopesRoundTrip"
+  },
+  {
+    "Package": "go-wind-admin/pkg/jwt",
+    "Test": "TestNewUserTokenPayloadWithClaimsLegacyDsFallback"
+  }
+]

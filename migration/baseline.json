@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "task": "T00",
+  "generated_at_utc": "2026-09-24T14:29:00Z",
+  "repository": {
+    "toplevel": "/home/ubuntu/Workspace/ani-governance",
+    "origin": "https://github.com/zhangzhe-ctrl/ani-governance.git",
+    "branch": "main",
+    "main_module": "go-wind-admin",
+    "service_name": "ani-governance"
+  },
+  "sha": {
+    "reference_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+    "start_head": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+    "head_equals_reference_baseline": true,
+    "accepted_head_at_start": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e"
+  },
+  "working_tree_at_start": {
+    "tracked_modifications": [],
+    "untracked_paths": [
+      "_agent/ani-governance-tx7do-plan/** (plan materials: does not block, not committed this round)",
+      "tools/migration/{migrate_imports.go,require_tests.py,run_checked.sh} (approved tool copies)",
+      "migration/** (approved ledger, created this round)"
+    ],
+    "untracked_business_go_code": [],
+    "user_business_changes_touched": false,
+    "stash_used": false
+  },
+  "toolchain": {
+    "required": "go1.26.7",
+    "go_version_observed": "go version go1.26.7 linux/amd64",
+    "go_binary": "/home/ubuntu/sdk/go1.26.7/bin/go",
+    "GOROOT": "/home/ubuntu/sdk/go1.26.7",
+    "GOROOT_note": "The environment exports a global GOROOT=/usr/local/go (go1.26.4). It must be overridden per command; otherwise the 1.26.7 toolchain fails with 'version go1.26.4 does not match go tool version go1.26.7'.",
+    "PATH_go_is_1_26_4": true,
+    "GOWORK": "off",
+    "GOTOOLCHAIN": "local",
+    "GOFLAGS_default": "-mod=mod",
+    "mod_flag_used_on_all_project_commands": "-mod=readonly",
+    "go_mod_directive": "go 1.26.7",
+    "go_mod_toolchain_directive": "absent",
+    "caches_reused": [
+      "/home/ubuntu/go/pkg/mod",
+      "/home/ubuntu/.cache/go-build"
+    ],
+    "checks_disabled": [],
+    "versions_downgraded": []
+  },
+  "command_shape": "env GOROOT=/home/ubuntu/sdk/go1.26.7 GOWORK=off GOTOOLCHAIN=local /home/ubuntu/sdk/go1.26.7/bin/go <cmd> -mod=readonly ...",
+  "lock_hashes_at_start": {
+    "go.mod.sha256": "f07eedc615890e510a89296c884bf515170d09ab13c1d94612df1740e6b76aba",
+    "go.sum.sha256": "c5af448918da03714ef5c38d5f1448e206fe5d05bd1c41165df1f6e8ac8b17da"
+  },
+  "dependency_closure_evidence": [
+    {
+      "name": "golist-default",
+      "command": "go list -mod=readonly -deps -test -json ./...",
+      "exit": 0,
+      "log": "T00/golist-default.log"
+    },
+    {
+      "name": "golist-quota-lab",
+      "command": "go list -mod=readonly -tags quota_lab -deps -test -json ./...",
+      "exit": 0,
+      "log": "T00/golist-quota-lab.log"
+    },
+    {
+      "name": "golist-quota-pg",
+      "command": "go list -mod=readonly -tags quota_pg -deps -test -json ./...",
+      "exit": 0,
+      "log": "T00/golist-quota-pg.log"
+    },
+    {
+      "name": "golist-modules",
+      "command": "go list -mod=readonly -m -json all",
+      "exit": 0,
+      "log": "T00/golist-modules.log"
+    },
+    {
+      "name": "baseline-jwt-test",
+      "command": "go test -mod=readonly ./pkg/jwt -count=1 -json",
+      "exit": 0,
+      "log": "T00/baseline-jwt-test.log"
+    },
+    {
+      "name": "baseline-jwt-require-tests",
+      "command": "python3 tools/migration/require_tests.py --required migration/required-pilot.json --log T00/baseline-jwt-test.log",
+      "exit": 0,
+      "log": "T00/baseline-jwt-require-tests.log"
+    }
+  ],
+  "error_suppression": {
+    "go_list_dash_e_used": false,
+    "note": "All four go list commands were run without -e; every exit code recorded above is the true command status."
+  },
+  "go_file_index": {
+    "tool": "tools/migration/migrate_imports.go scan",
+    "artifact": "T00/current-go-index.json (task temp dir, not committed)",
+    "files_scanned": 1194,
+    "generated": 731,
+    "handwritten": 463,
+    "test_files": 189,
+    "scope_included": "all git-tracked .go files: handwritten, tests, generated code, build-tagged files",
+    "excluded_scope_separately": {
+      "third_party/**": "read-only dependency source backup; excluded from scan and from all rewrite lists",
+      "vendor/": "not present (vendor is forbidden by this task)",
+      "_tx7do_stage/": "not created; staged source lives in the task temp dir instead",
+      "docs/**, *.md, api/protos/**, migrations/**, sql/**": "not Go files; out of scan scope, untouched this round",
+      "third_party/tx7do/buf/digest-reference/**, locks/**": "archive metadata, read-only"
+    },
+    "untracked_go_code_recheck": "git ls-files --others --exclude-standard lists only _agent plan tool copies and tools/migration; no untracked business Go code"
+  },
+  "counts_derived_not_copied": {
+    "method": "recomputed from go list JSON + third_party/tx7do/manifest.json + go.mod in this run; the plan's historical 42/46/50 figures were treated as claims to verify",
+    "go_mod_tx7do_require_lines": 42,
+    "go_mod_tx7do_require_direct": 30,
+    "go_mod_tx7do_require_indirect": 12,
+    "tx7do_import_paths_written_in_repo_go_files": 41,
+    "tx7do_packages_in_dependency_closure_union": 68,
+    "tx7do_packages_per_tag_set": {
+      "default": 68,
+      "quota_lab": 68,
+      "quota_pg": 68
+    },
+    "tx7do_modules_providing_those_packages": 42,
+    "manifest_module_entries": 50,
+    "manifest_scope": {
+      "application": 46,
+      "development-tool": 4
+    },
+    "historical_claims_confirmed": {
+      "42": "go.mod tx7do require lines and the number of tx7do modules in the build closure independently came out 42; matches",
+      "46": "manifest application-scope entries counted 46; matches",
+      "50": "manifest total module@version entries counted 50; matches",
+      "caveat": "41 tx7do import paths appear literally in tracked Go files, which is fewer than 42 requires; one required tx7do module provides no package imported by the repo closure"
+    }
+  },
+  "third_party_archive_verification": {
+    "manifest_info_mod_zip_artifacts_checked": 150,
+    "manifest_info_mod_zip_hash_match": 150,
+    "manifest_info_mod_zip_hash_mismatch": 0,
+    "SHA256SUMS_listed": 241,
+    "SHA256SUMS_files_on_disk": 241,
+    "SHA256SUMS_hash_mismatch": [
+      "README.md",
+      "locks/go.mod",
+      "locks/go.sum",
+      "manifest.json"
+    ],
+    "SHA256SUMS_not_in_list": [],
+    "SHA256SUMS_listed_but_absent": [],
+    "license_files": "manifest license_files paths are ZIP-internal (module@version/LICENSE); they are not standalone files. go-utils v1.1.40 LICENSE hash is checked during T01 extraction.",
+    "tool_locks_present": [
+      "locks/buf.lock",
+      "locks/go.mod",
+      "locks/go.sum",
+      "locks/gow.go.mod",
+      "locks/gow.go.sum"
+    ],
+    "finding": "The 4 mismatching entries are archive self-describing metadata (README, tool lock copies of go.mod/go.sum, manifest.json) recorded against commit 2e75263d on 2026-09-19; every module content artifact hashes clean. No dependency source is affected.",
+    "manifest_go_mod_sha256_recorded": "3e5006b30b4df6c1f63bb9dbee407eefba72ddfcf0b9b22d44be73f2f4e8db73",
+    "manifest_go_sum_sha256_recorded": "a588a6771788d406b3f197f57e05b88dcd090f723e03903a3dc005242de633cc",
+    "current_go_mod_sha256": "f07eedc615890e510a89296c884bf515170d09ab13c1d94612df1740e6b76aba",
+    "current_go_sum_sha256": "c5af448918da03714ef5c38d5f1448e206fe5d05bd1c41165df1f6e8ac8b17da",
+    "lock_hash_drift": "manifest.json records the archive-time go.mod/go.sum hashes and they do not match HEAD d27847b. github.com/tx7do/go-utils is still v1.1.40 in both, so T01 provenance is unaffected; the drift must be resolved before any claim of offline-build reproducibility.",
+    "manifest_verification_fields": {
+      "go_sum_match_application_modules": "pass",
+      "zip_integrity": "pass",
+      "empty_cache_file_proxy_replay_all_modules": "pass",
+      "full_offline_build": "not_verified"
+    }
+  },
+  "reusable_baseline_ci": {
+    "sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+    "source": "_agent/ani-governance-tx7do-plan/00-plan.md section 2 records prior targeted review of SEARCH fix, database transaction timestamps, rollback, audit, formatting and quota CI as passing at this commit.",
+    "reused_for": "navigation and to justify not cold-running the full gate suite in T00",
+    "not_a_substitute_for": "the pilot baseline actually executed in this run (T00/baseline-jwt-test.log, exit 0)",
+    "not_verified": "the recorded CI result was not re-executed here; no claim is made that it applies to any other HEAD"
+  },
+  "not_verified": [
+    "generators: gow v1.0.3 / buf / protoc / protoc-gen-go-redact tool closure was not executed or hash-verified this round",
+    "tool closure: third_party/tx7do/locks/{gow.go.mod,gow.go.sum} and buf/ locks were listed but their referenced tool binaries were not resolved or run",
+    "guard environment: GUARD_TEST_PG_DSN is unset and no disposable guard database is provisioned, so the quota_pg guard tests of goals after T07 cannot run; not needed for T02",
+    "full_offline_build: already declared not_verified by third_party/tx7do/verification.json and not attempted here",
+    "archive metadata drift: locks/go.mod, locks/go.sum, manifest.json and README.md no longer match third_party/tx7do/SHA256SUMS; cause not investigated",
+    "Language.Update method risk named in goals/T00.md: not examined, belongs to a later batch",
+    "runtime behavioural equivalence of the taken-over trans package: equiv proves non-import AST and directives only"
+  ]
+}

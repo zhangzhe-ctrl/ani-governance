@@ -1,0 +1,184 @@
+{
+  "task": "T00",
+  "status": "PASS",
+  "baseline_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "base_sha": null,
+  "result_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "start_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "end_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "note": "result_sha == start_sha: T00 changes no committed source. Ledger files are created in the working tree only and are committed together with T02.",
+  "approved_files": [
+    "migration/baseline.json",
+    "migration/file-plan.json",
+    "migration/source-manifest.json",
+    "migration/active-import-map.json",
+    "migration/required-tests.json",
+    "migration/required-pilot.json",
+    "migration/accepted_head",
+    "migration/receipts/",
+    "tools/migration/migrate_imports.go",
+    "tools/migration/require_tests.py",
+    "tools/migration/run_checked.sh"
+  ],
+  "changed_files": [
+    {
+      "path": "tools/migration/migrate_imports.go",
+      "reason": "Copy of PLAN_DIR/tools/migrate_imports.go verbatim; no prior version existed so no overwrite conflict."
+    },
+    {
+      "path": "tools/migration/require_tests.py",
+      "reason": "Copy of PLAN_DIR/tools/require_tests.py verbatim."
+    },
+    {
+      "path": "tools/migration/run_checked.sh",
+      "reason": "Copy of PLAN_DIR/tools/run_checked.sh verbatim."
+    },
+    {
+      "path": "migration/baseline.json",
+      "reason": "T00.6 baseline ledger: SHA, toolchain, lock hashes, command exit codes, derived dependency counts, archive verification, not_verified items."
+    },
+    {
+      "path": "migration/file-plan.json",
+      "reason": "T00.4 package -> module@version -> local target path map derived from go list JSON, plus T00.3 call-site ledger."
+    },
+    {
+      "path": "migration/required-pilot.json",
+      "reason": "T00.7 machine profile of the three mandatory JWT tests, names verified against current source."
+    },
+    {
+      "path": "migration/active-import-map.json",
+      "reason": "T00.6 created initially empty ({})."
+    },
+    {
+      "path": "migration/accepted_head",
+      "reason": "T00.6 initially the start SHA."
+    }
+  ],
+  "business_code_changed": false,
+  "source_modules": [
+    {
+      "module": "github.com/tx7do/go-utils",
+      "version": "v1.1.40",
+      "scope": "application",
+      "indirect": false,
+      "zip_sha256": "90af2ce0742081bbee8fae0ab1ea99f42355977086f7406d60f7658792e9471e",
+      "zip_bytes": 76479,
+      "info_sha256": "ea472a75b636c848fc1bfdb20887e19ac31309f795e44c3731d4ae163f75d705",
+      "mod_sha256": "82b666f8418537cfeaaa2c637af624f27e3458e159604604a024f9954fed416d",
+      "license_sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+      "upstream_commit": "67ec3305fb0494389482534a6692b71d4e388786",
+      "upstream_ref": "refs/tags/v1.1.40",
+      "hash_check": "info/mod/zip all match manifest.json on disk"
+    }
+  ],
+  "non_import_changes": [],
+  "directive_changes": [],
+  "required_tests": [
+    {
+      "package": "go-wind-admin/pkg/jwt",
+      "test": "TestNewUserTokenPayload",
+      "exists_in_source": "pkg/jwt/user_token_payload_test.go:14",
+      "baseline_result": "pass"
+    },
+    {
+      "package": "go-wind-admin/pkg/jwt",
+      "test": "TestNewUserTokenDataScopesRoundTrip",
+      "exists_in_source": "pkg/jwt/user_token_payload_test.go:161",
+      "baseline_result": "pass"
+    },
+    {
+      "package": "go-wind-admin/pkg/jwt",
+      "test": "TestNewUserTokenPayloadWithClaimsLegacyDsFallback",
+      "exists_in_source": "pkg/jwt/user_token_payload_test.go:196",
+      "baseline_result": "pass"
+    }
+  ],
+  "commands": [
+    {
+      "name": "tool-build",
+      "command": "env GOROOT=/home/ubuntu/sdk/go1.26.7 GOWORK=off GOTOOLCHAIN=local GO111MODULE=off /home/ubuntu/sdk/go1.26.7/bin/go build -o /home/ubuntu/tx7do-pilot-run/migrate_imports tools/migration/migrate_imports.go",
+      "exit": 0,
+      "artifact_location": "task temp dir only, not committed"
+    },
+    {
+      "name": "scan",
+      "command": "migrate_imports scan -root . -out /home/ubuntu/tx7do-pilot-run/T00/current-go-index.json",
+      "exit": 0,
+      "files_scanned": 1194
+    },
+    {
+      "name": "golist-default",
+      "command": "go list -mod=readonly -deps -test -json ./...",
+      "exit": 0
+    },
+    {
+      "name": "golist-quota-lab",
+      "command": "go list -mod=readonly -tags quota_lab -deps -test -json ./...",
+      "exit": 0
+    },
+    {
+      "name": "golist-quota-pg",
+      "command": "go list -mod=readonly -tags quota_pg -deps -test -json ./...",
+      "exit": 0
+    },
+    {
+      "name": "golist-modules",
+      "command": "go list -mod=readonly -m -json all",
+      "exit": 0
+    },
+    {
+      "name": "baseline-jwt-test",
+      "command": "go test -mod=readonly ./pkg/jwt -count=1 -json",
+      "exit": 0,
+      "run_before_any_change": true
+    },
+    {
+      "name": "baseline-jwt-require-tests",
+      "command": "python3 tools/migration/require_tests.py --required migration/required-pilot.json --log T00/baseline-jwt-test.log",
+      "exit": 0,
+      "output": {
+        "pass": true,
+        "required": 3,
+        "bad_tests": [],
+        "failed_packages": []
+      }
+    }
+  ],
+  "derived_counts": {
+    "go_mod_tx7do_requires": 42,
+    "go_mod_tx7do_requires_direct": 30,
+    "go_mod_tx7do_requires_indirect": 12,
+    "tx7do_import_paths_written_in_repo_go_files": 41,
+    "tx7do_packages_in_dependency_closure": 68,
+    "tx7do_modules_in_dependency_closure": 42,
+    "manifest_module_entries": 50,
+    "manifest_scope_application": 46,
+    "manifest_scope_development_tool": 4,
+    "target_path_collisions": 0,
+    "old_trans_call_sites_non_test": 53,
+    "old_trans_call_sites_test": 84
+  },
+  "remaining_tx_packages": [
+    "All 42 tx7do modules remain the active dependency for the rest of the repository; only github.com/tx7do/go-utils/trans is planned for activation in T02.",
+    "After T02 the expected residual for github.com/tx7do/go-utils/trans is 52 non-test and 84 test files still importing the upstream path; this is the permitted partial state for this round."
+  ],
+  "findings": [
+    "The environment exports a global GOROOT=/usr/local/go holding go1.26.4 while go.mod requires go1.26.7. Without per-command GOROOT override the pinned SDK fails to build with 'version go1.26.4 does not match go tool version go1.26.7'. Recorded in baseline.json; no check was disabled.",
+    "go env GOFLAGS defaults to -mod=mod, so -mod=readonly is passed explicitly on every project Go command.",
+    "third_party/tx7do/SHA256SUMS no longer matches 4 metadata files (README.md, locks/go.mod, locks/go.sum, manifest.json). All 150 module info/mod/zip artifacts hash clean, so no dependency source is affected, but the archive self-description is stale.",
+    "manifest.json records go.mod/go.sum hashes 3e5006b3.../a588a677... from commit 2e75263d (2026-09-19); HEAD d27847b has f07eedc6.../c5af4489.... go-utils is v1.1.40 in both, so T01 provenance is unaffected.",
+    "manifest verification.full_offline_build is not_verified and was not attempted.",
+    "42 tx7do modules provide packages in the build closure but only 41 tx7do import paths appear literally in tracked Go files; one required module is not imported by any tracked file.",
+    "goals/T00.md names an existing Language.Update risk; not examined this round (later batch)."
+  ],
+  "not_verified": [
+    "generators and tool closure (gow v1.0.3, buf, protoc, protoc-gen-go-redact)",
+    "guard environment: GUARD_TEST_PG_DSN unset, no disposable guard database provisioned",
+    "full offline build from third_party/tx7do",
+    "cause of the archive metadata hash drift",
+    "Language.Update risk item from goals/T00.md",
+    "runtime behavioural equivalence beyond non-import AST and Go directives"
+  ],
+  "blocking_findings": [],
+  "next_allowed_task": "T01"
+}
