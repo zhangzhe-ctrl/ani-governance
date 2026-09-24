@@ -1,0 +1,9 @@
+{
+  "action": "equiv-verification",
+  "checked": 103,
+  "failures": [],
+  "meaning": "non-import AST and Go directives identical to the locked archive; not a runtime equivalence proof",
+  "passed": 103,
+  "status": "PASS",
+  "task": "T07"
+}

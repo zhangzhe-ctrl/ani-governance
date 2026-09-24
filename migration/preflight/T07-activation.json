@@ -1,0 +1,871 @@
+{
+  "action": "activation",
+  "equiv_checked": 103,
+  "equiv_failures": [
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/viewer/context.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/viewer/data_scope.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/viewer/enforce.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/viewer/noop.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/client.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/client_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/client.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/ent.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/entql.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/enttest/enttest.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/generate.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/menu.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/menu/menu.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/menu/where.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/menu_create.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/menu_delete.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/menu_query.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/menu_update.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/migrate/migrate.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/migrate/schema.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/mutation.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/predicate/predicate.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/runtime.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/tx.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/user.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/user/user.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/user/where.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/user_create.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/user_delete.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/user_query.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/user_update.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent/validate.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/ent_interface.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/field/field_selector.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/field/field_selector_security_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/field/utils.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/filter/filter_processor.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/filter/filter_processor_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/filter/structured_filter.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/filter/structured_filter_security_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/filter/structured_filter_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/interceptor/limit.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/interceptor/soft_delete.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/interceptor/tenant.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/archived.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/audit.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/audit_status.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/audit_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/autoincrement_id.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/description.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/ip_address.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/is_enabled.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/operator_id.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/remark.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/snowflake_id.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/soft_delete.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/sort_order.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/string_id.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/switch_status.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/tags.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/tenant_id.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/time.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/timestamp.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/tree.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/tree_path.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/tree_path_ids.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/uuid_id.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/mixin/version.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/pagination/offset_paginator.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/pagination/offset_paginator_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/pagination/page_paginator.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/pagination/token_paginator.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/repository.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/repository_cache.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/repository_cache_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/repository_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/rule/system.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/rule/tenant.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/rule/tenant_mutation_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/rule/tenant_r1_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/rule/utils.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/sorting/structured_sorting.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/sorting/structured_sorting_security_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/sorting/structured_sorting_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/sorting/utils.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/tx.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/update/escape_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/update/update.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/entgo/update/update_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/audit/auditor.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/audit/context.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/audit/entry.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/audit/noop_auditor.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/cache/errors.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/cache/flight_cache.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/cache/flight_cache_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/cache/metrics.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/cache/options.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/cache/redis_cache.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/cache/redis_cache_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/cache/support.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/go-crud/cache/support_test.go"
+    },
+    {
+      "detail": {
+        "error": ""
+      },
+      "equiv": false,
+      "exit": 0,
+      "file": "pkg/localdeps/kratos-bootstrap/database/ent/client.go"
+    }
+  ],
+  "non_go_placement": [
+    {
+      "file": "pkg/localdeps/go-crud/viewer/LICENSE",
+      "identical": true
+    },
+    {
+      "file": "pkg/localdeps/go-crud/entgo/user.proto",
+      "identical": true
+    },
+    {
+      "file": "pkg/localdeps/go-crud/entgo/LICENSE",
+      "identical": true
+    },
+    {
+      "file": "pkg/localdeps/go-crud/audit/LICENSE",
+      "identical": true
+    },
+    {
+      "file": "pkg/localdeps/go-crud/cache/LICENSE",
+      "identical": true
+    },
+    {
+      "file": "pkg/localdeps/kratos-bootstrap/database/ent/LICENSE",
+      "identical": true
+    }
+  ],
+  "not_activated_unreachable": [
+    "pkg/localdeps/go-crud/entgo/ent/hook/hook.go",
+    "pkg/localdeps/go-crud/entgo/ent/privacy/privacy.go",
+    "pkg/localdeps/go-crud/entgo/ent/runtime/runtime.go",
+    "pkg/localdeps/go-crud/entgo/ent/schema/menu.go",
+    "pkg/localdeps/go-crud/entgo/ent/schema/user.go"
+  ],
+  "placed": 109,
+  "placement_problems": [],
+  "plan": "migration/preflight/T07-activation-plan.json",
+  "planned_activate": 109,
+  "rewrite_exit": 0,
+  "rewrite_file_count": 365,
+  "status": "FAILED",
+  "task": "T07"
+}

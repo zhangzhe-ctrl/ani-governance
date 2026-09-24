@@ -1,0 +1,208 @@
+{
+  "task": "T07",
+  "phase": "A (core pilot: viewer + entgo rules + repository + DB wrapper)",
+  "status": "BLOCKED",
+  "start_sha": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
+  "end_sha": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
+  "source_files_changed": 0,
+  "blocker_class": "environment_authorization",
+  "summary": "Phase A's mandatory verification needs two separate live PostgreSQL environments plus two pinned audit tools. None of them exist on this host and their ownership cannot be confirmed, so T07 cannot be decided. Per the master goal 'A 未通过禁止继续后续组', phases B~E are therefore also not started. No source file was taken over and no import was rewritten; only migration ledger files were added.",
+
+  "blocking_findings": [
+    {
+      "id": "T07-E1",
+      "requirement": "T07 line 12: 显式设置独立GUARD_TEST_PG_DSN（原guard测试建表/清表）。00-plan.md 8.3: 独立可丢弃guard数据库，可使用专用测试DDL身份。Handoff item 5: 缺少必要授权或无法确认测试库归属时停止。",
+      "finding": "GUARD_TEST_PG_DSN is unset and no disposable guard database is provisioned. The guard tests create and TRUNCATE ... CASCADE tables, so they need their own database.",
+      "evidence": [
+        "env | grep -iE 'DSN|PG_|POSTGRES|QUOTA|GUARD' -> exit 1 (no match)",
+        "which psql pg_isready postgres initdb -> none found",
+        "ls -d /var/lib/postgresql /etc/postgresql /usr/lib/postgresql -> all missing (no server installed on host)",
+        "ss -ltnp -> the only PostgreSQL listener is 127.0.0.1:42193",
+        "find -maxdepth 3 -name '*compose*.y*ml' -> none: the repo ships no guard-DB definition, so it cannot be started from an in-repo authorized path",
+        "docs/deployment-verification.md:27 and scripts/ci-quota-pg.sh:3-4 both state the disposable database is supplied by the operator/CI, not created by the repository"
+      ],
+      "hard_gate": "app/admin/service/internal/data/ent/tenant_guard_test.go:44,57 and data_scope_guard_test.go:48,61 read GUARD_TEST_PG_DSN and otherwise t.Skipf. T07 requires '关键用例不能skip' and require_tests.py counts skip as failure, so the gate cannot be satisfied by running the suite.",
+      "why_not_self_served": "Pointing guard tests at the only reachable server would mean creating databases inside another task's quota-lab instance (shared global state, forbidden), and the plan explicitly forbids '不可用配额受限runtime角色或业务库'. Provisioning a brand-new database server is creating an environment, not using an authorized one, and needs the user's approval."
+    },
+    {
+      "id": "T07-E2",
+      "requirement": "T07 line 12 and master goal G4-at-A: 再执行一次 make verify-gpu，复用已授权隔离PG环境.",
+      "finding": "make verify-gpu cannot run.",
+      "evidence": [
+        "QUOTA_LAB_PG_DSN unset; Makefile:188 fails fast: @test -n \"$(QUOTA_LAB_PG_DSN)\" || (echo 'QUOTA_LAB_PG_DSN required'; exit 1)",
+        "scripts/accelerator-acceptance/lab-regression.sh needs $GOV_ACC_TASK_ROOT/task/lab/{gov-dsn,admin-dsn} and QUOTA_LAB_CERTS_DIR/ca.pem; no gov-dsn, admin-dsn or ca.pem exists anywhere on the host",
+        "verify-gpu-audit.sh pins govulncheck@v1.7.0 and gitleaks v8.30.1; neither binary is installed"
+      ],
+      "additional_note": "verify-gpu also chains scripts/verify-quota-schema.sh, which regenerates Ent into app/admin/service/internal/data/ent and rewrites schema.sql before diffing. Running it before the takeover would mutate the tree the takeover is supposed to measure, so it would need re-ordering even with a database available. This is recorded as a plan-level observation, not worked around."
+    },
+    {
+      "id": "T07-E3",
+      "requirement": "The only running PostgreSQL must be identified before it is used.",
+      "finding": "The single reachable instance is container quota-gpu-local-01-pg (image a3b7f434b2dc, Up 2 days, 127.0.0.1:42193->5432, PostgreSQL 16.15, POSTGRES_HOST_AUTH_METHOD=trust). Its name and the accelerator-acceptance scripts identify it as the quota-lab runtime database that T07 names as unusable for guard tests. Its ownership for this migration task cannot be confirmed.",
+      "action_taken": "Not connected to, not altered, no database created on it."
+    }
+  ],
+
+  "completed_before_blocker": [
+    {
+      "item": "handoff 1 - preserve current work",
+      "result": "PASS",
+      "detail": "HEAD is 11ba9c84f5dad8710594e55c5835dcb8d5b2de81, a descendant of tested_code_sha 28b6c954f4d399399720892dab8453b53482c4e7 (merge-base --is-ancestor exit 0). The delta is exactly M migration/accepted_head and M migration/receipts/T02.json, i.e. only the accepted_head pointer and T02 ledger finalization. No undocumented source or build change, so the stop-and-report condition did not fire. Work branch task/tx7do-takeover created from HEAD; go.mod/go.sum hashes unchanged; trans not re-copied.",
+      "recorded_in": "migration/handoff.json"
+    },
+    {
+      "item": "handoff 2 - approved T02-B1 patch still exact",
+      "result": "PASS",
+      "detail": "equiv PASS for trans.go, to.go and to_test.go against the locked archive staging copies. trans_test.go rebuilt as pristine archive file + the exact T02-B1 patch hashes to 89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e, identical to the repo file (original archive hash d71c0ceb... differs as expected). Test_Trans retained, no _test.go exemption added, equiv still enabled.",
+      "recorded_in": "migration/handoff.json"
+    },
+    {
+      "item": "handoff 3 - per-group archive verification for the T07 set",
+      "result": "PASS",
+      "detail": "All 8 archives in the T07 closure verified read-only at the versions go.mod locks: go-crud/viewer v0.0.7, go-crud/entgo v0.0.55, go-crud/audit v0.0.3, go-crud/cache v0.0.2, kratos-bootstrap/database/ent v0.1.6, go-crud/api v0.0.7, go-crud/pagination v0.0.16, kratos-bootstrap/bootstrap v0.1.17. For each: .info/.mod/.zip present, sha256 and byte size match manifest.json, path cross-listed in SHA256SUMS, LICENSE entry present in the ZIP with the declared hash, no symlinks/devices, no absolute or traversal paths, no entries outside the module prefix, no duplicate computed targets. entgo v0.0.55 contains exactly the subpackages T07 names: ent, field, filter, interceptor, mixin, pagination, rule, sorting, update. No go:embed resources. Source provenance is therefore verifiable and is NOT the blocker.",
+      "evidence_file": "migration/preflight/T07-archives.json",
+      "evidence_sha256": "a95bd62f671646d5a37825abe083daf4abca7be669197f8d9cd5f05a5a60fb0e",
+      "script": "/home/ubuntu/tx7do-pilot-run/t07_preflight.py (read-only; nothing extracted, no repo file mutated)"
+    }
+  ],
+
+  "commands": [
+    {"name": "env-probe", "command": "env | grep -iE 'DSN|PG_|POSTGRES|DATABASE_URL|QUOTA|GUARD|GOV_ACC'", "exit": 1, "note": "no match = both DSNs unset"},
+    {"name": "pg-binary-probe", "command": "which docker psql pg_isready postgres initdb", "exit": 1, "note": "only /usr/bin/docker exists"},
+    {"name": "system-pg-dirs", "command": "ls -d /var/lib/postgresql /etc/postgresql /usr/lib/postgresql", "exit": 2, "note": "all missing"},
+    {"name": "listener-probe", "command": "ss -ltnp | grep -E ':(5432|42193|5433)'", "exit": 0, "note": "single result 127.0.0.1:42193"},
+    {"name": "container-role", "command": "docker exec quota-gpu-local-01-pg env", "exit": 0, "note": "PG_VERSION=16.15-1.pgdg13+2, POSTGRES_HOST_AUTH_METHOD=trust"},
+    {"name": "compose-probe", "command": "find . -maxdepth 3 -name '*compose*.y*ml'", "exit": 0, "note": "empty"},
+    {"name": "t07-preflight", "command": "python3 /home/ubuntu/tx7do-pilot-run/t07_preflight.py", "exit": 0, "note": "8/8 OK, evidence in migration/preflight/T07-archives.json"},
+    {"name": "resume-equiv", "command": "migrate_imports equiv -before T01/stage/trans/<f> -after pkg/localdeps/go-utils/trans/<f> for trans.go,to.go,to_test.go", "exit": 0},
+    {"name": "resume-t02b1-reference", "command": "patch -p5 -d T07/resume-ref -i migration/patches/T02-B1-trans-time-test.patch", "exit": 0},
+    {"name": "guard-test-enumeration", "command": "grep -nE '^func Test' app/admin/service/internal/data/ent/{tenant_guard_test.go,data_scope_guard_test.go}", "exit": 0},
+    {"name": "tree-clean-check", "command": "git status --porcelain", "exit": 0, "note": "only ?? _agent/ before the ledger files added by this step"}
+  ],
+
+  "required_tests": [
+    {"package": "app/admin/service/internal/data/ent", "test": "TestTenantMutationGuard", "result": "not_run", "reason": "T07-E1"},
+    {"package": "app/admin/service/internal/data/ent", "test": "TestTenantMutationGuardAccessKey", "result": "not_run", "reason": "T07-E1"},
+    {"package": "app/admin/service/internal/data/ent", "test": "TestPositionDataScopeGuard", "result": "not_run", "reason": "T07-E1"},
+    {"package": "app/admin/service/internal/data/ent", "test": "TestOrgUnitPathExpansionTenantBounded", "result": "not_run", "reason": "T07-E1"},
+    {"package": "make verify-gpu (verify-quota-ent, verify-gpu-regressions, verify-gpu-audit, lab-regression)", "test": "all", "result": "not_run", "reason": "T07-E2"}
+  ],
+  "not_run_is_not_pass": "Every entry above is not_run. none of them may be reported as passing, and the T02 pass does not substitute for them (master goal: 不能以T02通过代替后续安全和生成链验证).",
+
+  "pre_activation_work_completed": {
+    "note": "All of this is read-only on the repo: the takeover was staged in the task temp dir and measured, but not activated, because phase A is blocked on its database gates.",
+    "extraction": {
+      "script": "/home/ubuntu/tx7do-pilot-run/t07_extract.py",
+      "exit": 0,
+      "staged_root": "/home/ubuntu/tx7do-pilot-run/T07/stage",
+      "files_staged": 114,
+      "source": 90, "test": 18, "license": 5, "other": 1,
+      "three_way_archive_vs_module_cache_vs_staged_all_identical": true,
+      "hash_failures": [],
+      "go_embed_resources": 0,
+      "safety_findings": "clean for all five modules",
+      "modules": {
+        "github.com/tx7do/go-crud/viewer v0.0.7": "5 files, pkg viewer",
+        "github.com/tx7do/go-crud/entgo v0.0.55": "92 files, dirs (root) ent field filter interceptor mixin pagination rule sorting update",
+        "github.com/tx7do/go-crud/audit v0.0.3": "5 files, pkg audit",
+        "github.com/tx7do/go-crud/cache v0.0.2": "10 files, pkg cache",
+        "github.com/tx7do/kratos-bootstrap/database/ent v0.1.6": "2 files (client.go + LICENSE), pkg ent"
+      }
+    },
+    "activation_closure": {
+      "script": "/home/ubuntu/tx7do-pilot-run/t07_scope.py",
+      "plan": "migration/preflight/T07-activation-plan.json",
+      "roots": "the packages go list -deps reports as the repository's own live tx7do dependencies, plus every staged test package",
+      "packages_to_activate": 22,
+      "packages_not_activated_unreachable": [
+        "github.com/tx7do/go-crud/entgo/ent/hook",
+        "github.com/tx7do/go-crud/entgo/ent/privacy",
+        "github.com/tx7do/go-crud/entgo/ent/runtime",
+        "github.com/tx7do/go-crud/entgo/ent/schema"
+      ],
+      "files_to_activate": "104 Go/resource files plus the 5 module LICENSE files"
+    },
+    "consumer_inventory": {
+      "command": "migrate_imports scan -root . -files <1195 tracked .go files> -map T07/import-map.json (dry-run, no -write)",
+      "exit": 0,
+      "files_importing_an_activated_package": 262,
+      "generated_consumers": 0,
+      "handwritten": 163,
+      "test_files": 99,
+      "import_sites": {"go-crud/entgo": 93, "go-crud/entgo/mixin": 53, "go-utils/trans": 136, "go-crud/viewer": 22, "go-crud/entgo/update": 2, "go-crud/entgo/rule": 1, "kratos-bootstrap/database/ent": 1},
+      "largest_areas": "235 files under app/admin/service/internal (55 of them editable Ent schema files), the rest under pkg/entgo/viewer, pkg/middleware/{auth,ent,logging}, pkg/jwt, pkg/utils/converter"
+    },
+    "required_tests_carried_from_upstream": {
+      "count": 71,
+      "packages": 9,
+      "security_relevant_examples": [
+        "rule: 14 TestTenantPrivacy_* / TestInjectTenantWhereIntoBuilder_* fail-closed cases",
+        "filter: TestFilter_HostileFieldNeutralizedOnKnownTable / OnUnknownTable, TestStructuredFilter_FieldAllowlist",
+        "sorting: TestSorting_HostileFieldDropped", "field: TestFieldSelector_HostilePathDropped",
+        "update: TestEscapeSQLIdentifier, TestEscapeSQLLiteral, TestValidateIdentifier",
+        "mixin: TestIsSensitiveField, TestRedactNested",
+        "cache: TestSingleFlight_Do_*, TestCacheSupport_GetOrLoad_* with miniredis"
+      ],
+      "file": "migration/preflight/T07-activation-plan.json#required_tests",
+      "repo_guard_tests_still_required": ["TestTenantMutationGuard", "TestTenantMutationGuardAccessKey", "TestPositionDataScopeGuard", "TestOrgUnitPathExpansionTenantBounded"]
+    }
+  },
+
+  "findings_for_the_activation_step": [
+    {
+      "id": "T07-F1",
+      "topic": "T07 text 不复制不相关实体示例 vs the measured dependency graph",
+      "finding": "The upstream demo entities cannot simply be dropped. entgo's production packages field, filter and sorting import entgo/ent, and entgo/ent imports the menu and user example entities; go list -deps on the repository's own code already shows entgo/ent, ent/menu, ent/user, ent/migrate and ent/predicate in the live graph today. rule/tenant_mutation_test.go additionally imports ent/enttest and ent/user, and deleting a mandatory tenant test is forbidden. Under the plan's own rule 按必要 package 及完整关联闭包复制, the demo ent client is therefore a required closure member; only ent/hook, ent/privacy, ent/runtime and ent/schema are unreachable and excluded.",
+      "impact": "Records why 30 of the 104 activated files are upstream example-adjacent generated code, so the acceptance reviewer does not read them as scope creep."
+    },
+    {
+      "id": "T07-F2",
+      "topic": "go-utils/trans inside the T07 closure",
+      "finding": "Three activated packages (entgo root, entgo/cache and their dependents) import github.com/tx7do/go-utils/trans. trans was already activated in T02, so leaving these on the module path would keep the retired dependency alive in the entry-point graph. The import map therefore maps the exact package github.com/tx7do/go-utils/trans to go-wind-admin/pkg/localdeps/go-utils/trans. The go-utils module root is deliberately NOT mapped, because fieldmaskutil, id, mapper and stringcase stay on the old path until groups B.",
+      "impact": "Prevents a regression where T07 would silently re-introduce the T02 dependency."
+    },
+    {
+      "id": "T07-F3",
+      "topic": "no dependency change is required",
+      "finding": "The staged tests' only test-only external imports are github.com/alicebob/miniredis/v2, github.com/stretchr/testify/{assert,require} and google.golang.org/protobuf/encoding/protojson, all already locked by go.mod (miniredis v2.39.0, testify v1.12.1). Redis is served in-process by miniredis, so no Redis service is needed.",
+      "impact": "Activation in this round needs no go.mod/go.sum edit, keeping the module-file-unchanged gate intact."
+    },
+    {
+      "id": "T07-F4",
+      "topic": "generated code is not a consumer",
+      "finding": "Zero files in api/gen/go or app/admin/service/internal/data/ent (generated part) import a T07 package; the data/ent hits are the 55 editable schema files and the guard tests. Ent regeneration from schema, rather than hand-editing generated output, is therefore sufficient for the generated side.",
+      "impact": "Confirms the T07 instruction Ent从schema重新生成 is the right mechanism and bounds the non-import diff to imports only."
+    }
+  ],
+
+  "commands_added_this_step": [
+    {"name": "t07-extract", "command": "python3 /home/ubuntu/tx7do-pilot-run/t07_extract.py", "exit": 0},
+    {"name": "t07-scope", "command": "python3 /home/ubuntu/tx7do-pilot-run/t07_scope.py", "exit": 0},
+    {"name": "t07-repo-deps", "command": "go list -mod=readonly -deps ./app/... ./pkg/... ./tools/... (GOROOT 1.26.7, GOWORK=off, GOTOOLCHAIN=local)", "exit": 0},
+    {"name": "t07-scan-consumers", "command": "migrate_imports scan -root . -files T07/repo-go-files.txt -map T07/import-map.json -out T07/scan.json", "exit": 0, "note": "dry-run only, no -write"}
+  ],
+
+  "preserved_scene": {
+    "branch": "task/tx7do-takeover at 11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
+    "source_modifications": "none",
+    "database_actions": "none - the quota-lab container was neither connected to nor modified",
+    "reset_or_clean_performed": false,
+    "untracked_plan_material": "_agent/ left uncommitted as instructed"
+  },
+
+  "unblock_requires": [
+    "A disposable guard PostgreSQL that this task owns: reachable DSN exported as GUARD_TEST_PG_DSN, role may CREATE/DROP/TRUNCATE in that database only, no business or quota data.",
+    "QUOTA_LAB_PG_DSN for the explicitly-migrated restricted runtime quota database, plus the accelerator-acceptance task root holding task/lab/gov-dsn, task/lab/admin-dsn and QUOTA_LAB_CERTS_DIR/ca.pem, if the make verify-gpu chain is to run here rather than in CI.",
+    "The pinned audit tools govulncheck v1.7.0 and gitleaks v8.30.1 installed and on PATH.",
+    "Confirmation of whether phase A acceptance may be split - i.e. whether the T07 code takeover plus build/unit gates may be committed with the PG and verify-gpu gates recorded not_run, or whether A must be decided only with all mandatory database gates green."
+  ],
+
+  "changed_files": [
+    {"path": "migration/handoff.json", "reason": "handoff items 1 and 2 resume ledger with re-measured evidence."},
+    {"path": "migration/preflight/T07-archives.json", "reason": "handoff item 3 per-group archive verification output for the T07 closure."},
+    {"path": "migration/receipts/T07.json", "reason": "this BLOCKED receipt."}
+  ],
+  "non_import_changes": [],
+  "remaining_tx_packages": "unchanged from T02: only github.com/tx7do/go-utils/trans is activated; all other tx7do packages remain on their module paths.",
+  "next_allowed_task": "T07 may start once unblock_requires[0] is supplied. Phases B~E remain forbidden until phase A passes."
+}

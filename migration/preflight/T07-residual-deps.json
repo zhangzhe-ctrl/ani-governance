@@ -1,0 +1,336 @@
+{
+  "action": "residual-dependency-scan",
+  "by_package": [
+    {
+      "examples": [
+        "api/gen/go/access_key/service/v1/access_key.pb.go",
+        "api/gen/go/access_key/service/v1/access_key_grpc.pb.go",
+        "api/gen/go/admin/service/v1/i_access_key.pb.go"
+      ],
+      "files": 278,
+      "package": "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+    },
+    {
+      "examples": [
+        "app/admin/service/cmd/server/main.go",
+        "app/admin/service/internal/data/api_audit_log_repo.go",
+        "app/admin/service/internal/data/api_audit_log_repo_sqlite_test.go"
+      ],
+      "files": 194,
+      "package": "github.com/tx7do/kratos-bootstrap/logger"
+    },
+    {
+      "examples": [
+        "app/admin/service/cmd/server/main.go",
+        "app/admin/service/cmd/server/wiring_ent.go",
+        "app/admin/service/cmd/server/wiring_quota_default.go"
+      ],
+      "files": 124,
+      "package": "github.com/tx7do/kratos-bootstrap/bootstrap"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/access_key_repo.go",
+        "app/admin/service/internal/data/api_audit_log_repo.go",
+        "app/admin/service/internal/data/api_audit_log_repo_sqlite_test.go"
+      ],
+      "files": 85,
+      "package": "github.com/tx7do/go-utils/mapper"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/access_key_repo.go",
+        "app/admin/service/internal/data/api_audit_log_repo.go",
+        "app/admin/service/internal/data/api_repo.go"
+      ],
+      "files": 34,
+      "package": "github.com/tx7do/go-utils/copierutil"
+    },
+    {
+      "examples": [
+        "app/admin/service/cmd/server/main.go",
+        "app/admin/service/internal/data/authenticator.go",
+        "app/admin/service/internal/data/authenticator_test.go"
+      ],
+      "files": 21,
+      "package": "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/api_audit_log_repo.go",
+        "app/admin/service/internal/data/internal_message_recipient_repo.go",
+        "app/admin/service/internal/data/membership_org_unit_repo.go"
+      ],
+      "files": 20,
+      "package": "github.com/tx7do/go-utils/timeutil"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/menu_repo.go",
+        "app/admin/service/internal/data/org_unit_repo.go",
+        "app/admin/service/internal/data/permission_group_repo.go"
+      ],
+      "files": 12,
+      "package": "github.com/tx7do/go-crud/pagination"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/server/policy_eval_logging_engine.go",
+        "app/admin/service/internal/server/policy_eval_logging_engine_guard_test.go",
+        "app/admin/service/internal/server/policy_eval_logging_engine_test.go"
+      ],
+      "files": 9,
+      "package": "github.com/tx7do/kratos-authz/engine"
+    },
+    {
+      "examples": [
+        "api/gen/go/admin/service/v1/i_user.pb.go",
+        "api/gen/go/admin/service/v1/i_user.pb.redact.go",
+        "api/gen/go/authentication/service/v1/ani_auth.pb.go"
+      ],
+      "files": 8,
+      "package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/authenticator.go",
+        "pkg/jwt/refresh_token_payload.go",
+        "pkg/jwt/refresh_token_payload_test.go"
+      ],
+      "files": 8,
+      "package": "github.com/tx7do/kratos-authn/engine"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/data.go",
+        "app/admin/service/internal/data/repo_testkit5.go",
+        "app/admin/service/internal/data/user_credential_repo.go"
+      ],
+      "files": 7,
+      "package": "github.com/tx7do/go-utils/password"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/user_credential_repo.go",
+        "app/admin/service/internal/data/user_credential_repo_sqlite_test.go",
+        "app/admin/service/internal/data/user_repo_test.go"
+      ],
+      "files": 7,
+      "package": "github.com/tx7do/go-utils/crypto"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/service/internal_message_service.go",
+        "app/admin/service/internal/service/org_unit_service.go",
+        "app/admin/service/internal/service/permission_service.go"
+      ],
+      "files": 7,
+      "package": "github.com/tx7do/go-utils/aggregator"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/membership_repo.go",
+        "app/admin/service/internal/data/user_repo.go",
+        "app/admin/service/internal/service/admin_portal_service.go"
+      ],
+      "files": 5,
+      "package": "github.com/tx7do/go-utils/sliceutil"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/plan_quota_list.go",
+        "pkg/localdeps/go-crud/entgo/pagination/offset_paginator.go",
+        "pkg/localdeps/go-crud/entgo/pagination/page_paginator.go"
+      ],
+      "files": 5,
+      "package": "github.com/tx7do/go-crud/pagination/paginator"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/server/rest_server.go",
+        "app/admin/service/internal/service/accelerator_joint_http_test.go",
+        "pkg/middleware/auth/auth_test.go"
+      ],
+      "files": 5,
+      "package": "github.com/tx7do/kratos-authz/middleware"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/service/permission_service.go",
+        "pkg/localdeps/go-crud/entgo/field/utils.go",
+        "pkg/localdeps/go-crud/entgo/filter/filter_processor.go"
+      ],
+      "files": 5,
+      "package": "github.com/tx7do/go-utils/stringcase"
+    },
+    {
+      "examples": [
+        "app/admin/service/cmd/server/main.go",
+        "app/admin/service/internal/server/sse_server.go",
+        "app/admin/service/internal/service/internal_message_service.go"
+      ],
+      "files": 4,
+      "package": "github.com/tx7do/kratos-transport/transport/sse"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/menu_repo_test.go",
+        "app/admin/service/internal/data/user_repo_test.go",
+        "pkg/localdeps/go-crud/entgo/repository.go"
+      ],
+      "files": 4,
+      "package": "github.com/tx7do/go-utils/fieldmaskutil"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/plan_quota_list.go",
+        "pkg/localdeps/go-crud/entgo/filter/filter_processor.go",
+        "pkg/localdeps/go-crud/entgo/filter/structured_filter.go"
+      ],
+      "files": 4,
+      "package": "github.com/tx7do/go-crud/pagination/filter"
+    },
+    {
+      "examples": [
+        "pkg/localdeps/go-crud/entgo/client.go",
+        "pkg/localdeps/go-crud/entgo/filter/structured_filter.go",
+        "pkg/localdeps/go-crud/entgo/repository.go"
+      ],
+      "files": 4,
+      "package": "github.com/tx7do/go-wind/log"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/data.go",
+        "app/admin/service/internal/service/authentication_service.go",
+        "app/admin/service/internal/service/authentication_service_sqlite_test.go"
+      ],
+      "files": 3,
+      "package": "github.com/tx7do/go-utils/captcha"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/service/internal_message_service.go",
+        "pkg/localdeps/go-crud/entgo/mixin/snowflake_id.go",
+        "pkg/middleware/logging/utils.go"
+      ],
+      "files": 3,
+      "package": "github.com/tx7do/go-utils/id"
+    },
+    {
+      "examples": [
+        "pkg/authorizer/authorizer.go",
+        "pkg/authorizer/authorizer_test.go",
+        "pkg/middleware/auth/authorization_domain_test.go"
+      ],
+      "files": 3,
+      "package": "github.com/tx7do/kratos-authz/engine/casbin"
+    },
+    {
+      "examples": [
+        "app/admin/service/cmd/server/main.go",
+        "app/admin/service/internal/server/asynq_server.go"
+      ],
+      "files": 2,
+      "package": "github.com/tx7do/kratos-transport/transport/asynq"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/authenticator.go",
+        "app/admin/service/internal/data/mfa_challenge_cache.go"
+      ],
+      "files": 2,
+      "package": "github.com/tx7do/go-utils/jwtutil"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/plan_quota_list.go",
+        "pkg/localdeps/go-crud/entgo/repository.go"
+      ],
+      "files": 2,
+      "package": "github.com/tx7do/go-crud/pagination/sorting"
+    },
+    {
+      "examples": [
+        "pkg/localdeps/go-crud/entgo/filter/filter_processor.go",
+        "pkg/localdeps/go-crud/entgo/filter/structured_filter.go"
+      ],
+      "files": 2,
+      "package": "github.com/tx7do/go-wind-plugins/encoding"
+    },
+    {
+      "examples": [
+        "pkg/localdeps/go-crud/entgo/filter/filter_processor.go",
+        "pkg/localdeps/go-crud/entgo/filter/structured_filter.go"
+      ],
+      "files": 2,
+      "package": "github.com/tx7do/go-wind-plugins/encoding/json"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/authenticator.go"
+      ],
+      "files": 1,
+      "package": "github.com/tx7do/kratos-authn/engine/jwt"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/data/data.go"
+      ],
+      "files": 1,
+      "package": "github.com/tx7do/kratos-bootstrap/cache/redis"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/server/asynq_server.go"
+      ],
+      "files": 1,
+      "package": "github.com/tx7do/kratos-bootstrap/transport/asynq"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/server/rest_server.go"
+      ],
+      "files": 1,
+      "package": "github.com/tx7do/kratos-bootstrap/rpc"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/server/rest_server.go"
+      ],
+      "files": 1,
+      "package": "github.com/tx7do/kratos-swagger-ui"
+    },
+    {
+      "examples": [
+        "app/admin/service/internal/server/sse_server.go"
+      ],
+      "files": 1,
+      "package": "github.com/tx7do/kratos-bootstrap/transport/sse"
+    },
+    {
+      "examples": [
+        "pkg/authorizer/authorizer.go"
+      ],
+      "files": 1,
+      "package": "github.com/tx7do/kratos-authz/engine/noop"
+    }
+  ],
+  "distinct_old_packages": 37,
+  "entry_package_roots": 113,
+  "files_still_importing_tx7do": 406,
+  "meaning": "T07 replaces only this group's packages; the remainder is the explicit backlog for T03-T15",
+  "method": "migrate_imports scan (AST import declarations) + go list -mod=readonly -deps over entry/service/pkg/test roots",
+  "of_which_inside_pkg_localdeps": 19,
+  "of_which_repo_own_code": 387,
+  "old_group_packages_in_entry_graph": {
+    "go-crud/audit": [],
+    "go-crud/cache": [],
+    "go-crud/entgo": [],
+    "go-crud/viewer": []
+  },
+  "old_group_packages_in_entry_graph_count": 0,
+  "scanned_go_files": 1307,
+  "task": "T07",
+  "toolchain": "go1.26.7 GOWORK=off GOTOOLCHAIN=local"
+}

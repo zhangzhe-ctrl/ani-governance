@@ -1,0 +1,723 @@
+{
+  "gofmt": "go1.26.7",
+  "gate_candidates": 485,
+  "t07_change_set": 372,
+  "flagged_total": 47,
+  "flagged_outside_t07_change_set": [],
+  "files": [
+    {
+      "file": "app/admin/service/internal/data/api_audit_log_repo_sqlite_test.go",
+      "diff_lines": 46,
+      "whitespace_only": false,
+      "non_import_diff_lines": 44,
+      "non_import_samples": [
+        "-\t\tmapper:     mapper.NewCopierMapper[auditV1.ApiAuditLog, ent.ApiAuditLog](),",
+        "+\t\tmapper:    mapper.NewCopierMapper[auditV1.ApiAuditLog, ent.ApiAuditLog](),",
+        "-\t\t\tUsername:      trans.Ptr(\"sqlite_user_alpha\"),",
+        "-\t\t\tIpAddress:     trans.Ptr(\"10.0.0.1\"),",
+        "-\t\t\tReferer:       trans.Ptr(\"https://referer.example/sqlite\"),",
+        "-\t\t\tAppVersion:    trans.Ptr(\"1.0.0-sqlite\"),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/audit_log_archive_repo.go",
+      "diff_lines": 6,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-",
+        "+"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/audit_log_archive_repo_sqlite_test.go",
+      "diff_lines": 51,
+      "whitespace_only": false,
+      "non_import_diff_lines": 49,
+      "non_import_samples": [
+        "-\t\tSetNillableUsername(trans.Ptr(\"archive_user_\" + suffix)).",
+        "+\t\tSetNillableUsername(trans.Ptr(\"archive_user_\"+suffix)).",
+        "-\t\tSetNillableUsername(trans.Ptr(\"archive_user_\" + suffix)).",
+        "+\t\tSetNillableUsername(trans.Ptr(\"archive_user_\"+suffix)).",
+        "-\t\tSetNillableResourceType(trans.Ptr(\"archive_res_\" + suffix)).",
+        "+\t\tSetNillableResourceType(trans.Ptr(\"archive_res_\"+suffix))."
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/config_repo_test.go",
+      "diff_lines": 6,
+      "whitespace_only": false,
+      "non_import_diff_lines": 4,
+      "non_import_samples": [
+        "-//\uff08\u540c position_repo_sqlite_test.go \u7684\u5957\u8def\uff09\u3002",
+        "+// \uff08\u540c position_repo_sqlite_test.go \u7684\u5957\u8def\uff09\u3002",
+        "-//\uff08*sysconfig.ValueType\uff0cschema \u9ed8\u8ba4 STRING\uff09\uff0cDTO \u4fa7\u4e3a\u53ef\u9009\u6307\u9488\u5b57\u6bb5\u3002",
+        "+// \uff08*sysconfig.ValueType\uff0cschema \u9ed8\u8ba4 STRING\uff09\uff0cDTO \u4fa7\u4e3a\u53ef\u9009\u6307\u9488\u5b57\u6bb5\u3002"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/data_access_audit_log_repo_sqlite_test.go",
+      "diff_lines": 4,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-\t\tmapper:     mapper.NewCopierMapper[auditV1.DataAccessAuditLog, ent.DataAccessAuditLog](),",
+        "+\t\tmapper:    mapper.NewCopierMapper[auditV1.DataAccessAuditLog, ent.DataAccessAuditLog](),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/ent/schema/data_scope_guard.go",
+      "diff_lines": 3,
+      "whitespace_only": false,
+      "non_import_diff_lines": 3,
+      "non_import_samples": [
+        "-//         + DataScopeQuery\uff08\u884c\u7ea7\u6570\u636e\u8303\u56f4\u8fc7\u6ee4\uff09\uff1b",
+        "+//   - DataScopeQuery\uff08\u884c\u7ea7\u6570\u636e\u8303\u56f4\u8fc7\u6ee4\uff09\uff1b",
+        "+//"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/ent/schema/quota_account.go",
+      "diff_lines": 2,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-\t\t\t\t\"sys_quota_accounts_tenant_positive_ck\":       `tenant_id > 0`,",
+        "+\t\t\t\t\"sys_quota_accounts_tenant_positive_ck\":      `tenant_id > 0`,"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/internal_message_recipient_repo_sqlite_test.go",
+      "diff_lines": 6,
+      "whitespace_only": false,
+      "non_import_diff_lines": 4,
+      "non_import_samples": [
+        "-\t\twantNil   bool                                              // \u672a\u6307\u5b9a\u884c\uff1aent/DTO \u4fa7 status \u5806 nil",
+        "-\t\twantProto internalMessageV1.InternalMessageRecipient_Status // \u663e\u5f0f\u884c\uff1a\u8bfb\u56de\u671f\u671b",
+        "+\t\twantNil   bool                                               // \u672a\u6307\u5b9a\u884c\uff1aent/DTO \u4fa7 status \u5806 nil",
+        "+\t\twantProto internalMessageV1.InternalMessageRecipient_Status  // \u663e\u5f0f\u884c\uff1a\u8bfb\u56de\u671f\u671b"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/language_repo_sqlite_test.go",
+      "diff_lines": 8,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-\t\tId:   createdID,",
+        "+\t\tId: createdID,"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/login_audit_log_repo_sqlite_test.go",
+      "diff_lines": 40,
+      "whitespace_only": false,
+      "non_import_diff_lines": 38,
+      "non_import_samples": [
+        "-\t\tmapper:     mapper.NewCopierMapper[auditV1.LoginAuditLog, ent.LoginAuditLog](),",
+        "+\t\tmapper:    mapper.NewCopierMapper[auditV1.LoginAuditLog, ent.LoginAuditLog](),",
+        "-\t\t\tUserId:         trans.Ptr(uint32(7)),",
+        "-\t\t\tUsername:       trans.Ptr(\"sqlite_login_user\"),",
+        "-\t\t\tIpAddress:      trans.Ptr(\"10.0.0.3\"),",
+        "-\t\t\tSessionId:      trans.Ptr(\"sess-sqlite-1\"),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/membership_repo.go",
+      "diff_lines": 7,
+      "whitespace_only": false,
+      "non_import_diff_lines": 1,
+      "non_import_samples": [
+        "+"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/membership_repo_sqlite_test.go",
+      "diff_lines": 8,
+      "whitespace_only": false,
+      "non_import_diff_lines": 6,
+      "non_import_samples": [
+        "-\t\tlog:             bLogger.NewHelper(bLogger.NopLogger()),",
+        "-\t\tentClient:       entClient,",
+        "-\t\tmapper:          mapper.NewCopierMapper[identityV1.Membership, ent.Membership](),",
+        "+\t\tlog:       bLogger.NewHelper(bLogger.NopLogger()),",
+        "+\t\tentClient: entClient,",
+        "+\t\tmapper:    mapper.NewCopierMapper[identityV1.Membership, ent.Membership](),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/menu_repo_sync_test.go",
+      "diff_lines": 8,
+      "whitespace_only": false,
+      "non_import_diff_lines": 4,
+      "non_import_samples": [
+        "-//\uff08\u540c position_repo_sqlite_test.go \u7684\u5957\u8def\uff09\u3002",
+        "+// \uff08\u540c position_repo_sqlite_test.go \u7684\u5957\u8def\uff09\u3002",
+        "-//\uff08ID \u4e0e status \u4fdd\u7559\uff09\uff0c\u7f3a\u5931\u624d\u65b0\u589e\u2014\u2014\u8fd9\u662f\"\u540c\u6b65\u4e0d\u5e9f\u89d2\u8272-\u83dc\u5355\u6388\u6743\"\u7684\u5173\u952e\u8bed\u4e49\u3002",
+        "+// \uff08ID \u4e0e status \u4fdd\u7559\uff09\uff0c\u7f3a\u5931\u624d\u65b0\u589e\u2014\u2014\u8fd9\u662f\"\u540c\u6b65\u4e0d\u5e9f\u89d2\u8272-\u83dc\u5355\u6388\u6743\"\u7684\u5173\u952e\u8bed\u4e49\u3002"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/operation_audit_log_repo_sqlite_test.go",
+      "diff_lines": 6,
+      "whitespace_only": false,
+      "non_import_diff_lines": 4,
+      "non_import_samples": [
+        "-\t\tmapper:     mapper.NewCopierMapper[auditV1.OperationAuditLog, ent.OperationAuditLog](),",
+        "+\t\tmapper:    mapper.NewCopierMapper[auditV1.OperationAuditLog, ent.OperationAuditLog](),",
+        "-\t\t\t\tFailureReason: trans.Ptr(nextMarker()),",
+        "+\t\t\t\tFailureReason:  trans.Ptr(nextMarker()),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go",
+      "diff_lines": 32,
+      "whitespace_only": false,
+      "non_import_diff_lines": 30,
+      "non_import_samples": [
+        "-\t\tmapper:     mapper.NewCopierMapper[auditV1.PermissionAuditLog, ent.PermissionAuditLog](),",
+        "+\t\tmapper:    mapper.NewCopierMapper[auditV1.PermissionAuditLog, ent.PermissionAuditLog](),",
+        "-\t\t\tOperatorId:    trans.Ptr(uint32(11)),",
+        "-\t\t\tOperatorName:  trans.Ptr(\"sqlite_perm_op\"),",
+        "-\t\t\tTargetType:    trans.Ptr(\"role\"),",
+        "-\t\t\tTargetId:      trans.Ptr(\"3\"),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/plan_module_repo.go",
+      "diff_lines": 6,
+      "whitespace_only": false,
+      "non_import_diff_lines": 4,
+      "non_import_samples": [
+        "-\tmapper        *mapper.CopierMapper[identityV1.PlanModule, ent.PlanModule]",
+        "-\tmoduleConv    *mapper.EnumTypeConverter[identityV1.Module, planmodule.Module]",
+        "+\tmapper     *mapper.CopierMapper[identityV1.PlanModule, ent.PlanModule]",
+        "+\tmoduleConv *mapper.EnumTypeConverter[identityV1.Module, planmodule.Module]"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/plan_repo.go",
+      "diff_lines": 10,
+      "whitespace_only": false,
+      "non_import_diff_lines": 6,
+      "non_import_samples": [
+        "-\tmapper             *mapper.CopierMapper[identityV1.Plan, ent.Plan]",
+        "-\tversionConverter   *mapper.EnumTypeConverter[identityV1.Plan_Version, plan.Version]",
+        "-\texpiryPolicyConv   *mapper.EnumTypeConverter[identityV1.Plan_ExpiryPolicy, plan.ExpiryPolicy]",
+        "+\tmapper           *mapper.CopierMapper[identityV1.Plan, ent.Plan]",
+        "+\tversionConverter *mapper.EnumTypeConverter[identityV1.Plan_Version, plan.Version]",
+        "+\texpiryPolicyConv *mapper.EnumTypeConverter[identityV1.Plan_ExpiryPolicy, plan.ExpiryPolicy]"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/plan_repo_sqlite_test.go",
+      "diff_lines": 16,
+      "whitespace_only": false,
+      "non_import_diff_lines": 14,
+      "non_import_samples": [
+        "-\t\tentClient:       entClient,",
+        "-\t\tlog:             bLogger.NewHelper(bLogger.NopLogger()),",
+        "-\t\tmapper:          mapper.NewCopierMapper[identityV1.Plan, ent.Plan](),",
+        "+\t\tentClient: entClient,",
+        "+\t\tlog:       bLogger.NewHelper(bLogger.NopLogger()),",
+        "+\t\tmapper:    mapper.NewCopierMapper[identityV1.Plan, ent.Plan](),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/policy_evaluation_log_repo_sqlite_test.go",
+      "diff_lines": 20,
+      "whitespace_only": false,
+      "non_import_diff_lines": 18,
+      "non_import_samples": [
+        "-\t\tmapper:     mapper.NewCopierMapper[permissionV1.PolicyEvaluationLog, ent.PolicyEvaluationLog](),",
+        "+\t\tmapper:    mapper.NewCopierMapper[permissionV1.PolicyEvaluationLog, ent.PolicyEvaluationLog](),",
+        "-\t\t\tRequestPath:  trans.Ptr(\"/sqlite/policy-eval/get\"),",
+        "+\t\t\tRequestPath:   trans.Ptr(\"/sqlite/policy-eval/get\"),",
+        "-\t\t\tRequestPath:  trans.Ptr(\"/a/count\"),",
+        "-\t\t\tRequestMethod: trans.Ptr(\"GET\"),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/position_repo.go",
+      "diff_lines": 4,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-//\uff08Optional+Nillable\uff0c\u5982\u672c\u4ed3 status\uff09\u5728 copier \u7684\u8f6c\u6362\u67e5\u8868\u91cc\u7cbe\u786e\u547d\u4e2d\u3001",
+        "+// \uff08Optional+Nillable\uff0c\u5982\u672c\u4ed3 status\uff09\u5728 copier \u7684\u8f6c\u6362\u67e5\u8868\u91cc\u7cbe\u786e\u547d\u4e2d\u3001"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/position_repo_sqlite_test.go",
+      "diff_lines": 8,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-//\uff08\u5176\u4f59 5 \u503c\u4e24\u4fa7\u5168\u5927\u5199\u4e00\u81f4\u3001\u5f80\u8fd4\u6b63\u5e38\uff09\uff0cconverter \u6309 proto \u679a\u4e3e\u540d\u76f4\u8f6c\u540e",
+        "+// \uff08\u5176\u4f59 5 \u503c\u4e24\u4fa7\u5168\u5927\u5199\u4e00\u81f4\u3001\u5f80\u8fd4\u6b63\u5e38\uff09\uff0cconverter \u6309 proto \u679a\u4e3e\u540d\u76f4\u8f6c\u540e"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/repo_testkit5.go",
+      "diff_lines": 36,
+      "whitespace_only": false,
+      "non_import_diff_lines": 36,
+      "non_import_samples": [
+        "-//        RoleOrgUnitRepo / RoleFieldPermissionRepo\uff09\uff1a\u5b57\u6bb5\u4e0e\u751f\u4ea7\u6784\u9020\u5668\u9010\u5b57\u6bb5\u5bf9\u9f50",
+        "-//        \uff08\u542b mapper/converter \u521d\u59cb\u5316\u4e0e init() \u8c03\u7528\uff09\uff0c\u552f\u4e00\u5dee\u5f02\u662f log \u4e00\u5f8b",
+        "-//        bLogger.NewHelper(bLogger.NopLogger())\uff1bentClient \u7531\u8c03\u7528\u65b9\u4f20\u5165\uff08\u6d4b\u8bd5\u573a\u666f",
+        "-//        \u4e3a enttest.NewEntClientForTest \u7684 SQLite \u5185\u5b58\u5e93\uff09\u3002PermissionRepo /",
+        "-//        RoleOrgUnitRepo / RoleFieldPermissionRepo \u4e0e repo_testkit.go \u5185\u540c\u540d",
+        "-//        testkit \u79c1\u6709\u6784\u9020\u5668\u903b\u8f91\u4e00\u81f4\uff0c\u6b64\u5904\u4e3a\u8de8\u5305\uff08service \u5c42\uff09\u53ef\u89c1\u7684\u5bfc\u51fa\u526f\u672c\u3002"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/role_repo.go",
+      "diff_lines": 5,
+      "whitespace_only": false,
+      "non_import_diff_lines": 1,
+      "non_import_samples": [
+        "+"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/role_repo_sqlite_test.go",
+      "diff_lines": 24,
+      "whitespace_only": false,
+      "non_import_diff_lines": 20,
+      "non_import_samples": [
+        "-\t\tlog:             bLogger.NewHelper(bLogger.NopLogger()),",
+        "-\t\tentClient:       entClient,",
+        "-\t\tmapper:          mapper.NewCopierMapper[permissionV1.Permission, ent.Permission](),",
+        "+\t\tlog:       bLogger.NewHelper(bLogger.NopLogger()),",
+        "+\t\tentClient: entClient,",
+        "+\t\tmapper:    mapper.NewCopierMapper[permissionV1.Permission, ent.Permission](),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/server_monitor_repo.go",
+      "diff_lines": 28,
+      "whitespace_only": false,
+      "non_import_diff_lines": 26,
+      "non_import_samples": [
+        "-\t\tGo:         r.goRuntimeInfo(),",
+        "-\t\tHost:       r.hostInfo(),",
+        "+\t\tGo:          r.goRuntimeInfo(),",
+        "+\t\tHost:        r.hostInfo(),",
+        "-\t\tVersion:        strPtr(runtime.Version()),",
+        "-\t\tNumGoroutine:   u32Ptr(uint32(runtime.NumGoroutine())),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/tenant_usage_repo.go",
+      "diff_lines": 109,
+      "whitespace_only": false,
+      "non_import_diff_lines": 105,
+      "non_import_samples": [
+        "-\t\tfunc() error { _, e := tx.ApiAuditLog.Delete().Where(apiauditlog.TenantIDEQ(tenantId)).Exec(sysCtx); return e },",
+        "-\t\tfunc() error { _, e := tx.DataAccessAuditLog.Delete().Where(dataaccessauditlog.TenantIDEQ(tenantId)).Exec(sysCtx); return e },",
+        "-\t\tfunc() error { _, e := tx.DictEntry.Delete().Where(dictentry.TenantIDEQ(tenantId)).Exec(sysCtx); return e },",
+        "-\t\tfunc() error { _, e := tx.DictEntryI18n.Delete().Where(dictentryi18n.TenantIDEQ(tenantId)).Exec(sysCtx); return e },",
+        "+\t\tfunc() error {",
+        "+\t\t\t_, e := tx.ApiAuditLog.Delete().Where(apiauditlog.TenantIDEQ(tenantId)).Exec(sysCtx)"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/user_credential_repo_sqlite_test.go",
+      "diff_lines": 24,
+      "whitespace_only": false,
+      "non_import_diff_lines": 22,
+      "non_import_samples": [
+        "-\t\tmapper:     mapper.NewCopierMapper[configV1.Config, ent.SysConfig](),",
+        "+\t\tmapper:    mapper.NewCopierMapper[configV1.Config, ent.SysConfig](),",
+        "-\t\tentClient: entClient,",
+        "-\t\tlog:       bLogger.NewHelper(bLogger.NopLogger()),",
+        "-\t\tmapper:                     mapper.NewCopierMapper[authenticationV1.UserCredential, ent.UserCredential](),",
+        "-\t\tstatusConverter:             mapper.NewEnumTypeConverter[authenticationV1.UserCredential_Status, entUserCredential.Status](authenticationV1.UserCredential_Status_name, authenticationV1.UserCredential_Status_value),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/user_org_unit_repo_sqlite_test.go",
+      "diff_lines": 10,
+      "whitespace_only": false,
+      "non_import_diff_lines": 6,
+      "non_import_samples": [
+        "-\t\tUserId:     trans.Ptr(testUserID),",
+        "-\t\tOrgUnitId:  trans.Ptr(testUnitA),",
+        "-\t\tStatus:     trans.Ptr(identityV1.UserOrgUnit_ACTIVE),",
+        "+\t\tUserId:    trans.Ptr(testUserID),",
+        "+\t\tOrgUnitId: trans.Ptr(testUnitA),",
+        "+\t\tStatus:    trans.Ptr(identityV1.UserOrgUnit_ACTIVE),"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/data/user_repo_sqlite_test.go",
+      "diff_lines": 6,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-//\uff08userRoleRepo/userOrgUnitRepo/userPositionRepo\uff09\uff0c\u5728\u540c\u4e00 entclient \u4e0a",
+        "+// \uff08userRoleRepo/userOrgUnitRepo/userPositionRepo\uff09\uff0c\u5728\u540c\u4e00 entclient \u4e0a"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/server/policy_eval_logging_engine.go",
+      "diff_lines": 4,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-//\uff08\u683c\u5f0f 00-{trace-id}-{span-id}-{flags}\uff0c\u53d6 trace-id \u6bb5\uff09\uff1b\u65e0\u5219\u56de\u9000 X-Request-Id\uff0c",
+        "+// \uff08\u683c\u5f0f 00-{trace-id}-{span-id}-{flags}\uff0c\u53d6 trace-id \u6bb5\uff09\uff1b\u65e0\u5219\u56de\u9000 X-Request-Id\uff0c"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/authentication_data_scope.go",
+      "diff_lines": 6,
+      "whitespace_only": false,
+      "non_import_diff_lines": 6,
+      "non_import_samples": [
+        "-//       UNIT_ONLY      \u2192 \u7528\u6237\u6240\u5c5e\u5355\u5143\uff08\u9650\u672c\u79df\u6237\uff09",
+        "-//       UNIT_AND_CHILD \u2192 \u7528\u6237\u6240\u5c5e\u5355\u5143\u53ca\u5176\u5168\u90e8\u540e\u4ee3\uff08path \u524d\u7f00\u5c55\u5f00\uff0c\u9650\u672c\u79df\u6237\uff09",
+        "-//       SELECTED_UNITS \u2192 \u89d2\u8272\u914d\u7f6e\u7684\u81ea\u5b9a\u4e49\u5355\u5143\u96c6\uff08\u7eb5\u6df1\u9632\u5fa1\uff1a\u4e8c\u6b21\u79df\u6237\u8fc7\u6ee4\uff09",
+        "+//     UNIT_ONLY      \u2192 \u7528\u6237\u6240\u5c5e\u5355\u5143\uff08\u9650\u672c\u79df\u6237\uff09",
+        "+//     UNIT_AND_CHILD \u2192 \u7528\u6237\u6240\u5c5e\u5355\u5143\u53ca\u5176\u5168\u90e8\u540e\u4ee3\uff08path \u524d\u7f00\u5c55\u5f00\uff0c\u9650\u672c\u79df\u6237\uff09",
+        "+//     SELECTED_UNITS \u2192 \u89d2\u8272\u914d\u7f6e\u7684\u81ea\u5b9a\u4e49\u5355\u5143\u96c6\uff08\u7eb5\u6df1\u9632\u5fa1\uff1a\u4e8c\u6b21\u79df\u6237\u8fc7\u6ee4\uff09"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/authentication_data_scope_sqlite_test.go",
+      "diff_lines": 13,
+      "whitespace_only": false,
+      "non_import_diff_lines": 3,
+      "non_import_samples": [
+        "-",
+        "+",
+        "-"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/internal_message_service.go",
+      "diff_lines": 12,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-\ttaskEnqueuer            TaskEnqueuer",
+        "+\ttaskEnqueuer             TaskEnqueuer"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/mfa_service.go",
+      "diff_lines": 7,
+      "whitespace_only": false,
+      "non_import_diff_lines": 1,
+      "non_import_samples": [
+        "-"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/notification_channel_service.go",
+      "diff_lines": 12,
+      "whitespace_only": false,
+      "non_import_diff_lines": 4,
+      "non_import_samples": [
+        "-",
+        "+",
+        "-",
+        "+"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/plan_module_service.go",
+      "diff_lines": 6,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-\tlog           *bLogger.Helper",
+        "+\tlog            *bLogger.Helper"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/plan_quota_service.go",
+      "diff_lines": 6,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-\tlog          *bLogger.Helper",
+        "+\tlog           *bLogger.Helper"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/task_service.go",
+      "diff_lines": 18,
+      "whitespace_only": false,
+      "non_import_diff_lines": 14,
+      "non_import_samples": [
+        "-\tuserRepo        data.UserRepo",
+        "-\ttaskRepo        *data.TaskRepo",
+        "-\ttenantUsageRepo *data.TenantUsageRepo",
+        "+\tuserRepo            data.UserRepo",
+        "+\ttaskRepo            *data.TaskRepo",
+        "+\ttenantUsageRepo     *data.TenantUsageRepo"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/task_service_sqlite_test.go",
+      "diff_lines": 17,
+      "whitespace_only": false,
+      "non_import_diff_lines": 11,
+      "non_import_samples": [
+        "-",
+        "+",
+        "-\t\tlog:                bLogger.NewHelper(bLogger.NopLogger()),",
+        "-\t\ttaskRepo:           data.NewTaskRepoForTest(entClient),",
+        "-\t\tuserRepo:           nil,",
+        "-\t\ttenantUsageRepo:    nil,"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/user_field_permission_sqlite_test.go",
+      "diff_lines": 4,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-\t\tUserId:        7,",
+        "+\t\tUserId:       7,"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/user_profile_service.go",
+      "diff_lines": 4,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-",
+        "-"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "app/admin/service/internal/service/user_profile_service_sqlite_test.go",
+      "diff_lines": 8,
+      "whitespace_only": false,
+      "non_import_diff_lines": 6,
+      "non_import_samples": [
+        "-\tsvc       *UserProfileService",
+        "-\tstub      *userProfileUserRepoStub",
+        "-\tentClient *entCrud.EntClient[*ent.Client]",
+        "+\tsvc        *UserProfileService",
+        "+\tstub       *userProfileUserRepoStub",
+        "+\tentClient  *entCrud.EntClient[*ent.Client]"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "pkg/entgo/viewer/user_viewer_extra_test.go",
+      "diff_lines": 2,
+      "whitespace_only": false,
+      "non_import_diff_lines": 2,
+      "non_import_samples": [
+        "-\t\t\tunits: nil,",
+        "+\t\t\tunits:  nil,"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "pkg/jwt/user_token_payload_extras_test.go",
+      "diff_lines": 32,
+      "whitespace_only": false,
+      "non_import_diff_lines": 32,
+      "non_import_samples": [
+        "-\t\t\tauthn.ClaimFieldJwtID:       \"jti-456\",",
+        "-\t\t\tClaimFieldHiddenFields:      []string{\"user.email\"},",
+        "-\t\t\tClaimFieldIsPlatformAdmin:   true,",
+        "-\t\t\tClaimFieldIsTenantAdmin:     true,",
+        "+\t\t\tauthn.ClaimFieldJwtID:     \"jti-456\",",
+        "+\t\t\tClaimFieldHiddenFields:    []string{\"user.email\"},"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "pkg/middleware/auth/auth_test.go",
+      "diff_lines": 24,
+      "whitespace_only": false,
+      "non_import_diff_lines": 18,
+      "non_import_samples": [
+        "-",
+        "+",
+        "-func (h fakeHeader) Get(key string) string       { return h[key] }",
+        "-func (h fakeHeader) Set(key, value string)       { h[key] = value }",
+        "-func (h fakeHeader) Add(key, value string)       { h[key] = value }",
+        "+func (h fakeHeader) Get(key string) string { return h[key] }"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "pkg/middleware/ent/ent_test.go",
+      "diff_lines": 38,
+      "whitespace_only": false,
+      "non_import_diff_lines": 38,
+      "non_import_samples": [
+        "-\t\t\t\tUserId:            42,",
+        "-\t\t\t\tTenantId:          7,",
+        "-\t\t\t\tOrgUnitId:         9,",
+        "-\t\t\t\tDataScopes:        []identityV1.DataScope{identityV1.DataScope_ALL},",
+        "-\t\t\t\tDataScopeUnitIds:  []uint64{7, 8},",
+        "+\t\t\t\tUserId:           42,"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    },
+    {
+      "file": "pkg/middleware/logging/utils_extra_test.go",
+      "diff_lines": 32,
+      "whitespace_only": false,
+      "non_import_diff_lines": 28,
+      "non_import_samples": [
+        "-",
+        "+",
+        "-\t\tname        string",
+        "-\t\txff         string",
+        "-\t\txri         string",
+        "-\t\tremoteAddr  string"
+      ],
+      "equiv": "PASS",
+      "equiv_message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+      "still_unformatted": false
+    }
+  ],
+  "refused": [],
+  "rewritten": 47,
+  "still_unformatted": [],
+  "equiv_failures": []
+}

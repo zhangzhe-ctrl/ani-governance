@@ -1,0 +1,348 @@
+{
+  "file_counts": {
+    "licenses": 5,
+    "not_activated": 5,
+    "staged": 109,
+    "to_activate": 104
+  },
+  "finding": {
+    "consequence": "dropping the demo ent client would break compilation of activated production packages and delete a mandatory tenant test; it is therefore part of the required closure, not an optional example",
+    "excluded_instead": [
+      "github.com/tx7do/go-crud/entgo/ent/hook",
+      "github.com/tx7do/go-crud/entgo/ent/privacy",
+      "github.com/tx7do/go-crud/entgo/ent/runtime",
+      "github.com/tx7do/go-crud/entgo/ent/schema"
+    ],
+    "measured": "the repository's own -deps graph already contains entgo/ent plus the menu/user example entities because entgo field/filter/sorting import entgo/ent, and rule/tenant_mutation_test.go imports entgo/ent/enttest and entgo/ent/user",
+    "t07_text": "\u8fc1\u5165\u4f9d\u8d56\u6d4b\u8bd5\u9700\u8981\u7684Ent fixture/schema\uff0c\u4e0d\u590d\u5236\u4e0d\u76f8\u5173\u5b9e\u4f53\u793a\u4f8b"
+  },
+  "import_rewrite_targets": {
+    "github.com/tx7do/go-crud/audit": [
+      "github.com/tx7do/go-crud/entgo/mixin"
+    ],
+    "github.com/tx7do/go-crud/cache": [
+      "github.com/tx7do/go-crud/entgo"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent": [
+      "github.com/tx7do/go-crud/entgo",
+      "github.com/tx7do/go-crud/entgo/ent/enttest",
+      "github.com/tx7do/go-crud/entgo/field",
+      "github.com/tx7do/go-crud/entgo/filter",
+      "github.com/tx7do/go-crud/entgo/rule",
+      "github.com/tx7do/go-crud/entgo/sorting"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent/enttest": [
+      "github.com/tx7do/go-crud/entgo/rule"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent/menu": [
+      "github.com/tx7do/go-crud/entgo",
+      "github.com/tx7do/go-crud/entgo/ent"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent/migrate": [
+      "github.com/tx7do/go-crud/entgo",
+      "github.com/tx7do/go-crud/entgo/ent",
+      "github.com/tx7do/go-crud/entgo/ent/enttest"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent/predicate": [
+      "github.com/tx7do/go-crud/entgo/ent",
+      "github.com/tx7do/go-crud/entgo/ent/menu",
+      "github.com/tx7do/go-crud/entgo/ent/user"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent/user": [
+      "github.com/tx7do/go-crud/entgo/ent",
+      "github.com/tx7do/go-crud/entgo/rule"
+    ],
+    "github.com/tx7do/go-crud/entgo/field": [
+      "github.com/tx7do/go-crud/entgo"
+    ],
+    "github.com/tx7do/go-crud/entgo/filter": [
+      "github.com/tx7do/go-crud/entgo"
+    ],
+    "github.com/tx7do/go-crud/entgo/interceptor": [
+      "github.com/tx7do/go-crud/entgo/mixin"
+    ],
+    "github.com/tx7do/go-crud/entgo/pagination": [
+      "github.com/tx7do/go-crud/entgo"
+    ],
+    "github.com/tx7do/go-crud/entgo/rule": [
+      "github.com/tx7do/go-crud/entgo",
+      "github.com/tx7do/go-crud/entgo/mixin",
+      "github.com/tx7do/go-crud/entgo/rule"
+    ],
+    "github.com/tx7do/go-crud/entgo/sorting": [
+      "github.com/tx7do/go-crud/entgo"
+    ],
+    "github.com/tx7do/go-crud/entgo/update": [
+      "github.com/tx7do/go-crud/entgo"
+    ],
+    "github.com/tx7do/go-crud/viewer": [
+      "github.com/tx7do/go-crud/entgo",
+      "github.com/tx7do/go-crud/entgo/interceptor",
+      "github.com/tx7do/go-crud/entgo/mixin",
+      "github.com/tx7do/go-crud/entgo/rule"
+    ],
+    "github.com/tx7do/go-utils/trans": [
+      "github.com/tx7do/go-crud/cache",
+      "github.com/tx7do/go-crud/entgo",
+      "github.com/tx7do/go-crud/entgo/filter"
+    ]
+  },
+  "imports_left_on_old_path_this_round": {
+    "github.com/tx7do/go-crud/pagination": [
+      "github.com/tx7do/go-crud/entgo",
+      "github.com/tx7do/go-crud/entgo/pagination"
+    ],
+    "github.com/tx7do/go-crud/pagination/filter": [
+      "github.com/tx7do/go-crud/entgo/filter"
+    ],
+    "github.com/tx7do/go-crud/pagination/paginator": [
+      "github.com/tx7do/go-crud/entgo",
+      "github.com/tx7do/go-crud/entgo/pagination"
+    ],
+    "github.com/tx7do/go-utils/fieldmaskutil": [
+      "github.com/tx7do/go-crud/entgo",
+      "github.com/tx7do/go-crud/entgo/update"
+    ],
+    "github.com/tx7do/go-utils/id": [
+      "github.com/tx7do/go-crud/entgo/mixin"
+    ],
+    "github.com/tx7do/go-utils/mapper": [
+      "github.com/tx7do/go-crud/entgo"
+    ],
+    "github.com/tx7do/go-utils/stringcase": [
+      "github.com/tx7do/go-crud/entgo/field",
+      "github.com/tx7do/go-crud/entgo/filter",
+      "github.com/tx7do/go-crud/entgo/update"
+    ],
+    "github.com/tx7do/go-wind-plugins/encoding": [
+      "github.com/tx7do/go-crud/entgo/filter"
+    ],
+    "github.com/tx7do/go-wind/log": [
+      "github.com/tx7do/go-crud/entgo",
+      "github.com/tx7do/go-crud/entgo/filter"
+    ]
+  },
+  "packages_reachable": [
+    "github.com/tx7do/go-crud/audit",
+    "github.com/tx7do/go-crud/cache",
+    "github.com/tx7do/go-crud/entgo",
+    "github.com/tx7do/go-crud/entgo/ent",
+    "github.com/tx7do/go-crud/entgo/ent/enttest",
+    "github.com/tx7do/go-crud/entgo/ent/menu",
+    "github.com/tx7do/go-crud/entgo/ent/migrate",
+    "github.com/tx7do/go-crud/entgo/ent/predicate",
+    "github.com/tx7do/go-crud/entgo/ent/user",
+    "github.com/tx7do/go-crud/entgo/field",
+    "github.com/tx7do/go-crud/entgo/filter",
+    "github.com/tx7do/go-crud/entgo/interceptor",
+    "github.com/tx7do/go-crud/entgo/mixin",
+    "github.com/tx7do/go-crud/entgo/pagination",
+    "github.com/tx7do/go-crud/entgo/rule",
+    "github.com/tx7do/go-crud/entgo/sorting",
+    "github.com/tx7do/go-crud/entgo/update",
+    "github.com/tx7do/go-crud/viewer",
+    "github.com/tx7do/kratos-bootstrap/database/ent"
+  ],
+  "packages_unreachable_not_activated": [
+    "github.com/tx7do/go-crud/entgo/ent/hook",
+    "github.com/tx7do/go-crud/entgo/ent/privacy",
+    "github.com/tx7do/go-crud/entgo/ent/runtime",
+    "github.com/tx7do/go-crud/entgo/ent/schema"
+  ],
+  "per_package_files": {
+    "github.com/tx7do/go-crud/audit": [
+      "auditor.go",
+      "context.go",
+      "entry.go",
+      "noop_auditor.go"
+    ],
+    "github.com/tx7do/go-crud/cache": [
+      "errors.go",
+      "flight_cache.go",
+      "flight_cache_test.go",
+      "metrics.go",
+      "options.go",
+      "redis_cache.go",
+      "redis_cache_test.go",
+      "support.go",
+      "support_test.go"
+    ],
+    "github.com/tx7do/go-crud/entgo": [
+      "client.go",
+      "client_test.go",
+      "ent_interface.go",
+      "repository.go",
+      "repository_cache.go",
+      "repository_cache_test.go",
+      "repository_test.go",
+      "tx.go",
+      "user.proto"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent": [
+      "ent/client.go",
+      "ent/ent.go",
+      "ent/entql.go",
+      "ent/generate.go",
+      "ent/menu.go",
+      "ent/menu_create.go",
+      "ent/menu_delete.go",
+      "ent/menu_query.go",
+      "ent/menu_update.go",
+      "ent/mutation.go",
+      "ent/runtime.go",
+      "ent/tx.go",
+      "ent/user.go",
+      "ent/user_create.go",
+      "ent/user_delete.go",
+      "ent/user_query.go",
+      "ent/user_update.go",
+      "ent/validate.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent/enttest": [
+      "ent/enttest/enttest.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent/menu": [
+      "ent/menu/menu.go",
+      "ent/menu/where.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent/migrate": [
+      "ent/migrate/migrate.go",
+      "ent/migrate/schema.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent/predicate": [
+      "ent/predicate/predicate.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/ent/user": [
+      "ent/user/user.go",
+      "ent/user/where.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/field": [
+      "field/field_selector.go",
+      "field/field_selector_security_test.go",
+      "field/utils.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/filter": [
+      "filter/filter_processor.go",
+      "filter/filter_processor_test.go",
+      "filter/structured_filter.go",
+      "filter/structured_filter_security_test.go",
+      "filter/structured_filter_test.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/interceptor": [
+      "interceptor/limit.go",
+      "interceptor/soft_delete.go",
+      "interceptor/tenant.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/mixin": [
+      "mixin/archived.go",
+      "mixin/audit.go",
+      "mixin/audit_status.go",
+      "mixin/audit_test.go",
+      "mixin/autoincrement_id.go",
+      "mixin/description.go",
+      "mixin/ip_address.go",
+      "mixin/is_enabled.go",
+      "mixin/operator_id.go",
+      "mixin/remark.go",
+      "mixin/snowflake_id.go",
+      "mixin/soft_delete.go",
+      "mixin/sort_order.go",
+      "mixin/string_id.go",
+      "mixin/switch_status.go",
+      "mixin/tags.go",
+      "mixin/tenant_id.go",
+      "mixin/time.go",
+      "mixin/timestamp.go",
+      "mixin/tree.go",
+      "mixin/tree_path.go",
+      "mixin/tree_path_ids.go",
+      "mixin/uuid_id.go",
+      "mixin/version.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/pagination": [
+      "pagination/offset_paginator.go",
+      "pagination/offset_paginator_test.go",
+      "pagination/page_paginator.go",
+      "pagination/token_paginator.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/rule": [
+      "rule/system.go",
+      "rule/tenant.go",
+      "rule/tenant_mutation_test.go",
+      "rule/tenant_r1_test.go",
+      "rule/utils.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/sorting": [
+      "sorting/structured_sorting.go",
+      "sorting/structured_sorting_security_test.go",
+      "sorting/structured_sorting_test.go",
+      "sorting/utils.go"
+    ],
+    "github.com/tx7do/go-crud/entgo/update": [
+      "update/escape_test.go",
+      "update/update.go",
+      "update/update_test.go"
+    ],
+    "github.com/tx7do/go-crud/viewer": [
+      "context.go",
+      "data_scope.go",
+      "enforce.go",
+      "noop.go"
+    ],
+    "github.com/tx7do/kratos-bootstrap/database/ent": [
+      "client.go"
+    ]
+  },
+  "repo_tx7do_deps_inside_T07_scope": [
+    "github.com/tx7do/go-crud/audit",
+    "github.com/tx7do/go-crud/cache",
+    "github.com/tx7do/go-crud/entgo",
+    "github.com/tx7do/go-crud/entgo/ent",
+    "github.com/tx7do/go-crud/entgo/ent/menu",
+    "github.com/tx7do/go-crud/entgo/ent/migrate",
+    "github.com/tx7do/go-crud/entgo/ent/predicate",
+    "github.com/tx7do/go-crud/entgo/ent/user",
+    "github.com/tx7do/go-crud/entgo/field",
+    "github.com/tx7do/go-crud/entgo/filter",
+    "github.com/tx7do/go-crud/entgo/interceptor",
+    "github.com/tx7do/go-crud/entgo/mixin",
+    "github.com/tx7do/go-crud/entgo/pagination",
+    "github.com/tx7do/go-crud/entgo/rule",
+    "github.com/tx7do/go-crud/entgo/sorting",
+    "github.com/tx7do/go-crud/entgo/update",
+    "github.com/tx7do/go-crud/viewer",
+    "github.com/tx7do/kratos-bootstrap/database/ent"
+  ],
+  "repo_tx7do_deps_total": 68,
+  "root_packages_from_repo": [
+    "github.com/tx7do/go-crud/audit",
+    "github.com/tx7do/go-crud/cache",
+    "github.com/tx7do/go-crud/entgo",
+    "github.com/tx7do/go-crud/entgo/ent",
+    "github.com/tx7do/go-crud/entgo/ent/menu",
+    "github.com/tx7do/go-crud/entgo/ent/migrate",
+    "github.com/tx7do/go-crud/entgo/ent/predicate",
+    "github.com/tx7do/go-crud/entgo/ent/user",
+    "github.com/tx7do/go-crud/entgo/field",
+    "github.com/tx7do/go-crud/entgo/filter",
+    "github.com/tx7do/go-crud/entgo/interceptor",
+    "github.com/tx7do/go-crud/entgo/mixin",
+    "github.com/tx7do/go-crud/entgo/pagination",
+    "github.com/tx7do/go-crud/entgo/rule",
+    "github.com/tx7do/go-crud/entgo/sorting",
+    "github.com/tx7do/go-crud/entgo/update",
+    "github.com/tx7do/go-crud/viewer",
+    "github.com/tx7do/kratos-bootstrap/database/ent"
+  ],
+  "schema_version": 1,
+  "task": "T07-activation-plan",
+  "upstream_demo_ent_packages_in_live_closure": [
+    "github.com/tx7do/go-crud/entgo/ent",
+    "github.com/tx7do/go-crud/entgo/ent/enttest",
+    "github.com/tx7do/go-crud/entgo/ent/menu",
+    "github.com/tx7do/go-crud/entgo/ent/migrate",
+    "github.com/tx7do/go-crud/entgo/ent/predicate",
+    "github.com/tx7do/go-crud/entgo/ent/user",
+    "github.com/tx7do/kratos-bootstrap/database/ent"
+  ]
+}

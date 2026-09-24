@@ -1,0 +1,14 @@
+{
+  "action": "equiv-final-all-activated",
+  "activation_labels": {
+    "activate": 103,
+    "not_activated_unreachable": 5
+  },
+  "checked": 108,
+  "failures": [],
+  "passed": 108,
+  "scope": "every .go file present under the five activated pkg/localdeps roots, including the 5 compiler-proven promoted files",
+  "status": "PASS",
+  "task": "T07",
+  "verdict_contract": "migrate_imports equiv exit code + stdout PASS prefix (the tool writes no -out JSON; see finding T07-F5)"
+}
