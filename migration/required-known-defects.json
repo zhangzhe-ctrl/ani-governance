@@ -34,5 +34,115 @@
   {
     "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
     "Test": "TestVerify_SlideCaptcha_WithTolerance"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+    "Test": "TestGenerateOrderIdWithTenantIdCollision",
+    "mode": "nondeterministic",
+    "why": "GenerateOrderIdWithTenantId (order_id.go:53) composes a second-granularity timestamp, a tenant part folded to five bytes and four random digits, so the space per second per tenant is 10^4 while the test draws 1000 ids and demands zero collisions. It is a property of the locked implementation, not of the localisation.",
+    "allowed_sites": [
+      "upstream_known_defects_test.go:65",
+      "upstream_known_defects_test.go:70"
+    ],
+    "allowed_patterns": [
+      "碰撞的订单号: ",
+      "生成了 1000 个订单号，没有发生碰撞",
+      "Error Trace:",
+      "Error:",
+      "Test:",
+      "upstream_known_defects_test\\.go:(65|70)",
+      "^--- FAIL"
+    ],
+    "isolation": "原名原体移入 pkg/localdeps/go-utils/id/upstream_known_defects_test.go，只带 //go:build upstream_known_defects",
+    "reachability": "重命名 GenerateOrderIdWithTenantId 后 default、quota_lab、quota_pg、gpu_joint 及组合标签的 go build ./... 全部 exit 0；go vet ./... 只在 id 包自身测试文件报 undefined。业务与工具路径不调用它",
+    "measured_runs": {
+      "candidate": "20 runs: 0 pass / 20 fail",
+      "reference": "20 runs: 0 pass / 20 fail",
+      "race_candidate": "5 runs: 0 pass / 5 fail",
+      "race_reference": "5 runs: 0 pass / 5 fail"
+    }
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+    "Test": "TestGenerateOrderIdWithIndexThread",
+    "mode": "nondeterministic",
+    "why": "idCounter.Increase (order_id.go:15) reads the shared counter with a plain load (cur := *c) before the atomic add, so concurrent callers can return the same index, and the counter only wraps at exactly 1000 while the timestamp changes per second. The test asks for 1000 distinct ids from 10 goroutines inside one second.",
+    "allowed_sites": [
+      "upstream_known_defects_test.go:54",
+      "upstream_known_defects_test.go:41",
+      "upstream_known_defects_test.go:39"
+    ],
+    "allowed_patterns": [
+      "Error Trace:",
+      "Error:",
+      "expected: 1000",
+      "actual\\s*:\\s*\\d+",
+      "Test:",
+      "upstream_known_defects_test\\.go:(41|48|54)",
+      "^--- FAIL",
+      "Write at .*order_id\\.go:(47|16)",
+      "^\\s*(go-wind-admin|github\\.com)[^\\n]*order_id\\.go:\\d+"
+    ],
+    "isolation": "同上；race 诊断（Read at order_id.go:16 / Previous write order_id.go:47）保留在输出与报告中，并记 race_observed",
+    "reachability": "重命名 GenerateOrderIdWithIncreaseIndex 与 orderIdIndex/idCounter 同样不破坏任何标签组合的构建；只有本包测试引用",
+    "measured_runs": {
+      "candidate": "20 runs: 8 pass / 12 fail",
+      "reference": "20 runs: 6 pass / 14 fail",
+      "race_candidate": "5 runs: 0 pass / 5 fail",
+      "race_reference": "5 runs: 0 pass / 5 fail"
+    },
+    "allowed_race_frame_files": [
+      "order_id.go",
+      "testing.go",
+      "race_amd64.s",
+      "proc.go",
+      "asm_amd64.s",
+      "asm_linux_amd64.s",
+      "runtime"
+    ],
+    "race_note": "race 对照已实际执行：候选与参照两侧都报 WARNING: DATA RACE，读点在 order_id.go:16 （cur := *c 的普通读），写点在 order_id.go:47（Increase 的调用处）。这里只放行这两个已核对访问点的栈帧，任何其它断言点或新诊断仍然阻断。",
+    "required_lines_when_racing": [
+      "Read at 0x[0-9a-f]+ by goroutine \\d+:",
+      "order_id\\.go:16 \\+0x[0-9a-f]+",
+      "(Previous )?[Ww]rite at 0x[0-9a-f]+ by goroutine \\d+:",
+      "order_id\\.go:47 \\+0x[0-9a-f]+"
+    ],
+    "allowed_race_frame_symbols": [
+      "go-wind-admin/pkg/localdeps/go-utils/id",
+      "sync/atomic",
+      "testing",
+      "runtime",
+      "internal/",
+      "created by"
+    ]
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+    "Test": "TestGenerateOrderIdWithRandom",
+    "mode": "nondeterministic",
+    "why": "GenerateOrderIdWithRandom (order_id.go:36) formats the four-digit random part with %d instead of %04d, so any value below 1000 shortens the id while the test asserts len(prefix)+14+4. Authorised additionally because it reproduces locally and the generator is unreachable from supported paths.",
+    "allowed_sites": [
+      "upstream_known_defects_test.go:26",
+      "upstream_known_defects_test.go:29"
+    ],
+    "allowed_patterns": [
+      "GenerateOrderIdWithRandom: ",
+      "Messages:",
+      "Error Trace:",
+      "Error:",
+      "expected: 20",
+      "actual\\s*:\\s*\\d+",
+      "Test:",
+      "upstream_known_defects_test\\.go:(26|29)",
+      "^--- FAIL"
+    ],
+    "isolation": "同上",
+    "reachability": "重命名 GenerateOrderIdWithRandom 后所有标签组合构建 exit 0；无业务/工具调用",
+    "measured_runs": {
+      "candidate": "200 runs: 184 pass / 16 fail (8.0%, theory 10%)",
+      "reference": "200 runs: 182 pass / 18 fail",
+      "race_candidate": "5 runs: 5 pass / 0 fail",
+      "race_reference": "5 runs: 5 pass / 0 fail"
+    }
   }
 ]

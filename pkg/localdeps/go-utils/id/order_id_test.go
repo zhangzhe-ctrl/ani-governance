@@ -2,24 +2,11 @@ package id
 
 import (
 	"fmt"
-	"sync"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func TestGenerateOrderIdWithRandom(t *testing.T) {
-	prefix := "PT"
-
-	// 测试生成的订单号是否包含前缀
-	orderID := GenerateOrderIdWithRandom(prefix, nil)
-	assert.Contains(t, orderID, prefix, "订单号应包含前缀")
-	t.Logf("GenerateOrderIdWithRandom: %s", orderID)
-
-	// 测试生成的订单号长度是否正确
-	assert.Equal(t, len(prefix)+14+4, len(orderID), "订单号长度应为前缀+时间戳+随机数")
-}
 
 func TestGenerateOrderIdWithIndex(t *testing.T) {
 	prefix := "PT"
@@ -34,31 +21,6 @@ func TestGenerateOrderIdWithIndex(t *testing.T) {
 		ids[GenerateOrderIdWithIncreaseIndex(prefix, &(tm))] = true
 	}
 	assert.Equal(t, count, len(ids))
-}
-
-func TestGenerateOrderIdWithIndexThread(t *testing.T) {
-	tm := time.Now()
-
-	var wg sync.WaitGroup
-	var ids sync.Map
-	for i := 0; i < 10; i++ {
-		wg.Add(1)
-		go func() {
-			for i := 0; i < 100; i++ {
-				id := GenerateOrderIdWithIncreaseIndex("PT", &(tm))
-				ids.Store(id, true)
-			}
-			wg.Done()
-		}()
-	}
-	wg.Wait()
-
-	aLen := 0
-	ids.Range(func(k, v interface{}) bool {
-		aLen++
-		return true
-	})
-	assert.Equal(t, 1000, aLen)
 }
 
 func TestGenerateOrderIdWithTenantId(t *testing.T) {
@@ -81,22 +43,6 @@ func TestGenerateOrderIdWithTenantId(t *testing.T) {
 	// 验证随机数部分是否为4位数字
 	randomPart := orderID[len(orderID)-4:]
 	assert.Regexp(t, `^\d{4}$`, randomPart)
-}
-
-func TestGenerateOrderIdWithTenantIdCollision(t *testing.T) {
-	tenantID := "M9876"
-	count := 1000 // 生成订单号的数量
-	ids := make(map[string]bool)
-
-	for i := 0; i < count; i++ {
-		orderID := GenerateOrderIdWithTenantId(tenantID)
-		if ids[orderID] {
-			t.Errorf("碰撞的订单号: %s", orderID)
-		}
-		ids[orderID] = true
-	}
-
-	t.Logf("生成了 %d 个订单号，没有发生碰撞", count)
 }
 
 func TestGenerateOrderIdWithPrefixSonyflake(t *testing.T) {

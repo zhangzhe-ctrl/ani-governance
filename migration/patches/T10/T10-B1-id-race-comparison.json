@@ -1,0 +1,45 @@
+{
+ "schema_version": "t10-b1-id-race-comparison/1",
+ "commands": [
+  "go test -count=1 -race -tags upstream_known_defects -json ./pkg/localdeps/go-utils/id/  (exit 1)",
+  "the same command inside the identically organised pristine copy of go-utils/id@v0.0.6 (exit 1)"
+ ],
+ "fixed_repeat": "5 runs per side recorded in migration/patches/T10/T10-B1-id-tally.json",
+ "candidate": {
+  "side": "candidate",
+  "data_race_warnings": 2,
+  "frames_at_order_id_16": 2,
+  "frames_at_order_id_47": 4,
+  "goroutines": [
+   "38",
+   "42",
+   "44",
+   "46"
+  ],
+  "unexpected_files_in_frames": [
+   "order_id_test.go",
+   "uuid_test.go"
+  ],
+  "race_detected_lines": 1
+ },
+ "reference": {
+  "side": "reference",
+  "data_race_warnings": 2,
+  "frames_at_order_id_16": 2,
+  "frames_at_order_id_47": 4,
+  "goroutines": [
+   "37",
+   "38",
+   "46"
+  ],
+  "unexpected_files_in_frames": [
+   "order_id_test.go",
+   "uuid_test.go"
+  ],
+  "race_detected_lines": 1
+ },
+ "reading": "Both sides show the same two examined access points and nothing else: the plain read at order_id.go:16 (cur := *c inside idCounter.Increase) and the atomic add / compare-and-swap site reached from order_id.go:47 (orderIdIndex.Increase() inside GenerateOrderIdWithIncreaseIndex). No frame names any other file, so the race is exactly the counter access that was examined. The race detector output is preserved here rather than folded into the shape gate, because the shared transcript normaliser collapses the absolute GOROOT paths that appear only in race stacks.",
+ "not_hidden": true,
+ "race_blocks_all_attributed_to": "TestGenerateOrderIdWithIndexThread (both WARNING: DATA RACE blocks are inside that test's output on both sides)",
+ "other_test_file_mentions": "order_id_test.go and uuid_test.go appear only as ordinary t.Logf output of the untagged tests that also ran in the same binary; none of them is a race frame"
+}

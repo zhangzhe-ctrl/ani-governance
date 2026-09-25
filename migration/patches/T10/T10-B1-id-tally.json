@@ -1,0 +1,35 @@
+{
+ "TestGenerateOrderIdWithTenantIdCollision": {
+  "runs": 20,
+  "candidate": {
+   "pass": 0,
+   "fail": 20
+  },
+  "reference": {
+   "pass": 0,
+   "fail": 20
+  }
+ },
+ "TestGenerateOrderIdWithIndexThread": {
+  "runs": 20,
+  "candidate": {
+   "pass": 8,
+   "fail": 12
+  },
+  "reference": {
+   "pass": 6,
+   "fail": 14
+  }
+ },
+ "TestGenerateOrderIdWithRandom": {
+  "runs": 200,
+  "candidate": {
+   "pass": 184,
+   "fail": 16
+  },
+  "reference": {
+   "pass": 182,
+   "fail": 18
+  }
+ }
+}
