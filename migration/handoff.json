@@ -294,7 +294,13 @@
   "verdict": "PASS_WITH_DISCLOSED_EXCLUSION"
  },
  "phase_B_T05_remediation_closure": {
+  "accepted_head_now": "8e83d260d311b0ea26050f720cecca02990b317d",
   "authorised_by": "user; migration/receipts/T05-authorization-metadata-fix.json",
+  "blob_hashes_verified_against_git": {
+   "migration/patches/T05/_orig/kratos-authn-engine-metadata.go": "b7907194f4ef659c11c90773305d7589c440f30a1757c0f8a06b0305edaf827d",
+   "pkg/localdeps/kratos-authn/engine/authfrommd_approved_contract_test.go": "5b9e449f76cfe4d92378eb3ce959bf60ea0c9e1cb73330174edc87529c77cb89",
+   "pkg/localdeps/kratos-authn/engine/metadata.go": "ce57d7661f631b211f3e96b922605d13897385a77d2f03712d74ab6ea84d93ad"
+  },
   "change": "exactly the two AuthFromMD dynamic-message calls status.Errorf -> status.Error; auth conditions, token extraction, SplitN malformed-header branch, EqualFold matching, error codes and every other function untouched",
   "constraints_still_in_force": [
    "no push, no merge, no deploy, no amend",
@@ -369,6 +375,7 @@
   "receipt": "migration/receipts/T05.json (status PASS_WITH_APPROVED_PRODUCTION_FIX; the earlier PASS_WITH_DISCLOSED_EXCLUSION conclusion and decision_record are preserved inside the same file as conclusion_superseded_2026-09-25 / status_superseded_2026-09-25, and the parked BLOCKED receipt stays at 1c8a5c0)",
   "scope_limits": "closes only these two AuthFromMD diagnostics. Still open and carried: T03-F4 TestBootstrapPostgres, the 8 repo-precondition-gated cases (QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY), the 9 captcha known-defect cases, the pre-existing copylocks finding under a full go vet ./... . No repo-wide green claim.",
   "semantics_disclosed": "normal scheme messages unchanged; a scheme containing % is now plain text instead of being format-interpreted - the approved change, no claim of verbatim output for every input",
+  "source_commit": "8e83d260d311b0ea26050f720cecca02990b317d",
   "t06_untouched": "the committed T06 takeover c48bd4b and its ledger commit f24455b are preserved; nothing was reverted, rebased, amended or pushed",
   "task": "T05 remediation: close the excluded engine vet finding with the one approved production-source fix",
   "tests_added": [
