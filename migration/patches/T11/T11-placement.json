@@ -1,0 +1,642 @@
+{
+ "schema_version": "t11-placement/1",
+ "cache_root": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-transport",
+ "files_placed": 69,
+ "modules": {
+  "github.com/tx7do/kratos-transport/broker": "v1.3.3",
+  "github.com/tx7do/kratos-transport/tracing": "v1.1.2",
+  "github.com/tx7do/kratos-transport/transport": "v1.3.4",
+  "github.com/tx7do/kratos-transport/transport/asynq": "v1.3.14",
+  "github.com/tx7do/kratos-transport/transport/sse": "v1.3.8",
+  "github.com/tx7do/kratos-transport/transport/keepalive": "v1.3.5"
+ },
+ "excluded": [
+  "go.mod",
+  "go.sum of each nested module"
+ ],
+ "all_byte_identical_after_placement": true,
+ "exceptions": [],
+ "files": [
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/LICENSE",
+   "file": "pkg/localdeps/kratos-transport/broker/LICENSE",
+   "source_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "placed_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/broker.go",
+   "file": "pkg/localdeps/kratos-transport/broker/broker.go",
+   "source_sha256": "a702b45c8d6e3bf2fa3272ea68eb7d4a5c90fcca4f5234b042ef99ee2afef901",
+   "placed_sha256": "a702b45c8d6e3bf2fa3272ea68eb7d4a5c90fcca4f5234b042ef99ee2afef901",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/encoding.go",
+   "file": "pkg/localdeps/kratos-transport/broker/encoding.go",
+   "source_sha256": "a47d21d5cb6b8d656fd6b475602b2f95245f7bd4a0540c39db385de8001b5e18",
+   "placed_sha256": "a47d21d5cb6b8d656fd6b475602b2f95245f7bd4a0540c39db385de8001b5e18",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/event.go",
+   "file": "pkg/localdeps/kratos-transport/broker/event.go",
+   "source_sha256": "d2a9236e6ba9f83441166802868cce6a10520f03a50a02a7d4f16be5c9983128",
+   "placed_sha256": "d2a9236e6ba9f83441166802868cce6a10520f03a50a02a7d4f16be5c9983128",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/event_test.go",
+   "file": "pkg/localdeps/kratos-transport/broker/event_test.go",
+   "source_sha256": "cdc53568e497b56e6a61d99a647b821342138cdd2d981910e45208ff5350f01c",
+   "placed_sha256": "cdc53568e497b56e6a61d99a647b821342138cdd2d981910e45208ff5350f01c",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/message.go",
+   "file": "pkg/localdeps/kratos-transport/broker/message.go",
+   "source_sha256": "d348397196aebc68a72a504332c0af1ee1d5b1dfd89b4c2ae00162ddb93f2503",
+   "placed_sha256": "d348397196aebc68a72a504332c0af1ee1d5b1dfd89b4c2ae00162ddb93f2503",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/message_test.go",
+   "file": "pkg/localdeps/kratos-transport/broker/message_test.go",
+   "source_sha256": "d8a4d848c1a1aee5efbf153845c793bb00ea572cbb33a612ea5f58e45b3ed8c6",
+   "placed_sha256": "d8a4d848c1a1aee5efbf153845c793bb00ea572cbb33a612ea5f58e45b3ed8c6",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/options.go",
+   "file": "pkg/localdeps/kratos-transport/broker/options.go",
+   "source_sha256": "642752b039dda25abd520368caf8a838a11926c3d0024c30d8c29a5c29700e0a",
+   "placed_sha256": "642752b039dda25abd520368caf8a838a11926c3d0024c30d8c29a5c29700e0a",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/publish.go",
+   "file": "pkg/localdeps/kratos-transport/broker/publish.go",
+   "source_sha256": "b6537ac6e64de44dc8681be22f29a30d2a88347b5d33354a34479abc482a6591",
+   "placed_sha256": "b6537ac6e64de44dc8681be22f29a30d2a88347b5d33354a34479abc482a6591",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/publish_options.go",
+   "file": "pkg/localdeps/kratos-transport/broker/publish_options.go",
+   "source_sha256": "60705e3838bbed83d925329d3aa89ce09098dbbc9ae4e646d6d5dfd543994559",
+   "placed_sha256": "60705e3838bbed83d925329d3aa89ce09098dbbc9ae4e646d6d5dfd543994559",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/publish_test.go",
+   "file": "pkg/localdeps/kratos-transport/broker/publish_test.go",
+   "source_sha256": "7edf0cf6c697a02d3138556caa56e066622360cdaec1c263562dcd879c00d81a",
+   "placed_sha256": "7edf0cf6c697a02d3138556caa56e066622360cdaec1c263562dcd879c00d81a",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/request_options.go",
+   "file": "pkg/localdeps/kratos-transport/broker/request_options.go",
+   "source_sha256": "d5208a1158198acb0a6c4023b2ddf45bfcc8de0e1d73ee9f5ba1d05ed0f69d08",
+   "placed_sha256": "d5208a1158198acb0a6c4023b2ddf45bfcc8de0e1d73ee9f5ba1d05ed0f69d08",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/subscribe_options.go",
+   "file": "pkg/localdeps/kratos-transport/broker/subscribe_options.go",
+   "source_sha256": "e1c037c90146789566249fc0ac3f26692ffe0dfacb2e8451f4736b1a4ead554d",
+   "placed_sha256": "e1c037c90146789566249fc0ac3f26692ffe0dfacb2e8451f4736b1a4ead554d",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/subscriber.go",
+   "file": "pkg/localdeps/kratos-transport/broker/subscriber.go",
+   "source_sha256": "27616d6cd4d3eece2100872decc82ac6c90f3181d9864f911e656b62b6603346",
+   "placed_sha256": "27616d6cd4d3eece2100872decc82ac6c90f3181d9864f911e656b62b6603346",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/subscriber_test.go",
+   "file": "pkg/localdeps/kratos-transport/broker/subscriber_test.go",
+   "source_sha256": "a9638b91f3b6c1834903d43d8c34bb246f3255154e660722c4eaf1650ce1b1e1",
+   "placed_sha256": "a9638b91f3b6c1834903d43d8c34bb246f3255154e660722c4eaf1650ce1b1e1",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/typed_handler.go",
+   "file": "pkg/localdeps/kratos-transport/broker/typed_handler.go",
+   "source_sha256": "6741b94352f8d0c630075edb7273d654a1e16a7f6e21164cf2399671dffd41a2",
+   "placed_sha256": "6741b94352f8d0c630075edb7273d654a1e16a7f6e21164cf2399671dffd41a2",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/broker",
+   "version": "v1.3.3",
+   "upstream": "kratos-transport/broker@v1.3.3/typed_handler_test.go",
+   "file": "pkg/localdeps/kratos-transport/broker/typed_handler_test.go",
+   "source_sha256": "14e0f52d781280fb1d2bb76e3a24224923ae25f7389d226d94577f1559c58096",
+   "placed_sha256": "14e0f52d781280fb1d2bb76e3a24224923ae25f7389d226d94577f1559c58096",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/tracing",
+   "version": "v1.1.2",
+   "upstream": "kratos-transport/tracing@v1.1.2/LICENSE",
+   "file": "pkg/localdeps/kratos-transport/tracing/LICENSE",
+   "source_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "placed_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/tracing",
+   "version": "v1.1.2",
+   "upstream": "kratos-transport/tracing@v1.1.2/exporter.go",
+   "file": "pkg/localdeps/kratos-transport/tracing/exporter.go",
+   "source_sha256": "f5c9163da7cd6645a7de6a3ad9f56bbaa8737d5e806ea65c0e45708c0146534e",
+   "placed_sha256": "f5c9163da7cd6645a7de6a3ad9f56bbaa8737d5e806ea65c0e45708c0146534e",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/tracing",
+   "version": "v1.1.2",
+   "upstream": "kratos-transport/tracing@v1.1.2/options.go",
+   "file": "pkg/localdeps/kratos-transport/tracing/options.go",
+   "source_sha256": "3180ffb0b3e968633b4c3fe32bdb51a955a94ab8826f3b43bc3320d37e438f90",
+   "placed_sha256": "3180ffb0b3e968633b4c3fe32bdb51a955a94ab8826f3b43bc3320d37e438f90",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/tracing",
+   "version": "v1.1.2",
+   "upstream": "kratos-transport/tracing@v1.1.2/provider.go",
+   "file": "pkg/localdeps/kratos-transport/tracing/provider.go",
+   "source_sha256": "16fd2248bc53acaa317cfbf146fbb5a9d38008c39f3a8ce1b0a661e580d47917",
+   "placed_sha256": "16fd2248bc53acaa317cfbf146fbb5a9d38008c39f3a8ce1b0a661e580d47917",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/tracing",
+   "version": "v1.1.2",
+   "upstream": "kratos-transport/tracing@v1.1.2/tracer.go",
+   "file": "pkg/localdeps/kratos-transport/tracing/tracer.go",
+   "source_sha256": "eb67f1c9361b70f7295f3446eccfe6e823b1e222624043db957b91ef2ec834c0",
+   "placed_sha256": "eb67f1c9361b70f7295f3446eccfe6e823b1e222624043db957b91ef2ec834c0",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport",
+   "version": "v1.3.4",
+   "upstream": "kratos-transport/transport@v1.3.4/LICENSE",
+   "file": "pkg/localdeps/kratos-transport/transport/LICENSE",
+   "source_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "placed_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport",
+   "version": "v1.3.4",
+   "upstream": "kratos-transport/transport@v1.3.4/options.go",
+   "file": "pkg/localdeps/kratos-transport/transport/options.go",
+   "source_sha256": "8db4349acaaf018aca9e12bc603ca36405c68492ffbe35ebfcf8b7dd1f06f41c",
+   "placed_sha256": "8db4349acaaf018aca9e12bc603ca36405c68492ffbe35ebfcf8b7dd1f06f41c",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport",
+   "version": "v1.3.4",
+   "upstream": "kratos-transport/transport@v1.3.4/register.go",
+   "file": "pkg/localdeps/kratos-transport/transport/register.go",
+   "source_sha256": "c4c62cf6351e79deaae5c063f9fd093ec83795193d7c7b42c3583058f097a959",
+   "placed_sha256": "c4c62cf6351e79deaae5c063f9fd093ec83795193d7c7b42c3583058f097a959",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport",
+   "version": "v1.3.4",
+   "upstream": "kratos-transport/transport@v1.3.4/utils.go",
+   "file": "pkg/localdeps/kratos-transport/transport/utils.go",
+   "source_sha256": "a014f33c2cf7e737777a5bee9fec2ce9e4bc723e6e40573518bce31293da61e6",
+   "placed_sha256": "a014f33c2cf7e737777a5bee9fec2ce9e4bc723e6e40573518bce31293da61e6",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport",
+   "version": "v1.3.4",
+   "upstream": "kratos-transport/transport@v1.3.4/utils_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/utils_test.go",
+   "source_sha256": "6704bf13e818d55f8c155279b6124f350d06673d29fe7539fff566fc4f099e33",
+   "placed_sha256": "6704bf13e818d55f8c155279b6124f350d06673d29fe7539fff566fc4f099e33",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/asynq",
+   "version": "v1.3.14",
+   "upstream": "kratos-transport/transport/asynq@v1.3.14/LICENSE",
+   "file": "pkg/localdeps/kratos-transport/transport/asynq/LICENSE",
+   "source_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "placed_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/asynq",
+   "version": "v1.3.14",
+   "upstream": "kratos-transport/transport/asynq@v1.3.14/README.md",
+   "file": "pkg/localdeps/kratos-transport/transport/asynq/README.md",
+   "source_sha256": "a9997c8e3b8a47383b155f19bba0fdcd231123cd06382198e3a1e18adda06128",
+   "placed_sha256": "a9997c8e3b8a47383b155f19bba0fdcd231123cd06382198e3a1e18adda06128",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/asynq",
+   "version": "v1.3.14",
+   "upstream": "kratos-transport/transport/asynq@v1.3.14/logger.go",
+   "file": "pkg/localdeps/kratos-transport/transport/asynq/logger.go",
+   "source_sha256": "4388e15f2b4f86b78e7ad78936b56a22a6e6d30d47e4b1c87d811bd65d188158",
+   "placed_sha256": "4388e15f2b4f86b78e7ad78936b56a22a6e6d30d47e4b1c87d811bd65d188158",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/asynq",
+   "version": "v1.3.14",
+   "upstream": "kratos-transport/transport/asynq@v1.3.14/options.go",
+   "file": "pkg/localdeps/kratos-transport/transport/asynq/options.go",
+   "source_sha256": "f620b8a05597328e6f70c9022dd84bba95c49fcdc491690be4e06ec47a973225",
+   "placed_sha256": "f620b8a05597328e6f70c9022dd84bba95c49fcdc491690be4e06ec47a973225",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/asynq",
+   "version": "v1.3.14",
+   "upstream": "kratos-transport/transport/asynq@v1.3.14/server.go",
+   "file": "pkg/localdeps/kratos-transport/transport/asynq/server.go",
+   "source_sha256": "8a75e72f119717cd7e71a9c40100c89bbaa330caa8ac86d43772248a988f1160",
+   "placed_sha256": "8a75e72f119717cd7e71a9c40100c89bbaa330caa8ac86d43772248a988f1160",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/asynq",
+   "version": "v1.3.14",
+   "upstream": "kratos-transport/transport/asynq@v1.3.14/server_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/asynq/server_test.go",
+   "source_sha256": "28454c2e0f7bf4c311b806240f794d82e2e25c7fdbe1165014db611aafc235c1",
+   "placed_sha256": "28454c2e0f7bf4c311b806240f794d82e2e25c7fdbe1165014db611aafc235c1",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/asynq",
+   "version": "v1.3.14",
+   "upstream": "kratos-transport/transport/asynq@v1.3.14/transport.go",
+   "file": "pkg/localdeps/kratos-transport/transport/asynq/transport.go",
+   "source_sha256": "109ef15aa50942e18adb110154b9d7d82849e81f511c3b1576cf02e8e5c151db",
+   "placed_sha256": "109ef15aa50942e18adb110154b9d7d82849e81f511c3b1576cf02e8e5c151db",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/asynq",
+   "version": "v1.3.14",
+   "upstream": "kratos-transport/transport/asynq@v1.3.14/transport_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/asynq/transport_test.go",
+   "source_sha256": "fa773d523f00cccbdf25262d2e4d6c39ed6457fd7ed434ce5782e6e3ca7ad87c",
+   "placed_sha256": "fa773d523f00cccbdf25262d2e4d6c39ed6457fd7ed434ce5782e6e3ca7ad87c",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/asynq",
+   "version": "v1.3.14",
+   "upstream": "kratos-transport/transport/asynq@v1.3.14/types.go",
+   "file": "pkg/localdeps/kratos-transport/transport/asynq/types.go",
+   "source_sha256": "ff5ea765719b210e1642390309d29e640f9fc93cb429d9ecf9887c4a8c8d9f0c",
+   "placed_sha256": "ff5ea765719b210e1642390309d29e640f9fc93cb429d9ecf9887c4a8c8d9f0c",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/LICENSE",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/LICENSE",
+   "source_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "placed_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/README.md",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/README.md",
+   "source_sha256": "91397c1baceb84f128596719a86156d67d15ca474b9fb91688a32980b50c4ab9",
+   "placed_sha256": "91397c1baceb84f128596719a86156d67d15ca474b9fb91688a32980b50c4ab9",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/auth.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/auth.go",
+   "source_sha256": "3ceb172ef9b468d459f3a4d8e33c80b7f4fffe026b817413e8eb73f8fbbd7cb5",
+   "placed_sha256": "3ceb172ef9b468d459f3a4d8e33c80b7f4fffe026b817413e8eb73f8fbbd7cb5",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/client.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/client.go",
+   "source_sha256": "a63a58d2e02e888c78c71c27ff57d5e4f507d48cd02bb307bfd4738ae5380e5b",
+   "placed_sha256": "a63a58d2e02e888c78c71c27ff57d5e4f507d48cd02bb307bfd4738ae5380e5b",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/client_options.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/client_options.go",
+   "source_sha256": "6920aee10d7ff2c8171e077467cea8f01c0641fdd9435575a4badbc0b87e3a33",
+   "placed_sha256": "6920aee10d7ff2c8171e077467cea8f01c0641fdd9435575a4badbc0b87e3a33",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/client_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/client_test.go",
+   "source_sha256": "cd6bbcd3bababad3e977743b9ba4dbf0bc4b3c21795c10adc32e837c3884cbe6",
+   "placed_sha256": "cd6bbcd3bababad3e977743b9ba4dbf0bc4b3c21795c10adc32e837c3884cbe6",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/event.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/event.go",
+   "source_sha256": "20d9bbb5959416a37f7b869827e78f7a25840e48adc17e82a2acf845bc80ffce",
+   "placed_sha256": "20d9bbb5959416a37f7b869827e78f7a25840e48adc17e82a2acf845bc80ffce",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/event_log.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/event_log.go",
+   "source_sha256": "bf6956abd87ad34ed6421207bfb0313fee4c020c448e88aa47c1c73a069110f6",
+   "placed_sha256": "bf6956abd87ad34ed6421207bfb0313fee4c020c448e88aa47c1c73a069110f6",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/event_log_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/event_log_test.go",
+   "source_sha256": "8729779b80333d6b9e287d29bdc05912c205208832af8230d6aae5f677049426",
+   "placed_sha256": "8729779b80333d6b9e287d29bdc05912c205208832af8230d6aae5f677049426",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/http.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/http.go",
+   "source_sha256": "da973653cf56a6edb976bd61e48c18f139b148c0987e65ff56fc6e8ca6929395",
+   "placed_sha256": "da973653cf56a6edb976bd61e48c18f139b148c0987e65ff56fc6e8ca6929395",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/http_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/http_test.go",
+   "source_sha256": "3473a00bb2bc25fb3d5874f03e9e619c914ac18143c8ab1449d101248317fbeb",
+   "placed_sha256": "3473a00bb2bc25fb3d5874f03e9e619c914ac18143c8ab1449d101248317fbeb",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/index.html",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/index.html",
+   "source_sha256": "33697ff8905f541bfc9abd5187a52c6c3c84a7372b21fb7dbb5be843ff040fef",
+   "placed_sha256": "33697ff8905f541bfc9abd5187a52c6c3c84a7372b21fb7dbb5be843ff040fef",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/logger.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/logger.go",
+   "source_sha256": "b77d815baba2954e68b51cf468f30b68598cb4a1e99d8bf58ff208de3b03be34",
+   "placed_sha256": "b77d815baba2954e68b51cf468f30b68598cb4a1e99d8bf58ff208de3b03be34",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/server.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/server.go",
+   "source_sha256": "1046749420d7330c2cc30e926eabd1752895d6d3f26a277f36a7a22d44713789",
+   "placed_sha256": "1046749420d7330c2cc30e926eabd1752895d6d3f26a277f36a7a22d44713789",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/server_options.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/server_options.go",
+   "source_sha256": "48ac78d59414f41643b383019b63cd3d73e09db328463ba568ae2625876b0609",
+   "placed_sha256": "48ac78d59414f41643b383019b63cd3d73e09db328463ba568ae2625876b0609",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/server_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/server_test.go",
+   "source_sha256": "5e100d5e746511b96cc1aa633d5ff9e98c7ab4873e97229f3fafe1ec4f6c0099",
+   "placed_sha256": "5e100d5e746511b96cc1aa633d5ff9e98c7ab4873e97229f3fafe1ec4f6c0099",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/stream.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/stream.go",
+   "source_sha256": "18c929ff53b27d7af22ae4e4b9f352e064f276e87caca6a62d6527f22a64c54b",
+   "placed_sha256": "18c929ff53b27d7af22ae4e4b9f352e064f276e87caca6a62d6527f22a64c54b",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/stream_manager.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/stream_manager.go",
+   "source_sha256": "e6e33d19694284ebdd4b3de7e09b5d5df60d5137f7f42b208f7fce49b7af8160",
+   "placed_sha256": "e6e33d19694284ebdd4b3de7e09b5d5df60d5137f7f42b208f7fce49b7af8160",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/stream_manager_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/stream_manager_test.go",
+   "source_sha256": "5901cb2aafa8a1e987f2bd0b02cfea9945311f147a30db5c63d7596b486c6b06",
+   "placed_sha256": "5901cb2aafa8a1e987f2bd0b02cfea9945311f147a30db5c63d7596b486c6b06",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/stream_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/stream_test.go",
+   "source_sha256": "a626e90030eb1914a0aee9084290d9fdb8c367c5d6e527ae1a89df24dad452f0",
+   "placed_sha256": "a626e90030eb1914a0aee9084290d9fdb8c367c5d6e527ae1a89df24dad452f0",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/subscriber.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/subscriber.go",
+   "source_sha256": "b68351f84194db4fdcc9e032e7721da7891d02b10cf5641f9793d6bb2937ef73",
+   "placed_sha256": "b68351f84194db4fdcc9e032e7721da7891d02b10cf5641f9793d6bb2937ef73",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/transport.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/transport.go",
+   "source_sha256": "5ba4d5470ce2fb747d5d621f933cf74c997219b871626e6f44768c386d1f1c9b",
+   "placed_sha256": "5ba4d5470ce2fb747d5d621f933cf74c997219b871626e6f44768c386d1f1c9b",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/transport_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/transport_test.go",
+   "source_sha256": "f9a1219d46bb5fdff1f4ff69f4c862b94898e65137ea412d36cef090387d38c6",
+   "placed_sha256": "f9a1219d46bb5fdff1f4ff69f4c862b94898e65137ea412d36cef090387d38c6",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/sse",
+   "version": "v1.3.8",
+   "upstream": "kratos-transport/transport/sse@v1.3.8/utils.go",
+   "file": "pkg/localdeps/kratos-transport/transport/sse/utils.go",
+   "source_sha256": "fc61d4f4c69b6daa081de88cfe882dd0d5b3ee7c29b16f1295f2b6140ec5f4ef",
+   "placed_sha256": "fc61d4f4c69b6daa081de88cfe882dd0d5b3ee7c29b16f1295f2b6140ec5f4ef",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/keepalive",
+   "version": "v1.3.5",
+   "upstream": "kratos-transport/transport/keepalive@v1.3.5/LICENSE",
+   "file": "pkg/localdeps/kratos-transport/transport/keepalive/LICENSE",
+   "source_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "placed_sha256": "b74a8005537dea5a4df9ebe77d26ed6e104a46333389f302cb4409775b1e0dba",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/keepalive",
+   "version": "v1.3.5",
+   "upstream": "kratos-transport/transport/keepalive@v1.3.5/README.md",
+   "file": "pkg/localdeps/kratos-transport/transport/keepalive/README.md",
+   "source_sha256": "24e10a819f77b840d3da23e62ebc8f3386165b7818745e59ba175943a8fee7f9",
+   "placed_sha256": "24e10a819f77b840d3da23e62ebc8f3386165b7818745e59ba175943a8fee7f9",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/keepalive",
+   "version": "v1.3.5",
+   "upstream": "kratos-transport/transport/keepalive@v1.3.5/env.go",
+   "file": "pkg/localdeps/kratos-transport/transport/keepalive/env.go",
+   "source_sha256": "d06e3d46931e194b6dd970b48b5f35a46ec91df37182f0ee57ccffe2c3c6c067",
+   "placed_sha256": "d06e3d46931e194b6dd970b48b5f35a46ec91df37182f0ee57ccffe2c3c6c067",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/keepalive",
+   "version": "v1.3.5",
+   "upstream": "kratos-transport/transport/keepalive@v1.3.5/options.go",
+   "file": "pkg/localdeps/kratos-transport/transport/keepalive/options.go",
+   "source_sha256": "92b4147cf81491541be00a193a56531ca64de67e2c1aa40122ad945741047bf0",
+   "placed_sha256": "92b4147cf81491541be00a193a56531ca64de67e2c1aa40122ad945741047bf0",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/keepalive",
+   "version": "v1.3.5",
+   "upstream": "kratos-transport/transport/keepalive@v1.3.5/server.go",
+   "file": "pkg/localdeps/kratos-transport/transport/keepalive/server.go",
+   "source_sha256": "547066c191747bb0a1b9eb9fcd3b7450fe4cd7b3a589f5f1cf3fa81801597e41",
+   "placed_sha256": "547066c191747bb0a1b9eb9fcd3b7450fe4cd7b3a589f5f1cf3fa81801597e41",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/keepalive",
+   "version": "v1.3.5",
+   "upstream": "kratos-transport/transport/keepalive@v1.3.5/server_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/keepalive/server_test.go",
+   "source_sha256": "72cd6f85ed3851c6070fd8ff8fd866c79d4f6a5a6a432606fdaacbf7f2a8d06f",
+   "placed_sha256": "72cd6f85ed3851c6070fd8ff8fd866c79d4f6a5a6a432606fdaacbf7f2a8d06f",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/keepalive",
+   "version": "v1.3.5",
+   "upstream": "kratos-transport/transport/keepalive@v1.3.5/transport.go",
+   "file": "pkg/localdeps/kratos-transport/transport/keepalive/transport.go",
+   "source_sha256": "17bc42ac2b15e8c2766db8c18f1d379e519a478e390e3300280909a4b4021afd",
+   "placed_sha256": "17bc42ac2b15e8c2766db8c18f1d379e519a478e390e3300280909a4b4021afd",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/keepalive",
+   "version": "v1.3.5",
+   "upstream": "kratos-transport/transport/keepalive@v1.3.5/transport_test.go",
+   "file": "pkg/localdeps/kratos-transport/transport/keepalive/transport_test.go",
+   "source_sha256": "abedfe0ddbd8367ce42ceb4123bb5394cdcd3e7988db8b57232d51bcf5c6420e",
+   "placed_sha256": "abedfe0ddbd8367ce42ceb4123bb5394cdcd3e7988db8b57232d51bcf5c6420e",
+   "byte_identical_after_placement": true
+  },
+  {
+   "module": "github.com/tx7do/kratos-transport/transport/keepalive",
+   "version": "v1.3.5",
+   "upstream": "kratos-transport/transport/keepalive@v1.3.5/utils.go",
+   "file": "pkg/localdeps/kratos-transport/transport/keepalive/utils.go",
+   "source_sha256": "97c2c1b570bf5e87c1eb2422fab7247084a5eaf7161b0f5b7a4f90987acd8aa9",
+   "placed_sha256": "97c2c1b570bf5e87c1eb2422fab7247084a5eaf7161b0f5b7a4f90987acd8aa9",
+   "byte_identical_after_placement": true
+  }
+ ]
+}

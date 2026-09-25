@@ -1,0 +1,145 @@
+{
+ "schema_version": "t11/1",
+ "task": "T11",
+ "phase": "D",
+ "goal_file": "_agent/ani-governance-tx7do-plan/goals/T11.md",
+ "status": "BLOCKED",
+ "start_sha": "ce28159d8d68fec81f860a5d53069bf60a1b7fcd",
+ "accepted_head_at_start": "162b28ed268732392547c2343dc9b4f2f575f30f",
+ "branch": "task/tx7do-takeover",
+ "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+ "conclusion": "BLOCKED (T11-B1). The closure was identified, placed and wired, and the goal's acceptance criterion 'the old transport packages disappear from the package graph' is met and measured. What cannot be accepted without a ruling is that the upstream test files the file-plan expects to be placed contribute five deterministic failures and ten cases that never terminate, and ./pkg/... inside make verify-gpu runs them.",
+ "scope": {
+  "locked_versions": {
+   "github.com/tx7do/kratos-transport/transport/asynq": "v1.3.14",
+   "github.com/tx7do/kratos-transport/transport/sse": "v1.3.8",
+   "github.com/tx7do/kratos-transport/broker": "v1.3.3",
+   "github.com/tx7do/kratos-transport/tracing": "v1.1.2",
+   "github.com/tx7do/kratos-transport/transport": "v1.3.4",
+   "github.com/tx7do/kratos-transport/transport/keepalive": "v1.3.5"
+  },
+  "closure_evidence": "grep of the six modules for github.com/tx7do imports: asynq->{broker,keepalive}, sse->{broker,transport}, keepalive->{transport}, broker->{tracing}, transport and tracing->{}, so these six are the complete tx7do closure and no other tx7do module is pulled",
+  "files_placed": 69,
+  "non_go_files": [
+   "6 LICENSE",
+   "3 README.md",
+   "1 index.html (not referenced by any .go file, kept for provenance)"
+  ],
+  "excluded_from_placement": [
+   "go.mod and go.sum of each nested module"
+  ]
+ },
+ "commands": [
+  {
+   "name": "place",
+   "command": "python3 place.py (byte-for-byte copy of each module, hashes recorded)",
+   "exit": 0,
+   "evidence": "migration/patches/T11/T11-placement.json: all_byte_identical true, exceptions []"
+  },
+  {
+   "name": "rewrite",
+   "command": "migrate_imports rewrite -map <six-entry map> -files <66 files> -write",
+   "exit": 0,
+   "changed_files": 14
+  },
+  {
+   "name": "guard_consumers",
+   "command": "migrate_imports guard -base ce28159 -files <the seven consumers>",
+   "exit": 0,
+   "result": {
+    "checked_files": 7,
+    "pass": true,
+    "scope": "non-import AST and Go directives, not runtime behavior"
+   }
+  },
+  {
+   "name": "equiv_placed",
+   "command": "migrate_imports equiv -before <pristine module file> -after <placed file>, per changed file",
+   "exit": 0,
+   "result": "7 of 7 PASS",
+   "evidence": "migration/patches/T11/T11-equiv-placed.json"
+  },
+  {
+   "name": "build_all",
+   "command": "GOFLAGS=-mod=readonly go build ./...",
+   "exit": 0
+  },
+  {
+   "name": "entry_builds",
+   "command": "go build ./app/admin/service/cmd/server; go build -tags quota_lab ...; go build ./app/admin/service/cmd/admin",
+   "exit": 0
+  },
+  {
+   "name": "vet_touched",
+   "command": "go vet ./pkg/localdeps/kratos-transport/... ./app/admin/service/internal/{server,service}/... ./app/admin/service/cmd/server/...",
+   "exit": 1,
+   "diagnostics": "only the pre-existing T03-F5 copylocks finding at accelerator_joint_http_test.go:503; nothing from the new packages"
+  },
+  {
+   "name": "placed_tests",
+   "command": "one process per named test, -count=1 -timeout 25s",
+   "exit": 1,
+   "result": {
+    "pass": 78,
+    "BLOCKED(timeout)": 10,
+    "fail": 5
+   }
+  },
+  {
+   "name": "consumer_tests",
+   "command": "go test -run 'TestTask|TestInternalMessage|TestSse|TestSubscribe|TestAuthorize' ./app/admin/service/internal/{service,data}/",
+   "exit": 0,
+   "result": "27 named tests, 27 pass"
+  },
+  {
+   "name": "graph",
+   "command": "go list -deps ./... and -tags quota_lab, filtered to github.com/tx7do/",
+   "exit": 0,
+   "result": [
+    "github.com/tx7do/kratos-swagger-ui",
+    "github.com/tx7do/kratos-swagger-ui/internal/swagger"
+   ],
+   "reading": "the six transport packages are gone from the graph in both tag sets; only the swagger-ui pair remains, which belongs to T12"
+  }
+ ],
+ "non_import_differences": "none. The seven consumers prove non-import AST and directive equivalence against ce28159, and every changed placed file proves equivalence against its pristine source; the only content difference anywhere is the import specs",
+ "blocker": [
+  {
+   "id": "T11-B1",
+   "gate": "make verify-gpu line 224 (go test ... ./pkg/...) and any repository-wide go test",
+   "observed": "93 named upstream tests run: 78 pass, 5 fail deterministically, 10 never terminate and are killed by the test timeout",
+   "inheritance": "all fifteen reproduce identically against byte-identical, import-unrewritten copies of the locked modules built with this repository's dependency selections, so none is caused by the takeover",
+   "why_not_closeable_here": "see migration/patches/T11/T11-gate-conflict.json: removing, skipping, tagging or re-expecting these cases would widen the approved exception sets, and the six asynq harnesses additionally dial a hardcoded redis://:*Abcd123456@127.0.0.1:6379, which the standing environment boundary forbids using",
+   "minimal_reproduction": [
+    "go test -count=1 -timeout 30s -run '^TestTransport_Kind$' ./pkg/localdeps/kratos-transport/transport/asynq/  -> FAIL 'expect asynq, got asynq' (untyped constant vs transport.Kind)",
+    "go test -count=1 -timeout 20s -run '^TestKeepAliveService$' ./pkg/localdeps/kratos-transport/transport/keepalive/ -> panic: test timed out, blocked in Server.Start -> Serve (keepalive/server.go:108)",
+    "go test -count=1 -timeout 20s -run '^TestNewTaskOnly$' ./pkg/localdeps/kratos-transport/transport/asynq/ -> panic: test timed out, blocked on <-interrupt (asynq/server_test.go:44)",
+    "go test -count=1 -timeout 20s -run '^TestServerExistingStreamPublish$' ./pkg/localdeps/kratos-transport/transport/sse/ -> panic: test timed out at sse/server_test.go:75"
+   ],
+   "options": [
+    "A test-only repair for the wrong assertions plus a precise isolation mode for the ten harness cases",
+    "B do not place those upstream test functions, recorded as a listed deviation",
+    "C accept a red or hanging gate, which cannot be reported as a pass"
+   ]
+  }
+ ],
+ "preserved_state": "the placement, the import rewrite and both evidence files are committed as a local checkpoint on task/tx7do-takeover; accepted_head is deliberately unchanged",
+ "constraints_still_in_force": [
+  "no push, no merge, no deploy",
+  "_agent/ is never committed",
+  "missing/skip/fail/not_run is not success",
+  "no -vet=off, no relaxation of require_tests.py",
+  "module cache read-only, no user-global tool writes",
+  "only the two authorised isolated lab databases; the default localhost Redis was not touched"
+ ],
+ "environment_note": "the host exports GOFLAGS=-mod=mod; a go list call at T11 entry stripped 20 '// indirect' markers from go.mod again. The mutated file is archived at tx7do-pilot-run/T10/env-mutation/go.mod.mutated-at-t11-entry.json-equivalent (sha256 c85488646a79306ded51cae5330ca6f47f5e4ef97ec3d8e32ab590b6809c4b5b) and go.mod was restored from the commit; every command in this receipt pinned GOFLAGS and GOWORK=off",
+ "not_verified": [
+  "the T11 goal's directed acceptance with an isolated Redis (enqueue/consume/retry, periodic removal and rebuild, start/stop cleanup) is not run yet: it is independent of the blocker and will be executed once the placement scope is settled",
+  "SSE two-user isolation and full-buffer TryPublish through the repository's own wiring",
+  "no production database and no external registry was contacted"
+ ],
+ "residual_dependencies": [
+  "github.com/tx7do/kratos-swagger-ui (T12)",
+  "github.com/tx7do/kratos-swagger-ui/internal/swagger (T12)"
+ ]
+}

@@ -1,0 +1,611 @@
+{
+ "schema_version": "t11-upstream-test-inventory/1",
+ "per_test_timeout": "25s, one process per test",
+ "totals": {
+  "pass": 78,
+  "BLOCKED(timeout)": 10,
+  "fail": 5
+ },
+ "results": [
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestChainSubscriberMiddleware_Order",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestChainSubscriberMiddleware_SkipNil",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestCreator_Primitive",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestCreator_Struct",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestCreator_SliceAndMap",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestCreator_UniqueInstances",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestMessage_SetWithAndGetHeader",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestMessage_HeadersCopy_Independence",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestMessage_MergeHeaders",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestMessage_MetadataCopyAndContext",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestMessage_BodyBytes",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestMessage_CloneShallowCopyHeadersMetadataAndBody",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestMessage_InjectAndExtractToContext",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestMessage_AckSuccess",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestChainPublishMiddleware_Order",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestSubscriberSyncMap_BasicOperations",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestSubscriberSyncMap_RemoveWithTimeout",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestSubscriberSyncMap_ClearAndClearWithTimeout_ForceClear",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestSubscriberSyncMap_Foreach",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestTypedToEventHandler_NilEvent",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestTypedToEventHandler_NilMessageOrBody",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestTypedToEventHandler_HandlePointerAndValue",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/broker",
+   "test": "TestTypedToEventHandler_UnsupportedType",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport",
+   "test": "TestGetIPAddressByInterfaceName",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport",
+   "test": "TestAdjustAddress",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "test": "TestNewTaskOnly",
+   "verdict": "BLOCKED(timeout)",
+   "detail": [
+    "/home/ubuntu/sdk/go1.26.7/src/testing/testing.go:2802 +0x354",
+    "/home/ubuntu/sdk/go1.26.7/src/time/sleep.go:215 +0x2d"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "test": "TestNewPeriodicTaskOnly",
+   "verdict": "BLOCKED(timeout)",
+   "detail": [
+    "/home/ubuntu/sdk/go1.26.7/src/testing/testing.go:2802 +0x354",
+    "/home/ubuntu/sdk/go1.26.7/src/time/sleep.go:215 +0x2d"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "test": "TestDelayTask",
+   "verdict": "BLOCKED(timeout)",
+   "detail": [
+    "/home/ubuntu/sdk/go1.26.7/src/testing/testing.go:2802 +0x354",
+    "/home/ubuntu/sdk/go1.26.7/src/time/sleep.go:215 +0x2d"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "test": "TestPeriodicTask",
+   "verdict": "BLOCKED(timeout)",
+   "detail": [
+    "/home/ubuntu/sdk/go1.26.7/src/testing/testing.go:2802 +0x354",
+    "/home/ubuntu/sdk/go1.26.7/src/time/sleep.go:215 +0x2d"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "test": "TestTaskSubscribe",
+   "verdict": "BLOCKED(timeout)",
+   "detail": [
+    "/home/ubuntu/sdk/go1.26.7/src/testing/testing.go:2802 +0x354",
+    "/home/ubuntu/sdk/go1.26.7/src/time/sleep.go:215 +0x2d"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "test": "TestAllInOne",
+   "verdict": "BLOCKED(timeout)",
+   "detail": [
+    "/home/ubuntu/sdk/go1.26.7/src/testing/testing.go:2802 +0x354",
+    "/home/ubuntu/sdk/go1.26.7/src/time/sleep.go:215 +0x2d"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "test": "TestWaitResultTask",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "test": "TestPeriodicTaskSameTypeName",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "test": "TestTransport_Kind",
+   "verdict": "fail",
+   "detail": [
+    "transport_test.go:11: expect asynq, got asynq"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "test": "TestTransport_Endpoint",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "test": "TestTransport_Operation",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientSubscribe",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientSubscribeMultiline",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientChanSubscribeEmptyMessage",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientChanSubscribe",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientOnDisconnect",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientOnConnect",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientChanReconnect",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientUnsubscribe",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientUnsubscribeNonBlock",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientUnsubscribe401",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientLargeData",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestClientComment",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestTrimHeader",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestSubscribeWithContextDone",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestEventLog",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestHTTPStreamHandler",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestHTTPStreamHandlerExistingEvents",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestHTTPStreamHandlerEventID",
+   "verdict": "fail",
+   "detail": [
+    "http_test.go:129:",
+    "Error Trace:\t/home/ubuntu/Workspace/ani-governance/pkg/localdeps/kratos-transport/transport/sse/http_test.go:129"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestHTTPStreamHandlerEventTTL",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestHTTPStreamHandlerHeaderFlushIfNoEvents",
+   "verdict": "BLOCKED(timeout)",
+   "detail": [
+    "/home/ubuntu/sdk/go1.26.7/src/testing/testing.go:2802 +0x354",
+    "/home/ubuntu/sdk/go1.26.7/src/time/sleep.go:215 +0x2d"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestHTTPStreamHandlerSubscriberCanReadAuthorizationToken",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestHTTPStreamHandlerAuthorizeUnauthorized",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestHTTPStreamHandlerAuthorizeForbidden",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestHTTPStreamHandlerAuthorizeSuccessWithAuthorizationHeader",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestHTTPStreamHandlerAutoStream",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestServerExistingStreamPublish",
+   "verdict": "BLOCKED(timeout)",
+   "detail": [
+    "/home/ubuntu/sdk/go1.26.7/src/testing/testing.go:2802 +0x354",
+    "/home/ubuntu/sdk/go1.26.7/src/time/sleep.go:215 +0x2d"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestServerNonExistentStreamPublish",
+   "verdict": "BLOCKED(timeout)",
+   "detail": [
+    "/home/ubuntu/sdk/go1.26.7/src/testing/testing.go:2802 +0x354",
+    "/home/ubuntu/sdk/go1.26.7/src/time/sleep.go:215 +0x2d"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestServerPublishData",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestServerPublishDataWithEventName",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestServerPublishDataWithMeta",
+   "verdict": "fail",
+   "detail": [
+    "server_test.go:157:",
+    "Error Trace:\t/home/ubuntu/Workspace/ani-governance/pkg/localdeps/kratos-transport/transport/sse/server_test.go:157"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestServerNotifyDataWithEventName",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestServerNotifyDataWithMeta",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestCreateStream",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestCreateExistingStream",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestRemoveStream",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestRemoveNonExistentStream",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestStreamAddSubscriber",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestStreamRemoveSubscriber",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestStreamSubscriberClose",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestStreamDisableAutoReplay",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestStreamMultipleSubscribers",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestTransport_Kind",
+   "verdict": "fail",
+   "detail": [
+    "transport_test.go:16: expect sse, got sse"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestTransport_Endpoint",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestTransport_Operation",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestTransport_Request",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestTransport_RequestHeader",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestTransport_ReplyHeader",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestTransport_PathTemplate",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestHeaderCarrier_Keys",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "test": "TestSetOperation",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/keepalive",
+   "test": "TestKeepAliveService",
+   "verdict": "BLOCKED(timeout)",
+   "detail": [
+    "/home/ubuntu/sdk/go1.26.7/src/testing/testing.go:2802 +0x354",
+    "/home/ubuntu/sdk/go1.26.7/src/time/sleep.go:215 +0x2d"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/keepalive",
+   "test": "TestTransport_Kind",
+   "verdict": "fail",
+   "detail": [
+    "transport_test.go:12: expect keepalive, got keepalive"
+   ]
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/keepalive",
+   "test": "TestTransport_Endpoint",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/keepalive",
+   "test": "TestTransport_Operation",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/keepalive",
+   "test": "TestTransport_RequestHeader",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/keepalive",
+   "test": "TestTransport_ReplyHeader",
+   "verdict": "pass",
+   "detail": []
+  },
+  {
+   "package": "pkg/localdeps/kratos-transport/transport/keepalive",
+   "test": "TestHeaderCarrier_Keys",
+   "verdict": "pass",
+   "detail": []
+  }
+ ]
+}

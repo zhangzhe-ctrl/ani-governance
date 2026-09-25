@@ -1,7 +1,7 @@
 package sse
 
 import (
-	"github.com/tx7do/kratos-transport/transport/sse"
+	"go-wind-admin/pkg/localdeps/kratos-transport/transport/sse"
 
 	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 )

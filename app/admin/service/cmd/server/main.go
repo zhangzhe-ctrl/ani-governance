@@ -8,8 +8,8 @@ import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/tx7do/kratos-transport/transport/asynq"
-	"github.com/tx7do/kratos-transport/transport/sse"
+	"go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq"
+	"go-wind-admin/pkg/localdeps/kratos-transport/transport/sse"
 
 	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"

@@ -1,0 +1,961 @@
+package asynq
+
+import (
+	"context"
+	"crypto/tls"
+	"errors"
+	"fmt"
+	"net/url"
+	"sync"
+	"sync/atomic"
+	"time"
+
+	"github.com/hibiken/asynq"
+
+	"github.com/go-kratos/kratos/v2/encoding"
+	kratosTransport "github.com/go-kratos/kratos/v2/transport"
+
+	"go-wind-admin/pkg/localdeps/kratos-transport/broker"
+	"go-wind-admin/pkg/localdeps/kratos-transport/transport/keepalive"
+)
+
+var (
+	_ kratosTransport.Server     = (*Server)(nil)
+	_ kratosTransport.Endpointer = (*Server)(nil)
+)
+
+type lifecycleState uint8
+
+const (
+	stateStopped lifecycleState = iota
+	stateStarting
+	stateRunning
+	stateStopping
+)
+
+type Server struct {
+	sync.RWMutex
+
+	started atomic.Bool
+	state   lifecycleState
+
+	baseCtx context.Context
+	err     error
+
+	server *asynq.Server
+	client *asynq.Client
+
+	scheduler *asynq.Scheduler
+	inspector *asynq.Inspector
+
+	serverEnabled    bool
+	clientEnabled    bool
+	schedulerEnabled bool
+
+	mux           *asynq.ServeMux
+	asynqConfig   asynq.Config
+	redisConnOpt  asynq.RedisConnOpt
+	schedulerOpts *asynq.SchedulerOpts
+
+	addresses        []string
+	username         *string
+	password         *string
+	db               *int32
+	poolSize         *int32
+	dialTimeout      *time.Duration
+	readTimeout      *time.Duration
+	writeTimeout     *time.Duration
+	tlsConfig        *tls.Config
+	maxRedirects     *int32
+	masterName       *string
+	sentinelUsername *string
+	sentinelPassword *string
+	network          *string
+
+	gracefullyShutdown bool
+
+	codec encoding.Codec
+
+	entryIDs    map[string]string
+	mtxEntryIDs sync.RWMutex
+
+	typeNameMap sync.Map
+
+	keepaliveServer *keepalive.Server
+	enableKeepalive bool
+}
+
+func NewServer(opts ...ServerOption) *Server {
+	srv := &Server{
+		baseCtx:      context.Background(),
+		started:      atomic.Bool{},
+		state:        stateStopped,
+		redisConnOpt: newRedisClientOpt(),
+		asynqConfig: asynq.Config{
+			Concurrency: defaultConcurrency,
+			Logger:      newLogger(),
+		},
+		schedulerOpts: &asynq.SchedulerOpts{},
+		mux:           asynq.NewServeMux(),
+
+		codec: encoding.GetCodec("json"),
+
+		entryIDs:    make(map[string]string),
+		mtxEntryIDs: sync.RWMutex{},
+
+		typeNameMap: sync.Map{},
+
+		gracefullyShutdown: false,
+
+		serverEnabled:    true,
+		clientEnabled:    true,
+		schedulerEnabled: true,
+		enableKeepalive:  true,
+	}
+
+	srv.init(opts...)
+
+	return srv
+}
+
+func (s *Server) updateRedisClientOpt(opt *asynq.RedisClientOpt) {
+	if s.username != nil {
+		opt.Username = *s.username
+	}
+	if s.password != nil {
+		opt.Password = *s.password
+	}
+	if s.db != nil {
+		opt.DB = int(*s.db)
+	}
+	if len(s.addresses) > 0 {
+		opt.Addr = s.addresses[0]
+	}
+	if s.poolSize != nil {
+		opt.PoolSize = int(*s.poolSize)
+	}
+	if s.dialTimeout != nil {
+		opt.DialTimeout = *s.dialTimeout
+	}
+	if s.readTimeout != nil {
+		opt.ReadTimeout = *s.readTimeout
+	}
+	if s.writeTimeout != nil {
+		opt.WriteTimeout = *s.writeTimeout
+	}
+	if s.tlsConfig != nil {
+		opt.TLSConfig = s.tlsConfig
+	}
+	if s.network != nil {
+		opt.Network = *s.network
+	}
+}
+
+func (s *Server) updateRedisClusterClientOpt(opt *asynq.RedisClusterClientOpt) {
+	if s.username != nil {
+		opt.Username = *s.username
+	}
+	if s.password != nil {
+		opt.Password = *s.password
+	}
+	if len(s.addresses) > 0 {
+		opt.Addrs = s.addresses
+	}
+	if s.dialTimeout != nil {
+		opt.DialTimeout = *s.dialTimeout
+	}
+	if s.readTimeout != nil {
+		opt.ReadTimeout = *s.readTimeout
+	}
+	if s.writeTimeout != nil {
+		opt.WriteTimeout = *s.writeTimeout
+	}
+	if s.tlsConfig != nil {
+		opt.TLSConfig = s.tlsConfig
+	}
+	if s.maxRedirects != nil {
+		opt.MaxRedirects = int(*s.maxRedirects)
+	}
+}
+
+func (s *Server) updateRedisFailoverClientOpt(opt *asynq.RedisFailoverClientOpt) {
+	if s.username != nil {
+		opt.Username = *s.username
+	}
+	if s.password != nil {
+		opt.Password = *s.password
+	}
+	if s.db != nil {
+		opt.DB = int(*s.db)
+	}
+	if len(s.addresses) > 0 {
+		opt.SentinelAddrs = s.addresses
+	}
+	if s.poolSize != nil {
+		opt.PoolSize = int(*s.poolSize)
+	}
+	if s.dialTimeout != nil {
+		opt.DialTimeout = *s.dialTimeout
+	}
+	if s.readTimeout != nil {
+		opt.ReadTimeout = *s.readTimeout
+	}
+	if s.writeTimeout != nil {
+		opt.WriteTimeout = *s.writeTimeout
+	}
+	if s.tlsConfig != nil {
+		opt.TLSConfig = s.tlsConfig
+	}
+	if s.masterName != nil {
+		opt.MasterName = *s.masterName
+	}
+	if s.sentinelUsername != nil {
+		opt.SentinelUsername = *s.sentinelUsername
+	}
+	if s.sentinelPassword != nil {
+		opt.SentinelPassword = *s.sentinelPassword
+	}
+}
+
+func (s *Server) init(opts ...ServerOption) {
+	for _, o := range opts {
+		o(s)
+	}
+
+	switch v := s.redisConnOpt.(type) {
+	case *asynq.RedisClientOpt:
+		s.updateRedisClientOpt(v)
+	case asynq.RedisClientOpt:
+		s.updateRedisClientOpt(&v)
+
+	case *asynq.RedisClusterClientOpt:
+		s.updateRedisClusterClientOpt(v)
+	case asynq.RedisClusterClientOpt:
+		s.updateRedisClusterClientOpt(&v)
+
+	case *asynq.RedisFailoverClientOpt:
+		s.updateRedisFailoverClientOpt(v)
+	case asynq.RedisFailoverClientOpt:
+		s.updateRedisFailoverClientOpt(&v)
+	}
+
+	var err error
+	if err = s.createAsynqServer(); err != nil {
+		if s.err == nil {
+			s.err = err
+		}
+		LogError("create asynq server failed:", err)
+	}
+	if err = s.createAsynqClient(); err != nil {
+		if s.err == nil {
+			s.err = err
+		}
+		LogError("create asynq client failed:", err)
+	}
+	if err = s.createAsynqScheduler(); err != nil {
+		if s.err == nil {
+			s.err = err
+		}
+		LogError("create asynq scheduler failed:", err)
+	}
+	if err = s.createAsynqInspector(); err != nil {
+		if s.err == nil {
+			s.err = err
+		}
+		LogError("create asynq inspector failed:", err)
+	}
+
+	if s.enableKeepalive && s.keepaliveServer == nil {
+		s.keepaliveServer = keepalive.NewServer(
+			keepalive.WithServiceKind(KindAsynq),
+		)
+	}
+}
+
+// Name returns the name of server
+func (s *Server) Name() string {
+	return KindAsynq
+}
+
+// TaskTypeExists check if task type is registered
+func (s *Server) TaskTypeExists(taskType string) bool {
+	_, ok := s.typeNameMap.Load(taskType)
+	return ok
+}
+
+// GetRegisteredTaskTypes get all registered task types
+func (s *Server) GetRegisteredTaskTypes() []string {
+	var types []string
+	s.typeNameMap.Range(func(key, value any) bool {
+		if typeName, ok := key.(string); ok {
+			types = append(types, typeName)
+		}
+		return true
+	})
+	return types
+}
+
+// RegisterSubscriber register task subscriber
+func (s *Server) RegisterSubscriber(taskType string, handler MessageHandler, creator Creator) error {
+	err := s.handleFunc(taskType, func(ctx context.Context, task *asynq.Task) error {
+		var payload MessagePayload
+
+		if creator != nil {
+			payload = creator()
+
+			if err := broker.Unmarshal(s.codec, task.Payload(), &payload); err != nil {
+				LogErrorf("unmarshal message failed: %s", err)
+				return err
+			}
+		} else {
+			payload = task.Payload()
+		}
+
+		if err := handler(task.Type(), payload); err != nil {
+			LogErrorf("handle message failed: %s", err)
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	s.typeNameMap.Store(taskType, true)
+
+	return nil
+}
+
+// RegisterSubscriber register task subscriber
+func RegisterSubscriber[T any](srv *Server, taskType string, handler func(string, *T) error) error {
+	return srv.RegisterSubscriber(taskType,
+		func(taskType string, payload MessagePayload) error {
+			switch t := payload.(type) {
+			case *T:
+				return handler(taskType, t)
+			default:
+				LogError("invalid payload struct type:", t)
+				return errors.New("invalid payload struct type")
+			}
+		},
+		func() any {
+			var t T
+			return &t
+		},
+	)
+}
+
+// RegisterSubscriberWithCtx register task subscriber with context
+func (s *Server) RegisterSubscriberWithCtx(
+	taskType string,
+	handler func(context.Context, string, MessagePayload) error,
+	creator Creator,
+) error {
+	err := s.handleFunc(taskType, func(ctx context.Context, task *asynq.Task) error {
+		var payload MessagePayload
+		if creator != nil {
+			payload = creator()
+
+			if err := broker.Unmarshal(s.codec, task.Payload(), &payload); err != nil {
+				LogErrorf("unmarshal message failed: %s", err)
+				return err
+			}
+		} else {
+			payload = task.Payload()
+		}
+
+		if err := handler(ctx, task.Type(), payload); err != nil {
+			LogErrorf("handle message failed: %s", err)
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	s.typeNameMap.Store(taskType, true)
+
+	return nil
+}
+
+// RegisterSubscriberWithCtx register task subscriber with context
+func RegisterSubscriberWithCtx[T any](srv *Server, taskType string,
+	handler func(context.Context, string, *T) error) error {
+	return srv.RegisterSubscriberWithCtx(taskType,
+		func(ctx context.Context, taskType string, payload MessagePayload) error {
+			switch t := payload.(type) {
+			case *T:
+				return handler(ctx, taskType, t)
+			default:
+				LogError("invalid payload struct type:", t)
+				return errors.New("invalid payload struct type")
+			}
+		},
+		func() any {
+			var t T
+			return &t
+		},
+	)
+}
+
+func (s *Server) handleFunc(pattern string, handler func(context.Context, *asynq.Task) error) error {
+	if s.started.Load() {
+		LogErrorf("handleFunc [%s] failed", pattern)
+		return errors.New("cannot handle func, server already started")
+	}
+	s.mux.HandleFunc(pattern, handler)
+	return nil
+}
+
+// NewTask enqueue a new task
+func (s *Server) NewTask(typeName string, msg any, opts ...asynq.Option) error {
+	//if !s.started.Load() {
+	//	return errors.New("cannot create task, server already started")
+	//}
+
+	if typeName == "" {
+		return errors.New("typeName cannot be empty")
+	}
+
+	if s.client == nil {
+		if err := s.createAsynqClient(); err != nil {
+			return err
+		}
+	}
+
+	var err error
+
+	var payload []byte
+	if payload, err = broker.Marshal(s.codec, msg); err != nil {
+		return err
+	}
+
+	task := asynq.NewTask(typeName, payload, opts...)
+	if task == nil {
+		return errors.New("new task failed")
+	}
+
+	taskInfo, err := s.client.Enqueue(task, opts...)
+	if err != nil {
+		LogErrorf("[%s] Enqueue failed: %s", typeName, err.Error())
+		return err
+	}
+
+	LogDebugf("[%s] enqueued task: id=%s queue=%s", typeName, taskInfo.ID, taskInfo.Queue)
+
+	return nil
+}
+
+// NewWaitResultTask enqueue a new task and wait for the result
+func (s *Server) NewWaitResultTask(typeName string, msg any, opts ...asynq.Option) error {
+	//if !s.started.Load() {
+	//	return errors.New("cannot create task, server already started")
+	//}
+
+	if typeName == "" {
+		return errors.New("typeName cannot be empty")
+	}
+
+	if s.client == nil {
+		if err := s.createAsynqClient(); err != nil {
+			return err
+		}
+	}
+
+	var err error
+
+	var payload []byte
+	if payload, err = broker.Marshal(s.codec, msg); err != nil {
+		return err
+	}
+
+	task := asynq.NewTask(typeName, payload, opts...)
+	if task == nil {
+		return errors.New("new task failed")
+	}
+
+	taskInfo, err := s.client.Enqueue(task, opts...)
+	if err != nil {
+		LogErrorf("[%s] Enqueue failed: %s", typeName, err.Error())
+		return err
+	}
+
+	if s.inspector == nil {
+		if err = s.createAsynqInspector(); err != nil {
+			return err
+		}
+	}
+
+	if _, err = waitResult(s.inspector, taskInfo); err != nil {
+		LogErrorf("[%s] wait result failed: %s", typeName, err.Error())
+		return err
+	}
+
+	LogDebugf("[%s] enqueued task: id=%s queue=%s", typeName, taskInfo.ID, taskInfo.Queue)
+
+	return nil
+}
+
+const (
+	defaultWaitResultPollInterval = 1 * time.Second
+	defaultWaitResultTimeout      = 5 * time.Minute
+)
+
+func waitResult(intor *asynq.Inspector, info *asynq.TaskInfo) (*asynq.TaskInfo, error) {
+	deadline := time.Now().Add(defaultWaitResultTimeout)
+
+	for {
+		taskInfo, err := intor.GetTaskInfo(info.Queue, info.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		switch taskInfo.State {
+		case asynq.TaskStateCompleted:
+			return taskInfo, nil
+		case asynq.TaskStateArchived:
+			return nil, fmt.Errorf("task state is %s", taskInfo.State.String())
+		case asynq.TaskStateRetry:
+			return nil, fmt.Errorf("task state is %s", taskInfo.State.String())
+		}
+
+		if time.Now().After(deadline) {
+			return nil, fmt.Errorf("wait result timed out after %v (task state: %s)", defaultWaitResultTimeout, taskInfo.State.String())
+		}
+
+		time.Sleep(defaultWaitResultPollInterval)
+	}
+}
+
+// NewPeriodicTask enqueue a new crontab task
+func (s *Server) NewPeriodicTask(cronSpec, typeName string, msg any, opts ...asynq.Option) (string, error) {
+	//if !s.started.Load() {
+	//	return "", errors.New("cannot create periodic task, server already started")
+	//}
+
+	if cronSpec == "" {
+		return "", errors.New("cronSpec cannot be empty")
+	}
+	if typeName == "" {
+		return "", errors.New("typeName cannot be empty")
+	}
+
+	if s.scheduler == nil {
+		if err := s.createAsynqScheduler(); err != nil {
+			return "", err
+		}
+		if err := s.runAsynqScheduler(); err != nil {
+			return "", err
+		}
+	}
+
+	payload, err := broker.Marshal(s.codec, msg)
+	if err != nil {
+		return "", err
+	}
+
+	var options []asynq.Option
+	if len(opts) > 0 {
+		options = opts
+	} else {
+		options = []asynq.Option{}
+	}
+
+	task := asynq.NewTask(typeName, payload, options...)
+	if task == nil {
+		return "", errors.New("new task failed")
+	}
+
+	entryID, err := s.scheduler.Register(cronSpec, task, opts...)
+	if err != nil {
+		LogErrorf("[%s] enqueue periodic task failed: %s", typeName, err.Error())
+		return "", err
+	}
+
+	s.addPeriodicTaskEntryID(typeName, entryID)
+
+	LogDebugf("[%s]  registered an entry: id=%q", typeName, entryID)
+
+	return entryID, nil
+}
+
+// RemovePeriodicTask remove periodic task by typeName.
+// When multiple periodic tasks share the same typeName, only the most
+// recently registered one can be removed this way; use RemovePeriodicTaskByID
+// to remove the others by the entryID returned by NewPeriodicTask.
+func (s *Server) RemovePeriodicTask(taskId string) error {
+	entryId := s.QueryPeriodicTaskEntryID(taskId)
+	if entryId == "" {
+		return errors.New(fmt.Sprintf("[%s] periodic task not exist", taskId))
+	}
+
+	if err := s.unregisterPeriodicTask(entryId); err != nil {
+		LogErrorf("[%s] dequeue periodic task failed: %s", entryId, err.Error())
+		return err
+	}
+
+	s.removePeriodicTaskEntryID(taskId)
+
+	return nil
+}
+
+// RemovePeriodicTaskByID remove periodic task by the entryID returned by
+// NewPeriodicTask. Unlike RemovePeriodicTask, which looks the entry up by
+// typeName, it is not affected by typeName collisions: multiple periodic
+// tasks registered with the same typeName can be removed independently.
+func (s *Server) RemovePeriodicTaskByID(entryId string) error {
+	if entryId == "" {
+		return errors.New("entryId cannot be empty")
+	}
+
+	if err := s.unregisterPeriodicTask(entryId); err != nil {
+		LogErrorf("[%s] dequeue periodic task failed: %s", entryId, err.Error())
+		return err
+	}
+
+	s.removePeriodicTaskEntryIDByEntryID(entryId)
+
+	return nil
+}
+
+func (s *Server) RemoveAllPeriodicTask() {
+	s.mtxEntryIDs.Lock()
+	ids := s.entryIDs
+	s.entryIDs = make(map[string]string)
+	s.mtxEntryIDs.Unlock()
+
+	for _, v := range ids {
+		_ = s.unregisterPeriodicTask(v)
+	}
+}
+
+func (s *Server) unregisterPeriodicTask(entryId string) error {
+	if s.scheduler == nil {
+		return nil
+	}
+
+	if err := s.scheduler.Unregister(entryId); err != nil {
+		LogErrorf("[%s] dequeue periodic task failed: %s", entryId, err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (s *Server) addPeriodicTaskEntryID(taskId, entryId string) {
+	s.mtxEntryIDs.Lock()
+	defer s.mtxEntryIDs.Unlock()
+
+	s.entryIDs[taskId] = entryId
+}
+
+func (s *Server) removePeriodicTaskEntryID(taskId string) {
+	s.mtxEntryIDs.Lock()
+	defer s.mtxEntryIDs.Unlock()
+
+	delete(s.entryIDs, taskId)
+}
+
+// removePeriodicTaskEntryIDByEntryID removes the map entry holding the given
+// entryID (the map is keyed by typeName, so the value must be looked up).
+func (s *Server) removePeriodicTaskEntryIDByEntryID(entryId string) {
+	s.mtxEntryIDs.Lock()
+	defer s.mtxEntryIDs.Unlock()
+
+	for taskId, id := range s.entryIDs {
+		if id == entryId {
+			delete(s.entryIDs, taskId)
+		}
+	}
+}
+
+func (s *Server) QueryPeriodicTaskEntryID(taskId string) string {
+	s.mtxEntryIDs.RLock()
+	defer s.mtxEntryIDs.RUnlock()
+
+	entryID, ok := s.entryIDs[taskId]
+	if !ok {
+		return ""
+	}
+	return entryID
+}
+
+// Start the server
+func (s *Server) Start(ctx context.Context) error {
+	s.Lock()
+	defer s.Unlock()
+
+	if s.err != nil {
+		return s.err
+	}
+
+	if s.state == stateRunning || s.state == stateStarting {
+		return nil
+	}
+	if s.state == stateStopping {
+		return errors.New("server is stopping")
+	}
+
+	s.state = stateStarting
+
+	if err := s.createAsynqServer(); err != nil {
+		s.err = err
+		s.state = stateStopped
+		return err
+	}
+
+	if err := s.createAsynqScheduler(); err != nil {
+		s.err = err
+		s.state = stateStopped
+		return err
+	}
+
+	keepaliveSrv := s.keepaliveServer
+
+	if keepaliveSrv != nil {
+		go func(srv *keepalive.Server) {
+			if err := srv.Start(ctx); err != nil {
+				LogErrorf("keepalive server start failed: %s", err.Error())
+			}
+		}(keepaliveSrv)
+	}
+
+	if s.err = s.runAsynqScheduler(); s.err != nil {
+		LogError("run asynq scheduler failed", s.err)
+		s.state = stateStopped
+		return s.err
+	}
+
+	if s.err = s.runAsynqServer(); s.err != nil {
+		LogError("run asynq server failed", s.err)
+		s.state = stateStopped
+		return s.err
+	}
+
+	s.baseCtx = ctx
+	s.state = stateRunning
+	s.started.Store(true)
+
+	return nil
+}
+
+// Stop the server
+func (s *Server) Stop(ctx context.Context) error {
+	s.Lock()
+	defer s.Unlock()
+
+	// 1. 防止重复 Stop
+	if s.state == stateStopped || s.state == stateStopping {
+		return nil
+	}
+
+	s.state = stateStopping
+	LogInfo("asynq server stopping...")
+
+	// 2. 安全快照资源（持有指针，不提前置 nil）
+	client := s.client
+	server := s.server
+	scheduler := s.scheduler
+	inspector := s.inspector
+	keepaliveSrv := s.keepaliveServer
+
+	var stopErr error
+
+	// 3. 关闭 keepalive
+	if keepaliveSrv != nil {
+		if err := keepaliveSrv.Stop(ctx); err != nil {
+			LogError("keepalive server stop failed", err)
+			if stopErr == nil {
+				stopErr = err
+			}
+		}
+		s.keepaliveServer = nil
+	}
+
+	// 3. 清理定时任务注册表（在关闭 Scheduler 之前）
+	s.RemoveAllPeriodicTask()
+
+	// 4. 关闭定时调度器
+	if scheduler != nil {
+		scheduler.Shutdown()
+		LogInfo("asynq scheduler stopped")
+		s.scheduler = nil
+	}
+
+	// 5. 关闭任务消费者（安全优雅关闭）
+	if server != nil {
+		if s.gracefullyShutdown {
+			LogInfo("asynq server gracefully shutting down...")
+			// 用 ctx 控制超时，避免卡死
+			done := make(chan struct{})
+			go func() {
+				server.Shutdown()
+				close(done)
+			}()
+			select {
+			case <-done:
+				LogInfo("asynq server gracefully stopped")
+			case <-ctx.Done():
+				LogWarn("asynq server graceful shutdown timeout, force stop")
+				server.Stop()
+			}
+		} else {
+			server.Stop()
+			LogInfo("asynq server force stopped")
+		}
+		s.server = nil
+	}
+
+	// 6. 关闭客户端
+	if client != nil {
+		if err := client.Close(); err != nil {
+			LogError("asynq client close failed", err)
+			if stopErr == nil {
+				stopErr = err
+			}
+		}
+		s.client = nil
+	}
+
+	// 7. 关闭巡检器
+	if inspector != nil {
+		if err := inspector.Close(); err != nil {
+			LogError("asynq inspector close failed", err)
+			if stopErr == nil {
+				stopErr = err
+			}
+		}
+		s.inspector = nil
+	}
+
+	// 9. 最终状态
+	s.started.Store(false)
+	s.state = stateStopped
+	LogInfo("asynq server stopped successfully")
+
+	return stopErr
+}
+
+// createAsynqServer create asynq server
+func (s *Server) createAsynqServer() error {
+	if !s.serverEnabled {
+		return nil
+	}
+	if s.server != nil {
+		return nil
+	}
+
+	s.server = asynq.NewServer(s.redisConnOpt, s.asynqConfig)
+	if s.server == nil {
+		LogErrorf("create asynq server failed")
+		return errors.New("create asynq server failed")
+	}
+	return nil
+}
+
+// runAsynqServer run asynq server
+func (s *Server) runAsynqServer() error {
+	if s.state != stateStarting && s.state != stateRunning {
+		return errors.New("server is not in startable state")
+	}
+
+	server := s.server
+	mux := s.mux
+	if server == nil {
+		LogErrorf("asynq server is nil")
+		return errors.New("asynq server is nil")
+	}
+
+	go func(srv *asynq.Server, m *asynq.ServeMux) {
+		if err := srv.Run(m); err != nil {
+			s.RLock()
+			st := s.state
+			s.RUnlock()
+			if st != stateStopping && st != stateStopped {
+				LogErrorf("asynq server run failed: %s", err.Error())
+			}
+		}
+	}(server, mux)
+
+	LogInfo("asynq server started")
+
+	return nil
+}
+
+// createAsynqClient create asynq client
+func (s *Server) createAsynqClient() error {
+	if !s.clientEnabled {
+		return nil
+	}
+	if s.client != nil {
+		return nil
+	}
+
+	s.client = asynq.NewClient(s.redisConnOpt)
+	if s.client == nil {
+		LogErrorf("create asynq client failed")
+		return errors.New("create asynq client failed")
+	}
+
+	return nil
+}
+
+// createAsynqScheduler create asynq scheduler
+func (s *Server) createAsynqScheduler() error {
+	if !s.schedulerEnabled {
+		return nil
+	}
+	if s.scheduler != nil {
+		return nil
+	}
+
+	s.scheduler = asynq.NewScheduler(s.redisConnOpt, s.schedulerOpts)
+	if s.scheduler == nil {
+		LogErrorf("create asynq scheduler failed")
+		return errors.New("create asynq scheduler failed")
+	}
+
+	return nil
+}
+
+// runAsynqScheduler run asynq scheduler
+func (s *Server) runAsynqScheduler() error {
+	if s.scheduler == nil {
+		LogErrorf("asynq scheduler is nil")
+		return errors.New("asynq scheduler is nil")
+	}
+
+	if err := s.scheduler.Start(); err != nil {
+		LogErrorf("asynq scheduler start failed: %s", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+// createAsynqInspector create asynq inspector
+func (s *Server) createAsynqInspector() error {
+	if s.inspector != nil {
+		return nil
+	}
+
+	s.inspector = asynq.NewInspector(s.redisConnOpt)
+	if s.inspector == nil {
+		LogErrorf("create asynq inspector failed")
+		return errors.New("create asynq inspector failed")
+	}
+	return nil
+}
+
+func (s *Server) Endpoint() (*url.URL, error) {
+	if !s.enableKeepalive {
+		return &url.URL{}, nil
+	}
+	if s.keepaliveServer == nil {
+		return nil, errors.New("asynq server keepalive instance is nil")
+	}
+	return s.keepaliveServer.Endpoint()
+}

@@ -7,7 +7,7 @@ import (
 
 	tlsUtils "go-wind-admin/pkg/localdeps/go-utils/tls"
 
-	asynqTransport "github.com/tx7do/kratos-transport/transport/asynq"
+	asynqTransport "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq"
 	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 )
 

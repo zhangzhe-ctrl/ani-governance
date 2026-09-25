@@ -4,7 +4,7 @@ import (
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/transport/sse"
 
-	sseServer "github.com/tx7do/kratos-transport/transport/sse"
+	sseServer "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse"
 
 	"go-wind-admin/app/admin/service/internal/service"
 )

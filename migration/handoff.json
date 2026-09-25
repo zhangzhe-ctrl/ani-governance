@@ -663,5 +663,30 @@
    "bash scripts/verify-gpu-format.sh must exit 0",
    "python3 -c \"import json; json.load(open('migration/receipts/T10-closure-classified-remediation.json'))\""
   ]
+ },
+ "phase_D_T11_blocked_parked_at": {
+  "task": "T11",
+  "status": "BLOCKED",
+  "parked_at": "2026-09-25T22:55+08:00",
+  "start_sha": "ce28159d8d68fec81f860a5d53069bf60a1b7fcd",
+  "accepted_head_unchanged": "162b28ed268732392547c2343dc9b4f2f575f30f",
+  "receipt": "migration/receipts/T11.json",
+  "blocker": "T11-B1: 5 deterministic upstream test failures and 10 never-terminating upstream harness cases come with the placed test files; ./pkg/... inside make verify-gpu runs them",
+  "proven": [
+   "the six-module closure is complete and placed byte-identically",
+   "14 files import-rewritten; 7 consumers guard-clean and 7 placed files equiv-clean",
+   "go build ./... and all three entry builds exit 0; vet shows only the pre-existing T03-F5",
+   "the six transport packages are gone from go list -deps for default and quota_lab",
+   "78 of 93 placed upstream tests pass and 27 named consumer tests pass"
+  ],
+  "inheritance_control": "byte-identical import-unrewritten copies in a disposable worktree reproduce all fifteen identically",
+  "decision_needed": "choose among options A/B/C in migration/patches/T11/T11-gate-conflict.json; nothing was excluded meanwhile",
+  "resume_check_before_editing": [
+   "git rev-parse HEAD",
+   "cat migration/accepted_head -> 162b28e...",
+   "git status --porcelain -> only '?? _agent/' plus the T11 checkpoint commit",
+   "read _agent/ani-governance-tx7do-plan/goals/T11.md again"
+  ],
+  "next": "T11 stays open; T12 does not start before this ruling because the same ./pkg/... gate would inherit it"
  }
 }

@@ -17,7 +17,7 @@ import (
 
 	"github.com/hibiken/asynq"
 	"github.com/stretchr/testify/require"
-	"github.com/tx7do/kratos-transport/transport/sse"
+	"go-wind-admin/pkg/localdeps/kratos-transport/transport/sse"
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
