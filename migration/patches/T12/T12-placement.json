@@ -1,0 +1,145 @@
+{
+  "schema_version": "t12-placement/2",
+  "module": "github.com/tx7do/kratos-swagger-ui",
+  "version": "v0.0.1",
+  "cache_dir": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-swagger-ui@v0.0.1",
+  "files_placed": 10,
+  "all_byte_identical_after_placement": true,
+  "exceptions": [],
+  "excluded_from_placement": [
+    {
+      "path": ".gitignore",
+      "source_sha256": "f5abd3525f5d81bfd987c1cc1c14437f2412201461904ffb1bab4e61e7ebdfb3",
+      "reason": "VCS metadata; copying it would silently hide *.test/*.out/*.so files added under this directory later"
+    },
+    {
+      "path": "go.mod",
+      "source_sha256": "22dfeb8d184c4609efce2d0f08d915dfd5517c41c071d3661e745a24a0d4f6ad",
+      "reason": "go.mod would make the copy a nested module"
+    },
+    {
+      "path": "go.sum",
+      "source_sha256": "834658f7043d8b843b81d5796883c6bd9af7e25633e70d93fafe7a7ca6916871",
+      "reason": "go.sum belongs to the nested module, not to the main module"
+    },
+    {
+      "path": "tag.bat",
+      "source_sha256": "758ee4e4210d177ed3d6fe56ac2a98b62670816360f5276bbdda737d6699f1cf",
+      "reason": "Windows helper script, not source"
+    }
+  ],
+  "layout": "relative directories preserved: package swaggerUI at the root, internal/swagger underneath, _examples/http kept as the upstream example (the go tool ignores directories beginning with _)",
+  "license_and_readme_kept": true,
+  "files": [
+    {
+      "module": "github.com/tx7do/kratos-swagger-ui",
+      "version": "v0.0.1",
+      "upstream": "github.com/tx7do/kratos-swagger-ui@v0.0.1/LICENSE",
+      "file": "pkg/localdeps/kratos-swagger-ui/LICENSE",
+      "source_mode": "0o444",
+      "placed_mode": "0o644",
+      "source_sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+      "placed_sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+      "byte_identical_after_placement": true
+    },
+    {
+      "module": "github.com/tx7do/kratos-swagger-ui",
+      "version": "v0.0.1",
+      "upstream": "github.com/tx7do/kratos-swagger-ui@v0.0.1/README.md",
+      "file": "pkg/localdeps/kratos-swagger-ui/README.md",
+      "source_mode": "0o444",
+      "placed_mode": "0o644",
+      "source_sha256": "f22b9d236797470385ebb49029d128851406da41b9e2fe709aa7a813d7f48ed7",
+      "placed_sha256": "f22b9d236797470385ebb49029d128851406da41b9e2fe709aa7a813d7f48ed7",
+      "byte_identical_after_placement": true
+    },
+    {
+      "module": "github.com/tx7do/kratos-swagger-ui",
+      "version": "v0.0.1",
+      "upstream": "github.com/tx7do/kratos-swagger-ui@v0.0.1/embedded.go",
+      "file": "pkg/localdeps/kratos-swagger-ui/embedded.go",
+      "source_mode": "0o444",
+      "placed_mode": "0o644",
+      "source_sha256": "d4c1ff90c5e840337bf19ae9102e2a710c5fb7bc5a97b1e013ede04d16f7e7fe",
+      "placed_sha256": "d4c1ff90c5e840337bf19ae9102e2a710c5fb7bc5a97b1e013ede04d16f7e7fe",
+      "byte_identical_after_placement": true
+    },
+    {
+      "module": "github.com/tx7do/kratos-swagger-ui",
+      "version": "v0.0.1",
+      "upstream": "github.com/tx7do/kratos-swagger-ui@v0.0.1/handler.go",
+      "file": "pkg/localdeps/kratos-swagger-ui/handler.go",
+      "source_mode": "0o444",
+      "placed_mode": "0o644",
+      "source_sha256": "ac916ee66f2a56d079665ea2370b6a9af7737ca95b8b5a583e405e7ffd1c93f1",
+      "placed_sha256": "ac916ee66f2a56d079665ea2370b6a9af7737ca95b8b5a583e405e7ffd1c93f1",
+      "byte_identical_after_placement": true
+    },
+    {
+      "module": "github.com/tx7do/kratos-swagger-ui",
+      "version": "v0.0.1",
+      "upstream": "github.com/tx7do/kratos-swagger-ui@v0.0.1/kratos.go",
+      "file": "pkg/localdeps/kratos-swagger-ui/kratos.go",
+      "source_mode": "0o444",
+      "placed_mode": "0o644",
+      "source_sha256": "0f3dfe8d71606c08953ea80cca73e5a00773428ca2e2fb8144e436e2d10d06ac",
+      "placed_sha256": "0f3dfe8d71606c08953ea80cca73e5a00773428ca2e2fb8144e436e2d10d06ac",
+      "byte_identical_after_placement": true
+    },
+    {
+      "module": "github.com/tx7do/kratos-swagger-ui",
+      "version": "v0.0.1",
+      "upstream": "github.com/tx7do/kratos-swagger-ui@v0.0.1/options.go",
+      "file": "pkg/localdeps/kratos-swagger-ui/options.go",
+      "source_mode": "0o444",
+      "placed_mode": "0o644",
+      "source_sha256": "ee0da59a14f3a5cebcda5bf86ffd111c1f299e527e33bb52afdf7d20791cec7c",
+      "placed_sha256": "ee0da59a14f3a5cebcda5bf86ffd111c1f299e527e33bb52afdf7d20791cec7c",
+      "byte_identical_after_placement": true
+    },
+    {
+      "module": "github.com/tx7do/kratos-swagger-ui",
+      "version": "v0.0.1",
+      "upstream": "github.com/tx7do/kratos-swagger-ui@v0.0.1/_examples/http/main.go",
+      "file": "pkg/localdeps/kratos-swagger-ui/_examples/http/main.go",
+      "source_mode": "0o444",
+      "placed_mode": "0o644",
+      "source_sha256": "e1c7c0a8a99baac57cad186d2f890bde844c2aaf1c6976a04b5e01c2f841f09c",
+      "placed_sha256": "e1c7c0a8a99baac57cad186d2f890bde844c2aaf1c6976a04b5e01c2f841f09c",
+      "byte_identical_after_placement": true
+    },
+    {
+      "module": "github.com/tx7do/kratos-swagger-ui",
+      "version": "v0.0.1",
+      "upstream": "github.com/tx7do/kratos-swagger-ui@v0.0.1/internal/swagger/handler.go",
+      "file": "pkg/localdeps/kratos-swagger-ui/internal/swagger/handler.go",
+      "source_mode": "0o444",
+      "placed_mode": "0o644",
+      "source_sha256": "6ee9793c587dd6a3e2cc4665feb6e7fafcc8de92a0ee25dc7d2c011707021e14",
+      "placed_sha256": "6ee9793c587dd6a3e2cc4665feb6e7fafcc8de92a0ee25dc7d2c011707021e14",
+      "byte_identical_after_placement": true
+    },
+    {
+      "module": "github.com/tx7do/kratos-swagger-ui",
+      "version": "v0.0.1",
+      "upstream": "github.com/tx7do/kratos-swagger-ui@v0.0.1/internal/swagger/index.tpl.go",
+      "file": "pkg/localdeps/kratos-swagger-ui/internal/swagger/index.tpl.go",
+      "source_mode": "0o444",
+      "placed_mode": "0o644",
+      "source_sha256": "0918eb0f5a6795e2f4342eb2949ff39ccda25f61e7c3c961c90e7126320cefcc",
+      "placed_sha256": "0918eb0f5a6795e2f4342eb2949ff39ccda25f61e7c3c961c90e7126320cefcc",
+      "byte_identical_after_placement": true
+    },
+    {
+      "module": "github.com/tx7do/kratos-swagger-ui",
+      "version": "v0.0.1",
+      "upstream": "github.com/tx7do/kratos-swagger-ui@v0.0.1/internal/swagger/options.go",
+      "file": "pkg/localdeps/kratos-swagger-ui/internal/swagger/options.go",
+      "source_mode": "0o444",
+      "placed_mode": "0o644",
+      "source_sha256": "cec1b251e4d91385a5045fd77c5079c152f38a63db500c1aa402bbd9bb2661e3",
+      "placed_sha256": "cec1b251e4d91385a5045fd77c5079c152f38a63db500c1aa402bbd9bb2661e3",
+      "byte_identical_after_placement": true
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": "t12-equiv/1",
+  "tool": "migrate_imports equiv / guard",
+  "note": "equiv compares the non-import AST and Go directives, not runtime behaviour",
+  "results": [
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/embedded.go",
+      "pristine_source": "github.com/tx7do/kratos-swagger-ui@v0.0.1/embedded.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/handler.go",
+      "pristine_source": "github.com/tx7do/kratos-swagger-ui@v0.0.1/handler.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/kratos.go",
+      "pristine_source": "github.com/tx7do/kratos-swagger-ui@v0.0.1/kratos.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/options.go",
+      "pristine_source": "github.com/tx7do/kratos-swagger-ui@v0.0.1/options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/_examples/http/main.go",
+      "pristine_source": "github.com/tx7do/kratos-swagger-ui@v0.0.1/_examples/http/main.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/internal/swagger/handler.go",
+      "pristine_source": "github.com/tx7do/kratos-swagger-ui@v0.0.1/internal/swagger/handler.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/internal/swagger/index.tpl.go",
+      "pristine_source": "github.com/tx7do/kratos-swagger-ui@v0.0.1/internal/swagger/index.tpl.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/internal/swagger/options.go",
+      "pristine_source": "github.com/tx7do/kratos-swagger-ui@v0.0.1/internal/swagger/options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "app/admin/service/internal/server/rest_server.go (guard vs the T12 entry commit)",
+      "exit": 0,
+      "message": "}"
+    }
+  ],
+  "all_pass": true
+}

@@ -14,7 +14,7 @@ import (
 
 	authz "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
 
-	swaggerUI "github.com/tx7do/kratos-swagger-ui"
+	swaggerUI "go-wind-admin/pkg/localdeps/kratos-swagger-ui"
 
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
