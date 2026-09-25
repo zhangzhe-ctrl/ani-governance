@@ -133,7 +133,7 @@ func RunBufGenerate(ctx context.Context, apiPath, template string) error {
 }
 
 // activeGenConfigs 是本仓已验收的活跃生成模板，顺序即执行顺序（与原有目录遍历顺序一致，
-// buf.gen.yaml 的 clean: true 仍排在其余模板之前，生成结果不变）。
+// buf.gen.yaml 的 clean: true 仍排在其余模板之前，顺序与上游目录遍历逐字一致）。
 var activeGenConfigs = []string{
 	"buf.accelerator.gen.yaml",
 	"buf.admin.openapi.gen.yaml",
@@ -142,8 +142,8 @@ var activeGenConfigs = []string{
 	"buf.gen.yaml",
 	"buf.network.gen.yaml",
 	"buf.pagination.gen.yaml",
-	"buf.quota.gen.yaml",
 	"buf.quota-lab.gen.yaml",
+	"buf.quota.gen.yaml",
 	"buf.redact.gen.yaml",
 }
 
