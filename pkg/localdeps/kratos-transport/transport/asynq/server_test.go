@@ -636,9 +636,12 @@ func TestPeriodicTaskRemoveAll(t *testing.T) {
 	assert.Equal(t, "", srv.QueryPeriodicTaskEntryID(testPeriodicTask))
 	assert.Equal(t, "", srv.QueryPeriodicTaskEntryID(testTask1))
 
+	// an enqueue already in flight may still be handled; wait for that backlog to drain
+	// before sampling, then require the counts to hold
+	time.Sleep(1200 * time.Millisecond)
 	periodicAt := rec.count(testPeriodicTask)
 	taskAt := rec.count(testTask1)
-	time.Sleep(1500 * time.Millisecond)
+	time.Sleep(1200 * time.Millisecond)
 	assert.Equal(t, periodicAt, rec.count(testPeriodicTask), "the first periodic entry kept firing")
 	assert.Equal(t, taskAt, rec.count(testTask1), "the second periodic entry kept firing")
 }
