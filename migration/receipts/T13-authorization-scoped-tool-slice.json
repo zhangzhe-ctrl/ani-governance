@@ -1,0 +1,31 @@
+{
+  "schema_version": "t13-authorization-scoped-tool-slice/1",
+  "task": "T13",
+  "kind": "scope-adjusting authorization for the developer-tooling stage",
+  "granted_by": "user",
+  "granted_at": "2026-09-26T07:30+08:00",
+  "recorded_in": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md, section 「### T13 补充授权：接管在用最命令的本地 gow，不接管完整通用脚手架」 and the scope pointer added to goals/T13.md",
+  "decision_verbatim": "请从当前T13现场继续。本指令明确调整T13工具范围，优先于原总goal/子goal中要求完整照搬gow且不允许裁剪的冲突表述。把本授权写入_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md，并同步T13任务与migration回执；不要只改文档后停止。",
+  "scope_now": "gow run admin / gow ent admin / gow api (+ version) only, built as the same-named binary from an ordinary directory of the main module",
+  "supersedes": "the requirement in goals/T13.md to take over the whole general scaffold (all 94 modules of gow's own go.mod, including the gorm.io family)",
+  "key_boundaries_kept": [
+    "no nested go.mod, no permanent replace, no external tx7do install or fallback",
+    "non-tx7do versions stay exactly as T00 selected and as already accepted; the tool uses the main module's newer Ent/Atlas/x-tools instead of being blocked on its own older pins",
+    "no GORM family may enter the graph",
+    "cutting is limited to command registration and the unused dependency subtrees; deleting a feature test of a retained command is not authorized",
+    "un-taken sources stay in the locked zip and are recorded NOT_IN_SELECTED_TOOL_SCOPE instead of being shipped behind a build tag"
+  ],
+  "explicitly_authorized_tool_side_effects": [
+    "remove the automatic go mod tidy from run.Run, build.Run, ent.RunGenerate and buf.RunGenerate (not a global fake success)",
+    "buf entry must fail explicitly instead of go install @latest or automatic buf dep update",
+    "api must run only the approved active template list, skip the parked buf.model.gen.yaml and never resurrect the parked model entry",
+    "local AGENTS.md / README / docs / Makefile / dev-installer changes to point at the local build; protoc must not enter a production runtime layer"
+  ],
+  "acceptance_minimum": [
+    "build the binary into a task-private bin, check Module.Main, go version -m, and that the tool graph holds no tx7do and no GORM",
+    "help is not proof: run ent admin and api in an isolated copy with the same pinned tools, compare trees, check idempotency and that go.mod/go.sum are not auto-written",
+    "run admin verified against a minimal test service with bounded shutdown, touching only that child process",
+    "an official repeatable entry for the protoc integration cases (tools_integration tag), failing rather than skipping when the tools are absent"
+  ],
+  "final_statement_required": "在用命令已本地接管；未接管完整通用脚手架 — the program must not claim full gow equivalence"
+}

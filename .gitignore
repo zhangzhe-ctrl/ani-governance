@@ -61,3 +61,8 @@ __pycache__/
 
 # This immutable backup evidence is covered by third_party/tx7do/SHA256SUMS.
 !third_party/tx7do/buf/verification.log
+
+# make tools-integration 的用 protoc 现场生成这些上游样例产物，不入库（原件在
+# migration/patches/T09/_integration_staging 与锁定归档里，哈希已登记）。
+pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/testdata/integration/*.pb.go
+pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/protoc-gen-redact

@@ -28,7 +28,8 @@ HTTP 客户端
 export PATH=/home/ubuntu/go/bin:/usr/local/go/bin:$PATH
 
 # 工具
-go1.26.7 install github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3
+# gow 不再外部安装：本仓在用命令已接管到 tools/localdeps/gow，构建入口是 make gow（输出 tools/bin/gow）
+make gow && export PATH=$PWD/tools/bin:$PATH
 go1.26.7 install entgo.io/ent/cmd/ent@v0.14.6        # 与 go.mod 的 entgo 版本一致
 go1.26.7 install github.com/bufbuild/buf/cmd/buf@v1.60.0
 # 注意 buf 版本必须为 1.60.0：scripts/generate-network-slice.sh 会断言

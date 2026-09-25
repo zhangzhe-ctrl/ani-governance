@@ -1,0 +1,24 @@
+--- /home/ubuntu/go/pkg/mod/github.com/tx7do/go-wind-toolkit/gowind@v1.0.3/internal/ent/cmd.go	2026-09-20 14:10:17.698002970 +0800
++++ tools/localdeps/gow/internal/ent/cmd.go	2026-09-26 06:53:37.714480573 +0800
+@@ -8,7 +8,7 @@
+ 	"strings"
+ 
+ 	"github.com/spf13/cobra"
+-	"github.com/tx7do/go-wind-toolkit/gowind/internal/pkg"
++	"go-wind-admin/tools/localdeps/gow/internal/pkg"
+ )
+ 
+ func RunGenerate(cmd *cobra.Command, args []string) error {
+@@ -20,10 +20,8 @@
+ 		return err
+ 	}
+ 
+-	// 先在模块根目录运行 `go mod tidy`
+-	if err = pkg.GoModTidy(cmd.Context(), inspector.Root); err != nil {
+-		return err
+-	}
++	// 工具不再自动执行 `go mod tidy`（T13 授权的工作流变更）：
++	// 依赖维护改为显式人工 `go mod tidy` 或 T14 阶段处理。
+ 
+ 	var serviceName string
+ 

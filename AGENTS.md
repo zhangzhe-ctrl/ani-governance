@@ -29,7 +29,10 @@ third_party/tx7do/                   依赖源码备份区域
 
 依赖消费、生成、构建、测试和运行的位置遵守当前任务要求；若指定远程执行，本地仅编辑与提交。不要为只读检查安装依赖或启动服务。
 
-安装固定工具：`go install github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3`。运行与生成优先 gow，未覆盖的任务使用根 Makefile：
+本仓在用的 `gow` 已接管到主模块普通目录 `tools/localdeps/gow`（来源锁定 `gowind@v1.0.3`，zip sha256 登记在 `migration/patches/T13/T13-gow-placement.json`），用 `make gow` 构建到 `tools/bin/gow`，不再 `go install github.com/tx7do/...`。
+本地 gow 只包含本仓在用命令 `api`、`ent`、`run`、`version`；上游脚手架的 project/new/add/generate/extract/migrate/wire 未接管，调用会返回 unknown command。工具不再自动 `go mod tidy`（依赖维护显式执行），缺 buf 或缺 `api/buf.lock` 一律明确失败，不会 `go install @latest` 或自动 `buf dep update`。protoc 驱动的 redact 集成用例走独立入口 `make tools-integration`（`tools_integration` 构建标签，缺 protoc 直接 FAIL），不进业务测试门禁、不进生产镜像。
+
+其余固定工具仍按需安装。运行与生成优先本地 gow（把 `tools/bin` 加入 PATH 或使用 `tools/bin/gow`），未覆盖的任务使用根 Makefile：
 
 | 任务 | 根目录命令 |
 |---|---|

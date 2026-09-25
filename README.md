@@ -15,10 +15,12 @@ Go 基准 **1.26.7**，gow 固定 **v1.0.3**。主路径使用 Kratos、Ent、Po
 首次部署先按 [部署与初始化流程](docs/deployment.md) 完成 Atlas 迁移和显式初始化，再启动服务。与业务服务（Network 等）的历史联调记录见 [docs/local-integration.md](docs/local-integration.md)。
 
 ```bash
-go install github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3
+make gow            # 从 tools/localdeps/gow 构建本仓在用的 gow（api/ent/run/version）
+export PATH=$PWD/tools/bin:$PATH   # 之后可直接用 gow；也可写成 tools/bin/gow
 gow run admin
 gow api
 gow ent admin
+make tools-integration   # protoc 驱动的 redact 集成用例（需固定 protoc）
 make openapi
 make build_only
 ```

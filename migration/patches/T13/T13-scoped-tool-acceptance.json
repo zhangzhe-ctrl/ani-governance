@@ -1,0 +1,149 @@
+{
+  "schema_version": "t13-scoped-tool-acceptance/1",
+  "authorization": "migration/receipts/T13-authorization-scoped-tool-slice.json",
+  "source_module": "github.com/tx7do/go-wind-toolkit/gowind v1.0.3",
+  "source_provenance": {
+    "zip_sha256": "e773e4e6f10c8bb10de1815c85adefa80c10ccb5346bf7f61b507d54fa754a9d",
+    "zip_bytes": 389471,
+    "info": {
+      "Version": "v1.0.3",
+      "Time": "2026-09-18T15:12:15Z"
+    },
+    "owner_provided_commit": "19875b9d477351cbc5e5e472880e428980b7f794",
+    "cross_check": "the same zip sha256 e773e4e6... appears in docs/evidence/gov-acc-v12-01/release/gov-full-source.sha256 for third_party/tx7do/proxy, so the archive in this repository agrees with the module cache",
+    "note": "the module proxy metadata carries only Version and Time; the commit above is the owner-provided revision identifier and is recorded as such rather than verified here"
+  },
+  "placement": {
+    "files_placed": 29,
+    "byte_identical_to_pristine": 20,
+    "differing": [
+      "cmd/gow/main.go",
+      "cmd/gow/buf.go",
+      "cmd/gow/ent.go",
+      "internal/run/run.go",
+      "internal/run/watch.go",
+      "internal/build/cmd.go",
+      "internal/ent/cmd.go",
+      "internal/ent/ent.go",
+      "internal/buf/cmd.go"
+    ],
+    "left_out_recorded": 112,
+    "layout_note": "cmd/gow and internal/* stay under one parent so the internal/ rule keeps working",
+    "gitignore_hazard": "the repository-wide build/ pattern hid internal/build (3 files) from git, so a clean checkout could not build gow; fixed by a tools/localdeps-only negation and proven by rebuilding in a fresh worktree"
+  },
+  "authorized_differences": {
+    "patches_dir": "migration/patches/T13/patches",
+    "cmd/gow/main.go": "the three registrations and imports of the not-taken-over commands (project, generate, extract) are removed; nothing else changes",
+    "internal/{run/build/ent/buf}": "the automatic `go mod tidy` pre-step is removed from each retained entry; pkg.GoModTidy itself stays available and is now simply uncalled",
+    "internal/buf/cmd.go": "ensureBufInstalled no longer runs go install buf@latest and reports the task-pinned buf instead; a missing api/buf.lock fails instead of running buf dep update; the template set is an explicit active list in the upstream walk order, buf.model.gen.yaml is announced as skipped, and an unclassified template aborts the run",
+    "format_only": "gofmt 1.26.7 normalized a few alignment differences inherited from the module's own formatting; equiv shows the non-import AST of every unedited placed file is identical to the pristine source"
+  },
+  "cli_contract": {
+    "retained": [
+      "api",
+      "ent",
+      "run",
+      "version"
+    ],
+    "removed_and_how_they_answer": {
+      "generate|extract|new|add|migrate|wire|project": "exit 1, 'unknown command', no external fallback"
+    },
+    "run_flags": "--watch/-w kept, no other flags in the retained closure"
+  },
+  "measured_against_the_pristine_binary": {
+    "harness": "detached git worktree at the tool commit, plugin built from local sources, pinned buf/protoc-gen-go/protoc-gen-go-grpc on PATH",
+    "gow_api": {
+      "slice": {
+        "exit": 0,
+        "worktree_changes": 20,
+        "go_mod_or_go_sum_changed": false,
+        "parked_template": "skipped with a visible note"
+      },
+      "pristine": {
+        "exit": 0,
+        "worktree_changes": 22,
+        "go_mod_or_go_sum_changed": true,
+        "parked_template": "executed"
+      },
+      "file_set_difference": "identical 20 generated-file changes; pristine adds M go.mod and M go.sum",
+      "idempotency": "a second slice run produced byte-identical outputs (sha256 -c over the whole changed set, exit 0)"
+    },
+    "gow_ent_admin": {
+      "slice": {
+        "exit": 0,
+        "changes": [
+          "M app/admin/service/internal/data/ent/migrate/migrate.go"
+        ],
+        "go_mod_or_go_sum_changed": false
+      },
+      "pristine": {
+        "exit": 0,
+        "changes": [
+          "same file",
+          "M go.mod",
+          "M go.sum"
+        ]
+      },
+      "reading": "the single migrate.go difference is a pre-existing divergence between the committed tree and regeneration with this host's entgo v0.14.6; it appears identically for the pristine tool, so it is not introduced by the slice. It is a T15 item."
+    },
+    "gow_run_probe": {
+      "fixture": "a minimal app/probe/service module in a scratch directory (never the real server, no database, no network)",
+      "build_and_start": "go build -o app/probe/service/bin/probe ./cmd/server then the child runs with -c <service>/configs, i.e. the config directory is passed as before",
+      "shutdown": "SIGINT to the gow process ends it within 2s and the child is reaped (no orphan)",
+      "watch": "saving main.go rebuilt and restarted within ~4s: marker v1 -> PROBE_STOPPED -> 'rebuilt and restarted' -> marker v2; SIGINT then exited cleanly",
+      "invalid_service": "exit 1 with \"service 'nosuch' does not exist or is not valid (missing cmd/server or configs)\"",
+      "first_observation_note": "an earlier attempt reported an orphan child because the shell had captured the wrapper pid instead of the gow pid; re-measured against the real pid, the behaviour is correct"
+    },
+    "failure_branches": {
+      "buf_absent": {
+        "exit": 1,
+        "installs_anything": false,
+        "message": "buf is not available: run the task-pinned buf (v1.60.0) on PATH ... the tool never installs tools itself"
+      },
+      "buf_lock_absent": {
+        "exit": 1,
+        "ran_dep_update": false,
+        "worktree_after": "clean",
+        "message": "buf.lock does not exist ...; run `buf dep update` explicitly instead of letting this tool do it"
+      }
+    }
+  },
+  "dependency_facts": {
+    "tool_closure_modules": [
+      "github.com/spf13/cobra v1.10.2",
+      "github.com/spf13/pflag v1.0.10",
+      "github.com/fsnotify/fsnotify v1.10.1",
+      "golang.org/x/mod v0.40.0",
+      "golang.org/x/sys v0.47.0"
+    ],
+    "all_already_required_by_the_main_module": true,
+    "new_modules_added": 0,
+    "versions_changed": 0,
+    "gorm_or_tx7do_in_the_tool_graph": 0,
+    "go_list_deps_test_tx7do_count": {
+      "default": 0,
+      "quota_lab": 0,
+      "quota_pg": 0,
+      "tools_integration": 0
+    },
+    "binary_buildinfo": "go version -m shows mod go-wind-admin with Module.Main=true and only the five deps above at the main module's versions"
+  },
+  "environment_incidents": [
+    "scripts/build-redact-plugin.sh exported GOFLAGS=-p=2, replacing the caller's -mod=readonly; on this host that let the go command rewrite go.mod's indirect markers. Fixed by appending instead of replacing and defaulting to -mod=readonly; verified by re-running make redact-plugin and make tools-integration with no caller GOFLAGS and seeing go.mod stay clean.",
+    "markers were also seen rewritten once more before that fix was in place; go.mod was reverted (no version ever moved) and the cause is the same override."
+  ],
+  "gates": {
+    "go_build_all": 0,
+    "entry_builds_default_quota_lab_quota_pg_admin_register": 0,
+    "go_vet_tools": 0,
+    "tool_unit_tests": "44 test-level passes, 0 fail, 0 skip in ./tools/localdeps/gow/...",
+    "make_tools_integration": "exit 0 with the pinned protoc; exit 1 with a clear message and no skip without it",
+    "format_gate": 0,
+    "gitleaks": 0
+  },
+  "not_verified": [
+    "the 20-file api divergence and the migrate.go divergence versus the committed tree are T15 clean-regeneration items, not T13 claims",
+    "no production service was started and no business database or Redis was contacted",
+    "make verify-gpu as a whole still belongs to T15"
+  ]
+}

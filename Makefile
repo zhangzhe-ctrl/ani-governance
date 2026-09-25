@@ -43,7 +43,19 @@ cli:
 	go install github.com/bufbuild/buf/cmd/buf@latest
 	go install entgo.io/ent/cmd/ent@latest
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
-	go install github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3
+	@echo 'gow 不再从 github.com/tx7do 安装：本仓库在用命令已接管到 tools/localdeps/gow，用 make gow 构建到 tools/bin/gow'
+
+.PHONY: gow tools-integration
+
+# build the localized gow from this module's sources (in-use commands: api, ent, run, version)
+gow:
+	go build -trimpath -o tools/bin/gow ./tools/localdeps/gow/cmd/gow
+
+# protoc-driven redact integration cases: an explicit developer-tool entry, never part of
+# the business test gate or a production image. Missing protoc FAILS (no skip).
+tools-integration: gow redact-plugin
+	command -v protoc >/dev/null 2>&1 || { echo 'protoc is required for make tools-integration; install the task-pinned protoc (see docs) and put it on PATH'; exit 1; }
+	go test -tags tools_integration -count=1 -timeout=900s ./pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/
 
 # download dependencies of module
 dep:

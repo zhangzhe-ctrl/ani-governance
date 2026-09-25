@@ -1,0 +1,25 @@
+--- /home/ubuntu/go/pkg/mod/github.com/tx7do/go-wind-toolkit/gowind@v1.0.3/cmd/gow/main.go	2026-09-20 14:10:17.695002925 +0800
++++ tools/localdeps/gow/cmd/gow/main.go	2026-09-26 06:52:42.182601478 +0800
+@@ -5,10 +5,7 @@
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/tx7do/go-wind-toolkit/gowind/internal/extract"
+-	"github.com/tx7do/go-wind-toolkit/gowind/internal/generate"
+-	"github.com/tx7do/go-wind-toolkit/gowind/internal/project"
+-	"github.com/tx7do/go-wind-toolkit/gowind/internal/run"
++	"go-wind-admin/tools/localdeps/gow/internal/run"
+ )
+ 
+ var rootCmd = &cobra.Command{
+@@ -18,10 +15,7 @@
+ }
+ 
+ func init() {
+-	rootCmd.AddCommand(project.CmdProject)
+ 	rootCmd.AddCommand(run.CmdRun)
+-	rootCmd.AddCommand(generate.CmdGenerate)
+-	rootCmd.AddCommand(extract.CmdExtract)
+ 	rootCmd.AddCommand(versionCmd)
+ }
+ 
