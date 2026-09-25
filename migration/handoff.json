@@ -787,5 +787,21 @@
       "cat migration/accepted_head must equal 6445990eaf5fa090d578dd490e460aba64606cfd",
       "read migration/receipts/T13.json before touching tools/"
     ]
+  },
+  "phase_D_T14_T15_blocked_by_T13": {
+    "task": "T14 (and therefore T15)",
+    "status": "NOT_STARTED_BLOCKED_BY_PREREQUISITE",
+    "recorded_at": "2026-09-26T02:25+08:00",
+    "accepted_head_unchanged": "6445990eaf5fa090d578dd490e460aba64606cfd",
+    "why": [
+      "T14 states its prerequisite as T03 through T13 all accepted, and its first rule is that the final tidy happens only after every run, test, generate and tool entry point has been taken over. T13 is parked on an owner decision, so the prerequisite is unmet.",
+      "Removing the 21 now-unused github.com/tx7do requires and running go mod tidy before that ruling would also prune the versions a local gow would need, which is the failure mode T14 explicitly warns against (deleting go.mod entries first and then patching compilation afterwards)."
+    ],
+    "measured_now": {
+      "tx7do_packages_in_the_dependency_graph": 0,
+      "tx7do_requires_still_listed_in_go_mod": 42,
+      "note": "the graph is clean since T12; what remains is module-level pruning plus the tool entry points, both gated on T13"
+    },
+    "next_action_once_ruled": "resume at migration/receipts/T13.json questions, then T14 tidy and verification, then T15 clean regeneration and the full make verify-gpu chain"
   }
 }
