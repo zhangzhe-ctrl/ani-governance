@@ -7,8 +7,8 @@ import (
 
 	tlsUtils "go-wind-admin/pkg/localdeps/go-utils/tls"
 
-	asynqTransport "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq"
 	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
+	asynqTransport "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq"
 )
 
 // NewAsynqServer creates a new Asynq server.

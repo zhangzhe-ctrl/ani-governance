@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/hibiken/asynq"
-	"go-wind-admin/pkg/localdeps/kratos-transport/transport/sse"
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 	"go-wind-admin/pkg/localdeps/go-utils/aggregator"
@@ -17,6 +16,7 @@ import (
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/kratos-transport/transport/sse"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"
