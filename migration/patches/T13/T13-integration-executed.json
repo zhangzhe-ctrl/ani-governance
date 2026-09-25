@@ -1,0 +1,75 @@
+{
+  "schema_version": "t09-integration-executed/1",
+  "executed_at": "2026-09-26T06:33:31+08:00",
+  "supersedes": "migration/required-integration-deferred.json status DEFERRED for the six listed cases",
+  "authorization": "user ruling in session: 授权安装 protoc 后执行",
+  "toolchain": {
+    "protoc": "libprotoc 29.3, installed for this task only at /home/ubuntu/tx7do-pilot-run/T13/protoc-root/bin/protoc",
+    "protoc_zip": {
+      "url": "https://github.com/protocolbuffers/protobuf/releases/download/v29.3/protoc-29.3-linux-x86_64.zip",
+      "sha256": "3e866620c5be27664f3d2fa2d656b5f3e09b5152b42f1bedbf427b333e90021a",
+      "bytes": 3288836
+    },
+    "protoc_binary_sha256": "5ae94ad986e83f0b52bd8139e036cbf94ddbba3ad348be8e4baf44447d7e19a4",
+    "protoc-gen-go": "protoc-gen-go v1.36.11",
+    "protoc-gen-go-grpc": "protoc-gen-go-grpc 1.6.2",
+    "go": "go version go1.26.7 linux/amd64",
+    "system_protoc_installed": false,
+    "note": "nothing was written outside the task directory and no repository file changed"
+  },
+  "working_copy": {
+    "path": "/home/ubuntu/tx7do-pilot-run/T13/redact-run",
+    "how": "module go-wind-admin with the repository go.mod/go.sum copied in, the taken-over plugin tree at pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact, and the staged upstream test files, testdata and examples placed beside it; redact/v1/redact.proto came from the locked upstream module because the takeover carried only Go files",
+    "why_not_in_the_repo": "the integration cases need a protoc binary and write generated files into their package directory, so they stay a temporary working copy; putting them into ./... would make the repository test gate depend on an installed protoc, which is a gate change this halted stage must not make",
+    "generator_under_test": "the taken-over local plugin sources (go build -o protoc-gen-redact . inside the working copy), and the generated redact code imports go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1 as process.go declares"
+  },
+  "results": {
+    "top_level": [
+      {
+        "test": "TestExternalTemplateLoading",
+        "action": "pass"
+      },
+      {
+        "test": "TestTemplateParameterValidation",
+        "action": "pass"
+      },
+      {
+        "test": "TestIntegrationProtoCompilation",
+        "action": "pass"
+      },
+      {
+        "test": "TestGeneratedCodeQuality",
+        "action": "pass"
+      },
+      {
+        "test": "TestOptionalFieldsInGeneratedCode",
+        "action": "pass"
+      }
+    ],
+    "totals": {
+      "pass": 5,
+      "fail": 0,
+      "skip": 0
+    },
+    "benchmark": {
+      "name": "BenchmarkCodeGeneration",
+      "runs": "3x",
+      "ns_per_op": 26144064,
+      "exit": 0
+    }
+  },
+  "commands": [
+    {
+      "cmd": "go test -json -count=1 -timeout=900s -v -run '^(TestIntegrationProtoCompilation|TestGeneratedCodeQuality|TestOptionalFieldsInGeneratedCode|TestExternalTemplateLoading|TestTemplateParameterValidation)$' ./pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/",
+      "exit": 0
+    },
+    {
+      "cmd": "go test -count=1 -run '^$' -bench BenchmarkCodeGeneration -benchtime=3x ./pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/",
+      "exit": 0
+    }
+  ],
+  "honest_limits": [
+    "this proves the taken-over generator drives protoc end to end on the fixed upstream sample; it is not a regeneration of the repository's own API protos",
+    "the repository still cannot run these cases from ./...; T13's gow/generate-entry-point question remains parked"
+  ]
+}

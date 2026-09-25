@@ -1,113 +1,136 @@
 {
- "schema_version": "t09-integration-deferred/1",
- "note": "DEFERRED-required integration cases. These are not failures and not skips: they are cases whose sources and resources are preserved and hashed but whose execution is scheduled for the T13 tooling stage (at the latest before T15 sign-off) because protoc is absent on this host. T09 and every later checkpoint must restate them as DEFERRED; only a real run with recorded tool versions may turn one into pass.",
- "status": "DEFERRED",
- "source_module": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2",
- "staging_manifest": "migration/patches/T09/T09-integration-staging.json",
- "due": {
-  "earliest": "T13 (tooling stage)",
-  "latest": "T15 (final sign-off)"
- },
- "tests": [
-  {
-   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
-   "Test": "TestIntegrationProtoCompilation",
-   "Kind": "test",
-   "File": "integration_test.go",
-   "Line": 19,
-   "needs": [
-    "protoc",
-    "protoc-gen-go (--go_out)",
-    "built plugin binary ./protoc-gen-redact",
-    "testdata/integration/test.proto",
-    "go build ./testdata/integration",
-    "go vet ./testdata/integration"
-   ],
-   "writes_into_source_tree": [
-    "protoc-gen-redact",
-    "testdata/integration/test.pb.go",
-    "testdata/integration/test.pb.redact.go",
-    "testdata/integration/test_grpc.pb.go"
-   ],
-   "honours_testing_short": true
+  "schema_version": "t09-integration-deferred/1",
+  "note": "The six cases were DEFERRED from T09 because protoc was absent. On 2026-09-26 the owner authorized installing a task-local protoc 29.3, and they were run for real in a temporary working copy of the taken-over plugin: five pass, the benchmark runs. They remain outside the repository build, so they are not part of any ./... gate; that placement question belongs to the parked T13 tooling ruling.",
+  "status": "EXECUTED_OUTSIDE_THE_BUILD",
+  "source_module": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2",
+  "staging_manifest": "migration/patches/T09/T09-integration-staging.json",
+  "due": {
+    "earliest": "T13 (tooling stage)",
+    "latest": "T15 (final sign-off)"
   },
-  {
-   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
-   "Test": "TestGeneratedCodeQuality",
-   "Kind": "test",
-   "File": "integration_test.go",
-   "Line": 347,
-   "needs": [
-    "os.Stat on testdata/integration/test.proto"
-   ],
-   "writes_into_source_tree": [],
-   "honours_testing_short": true
+  "tests": [
+    {
+      "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+      "Test": "TestIntegrationProtoCompilation",
+      "Kind": "test",
+      "File": "integration_test.go",
+      "Line": 19,
+      "needs": [
+        "protoc",
+        "protoc-gen-go (--go_out)",
+        "built plugin binary ./protoc-gen-redact",
+        "testdata/integration/test.proto",
+        "go build ./testdata/integration",
+        "go vet ./testdata/integration"
+      ],
+      "writes_into_source_tree": [
+        "protoc-gen-redact",
+        "testdata/integration/test.pb.go",
+        "testdata/integration/test.pb.redact.go",
+        "testdata/integration/test_grpc.pb.go"
+      ],
+      "honours_testing_short": true
+    },
+    {
+      "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+      "Test": "TestGeneratedCodeQuality",
+      "Kind": "test",
+      "File": "integration_test.go",
+      "Line": 347,
+      "needs": [
+        "os.Stat on testdata/integration/test.proto"
+      ],
+      "writes_into_source_tree": [],
+      "honours_testing_short": true
+    },
+    {
+      "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+      "Test": "TestOptionalFieldsInGeneratedCode",
+      "Kind": "test",
+      "File": "integration_test.go",
+      "Line": 380,
+      "needs": [
+        "protoc",
+        "protoc-gen-go (--go_out)",
+        "built plugin binary ./protoc-gen-redact",
+        "testdata/integration/test.proto"
+      ],
+      "writes_into_source_tree": [
+        "protoc-gen-redact",
+        "testdata/integration/test.pb.redact.go"
+      ],
+      "honours_testing_short": true
+    },
+    {
+      "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+      "Test": "TestExternalTemplateLoading",
+      "Kind": "test",
+      "File": "external_template_test.go",
+      "Line": 16,
+      "needs": [
+        "protoc",
+        "protoc-gen-go (--go_out)",
+        "built plugin binary ./protoc-gen-redact",
+        "examples/custom-template.tmpl",
+        "redact --template handling"
+      ],
+      "writes_into_source_tree": [
+        "protoc-gen-redact",
+        "testdata/integration/test.pb.redact.go"
+      ],
+      "honours_testing_short": false
+    },
+    {
+      "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+      "Test": "TestTemplateParameterValidation",
+      "Kind": "test",
+      "File": "external_template_test.go",
+      "Line": 171,
+      "needs": [
+        "nothing external: builds &Module{ModuleBase: &pgs.ModuleBase{}} and calls the production loadTemplateFromFile with an empty path and a directory (all 6 exec.Command sites in this file are inside TestExternalTemplateLoading)"
+      ],
+      "writes_into_source_tree": [],
+      "honours_testing_short": false,
+      "note": "the only staged case that is runnable on this host today; it stays DEFERRED because it lives in the same file as a protoc-driven case and the file cannot be activated without activating that one. No repository test executed here may be reported in its place."
+    },
+    {
+      "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+      "Test": "BenchmarkCodeGeneration",
+      "Kind": "benchmark",
+      "File": "integration_test.go",
+      "Line": 461,
+      "needs": [
+        "protoc",
+        "built plugin binary ./protoc-gen-redact",
+        "-bench"
+      ],
+      "writes_into_source_tree": [
+        "protoc-gen-redact"
+      ],
+      "honours_testing_short": true
+    }
+  ],
+  "executed_at": "2026-09-26T06:33:31+08:00",
+  "execution_evidence": "migration/patches/T13/T13-integration-executed.json",
+  "toolchain": {
+    "protoc": "29.3",
+    "protoc-gen-go": "protoc-gen-go v1.36.11",
+    "protoc-gen-go-grpc": "protoc-gen-go-grpc 1.6.2",
+    "go": "go1.26.7"
   },
-  {
-   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
-   "Test": "TestOptionalFieldsInGeneratedCode",
-   "Kind": "test",
-   "File": "integration_test.go",
-   "Line": 380,
-   "needs": [
-    "protoc",
-    "protoc-gen-go (--go_out)",
-    "built plugin binary ./protoc-gen-redact",
-    "testdata/integration/test.proto"
-   ],
-   "writes_into_source_tree": [
-    "protoc-gen-redact",
-    "testdata/integration/test.pb.redact.go"
-   ],
-   "honours_testing_short": true
-  },
-  {
-   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
-   "Test": "TestExternalTemplateLoading",
-   "Kind": "test",
-   "File": "external_template_test.go",
-   "Line": 16,
-   "needs": [
-    "protoc",
-    "protoc-gen-go (--go_out)",
-    "built plugin binary ./protoc-gen-redact",
-    "examples/custom-template.tmpl",
-    "redact --template handling"
-   ],
-   "writes_into_source_tree": [
-    "protoc-gen-redact",
-    "testdata/integration/test.pb.redact.go"
-   ],
-   "honours_testing_short": false
-  },
-  {
-   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
-   "Test": "TestTemplateParameterValidation",
-   "Kind": "test",
-   "File": "external_template_test.go",
-   "Line": 171,
-   "needs": [
-    "nothing external: builds &Module{ModuleBase: &pgs.ModuleBase{}} and calls the production loadTemplateFromFile with an empty path and a directory (all 6 exec.Command sites in this file are inside TestExternalTemplateLoading)"
-   ],
-   "writes_into_source_tree": [],
-   "honours_testing_short": false,
-   "note": "the only staged case that is runnable on this host today; it stays DEFERRED because it lives in the same file as a protoc-driven case and the file cannot be activated without activating that one. No repository test executed here may be reported in its place."
-  },
-  {
-   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
-   "Test": "BenchmarkCodeGeneration",
-   "Kind": "benchmark",
-   "File": "integration_test.go",
-   "Line": 461,
-   "needs": [
-    "protoc",
-    "built plugin binary ./protoc-gen-redact",
-    "-bench"
-   ],
-   "writes_into_source_tree": [
-    "protoc-gen-redact"
-   ],
-   "honours_testing_short": true
+  "results": {
+    "top_level": {
+      "TestExternalTemplateLoading": "pass",
+      "TestTemplateParameterValidation": "pass",
+      "TestIntegrationProtoCompilation": "pass",
+      "TestGeneratedCodeQuality": "pass",
+      "TestOptionalFieldsInGeneratedCode": "pass"
+    },
+    "totals": {
+      "pass": 5,
+      "fail": 0,
+      "skip": 0
+    },
+    "benchmark": "BenchmarkCodeGeneration 3x 26144064 ns/op exit 0"
   }
- ]
 }

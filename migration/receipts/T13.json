@@ -3,7 +3,7 @@
   "task": "T13",
   "phase": "D",
   "goal_file": "_agent/ani-governance-tx7do-plan/goals/T13.md",
-  "status": "BLOCKED",
+  "status": "PARTIALLY_EXECUTED_REST_BLOCKED_BY_OWNER_DECISION",
   "blocker_type": "owner decision required; not a symbol-level compile failure and not a disguised pass",
   "start_sha": "eed06bb",
   "start_sha_full": "eed06bb04bd7fe168c36b3ebb4cb898affd7b7ce",
@@ -95,5 +95,37 @@
     "no push, merge or deploy",
     "accepted_head deliberately not advanced"
   ],
-  "conclusion": "T13 BLOCKED pending an owner ruling on the gow dependency expansion. The four questions asked back are recorded in migration/handoff.json under phase_D_T13_blocked_parked_at."
+  "conclusion": "T13 BLOCKED pending an owner ruling on the gow dependency expansion. The four questions asked back are recorded in migration/handoff.json under phase_D_T13_blocked_parked_at.",
+  "owner_ruling_2026_09_26": {
+    "question_asked": "how to handle gow given the 47-module / GORM-family expansion, and how to handle the protoc-deferred cases",
+    "answers": {
+      "gow": "暂停整个程序 (stop the whole program) — T13 tooling takeover, T14 tidy and T15 full chain are all suspended",
+      "protoc": "授权安装 protoc 后执行 (install protoc and run the deferred cases)"
+    },
+    "consequence": "the gow questions stay open and nothing further in T13/T14/T15 was started; the protoc part is closed with a real run"
+  },
+  "protoc_deferred_cases": {
+    "status": "EXECUTED_OUTSIDE_THE_BUILD",
+    "evidence": "migration/patches/T13/T13-integration-executed.json",
+    "toolchain": "protoc 29.3 (task-local, zip sha256 recorded), protoc-gen-go v1.36.11, protoc-gen-go-grpc v1.6.2, go1.26.7",
+    "results": {
+      "pass": 5,
+      "fail": 0,
+      "skip": 0,
+      "benchmark": "BenchmarkCodeGeneration 3x 26144064 ns/op"
+    },
+    "repository_impact": "none: the run happened in a temporary working copy; git status is clean apart from the untracked _agent/ plan material and the ledger files in this commit"
+  },
+  "gow_part": {
+    "status": "BLOCKED_NOT_STARTED",
+    "detail": "unchanged from the measurements above; the owner chose to stop the program rather than choose between the boundaries",
+    "open_questions": [
+      "Does the main module's dependency graph grow to host gow (gorm.io/*, google/wire, survey, entgo/contrib, tidb parser, ClickHouse and MSSQL drivers, zap ...), or does gow stay an external tool and T13's 'no go install github.com/tx7do/...' requirement is relaxed?",
+      "If it grows: is re-introducing the GORM family as a build-time-only tool dependency considered compatible with 不恢复 GORM, or is that boundary absolute?",
+      "If gow moves in: may its non-tx7do pins be overridden by the main module's newer versions (atlas 1.3.0, ent 0.14.6, x/tools 0.49.0, inflect 1.0.0), which is what MVS will do?",
+      "For the deferred cases: authorize a protoc installation with a recorded version, or keep them DEFERRED into T15 sign-off?"
+    ]
+  },
+  "end_sha": "a0891cbf1041d5ae11f6cd332899c3db4d03b6eb",
+  "accepted_head_unchanged": "6445990eaf5fa090d578dd490e460aba64606cfd"
 }

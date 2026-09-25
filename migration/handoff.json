@@ -803,5 +803,34 @@
       "note": "the graph is clean since T12; what remains is module-level pruning plus the tool entry points, both gated on T13"
     },
     "next_action_once_ruled": "resume at migration/receipts/T13.json questions, then T14 tidy and verification, then T15 clean regeneration and the full make verify-gpu chain"
+  },
+  "phase_D_program_halted_by_owner_ruling": {
+    "recorded_at": "2026-09-26T06:40+08:00",
+    "accepted_head": "6445990eaf5fa090d578dd490e460aba64606cfd",
+    "head_at_halt": "a0891cbf1041d5ae11f6cd332899c3db4d03b6eb",
+    "ruling": "暂停整个程序 after T12; T13's gow takeover, T14's module tidy and T15's full chain are not executed",
+    "done_instead": "the six T09-deferred protoc cases were authorized separately and were run for real with a task-local protoc 29.3: 5 pass, 0 fail, 0 skip, benchmark measured; see migration/patches/T13/T13-integration-executed.json",
+    "state_of_the_takeover": {
+      "github_com_tx7do_packages_in_the_dependency_graph": 0,
+      "github_com_tx7do_requires_still_in_go_mod": 42,
+      "stages_closed": [
+        "T00-T10",
+        "T11 MIGRATION_PASS_TARGETED",
+        "T12 MIGRATION_PASS_TARGETED"
+      ],
+      "stages_open": [
+        "T13 gow tooling (owner decision pending)",
+        "T14 module pruning",
+        "T15 clean regen + full make verify-gpu"
+      ],
+      "known_defects_carried": [
+        "3 order-id cases",
+        "9 captcha cases",
+        "T03-F4",
+        "T03-F5",
+        "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY not_run"
+      ]
+    },
+    "not_pushed_merged_or_deployed": true
   }
 }
