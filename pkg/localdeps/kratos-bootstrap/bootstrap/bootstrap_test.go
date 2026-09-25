@@ -143,7 +143,6 @@ func (s *lifecycleServer) Stop(context.Context) error {
 	return nil
 }
 
-
 func TestNewInstanceId(t *testing.T) {
 	instanceId := NewInstanceId("gowind-test-service", "1.0.0", "127.0.0.1", "8000")
 	t.Logf("InstanceId: %s", instanceId)
