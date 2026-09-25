@@ -37,7 +37,6 @@
       ],
       "other_examples_now_absent": [
         "github.com/AlecAivazis/survey/v2",
-        "github.com/google/wire",
         "entgo.io/contrib",
         "github.com/jhump/protoreflect",
         "github.com/pingcap/tidb/pkg/parser",
@@ -52,7 +51,8 @@
         "golang.org/x/mod v0.35.0 -> v0.40.0",
         "github.com/go-openapi/inflect v0.21.5 -> v1.0.0",
         "github.com/stretchr/testify v1.11.1 -> v1.12.1"
-      ]
+      ],
+      "correction_google_wire": "github.com/google/wire is NOT a graph dependency: internal/wire/cmd.go only names it in exec.LookPath(\"wire\") and the fallback go run command, so the wire subcommand shells out to an external binary. It is irrelevant to this repository because 不运行gow wire already holds, but it was listed as an incoming module in the first draft of this receipt and is corrected here."
     },
     "protoc_availability": {
       "protoc": "not installed (command not found)",
@@ -67,7 +67,14 @@
         "protoc-gen-go-redact"
       ],
       "why_that_matters": "the six deferred cases exec.Command(\"protoc\", ...) with explicit --go_out/--redact_out flags; a buf-driven run would be a different tool chain than the one the cases assert, and installing protoc is not authorized for this stage"
-    }
+    },
+    "runtime_tools_the_tool_still_needs": [
+      "protoc (absent on this host except the task-local 29.3 installed for the deferred cases)",
+      "protoc-gen-go / protoc-gen-go-grpc / protoc-gen-validate / protoc-gen-go-errors / protoc-gen-go-http / protoc-gen-openapi (present in /home/ubuntu/go/bin)",
+      "buf v1.60.0 (present)",
+      "wire binary or 'go run github.com/google/wire/cmd/wire' for the unused wire subcommand",
+      "gow's own go.mod does not require google/wire, which confirms it is runtime-only"
+    ]
   },
   "why_this_is_a_decision_and_not_a_technical_stop": [
     "The goal requires the same-named gow binary to be compiled from an ordinary directory of this main module without a nested go.mod, and forbids leaving go install github.com/tx7do/... behind. Doing that literally adds the 47 modules above to go-wind-admin/go.mod.",
