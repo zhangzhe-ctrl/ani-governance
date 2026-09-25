@@ -33,6 +33,9 @@ Thumbs.db
 bin/
 # 隔离实验镜像产物（scripts/lab/build-images.sh 默认输出目录）
 build/
+# 但 tools/localdeps 下是接管的源码，目录名恰好叫 build 也必须被跟踪：
+# 否则干净 checkout 缺少 internal/build，本地 gow 直接编不出来（T13 实测）。
+!tools/localdeps/**/build/
 
 # Develop tools
 .vscode/
