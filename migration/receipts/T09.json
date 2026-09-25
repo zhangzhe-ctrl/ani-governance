@@ -7,7 +7,7 @@
  "conclusion": "The takeover itself is sound and fully verified, but the round is parked BLOCKED on one inherited build defect that T09's authorization does not cover. protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2 is now an ordinary package of go-wind-admin: the redact Proto has exactly one source (api/localdeps/redact), the runtime pb is generated exactly once into pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1, the plugin is built from repository sources into tools/bin and is the only plugin Buf can reach during the post-change generation, and the 8 redact consumers in api/gen/go changed by 16 +/- lines that are all import strings. Reproducibility, descriptor equivalence, option survival and the real HTTP redaction path are all proven. BLOCKED because placing the upstream generator's own tests byte-identically introduces a module-wide build failure that did not exist at accepted_head: go vet ./... and go test ./... now fail in pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact with the exact error the unmodified upstream archive produces (redactor_test.go:116:23: undefined: redact). The only remedy that keeps the tests and turns them green is a 2-line change that ADDS a missing import spec to redactor_test.go and validation_test.go. That is not an import-string rewrite of an existing string, and the goal names only imports.go and process.go as editable, so it was validated in a throwaway copy and deliberately NOT applied here. Deleting the tests, excluding the package, or shipping a permanently failing go test ./... are all rejected as gate-lowering. See decision_needed.",
  "scope_statement": "zhangzhe-ctrl/ani-governance only. No protocol, database, identity, authorization, tenancy or query-semantics change; no vendor, no module-cache write, no nested go.mod, no permanent replace; no deploy; no business database.",
  "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
- "start_sha": "e327eb2a5f52a92a58c6a9b1b3f83f2e30c9c1f0",
+ "start_sha": "e327eb2970b605614547ee14805c179d25908a45",
  "start_sha_note": "e327eb2 (HEAD at entry, 'Record the accepted T08 commit in the migration ledger'); migration/accepted_head pointed at 53b3c0053ebf06435044b9b2928925ee528454de (T08 code commit). Working tree was clean apart from untracked _agent/ plan material.",
  "accepted_head_at_start": "53b3c0053ebf06435044b9b2928925ee528454de",
  "end_sha": "58a5439725fe3dc63a3ac797d55097239948d778 (the T09 source commit); this receipt ships in the ledger commit on top of it. accepted_head is deliberately NOT advanced while T09 is BLOCKED, so the next round must resume from 53b3c00 for accepted code and from 58a5439 for the working tree.",
@@ -221,8 +221,10 @@
   "live_code_references_to_the_external_module": 0,
   "go_list_deps_match": 0,
   "go_mod_why": "'main module does not need package github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1'",
-  "dead_requirement_left_in_place": "go.mod line 37 and 2 go.sum lines still list protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2. Dropping it is a one-line 'go mod edit -droprequire' and is now safe, but it was not applied: with T09-B1 open, every go.mod change should be approved together with the blocker decision. Recorded here as the residual dependency to clear.",
+  "dead_requirement_left_in_place": "go.mod:37 and go.sum:351-352 still list protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2. Measured precisely: go.mod:37 sits in the direct require block with no '// indirect' marker, so the module graph still asks the external module for a package nothing imports any more. Dropping it is a one-line 'go mod edit -droprequire' and is now safe, but it was not applied: with T09-B1 open, every go.mod change should be approved together with the blocker decision. Recorded here as the residual dependency to clear.",
   "textual_occurrences_that_are_not_dependencies": [
+   "api/localdeps/redact/redact/v1/redact.proto:8 - the in-file 'option go_package = \"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact\";' is kept verbatim from the locked source, per the accepted T08 precedent that localization happens in the generator managed override, not by editing the Proto. api/buf.redact.gen.yaml rewrites it to the repository path, and the descriptor diff proves the override is what lands in the generated pb and in the registered descriptor.",
+   "third_party/tx7do/ - the dependency-source backup region names the old module path in 3 places (proxy/@v/<lock>.mod, locks/go.mod:41, and the BSR redact.proto copy). It is a provenance backup, not a build input, and this round changed nothing there: 'git diff -- third_party/' is empty.",
    "pkg/localdeps/.../README.md - upstream documentation, kept verbatim for provenance (it also carries the go install instructions this repository no longer follows)",
    "pkg/localdeps/.../oneof_test.go and imports_test.go - inert string literals inside hand-built fixture maps (e.g. \"redact\": \"github.com/tx7do/...\" as an alias/path pair); they never read imports.go's table, which is why the 457-test measurement passes without touching them",
    "migration/ and docs/evidence/ - historical evidence that must keep naming the old path"
@@ -270,6 +272,23 @@
    "t09_ctl.sh, t09_sync_gen.py, t09_nonimport_delta.py (the reproducible controls)"
   ],
   "raw_go_test_json_logs": "/home/ubuntu/tx7do-pilot-run/T09/T09-tests-shipped.log.jsonl (authoritative, the tree state shipped here), plus T09-tests-final.log.jsonl and T09-affected-tests*.log.jsonl"
+ },
+ "receipt_amendments": {
+  "after_ledger_commit_6c41775": [
+   "start_sha corrected from 'e327eb2a5f52a92a58c6a9b1b3f83f2e30c9c1f0' to 'e327eb2970b605614547ee14805c179d25908a45'. The value first shipped is not a git object (git cat-file: could not get object info); the short prefix e327eb2 and every other SHA in the receipt resolve, and migration/handoff.json already carried the correct full hash, so the defect was this receipt's transcription, not the measurement. Recorded here instead of silently rewritten.",
+   "residual_target_dependencies: the stale protoc-gen-go-redact require is now stated as go.mod:37 inside the direct require block with no '// indirect' marker, and the go.sum lines as 351-352.",
+   "residual_target_dependencies: added the two textual occurrences measured after the first ledger commit - the verbatim in-file 'option go_package' in api/localdeps/redact/redact/v1/redact.proto:8 (T08 precedent: localization happens in the generator override) and the three upstream-path names under third_party/tx7do/, which this round did not touch ('git diff -- third_party/' empty)."
+  ],
+  "scope": "ledger-only; no repository source, generated file, script, or tool changed by these amendments",
+  "verification": "git rev-parse --verify on every 40-hex value in the two amended keys; go.mod/go.sum line numbers re-read from the committed tree; T08 wording compared against migration/receipts/T08.json",
+  "checkpoint_re_measured_after_the_amendments": {
+   "environment_correction": "the first re-run of these checks failed with 'version go1.26.4 does not match go tool version go1.26.7' because this shell exported GOROOT=/usr/local/go while PATH carried the pinned 1.26.7 tool. Not a repository state: re-run with GOROOT=/home/ubuntu/sdk/go1.26.7 GOTOOLCHAIN=local GOWORK=off GOFLAGS= (the same pin the task env helper exports).",
+   "go build -mod=readonly ./...": "exit 0",
+   "go vet ./pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/": "exit 1 - vet: redactor_test.go:116:23: undefined: redact (T09-B1 still reproduced at the parked tree)",
+   "go vet ./...": "exit 1 - exactly 2 findings, the T03-F5 copylocks line at accelerator_joint_http_test.go:503 and T09-B1; nothing new appeared",
+   "require_tests.py gate": "exit 0, required 16, bad_tests [], failed_packages []",
+   "ledger_json": "both migration/receipts/T09.json and migration/handoff.json parse; the only unresolved 40-hex value left in the receipt is the wrong hash quoted inside this block as the corrected-from value"
+  }
  },
  "verdict": "BLOCKED - takeover verified, decision required on the inherited generator-test build defect (T09-B1) and on the scope of the unplaced protoc-driven upstream tests (option D). accepted_head stays at 53b3c00 (T08); T10 is not started."
 }

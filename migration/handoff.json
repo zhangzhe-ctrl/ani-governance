@@ -543,7 +543,9 @@
    "integration_test.go, external_template_test.go, examples/ and testdata/integration/ were not placed: they are protoc-driven subprocess tests that need protoc (absent on this host) and write generated files plus a plugin binary into the source tree.",
    "go.mod still requires github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact although nothing imports it any more (go mod why: main module does not need it; go list -deps ./... matches 0). The one-line drop is deliberately held until the blocker decision so that go.mod changes are approved together.",
    "upstream redact.pb.go vs the regenerated copy: the go_package change plus a 3-line doc-comment reflow produced by protoc-gen-go v1.36.11; disclosed, not normalized.",
-   "environment: /home/ubuntu/go/bin/protoc-gen-go was momentarily replaced by v1.36.12 during tool discovery and restored to v1.36.11; the hash differs from the machine's original install. All committed generation evidence used v1.36.11 on both sides."
+   "environment: /home/ubuntu/go/bin/protoc-gen-go was momentarily replaced by v1.36.12 during tool discovery and restored to v1.36.11; the hash differs from the machine's original install. All committed generation evidence used v1.36.11 on both sides.",
+   "measured after the first T09 ledger commit: the stale require is at go.mod:37 in the DIRECT require block with no '// indirect' marker (go.sum:351-352), so the module graph still resolves a package nothing imports; still held for the same reason.",
+   "measured after the first T09 ledger commit: api/localdeps/redact/redact/v1/redact.proto:8 keeps the upstream in-file 'option go_package = \"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact\"' verbatim, per the accepted T08 precedent that localization happens in the generator managed override; api/buf.redact.gen.yaml is what rewrites it. third_party/tx7do/ names the old path in 3 backup copies (proxy @v .mod, locks/go.mod:41, the BSR redact.proto) and is untouched: 'git diff -- third_party/' is empty."
   ],
   "constraints_still_in_force": [
    "no push, no merge, no deploy; work stays on task/tx7do-takeover",
@@ -562,6 +564,7 @@
    "python3 tools/migration/require_tests.py --required migration/patches/T09/T09-required-profile.json --log /home/ubuntu/tx7do-pilot-run/T09/T09-tests-shipped.log.jsonl -> exit 0"
   ],
   "receipt": "migration/receipts/T09.json",
+  "receipt_amended_after_ledger_commit": "migration/receipts/T09.json now carries a receipt_amendments block: the shipped start_sha full hash was a transcription error (e327eb2a5f... is not a git object) and is corrected to e327eb2970b605614547ee14805c179d25908a45, which is the value this entry has recorded from the start; the two residual facts appended to disclosed_gaps above are also logged there. Ledger-only, no source changed.",
   "next_task": "do not start T10. Resume T09 only with a decision on T09-B1 (options A-D). If option A is authorized: add the two import specs, re-run the 16-test gate plus the 457-test suite and the pre/post control, then drop the dead go.mod require and record accepted_head movement.",
   "recorded_at": "T09 parked BLOCKED, phase C in progress"
  }
