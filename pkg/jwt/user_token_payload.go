@@ -12,7 +12,7 @@ import (
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
-	authn "github.com/tx7do/kratos-authn/engine"
+	authn "go-wind-admin/pkg/localdeps/kratos-authn/engine"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"

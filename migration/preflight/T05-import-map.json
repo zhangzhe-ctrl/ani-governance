@@ -1,0 +1,4 @@
+{
+  "github.com/tx7do/kratos-authn/engine/jwt": "go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt",
+  "github.com/tx7do/kratos-authn/engine": "go-wind-admin/pkg/localdeps/kratos-authn/engine"
+}

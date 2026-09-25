@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
-	authn "github.com/tx7do/kratos-authn/engine"
+	authn "go-wind-admin/pkg/localdeps/kratos-authn/engine"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 )

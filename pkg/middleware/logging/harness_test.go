@@ -33,7 +33,7 @@ import (
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/require"
-	authn "github.com/tx7do/kratos-authn/engine"
+	authn "go-wind-admin/pkg/localdeps/kratos-authn/engine"
 	crudviewer "go-wind-admin/pkg/localdeps/go-crud/viewer"
 	"google.golang.org/protobuf/types/known/timestamppb"
 

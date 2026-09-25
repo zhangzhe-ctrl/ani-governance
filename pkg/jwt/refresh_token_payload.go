@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	authn "github.com/tx7do/kratos-authn/engine"
+	authn "go-wind-admin/pkg/localdeps/kratos-authn/engine"
 )
 
 // Refresh token 的 claim 字段复用 access token 的 ClaimFieldUserID ("uid")

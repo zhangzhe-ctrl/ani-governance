@@ -1,0 +1,14 @@
+func AuthFromMD(ctx context.Context, expectedScheme string, ctxType ContextType) (string, error) {
+	val := extractTokenFromContext(ctx, ctxType)
+	if val == "" {
+		return "", status.Errorf(codes.Unauthenticated, "Request unauthenticated with "+expectedScheme)
+	}
+
+	splits := strings.SplitN(val, " ", 2)
+	if len(splits) < 2 {
+		return "", status.Errorf(codes.Unauthenticated, "Bad authorization string")
+	}
+
+	if !strings.EqualFold(splits[0], expectedScheme) {
+		return "", status.Errorf(codes.Unauthenticated, "Request unauthenticated with "+expectedScheme)
+	}

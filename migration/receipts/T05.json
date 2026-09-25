@@ -1,0 +1,58 @@
+{
+  "schema_version": "t05-receipt/1",
+  "task": "T05",
+  "phase": "B (T03->T04->T05->T06)",
+  "status": "BLOCKED",
+  "start_sha": "586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
+  "blocked_at_sha": "feface7 (T04 evidence-dir repair); T05 source changes held uncommitted in the working tree",
+  "scope_done": [
+    "recorded provenance + copied locked github.com/tx7do/kratos-authn@v1.1.11/engine (7 go files) and github.com/tx7do/kratos-authn/engine/jwt@v1.1.11 (3 go files) verbatim into pkg/localdeps/kratos-authn/{engine,engine/jwt} with package names, LICENSE and README preserved; no nested go.mod",
+    "migrate_imports equiv PASS for all 10 copied files (non-import AST + Go directives byte-identical to the locked archive)",
+    "rewrite of the copied jwt.go + jwt_test.go internal engine import, and of all 8 repo-own import sites, to go-wind-admin/pkg/localdeps/kratos-authn/engine[/jwt]",
+    "migrate_imports guard -base HEAD PASS for the 8 repo-own files (only imports changed)",
+    "go build ./... PASS (production consumers compile against the local engine packages; engine is now out of the external graph)",
+    "repo authn tests PASS: pkg/jwt, pkg/middleware/auth, and the taken-over engine/jwt package"
+  ],
+  "verbatim_block": {
+    "summary": "go test's default vet subset includes the printf analyzer, which rejects the frozen upstream package engine/metadata.go, so the newly-imported engine package's own test binary cannot build under the mandatory default-vet rule.",
+    "package": "go-wind-admin/pkg/localdeps/kratos-authn/engine",
+    "command": "go test ./pkg/localdeps/kratos-authn/engine/",
+    "exit": 1,
+    "log": "migration/preflight/T05-engine-vet-blocked.log",
+    "finding": [
+      "pkg/localdeps/kratos-authn/engine/metadata.go:31:51: non-constant format string in call to google.golang.org/grpc/status.Errorf",
+      "pkg/localdeps/kratos-authn/engine/metadata.go:40:51: non-constant format string in call to google.golang.org/grpc/status.Errorf"
+    ],
+    "function": "AuthFromMD (explicitly a T05 focus method)",
+    "pristine_identical": "metadata.go is byte-for-byte equal to github.com/tx7do/kratos-authn@v1.1.11/engine/metadata.go (cmp clean); snippet saved at migration/preflight/T05-metadata-pristine-snippet.txt",
+    "why_now": "while engine was an external module dependency, go test ./... never ran vet on it; bringing it into the main module made go test vet it and surfaced the finding",
+    "production_impact": "none — go build ./... is clean; the concatenated string is a legitimate non-format message, so behaviour is unchanged; only the test-vet gate trips",
+    "scope_of_finding": "the ONLY taken-over package that trips default vet; every T03/T04 package (captcha, crypto, jwtutil, password, aggregator, mapping, stringcase, sliceutil, fieldmaskutil, trans) vets to 0"
+  },
+  "why_not_self_fixed": [
+    "Editing AuthFromMD is a change to frozen upstream production code (master goal: 业务方法体/常量默认不变; 不修改生产实现; 已有缺陷单独报告). Even a behaviour-preserving `\"...%s\", scheme` rewrite is still a production edit that must not be made autonomously.",
+    "-vet=off is forbidden on release commands (T04 supplemental authorization §五; carried rule).",
+    "Carrying the engine self-tests as a known defect / excluding them needs a supplemental authorization. The T04 authorization is explicitly limited to captcha/password and states 本授权只涵盖本次点名范围 and 不允许自主扩大已知失败集合.",
+    "Keeping engine as an external dependency contradicts the T05 acceptance criterion 旧认证engine包不再出现在当前生产/测试入口包图."
+  ],
+  "decision_needed": {
+    "question": "How should T05 handle the frozen upstream AuthFromMD printf-vet finding that blocks go test of the newly-imported engine package?",
+    "options": [
+      "A: Authorize a behaviour-preserving two-line upstream fix (status.Errorf(c, \"Request unauthenticated with %s\", expectedScheme)) — identical resulting message; production edit to frozen source, single, scoped, logged.",
+      "B: Authorize a T04-style supplemental known-defect scope for the engine package's own tests (define the mechanism; note it cannot be -vet=off on release commands).",
+      "C: Any other disposition the user prefers (e.g., exclude engine/*_test.go named tests from the T05 required gate by explicit instruction)."
+    ]
+  },
+  "residual_target_dependencies": {
+    "still_external_after_takeover": ["github.com/tx7do/kratos-authn (root package) — not imported by repo code or by engine/engine-jwt, intentionally untouched", "github.com/tx7do/kratos-authn/engine/noop — not activated (unused)"],
+    "go_mod_annotation_change": "github.com/grpc-ecosystem/go-grpc-middleware moved from // indirect to direct require at the SAME version v1.4.0 (engine/metadata.go now imports util/metautils directly); no module added or upgraded",
+    "requires_still_present": ["github.com/tx7do/kratos-authn v1.1.11", "github.com/tx7do/kratos-authn/engine/jwt v1.1.11"]
+  },
+  "not_verified": [
+    "engine package self-tests (blocked by vet as above)",
+    "app/admin/service/internal/data authenticator + refresh/session + TokenChecker/UserTokenCache tests requiring the authorized isolated Redis/PG lab (not re-provisioned in this session)"
+  ],
+  "group_B_status": "T05 blocked at the default-vet gate on frozen upstream code; T06 not started; A/B/C/D/E checkpoint ordering preserved",
+  "pushed_merged_deployed": false,
+  "verdict": "BLOCKED"
+}

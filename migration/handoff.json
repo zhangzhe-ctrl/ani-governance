@@ -209,6 +209,24 @@
   ],
   "verdict": "MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS"
  },
+ "phase_B_T05_blocked": {
+  "accepted_head_unchanged": "586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
+  "task": "T05",
+  "status": "BLOCKED",
+  "receipt": "migration/receipts/T05.json",
+  "what_worked": "engine + engine/jwt copied verbatim (equiv 10/10), 9 import sites rewritten, 8 repo-own files guarded import-only, go build ./... clean, repo authn tests + engine/jwt tests pass, engine out of the external graph",
+  "blocked_on": "go test's default-vet printf analyzer rejects frozen upstream engine/metadata.go AuthFromMD (lines 31,40 non-constant format string), so the newly-imported engine package's own test binary cannot build under the no-vet-off rule; byte-identical to kratos-authn@v1.1.11",
+  "also_fixed": "committed T04 evidence-dir regression repair (orig -> _orig) at feface7 so go build/test ./... is valid again",
+  "decision_needed": "A: authorize a behaviour-preserving upstream fix to AuthFromMD; B: authorize a T04-style scoped known-defect for the engine self-tests (mechanism must not be -vet=off on release); C: user-specified alternative.",
+  "evidence": ["migration/preflight/T05-engine-vet-blocked.log", "migration/preflight/T05-metadata-pristine-snippet.txt", "migration/preflight/T05-import-map.json"],
+  "resume_instructions": [
+   "T05 source takeover is held in this commit's tree; do NOT treat it as accepted",
+   "on the user's decision apply the fix / known-defect mechanism, then run the full T05 gate incl the lab Redis/PG authenticator+refresh+session tests (not re-provisioned this session)",
+   "do not start T06 until T05 disposition is authorized"
+  ],
+  "group_B_paused": true,
+  "next_task_after_decision": "finish T05, then T06"
+ },
  "plan": {
   "master_goal": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
   "override": "This goal waives only the per-batch human-confirmation cadence of the old plan; functional, security, method-level and acceptance constraints stay in force.",
