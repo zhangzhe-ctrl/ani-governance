@@ -221,7 +221,11 @@ verify-gpu-regressions:
 	go build -o /dev/null ./app/admin/service/cmd/server
 	go build -tags quota_lab -o /dev/null ./app/admin/service/cmd/server
 	go build -o /dev/null ./app/admin/service/cmd/admin
-	go test ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
+	# The taken-over transport tests need a queue broker: scripts/verify-gpu-redis.sh
+	# starts a loopback-only, non-persistent container for this recipe and exports
+	# ANI_TEST_REDIS_URI. Those tests fail rather than skip when it is absent, so the
+	# variable must come from here and not from a developer shell.
+	bash scripts/verify-gpu-redis.sh run -- go test ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
 	go test -tags quota_pg ./app/admin/service/internal/data -run 'TestQuota|TestPlanQuota' -count=1 -timeout=15m
 	go test -tags quota_pg ./app/admin/service/internal/service -run 'TestPlanQuota' -count=1 -timeout=10m
 	go test -race -tags quota_pg ./app/admin/service/internal/data -run 'TestQuotaEnt|TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard|TestQuotaPostgresPolicyChanges|TestQuotaGpu|TestQuotaProcess' -count=1 -timeout=20m

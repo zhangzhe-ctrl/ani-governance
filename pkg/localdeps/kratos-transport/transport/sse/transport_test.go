@@ -12,8 +12,11 @@ import (
 
 func TestTransport_Kind(t *testing.T) {
 	o := &Transport{}
-	if !reflect.DeepEqual(KindSSE, o.Kind()) {
-		t.Errorf("expect %v, got %v", KindSSE, o.Kind())
+	// Kind() returns the named transport.Kind, while the constant is untyped: a
+	// direct comparison is what the contract is, and reflect.DeepEqual would
+	// compare two different types and always report a difference.
+	if got := o.Kind(); got != KindSSE {
+		t.Errorf("expect %v, got %v", KindSSE, got)
 	}
 }
 

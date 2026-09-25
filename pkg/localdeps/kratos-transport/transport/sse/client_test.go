@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -403,7 +404,7 @@ func TestSubscribeWithContextDone(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	var n1 = runtime.NumGoroutine()
+	var n1 = clientSubscriptionGoroutines()
 
 	c := NewClient(urlPath)
 
@@ -414,8 +415,28 @@ func TestSubscribeWithContextDone(t *testing.T) {
 	time.Sleep(1 * time.Second)
 	cancel()
 
-	time.Sleep(1 * time.Second)
-	var n2 = runtime.NumGoroutine()
+	// The contract is that a cancelled subscription leaves no goroutine behind. The
+	// upstream form compared one sample of runtime.NumGoroutine() with the baseline,
+	// which is not decidable: unrelated runtime and httptest goroutines move that
+	// number, and the same check also fails on the untouched upstream sources about
+	// a third of full-package runs. Counting only the goroutines that run a client
+	// method measures exactly what this test started, and a real leak still fails it.
+	require.Eventually(t, func() bool { return clientSubscriptionGoroutines() == n1 },
+		20*time.Second, 50*time.Millisecond,
+		"%d client subscription goroutines outlived the cancel (baseline %d)",
+		clientSubscriptionGoroutines(), n1)
+}
 
-	assert.Equal(t, n1, n2)
+// clientSubscriptionGoroutines counts the goroutines whose stack runs a method of
+// this package's Client, which is what SubscribeWithContext starts.
+func clientSubscriptionGoroutines() int {
+	buf := make([]byte, 1<<20)
+	n := runtime.Stack(buf, true)
+	count := 0
+	for _, block := range strings.Split(string(buf[:n]), "\n\n") {
+		if strings.Contains(block, "sse.(*Client).") {
+			count++
+		}
+	}
+	return count
 }

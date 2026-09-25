@@ -63,3 +63,9 @@ condition = "AND"
 regexTarget = "secret"
 paths = ['''^pkg/localdeps/kratos-authn/engine/jwt/jwt_test\.go$''']
 regexes = ['''^eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.eyJzY29wZSI6WyJsb2NhbDphZG1pbjp1c2VyX25hbWUiLCJ0ZW5hbnQ6YWRtaW46dXNlcl9uYW1lIl0sInN1YiI6InVzZXJfbmFtZSJ9\.xIzbQbQSlzdms5ZVaHrg6pZohDlt0DTYopobUo2qqQw$''']
+[[rules.allowlists]]
+description = "Public jwt.io documentation sample carried by the taken-over SSE browser demo page: the header is alg=HS256/typ=JWT, the payload decodes to sub=1234567890, name=\"John Doe\", admin=true, iat=1516239022, and it is signed with the publicly published demo key. The page only points a browser EventSource at localhost:8800; no service in this repository issues or accepts this token."
+condition = "AND"
+regexTarget = "secret"
+paths = ['''^pkg/localdeps/kratos-transport/transport/sse/index\.html$''']
+regexes = ['''^eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0\.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30$''']
