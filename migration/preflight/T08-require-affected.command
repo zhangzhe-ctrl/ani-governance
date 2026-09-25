@@ -1,0 +1,1 @@
+python3 tools/migration/require_tests.py --required /home/ubuntu/Workspace/ani-governance/migration/patches/T08/T08-required-profile.json --log /home/ubuntu/Workspace/ani-governance/migration/preflight/T08-tests-affected.log 

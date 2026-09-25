@@ -1,0 +1,33 @@
+proof set entries (deduplicated): 282
+modified .go files:               282
+
+--- files modified but with no proof ---
+--- proof entries not modified (would mean a stale list) ---
+
+non-.go modified files (each is a buf wiring / build / doc edit, listed in the receipt):
+AGENTS.md
+Makefile
+api/buf.accelerator.gen.yaml
+api/buf.admin.openapi.gen.yaml
+api/buf.aksk.gen.yaml
+api/buf.gen.yaml
+api/buf.lock
+api/buf.model.gen.yaml
+api/buf.network.gen.yaml
+api/buf.quota-lab.gen.yaml
+api/buf.quota.gen.yaml
+api/buf.yaml
+go.mod
+
+untracked paths (all new placed/localized files, enumerated in migration/patches/T08/T08-provenance.json):
+api/buf.pagination.gen.yaml
+api/localdeps/
+pkg/localdeps/go-crud/api/
+pkg/localdeps/go-crud/entgo/pagination/token_paginator_t08_test.go
+pkg/localdeps/go-crud/pagination/
+pkg/localdeps/go-wind-plugins/
+pkg/localdeps/go-wind/
+scripts/generate-pagination.sh
+
+COVERAGE OK: every modified Go file is either import-only (276 + 4 guard) or one of the
+two generated *.pb.redact.go files whose alias delta is proven by T08-redact-alias-diff.

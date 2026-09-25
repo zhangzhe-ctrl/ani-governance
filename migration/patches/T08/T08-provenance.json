@@ -1,0 +1,470 @@
+{
+ "task": "T08",
+ "pristine_source": "read-only module cache, no network fetch, no module-cache write",
+ "locked_versions": {
+  "github.com/tx7do/go-crud/api": "v0.0.7",
+  "github.com/tx7do/go-crud/pagination": "v0.0.16",
+  "github.com/tx7do/go-wind": "v0.0.2",
+  "github.com/tx7do/go-wind-plugins/encoding": "v0.0.1",
+  "github.com/tx7do/go-wind-plugins/encoding/json": "v0.0.1"
+ },
+ "extraction_policy": "complete package directory; no function-level trimming; module go.mod/go.sum and unrelated packages not copied",
+ "files": [
+  {
+   "local": "pkg/localdeps/go-crud/pagination/LICENSE",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/LICENSE",
+   "pristine_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+   "local_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+   "byte_identical": true,
+   "role": "non-Go asset kept verbatim (licence / readme / proto source)"
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/README.md",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/README.md",
+   "pristine_sha256": "17aae2b842f37afc2b78e65db7be804ead6736abec35f487ee61ae1ab78fe2bc",
+   "local_sha256": "17aae2b842f37afc2b78e65db7be804ead6736abec35f487ee61ae1ab78fe2bc",
+   "byte_identical": true,
+   "role": "non-Go asset kept verbatim (licence / readme / proto source)"
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/filter/README.md",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/filter/README.md",
+   "pristine_sha256": "fefed16f32ea9134ac0f2fb2cf0b08f693fa288f935e1cf191da5898562a63db",
+   "local_sha256": "fefed16f32ea9134ac0f2fb2cf0b08f693fa288f935e1cf191da5898562a63db",
+   "byte_identical": true,
+   "role": "non-Go asset kept verbatim (licence / readme / proto source)"
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/filter/converter.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/filter/converter.go",
+   "pristine_sha256": "66f2b06ceef4c8ac43ea414c2707d711a54f34999194ac4c9f4dba624107cef9",
+   "local_sha256": "e2ed3bea6ddab72e35e4e963fe0728c849f4d3849371275fcc064a318113e044",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/filter/converter_test.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/filter/converter_test.go",
+   "pristine_sha256": "68ec3e3cb3c1f7195b5e70f966864bacadc84cfabe1ef8cc72d4ba52f312eb3a",
+   "local_sha256": "bc064331487c6a12a381e2077cd83f23e5103c8c678e46cf9d481f29fa08e223",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/filter/filter_string_converter.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/filter/filter_string_converter.go",
+   "pristine_sha256": "f5d425cafa8d5a193d530715e4f7589078aefa14fb6e04391b7b47a3090e2cbc",
+   "local_sha256": "f48377a5eda0c9af9b7c19f0a0c9f7cb6c61b7dd354113f5779a3fcf7be47b18",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/filter/filter_string_converter_test.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/filter/filter_string_converter_test.go",
+   "pristine_sha256": "2a2347f6eb8734994f350819e6a3cc8eeb0e8652e1ca8b252232cfd0f54d3636",
+   "local_sha256": "81e91f3ba38d410d06758485efa30108eec6960c7fe0b5d188399e80a6a081e1",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/filter/operator_converter.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/filter/operator_converter.go",
+   "pristine_sha256": "b3abe74c71ab4a30e505184d3244c021458cbdb27667cbaf81fd6bc5b5a9013b",
+   "local_sha256": "077fdfcc4e0a193bff1c57a40a0ef48bc341039227accab642679a963849589d",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/filter/operator_converter_test.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/filter/operator_converter_test.go",
+   "pristine_sha256": "914c4f2636861312bf4946df20cac4eac2ed0f36ef1ecaee9324ef21461992b7",
+   "local_sha256": "554ae8fbf352fc96834eaeef0c804d91ac4cc6285018ec83c78db7816c974c93",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/filter/query_string_converter.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/filter/query_string_converter.go",
+   "pristine_sha256": "97501c8700e4d498fbd3b5189d998512982b5728cf866d643e91a0b3d37cc94b",
+   "local_sha256": "6dafd358e1154f299a3d9777ccfb68120c94513df835d40dad42cd31bee7ee20",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/filter/query_string_converter_test.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/filter/query_string_converter_test.go",
+   "pristine_sha256": "62503161d2241e39c239fb4b28822eaa81475187cf6544b4041ec436758637de",
+   "local_sha256": "d3221a2efeaf06bb6ed59b215d0dbc5ed50e2dfbc019b675569823b8a73e0fba",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/paginator/limits.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/paginator/limits.go",
+   "pristine_sha256": "0c8875cae85d84b497fc3a3077bd05ab5f8cb2dceab3cec6a1e8ff060993bd46",
+   "local_sha256": "0c8875cae85d84b497fc3a3077bd05ab5f8cb2dceab3cec6a1e8ff060993bd46",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/paginator/limits_test.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/paginator/limits_test.go",
+   "pristine_sha256": "3e86c5a4308ff1c5f97fadb7789c21f6c175b388fcd74a7a1e119fbd1b92aac1",
+   "local_sha256": "6561f982b5911477a8aa99aa674d8d6aa514d7e7d926aa19b5a89f5b7fc80326",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/paginator/offset_paginator.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/paginator/offset_paginator.go",
+   "pristine_sha256": "7f24a97f70db6f05f9729f17356da3f5de5526aaad12bb6809c77c1a3c21a675",
+   "local_sha256": "2275e9fc4b2ac220542457c2f062484cf1a3393b0f093a16c98d5ae576326008",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/paginator/page_paginator.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/paginator/page_paginator.go",
+   "pristine_sha256": "c6234ce42079295912ecc2027743b21e4297161121e0f6c390ac808b33bb0a06",
+   "local_sha256": "89f83054d951a2c0ace4633ef1598d56fe81cee8373cf39eed44bac0d8b420d0",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/paginator/token_paginator.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/paginator/token_paginator.go",
+   "pristine_sha256": "0cd3e3a2e0e97b08e5e90f061dd5b27e3572de12085b02314be5216a7d3b9d55",
+   "local_sha256": "d26eb2b4cd8b27d9ac7a018806ac843bd07983206fc94be8bfdc93aefd06f3dc",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/paginator.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/paginator.go",
+   "pristine_sha256": "8b52a0078ccd530b89b7f10d15e6d6992c290ffe5fdd6bd2b24b6c2cb2173c17",
+   "local_sha256": "8b52a0078ccd530b89b7f10d15e6d6992c290ffe5fdd6bd2b24b6c2cb2173c17",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/sorting/order_by_string_converter.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/sorting/order_by_string_converter.go",
+   "pristine_sha256": "858688d36ceecc6ca5a7d7d016fdbe1b55911023311f39957ccecc6185b21e92",
+   "local_sha256": "2dab29e777b43a7544588a5e668bff8b3c99da1956ec95d901c573645ae76f00",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/sorting/order_by_string_converter_test.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/sorting/order_by_string_converter_test.go",
+   "pristine_sha256": "15eb5bf141e057eff8513261e2cf2c92aa36a141a800e5bac44e35e40ea1b420",
+   "local_sha256": "9fc44f4e06e0b986d837b22d08c110f92e2606cd1a18a896f04f43b7a3ab2d2f",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/token_codec.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/token_codec.go",
+   "pristine_sha256": "3e59508c7b3645c6f91381c47a9281ab63f7a5d32cbb4d27128cee76ceb46764",
+   "local_sha256": "3e59508c7b3645c6f91381c47a9281ab63f7a5d32cbb4d27128cee76ceb46764",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/token_codec_test.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/token_codec_test.go",
+   "pristine_sha256": "4ac62100e6117002565578f7d5d12e655108554eb499e605ac4053dc17bd323e",
+   "local_sha256": "4ac62100e6117002565578f7d5d12e655108554eb499e605ac4053dc17bd323e",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/token_secret.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/token_secret.go",
+   "pristine_sha256": "2220a8345357e5068742752c1425c795bcbc6657d7bb4984f0abb120883ad52b",
+   "local_sha256": "2220a8345357e5068742752c1425c795bcbc6657d7bb4984f0abb120883ad52b",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/token_secret_test.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/token_secret_test.go",
+   "pristine_sha256": "2cda74b3b6a45c0ea95f4f64c795e6b260e830c96fe62660e4fcb0564ebaef76",
+   "local_sha256": "2cda74b3b6a45c0ea95f4f64c795e6b260e830c96fe62660e4fcb0564ebaef76",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/tree.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/tree.go",
+   "pristine_sha256": "ba9c67d6442f00959708e945fa5eaebedaabdc66f72c253503f2ef4ae25d6e25",
+   "local_sha256": "ba9c67d6442f00959708e945fa5eaebedaabdc66f72c253503f2ef4ae25d6e25",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/tree_test.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/tree_test.go",
+   "pristine_sha256": "834a29095f1f8ac7dd35bbf2e9e13bd14497d9db327d84e1d87b1798f7d82602",
+   "local_sha256": "834a29095f1f8ac7dd35bbf2e9e13bd14497d9db327d84e1d87b1798f7d82602",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/utils.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/utils.go",
+   "pristine_sha256": "4b14ee892cfaeea29b2b1e9b861d7937901018fd538368a91a25b4fc6e274e03",
+   "local_sha256": "b6b4d55ab834e9e2e215bed5fef843f5e6d55d8e36b832af0cebd1fc68d20bb0",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-crud/pagination/utils_test.go",
+   "pristine": "github.com/tx7do/go-crud/pagination@v0.0.16/utils_test.go",
+   "pristine_sha256": "c7864c084ceec951200c32fd9e3b685bf04eae8287edb09fae7f0191786314cd",
+   "local_sha256": "144b8c8b34abf5624c914c2f869cf9e965e9428117ccfd9d73cbf74bd126876c",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind/log/doc.go",
+   "pristine": "github.com/tx7do/go-wind@v0.0.2/log/doc.go",
+   "pristine_sha256": "77dd4e6e124126635b78eae70a63dba1564b16f769d510522756adb23e3b8eab",
+   "local_sha256": "77dd4e6e124126635b78eae70a63dba1564b16f769d510522756adb23e3b8eab",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind/log/example_test.go",
+   "pristine": "github.com/tx7do/go-wind@v0.0.2/log/example_test.go",
+   "pristine_sha256": "a0b69093fd195b9137a5071f5b5ecf07f52309072a21460636bc54c099d2ffd8",
+   "local_sha256": "420e8ed3ecdb03d4d10e902692d1b1e00633ec4a9327e091ee7774d2aab948f5",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind/log/global.go",
+   "pristine": "github.com/tx7do/go-wind@v0.0.2/log/global.go",
+   "pristine_sha256": "9c44879addfe5af57fa5a9c627a42574692c46c225b3a497b1ab2e37b07712a0",
+   "local_sha256": "9c44879addfe5af57fa5a9c627a42574692c46c225b3a497b1ab2e37b07712a0",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind/log/global_helpers.go",
+   "pristine": "github.com/tx7do/go-wind@v0.0.2/log/global_helpers.go",
+   "pristine_sha256": "1e4cd2307ef536e1b04fa2bb02cf5dc520a4696627a0921ffa510903d2887750",
+   "local_sha256": "1e4cd2307ef536e1b04fa2bb02cf5dc520a4696627a0921ffa510903d2887750",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind/log/global_helpers_test.go",
+   "pristine": "github.com/tx7do/go-wind@v0.0.2/log/global_helpers_test.go",
+   "pristine_sha256": "a775f9818d98395059c7e8d62e7fb0df63b37ab48658070199a776963ed49600",
+   "local_sha256": "a775f9818d98395059c7e8d62e7fb0df63b37ab48658070199a776963ed49600",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind/log/level.go",
+   "pristine": "github.com/tx7do/go-wind@v0.0.2/log/level.go",
+   "pristine_sha256": "ac75ed30db8c0dcaaadcc9f3a5ac582ac0567116648bc7a974aab543d0a912e4",
+   "local_sha256": "ac75ed30db8c0dcaaadcc9f3a5ac582ac0567116648bc7a974aab543d0a912e4",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind/log/log.go",
+   "pristine": "github.com/tx7do/go-wind@v0.0.2/log/log.go",
+   "pristine_sha256": "f67baf6087af7e38db665eed9401729059a855b5c6e622075746546cdcd84d05",
+   "local_sha256": "f67baf6087af7e38db665eed9401729059a855b5c6e622075746546cdcd84d05",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind/log/log_test.go",
+   "pristine": "github.com/tx7do/go-wind@v0.0.2/log/log_test.go",
+   "pristine_sha256": "854dca06c3d5ec8bc8d4c78a54a15491fbfb4e0bb3f6145875a1f3cbe15aecc5",
+   "local_sha256": "854dca06c3d5ec8bc8d4c78a54a15491fbfb4e0bb3f6145875a1f3cbe15aecc5",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind/log/nop_logger.go",
+   "pristine": "github.com/tx7do/go-wind@v0.0.2/log/nop_logger.go",
+   "pristine_sha256": "9a1310d50579913de642af0dff988b19f1e596c1261978874ab062d3bcfb9797",
+   "local_sha256": "9a1310d50579913de642af0dff988b19f1e596c1261978874ab062d3bcfb9797",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind/log/LICENSE",
+   "pristine": "github.com/tx7do/go-wind@v0.0.2/LICENSE",
+   "pristine_sha256": "bf0384a4b69d63403d7747384ddbe9e06628ca620099dee8612e6d6a83f169b3",
+   "local_sha256": "bf0384a4b69d63403d7747384ddbe9e06628ca620099dee8612e6d6a83f169b3",
+   "byte_identical": true,
+   "role": "non-Go asset kept verbatim (licence / readme / proto source)"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-plugins/encoding/LICENSE",
+   "pristine": "github.com/tx7do/go-wind-plugins/encoding@v0.0.1/LICENSE",
+   "pristine_sha256": "bf0384a4b69d63403d7747384ddbe9e06628ca620099dee8612e6d6a83f169b3",
+   "local_sha256": "bf0384a4b69d63403d7747384ddbe9e06628ca620099dee8612e6d6a83f169b3",
+   "byte_identical": true,
+   "role": "non-Go asset kept verbatim (licence / readme / proto source)"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-plugins/encoding/README.md",
+   "pristine": "github.com/tx7do/go-wind-plugins/encoding@v0.0.1/README.md",
+   "pristine_sha256": "752ba2d0948102df41e7fa2ae639512ba4ab28cd2d04ebad52cb136f325f87f9",
+   "local_sha256": "752ba2d0948102df41e7fa2ae639512ba4ab28cd2d04ebad52cb136f325f87f9",
+   "byte_identical": true,
+   "role": "non-Go asset kept verbatim (licence / readme / proto source)"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-plugins/encoding/encoding.go",
+   "pristine": "github.com/tx7do/go-wind-plugins/encoding@v0.0.1/encoding.go",
+   "pristine_sha256": "3de131159c38998eba5e092a1e56223b2dcd30abcdc8aafaa6937434319b6fb6",
+   "local_sha256": "3de131159c38998eba5e092a1e56223b2dcd30abcdc8aafaa6937434319b6fb6",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind-plugins/encoding/encoding_test.go",
+   "pristine": "github.com/tx7do/go-wind-plugins/encoding@v0.0.1/encoding_test.go",
+   "pristine_sha256": "1be8144e1b20a906c159d8c017c27b20417605403b68006ea1809fe5a16c5be8",
+   "local_sha256": "1be8144e1b20a906c159d8c017c27b20417605403b68006ea1809fe5a16c5be8",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind-plugins/encoding/json/LICENSE",
+   "pristine": "github.com/tx7do/go-wind-plugins/encoding/json@v0.0.1/LICENSE",
+   "pristine_sha256": "bf0384a4b69d63403d7747384ddbe9e06628ca620099dee8612e6d6a83f169b3",
+   "local_sha256": "bf0384a4b69d63403d7747384ddbe9e06628ca620099dee8612e6d6a83f169b3",
+   "byte_identical": true,
+   "role": "non-Go asset kept verbatim (licence / readme / proto source)"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-plugins/encoding/json/json.go",
+   "pristine": "github.com/tx7do/go-wind-plugins/encoding/json@v0.0.1/json.go",
+   "pristine_sha256": "b18e7b4d95da2b9b23edd33a2ce87ab8bbca26e2f7fa4077b9de088558a49940",
+   "local_sha256": "f71708b818740eebb1d29d7c0354abe34f3a00b40082595c8ebce587fac937a3",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/go-wind-plugins/encoding/json/json_test.go",
+   "pristine": "github.com/tx7do/go-wind-plugins/encoding/json@v0.0.1/json_test.go",
+   "pristine_sha256": "56812e014342523db08a3bd38035f80353fd9143cec5a476b137854d4e93e802",
+   "local_sha256": "329cfc104fb878e615bcc180d439e36060fac4faba256da56267068ce2ef7b24",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "api/localdeps/pagination/pagination/v1/pagination.proto",
+   "pristine": "github.com/tx7do/go-crud/api@v0.0.7/protos/pagination/v1/pagination.proto",
+   "pristine_sha256": "ebef7621e7c7cb0120fc696a3b9f5c73505b270b2f94ef46847b184a60a77a32",
+   "local_sha256": "ebef7621e7c7cb0120fc696a3b9f5c73505b270b2f94ef46847b184a60a77a32",
+   "byte_identical": true,
+   "role": "non-Go asset kept verbatim (licence / readme / proto source)"
+  },
+  {
+   "local": "pkg/localdeps/go-crud/api/LICENSE",
+   "pristine": "github.com/tx7do/go-crud/api@v0.0.7/LICENSE",
+   "pristine_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+   "local_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+   "byte_identical": true,
+   "role": "non-Go asset kept verbatim (licence / readme / proto source)"
+  },
+  {
+   "local": "migration/patches/T08/_pristine/go-crud-api-pagination-pb.go",
+   "pristine": "github.com/tx7do/go-crud/api@v0.0.7/gen/go/pagination/v1/pagination.pb.go",
+   "pristine_sha256": "679f2f1a5c5d4114e259c7fd382769006ab8ccf12832dfba878d2e0b51799d16",
+   "local_sha256": "679f2f1a5c5d4114e259c7fd382769006ab8ccf12832dfba878d2e0b51799d16",
+   "byte_identical": true,
+   "role": "pristine reference for the generated pagination.pb.go; never compiled (lives under migration/)"
+  }
+ ],
+ "counts": {
+  "total": 47,
+  "byte_identical": 28,
+  "equiv_pass": 37,
+  "equiv_fail": []
+ }
+}

@@ -1,0 +1,6 @@
+1593,1594c1593,1594
+< 	"\x02OR\x10\x02B\x9c\x01\n" +
+< 	"\x0ecom.paginationB\x0fPaginationProtoP\x01Z1github.com/tx7do/go-crud/api/gen/go/pagination/v1\xa2\x02\x03PXX\xaa\x02\n" +
+---
+> 	"\x02OR\x10\x02B\xa7\x01\n" +
+> 	"\x0ecom.paginationB\x0fPaginationProtoP\x01Z<go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1\xa2\x02\x03PXX\xaa\x02\n" +

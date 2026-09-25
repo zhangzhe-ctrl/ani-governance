@@ -1,0 +1,5 @@
+{
+  "checked_files": 276,
+  "pass": true,
+  "scope": "non-import AST and Go directives, not runtime behavior"
+}

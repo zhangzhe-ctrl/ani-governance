@@ -454,6 +454,69 @@
   ]
  },
  "purpose": "Resume ledger for the continuous T03~T15 takeover. Recovery must re-check these SHAs against migration/receipts before any edit.",
- "recorded_at": "T03-T15 master goal, phase B closed at T06",
- "schema_version": 1
+ "recorded_at": "T08 complete, phase C in progress",
+ "schema_version": 1,
+ "phase_C_T08_closure": {
+  "verdict": "PASS for T08 only; phase C stays open (T09, T10, then the second make verify-gpu)",
+  "result_sha": "53b3c0053ebf06435044b9b2928925ee528454de",
+  "accepted_head_now": "53b3c0053ebf06435044b9b2928925ee528454de",
+  "start_sha": "b8e4093a392def8dec47bd16f3310beaa48bff4b",
+  "frozen_baseline_still": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "ledger_commit": "this commit (records 53b3c00, changes no source)",
+  "closed_by_this_task": [
+   "pagination Proto has exactly one source in the repository: api/localdeps/pagination, byte-identical to go-crud/api@v0.0.7, and buf.build/tx7do/pagination is gone from api/buf.yaml and api/buf.lock",
+   "the pagination runtime, filter/paginator/sorting converters, the codec registry with encoding/json and go-wind/log are ordinary packages of the main module under pkg/localdeps",
+   "one token secret instance, one codec registry, one logger family, one pagination descriptor: proven by behaviour tests plus a two-binary descriptor comparison, not by grep",
+   "0 retired tx7do pagination/codec/logger paths in the build graph, the -test graph and the tag-gated GPU simulator graph"
+  ],
+  "constraints_still_in_force": [
+   "no push, no merge, no deploy",
+   "_agent/ is not committed",
+   "missing/skip/fail/not_run is not success",
+   "one batch at a time, receipts in ledger-only follow-up commits",
+   "no gate command runs with -vet=off; no package or upstream test is excluded with a build tag",
+   "only the authorized isolated lab databases; never quota-gpu-local-01-pg and never a business database"
+  ],
+  "resume_check_before_editing": [
+   "git merge-base --is-ancestor 53b3c0053ebf06435044b9b2928925ee528454de HEAD",
+   "cat migration/accepted_head  ->  53b3c0053ebf06435044b9b2928925ee528454de",
+   "git status --porcelain      ->  only '?? _agent/'",
+   "go build -mod=readonly ./...  ->  exit 0",
+   "bash /home/ubuntu/tx7do-pilot-run/T08/t08_residual.py  ->  retired_hits [] in all 4 scopes",
+   "BUF=/home/ubuntu/go/bin/buf make api-pagination  ->  regeneration keeps pagination.pb.go sha256 68556b2c"
+  ],
+  "environment_still_live": {
+   "containers": [
+    "tx7do-t07-guard-pg (127.0.0.1:55432)",
+    "tx7do-t07-acc-lab-pg (127.0.0.1:55433)",
+    "tx7do-t04-captcha-redis"
+   ],
+   "helper": "bash /home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh <command>",
+   "tags_used": [
+    "quota_pg (paging compatibility matrix)",
+    "quota_lab (simulator dependency listing)"
+   ],
+   "never_touched": "quota-gpu-local-01-pg"
+  },
+  "still_external_on_purpose": {
+   "tx7do_package_paths_in_graph": 26,
+   "next_batches": "T09 protoc-gen-go-redact runtime; T10 kratos-bootstrap api/bootstrap/logger/rpc/cache/transport plus go-utils/id, which is also what keeps go-utils/stringcase and go-utils/trans externally reachable",
+   "go_mod_requires_still_naming_tx7do_modules": 43,
+   "tidy_deferred_to": "phase E (T14/T15), together with the third make verify-gpu"
+  },
+  "disclosed_not_fixed": [
+   "TestBootstrapPostgres (T03-F4) still fails in the affected run; it is not in T08's required profile and was not narrowed away",
+   "go vet copylocks at accelerator_joint_http_test.go:503 (T03-F5) still makes the wide vet exit 1",
+   "24 generated files still differ from a clean regeneration because the tree stores newer protoc-gen-go / protoc-gen-go-grpc headers than the verified local tools",
+   "the two *.pb.redact.go files are the only Go changes outside the import-only proof: one import alias and 2/3 selector qualifiers, reproduced byte-for-byte by the localized generation chain (migration/preflight/T08-redact-alias-diff.log)"
+  ],
+  "unverified_backlog": [
+   "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY remain not_run (external populated backup/restore window)",
+   "9 captcha KNOWN_BASELINE_FAILURE cases from the T04 authorization are unchanged",
+   "no service startup, HTTP path or deployment was exercised"
+  ],
+  "next_task": "T09. Read _agent/ani-governance-tx7do-plan/goals/T09.md on entry only.",
+  "receipt": "migration/receipts/T08.json",
+  "recorded_at": "T08 complete, phase C in progress"
+ }
 }

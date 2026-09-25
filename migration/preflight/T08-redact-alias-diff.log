@@ -1,0 +1,31 @@
+=== api/gen/go/admin/service/v1/i_user.pb.redact.go ===
+code-generated marker at start_sha: True
+import-block delta (expected: the pagination line only)
+  - 	pagination "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+  + 	v1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+import delta confined to that line: True
+lines changed outside the import block: 2
+  L18   - _ pagination.Sorting
+  L18   + _ v1.Sorting
+  L42   - func (s *redactedUserServiceServer) List(ctx context.Context, in *pagination.PagingRequest) (*identitypb.ListUserResponse, error) {
+  L42   + func (s *redactedUserServiceServer) List(ctx context.Context, in *v1.PagingRequest) (*identitypb.ListUserResponse, error) {
+unexplained: none
+clean post-change regeneration is byte-identical to the working tree: True
+
+=== api/gen/go/identity/service/v1/user.pb.redact.go ===
+code-generated marker at start_sha: True
+import-block delta (expected: the pagination line only)
+  - 	pagination "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+  + 	v1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+import delta confined to that line: True
+lines changed outside the import block: 3
+  L21   - _ pagination.Sorting
+  L21   + _ v1.Sorting
+  L68   - func (s *redactedUserServiceServer) List(ctx context.Context, in *pagination.PagingRequest) (*ListUserResponse, error) {
+  L68   + func (s *redactedUserServiceServer) List(ctx context.Context, in *v1.PagingRequest) (*ListUserResponse, error) {
+  L79   - func (s *redactedUserServiceServer) Count(ctx context.Context, in *pagination.PagingRequest) (*CountUserResponse, error) {
+  L79   + func (s *redactedUserServiceServer) Count(ctx context.Context, in *v1.PagingRequest) (*CountUserResponse, error) {
+unexplained: none
+clean post-change regeneration is byte-identical to the working tree: True
+
+OK: both *.pb.redact.go deltas are the pagination import alias and its selector qualifiers only, and both are reproduced byte for byte by the localized generation chain - no redact/bypass logic, options or method bodies moved

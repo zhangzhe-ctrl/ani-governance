@@ -1,0 +1,24 @@
+Go files in the change set: 325
+gofmt-unclean among them:   11
+  PRE-EXISTING at the frozen baseline: app/admin/service/internal/service/data_access_audit_log_service.go
+  PRE-EXISTING at the frozen baseline: app/admin/service/internal/service/internal_message_recipient_service.go
+  PRE-EXISTING at the frozen baseline: app/admin/service/internal/service/login_audit_log_service.go
+  PRE-EXISTING at the frozen baseline: app/admin/service/internal/service/operation_audit_log_service.go
+  PRE-EXISTING at the frozen baseline: app/admin/service/internal/service/permission_audit_log_service.go
+  PRE-EXISTING at the frozen baseline: app/admin/service/internal/service/policy_evaluation_log_service.go
+  PRE-EXISTING at the frozen baseline: app/admin/service/internal/service/quota_admin_service.go
+  PRE-EXISTING at the frozen baseline: app/admin/service/internal/service/user_field_permission.go
+  INHERITED from the locked upstream source: pkg/localdeps/go-crud/pagination/filter/filter_string_converter_test.go
+      upstream: /home/ubuntu/go/pkg/mod/github.com/tx7do/go-crud/pagination@v0.0.16/filter/filter_string_converter_test.go
+  INHERITED from the locked upstream source: pkg/localdeps/go-wind/log/global_helpers.go
+      upstream: /home/ubuntu/go/pkg/mod/github.com/tx7do/go-wind@v0.0.2/log/global_helpers.go
+  INHERITED from the locked upstream source: pkg/localdeps/go-wind/log/global_helpers_test.go
+      upstream: /home/ubuntu/go/pkg/mod/github.com/tx7do/go-wind@v0.0.2/log/global_helpers_test.go
+
+T08-authored files (must be gofmt-clean):
+  clean   pkg/localdeps/go-crud/pagination/t08_localization_test.go
+  clean   pkg/localdeps/go-crud/pagination/filter/t08_codec_localization_test.go
+  clean   pkg/localdeps/go-crud/entgo/pagination/token_paginator_t08_test.go
+
+OK: no file in the change set is unclean because of this round; gofmt is not gated by
+    'make lint' (which runs golangci-lint), so this is disclosure, not a new failure.

@@ -1,0 +1,53 @@
+{
+  "task": "T08",
+  "purpose": "Repo-owned test additions for this round. None of these files exist in the pristine upstream modules; they are additions, not modifications.",
+  "rule_checked": "goals/T08.md line 11 requires blank / numeric / time SEARCH, NULL, sorting-total, mask and token anti-tampering coverage; line 12 requires an executable-init smoke test and forbids the old pagination package in the run/test graphs.",
+  "no_upstream_test_was_excluded": "Every upstream _test.go that was taken over stayed in place with its original build constraints. tools/migration/migrate_imports.go equiv reported import-only equivalence (equiv_exit = 0) for all 19 rewritten files in T08-provenance.json, and the guard reported pass=true for 276 consumer files in migration/preflight/T08-guard-import-only.json, so no exclusion tag, skip or renamed expectation was introduced anywhere in this round.",
+  "added_files": [
+    {
+      "path": "pkg/localdeps/go-crud/pagination/t08_localization_test.go",
+      "package": "pagination",
+      "tests": [
+        "TestT08PaginationProtoIsRegisteredExactlyOnce",
+        "TestT08PagingRequestContractIsUnchanged"
+      ],
+      "covers": [
+        "pagination/v1/pagination.proto is registered exactly once in the process and the registered descriptor is the one behind the imported Go types (protobuf-go refuses a second registration, so a duplicate source fails here instead of silently)",
+        "the registered go_package is go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1 and no import path of the file points at github.com/tx7do",
+        "the frozen protocol contract: 12 messages / 3 top-level enums / 5 imports, every PagingRequest field name, number, kind, json_name, oneof, cardinality and option-extension count, plus the full Operator / DatePart / ExprType / Sorting.Direction value tables"
+      ]
+    },
+    {
+      "path": "pkg/localdeps/go-crud/pagination/filter/t08_codec_localization_test.go",
+      "package": "filter",
+      "tests": [
+        "TestT08FilterResolvesTheLocalizedJSONCodec",
+        "TestT08SearchOperatorIsKnownToTheLocalizedConverter"
+      ],
+      "covers": [
+        "the pagination filter chain resolves its codec from pkg/localdeps/go-wind-plugins/encoding (the init registration of pkg/localdeps/go-wind-plugins/encoding/json), round-trips through it, and still rejects malformed JSON instead of silently producing no condition",
+        "SEARCH survives localization both as the enum value and in the operator string table, and a blank-value SEARCH query converts into one SEARCH condition"
+      ]
+    },
+    {
+      "path": "pkg/localdeps/go-crud/entgo/pagination/token_paginator_t08_test.go",
+      "package": "pagination (entgo)",
+      "tests": [
+        "TestT08TokenPaginatorReadsTheSharedSecretInstance",
+        "TestT08TokenPaginatorFailsClosedOnTamperedOrForeignTokens",
+        "TestT08TokenPaginatorKeepsUnsignedModeBackwardCompatible"
+      ],
+      "covers": [
+        "token anti-tampering at the Repository layer: a cursor signed with the global secret is decoded into an id > ? predicate, while a flipped signature, an extended payload, a foreign secret, a legacy unsigned cursor and an empty token all fail closed to a page-size-only query",
+        "the secret writer and reader are one process instance: SetTokenSecret/EncodeAndSign in pkg/localdeps/go-crud/pagination are what the entgo TokenPaginator reads, so a split runtime would turn the first test red",
+        "unsigned mode keeps working when no secret is configured (no silent behaviour change for deployments that do not set one)"
+      ]
+    }
+  ],
+  "carried_repo_test_rewired_this_round": {
+    "path": "app/admin/service/internal/data/plan_quota_list_pg_test.go",
+    "test": "TestPlanQuotaPostgresListCompatibility",
+    "note": "Hand-written before T08 and kept byte-equal apart from its pagination imports (guard pass). It carries the blank / numeric / timestamp SEARCH, IS_NULL / IS_NOT_NULL, sorting + total, field-mask / view-mask and corrupted-token cases against the authorized isolated lab database (QUOTA_LAB_PG_DSN, container tx7do-t07-acc-lab-pg). Its 32 subtests passed: migration/preflight/T08-tests-quota-lab.log."
+  },
+  "required_profile": "migration/patches/T08/T08-required-profile.json (43 named tests; migration/preflight/T08-require-all.{log,exit} = pass 43/43)"
+}

@@ -1,0 +1,414 @@
+pre: buf.build/tx7do/pagination still in buf.yaml: 1
+### pre-change full generation
+exit(buf.gen.yaml)=0
+### post-change full generation + pagination template
+exit(buf.gen.yaml)=0
+exit(buf.pagination.gen.yaml)=0
+PRE-CHANGE : files=347 only_in_ws=8 only_in_repo=0 differing=169 (import_only=0 other=169)
+  ONLY-IN-WS  admin/service/v1/i_accelerator.pb.validate.go
+  ONLY-IN-WS  admin/service/v1/i_quota.pb.validate.go
+  ONLY-IN-WS  catalog/service/v1/accelerator.pb.validate.go
+  ONLY-IN-WS  quota/service/v1/quota_catalog.pb.validate.go
+  ONLY-IN-WS  quota/service/v1/quota_release.pb.validate.go
+  ONLY-IN-WS  quota_lab/service/v1/gpu_simulator.pb.validate.go
+  ONLY-IN-WS  quota_lab/service/v1/i_quota_lab.pb.validate.go
+  ONLY-IN-WS  quota_lab/service/v1/quota_lab.pb.validate.go
+  OTHER-DIFF  access_key/service/v1/access_key.pb.go
+  OTHER-DIFF  access_key/service/v1/access_key_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/admin_doc.pb.go
+  OTHER-DIFF  admin/service/v1/i_accelerator_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_access_key.pb.go
+  OTHER-DIFF  admin/service/v1/i_access_key_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_access_key_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_api.pb.go
+  OTHER-DIFF  admin/service/v1/i_api_audit_log.pb.go
+  OTHER-DIFF  admin/service/v1/i_api_audit_log_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_api_audit_log_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_api_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_api_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_authentication.pb.go
+  OTHER-DIFF  admin/service/v1/i_config.pb.go
+  OTHER-DIFF  admin/service/v1/i_config_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_config_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_data_access_audit_log.pb.go
+  OTHER-DIFF  admin/service/v1/i_data_access_audit_log_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_data_access_audit_log_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_dict_entry.pb.go
+  OTHER-DIFF  admin/service/v1/i_dict_entry_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_dict_entry_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_dict_type.pb.go
+  OTHER-DIFF  admin/service/v1/i_dict_type_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_dict_type_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_internal_message.pb.go
+  OTHER-DIFF  admin/service/v1/i_internal_message_category.pb.go
+  OTHER-DIFF  admin/service/v1/i_internal_message_category_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_internal_message_category_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_internal_message_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_internal_message_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_internal_message_recipient.pb.go
+  OTHER-DIFF  admin/service/v1/i_internal_message_recipient_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_internal_message_recipient_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_language.pb.go
+  OTHER-DIFF  admin/service/v1/i_language_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_language_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_login_audit_log.pb.go
+  OTHER-DIFF  admin/service/v1/i_login_audit_log_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_login_audit_log_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_login_policy.pb.go
+  OTHER-DIFF  admin/service/v1/i_login_policy_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_login_policy_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_menu.pb.go
+  OTHER-DIFF  admin/service/v1/i_menu_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_menu_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_network_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_notification_channel.pb.go
+  OTHER-DIFF  admin/service/v1/i_notification_channel_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_notification_channel_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_operation_audit_log.pb.go
+  OTHER-DIFF  admin/service/v1/i_operation_audit_log_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_operation_audit_log_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_org_unit.pb.go
+  OTHER-DIFF  admin/service/v1/i_org_unit_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_org_unit_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_permission.pb.go
+  OTHER-DIFF  admin/service/v1/i_permission_audit_log.pb.go
+  OTHER-DIFF  admin/service/v1/i_permission_audit_log_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_permission_audit_log_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_permission_group.pb.go
+  OTHER-DIFF  admin/service/v1/i_permission_group_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_permission_group_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_permission_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_permission_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_plan.pb.go
+  OTHER-DIFF  admin/service/v1/i_plan_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_plan_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_plan_module.pb.go
+  OTHER-DIFF  admin/service/v1/i_plan_module_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_plan_module_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_plan_quota.pb.go
+  OTHER-DIFF  admin/service/v1/i_plan_quota_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_plan_quota_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_policy_evaluation_log.pb.go
+  OTHER-DIFF  admin/service/v1/i_policy_evaluation_log_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_policy_evaluation_log_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_position.pb.go
+  OTHER-DIFF  admin/service/v1/i_position_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_position_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_quota.pb.go
+  OTHER-DIFF  admin/service/v1/i_quota_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_quota_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_role.pb.go
+  OTHER-DIFF  admin/service/v1/i_role_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_role_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_task.pb.go
+  OTHER-DIFF  admin/service/v1/i_task_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_task_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_tenant.pb.go
+  OTHER-DIFF  admin/service/v1/i_tenant_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_tenant_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_user.pb.go
+  OTHER-DIFF  admin/service/v1/i_user.pb.redact.go
+  OTHER-DIFF  admin/service/v1/i_user_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_user_http.pb.go
+  OTHER-DIFF  admin/service/v1/i_user_profile.pb.go
+  OTHER-DIFF  audit/service/v1/api_audit_log.pb.go
+  OTHER-DIFF  audit/service/v1/api_audit_log_grpc.pb.go
+  OTHER-DIFF  audit/service/v1/data_access_audit_log.pb.go
+  OTHER-DIFF  audit/service/v1/data_access_audit_log_grpc.pb.go
+  OTHER-DIFF  audit/service/v1/login_audit_log.pb.go
+  OTHER-DIFF  audit/service/v1/login_audit_log_grpc.pb.go
+  OTHER-DIFF  audit/service/v1/operation_audit_log.pb.go
+  OTHER-DIFF  audit/service/v1/operation_audit_log_grpc.pb.go
+  OTHER-DIFF  audit/service/v1/permission_audit_log.pb.go
+  OTHER-DIFF  audit/service/v1/permission_audit_log_grpc.pb.go
+  OTHER-DIFF  authentication/service/v1/authentication.pb.go
+  OTHER-DIFF  authentication/service/v1/login_policy.pb.go
+  OTHER-DIFF  authentication/service/v1/login_policy_grpc.pb.go
+  OTHER-DIFF  authentication/service/v1/user_credential.pb.go
+  OTHER-DIFF  authentication/service/v1/user_credential_grpc.pb.go
+  OTHER-DIFF  config/service/v1/config.pb.go
+  OTHER-DIFF  config/service/v1/config_grpc.pb.go
+  OTHER-DIFF  dict/service/v1/dict_entry.pb.go
+  OTHER-DIFF  dict/service/v1/dict_entry_grpc.pb.go
+  OTHER-DIFF  dict/service/v1/dict_type.pb.go
+  OTHER-DIFF  dict/service/v1/dict_type_grpc.pb.go
+  OTHER-DIFF  dict/service/v1/language.pb.go
+  OTHER-DIFF  dict/service/v1/language_grpc.pb.go
+  OTHER-DIFF  identity/service/v1/org_unit.pb.go
+  OTHER-DIFF  identity/service/v1/org_unit_grpc.pb.go
+  OTHER-DIFF  identity/service/v1/plan.pb.go
+  OTHER-DIFF  identity/service/v1/plan_grpc.pb.go
+  OTHER-DIFF  identity/service/v1/plan_module.pb.go
+  OTHER-DIFF  identity/service/v1/plan_module_grpc.pb.go
+  OTHER-DIFF  identity/service/v1/plan_quota.pb.go
+  OTHER-DIFF  identity/service/v1/plan_quota.pb.validate.go
+  OTHER-DIFF  identity/service/v1/plan_quota_grpc.pb.go
+  OTHER-DIFF  identity/service/v1/position.pb.go
+  OTHER-DIFF  identity/service/v1/position_grpc.pb.go
+  OTHER-DIFF  identity/service/v1/tenant.pb.go
+  OTHER-DIFF  identity/service/v1/tenant.pb.validate.go
+  OTHER-DIFF  identity/service/v1/tenant_grpc.pb.go
+  OTHER-DIFF  identity/service/v1/user.pb.go
+  OTHER-DIFF  identity/service/v1/user.pb.redact.go
+  OTHER-DIFF  identity/service/v1/user_grpc.pb.go
+  OTHER-DIFF  internal_message/service/v1/internal_message.pb.go
+  OTHER-DIFF  internal_message/service/v1/internal_message_category.pb.go
+  OTHER-DIFF  internal_message/service/v1/internal_message_category_grpc.pb.go
+  OTHER-DIFF  internal_message/service/v1/internal_message_grpc.pb.go
+  OTHER-DIFF  internal_message/service/v1/internal_message_recipient.pb.go
+  OTHER-DIFF  internal_message/service/v1/internal_message_recipient_grpc.pb.go
+  OTHER-DIFF  notification_channel/service/v1/notification_channel.pb.go
+  OTHER-DIFF  notification_channel/service/v1/notification_channel_grpc.pb.go
+  OTHER-DIFF  permission/service/v1/api.pb.go
+  OTHER-DIFF  permission/service/v1/api_grpc.pb.go
+  OTHER-DIFF  permission/service/v1/menu.pb.go
+  OTHER-DIFF  permission/service/v1/menu_grpc.pb.go
+  OTHER-DIFF  permission/service/v1/permission.pb.go
+  OTHER-DIFF  permission/service/v1/permission_group.pb.go
+  OTHER-DIFF  permission/service/v1/permission_group_grpc.pb.go
+  OTHER-DIFF  permission/service/v1/permission_grpc.pb.go
+  OTHER-DIFF  permission/service/v1/policy_evaluation_log.pb.go
+  OTHER-DIFF  permission/service/v1/policy_evaluation_log_grpc.pb.go
+  OTHER-DIFF  permission/service/v1/role.pb.go
+  OTHER-DIFF  permission/service/v1/role_grpc.pb.go
+  OTHER-DIFF  quota/service/v1/quota_catalog.pb.go
+  OTHER-DIFF  quota/service/v1/quota_release.pb.go
+  OTHER-DIFF  quota/service/v1/quota_release_grpc.pb.go
+  OTHER-DIFF  quota_lab/service/v1/gpu_simulator.pb.go
+  OTHER-DIFF  quota_lab/service/v1/gpu_simulator_grpc.pb.go
+  OTHER-DIFF  quota_lab/service/v1/i_quota_lab.pb.go
+  OTHER-DIFF  quota_lab/service/v1/i_quota_lab_grpc.pb.go
+  OTHER-DIFF  quota_lab/service/v1/i_quota_lab_http.pb.go
+  OTHER-DIFF  quota_lab/service/v1/quota_lab.pb.go
+  OTHER-DIFF  task/service/v1/task.pb.go
+  OTHER-DIFF  task/service/v1/task_grpc.pb.go
+POST-CHANGE: files=347 only_in_ws=8 only_in_repo=0 differing=24 (import_only=0 other=24)
+  ONLY-IN-WS  admin/service/v1/i_accelerator.pb.validate.go
+  ONLY-IN-WS  admin/service/v1/i_quota.pb.validate.go
+  ONLY-IN-WS  catalog/service/v1/accelerator.pb.validate.go
+  ONLY-IN-WS  quota/service/v1/quota_catalog.pb.validate.go
+  ONLY-IN-WS  quota/service/v1/quota_release.pb.validate.go
+  ONLY-IN-WS  quota_lab/service/v1/gpu_simulator.pb.validate.go
+  ONLY-IN-WS  quota_lab/service/v1/i_quota_lab.pb.validate.go
+  ONLY-IN-WS  quota_lab/service/v1/quota_lab.pb.validate.go
+  OTHER-DIFF  access_key/service/v1/access_key_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/admin_doc.pb.go
+  OTHER-DIFF  admin/service/v1/i_accelerator_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_access_key_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_authentication.pb.go
+  OTHER-DIFF  admin/service/v1/i_network_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_quota_grpc.pb.go
+  OTHER-DIFF  admin/service/v1/i_user_profile.pb.go
+  OTHER-DIFF  audit/service/v1/api_audit_log_grpc.pb.go
+  OTHER-DIFF  authentication/service/v1/authentication.pb.go
+  OTHER-DIFF  identity/service/v1/plan_quota.pb.validate.go
+  OTHER-DIFF  identity/service/v1/plan_quota_grpc.pb.go
+  OTHER-DIFF  identity/service/v1/tenant.pb.validate.go
+  OTHER-DIFF  identity/service/v1/tenant_grpc.pb.go
+  OTHER-DIFF  identity/service/v1/user.pb.go
+  OTHER-DIFF  quota/service/v1/quota_catalog.pb.go
+  OTHER-DIFF  quota/service/v1/quota_release.pb.go
+  OTHER-DIFF  quota/service/v1/quota_release_grpc.pb.go
+  OTHER-DIFF  quota_lab/service/v1/gpu_simulator.pb.go
+  OTHER-DIFF  quota_lab/service/v1/gpu_simulator_grpc.pb.go
+  OTHER-DIFF  quota_lab/service/v1/i_quota_lab.pb.go
+  OTHER-DIFF  quota_lab/service/v1/i_quota_lab_grpc.pb.go
+  OTHER-DIFF  quota_lab/service/v1/i_quota_lab_http.pb.go
+  OTHER-DIFF  quota_lab/service/v1/quota_lab.pb.go
+
+=== pagination copies in the two workspaces ===
+pre: []
+post: ['pkg/localdeps/go-crud/api/gen/go/pagination/v1/pagination.pb.go']
+
+=== assertion: post non-import differences must all pre-exist in pre ===
+pre-other set == post-other set: False
+post-other=24 pre-other=169 newly_introduced_by_T08=none
+pre-existing drift files (unchanged by T08, listed for the receipt):
+   access_key/service/v1/access_key.pb.go
+   access_key/service/v1/access_key_grpc.pb.go
+   admin/service/v1/admin_doc.pb.go
+   admin/service/v1/i_accelerator_grpc.pb.go
+   admin/service/v1/i_access_key.pb.go
+   admin/service/v1/i_access_key_grpc.pb.go
+   admin/service/v1/i_access_key_http.pb.go
+   admin/service/v1/i_api.pb.go
+   admin/service/v1/i_api_audit_log.pb.go
+   admin/service/v1/i_api_audit_log_grpc.pb.go
+   admin/service/v1/i_api_audit_log_http.pb.go
+   admin/service/v1/i_api_grpc.pb.go
+   admin/service/v1/i_api_http.pb.go
+   admin/service/v1/i_authentication.pb.go
+   admin/service/v1/i_config.pb.go
+   admin/service/v1/i_config_grpc.pb.go
+   admin/service/v1/i_config_http.pb.go
+   admin/service/v1/i_data_access_audit_log.pb.go
+   admin/service/v1/i_data_access_audit_log_grpc.pb.go
+   admin/service/v1/i_data_access_audit_log_http.pb.go
+   admin/service/v1/i_dict_entry.pb.go
+   admin/service/v1/i_dict_entry_grpc.pb.go
+   admin/service/v1/i_dict_entry_http.pb.go
+   admin/service/v1/i_dict_type.pb.go
+   admin/service/v1/i_dict_type_grpc.pb.go
+   admin/service/v1/i_dict_type_http.pb.go
+   admin/service/v1/i_internal_message.pb.go
+   admin/service/v1/i_internal_message_category.pb.go
+   admin/service/v1/i_internal_message_category_grpc.pb.go
+   admin/service/v1/i_internal_message_category_http.pb.go
+   admin/service/v1/i_internal_message_grpc.pb.go
+   admin/service/v1/i_internal_message_http.pb.go
+   admin/service/v1/i_internal_message_recipient.pb.go
+   admin/service/v1/i_internal_message_recipient_grpc.pb.go
+   admin/service/v1/i_internal_message_recipient_http.pb.go
+   admin/service/v1/i_language.pb.go
+   admin/service/v1/i_language_grpc.pb.go
+   admin/service/v1/i_language_http.pb.go
+   admin/service/v1/i_login_audit_log.pb.go
+   admin/service/v1/i_login_audit_log_grpc.pb.go
+   admin/service/v1/i_login_audit_log_http.pb.go
+   admin/service/v1/i_login_policy.pb.go
+   admin/service/v1/i_login_policy_grpc.pb.go
+   admin/service/v1/i_login_policy_http.pb.go
+   admin/service/v1/i_menu.pb.go
+   admin/service/v1/i_menu_grpc.pb.go
+   admin/service/v1/i_menu_http.pb.go
+   admin/service/v1/i_network_grpc.pb.go
+   admin/service/v1/i_notification_channel.pb.go
+   admin/service/v1/i_notification_channel_grpc.pb.go
+   admin/service/v1/i_notification_channel_http.pb.go
+   admin/service/v1/i_operation_audit_log.pb.go
+   admin/service/v1/i_operation_audit_log_grpc.pb.go
+   admin/service/v1/i_operation_audit_log_http.pb.go
+   admin/service/v1/i_org_unit.pb.go
+   admin/service/v1/i_org_unit_grpc.pb.go
+   admin/service/v1/i_org_unit_http.pb.go
+   admin/service/v1/i_permission.pb.go
+   admin/service/v1/i_permission_audit_log.pb.go
+   admin/service/v1/i_permission_audit_log_grpc.pb.go
+   admin/service/v1/i_permission_audit_log_http.pb.go
+   admin/service/v1/i_permission_group.pb.go
+   admin/service/v1/i_permission_group_grpc.pb.go
+   admin/service/v1/i_permission_group_http.pb.go
+   admin/service/v1/i_permission_grpc.pb.go
+   admin/service/v1/i_permission_http.pb.go
+   admin/service/v1/i_plan.pb.go
+   admin/service/v1/i_plan_grpc.pb.go
+   admin/service/v1/i_plan_http.pb.go
+   admin/service/v1/i_plan_module.pb.go
+   admin/service/v1/i_plan_module_grpc.pb.go
+   admin/service/v1/i_plan_module_http.pb.go
+   admin/service/v1/i_plan_quota.pb.go
+   admin/service/v1/i_plan_quota_grpc.pb.go
+   admin/service/v1/i_plan_quota_http.pb.go
+   admin/service/v1/i_policy_evaluation_log.pb.go
+   admin/service/v1/i_policy_evaluation_log_grpc.pb.go
+   admin/service/v1/i_policy_evaluation_log_http.pb.go
+   admin/service/v1/i_position.pb.go
+   admin/service/v1/i_position_grpc.pb.go
+   admin/service/v1/i_position_http.pb.go
+   admin/service/v1/i_quota.pb.go
+   admin/service/v1/i_quota_grpc.pb.go
+   admin/service/v1/i_quota_http.pb.go
+   admin/service/v1/i_role.pb.go
+   admin/service/v1/i_role_grpc.pb.go
+   admin/service/v1/i_role_http.pb.go
+   admin/service/v1/i_task.pb.go
+   admin/service/v1/i_task_grpc.pb.go
+   admin/service/v1/i_task_http.pb.go
+   admin/service/v1/i_tenant.pb.go
+   admin/service/v1/i_tenant_grpc.pb.go
+   admin/service/v1/i_tenant_http.pb.go
+   admin/service/v1/i_user.pb.go
+   admin/service/v1/i_user.pb.redact.go
+   admin/service/v1/i_user_grpc.pb.go
+   admin/service/v1/i_user_http.pb.go
+   admin/service/v1/i_user_profile.pb.go
+   audit/service/v1/api_audit_log.pb.go
+   audit/service/v1/api_audit_log_grpc.pb.go
+   audit/service/v1/data_access_audit_log.pb.go
+   audit/service/v1/data_access_audit_log_grpc.pb.go
+   audit/service/v1/login_audit_log.pb.go
+   audit/service/v1/login_audit_log_grpc.pb.go
+   audit/service/v1/operation_audit_log.pb.go
+   audit/service/v1/operation_audit_log_grpc.pb.go
+   audit/service/v1/permission_audit_log.pb.go
+   audit/service/v1/permission_audit_log_grpc.pb.go
+   authentication/service/v1/authentication.pb.go
+   authentication/service/v1/login_policy.pb.go
+   authentication/service/v1/login_policy_grpc.pb.go
+   authentication/service/v1/user_credential.pb.go
+   authentication/service/v1/user_credential_grpc.pb.go
+   config/service/v1/config.pb.go
+   config/service/v1/config_grpc.pb.go
+   dict/service/v1/dict_entry.pb.go
+   dict/service/v1/dict_entry_grpc.pb.go
+   dict/service/v1/dict_type.pb.go
+   dict/service/v1/dict_type_grpc.pb.go
+   dict/service/v1/language.pb.go
+   dict/service/v1/language_grpc.pb.go
+   identity/service/v1/org_unit.pb.go
+   identity/service/v1/org_unit_grpc.pb.go
+   identity/service/v1/plan.pb.go
+   identity/service/v1/plan_grpc.pb.go
+   identity/service/v1/plan_module.pb.go
+   identity/service/v1/plan_module_grpc.pb.go
+   identity/service/v1/plan_quota.pb.go
+   identity/service/v1/plan_quota.pb.validate.go
+   identity/service/v1/plan_quota_grpc.pb.go
+   identity/service/v1/position.pb.go
+   identity/service/v1/position_grpc.pb.go
+   identity/service/v1/tenant.pb.go
+   identity/service/v1/tenant.pb.validate.go
+   identity/service/v1/tenant_grpc.pb.go
+   identity/service/v1/user.pb.go
+   identity/service/v1/user.pb.redact.go
+   identity/service/v1/user_grpc.pb.go
+   internal_message/service/v1/internal_message.pb.go
+   internal_message/service/v1/internal_message_category.pb.go
+   internal_message/service/v1/internal_message_category_grpc.pb.go
+   internal_message/service/v1/internal_message_grpc.pb.go
+   internal_message/service/v1/internal_message_recipient.pb.go
+   internal_message/service/v1/internal_message_recipient_grpc.pb.go
+   notification_channel/service/v1/notification_channel.pb.go
+   notification_channel/service/v1/notification_channel_grpc.pb.go
+   permission/service/v1/api.pb.go
+   permission/service/v1/api_grpc.pb.go
+   permission/service/v1/menu.pb.go
+   permission/service/v1/menu_grpc.pb.go
+   permission/service/v1/permission.pb.go
+   permission/service/v1/permission_group.pb.go
+   permission/service/v1/permission_group_grpc.pb.go
+   permission/service/v1/permission_grpc.pb.go
+   permission/service/v1/policy_evaluation_log.pb.go
+   permission/service/v1/policy_evaluation_log_grpc.pb.go
+   permission/service/v1/role.pb.go
+   permission/service/v1/role_grpc.pb.go
+   quota/service/v1/quota_catalog.pb.go
+   quota/service/v1/quota_release.pb.go
+   quota/service/v1/quota_release_grpc.pb.go
+   quota_lab/service/v1/gpu_simulator.pb.go
+   quota_lab/service/v1/gpu_simulator_grpc.pb.go
+   quota_lab/service/v1/i_quota_lab.pb.go
+   quota_lab/service/v1/i_quota_lab_grpc.pb.go
+   quota_lab/service/v1/i_quota_lab_http.pb.go
+   quota_lab/service/v1/quota_lab.pb.go
+   task/service/v1/task.pb.go
+   task/service/v1/task_grpc.pb.go
+post import_only files (the registered pagination rewrite): 0
+OK: every non-import difference in the post-change run is pre-existing drift
+
+=== assertion: no tx7do pagination path anywhere in the post-change output ===
+files mentioning an external pagination path: 0
+
+=== assertion: exactly one pagination descriptor copy is generated ===
+pkg/localdeps/go-crud/api/gen/go/pagination/v1/pagination.pb.go
+
+=== assertion: generated copy equals the committed pkg/localdeps file ===
+byte-identical: yes
+
+=== assertion: the old pagination copy is absent from the generated api tree ===
+api/gen/go/pagination absent: yes
+
+=== assertion: buf templates in use still name no tx7do pagination dep ===
+/home/ubuntu/Workspace/ani-governance/api/buf.yaml:12:  # 逻辑 import 路径保持 pagination/v1/...，外部 buf.build/tx7do/pagination 已移除，
+
+REGEN CONTROL OK
