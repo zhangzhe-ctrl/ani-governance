@@ -1,0 +1,221 @@
+{
+ "schema_version": "t10-closure-classified-remediation/1",
+ "task": "T10",
+ "phase": "C",
+ "kind": "closure of the BLOCKED park under the supplemental authorization",
+ "authorized_by": "migration/receipts/T10-authorization-classified-remediation.json",
+ "conclusion": "MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS",
+ "conclusion_meaning": "the takeover and every gate named by the T10 goal pass as measured, with three unreachable upstream order-id cases carried under their own recorded rules; this is not a claim that the repository is free of defects or that the whole migration is finished",
+ "start_sha": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e",
+ "accepted_head_before": "b0e8fd424320b6542977e8c94297ab6e86784e58",
+ "result_sha": "162b28ed268732392547c2343dc9b4f2f575f30f",
+ "chain_after_start": [
+  "162b28ed268732392547c2343dc9b4f2f575f30f Record the two milestone aborts caused by this round's own files",
+  "62f84ce424f5253873d8239cd58253dc5440c864 Trim the recorded digests so the evidence file is not itself a finding",
+  "6e61518119bc748a5407622ec195b88a8304ef80 Drop the stray blank line that kept the bootstrap test file unformatted",
+  "20c676da89b39c3e16ef819014801cc2ed094f40 Record four reviewed gitleaks exceptions and re-pin the moved fixture",
+  "b974dc8e4044f824e3cd553f8034d578abb2c463 Isolate three nondeterministic order-id tests behind the known-defect tag",
+  "4ca0e70c90f0d03aa142fd63d192b2245ce2d263 Make the localized bootstrap start-up test self-contained",
+  "6798b79f23c0792bf0fcb7e4ed3774e3c017e3b8 Repair the localized whitelist normalization test against its real contract",
+  "74f65c70fbab58a6f6656ccb3d93232baa2bf164 FORMAT_ONLY: gofmt the 32 files the verify-gpu format gate reports",
+  "65047e41ac55386715f6050f62fa715e28b8a511 Register the T10 supplemental authorization that classifies B1, B2 and B3",
+  "1a6b437bef75b6f78941867d92c61808beaf9a8f Measure the T10 conf line-ending control instead of arguing it",
+  "39e1cfe661a773c98518474f19e5a3685d91fe88 Park T10 BLOCKED: takeover proven, three red gates await a ruling",
+  "d2da1ab181911b9bd3d4a4878612062b94b5c9b2 Take over kratos-bootstrap and the remaining go-utils packages into pkg/localdeps"
+ ],
+ "working_tree": "M migration/accepted_head\n M migration/handoff.json\n?? _agent/\n?? migration/receipts/T10-closure-classified-remediation.json",
+ "blockers_resolved": {
+  "T10-B1-rpc": {
+   "resolution": "repaired as a test, not excluded",
+   "evidence": "migration/patches/T10/T10-B1-rpc-test-only.json + T10-B1-rpc-test-only.patch",
+   "production_unchanged": "whitelist.go identical to the locked v0.1.3 module",
+   "both_sides_pass": "local package and the isolated locked copy, with and without -race"
+  },
+  "T10-B1-bootstrap": {
+   "resolution": "self-contained fixture through the real RunApp path",
+   "evidence": "migration/patches/T10/T10-B1-bootstrap-test-only.json, patch and the failure excerpt",
+   "isolation": "child test binary, because the parsed-config singleton and the bound flags cannot be restored by a test",
+   "both_sides_pass": "old then new, with and without -race, only the conf import line differing"
+  },
+  "T10-B1-id": {
+   "resolution": "three cases isolated behind upstream_known_defects after a compiler-backed non-use proof, with the nondeterministic rule instead of the must-fail rule",
+   "evidence": "migration/patches/T10/T10-B1-id-isolation.json, the isolation patch, the recorded tally and the race comparison",
+   "verbatim": [
+    {
+     "Test": "TestGenerateOrderIdWithTenantIdCollision",
+     "identical_to_locked_source": true,
+     "sha256_moved": "9b12f6bf26b6190e5253bd0c09320a37973214a7cb349d6ccd4476fb106770e5",
+     "sha256_locked_source": "9b12f6bf26b6190e5253bd0c09320a37973214a7cb349d6ccd4476fb106770e5"
+    },
+    {
+     "Test": "TestGenerateOrderIdWithIndexThread",
+     "identical_to_locked_source": true,
+     "sha256_moved": "5bc2c8a8d90ffe61c66243dcfb9a0b594333f594f5b0c99f98ad867faeeaf5d6",
+     "sha256_locked_source": "5bc2c8a8d90ffe61c66243dcfb9a0b594333f594f5b0c99f98ad867faeeaf5d6"
+    },
+    {
+     "Test": "TestGenerateOrderIdWithRandom",
+     "identical_to_locked_source": true,
+     "sha256_moved": "6214b26f38cfb4a7b7e4ae8319e5c0ed7b1cda7d8be9139e621843946beb8227",
+     "sha256_locked_source": "6214b26f38cfb4a7b7e4ae8319e5c0ed7b1cda7d8be9139e621843946beb8227"
+    }
+   ],
+   "checker_verdict": "PASS",
+   "recorded_runs": {
+    "TestGenerateOrderIdWithTenantIdCollision": {
+     "runs": 20,
+     "candidate": {
+      "pass": 0,
+      "fail": 20
+     },
+     "reference": {
+      "pass": 0,
+      "fail": 20
+     }
+    },
+    "TestGenerateOrderIdWithIndexThread": {
+     "runs": 20,
+     "candidate": {
+      "pass": 8,
+      "fail": 12
+     },
+     "reference": {
+      "pass": 6,
+      "fail": 14
+     }
+    },
+    "TestGenerateOrderIdWithRandom": {
+     "runs": 200,
+     "candidate": {
+      "pass": 184,
+      "fail": 16
+     },
+     "reference": {
+      "pass": 182,
+      "fail": 18
+     }
+    }
+   },
+   "not_a_fix_claim": "a sample that passes is recorded as NOT_OBSERVED_THIS_RUN, never as repaired"
+  },
+  "T10-B2": {
+   "resolution": "gofmt -w over exactly the gate's own list with the pinned go1.26.7",
+   "evidence": "migration/patches/T10/T10-B2-format-only.json and T10-B2-format-only.patch",
+   "files": 32,
+   "verdict": [
+    "files=32 format_only=32 not_format_only=0",
+    "verdict=FORMAT_ONLY"
+   ],
+   "gate_now": {
+    "exit": 0,
+    "output": "(no unformatted file)"
+   }
+  },
+  "T10-B3": {
+   "resolution": "four findings verified one by one and pinned as exact-value exceptions",
+   "evidence": "migration/patches/T10/T10-B3-gitleaks-exceptions.json",
+   "exceptions": 4,
+   "gate_now": {
+    "exit": 0,
+    "output": "10:18PM INF no leaks found"
+   },
+   "history_note": "`gitleaks detect` (67 commits) still reports one finding in pkg/scripting/examples/crypto_example.lua at commit 10a7256, a file that no longer exists in the working tree. The audit step scans the working tree, and history is not rewritten"
+  }
+ },
+ "milestone": {
+  "command": "cd <clean worktree of 162b28e> && with_lab_env.sh env GOFLAGS=-mod=readonly make verify-gpu",
+  "worktree": "read-only control worktree of the result commit, created for this run",
+  "exit": 0,
+  "log_last_lines": [
+   "    golang.org/x/image",
+   "  More info: https://pkg.go.dev/vuln/GO-2026-4961",
+   "  Module: golang.org/x/image",
+   "    Found in: golang.org/x/image@v0.40.0",
+   "    Fixed in: golang.org/x/image@v0.42.0",
+   "Your code is affected by 0 vulnerabilities.",
+   "This scan also found 1 vulnerability in packages you import and 8",
+   "vulnerabilities in modules you require, but your code doesn't appear to call",
+   "these vulnerabilities.",
+   "10:16PM INF scanned ~38653980 bytes (38.65 MB) in 8.79s",
+   "10:16PM INF no leaks found",
+   "MAKE_VERIFY_GPU_EXIT=0"
+  ],
+  "coverage": "verify-quota-ent, verify-gpu-regressions (format gate, three entry builds, data/service/server/pkg tests, quota_pg, two race suites, lab regression) and verify-gpu-audit",
+  "earlier_attempts": [
+   {
+    "log": "tx7do-pilot-run/T10/verify-gpu/make-verify-gpu.attempt1.log",
+    "exit": 2,
+    "stopped_at": "verify-gpu-regressions (Makefile:220)",
+    "cause": "this round's own bootstrap_test.go still had a stray blank line, caught by the format gate; fixed in the next commit"
+   },
+   {
+    "log": "tx7do-pilot-run/T10/verify-gpu/make-verify-gpu.attempt2.log",
+    "exit": 2,
+    "stopped_at": "verify-gpu-audit (Makefile:232)",
+    "cause": "aborted at the audit step on the four SHA-256 values this round's own evidence file had just committed; the digests were shortened rather than allowlisted"
+   },
+   {
+    "log": "tx7do-pilot-run/T10/verify-gpu/make-verify-gpu.log",
+    "exit": 0,
+    "stopped_at": "completed",
+    "cause": "the authoritative run: the whole chain passed"
+   }
+  ]
+ },
+ "conf_generation": {
+  "idempotence": "regenerating in a fresh worktree reproduces all 17 committed .pb.go byte-for-byte (migration/patches/T10/T10-proto-line-ending.json, regen_control)",
+  "descriptor_contract": {
+   "symbols": 2530,
+   "identical_to_locked_archive": true,
+   "counts": {
+    "messages": {
+     "archive": 124,
+     "localized": 124
+    },
+    "fields": {
+     "archive": 883,
+     "localized": 883
+    },
+    "accessors": {
+     "archive": 1521,
+     "localized": 1521
+    },
+    "oneof_impls": {
+     "archive": 2,
+     "localized": 2
+    }
+   }
+  },
+  "line_endings": "recorded as source normalisation only; the protocol contract above is what is checked"
+ },
+ "carried_debts": {
+  "T10_id_nondeterministic": [
+   "TestGenerateOrderIdWithTenantIdCollision",
+   "TestGenerateOrderIdWithIndexThread",
+   "TestGenerateOrderIdWithRandom"
+  ],
+  "T04_captcha_known_defects": "nine upstream image-driver cases, unchanged rules",
+  "T09_protoc_driven_integration": "still DEFERRED in migration/required-integration-deferred.json, due at T13 and no later than the T15 sign-off",
+  "T03_F4_T03_F5": "their own rulings continue; they are not absorbed by this closure",
+  "QUOTA_UPGRADE_VERIFY_QUOTA_RESTORE_VERIFY": "still not_run: needs an external production-shaped dump/restore window outside every group's scope"
+ },
+ "environment_disclosures": [
+  "the host's own go env exports GOFLAGS=-mod=mod; one go command during this round dropped 20 '// indirect' markers from go.mod. The mutated file is preserved at /home/ubuntu/tx7do-pilot-run/T10/env-mutation/go.mod.mutated-by-mod-mod (sha256 c85488646a79306ded51cae5330ca6f47f5e4ef97ec3d8e32ab590b6809c4b5b) and the working tree was restored to the committed version (9c4281f02e32a5b721d38d0f3a0f0a40eefc38b8d533d66cb873cf4e4a6ec9a7): no version changed and no require was added or removed. Every command from that point on pinned GOFLAGS=-mod=readonly or used the lab wrapper, which clears GOFLAGS",
+  "the PATH gofmt belongs to go1.26.4 while the repository pins go1.26.7; both agree on all 32 files, and the format pass used the pinned binary",
+  "nothing was written to a user-global tool path: buf and the scanners were invoked by absolute path with their versions and hashes recorded",
+  "no worktree, log or patch from an earlier task was deleted; the two control worktrees created this round were removed with git worktree remove/prune"
+ ],
+ "constraints_observed": [
+  "no push, no merge, no deploy; local commits only and _agent/ stays uncommitted",
+  "no test was deleted, skipped, retagged or re-expected beyond the three explicitly authorised order-id cases; require_tests.py is unchanged and no run used -vet=off",
+  "the four cases were not excluded as a block, and the id package keeps fourteen untagged tests",
+  "only the two authorised isolated lab databases were used; quota-gpu-local-01-pg was not touched",
+  "module cache read-only; upstream archives, generated ZIPs and earlier evidence unchanged"
+ ],
+ "not_verified": [
+  "runtime behaviour of the Asynq and SSE transports behind the localized wiring: that boundary is T11's",
+  "service start-up against Consul, a config server or a real registry",
+  "any production database"
+ ],
+ "next": "accepted_head advances to 162b28ed268732392547c2343dc9b4f2f575f30f. Phase C then runs its planned second make verify-gpu as T11..T13 and phase D land, and T14 keeps the go.mod require cleanup and the deferred protoc cases in scope."
+}

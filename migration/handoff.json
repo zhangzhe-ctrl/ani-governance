@@ -629,5 +629,39 @@
   ],
   "accepted_head": "b0e8fd424320b6542977e8c94297ab6e86784e58",
   "not_pushed_merged_or_deployed": true
+ },
+ "phase_C_T10_closure": {
+  "task": "T10",
+  "status": "MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS",
+  "start_sha": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e",
+  "result_sha": "162b28ed268732392547c2343dc9b4f2f575f30f",
+  "tested_code_sha": "162b28ed268732392547c2343dc9b4f2f575f30f",
+  "resume_head": "162b28ed268732392547c2343dc9b4f2f575f30f",
+  "accepted_head_now": "162b28ed268732392547c2343dc9b4f2f575f30f",
+  "authorization": "migration/receipts/T10-authorization-classified-remediation.json",
+  "resolved": [
+   "T10-B1 rpc repaired as a test",
+   "T10-B1 bootstrap repaired as a fixture",
+   "T10-B1 id: three unreachable cases isolated with the nondeterministic rule",
+   "T10-B2 format gate green after a formatting-only sweep",
+   "T10-B3 four verified false positives pinned as exact exceptions"
+  ],
+  "carried": [
+   "three order-id cases under upstream_known_defects",
+   "nine T04 captcha cases",
+   "T09 protoc-driven integration cases (DEFERRED, not passed)",
+   "T03-F4 and T03-F5 under their own rulings",
+   "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY still not_run"
+  ],
+  "milestone_exit": 0,
+  "not_pushed_merged_or_deployed": true,
+  "next_task": "T11. Read _agent/ani-governance-tx7do-plan/goals/T11.md on entry only.",
+  "resume_check_before_editing": [
+   "git rev-parse HEAD must equal 162b28ed268732392547c2343dc9b4f2f575f30f",
+   "cat migration/accepted_head must equal 162b28ed268732392547c2343dc9b4f2f575f30f",
+   "git status --porcelain must show only '?? _agent/'",
+   "bash scripts/verify-gpu-format.sh must exit 0",
+   "python3 -c \"import json; json.load(open('migration/receipts/T10-closure-classified-remediation.json'))\""
+  ]
  }
 }
