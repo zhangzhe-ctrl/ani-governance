@@ -329,7 +329,7 @@
   }
  ],
  "isolated_file": "pkg/localdeps/go-utils/captcha/upstream_known_defects_test.go",
- "locked_source_copy": "migration/patches/T04/orig/captcha-captcha_test.go",
+ "locked_source_copy": "migration/patches/T04/_orig/captcha-captcha_test.go",
  "moved_tests_verbatim": [
   {
    "Test": "TestGenerate_ClickCaptcha",

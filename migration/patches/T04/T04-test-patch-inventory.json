@@ -111,7 +111,7 @@
   "TestVerify_RotateCaptcha_WithTolerance"
  ],
  "moved_verbatim": true,
- "moved_verbatim_evidence": "independently re-checked in this session: the 9 bodies in upstream_known_defects_test.go are byte-identical to the archived locked source migration/patches/T04/orig/captcha-captcha_test.go; confirmed by tools/migration/known_defects.py --moved-file/--locked-file (all identical_to_locked_source=true) and by an independent python body diff; report migration/preflight/T04-known-defects.json",
+ "moved_verbatim_evidence": "independently re-checked in this session: the 9 bodies in upstream_known_defects_test.go are byte-identical to the archived locked source migration/patches/T04/_orig/captcha-captcha_test.go; confirmed by tools/migration/known_defects.py --moved-file/--locked-file (all identical_to_locked_source=true) and by an independent python body diff; report migration/preflight/T04-known-defects.json",
  "verification_replay_2026-09-25": {
   "head": "7640c92",
   "vet_captcha_default_exit": 0,
