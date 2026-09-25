@@ -850,5 +850,16 @@
       "cat migration/accepted_head must equal 627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
       "build the tool with make gow; the in-use commands are api/ent/run/version only"
     ]
+  },
+  "phase_E_T15_not_started": {
+    "task": "T15",
+    "status": "NOT_STARTED",
+    "recorded_at": "2026-09-26T07:55+08:00",
+    "next_action": "run the T15 programme: clean checkout, regenerate twice with recorded tool versions, required-tests JSON list, make verify-gpu, the two QUOTA verify windows on an isolated copy, one old-client contract comparison, then the final sign-off or BLOCKED report",
+    "read_first": [
+      "migration/receipts/T15.json",
+      "migration/patches/T14/T14-final-dependency-report.json",
+      "migration/patches/T13/T13-scoped-tool-acceptance.json"
+    ]
   }
 }

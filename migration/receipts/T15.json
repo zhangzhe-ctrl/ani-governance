@@ -1,0 +1,35 @@
+{
+  "schema_version": "t15/1",
+  "task": "T15",
+  "phase": "E",
+  "goal_file": "_agent/ani-governance-tx7do-plan/goals/T15.md",
+  "status": "NOT_STARTED",
+  "recorded_at": "2026-09-26T07:55+08:00",
+  "start_sha": "66b52032bb503357216b38b889b092a61b72ff94",
+  "accepted_head": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+  "why": "T15 is the clean-regeneration plus full regression sign-off. It needs a long uninterrupted run (required-tests JSON list, make verify-gpu with the lab PostgreSQL and task Redis, the two QUOTA_*_VERIFY windows on an isolated copy, and an old-client contract comparison). It is recorded as not started rather than partially claimed.",
+  "prerequisites_met": [
+    "T13 scoped tool closure",
+    "T14 module cleanup with zero surviving version moves",
+    "make gow builds from a clean checkout",
+    "make tools-integration is a repeatable protoc entry that fails without the tools"
+  ],
+  "already_measured_input": {
+    "regeneration_divergence": "with the pinned buf v1.60.0, protoc-gen-go v1.36.11 and protoc-gen-go-grpc v1.6.2, gow api changes 20 files versus the committed api/gen/go tree and gow ent admin changes app/admin/service/internal/data/ent/migrate/migrate.go; the pristine upstream gow v1.0.3 produces the identical set, so this is a pre-existing divergence to resolve during T15, not a takeover artefact",
+    "second_run_idempotency": "a second gow api run was byte-identical (sha256 -c over the whole changed set, exit 0)",
+    "carried_defects": [
+      "T03-F4",
+      "T03-F5",
+      "3 order-id cases",
+      "9 captcha cases",
+      "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY still not_run"
+    ],
+    "open_owner_item": "pkg/localdeps/go-utils/id/machineid/id.go keeps the locked source's canonical upstream import comment; editing it breaks byte-identity with the archived version"
+  },
+  "not_verified": [],
+  "constraints": [
+    "no push, merge or deploy",
+    "isolated lab PostgreSQL and the task-owned disposable Redis only",
+    "no production seeds and no startup migrations"
+  ]
+}
