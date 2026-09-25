@@ -1,0 +1,79 @@
+{
+ "schema_version": "t10-b3-gitleaks-exceptions/1",
+ "authorization": "T03-T15-master-goal.md 「### T10 补充授权」 六; migration/receipts/T10-authorization-classified-remediation.json",
+ "correction_of_the_park_text": "the BLOCKED park said 'two of the four came in with earlier takeovers as upstream text, one is a hex string in the ledger', which only accounts for three findings. The four are listed completely below; the fourth is the JWT test vector in pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go, which the earlier prose folded into 'upstream test text' without naming.",
+ "tool": {
+  "gitleaks": "v8.30.1",
+  "binary_sha256": "9535e015f20320aab32621be2501326a48cd64f0649e060d0b91d2ef644aeb8",
+  "govulncheck": "v1.7.0",
+  "govulncheck_binary_sha256": "a5406d27054e1f5f380258f14ab0203afdb68d0ac150e2da75bffd50cb7c3982",
+  "as_recorded_by": "the version, module line and binary hashes that scripts/verify-gpu-audit.sh prints before scanning",
+  "scope": "`gitleaks dir --no-banner --no-color --redact .` from the repository root, unchanged"
+ },
+ "full_report_location": "task directory /home/ubuntu/tx7do-pilot-run/T10/gitleaks-current.json (kept out of the repository because it carries matched values); this file is the outward-facing copy and records only hashes, rules, files and lines",
+ "findings": [
+  {"n": 1, "rule": "generic-api-key", "file": "migration/handoff.json", "line": 300,
+   "secret_sha256": "966d8abd6d734348210eb069161706e314bd58b5a3cb7716a2d1bf29d2f7bb73",
+   "context": "the value is the object field \"migration/patches/T05/_orig/kratos-authn-engine-metadata.go\": \"<64 hex>\"",
+   "provenance": "written by this migration's own ledger in an earlier accepted commit (predates T10)",
+   "verification": "it is the SHA-256 of a Go source file in the patch archive; the ledger stores file digests under keys that name the file, and nothing in the repository uses the string as a credential",
+   "classification": "FALSE_POSITIVE (plain object/file digest)"},
+  {"n": 2, "rule": "generic-api-key", "file": "pkg/localdeps/go-crud/pagination/README.md", "line": 83,
+   "secret_sha256": "7bbcf7753b68c2d062becee0408ed751e2dfbbc81cfa57306edb899d2630aed3",
+   "context": "fmt.Printf(\"Token: %s\\n\", p.Token())  // Token: eyJpZCI6…",
+   "provenance": "upstream documentation carried in by the T03 pagination takeover",
+   "verification": "the matched string base64-decodes to {\"id\":100}: a pagination cursor printed by the documented example, with no signing or transport use",
+   "classification": "FALSE_POSITIVE (documentation example value)"},
+  {"n": 3, "rule": "generic-api-key", "file": "pkg/localdeps/go-crud/pagination/README.md", "line": 84,
+   "secret_sha256": "33e57c18579fedda32b99feb6993ea0e8a07e1275d54525d897a6a3b2d4a5c83",
+   "context": "p.SetNextToken(...) / // NextToken: eyJpZCI6…",
+   "provenance": "same file, same takeover",
+   "verification": "decodes to {\"id\":200}: the companion cursor of the same example",
+   "classification": "FALSE_POSITIVE (documentation example value)"},
+  {"n": 4, "rule": "jwt", "file": "pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go", "line": 83,
+   "secret_sha256": "c615d0941525778e34dae422e9600cc91a0bdbc8e02dd18fa9b934f1f006aa73",
+   "context": "assert.Equal(t, \"eyJhbGciOiJIUzI1NiIs…\", outToken) inside TestAuthenticator",
+   "provenance": "upstream test file carried in by the T05 kratos-authn takeover; byte-identical to github.com/tx7do/kratos-authn/engine/jwt@v1.1.11 except the single localized import line, and line 83 itself is identical",
+   "verification": "header {\"alg\":\"HS256\"}, payload {\"scope\":[\"local:admin:user_name\",\"tenant:admin:user_name\"],\"sub\":\"user_name\"}; the same test builds the authenticator with WithKey([]byte(\"test\")) twelve lines above, so the token is the expected output of a locally signed test vector. The string occurs in no other file in the repository, and no configuration, fixture or runtime path reads it",
+   "classification": "FALSE_POSITIVE (public invalid test vector, not used by any deployment)"}
+ ],
+ "inheritance_is_not_the_test": "the previous round proved the same four triples exist at the start commit, which only shows inheritance. The per-finding verification above is what supports the FALSE_POSITIVE label.",
+ "config_change": {
+  "file": ".gitleaks.toml",
+  "form": "extended the file already in force, which sets [extend] useDefault = true, so every default rule and every pre-existing custom rule and allowlist stays",
+  "new_entries": [
+   {"rule": "generic-api-key", "path": "^migration/handoff\\.json$", "matched_values": 1},
+   {"rule": "generic-api-key", "path": "^pkg/localdeps/go-crud/pagination/README\\.md$", "matched_values": 2},
+   {"rule": "jwt", "path": "^pkg/localdeps/kratos-authn/engine/jwt/jwt_test\\.go$", "matched_values": 1}
+  ],
+  "pinning": "each entry sets condition = \"AND\", regexTarget = \"secret\" and anchors the path with ^…$, so a finding is excluded only when the rule, the exact repository-relative path and the exact matched value all agree; no line numbers, no broad hex classes, no OR of path and value, no directory exclusions, no baseline of the current report, and the exit code is left to gitleaks itself",
+  "values_not_rewritten": "no upstream test value, README example or ledger digest was edited, shortened or split to dodge the scanner; the only content change is in the scanner configuration"
+ },
+ "controls": {
+  "approved_values_now_clean": "`gitleaks dir --no-banner --no-color --redact .` over the repository: 'no leaks found', exit 0",
+  "same_file_different_value_still_caught": "a copy of migration/handoff.json with the pinned digest replaced by a freshly generated 64-hex value is still reported (1 finding) under both the old and the extended config, so the exception is value-pinned and does not silence the file",
+  "same_rule_readme_other_value_still_caught": "the real pagination README with an extra 'Token: <other base64>' line yields that extra finding under the extended config",
+  "approved_values_at_an_unapproved_path_still_caught": "the same README copied to vendor/copied/README.md still reports both findings under the extended config",
+  "jwt_rule_still_bites": "the identical JWT string placed at pkg/elsewhere/x.go is still reported by the jwt rule",
+  "defaults_still_active": "an unrelated AKIA… plus GitHub PAT pair in a scratch file is still reported by the github-pat rule, so useDefault is intact",
+  "not_committed": "every control above ran in /home/ubuntu/tx7do-pilot-run/T10/B3-controls; no synthetic secret was added to the repository"
+ },
+ "fixture_pin": {
+  "file": "scripts/gpu-audit-fixture-sha256.txt",
+  "why_touched": "verify-gpu-audit.sh runs sha256sum -c over the pins before scanning, and the B2 format pass changed app/admin/service/internal/data/authenticator_test.go, so the entry was stale",
+  "before": "dd81554c92920815e2c5f4ac895a39938788534645938f4f34ad17ffdd0ec351 (after the T10 import rewrite)",
+  "after": "126224bad917ce0fe219373966840e19be95243bc678f29d21a81649a7a12961 (after the T10-B2 gofmt)",
+  "cumulative_change_from_the_accepted_baseline": "91d7d520493d661b0da6cdc5f07a64013de01ae0996082f68eb74645d77efa92 -> one import line -> one gofmt alignment change; the diff between the two intermediate states is three lines of struct-field alignment and nothing else",
+  "other_entry": "app/admin/service/configs/auth.yaml is unchanged at 70ef28aa92222e871217582d11956d29f0d73bd017152d555e1cae69aac52417",
+  "scope": "only the affected entry was recomputed; the file was not regenerated wholesale"
+ },
+ "gate_after": {
+  "gitleaks_step": "`gitleaks dir --no-banner --no-color --redact .` -> 'no leaks found', exit 0, with the extended config in force",
+  "unhandled_alerts": 0,
+  "verified_exceptions": 4,
+  "wording": "zero unhandled alerts because four findings were verified and pinned; the scanner did report them, and this file is the record of handling them",
+  "history_scan_out_of_gate_scope": "`gitleaks detect` (67 commits) still reports one finding in pkg/scripting/examples/crypto_example.lua at commit 10a7256, a file that no longer exists in the working tree. The audit step scans the working tree, and history is not rewritten",
+  "localized_surface_still_green": "go test -count=1 ./pkg/localdeps/... with the isolated lab environment: 42 packages ok, no failures"
+ },
+ "honest_wording": "the scanner now reports zero unhandled alerts because four findings were verified as false positives and pinned with exact exceptions. It has found alerts before, and this step is the record of handling them, not a claim that nothing was ever reported."
+}

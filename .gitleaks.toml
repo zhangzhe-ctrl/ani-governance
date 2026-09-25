@@ -42,3 +42,24 @@ description = "Expected signature digest in the fixed example-key signing vector
 condition = "AND"
 paths = ['''^scripts/test_aksk_vpc_client\.py$''']
 regexes = ['''^vpc_0123456789abcdef0123456789abcdef$''']
+[[rules.allowlists]]
+description = "T05 evidence-file checksum recorded by the migration ledger: the value is the SHA-256 of migration/patches/T05/_orig/kratos-authn-engine-metadata.go, i.e. a digest of repository content under a key that names the file, not a credential"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''^migration/handoff\.json$''']
+regexes = ['''^b7907194f4ef659c11c90773305d7589c440f30a1757c0f8a06b0305edaf827d$''']
+[[rules.allowlists]]
+description = "Pagination cursor examples in the taken-over go-crud/pagination README: both decode to a two-field JSON id (100 and 200) and are printed by the documented example, not used as credentials"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''^pkg/localdeps/go-crud/pagination/README\.md$''']
+regexes = ['''^eyJpZCI6MTAwfQ==$''', '''^eyJpZCI6MjAwfQ==$''']
+
+[[rules]]
+id = "jwt"
+[[rules.allowlists]]
+description = "Expected token asserted by the taken-over kratos-authn jwt engine test, signed with the literal key \"test\" created two lines above it in the same file; the string appears nowhere else in the repository and no runtime path loads it"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''^pkg/localdeps/kratos-authn/engine/jwt/jwt_test\.go$''']
+regexes = ['''^eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.eyJzY29wZSI6WyJsb2NhbDphZG1pbjp1c2VyX25hbWUiLCJ0ZW5hbnQ6YWRtaW46dXNlcl9uYW1lIl0sInN1YiI6InVzZXJfbmFtZSJ9\.xIzbQbQSlzdms5ZVaHrg6pZohDlt0DTYopobUo2qqQw$''']

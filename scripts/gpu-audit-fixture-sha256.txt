@@ -1,2 +1,2 @@
 70ef28aa92222e871217582d11956d29f0d73bd017152d555e1cae69aac52417  app/admin/service/configs/auth.yaml
-dd81554c92920815e2c5f4ac895a39938788534645938f4f34ad17ffdd0ec351  app/admin/service/internal/data/authenticator_test.go
+126224bad917ce0fe219373966840e19be95243bc678f29d21a81649a7a12961  app/admin/service/internal/data/authenticator_test.go
