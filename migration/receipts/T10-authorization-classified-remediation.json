@@ -1,0 +1,62 @@
+{
+ "schema_version": "t10-authorization-classified-remediation/1",
+ "task": "T10 / blockers T10-B1 (four inherited upstream test cases), T10-B2 (format gate), T10-B3 (gitleaks audit step)",
+ "kind": "supplemental authorization (classified handling: test repair, format-only sweep, conditional nondeterministic isolation, exact false-positive exceptions)",
+ "granted_by": "user",
+ "granted_at": "2026-09-25T18:05+08:00",
+ "granted_via": "direct instruction in session, recorded as a supplement to the master goal",
+ "recorded_in": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md, section 「### T10 补充授权：分类处理 B1/B2/B3，批准修测试与精确格式化、精确假阳性例外，不批准整体排除四个测试」 (appended inside 失败与恢复, before 最终签收)",
+ "decision_verbatim": "请从当前T10现场继续。本指令作为总goal补充，写入_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md的“失败与恢复”后并登记migration；不要只改文档后停止。批准分类处理T10-B1/B2/B3，不批准把四个测试整体排除。其余原约束保留。",
+ "state_recorded_under_section_one": {
+  "note": "measured in this session, not quoted from the instruction",
+  "commit_chain": [
+   {"sha": "b0e8fd424320b6542977e8c94297ab6e86784e58", "parent": "d9cf8e1900e11d4c62d6c66f805e2d5bdc5a497d", "subject": "Complete the missing redact runtime import in the taken-over generator tests"},
+   {"sha": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e", "parent": "b0e8fd424320b6542977e8c94297ab6e86784e58", "subject": "Close T09: re-accept the redact takeover in-repo, defer the protoc-driven cases"},
+   {"sha": "d2da1ab181911b9bd3d4a4878612062b94b5c9b2", "parent": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e", "subject": "Take over kratos-bootstrap and the remaining go-utils packages into pkg/localdeps"},
+   {"sha": "39e1cfe661a773c98518474f19e5a3685d91fe88", "parent": "d2da1ab181911b9bd3d4a4878612062b94b5c9b2", "subject": "Park T10 BLOCKED: takeover proven, three red gates await a ruling"},
+   {"sha": "1a6b437bef75b6f78941867d92c61808beaf9a8f", "parent": "39e1cfe661a773c98518474f19e5a3685d91fe88", "subject": "Measure the T10 conf line-ending control instead of arguing it"}
+  ],
+  "chain_is_linear": true,
+  "t10_actual_input_sha_pre_migration": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e",
+  "t10_actual_input_sha_why": "the work tree on top of e3dc058 held only the untracked _agent/ plan material when T10 began, so this commit is the last state without any T10 change; accepted_head at entry was b0e8fd4",
+  "tested_code_sha": "d2da1ab181911b9bd3d4a4878612062b94b5c9b2",
+  "tested_code_sha_why": "every T10 measurement (builds, tests, gates) ran against exactly this content; 39e1cfe and 1a6b437 add ledger and evidence files only and change no Go or Proto source",
+  "resume_head": "1a6b437bef75b6f78941867d92c61808beaf9a8f",
+  "accepted_head_untouched_by_this_authorization": "b0e8fd424320b6542977e8c94297ab6e86784e58",
+  "working_tree_at_grant": "clean apart from the never-committed _agent/ plan material",
+  "frozen_baseline_still": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "explicitly_not_done": "no reset, no clean, no push, no merge, no deploy; no earlier log is overwritten"
+ },
+ "section_1_verbatim": "一、现场与比较基线\n核对b0e8fd4、d2da1ab、39e1cfe、1a6b437的完整SHA、父子关系及工作区。从当前HEAD继续，记录T10实际输入SHA、tested_code_sha和resume_head；不得用含T10改动的HEAD冒充迁移前。\n保留已有补丁、通过证据及未跟踪计划资料。不reset/clean、不覆盖原日志、不push/合并/部署。复用任务缓存和已授权隔离环境。",
+ "section_2_verbatim": "二、B2先做纯格式化\n实际运行当前verify-gpu-format.sh，保存准确文件列表；只对该列表执行已固定Go版本的gofmt -w，不用-s、-r或goimports，不全仓扫写。\n本次明确允许名单中原接管范围外的已有文件做纯格式化。逐文件比较格式化前后规范化AST、import路径/别名集合及构建/cgo指令，保留注释；业务语义、字面量、标识符、路径字符串不能改变。\n生成文件优先通过原固定生成过程保持结果；不要手工改生成逻辑或修改原始ZIP。单列FORMAT_ONLY补丁/提交，重新核对与原归档的规范化等价，不把字节变化写成逐字一致。复跑原格式门禁，不缩扫描范围、不排除文件。21/32等数字只作历史记录，以本次实际集合为准。",
+ "section_3_verbatim": "三、B1-白名单：修测试，绝不扩大放行\n核对锁定rpc v0.1.3的whitelist.go/whitelist_test.go与本地副本。\n原行为是：加入完整/pkg.Service/MethodX后，完整路径及去前导斜杠形式匹配；裸MethodX不匹配，另一个服务的同名方法不匹配。只有显式登记裸MethodX时，完整路径查询才有method-only fallback。\n批准仅修TestWhiteListNormalization及必要测试辅助：用分别带want的正反例锁定上述合同，保留测试名；另用独立实例或清理后的状态验证显式裸方法登记的fallback。加入受保护方法的matcher应继续执行中间件的断言。\n处理全局状态时使用Cleanup恢复且不并行，不能污染业务白名单。生产Add/normalizeOp/isWhitelistedLocked/MatchFunc全部不改。相同测试补丁在锁定原包隔离副本和当前本地包都须通过。不要只把失败项改成false而没有合同和反例说明。",
+ "section_4_verbatim": "四、B1-Bootstrap：补自包含启动夹具\n先取得TestBootstrapWithNameVersion的完整错误/堆栈；不能仅据名字或双侧失败认定生产缺陷。\n若为测试继承go test参数、依赖默认../../configs、没有受控停机等测试环境问题，批准只改bootstrap_test.go及必要测试夹具：\n通过RunApp已有opts对cobra root.SetArgs，使用临时最小有效配置，禁用外部注册/追踪、守护进程及真实网络监听；不读取用户配置。\n保留真实RunApp→加载配置→NewApp→运行/停机路径，使用测试Server/生命周期通知及现有Stop接口有界结束，不sleep猜时机、不向用户进程发信号；断言原语义的name/version、正常返回及cleanup执行。\n全局配置/flags/logger在测试中恢复，难以隔离则用子进程。不要把测试改成仅调用NewApp，或期望原错误即通过。相同test-only修复先旧后新验证；若实际是生产逻辑错误且非上述夹具问题，保留具体错误停止该项，不擅改生产。",
+ "section_5_verbatim": "五、B1-ID：先查使用范围，不按“负载抖动”处理\n锁定id v0.0.6中：\nGenerateOrderIdWithTenantId使用秒级时间+裁剪到5位的tenant+四位随机数，不保证唯一；\nidCounter.Increase含cur := *c普通读及原子写，多个goroutine可读同值；1000回绕还有容量边界。\n记录这是实现限制/并发风险，不是只需减小压力或重试即可修好的测试。\n\n检查两个生成方法及包装、函数值、注册/配置入口在当前业务/工具和支持标签下的调用链，不能以grep无命中代替完整判断。\n若实际路径使用其唯一性或存在并发调用，BLOCKED并给出调用链，不改订单ID格式、不擅自换UUID/Snowflake、不单加atomic.Load假装修好。\n仅在确认这些方法未用于任何本次支持的业务/工具路径时，批准原名原体将以下两项单列到upstream_known_defects标签：\nTestGenerateOrderIdWithTenantIdCollision\nTestGenerateOrderIdWithIndexThread\n保留其他测试、生产实现、既有业务ID测试和明确的未启用检查；禁止整id包排除。\n\n这两项是非确定性既有缺陷，不能套用“必须每次fail、pass算XPASS”的旧规则。以固定且事先记录的次数运行旧新两侧，单列-race对照；不得重试至绿、sleep降低压力或减少原用例负载。\n原始pass仍记pass，允许的失败必须限定到这两个断言/已核对idCounter访问的race诊断；混合结果分类KNOWN_NONDETERMINISTIC_DEFECT，任何一次 pass不代表已修复。缺失/skip/编译/vet/超时/panic/其他失败均阻断。不要求两侧9/10比例相同，不把race屏蔽为无事发生。\n同文件TestGenerateOrderIdWithRandom还可能因%d不补零而与固定4位长度断言矛盾。只有本地复现且GenerateOrderIdWithRandom也未用于业务/工具，才额外授权这一测试按上述概率缺陷规则单列；否则不移动。\n精确更新required-known-defects及运行器，只增上述批准名单与mode，不修改正常require_tests规则；其他缺陷不自动扩大豁免。",
+ "section_6_verbatim": "六、B3-Gitleaks：逐条核实后只允许精确假阳性例外\n使用原固定版本、原扫描范围，生成完整报告存受控任务目录、对外脱敏。报告称4条但文字只归类3条，必须逐条列齐：文件、规则、位置、匹配内容哈希、来源及分类，不能漏第四条。\n旧提交也存在只证明继承，不证明是假阳性。日志中匹配值不同但都被redact为占位符，也不能算内容一致。\n只有可验证为普通对象/文件摘要，或明确无效且未被任何实际部署使用的公开测试向量/文档样例时，才允许标FALSE_POSITIVE；真实或不明凭据保持阻断，不试登录、不公开、不自行轮换/改历史。\n对已证明的假阳性，授权扩展当前有效gitleaks配置，保留全部默认和原自定义规则；无自定义配置才新建并extend默认。\n每条例外限定RuleID+锚定精确文件路径+精确匹配内容，条件必须AND，转义正则；不要只用路径/行号、宽泛hex模式或OR。不得排除pkg/localdeps、migration、docs整目录，不直接把当前全报告作baseline，不设exit-code=0。\n摘要保持完整值不改、不拆字符串规避扫描；避免修改上游测试值和原始证据来消红。\n在临时副本验证：批准值可排除；同文件同规则的另一已确认可检出的合成非真实测试值仍能被发现；同值在未批准路径仍保留原检测。负向样本不入库。证明例外没有吞掉整个规则。\n若既有审计脚本校验配置/fixture哈希，允许只对已批准配置变更更新对应条目，保留前后哈希与补丁，不能重算全表掩盖其他变化。\n用正常配置复跑原gitleaks门禁，报告“0未处理告警、N个经核实例外”，不称从未发现过告警。",
+ "section_7_verbatim": "七、保护、验收与继续\n白名单/Bootstrap测试、已知ID测试分组、格式化、扫描例外分别保存精确补丁、哈希、依据和提交。未批准生产正文仍冻结；测试例外对“原来源+批准补丁”比较，格式变化按规范化AST比较，保护工具不关闭。\n本轮形式调整不是将所有失败普遍授权为已知缺陷。白名单、真实启动、核心ID路径、安全告警不接受一律携带放行。\n先定向跑三包及必跑消费者，生成conf再核对17文件幂等与完整descriptor合同；CRLF→LF只记录为源换行规范化，不能代替协议检查。\n所有定向项关闭后，从修复提交的干净工作树用原固定工具完整执行make verify-gpu。拆开执行记录只辅助定位，不代替整条里程碑；保留真实退出码。旧已批准债务按其专用规则继续检查，不新增默认-vet=off、ignore或测试排除。\n若未启用ID债务保留，结论为T10 MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS，明确非全能力无缺陷；无该债务则依实测报告。更新accepted_head后自动进入T11及后续，无需再逐阶段请示。\n若仍有核心生产缺陷、来源不明、真实/不明凭据或其他新失败，保留现场给出单项最小复现，禁止把T10写成PASS。",
+ "what_it_permits": [
+  "T10-B2: a formatting-only gofmt -w sweep restricted to the exact file list the current gate reports, including files outside any takeover scope, recorded as its own FORMAT_ONLY commit",
+  "T10-B1 rpc: a test-only repair of TestWhiteListNormalization plus necessary test helpers, with want-based positive and negative cases locking the existing matcher contract; production Add/normalizeOp/isWhitelistedLocked/MatchFunc stay frozen",
+  "T10-B1 bootstrap: a test-only self-contained fixture for TestBootstrapWithNameVersion through the real RunApp path with a temporary minimal config and a bounded stop",
+  "T10-B1 id: conditional isolation of exactly two named tests behind the upstream_known_defects tag, and only after compiler-backed proof that the exercised generators are unreachable from every supported path; plus a separate probabilistic-defect classification rule instead of the old must-fail-every-time rule",
+  "T10-B3: gitleaks exceptions that each pin RuleID AND an exact anchored path AND the exact matched content, after per-finding false-positive proof, with negative controls run in throwaway copies"
+ ],
+ "what_it_does_not_permit": [
+  "excluding the four tests as a block, or excluding any package wholesale",
+  "changing production bodies that are not in the approved format/test/exception lists, changing order-id formats, or swapping to UUID/Snowflake",
+  "treating the two id failures as mere load flakiness, retrying until green, reducing load, or hiding a race finding",
+  "whole-directory gitleaks exclusions, using the current report as a baseline, forcing exit-code 0, or editing upstream test values or original evidence to silence a finding",
+  "narrowing the format gate's scan scope, adding -vet=off, or relaxing require_tests.py",
+  "any push, merge or deploy"
+ ],
+ "still_in_force": [
+  "all boundaries from 不可改变的边界 and from the T04/T09 authorizations, including _agent/ never being committed, module cache read-only, no writes to user-global tool paths, and only the authorized isolated lab databases",
+  "missing/skip/fail/not_run is not success",
+  "a BLOCKED T10 must stay BLOCKED if any core production defect, unknown-origin credential or new failure remains"
+ ],
+ "conclusion_condition": "T10 closes as MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS only if the isolated id cases stay and every other item passes by measurement; otherwise the verdict follows the measurements. accepted_head advances only after the full make verify-gpu milestone runs from a clean work tree of the fix commits.",
+ "artifacts": [
+  "this file",
+  "the appended master-goal section named in recorded_in"
+ ]
+}
