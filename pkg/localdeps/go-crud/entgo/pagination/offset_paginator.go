@@ -3,8 +3,8 @@ package pagination
 import (
 	"entgo.io/ent/dialect/sql"
 
-	"github.com/tx7do/go-crud/pagination"
-	"github.com/tx7do/go-crud/pagination/paginator"
+	"go-wind-admin/pkg/localdeps/go-crud/pagination"
+	"go-wind-admin/pkg/localdeps/go-crud/pagination/paginator"
 )
 
 // OffsetPaginator 基于 Offset 的分页器

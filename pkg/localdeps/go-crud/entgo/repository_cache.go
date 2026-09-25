@@ -12,11 +12,11 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	"github.com/tx7do/go-crud/pagination"
-	"github.com/tx7do/go-wind/log"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/go-crud/cache"
+	"go-wind-admin/pkg/localdeps/go-crud/pagination"
 	"go-wind-admin/pkg/localdeps/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-wind/log"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )

@@ -11,7 +11,7 @@ import (
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 
 	"github.com/redis/go-redis/v9"
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
 	"github.com/tx7do/kratos-bootstrap/bootstrap"

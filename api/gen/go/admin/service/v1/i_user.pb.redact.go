@@ -5,9 +5,9 @@ package adminpb
 
 import (
 	context "context"
-	pagination "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	redact "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
 	identitypb "go-wind-admin/api/gen/go/identity/service/v1"
+	v1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -23,7 +23,7 @@ var (
 	_ status.Status
 	_ emptypb.Empty
 	_ redact.FieldRules
-	_ pagination.Sorting
+	_ v1.Sorting
 	_ identitypb.User
 )
 
@@ -47,7 +47,7 @@ type redactedUserServiceServer struct {
 
 // List is the redacted wrapper for the actual UserServiceServer.List method
 // Unary RPC
-func (s *redactedUserServiceServer) List(ctx context.Context, in *pagination.PagingRequest) (*identitypb.ListUserResponse, error) {
+func (s *redactedUserServiceServer) List(ctx context.Context, in *v1.PagingRequest) (*identitypb.ListUserResponse, error) {
 	res, err := s.srv.List(ctx, in)
 	if !s.bypass.CheckInternal(ctx) {
 		// Apply redaction to the response

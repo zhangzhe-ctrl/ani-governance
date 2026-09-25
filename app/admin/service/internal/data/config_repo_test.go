@@ -12,7 +12,7 @@ import (
 	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 
 	configV1 "go-wind-admin/api/gen/go/config/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"

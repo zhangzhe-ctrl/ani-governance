@@ -36,6 +36,7 @@ third_party/tx7do/                   依赖源码备份区域
 | 运行 | `gow run admin` |
 | Ent 生成 | `gow ent admin` |
 | Proto / Go API | `gow api` |
+| 本地化分页 Proto | `BUF=<buf v1.60.0> make api-pagination` |
 | OpenAPI | `make openapi` |
 | 标准 CRUD 登记 | `make register ENTITY=product` |
 | 仅编译已有源码 | `make build_only` |

@@ -86,6 +86,13 @@ api:
 	cd api && \
 	buf generate
 
+# generate the localized pagination Proto into pkg/localdeps.
+# The Proto source is api/localdeps/pagination and this is the only template that
+# writes that target, so pagination is generated exactly once. BUF must point at a
+# verified buf v1.60.0; the script refuses any other version.
+api-pagination:
+	bash scripts/generate-pagination.sh
+
 # generate protobuf api OpenAPI v3 docs.
 openapi:
 	cd api && \

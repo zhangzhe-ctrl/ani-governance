@@ -12,7 +12,7 @@ import (
 
 	"entgo.io/ent/dialect"
 	entSql "entgo.io/ent/dialect/sql"
-	"github.com/tx7do/go-wind/log"
+	"go-wind-admin/pkg/localdeps/go-wind/log"
 
 	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"

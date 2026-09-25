@@ -6,7 +6,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 )
 
 func buildSortingSQL(t *testing.T, table, field string) string {

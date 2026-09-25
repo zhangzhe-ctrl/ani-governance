@@ -1,0 +1,28 @@
+# 本地化分页 Proto 的专用生成模板（T08）。
+#
+# 只生成 api/localdeps/pagination 这一个模块，输出到 pkg/localdeps/go-crud/api/gen/go，
+# 与业务模板（inputs 只选 protos）互不重叠：分页 Proto 在全仓只生成这一份。
+# clean:false：输出目录含 LICENSE 等非生成文件，且禁止 clean 指向仓库根或手写代码目录。
+# Go 包名保持上游生成物的 v1；逻辑 import 路径 pagination/v1/pagination.proto 不变。
+version: v2
+clean: false
+managed:
+  enabled: true
+  disable:
+    - module: buf.build/googleapis/googleapis
+    - module: buf.build/gnostic/gnostic
+    - module: 'buf.build/envoyproxy/protoc-gen-validate'
+    - module: 'buf.build/kratos/apis'
+    - module: 'buf.build/go-wind/redact'
+  override:
+    - file_option: go_package_prefix
+      value: go-wind-admin/api/gen/go
+    - file_option: go_package
+      path: pagination/v1
+      value: go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
+inputs:
+  - directory: localdeps/pagination
+plugins:
+  - local: [go, run, google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11]
+    out: ../pkg/localdeps/go-crud/api/gen/go
+    opt: paths=source_relative

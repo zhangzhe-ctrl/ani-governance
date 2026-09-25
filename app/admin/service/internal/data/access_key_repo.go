@@ -7,8 +7,8 @@ import (
 
 	"entgo.io/ent/privacy"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
 	"go-wind-admin/pkg/localdeps/go-utils/mapper"

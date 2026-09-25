@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	paginationBase "github.com/tx7do/go-crud/pagination"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+	paginationBase "go-wind-admin/pkg/localdeps/go-crud/pagination"
 	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 )
 

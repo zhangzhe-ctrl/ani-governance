@@ -106,7 +106,7 @@ require (
 	github.com/goccy/go-json v0.10.6 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/gnostic-models v0.7.1 // indirect
-	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/google/go-cmp v0.7.0
 	github.com/google/subcommands v1.2.0 // indirect
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2 // indirect
@@ -172,7 +172,7 @@ require (
 	github.com/zclconf/go-cty v1.19.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.2.0 // indirect
 	github.com/zhangzhe-ctrl/ani-network-service v0.0.0-20260917165536-66f787bd3013
-	go.einride.tech/aip v0.86.3 // indirect
+	go.einride.tech/aip v0.86.3
 	go.mongodb.org/mongo-driver/v2 v2.9.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel v1.46.0

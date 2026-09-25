@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/redis/go-redis/v9"
-	"github.com/tx7do/go-wind/log"
+	"go-wind-admin/pkg/localdeps/go-wind/log"
 
 	"go-wind-admin/pkg/localdeps/go-utils/fieldmaskutil"
 	"go-wind-admin/pkg/localdeps/go-utils/mapper"
@@ -17,11 +17,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	paginationCurd "github.com/tx7do/go-crud/pagination"
-	paginationFilter "github.com/tx7do/go-crud/pagination/filter"
-	"github.com/tx7do/go-crud/pagination/paginator"
-	paginationSorting "github.com/tx7do/go-crud/pagination/sorting"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/go-crud/cache"
 	"go-wind-admin/pkg/localdeps/go-crud/entgo/field"
 	"go-wind-admin/pkg/localdeps/go-crud/entgo/filter"
@@ -29,6 +25,10 @@ import (
 	"go-wind-admin/pkg/localdeps/go-crud/entgo/rule"
 	"go-wind-admin/pkg/localdeps/go-crud/entgo/sorting"
 	"go-wind-admin/pkg/localdeps/go-crud/entgo/update"
+	paginationCurd "go-wind-admin/pkg/localdeps/go-crud/pagination"
+	paginationFilter "go-wind-admin/pkg/localdeps/go-crud/pagination/filter"
+	"go-wind-admin/pkg/localdeps/go-crud/pagination/paginator"
+	paginationSorting "go-wind-admin/pkg/localdeps/go-crud/pagination/sorting"
 )
 
 // Repository Ent查询器

@@ -11,12 +11,19 @@ managed:
     - module: 'buf.build/kratos/apis'
     - module: 'buf.build/gnostic/gnostic'
     - module: 'buf.build/gogo/protobuf'
-    - module: 'buf.build/tx7do/pagination'
     - module: 'buf.build/go-wind/redact'
 
   override:
     - file_option: go_package_prefix
       value: go-wind-admin/api/gen/go
+
+    # 本地化分页 Proto（api/localdeps/pagination，源码与 go-crud/api@v0.0.7 逐字节一致）。
+    # managed 全局前缀 go-wind-admin/api/gen/go 对此 Proto 例外：生成到 pkg/localdeps 目标，
+    # Go 包名保持上游生成物的 v1（原 option go_package 的 ;pagination 别名在上游生成物中
+    # 已被 go_package_prefix 抹去，这里复刻既有行为，不改变协议）。
+    - file_option: go_package
+      path: pagination/v1
+      value: go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
 
 inputs:
   - directory: protos

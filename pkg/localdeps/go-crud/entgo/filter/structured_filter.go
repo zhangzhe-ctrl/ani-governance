@@ -8,13 +8,13 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 
-	"github.com/tx7do/go-wind-plugins/encoding"
-	_ "github.com/tx7do/go-wind-plugins/encoding/json"
-	"github.com/tx7do/go-wind/log"
+	"go-wind-admin/pkg/localdeps/go-wind-plugins/encoding"
+	_ "go-wind-admin/pkg/localdeps/go-wind-plugins/encoding/json"
+	"go-wind-admin/pkg/localdeps/go-wind/log"
 
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	"github.com/tx7do/go-crud/pagination/filter"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/go-crud/entgo/ent"
+	"go-wind-admin/pkg/localdeps/go-crud/pagination/filter"
 )
 
 // StructuredFilter 基于 FilterExpr 的过滤器

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"google.golang.org/protobuf/types/known/emptypb"
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
