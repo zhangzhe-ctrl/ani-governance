@@ -10,41 +10,73 @@
   "as_recorded_by": "the version, module line and binary hashes that scripts/verify-gpu-audit.sh prints before scanning",
   "scope": "`gitleaks dir --no-banner --no-color --redact .` from the repository root, unchanged"
  },
- "full_report_location": "task directory /home/ubuntu/tx7do-pilot-run/T10/gitleaks-current.json (kept out of the repository because it carries matched values); this file is the outward-facing copy and records only hashes, rules, files and lines",
+ "full_report_location": "task directory /home/ubuntu/tx7do-pilot-run/T10/gitleaks-current.json (kept out of the repository because it carries matched values). This file is the outward-facing copy and records only hash prefixes, rules, files and lines: a full 64-hex string committed anywhere in the tree is itself indistinguishable from an API key to the scanner, so writing the evidence verbatim would manufacture a new finding, which is exactly what happened on the first milestone attempt after this file was added",
  "findings": [
-  {"n": 1, "rule": "generic-api-key", "file": "migration/handoff.json", "line": 300,
-   "secret_sha256": "966d8abd6d734348210eb069161706e314bd58b5a3cb7716a2d1bf29d2f7bb73",
+  {
+   "n": 1,
+   "rule": "generic-api-key",
+   "file": "migration/handoff.json",
+   "line": 300,
    "context": "the value is the object field \"migration/patches/T05/_orig/kratos-authn-engine-metadata.go\": \"<64 hex>\"",
    "provenance": "written by this migration's own ledger in an earlier accepted commit (predates T10)",
    "verification": "it is the SHA-256 of a Go source file in the patch archive; the ledger stores file digests under keys that name the file, and nothing in the repository uses the string as a credential",
-   "classification": "FALSE_POSITIVE (plain object/file digest)"},
-  {"n": 2, "rule": "generic-api-key", "file": "pkg/localdeps/go-crud/pagination/README.md", "line": 83,
-   "secret_sha256": "7bbcf7753b68c2d062becee0408ed751e2dfbbc81cfa57306edb899d2630aed3",
+   "classification": "FALSE_POSITIVE (plain object/file digest)",
+   "secret_sha256_first8": "966d8abd.. (first 8 hex; full digest stays in the task-directory report)"
+  },
+  {
+   "n": 2,
+   "rule": "generic-api-key",
+   "file": "pkg/localdeps/go-crud/pagination/README.md",
+   "line": 83,
    "context": "fmt.Printf(\"Token: %s\\n\", p.Token())  // Token: eyJpZCI6…",
    "provenance": "upstream documentation carried in by the T03 pagination takeover",
    "verification": "the matched string base64-decodes to {\"id\":100}: a pagination cursor printed by the documented example, with no signing or transport use",
-   "classification": "FALSE_POSITIVE (documentation example value)"},
-  {"n": 3, "rule": "generic-api-key", "file": "pkg/localdeps/go-crud/pagination/README.md", "line": 84,
-   "secret_sha256": "33e57c18579fedda32b99feb6993ea0e8a07e1275d54525d897a6a3b2d4a5c83",
+   "classification": "FALSE_POSITIVE (documentation example value)",
+   "secret_sha256_first8": "7bbcf775.. (first 8 hex; full digest stays in the task-directory report)"
+  },
+  {
+   "n": 3,
+   "rule": "generic-api-key",
+   "file": "pkg/localdeps/go-crud/pagination/README.md",
+   "line": 84,
    "context": "p.SetNextToken(...) / // NextToken: eyJpZCI6…",
    "provenance": "same file, same takeover",
    "verification": "decodes to {\"id\":200}: the companion cursor of the same example",
-   "classification": "FALSE_POSITIVE (documentation example value)"},
-  {"n": 4, "rule": "jwt", "file": "pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go", "line": 83,
-   "secret_sha256": "c615d0941525778e34dae422e9600cc91a0bdbc8e02dd18fa9b934f1f006aa73",
+   "classification": "FALSE_POSITIVE (documentation example value)",
+   "secret_sha256_first8": "33e57c18.. (first 8 hex; full digest stays in the task-directory report)"
+  },
+  {
+   "n": 4,
+   "rule": "jwt",
+   "file": "pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go",
+   "line": 83,
    "context": "assert.Equal(t, \"eyJhbGciOiJIUzI1NiIs…\", outToken) inside TestAuthenticator",
    "provenance": "upstream test file carried in by the T05 kratos-authn takeover; byte-identical to github.com/tx7do/kratos-authn/engine/jwt@v1.1.11 except the single localized import line, and line 83 itself is identical",
    "verification": "header {\"alg\":\"HS256\"}, payload {\"scope\":[\"local:admin:user_name\",\"tenant:admin:user_name\"],\"sub\":\"user_name\"}; the same test builds the authenticator with WithKey([]byte(\"test\")) twelve lines above, so the token is the expected output of a locally signed test vector. The string occurs in no other file in the repository, and no configuration, fixture or runtime path reads it",
-   "classification": "FALSE_POSITIVE (public invalid test vector, not used by any deployment)"}
+   "classification": "FALSE_POSITIVE (public invalid test vector, not used by any deployment)",
+   "secret_sha256_first8": "c615d094.. (first 8 hex; full digest stays in the task-directory report)"
+  }
  ],
  "inheritance_is_not_the_test": "the previous round proved the same four triples exist at the start commit, which only shows inheritance. The per-finding verification above is what supports the FALSE_POSITIVE label.",
  "config_change": {
   "file": ".gitleaks.toml",
   "form": "extended the file already in force, which sets [extend] useDefault = true, so every default rule and every pre-existing custom rule and allowlist stays",
   "new_entries": [
-   {"rule": "generic-api-key", "path": "^migration/handoff\\.json$", "matched_values": 1},
-   {"rule": "generic-api-key", "path": "^pkg/localdeps/go-crud/pagination/README\\.md$", "matched_values": 2},
-   {"rule": "jwt", "path": "^pkg/localdeps/kratos-authn/engine/jwt/jwt_test\\.go$", "matched_values": 1}
+   {
+    "rule": "generic-api-key",
+    "path": "^migration/handoff\\.json$",
+    "matched_values": 1
+   },
+   {
+    "rule": "generic-api-key",
+    "path": "^pkg/localdeps/go-crud/pagination/README\\.md$",
+    "matched_values": 2
+   },
+   {
+    "rule": "jwt",
+    "path": "^pkg/localdeps/kratos-authn/engine/jwt/jwt_test\\.go$",
+    "matched_values": 1
+   }
   ],
   "pinning": "each entry sets condition = \"AND\", regexTarget = \"secret\" and anchors the path with ^…$, so a finding is excluded only when the rule, the exact repository-relative path and the exact matched value all agree; no line numbers, no broad hex classes, no OR of path and value, no directory exclusions, no baseline of the current report, and the exit code is left to gitleaks itself",
   "values_not_rewritten": "no upstream test value, README example or ledger digest was edited, shortened or split to dodge the scanner; the only content change is in the scanner configuration"
