@@ -7,8 +7,8 @@ package main
 import (
 	"os"
 
-	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/quotalab"

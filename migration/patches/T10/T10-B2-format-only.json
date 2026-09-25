@@ -1,0 +1,68 @@
+{
+ "schema_version": "t10-b2-format-only/1",
+ "authorization": "T03-T15-master-goal.md 「### T10 补充授权」 二; migration/receipts/T10-authorization-classified-remediation.json",
+ "gate": {
+  "command": "bash scripts/verify-gpu-format.sh",
+  "gofmt_used_by_the_gate": "/usr/local/go/bin/gofmt (go1.26.4, from PATH; the script hardcodes neither path nor version)",
+  "before": "exit 1, 32 distinct files listed (33 lines, accelerator_joint_http_test.go appears in both the frozen list and the git-derived list)",
+  "after": "exit 0 (no output), and the script's trailing `git diff --check` also passed",
+  "scope_change": "none: the same script, same frozen list, same base commit, no file excluded"
+ },
+ "formatter": {
+  "binary": "/home/ubuntu/sdk/go1.26.7/bin/gofmt",
+  "go_version": "go1.26.7 (the pinned toolchain of this repository)",
+  "sha256": "e742b8f8bf79abf78c32bbbdf2ab1239fff194405d939902fd4748095e529fc1",
+  "arguments": "gofmt -w <the 32 listed paths>, nothing else; no -s, no -r, no goimports, no repository-wide sweep",
+  "pinned_vs_path_agreement": "for all 32 files the 1.26.7 and 1.26.4 gofmt report the same verdicts and produce byte-identical output, so the gate accepts the pinned formatter's result"
+ },
+ "files_formatted": 32,
+ "list_sha256": "5c115672710d0ec78ab72c728919a03a9e19c89d49988540faa616a700ccc19b",
+ "diffstat": "32 files changed, 63 insertions(+), 58 deletions(-)",
+ "equivalence": {
+  "tool": "/home/ubuntu/tx7do-pilot-run/T10/fmt-equiv (written for this step; go/ast, go/scanner, go/format from the pinned toolchain)",
+  "per_file_checks": [
+   "token multiset equal (excluding automatic semicolons, which a formatter legitimately moves)",
+   "comment text multiset equal",
+   "import spec set equal",
+   "//go: and #cgo directive lines equal",
+   "position-blind AST dump equal (import specs canonicalised, because gofmt sorts them)",
+   "gofmt(before) == after byte-for-byte, i.e. the change is exactly the formatter's own output"
+  ],
+  "result": [
+   "files=32 format_only=32 not_format_only=0",
+   "verdict=FORMAT_ONLY"
+  ],
+  "tool_self_validation": "the checker was validated before use: it returns FORMAT_ONLY for real gofmt output and for an unchanged canonical file, and NOT_FORMAT_ONLY for an identifier rename, a changed import path, and a deleted comment",
+  "known_limitation": "the AST dump normalises '(obj @ N)' back-references, which are parse-order indices rather than source content"
+ },
+ "post_format_checks": {
+  "go_build_all": "GOFLAGS=-mod=readonly go build ./... exit 0",
+  "go_vet_wide": "GOFLAGS=-mod=readonly go vet ./... exit 1 with exactly the pre-existing T03-F5 copylocks diagnostic at app/admin/service/internal/service/accelerator_joint_http_test.go:503 and no other finding; no -vet=off",
+  "go_mod_go_sum": "untouched"
+ },
+ "localized_copies_vs_archive": {
+  "note": "three formatted files live under pkg/localdeps and are taken-over copies, so the archive comparison had to be re-run",
+  "files": [
+   {
+    "local": "pkg/localdeps/go-wind/log/global_helpers.go",
+    "upstream": "github.com/tx7do/go-wind@v0.0.2/log/global_helpers.go",
+    "migrate_imports_equiv": "PASS"
+   },
+   {
+    "local": "pkg/localdeps/go-wind/log/global_helpers_test.go",
+    "upstream": "github.com/tx7do/go-wind@v0.0.2/log/global_helpers_test.go",
+    "migrate_imports_equiv": "PASS"
+   },
+   {
+    "local": "pkg/localdeps/go-crud/pagination/filter/filter_string_converter_test.go",
+    "upstream": "github.com/tx7do/go-crud/pagination@v0.0.16/filter/filter_string_converter_test.go",
+    "migrate_imports_equiv": "PASS"
+   }
+  ],
+  "command": "migrate_imports equiv -before <module-cache archive file> -after <formatted local file>",
+  "honest_wording": "these three files are NOT byte-identical to the archive and were not before this step either: the takeover rewrites their import specs. What is claimed is normalized equivalence (non-import AST plus build/cgo directives), which is the wording the earlier tasks used and which this step keeps."
+ },
+ "no_generation_touched": "no file under api/gen/go, Ent generated code or the conf package appears in the gate list, so no generated artifact was hand-formatted; the conf regeneration control from 1a6b437 still applies",
+ "patch": "migration/patches/T10/T10-B2-format-only.patch",
+ "historical_note": "the 21/32 counts recorded in the BLOCKED park are historical; this step used the list the gate actually produced today"
+}

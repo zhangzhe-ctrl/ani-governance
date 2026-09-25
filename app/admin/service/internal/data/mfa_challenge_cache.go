@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"github.com/redis/go-redis/v9"
 	"go-wind-admin/pkg/localdeps/go-utils/jwtutil"
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/proto"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"

@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	serverMonitorV1 "go-wind-admin/api/gen/go/server_monitor/service/v1"
 

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"github.com/stretchr/testify/require"
 	"go-wind-admin/app/admin/service/internal/data/enttest"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 )
 
 // newRoleOrgUnitRepoSqlite 用 enttest helper 构造一个可直接做关联 CRUD 的 RoleOrgUnitRepo。

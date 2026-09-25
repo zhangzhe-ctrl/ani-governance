@@ -11,11 +11,19 @@ type globalCaptureLogger struct {
 	withArgs  []any
 }
 
-func (l *globalCaptureLogger) Debug(_ context.Context, msg string, _ ...any) { l.lastLevel, l.lastMsg = "DEBUG", msg }
-func (l *globalCaptureLogger) Info(_ context.Context, msg string, _ ...any)  { l.lastLevel, l.lastMsg = "INFO", msg }
-func (l *globalCaptureLogger) Warn(_ context.Context, msg string, _ ...any)  { l.lastLevel, l.lastMsg = "WARN", msg }
-func (l *globalCaptureLogger) Error(_ context.Context, msg string, _ ...any) { l.lastLevel, l.lastMsg = "ERROR", msg }
-func (l *globalCaptureLogger) Enabled(Level) bool                            { return true }
+func (l *globalCaptureLogger) Debug(_ context.Context, msg string, _ ...any) {
+	l.lastLevel, l.lastMsg = "DEBUG", msg
+}
+func (l *globalCaptureLogger) Info(_ context.Context, msg string, _ ...any) {
+	l.lastLevel, l.lastMsg = "INFO", msg
+}
+func (l *globalCaptureLogger) Warn(_ context.Context, msg string, _ ...any) {
+	l.lastLevel, l.lastMsg = "WARN", msg
+}
+func (l *globalCaptureLogger) Error(_ context.Context, msg string, _ ...any) {
+	l.lastLevel, l.lastMsg = "ERROR", msg
+}
+func (l *globalCaptureLogger) Enabled(Level) bool { return true }
 func (l *globalCaptureLogger) With(args ...any) Logger {
 	return &globalCaptureLogger{withArgs: args}
 }
@@ -47,4 +55,3 @@ func TestGlobalHelpersWith(t *testing.T) {
 		t.Fatal("With returned nil")
 	}
 }
-

@@ -8,9 +8,9 @@ import (
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/http"
 
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
 	authz "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
-	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 )

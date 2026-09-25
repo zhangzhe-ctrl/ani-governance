@@ -31,4 +31,3 @@ func Enabled(level Level) bool {
 func With(args ...any) Logger {
 	return GetLogger().With(args...)
 }
-

@@ -1,0 +1,561 @@
+diff --git a/app/admin/service/cmd/server/wiring_quota_default.go b/app/admin/service/cmd/server/wiring_quota_default.go
+index 5099469..4911c8c 100644
+--- a/app/admin/service/cmd/server/wiring_quota_default.go
++++ b/app/admin/service/cmd/server/wiring_quota_default.go
+@@ -5,8 +5,8 @@
+ // 正式构建的配额装配钩子（计划 §11.1）：不导入 quotalab、不注册实验路由/adapter。
+ 
+ import (
+-	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+ 	khttp "github.com/go-kratos/kratos/v2/transport/http"
++	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+ 
+ 	"go-wind-admin/app/admin/service/internal/data"
+ 	"go-wind-admin/app/admin/service/internal/service"
+diff --git a/app/admin/service/cmd/server/wiring_quota_lab.go b/app/admin/service/cmd/server/wiring_quota_lab.go
+index 7a198ae..7787dd7 100644
+--- a/app/admin/service/cmd/server/wiring_quota_lab.go
++++ b/app/admin/service/cmd/server/wiring_quota_lab.go
+@@ -7,8 +7,8 @@
+ import (
+ 	"os"
+ 
+-	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+ 	khttp "github.com/go-kratos/kratos/v2/transport/http"
++	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+ 
+ 	"go-wind-admin/app/admin/service/internal/data"
+ 	"go-wind-admin/app/admin/service/internal/quotalab"
+diff --git a/app/admin/service/internal/data/authenticator_test.go b/app/admin/service/internal/data/authenticator_test.go
+index e26a19d..0f5577a 100644
+--- a/app/admin/service/internal/data/authenticator_test.go
++++ b/app/admin/service/internal/data/authenticator_test.go
+@@ -67,9 +67,9 @@ func decodeJWTHeader(t *testing.T, headerSeg string) string {
+ 
+ func TestNewAdminAuthenticator_RS256(t *testing.T) {
+ 	jwtCfg := &conf.Authentication_Jwt{
+-		Method:      "RS256",
+-		PrivateKey:  ptrString(testRSAPrivateKey),
+-		PublicKey:   ptrString(testRSAPublicKey),
++		Method:     "RS256",
++		PrivateKey: ptrString(testRSAPrivateKey),
++		PublicKey:  ptrString(testRSAPublicKey),
+ 	}
+ 
+ 	auth, err := newAdminAuthenticator(jwtCfg)
+diff --git a/app/admin/service/internal/data/dashboard_repo_sqlite_test.go b/app/admin/service/internal/data/dashboard_repo_sqlite_test.go
+index 099b5c4..8a26785 100644
+--- a/app/admin/service/internal/data/dashboard_repo_sqlite_test.go
++++ b/app/admin/service/internal/data/dashboard_repo_sqlite_test.go
+@@ -5,8 +5,8 @@
+ 	"testing"
+ 	"time"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"github.com/stretchr/testify/require"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 
+ 	entLoginAuditLog "go-wind-admin/app/admin/service/internal/data/ent/loginauditlog"
+ 	entOperationAuditLog "go-wind-admin/app/admin/service/internal/data/ent/operationauditlog"
+@@ -122,7 +122,7 @@ func TestDashboardRepoSqlite_LoginTrend(t *testing.T) {
+ 	require.Len(t, trend, 3, "days=3 应返回 3 个桶")
+ 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+ 	for i, row := range trend {
+-		require.Equal(t, today.AddDate(0, 0, -(2 - i)).Format("2006-01-02"), row.Date,
++		require.Equal(t, today.AddDate(0, 0, -(2-i)).Format("2006-01-02"), row.Date,
+ 			"第 %d 个桶的日期应自最早日升序到今日", i)
+ 		expected := 0
+ 		if i == 2 {
+@@ -136,7 +136,7 @@ func TestDashboardRepoSqlite_LoginTrend(t *testing.T) {
+ 	require.NoError(t, err)
+ 	require.Len(t, trend, 7, "days<=0 应默认 7 天窗口")
+ 	for i, row := range trend {
+-		require.Equal(t, today.AddDate(0, 0, -(6 - i)).Format("2006-01-02"), row.Date,
++		require.Equal(t, today.AddDate(0, 0, -(6-i)).Format("2006-01-02"), row.Date,
+ 			"第 %d 个桶的日期应自最早日升序到今日", i)
+ 		expected := 0
+ 		if i == 6 {
+diff --git a/app/admin/service/internal/data/login_rate_limiter.go b/app/admin/service/internal/data/login_rate_limiter.go
+index 4ba8927..0474413 100644
+--- a/app/admin/service/internal/data/login_rate_limiter.go
++++ b/app/admin/service/internal/data/login_rate_limiter.go
+@@ -5,9 +5,9 @@
+ 	"fmt"
+ 	"time"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"github.com/redis/go-redis/v9"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ )
+ 
+ // 登录失败计数与锁定相关常量（H5：登录限流）。
+diff --git a/app/admin/service/internal/data/mfa_challenge_cache.go b/app/admin/service/internal/data/mfa_challenge_cache.go
+index c2f482c..450d31c 100644
+--- a/app/admin/service/internal/data/mfa_challenge_cache.go
++++ b/app/admin/service/internal/data/mfa_challenge_cache.go
+@@ -7,10 +7,10 @@
+ 	"fmt"
+ 	"time"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"github.com/redis/go-redis/v9"
+ 	"go-wind-admin/pkg/localdeps/go-utils/jwtutil"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"google.golang.org/protobuf/proto"
+ 
+ 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
+diff --git a/app/admin/service/internal/data/redis_cache_monitor_repo.go b/app/admin/service/internal/data/redis_cache_monitor_repo.go
+index 76b40d5..bcf42fa 100644
+--- a/app/admin/service/internal/data/redis_cache_monitor_repo.go
++++ b/app/admin/service/internal/data/redis_cache_monitor_repo.go
+@@ -4,9 +4,9 @@
+ 	"context"
+ 	"strings"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"github.com/redis/go-redis/v9"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 
+ 	redisCacheV1 "go-wind-admin/api/gen/go/redis_cache/service/v1"
+ 
+@@ -78,12 +78,12 @@ func mapSlowLogEntries(in []redis.SlowLog) []*redisCacheV1.SlowLogEntry {
+ 	for i := range in {
+ 		s := &in[i]
+ 		out = append(out, &redisCacheV1.SlowLogEntry{
+-			Id:            s.ID,
+-			CreatedAt:     timestamppb.New(s.Time),
+-			DurationUsec:  s.Duration.Microseconds(),
+-			Args:          sanitizeSlowLogArgs(s.Args),
+-			ClientAddr:    s.ClientAddr,
+-			ClientName:    strings.ToValidUTF8(s.ClientName, "\uFFFD"),
++			Id:           s.ID,
++			CreatedAt:    timestamppb.New(s.Time),
++			DurationUsec: s.Duration.Microseconds(),
++			Args:         sanitizeSlowLogArgs(s.Args),
++			ClientAddr:   s.ClientAddr,
++			ClientName:   strings.ToValidUTF8(s.ClientName, "\uFFFD"),
+ 		})
+ 	}
+ 	return out
+diff --git a/app/admin/service/internal/data/role_org_unit_repo_sqlite_test.go b/app/admin/service/internal/data/role_org_unit_repo_sqlite_test.go
+index 9591b84..24cb653 100644
+--- a/app/admin/service/internal/data/role_org_unit_repo_sqlite_test.go
++++ b/app/admin/service/internal/data/role_org_unit_repo_sqlite_test.go
+@@ -5,9 +5,9 @@
+ 	"fmt"
+ 	"testing"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"github.com/stretchr/testify/require"
+ 	"go-wind-admin/app/admin/service/internal/data/enttest"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ )
+ 
+ // newRoleOrgUnitRepoSqlite 用 enttest helper 构造一个可直接做关联 CRUD 的 RoleOrgUnitRepo。
+diff --git a/app/admin/service/internal/data/server_monitor_repo_sqlite_test.go b/app/admin/service/internal/data/server_monitor_repo_sqlite_test.go
+index 5f2b06b..b64e5c7 100644
+--- a/app/admin/service/internal/data/server_monitor_repo_sqlite_test.go
++++ b/app/admin/service/internal/data/server_monitor_repo_sqlite_test.go
+@@ -6,8 +6,8 @@
+ 	"testing"
+ 	"time"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"github.com/stretchr/testify/require"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 
+ 	"go-wind-admin/app/admin/service/internal/data/enttest"
+ )
+diff --git a/app/admin/service/internal/data/user_mfa_factor_repo_sqlite_test.go b/app/admin/service/internal/data/user_mfa_factor_repo_sqlite_test.go
+index 12f6536..5ab4cdd 100644
+--- a/app/admin/service/internal/data/user_mfa_factor_repo_sqlite_test.go
++++ b/app/admin/service/internal/data/user_mfa_factor_repo_sqlite_test.go
+@@ -5,8 +5,8 @@
+ 	"testing"
+ 	"time"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"github.com/stretchr/testify/require"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 
+ 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
+ 	entUserMfaFactor "go-wind-admin/app/admin/service/internal/data/ent/usermfafactor"
+@@ -105,8 +105,8 @@ func TestUserMfaFactorRepoSqlite_ListByUserMapping(t *testing.T) {
+ 			SetUserID(10).
+ 			SetMethod(method).
+ 			SetStatus(status).
+-			SetSecretHash("secret-" + string(method)).
+-			SetDisplayName("display-" + string(method)).
++			SetSecretHash("secret-"+string(method)).
++			SetDisplayName("display-"+string(method)).
+ 			Exec(ctx), "建 %s 行应成功", method)
+ 		methodRows[string(method)] = true
+ 	}
+diff --git a/app/admin/service/internal/server/policy_eval_logging_engine.go b/app/admin/service/internal/server/policy_eval_logging_engine.go
+index 24b189a..5fd8229 100644
+--- a/app/admin/service/internal/server/policy_eval_logging_engine.go
++++ b/app/admin/service/internal/server/policy_eval_logging_engine.go
+@@ -12,8 +12,8 @@
+ 
+ 	"github.com/go-kratos/kratos/v2/transport"
+ 	khttp "github.com/go-kratos/kratos/v2/transport/http"
+-	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+ 	"go-wind-admin/pkg/localdeps/go-utils/trans"
++	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+ 
+ 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
+ 	"go-wind-admin/app/admin/service/internal/data"
+diff --git a/app/admin/service/internal/server/policy_eval_logging_engine_guard_test.go b/app/admin/service/internal/server/policy_eval_logging_engine_guard_test.go
+index a848921..8cce4d3 100644
+--- a/app/admin/service/internal/server/policy_eval_logging_engine_guard_test.go
++++ b/app/admin/service/internal/server/policy_eval_logging_engine_guard_test.go
+@@ -23,8 +23,8 @@
+ 
+ 	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+ 
+-	"go-wind-admin/app/admin/service/internal/data"
+ 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
++	"go-wind-admin/app/admin/service/internal/data"
+ )
+ 
+ // stubAuthzEngine 实现 authzEngine.Authorizer 的桩：只关心 Name()。
+@@ -51,9 +51,9 @@ func (s *stubAuthzEngine) FilterAuthorizedProjects(context.Context, authzEngine.
+ // fakeHeader map 底座的 transport.Header 假件。
+ type fakeHeader map[string]string
+ 
+-func (h fakeHeader) Get(key string) string       { return h[key] }
+-func (h fakeHeader) Set(key, value string)       { h[key] = value }
+-func (h fakeHeader) Add(key, value string)       { h[key] = value }
++func (h fakeHeader) Get(key string) string { return h[key] }
++func (h fakeHeader) Set(key, value string) { h[key] = value }
++func (h fakeHeader) Add(key, value string) { h[key] = value }
+ func (h fakeHeader) Keys() []string {
+ 	keys := make([]string, 0, len(h))
+ 	for k := range h {
+@@ -106,8 +106,8 @@ func TestEvalLoggingEngine_Describe(t *testing.T) {
+ 		contains []string
+ 		missing  []string
+ 	}{
+-		"允许":      {"", nil, true, []string{"engine=stub-engine subject=role-x", "latency=", "; allowed"}, []string{"project=", "error:", "denied"}},
+-		"拒绝":      {"", nil, false, []string{"engine=stub-engine subject=role-x", "; denied"}, []string{"project=", "error:", "; allowed"}},
++		"允许":       {"", nil, true, []string{"engine=stub-engine subject=role-x", "latency=", "; allowed"}, []string{"project=", "error:", "denied"}},
++		"拒绝":       {"", nil, false, []string{"engine=stub-engine subject=role-x", "; denied"}, []string{"project=", "error:", "; allowed"}},
+ 		"引擎错误":     {"", errors.New("boom"), true, []string{"engine=stub-engine subject=role-x", "; error: boom"}, []string{"project=", "; allowed", "denied"}},
+ 		"带project": {"proj-1", nil, true, []string{"engine=stub-engine subject=role-x", " project=proj-1", "; allowed"}, []string{"error:", "denied"}},
+ 	} {
+diff --git a/app/admin/service/internal/service/accelerator_joint_http_test.go b/app/admin/service/internal/service/accelerator_joint_http_test.go
+index 772e07a..0092945 100644
+--- a/app/admin/service/internal/service/accelerator_joint_http_test.go
++++ b/app/admin/service/internal/service/accelerator_joint_http_test.go
+@@ -24,13 +24,13 @@
+ 	"github.com/google/uuid"
+ 	"github.com/redis/go-redis/v9"
+ 	"github.com/stretchr/testify/require"
++	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
++	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
++	"go-wind-admin/pkg/localdeps/go-utils/trans"
+ 	authzMiddleware "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
+ 	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+ 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+-	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
+-	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
+-	"go-wind-admin/pkg/localdeps/go-utils/trans"
+ 	annotations "google.golang.org/genproto/googleapis/api/annotations"
+ 	"google.golang.org/protobuf/proto"
+ 
+diff --git a/app/admin/service/internal/service/dashboard_service.go b/app/admin/service/internal/service/dashboard_service.go
+index a543098..c475811 100644
+--- a/app/admin/service/internal/service/dashboard_service.go
++++ b/app/admin/service/internal/service/dashboard_service.go
+@@ -3,8 +3,8 @@
+ import (
+ 	"context"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"google.golang.org/protobuf/types/known/emptypb"
+ 
+ 	"go-wind-admin/app/admin/service/internal/data"
+diff --git a/app/admin/service/internal/service/data_access_audit_log_service.go b/app/admin/service/internal/service/data_access_audit_log_service.go
+index d0c93c6..fc8da5c 100644
+--- a/app/admin/service/internal/service/data_access_audit_log_service.go
++++ b/app/admin/service/internal/service/data_access_audit_log_service.go
+@@ -3,8 +3,8 @@
+ import (
+ 	"context"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"google.golang.org/protobuf/types/known/emptypb"
+ 
+ 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+diff --git a/app/admin/service/internal/service/internal_message_recipient_service.go b/app/admin/service/internal/service/internal_message_recipient_service.go
+index 12c0812..ed83457 100644
+--- a/app/admin/service/internal/service/internal_message_recipient_service.go
++++ b/app/admin/service/internal/service/internal_message_recipient_service.go
+@@ -3,9 +3,9 @@
+ import (
+ 	"context"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"google.golang.org/protobuf/types/known/emptypb"
+ 
+ 	"go-wind-admin/app/admin/service/internal/data"
+diff --git a/app/admin/service/internal/service/login_audit_log_service.go b/app/admin/service/internal/service/login_audit_log_service.go
+index 2ee66c0..777538b 100644
+--- a/app/admin/service/internal/service/login_audit_log_service.go
++++ b/app/admin/service/internal/service/login_audit_log_service.go
+@@ -3,8 +3,8 @@
+ import (
+ 	"context"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"google.golang.org/protobuf/types/known/emptypb"
+ 
+ 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+diff --git a/app/admin/service/internal/service/operation_audit_log_service.go b/app/admin/service/internal/service/operation_audit_log_service.go
+index ff0cae9..4bc7543 100644
+--- a/app/admin/service/internal/service/operation_audit_log_service.go
++++ b/app/admin/service/internal/service/operation_audit_log_service.go
+@@ -3,8 +3,8 @@
+ import (
+ 	"context"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"google.golang.org/protobuf/types/known/emptypb"
+ 
+ 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+diff --git a/app/admin/service/internal/service/permission_audit_log_service.go b/app/admin/service/internal/service/permission_audit_log_service.go
+index 2278427..74069f4 100644
+--- a/app/admin/service/internal/service/permission_audit_log_service.go
++++ b/app/admin/service/internal/service/permission_audit_log_service.go
+@@ -3,9 +3,9 @@
+ import (
+ 	"context"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"google.golang.org/protobuf/types/known/emptypb"
+ 
+ 	"go-wind-admin/app/admin/service/internal/data"
+diff --git a/app/admin/service/internal/service/policy_evaluation_log_service.go b/app/admin/service/internal/service/policy_evaluation_log_service.go
+index 53dd628..0d69933 100644
+--- a/app/admin/service/internal/service/policy_evaluation_log_service.go
++++ b/app/admin/service/internal/service/policy_evaluation_log_service.go
+@@ -3,9 +3,9 @@
+ import (
+ 	"context"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"google.golang.org/protobuf/types/known/emptypb"
+ 
+ 	"go-wind-admin/app/admin/service/internal/data"
+diff --git a/app/admin/service/internal/service/quota_admin_service.go b/app/admin/service/internal/service/quota_admin_service.go
+index f72428a..78a2ebd 100644
+--- a/app/admin/service/internal/service/quota_admin_service.go
++++ b/app/admin/service/internal/service/quota_admin_service.go
+@@ -3,9 +3,9 @@
+ import (
+ 	"context"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 
+ 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
+ 
+diff --git a/app/admin/service/internal/service/redis_cache_monitor_service.go b/app/admin/service/internal/service/redis_cache_monitor_service.go
+index 1c7f472..2aa76c9 100644
+--- a/app/admin/service/internal/service/redis_cache_monitor_service.go
++++ b/app/admin/service/internal/service/redis_cache_monitor_service.go
+@@ -3,8 +3,8 @@
+ import (
+ 	"context"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 
+ 	"go-wind-admin/app/admin/service/internal/data"
+ 
+diff --git a/app/admin/service/internal/service/server_monitor_service.go b/app/admin/service/internal/service/server_monitor_service.go
+index 08c8de6..6be8ea3 100644
+--- a/app/admin/service/internal/service/server_monitor_service.go
++++ b/app/admin/service/internal/service/server_monitor_service.go
+@@ -3,8 +3,8 @@
+ import (
+ 	"context"
+ 
+-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
++	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+ 
+ 	serverMonitorV1 "go-wind-admin/api/gen/go/server_monitor/service/v1"
+ 
+diff --git a/app/admin/service/internal/service/user_field_permission.go b/app/admin/service/internal/service/user_field_permission.go
+index e22c6a0..1f5ff99 100644
+--- a/app/admin/service/internal/service/user_field_permission.go
++++ b/app/admin/service/internal/service/user_field_permission.go
+@@ -3,8 +3,8 @@
+ import (
+ 	"context"
+ 
+-	"google.golang.org/protobuf/types/known/emptypb"
+ 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
++	"google.golang.org/protobuf/types/known/emptypb"
+ 
+ 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
+ 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
+diff --git a/pkg/jwt/user_token_payload_test.go b/pkg/jwt/user_token_payload_test.go
+index 1c9123d..1715cc4 100644
+--- a/pkg/jwt/user_token_payload_test.go
++++ b/pkg/jwt/user_token_payload_test.go
+@@ -5,8 +5,8 @@
+ 
+ 	"github.com/golang-jwt/jwt/v5"
+ 	"github.com/stretchr/testify/assert"
+-	authn "go-wind-admin/pkg/localdeps/kratos-authn/engine"
+ 	"go-wind-admin/pkg/localdeps/go-utils/trans"
++	authn "go-wind-admin/pkg/localdeps/kratos-authn/engine"
+ 
+ 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
+ )
+diff --git a/pkg/localdeps/go-crud/pagination/filter/filter_string_converter_test.go b/pkg/localdeps/go-crud/pagination/filter/filter_string_converter_test.go
+index 7f80a71..9daf40e 100644
+--- a/pkg/localdeps/go-crud/pagination/filter/filter_string_converter_test.go
++++ b/pkg/localdeps/go-crud/pagination/filter/filter_string_converter_test.go
+@@ -223,7 +223,6 @@ func TestFilterStringConverter_Convert_AllOperators(t *testing.T) {
+ 		// 组合逻辑：检查顶层 ExprType
+ 		{"a = 1 AND b = 2", paginationV1.Operator_EQ, func() *paginationV1.ExprType { e := paginationV1.ExprType_AND; return &e }()},
+ 		{"a = 1 OR b = 2", paginationV1.Operator_EQ, func() *paginationV1.ExprType { e := paginationV1.ExprType_OR; return &e }()},
+-
+ 	}
+ 
+ 	// 未知操作符必须报错（fail-closed：不再静默丢弃条件成为无过滤查询）
+diff --git a/pkg/localdeps/go-wind/log/global_helpers.go b/pkg/localdeps/go-wind/log/global_helpers.go
+index 97f1054..b541191 100644
+--- a/pkg/localdeps/go-wind/log/global_helpers.go
++++ b/pkg/localdeps/go-wind/log/global_helpers.go
+@@ -31,4 +31,3 @@ func Enabled(level Level) bool {
+ func With(args ...any) Logger {
+ 	return GetLogger().With(args...)
+ }
+-
+diff --git a/pkg/localdeps/go-wind/log/global_helpers_test.go b/pkg/localdeps/go-wind/log/global_helpers_test.go
+index 5b2db1a..c8181e1 100644
+--- a/pkg/localdeps/go-wind/log/global_helpers_test.go
++++ b/pkg/localdeps/go-wind/log/global_helpers_test.go
+@@ -11,11 +11,19 @@ type globalCaptureLogger struct {
+ 	withArgs  []any
+ }
+ 
+-func (l *globalCaptureLogger) Debug(_ context.Context, msg string, _ ...any) { l.lastLevel, l.lastMsg = "DEBUG", msg }
+-func (l *globalCaptureLogger) Info(_ context.Context, msg string, _ ...any)  { l.lastLevel, l.lastMsg = "INFO", msg }
+-func (l *globalCaptureLogger) Warn(_ context.Context, msg string, _ ...any)  { l.lastLevel, l.lastMsg = "WARN", msg }
+-func (l *globalCaptureLogger) Error(_ context.Context, msg string, _ ...any) { l.lastLevel, l.lastMsg = "ERROR", msg }
+-func (l *globalCaptureLogger) Enabled(Level) bool                            { return true }
++func (l *globalCaptureLogger) Debug(_ context.Context, msg string, _ ...any) {
++	l.lastLevel, l.lastMsg = "DEBUG", msg
++}
++func (l *globalCaptureLogger) Info(_ context.Context, msg string, _ ...any) {
++	l.lastLevel, l.lastMsg = "INFO", msg
++}
++func (l *globalCaptureLogger) Warn(_ context.Context, msg string, _ ...any) {
++	l.lastLevel, l.lastMsg = "WARN", msg
++}
++func (l *globalCaptureLogger) Error(_ context.Context, msg string, _ ...any) {
++	l.lastLevel, l.lastMsg = "ERROR", msg
++}
++func (l *globalCaptureLogger) Enabled(Level) bool { return true }
+ func (l *globalCaptureLogger) With(args ...any) Logger {
+ 	return &globalCaptureLogger{withArgs: args}
+ }
+@@ -47,4 +55,3 @@ func TestGlobalHelpersWith(t *testing.T) {
+ 		t.Fatal("With returned nil")
+ 	}
+ }
+-
+diff --git a/pkg/middleware/auth/auth_test.go b/pkg/middleware/auth/auth_test.go
+index 6ff3826..11b51fd 100644
+--- a/pkg/middleware/auth/auth_test.go
++++ b/pkg/middleware/auth/auth_test.go
+@@ -22,11 +22,11 @@
+ 	kmeta "github.com/go-kratos/kratos/v2/metadata"
+ 	"github.com/go-kratos/kratos/v2/transport"
+ 
++	"go-wind-admin/pkg/localdeps/go-crud/viewer"
++	"go-wind-admin/pkg/localdeps/go-utils/trans"
+ 	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+ 	authzMw "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
+ 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+-	"go-wind-admin/pkg/localdeps/go-crud/viewer"
+-	"go-wind-admin/pkg/localdeps/go-utils/trans"
+ 
+ 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
+ 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
+diff --git a/pkg/middleware/auth/authorization_domain_test.go b/pkg/middleware/auth/authorization_domain_test.go
+index 6656b5d..e07a496 100644
+--- a/pkg/middleware/auth/authorization_domain_test.go
++++ b/pkg/middleware/auth/authorization_domain_test.go
+@@ -4,11 +4,11 @@
+ 	"context"
+ 	"testing"
+ 
++	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
++	"go-wind-admin/pkg/localdeps/go-utils/trans"
+ 	engine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+ 	"go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin"
+ 	authz "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
+-	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
+-	"go-wind-admin/pkg/localdeps/go-utils/trans"
+ )
+ 
+ // TestAuthorizationTenantDomain 校验 casbin 策略的租户域隔离：策略里 V3 是租户域，
+diff --git a/pkg/middleware/auth/utils.go b/pkg/middleware/auth/utils.go
+index 43bd075..39140e1 100644
+--- a/pkg/middleware/auth/utils.go
++++ b/pkg/middleware/auth/utils.go
+@@ -8,9 +8,9 @@
+ 	"github.com/go-kratos/kratos/v2/transport"
+ 	"github.com/go-kratos/kratos/v2/transport/http"
+ 
++	"go-wind-admin/pkg/localdeps/go-utils/trans"
+ 	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+ 	authz "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
+-	"go-wind-admin/pkg/localdeps/go-utils/trans"
+ 
+ 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
+ )
+diff --git a/pkg/middleware/logging/harness_test.go b/pkg/middleware/logging/harness_test.go
+index 8ec29b4..874a266 100644
+--- a/pkg/middleware/logging/harness_test.go
++++ b/pkg/middleware/logging/harness_test.go
+@@ -33,8 +33,8 @@
+ 	khttp "github.com/go-kratos/kratos/v2/transport/http"
+ 	"github.com/golang-jwt/jwt/v5"
+ 	"github.com/stretchr/testify/require"
+-	authn "go-wind-admin/pkg/localdeps/kratos-authn/engine"
+ 	crudviewer "go-wind-admin/pkg/localdeps/go-crud/viewer"
++	authn "go-wind-admin/pkg/localdeps/kratos-authn/engine"
+ 	"google.golang.org/protobuf/types/known/timestamppb"
+ 
+ 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"

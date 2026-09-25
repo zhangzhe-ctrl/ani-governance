@@ -5,8 +5,8 @@ package main
 // 正式构建的配额装配钩子（计划 §11.1）：不导入 quotalab、不注册实验路由/adapter。
 
 import (
-	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/service"
