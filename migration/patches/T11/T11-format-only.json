@@ -1,0 +1,37 @@
+{
+  "schema_version": "t11-format-only/1",
+  "tool": "/home/ubuntu/sdk/go1.26.7/bin/gofmt (pinned go1.26.7)",
+  "why": "the T11 import rewrite moved these paths into the first-party group; the format gate listed them, and the fix is gofmt's deterministic output and nothing else",
+  "note": "scripts/verify-gpu-format.sh also covers pkg/localdeps and the two test files touched by the authorization; those are checked separately",
+  "files": [
+    {
+      "file": "app/admin/service/internal/server/asynq_server.go",
+      "head_sha256": "5fef84ed10682288df0fca5121d7f23f7e4da804822b9e39807cae0682de7328",
+      "head_gofmt_sha256": "74c12786900fc8c39cb0e8194f4832ed9574dc36a3f995ad1de2a155c7036784",
+      "current_sha256": "74c12786900fc8c39cb0e8194f4832ed9574dc36a3f995ad1de2a155c7036784",
+      "is_exactly_gofmt_of_head": true
+    },
+    {
+      "file": "app/admin/service/internal/service/internal_message_service.go",
+      "head_sha256": "cb08e24b31f5a417f7485e018b7038429f2b3bfb448bf485265c3f7a5dc5a4b1",
+      "head_gofmt_sha256": "e10b37cf7597b699900fd72e9d36c003a37622eb70898e2b6b1439c035f7ca0f",
+      "current_sha256": "e10b37cf7597b699900fd72e9d36c003a37622eb70898e2b6b1439c035f7ca0f",
+      "is_exactly_gofmt_of_head": true
+    },
+    {
+      "file": "app/admin/service/internal/service/internal_message_service_sqlite_test.go",
+      "head_sha256": "550c090f95f5b8b80a51a145bd8b1f057444245ea79935a63d55620137780c33",
+      "head_gofmt_sha256": "a14520785bf2f5901002c323fde68c7894942f2844abec962959262577b70503",
+      "current_sha256": "a14520785bf2f5901002c323fde68c7894942f2844abec962959262577b70503",
+      "is_exactly_gofmt_of_head": true
+    },
+    {
+      "file": "pkg/localdeps/kratos-bootstrap/transport/asynq/asynq_server.go",
+      "head_sha256": "f0e9537719a052f41e33e80a3f471642d8c72334c1bef7dcde855c21796df223",
+      "head_gofmt_sha256": "9af2aa17ccf1b647548533abc110ba119c6018b4c5d705b3006dfeb634f237e8",
+      "current_sha256": "9af2aa17ccf1b647548533abc110ba119c6018b4c5d705b3006dfeb634f237e8",
+      "is_exactly_gofmt_of_head": true
+    }
+  ],
+  "all_format_only": true
+}

@@ -1,0 +1,262 @@
+{
+  "schema_version": "t11-equiv-production-rechecked/1",
+  "tool": "migrate_imports equiv",
+  "map": "/home/ubuntu/tx7do-pilot-run/T11/import-map.json",
+  "when": "after the authorized T11 test-assembly round; every placed non-test file, not only the ones whose imports changed",
+  "checked": 42,
+  "failures": [],
+  "results": [
+    {
+      "file": "pkg/localdeps/kratos-transport/broker/broker.go",
+      "upstream": "kratos-transport/broker@v1.3.3/broker.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/broker/encoding.go",
+      "upstream": "kratos-transport/broker@v1.3.3/encoding.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/broker/event.go",
+      "upstream": "kratos-transport/broker@v1.3.3/event.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/broker/message.go",
+      "upstream": "kratos-transport/broker@v1.3.3/message.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/broker/options.go",
+      "upstream": "kratos-transport/broker@v1.3.3/options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/broker/publish.go",
+      "upstream": "kratos-transport/broker@v1.3.3/publish.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/broker/publish_options.go",
+      "upstream": "kratos-transport/broker@v1.3.3/publish_options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/broker/request_options.go",
+      "upstream": "kratos-transport/broker@v1.3.3/request_options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/broker/subscribe_options.go",
+      "upstream": "kratos-transport/broker@v1.3.3/subscribe_options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/broker/subscriber.go",
+      "upstream": "kratos-transport/broker@v1.3.3/subscriber.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/broker/typed_handler.go",
+      "upstream": "kratos-transport/broker@v1.3.3/typed_handler.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/tracing/exporter.go",
+      "upstream": "kratos-transport/tracing@v1.1.2/exporter.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/tracing/options.go",
+      "upstream": "kratos-transport/tracing@v1.1.2/options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/tracing/provider.go",
+      "upstream": "kratos-transport/tracing@v1.1.2/provider.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/tracing/tracer.go",
+      "upstream": "kratos-transport/tracing@v1.1.2/tracer.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/options.go",
+      "upstream": "kratos-transport/transport@v1.3.4/options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/register.go",
+      "upstream": "kratos-transport/transport@v1.3.4/register.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/utils.go",
+      "upstream": "kratos-transport/transport@v1.3.4/utils.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/asynq/logger.go",
+      "upstream": "kratos-transport/transport/asynq@v1.3.14/logger.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/asynq/options.go",
+      "upstream": "kratos-transport/transport/asynq@v1.3.14/options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/asynq/server.go",
+      "upstream": "kratos-transport/transport/asynq@v1.3.14/server.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/asynq/transport.go",
+      "upstream": "kratos-transport/transport/asynq@v1.3.14/transport.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/asynq/types.go",
+      "upstream": "kratos-transport/transport/asynq@v1.3.14/types.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/auth.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/auth.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/client.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/client.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/client_options.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/client_options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/event.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/event.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/event_log.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/event_log.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/http.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/http.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/logger.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/logger.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/server.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/server.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/server_options.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/server_options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/stream.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/stream.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/stream_manager.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/stream_manager.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/subscriber.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/subscriber.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/transport.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/transport.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/utils.go",
+      "upstream": "kratos-transport/transport/sse@v1.3.8/utils.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/keepalive/env.go",
+      "upstream": "kratos-transport/transport/keepalive@v1.3.5/env.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/keepalive/options.go",
+      "upstream": "kratos-transport/transport/keepalive@v1.3.5/options.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/keepalive/server.go",
+      "upstream": "kratos-transport/transport/keepalive@v1.3.5/server.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/keepalive/transport.go",
+      "upstream": "kratos-transport/transport/keepalive@v1.3.5/transport.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/keepalive/utils.go",
+      "upstream": "kratos-transport/transport/keepalive@v1.3.5/utils.go",
+      "exit": 0,
+      "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    }
+  ]
+}

@@ -1,692 +1,739 @@
 {
- "co_run_note": {
-  "patch_strip_correction": "The T02 receipt recorded the reference build as `patch -p5 -d T02/t02b1-ref`. With the patch's a/ b/ labels a plain -p5 resolves to a bare `trans_test.go` inside -d; a nested pkg/localdeps/... layout under -d fails with 'can't find file to patch'. Reference dirs must be flat. This is an evidence-reproduction detail only; no repo file changed."
- },
- "handoff_item_1_preserve_current_work": {
-  "branch_created_from": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
-  "original_frozen_baseline_not_resumed_from": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
-  "resume_head": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
-  "tested_code_sha": "28b6c954f4d399399720892dab8453b53482c4e7",
-  "verdict": "PASS - no unexplained source or build change; safe to continue from resume_head.",
-  "verification": {
-   "delta": {
-    "command": "git diff --name-status 28b6c954f4d399399720892dab8453b53482c4e7 HEAD",
-    "diffstat": "2 files changed, 5 insertions(+), 4 deletions(-)",
-    "exit": 0,
-    "matches_receipt_claim": true,
-    "output": [
-     "M\tmigration/accepted_head",
-     "M\tmigration/receipts/T02.json"
+  "co_run_note": {
+    "patch_strip_correction": "The T02 receipt recorded the reference build as `patch -p5 -d T02/t02b1-ref`. With the patch's a/ b/ labels a plain -p5 resolves to a bare `trans_test.go` inside -d; a nested pkg/localdeps/... layout under -d fails with 'can't find file to patch'. Reference dirs must be flat. This is an evidence-reproduction detail only; no repo file changed."
+  },
+  "handoff_item_1_preserve_current_work": {
+    "branch_created_from": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
+    "original_frozen_baseline_not_resumed_from": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+    "resume_head": "11ba9c84f5dad8710594e55c5835dcb8d5b2de81",
+    "tested_code_sha": "28b6c954f4d399399720892dab8453b53482c4e7",
+    "verdict": "PASS - no unexplained source or build change; safe to continue from resume_head.",
+    "verification": {
+      "delta": {
+        "command": "git diff --name-status 28b6c954f4d399399720892dab8453b53482c4e7 HEAD",
+        "diffstat": "2 files changed, 5 insertions(+), 4 deletions(-)",
+        "exit": 0,
+        "matches_receipt_claim": true,
+        "output": [
+          "M\tmigration/accepted_head",
+          "M\tmigration/receipts/T02.json"
+        ],
+        "undocumented_source_or_build_changes": []
+      },
+      "is_descendant": {
+        "command": "git merge-base --is-ancestor 28b6c954f4d399399720892dab8453b53482c4e7 HEAD",
+        "exit": 0,
+        "result": "true"
+      },
+      "module_files_untouched_since_T02": {
+        "go.mod_sha256": "f07eedc615890e510a89296c884bf515170d09ab13c1d94612df1740e6b76aba",
+        "go.sum_sha256": "c5af448918da03714ef5c38d5f1448e206fe5d05bd1c41165df1f6e8ac8b17da",
+        "unchanged_from_T01_record": true
+      },
+      "trans_not_recopied": {
+        "command": "find pkg/localdeps -type f",
+        "output": [
+          "pkg/localdeps/go-utils/trans/LICENSE",
+          "pkg/localdeps/go-utils/trans/to.go",
+          "pkg/localdeps/go-utils/trans/to_test.go",
+          "pkg/localdeps/go-utils/trans/trans.go",
+          "pkg/localdeps/go-utils/trans/trans_test.go"
+        ]
+      },
+      "working_tree": {
+        "command": "git status --porcelain",
+        "note": "_agent/ is untracked plan material; per handoff item 5 it is deliberately not committed.",
+        "output": [
+          "?? _agent/"
+        ]
+      }
+    },
+    "work_branch": "task/tx7do-takeover"
+  },
+  "handoff_item_2_approved_test_patch_still_exact": {
+    "patch": "migration/patches/T02-B1-trans-time-test.patch",
+    "production_source_equiv": [
+      {
+        "command": "migrate_imports equiv -before T01/stage/trans/trans.go -after <local>",
+        "exit": 0,
+        "file": "pkg/localdeps/go-utils/trans/trans.go",
+        "result": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+      },
+      {
+        "command": "migrate_imports equiv -before T01/stage/trans/to.go -after <local>",
+        "exit": 0,
+        "file": "pkg/localdeps/go-utils/trans/to.go",
+        "result": "PASS"
+      },
+      {
+        "command": "migrate_imports equiv -before T01/stage/trans/to_test.go -after <local>",
+        "exit": 0,
+        "file": "pkg/localdeps/go-utils/trans/to_test.go",
+        "result": "PASS"
+      }
     ],
-    "undocumented_source_or_build_changes": []
-   },
-   "is_descendant": {
-    "command": "git merge-base --is-ancestor 28b6c954f4d399399720892dab8453b53482c4e7 HEAD",
-    "exit": 0,
-    "result": "true"
-   },
-   "module_files_untouched_since_T02": {
-    "go.mod_sha256": "f07eedc615890e510a89296c884bf515170d09ab13c1d94612df1740e6b76aba",
-    "go.sum_sha256": "c5af448918da03714ef5c38d5f1448e206fe5d05bd1c41165df1f6e8ac8b17da",
-    "unchanged_from_T01_record": true
-   },
-   "trans_not_recopied": {
-    "command": "find pkg/localdeps -type f",
-    "output": [
-     "pkg/localdeps/go-utils/trans/LICENSE",
-     "pkg/localdeps/go-utils/trans/to.go",
-     "pkg/localdeps/go-utils/trans/to_test.go",
-     "pkg/localdeps/go-utils/trans/trans.go",
-     "pkg/localdeps/go-utils/trans/trans_test.go"
+    "test_file_reference_rebuild": {
+      "Test_Trans_retained": true,
+      "equiv_and_all_test_go_checks_still_enabled": true,
+      "identical": true,
+      "original_archive_sha256_for_contrast": "d71c0cebafde6000a7479e8b4fff9473bdfa43df69cb51ce3e5a550b72ce807b",
+      "patch_exit": 0,
+      "reference_sha256": "89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e",
+      "repo_sha256": "89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e",
+      "steps": [
+        "copy pristine archive T01/stage/trans/trans_test.go into a fresh temp dir",
+        "patch -p5 -d <temp> -i migration/patches/T02-B1-trans-time-test.patch",
+        "compare sha256 with the repo file"
+      ]
+    },
+    "verdict": "PASS - the only deviation is the approved T02-B1 test patch, byte-for-byte."
+  },
+  "phase_A_closure": {
+    "accepted_head_now": "a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
+    "authorization_now_in_force": "The master goal gained 「### 测试夹具修复的有限授权」 (8 conditions) on 2026-09-25, which pre-authorizes reproducible-pre-existing, data-preparation-only fixture repair inside the same task. It does not weaken any functional, security or acceptance gate, and it does not extend to changing assertions.",
+    "environment_still_live": [
+      "tx7do-t07-guard-pg -> GUARD_TEST_PG_DSN (127.0.0.1:55432)",
+      "tx7do-t07-acc-lab-pg -> QUOTA_LAB_PG_DSN (127.0.0.1:55433)"
+    ],
+    "next_task": "T03 (group B). Read _agent/ani-governance-tx7do-plan/goals/T03.md on entry only.",
+    "receipt": "migration/receipts/T07.json",
+    "recorded_at": "T07 PASS, phase A closed",
+    "resume_check_before_editing": [
+      "git rev-parse HEAD must be a descendant of a17cf5293b599a68e053e9fd1be4ebc8246cecd4 on task/tx7do-takeover",
+      "cat migration/accepted_head must equal a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
+      "the T07-B1 fixture patch must still apply reversed cleanly to app/admin/service/internal/data/ent/tenant_guard_test.go (migration/patches/T07-B1-accesskey-guard-fixture.patch)"
+    ],
+    "unverified_backlog": "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY remain not_run (need an external production-shaped dump/restore window, outside every group's authorized scope so far).",
+    "verdict": "PASS"
+  },
+  "phase_B_T03_closure": {
+    "accepted_head_now": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+    "activated": {
+      "github.com/tx7do/go-utils": "v1.1.40 (stringcase, sliceutil, fieldmaskutil)",
+      "github.com/tx7do/go-utils/copierutil": "v0.0.8",
+      "github.com/tx7do/go-utils/mapper": "v0.0.3"
+    },
+    "constraints_still_in_force": [
+      "no push, no merge, no deploy",
+      "_agent/ is not committed",
+      "missing/skip/fail/not_run is not success",
+      "one batch at a time, receipts in ledger-only follow-up commits"
+    ],
+    "disclosed_not_fixed": [
+      "T03-F4 TestBootstrapPostgres fails at bootstrap_postgres_test.go:58 on a freshly created *_bootstrap_test database in both the accepted_head baseline and the migrated tree (pre-existing; production-behaviour assertion, outside the fixture authorization)",
+      "T03-F5 go vet 'assignment copies lock value' at accelerator_joint_http_test.go:503, identical at accepted_head, file untouched by T03"
+    ],
+    "environment_still_live": {
+      "containers": [
+        "tx7do-t07-guard-pg (127.0.0.1:55432)",
+        "tx7do-t07-acc-lab-pg (127.0.0.1:55433)"
+      ],
+      "databases_added_by_T03": [
+        "ani_t03_bootstrap_test",
+        "ani_t03base_bootstrap_test (each dropped and recreated before every run)"
+      ],
+      "helper": "bash /home/ubuntu/tx7do-pilot-run/T03/with_t03_env.sh <command> exports the pinned toolchain plus every task-owned DSN; GOV_BOOTSTRAP_DB selects the bootstrap database",
+      "never_touched": "quota-gpu-local-01-pg"
+    },
+    "ledger_commit": "this commit (names 8e5dbde, changes no source)",
+    "next_task": "T04. Read _agent/ani-governance-tx7do-plan/goals/T04.md on entry only.",
+    "receipt": "migration/receipts/T03.json",
+    "recorded_at": "T03 complete, group B in progress",
+    "required_tests_gate": {
+      "builder": "/home/ubuntu/tx7do-pilot-run/t03_profile.py builds the profile from the packages the task touched, never hand-picked",
+      "fail": 0,
+      "gated_excluded": 8,
+      "missing": 0,
+      "not_run": 0,
+      "pass": 599,
+      "required": 599,
+      "skip": 0
+    },
+    "result_sha": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+    "resume_check_before_editing": [
+      "git merge-base --is-ancestor 8e5dbdeec677405a44d263e814c2938cefe8bf20 HEAD",
+      "cat migration/accepted_head  -> 8e5dbdeec677405a44d263e814c2938cefe8bf20",
+      "git status --porcelain      -> only '?? _agent/'",
+      "git diff --name-only 8e5dbde -- pkg/localdeps/go-utils go.mod  -> empty"
+    ],
+    "still_external_on_purpose": [
+      "github.com/tx7do/go-utils/timeutil (T10; no second copy was made)",
+      "github.com/tx7do/kratos-bootstrap/* (T10)",
+      "github.com/tx7do/go-crud/api + pagination Proto (T05/T06)"
+    ],
+    "unverified_backlog": [
+      "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run (carried from T07)"
+    ],
+    "verdict": "PASS",
+    "worktrees_open": [
+      "/home/ubuntu/tx7do-pilot-run/T07/premigrate-ref (accepted T07 evidence)",
+      "/home/ubuntu/tx7do-pilot-run/T03/base-ref (a17cf52 baseline used for the gated comparisons)"
     ]
-   },
-   "working_tree": {
-    "command": "git status --porcelain",
-    "note": "_agent/ is untracked plan material; per handoff item 5 it is deliberately not committed.",
-    "output": [
-     "?? _agent/"
+  },
+  "phase_B_T04_blocked": {
+    "accepted_head_unchanged": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+    "blocked_on": "10 named cases + 5 examples shipped by the locked upstream modules (9 captcha image drivers, TestECDHCrypto_EncryptAndVerify) and go test's default vet rejection of pkg/localdeps/go-utils/captcha; all reproduced offline against byte-identical module-cache copies",
+    "code_commit": "f161a27f4a3395931a5d927960c8400967eb05ea",
+    "everything_else": "provenance, guard 21/21, equiv 47/47 + gofmt 18/18, build_only, residual scan and the 602-test consumer differential all passed",
+    "group_B_paused": true,
+    "ledger_commit_at_record": "8a4e652b6b9678be77113f69300cd343d18fef9e",
+    "raw_evidence": "/home/ubuntu/tx7do-pilot-run/T04/ and migration/preflight/T04-*.json",
+    "resume_instructions": [
+      "read migration/receipts/T04.json (decision_needed.recorded_decision) before any edit",
+      "re-provision the lab with /home/ubuntu/tx7do-pilot-run/T04/lab-reset.sh and keep -p 1 for data+service",
+      "keep the task-owned redis tx7do-t04-captcha-redis up if the captcha gate is re-measured",
+      "do not start T05/T06 until the upstream-red disposition is authorized"
+    ],
+    "status": "BLOCKED",
+    "task": "T04"
+  },
+  "phase_B_T04_closure": {
+    "accepted_head_now": "586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
+    "conclusion": "T04 MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS",
+    "delivery_wording_constraint": "no unconditional all-green claim; every later checkpoint and T15 must run BOTH the ordinary required gate and migration/required-known-defects.json (via tools/migration/known_defects.py) and, while the debt is carried, must use the same qualified wording.",
+    "known_defects_still_open": [
+      "the 9 graph-driver captcha tests are functionally broken upstream and are only isolated+recorded as KNOWN_BASELINE_FAILURE; they are NOT fixed"
+    ],
+    "next_task": "T05. Read _agent/ani-governance-tx7do-plan/goals/T05.md on entry only.",
+    "receipt": "migration/receipts/T04-closure-known-defects.json",
+    "resume_check_before_editing": [
+      "git merge-base --is-ancestor 586c44a2bb07c881d46eb51575bb5ba0c9d8d69c HEAD",
+      "cat migration/accepted_head -> 586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
+      "git status --porcelain -> only '?? _agent/'",
+      "go vet ./pkg/localdeps/go-utils/captcha/ and ./password/ -> 0"
+    ],
+    "reverified_this_session_not_carried_forward": true,
+    "superseded_record": "phase_B_T04_blocked above and receipts/T04.json (status BLOCKED) are kept as evidence; the authorization in receipts/T04-authorization-known-defects.json closed them.",
+    "unverified_backlog": [
+      "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run (carried from T07)"
+    ],
+    "verdict": "MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS"
+  },
+  "phase_B_T05_blocked_parked_at": {
+    "kept_for_history": true,
+    "note": "the BLOCKED receipt is preserved in git at 1c8a5c0; superseded by phase_B_T05_closure below",
+    "sha": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d"
+  },
+  "phase_B_T05_closure": {
+    "accepted_head_now": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
+    "activated": {
+      "consumers_rewired": "8 repo-own files, import-only (guard 8/8)",
+      "files": "14 (10 .go + 2 LICENSE + 2 README); engine/noop and the kratos-authn root package not activated because nothing imports them",
+      "github.com/tx7do/kratos-authn/engine": "v1.1.11 -> go-wind-admin/pkg/localdeps/kratos-authn/engine",
+      "github.com/tx7do/kratos-authn/engine/jwt": "v1.1.11 -> go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt"
+    },
+    "constraints_still_in_force": [
+      "no push, no merge, no deploy",
+      "_agent/ is not committed",
+      "missing/skip/fail/not_run is not success",
+      "one batch at a time, receipts in ledger-only follow-up commits",
+      "no -vet=off on any release/gate command"
+    ],
+    "differential": "two independent `go run` processes (OLD against v1.1.11 from the module cache, NEW against pkg/localdeps), fixed HS256 key, tokens exchanged only as files; all four verify reports byte-identical (sha256 30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06), token strings byte-identical, wrong-key/tampered/expired reject identically",
+    "disclosed_exclusion": {
+      "consequence_stated_plainly": "go test ./... across the repository still reports FAIL go-wind-admin/pkg/localdeps/kratos-authn/engine [build failed]; the repository is NOT green",
+      "decision": "user chose 「Exclude engine self-tests from gate」 on 2026-09-25",
+      "not_done": [
+        "no upstream production edit",
+        "no -vet=off on a release/gate command",
+        "no test deleted or given a changed expectation",
+        "no new entry in migration/required-known-defects.json"
+      ],
+      "what": "the taken-over engine package's own upstream test IDs (only TestParseNumber) are outside the must-pass gate",
+      "why": "frozen upstream engine/metadata.go AuthFromMD lines 31/40 trip go test's default printf vet, so that test binary cannot build; metadata.go is byte-identical to v1.1.11"
+    },
+    "environment_still_live": {
+      "containers": [
+        "tx7do-t07-guard-pg (127.0.0.1:55432)",
+        "tx7do-t07-acc-lab-pg (127.0.0.1:55433)",
+        "tx7do-t04-captcha-redis"
+      ],
+      "databases_added_by_T05": [
+        "ani_t05_bootstrap_test (dropped and recreated before the run; only reachable through the gated TestBootstrapPostgres)"
+      ],
+      "helper": "bash /home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh <command>",
+      "never_touched": "quota-gpu-local-01-pg"
+    },
+    "gate": {
+      "fail": 0,
+      "missing": 0,
+      "not_run": 0,
+      "packages": 6,
+      "pass": 596,
+      "required": 596,
+      "run_exit": 0,
+      "skip": 0,
+      "vet": "default; no -vet=off on any gate command"
+    },
+    "go_mod_note": "grpc-ecosystem/go-grpc-middleware v1.4.0 lost `// indirect` (now imported directly by engine/metadata.go); the two tx7do/kratos-authn requires remain until the phase E `go mod tidy`",
+    "ledger_commit": "this commit (adds T05 evidence and the closure receipt; changes no source)",
+    "next_task": "T06. Read _agent/ani-governance-tx7do-plan/goals/T06.md on entry only.",
+    "receipt": "migration/receipts/T05.json",
+    "recorded_at": "T05 closed with the disclosed exclusion, group B continues",
+    "result_sha": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
+    "resume_check_before_editing": [
+      "git merge-base --is-ancestor 1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d HEAD",
+      "cat migration/accepted_head  -> 1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
+      "git status --porcelain      -> only '?? _agent/'",
+      "cmp pkg/localdeps/kratos-authn/engine/metadata.go $GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/engine/metadata.go -> identical (the disclosed vet blocker must still be upstream, not silently edited)",
+      "python3 tools/migration/known_defects.py replay against migration/required-known-defects.json must still be PASS with both exit codes 1"
+    ],
+    "status_now": "superseded_by: phase_B_T05_remediation_closure (the disclosed exclusion is closed; the record is kept as history)",
+    "still_external_on_purpose": [
+      "github.com/tx7do/kratos-authz/* and casbin (T06)",
+      "github.com/tx7do/kratos-bootstrap/* including bootstrap.Context and conf types (T10)",
+      "github.com/tx7do/go-crud/api + pagination Proto (T06)",
+      "github.com/tx7do/go-utils/{timeutil,id,tls} and kratos-transport / kratos-swagger-ui / go-wind-* (later groups)"
+    ],
+    "superseded_by": "phase_B_T06_closure",
+    "unverified_backlog": [
+      "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run",
+      "9 captcha image drivers remain KNOWN_BASELINE_FAILURE (replayed PASS in this checkpoint, still not green)",
+      "pre-existing copylocks vet finding at accelerator_joint_http_test.go:503"
+    ],
+    "verdict": "PASS_WITH_DISCLOSED_EXCLUSION"
+  },
+  "phase_B_T05_remediation_closure": {
+    "accepted_head_now": "8e83d260d311b0ea26050f720cecca02990b317d",
+    "authorised_by": "user; migration/receipts/T05-authorization-metadata-fix.json",
+    "blob_hashes_verified_against_git": {
+      "migration/patches/T05/_orig/kratos-authn-engine-metadata.go": "b7907194f4ef659c11c90773305d7589c440f30a1757c0f8a06b0305edaf827d",
+      "pkg/localdeps/kratos-authn/engine/authfrommd_approved_contract_test.go": "5b9e449f76cfe4d92378eb3ce959bf60ea0c9e1cb73330174edc87529c77cb89",
+      "pkg/localdeps/kratos-authn/engine/metadata.go": "ce57d7661f631b211f3e96b922605d13897385a77d2f03712d74ab6ea84d93ad"
+    },
+    "change": "exactly the two AuthFromMD dynamic-message calls status.Errorf -> status.Error; auth conditions, token extraction, SplitN malformed-header branch, EqualFold matching, error codes and every other function untouched",
+    "constraints_still_in_force": [
+      "no push, no merge, no deploy, no amend",
+      "_agent/ is not committed for unrelated reasons",
+      "missing/skip/fail/not_run is not success",
+      "no -vet=off on any gate or release command",
+      "only the authorized isolated lab databases; never quota-gpu-local-01-pg or any business DB",
+      "one batch at a time, receipts in ledger-only follow-up commits"
+    ],
+    "date": "2026-09-25",
+    "exclusion_restored": "pkg/localdeps/kratos-authn/engine and TestParseNumber are back in the must-pass profile",
+    "hashes": {
+      "after": "ce57d7661f631b211f3e96b922605d13897385a77d2f03712d74ab6ea84d93ad",
+      "before": "b7907194f4ef659c11c90773305d7589c440f30a1757c0f8a06b0305edaf827d",
+      "inventory": "migration/patches/T05/T05-patch-inventory.json",
+      "patch": "migration/patches/T05/P1-engine-authfrommd-status-error.patch"
+    },
+    "measurements": [
+      {
+        "command": "go vet -mod=readonly ./pkg/localdeps/kratos-authn/engine",
+        "evidence": "migration/preflight/T05R-vet-engine.*",
+        "exit": 0
+      },
+      {
+        "command": "go test -mod=readonly -count=1 -json -v ./pkg/localdeps/kratos-authn/engine",
+        "evidence": "migration/preflight/T05R-tests-engine.*",
+        "exit": 0,
+        "result": "23 named pass events incl. TestParseNumber"
+      },
+      {
+        "command": "restored T05 profile, 7 packages, per-package -run alternation, default vet",
+        "evidence": "migration/preflight/T05R-required-run.*",
+        "exit": 0,
+        "result": "604 required cases"
+      },
+      {
+        "command": "python3 tools/migration/require_tests.py --required .../T05R-required-profile.json --log migration/preflight/T05R-required.log",
+        "exit": 0,
+        "result": {
+          "bad_tests": [],
+          "failed_packages": [],
+          "pass": true,
+          "required": 604
+        }
+      },
+      {
+        "command": "full scoped run of the same 7 packages",
+        "exit": 1,
+        "result": "1023 pass / 1 fail / 7 skip; the single failure is the inherited repo-gated TestBootstrapPostgres (T03-F4), unchanged by this fix"
+      },
+      {
+        "command": "go test -count=1 -run '^ZZNoSuchTestZZ$' ./...",
+        "exit": 0,
+        "result": "48 ok, no FAIL: every test binary in the repository now compiles under default vet"
+      },
+      {
+        "command": "make build_only",
+        "evidence": "migration/preflight/T05R-build-all.*",
+        "exit": 0
+      },
+      {
+        "command": "make build_only",
+        "evidence": "migration/preflight/T05R-build-all.*",
+        "exit": 0
+      }
+    ],
+    "next_task": "phase C: T08 -> T09 -> T10 (with the second make verify-gpu), then D T11 -> T13, E T14 -> T15 plus go mod tidy and the third make verify-gpu",
+    "production_files_changed": [
+      "pkg/localdeps/kratos-authn/engine/metadata.go"
+    ],
+    "protection_tool": "guard/equiv stay switched on; for this file the equiv reference is 'pristine upstream + the approved patch' (migration/patches/T05/_ref/...), proven equiv exit 0 and cmp exit 0, while equiv against the UNPATCHED upstream is recorded honestly at exit 1",
+    "receipt": "migration/receipts/T05.json (status PASS_WITH_APPROVED_PRODUCTION_FIX; the earlier PASS_WITH_DISCLOSED_EXCLUSION conclusion and decision_record are preserved inside the same file as conclusion_superseded_2026-09-25 / status_superseded_2026-09-25, and the parked BLOCKED receipt stays at 1c8a5c0)",
+    "scope_limits": "closes only these two AuthFromMD diagnostics. Still open and carried: T03-F4 TestBootstrapPostgres, the 8 repo-precondition-gated cases (QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY), the 9 captcha known-defect cases, the pre-existing copylocks finding under a full go vet ./... . No repo-wide green claim.",
+    "semantics_disclosed": "normal scheme messages unchanged; a scheme containing % is now plain text instead of being format-interpreted - the approved change, no claim of verbatim output for every input",
+    "source_commit": "8e83d260d311b0ea26050f720cecca02990b317d",
+    "t06_untouched": "the committed T06 takeover c48bd4b and its ledger commit f24455b are preserved; nothing was reverted, rebased, amended or pushed",
+    "task": "T05 remediation: close the excluded engine vet finding with the one approved production-source fix",
+    "tests_added": [
+      "pkg/localdeps/kratos-authn/engine/authfrommd_approved_contract_test.go (missing header, valid Bearer, case-insensitive scheme, scheme mismatch, malformed header, % in scheme, kratos context type)"
+    ],
+    "tests_deleted_or_edited": 0
+  },
+  "phase_B_T06_closure": {
+    "accepted_head_now": "c48bd4b6c9536c037f53a5cee5ed0928c66a9d4a",
+    "code_commit": "see git log; the commit titled 'Take over kratos-authz engine, casbin, noop and middleware into localdeps'",
+    "constraints_still_in_force": [
+      "no push, no merge, no deploy",
+      "_agent/ is not committed",
+      "missing/skip/fail/not_run is not success",
+      "one batch at a time, receipts in ledger-only follow-up commits",
+      "no -vet=off on any release/gate command",
+      "T05's engine exclusion remains in force until the user's chosen remedy is applied; do not present the repository as `go test ./...` green",
+      "fixing the T05 leftover must not be smuggled into a later takeover task; it changes frozen upstream production code and therefore needs its own record"
+    ],
+    "decision_equivalence": "31/31 old(upstream, pre-activation, rebased scratch module) vs new(activated localdeps) verdict lines identical; assets and model text separately proven byte-identical",
+    "environment_still_live": {
+      "containers": [
+        "tx7do-t07-guard-pg (127.0.0.1:55432)",
+        "tx7do-t07-acc-lab-pg (127.0.0.1:55433)",
+        "tx7do-t04-captcha-redis"
+      ],
+      "databases_added_by_T05": [
+        "ani_t05_bootstrap_test (dropped and recreated before the run; only reachable through the gated TestBootstrapPostgres)"
+      ],
+      "helper": "bash /home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh <command>",
+      "never_touched": "quota-gpu-local-01-pg"
+    },
+    "gate": {
+      "fail": 0,
+      "full_scoped_run_exit": 1,
+      "full_scoped_single_failure": "inherited TestBootstrapPostgres (T03-F4) and the package-level fail it causes",
+      "listed": 610,
+      "missing": 0,
+      "not_run": 0,
+      "pass": 602,
+      "require_tests_exit": 0,
+      "required": 602,
+      "skip": 0,
+      "vet": "default; -vet=off never on a gate or release command"
+    },
+    "go_mod_note": "grpc-ecosystem/go-grpc-middleware v1.4.0 lost `// indirect` (now imported directly by engine/metadata.go); the two tx7do/kratos-authn requires remain until the phase E `go mod tidy`; T06 additionally dropped the // indirect marker from github.com/casbin/casbin/v2, go.sum untouched; the three github.com/tx7do/kratos-authz requires remain until the phase-E go mod tidy",
+    "next_task": "phase C: T08. Read _agent/ani-governance-tx7do-plan/goals/T08.md on entry only. The user-directed T05 interruption is closed by phase_B_T05_remediation_closure below.",
+    "phase_B_status": "T03, T04, T05, T06 complete; phase B closed",
+    "receipt": "migration/receipts/T06.json",
+    "single_registry": "github.com/tx7do/kratos-authz occurs 0 times in both go list -deps graphs; the only registry definition is pkg/localdeps/kratos-authz/engine/factory.go",
+    "startup_casbin_gate": "proved behaviourally with the real server binary: type=noop refused, authz.type absent refused, type=casbin passes the gate and only then fails on a deliberately unreachable datasource",
+    "still_external_on_purpose": [
+      "github.com/tx7do/kratos-authz/* and casbin (T06)",
+      "github.com/tx7do/kratos-bootstrap/* including bootstrap.Context and conf types (T10)",
+      "github.com/tx7do/go-crud/api + pagination Proto (T06)",
+      "github.com/tx7do/go-utils/{timeutil,id,tls} and kratos-transport / kratos-swagger-ui / go-wind-* (later groups)"
+    ],
+    "task": "T06 authorization engine and middleware atomic takeover",
+    "unverified_backlog": [
+      "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run",
+      "9 captcha image drivers remain KNOWN_BASELINE_FAILURE (replayed PASS in this checkpoint, still not green)",
+      "pre-existing copylocks vet finding at accelerator_joint_http_test.go:503",
+      "no T05-style two-process byte differential was built for the authz decision table"
+    ],
+    "verdict": "PASS"
+  },
+  "plan": {
+    "master_goal": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
+    "override": "This goal waives only the per-batch human-confirmation cadence of the old plan; functional, security, method-level and acceptance constraints stay in force.",
+    "phase_order": [
+      "A=T07",
+      "B=T03,T04,T05,T06",
+      "C=T08,T09,T10",
+      "D=T11,T12,T13",
+      "E=T14,T15"
     ]
-   }
   },
-  "work_branch": "task/tx7do-takeover"
- },
- "handoff_item_2_approved_test_patch_still_exact": {
-  "patch": "migration/patches/T02-B1-trans-time-test.patch",
-  "production_source_equiv": [
-   {
-    "command": "migrate_imports equiv -before T01/stage/trans/trans.go -after <local>",
-    "exit": 0,
-    "file": "pkg/localdeps/go-utils/trans/trans.go",
-    "result": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
-   },
-   {
-    "command": "migrate_imports equiv -before T01/stage/trans/to.go -after <local>",
-    "exit": 0,
-    "file": "pkg/localdeps/go-utils/trans/to.go",
-    "result": "PASS"
-   },
-   {
-    "command": "migrate_imports equiv -before T01/stage/trans/to_test.go -after <local>",
-    "exit": 0,
-    "file": "pkg/localdeps/go-utils/trans/to_test.go",
-    "result": "PASS"
-   }
-  ],
-  "test_file_reference_rebuild": {
-   "Test_Trans_retained": true,
-   "equiv_and_all_test_go_checks_still_enabled": true,
-   "identical": true,
-   "original_archive_sha256_for_contrast": "d71c0cebafde6000a7479e8b4fff9473bdfa43df69cb51ce3e5a550b72ce807b",
-   "patch_exit": 0,
-   "reference_sha256": "89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e",
-   "repo_sha256": "89f2d7ffd7c4870c046291090b593d66c8d43161699521f1b0bc88359de5981e",
-   "steps": [
-    "copy pristine archive T01/stage/trans/trans_test.go into a fresh temp dir",
-    "patch -p5 -d <temp> -i migration/patches/T02-B1-trans-time-test.patch",
-    "compare sha256 with the repo file"
-   ]
+  "purpose": "Resume ledger for the continuous T03~T15 takeover. Recovery must re-check these SHAs against migration/receipts before any edit.",
+  "recorded_at": "T08 complete, phase C in progress",
+  "schema_version": 1,
+  "phase_C_T08_closure": {
+    "verdict": "PASS for T08 only; phase C stays open (T09, T10, then the second make verify-gpu)",
+    "result_sha": "53b3c0053ebf06435044b9b2928925ee528454de",
+    "accepted_head_now": "53b3c0053ebf06435044b9b2928925ee528454de",
+    "start_sha": "b8e4093a392def8dec47bd16f3310beaa48bff4b",
+    "frozen_baseline_still": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+    "ledger_commit": "this commit (records 53b3c00, changes no source)",
+    "closed_by_this_task": [
+      "pagination Proto has exactly one source in the repository: api/localdeps/pagination, byte-identical to go-crud/api@v0.0.7, and buf.build/tx7do/pagination is gone from api/buf.yaml and api/buf.lock",
+      "the pagination runtime, filter/paginator/sorting converters, the codec registry with encoding/json and go-wind/log are ordinary packages of the main module under pkg/localdeps",
+      "one token secret instance, one codec registry, one logger family, one pagination descriptor: proven by behaviour tests plus a two-binary descriptor comparison, not by grep",
+      "0 retired tx7do pagination/codec/logger paths in the build graph, the -test graph and the tag-gated GPU simulator graph"
+    ],
+    "constraints_still_in_force": [
+      "no push, no merge, no deploy",
+      "_agent/ is not committed",
+      "missing/skip/fail/not_run is not success",
+      "one batch at a time, receipts in ledger-only follow-up commits",
+      "no gate command runs with -vet=off; no package or upstream test is excluded with a build tag",
+      "only the authorized isolated lab databases; never quota-gpu-local-01-pg and never a business database"
+    ],
+    "resume_check_before_editing": [
+      "git merge-base --is-ancestor 53b3c0053ebf06435044b9b2928925ee528454de HEAD",
+      "cat migration/accepted_head  ->  53b3c0053ebf06435044b9b2928925ee528454de",
+      "git status --porcelain      ->  only '?? _agent/'",
+      "go build -mod=readonly ./...  ->  exit 0",
+      "bash /home/ubuntu/tx7do-pilot-run/T08/t08_residual.py  ->  retired_hits [] in all 4 scopes",
+      "BUF=/home/ubuntu/go/bin/buf make api-pagination  ->  regeneration keeps pagination.pb.go sha256 68556b2c"
+    ],
+    "environment_still_live": {
+      "containers": [
+        "tx7do-t07-guard-pg (127.0.0.1:55432)",
+        "tx7do-t07-acc-lab-pg (127.0.0.1:55433)",
+        "tx7do-t04-captcha-redis"
+      ],
+      "helper": "bash /home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh <command>",
+      "tags_used": [
+        "quota_pg (paging compatibility matrix)",
+        "quota_lab (simulator dependency listing)"
+      ],
+      "never_touched": "quota-gpu-local-01-pg"
+    },
+    "still_external_on_purpose": {
+      "tx7do_package_paths_in_graph": 26,
+      "next_batches": "T09 protoc-gen-go-redact runtime; T10 kratos-bootstrap api/bootstrap/logger/rpc/cache/transport plus go-utils/id, which is also what keeps go-utils/stringcase and go-utils/trans externally reachable",
+      "go_mod_requires_still_naming_tx7do_modules": 43,
+      "tidy_deferred_to": "phase E (T14/T15), together with the third make verify-gpu"
+    },
+    "disclosed_not_fixed": [
+      "TestBootstrapPostgres (T03-F4) still fails in the affected run; it is not in T08's required profile and was not narrowed away",
+      "go vet copylocks at accelerator_joint_http_test.go:503 (T03-F5) still makes the wide vet exit 1",
+      "24 generated files still differ from a clean regeneration because the tree stores newer protoc-gen-go / protoc-gen-go-grpc headers than the verified local tools",
+      "the two *.pb.redact.go files are the only Go changes outside the import-only proof: one import alias and 2/3 selector qualifiers, reproduced byte-for-byte by the localized generation chain (migration/preflight/T08-redact-alias-diff.log)"
+    ],
+    "unverified_backlog": [
+      "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY remain not_run (external populated backup/restore window)",
+      "9 captcha KNOWN_BASELINE_FAILURE cases from the T04 authorization are unchanged",
+      "no service startup, HTTP path or deployment was exercised"
+    ],
+    "next_task": "T09. Read _agent/ani-governance-tx7do-plan/goals/T09.md on entry only.",
+    "receipt": "migration/receipts/T08.json",
+    "recorded_at": "T08 complete, phase C in progress"
   },
-  "verdict": "PASS - the only deviation is the approved T02-B1 test patch, byte-for-byte."
- },
- "phase_A_closure": {
-  "accepted_head_now": "a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
-  "authorization_now_in_force": "The master goal gained 「### 测试夹具修复的有限授权」 (8 conditions) on 2026-09-25, which pre-authorizes reproducible-pre-existing, data-preparation-only fixture repair inside the same task. It does not weaken any functional, security or acceptance gate, and it does not extend to changing assertions.",
-  "environment_still_live": [
-   "tx7do-t07-guard-pg -> GUARD_TEST_PG_DSN (127.0.0.1:55432)",
-   "tx7do-t07-acc-lab-pg -> QUOTA_LAB_PG_DSN (127.0.0.1:55433)"
-  ],
-  "next_task": "T03 (group B). Read _agent/ani-governance-tx7do-plan/goals/T03.md on entry only.",
-  "receipt": "migration/receipts/T07.json",
-  "recorded_at": "T07 PASS, phase A closed",
-  "resume_check_before_editing": [
-   "git rev-parse HEAD must be a descendant of a17cf5293b599a68e053e9fd1be4ebc8246cecd4 on task/tx7do-takeover",
-   "cat migration/accepted_head must equal a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
-   "the T07-B1 fixture patch must still apply reversed cleanly to app/admin/service/internal/data/ent/tenant_guard_test.go (migration/patches/T07-B1-accesskey-guard-fixture.patch)"
-  ],
-  "unverified_backlog": "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY remain not_run (need an external production-shaped dump/restore window, outside every group's authorized scope so far).",
-  "verdict": "PASS"
- },
- "phase_B_T03_closure": {
-  "accepted_head_now": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
-  "activated": {
-   "github.com/tx7do/go-utils": "v1.1.40 (stringcase, sliceutil, fieldmaskutil)",
-   "github.com/tx7do/go-utils/copierutil": "v0.0.8",
-   "github.com/tx7do/go-utils/mapper": "v0.0.3"
+  "phase_C_T09_blocked_parked_at": {
+    "verdict": "BLOCKED for T09; phase C stays open (T09 decision, then T10, then the second make verify-gpu)",
+    "start_sha": "e327eb2970b605614547ee14805c179d25908a45",
+    "result_sha": "58a5439725fe3dc63a3ac797d55097239948d778 (T09 source work, committed and preserved)",
+    "accepted_head_now": "53b3c0053ebf06435044b9b2928925ee528454de (unchanged: T09 is not accepted)",
+    "frozen_baseline_still": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+    "ledger_commit": "this commit (adds migration/receipts/T09.json and migration/patches/T09/)",
+    "what_is_verified": [
+      "redact has exactly one Proto source (api/localdeps/redact, byte-identical to protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2) and buf.build/go-wind/redact is gone from api/buf.yaml and api/buf.lock with the other 5 lock entries untouched",
+      "redact.pb.go is generated exactly once, into the takeover package, idempotently, and the hand-written interface.go/stream.go survive generation (clean:false + manifest assertions)",
+      "the generator is upstream code with only the authorized path strings changed in imports.go and process.go; 12 placed files are byte-identical to the archive and 3 differ in an import spec only (t09_nonimport_delta.py)",
+      "Buf uses tools/bin/protoc-gen-go-redact built from repository sources; the post-change control ran with protoc-gen-go-redact absent from PATH and still produced the tree",
+      "descriptor of redact/v1 equals upstream except options.go_package (+11 bytes), proven by a two-binary dump comparison; validate/HTTP/redact options are still on the business descriptors",
+      "rest_server.go untouched; the production registration is re-exercised over a real HTTP request in 5 new server tests; 16/16 named tests pass the require_tests gate (exit 0), go build -mod=readonly ./... exit 0"
+    ],
+    "blocked_on": [
+      "T09-B1: the byte-identical upstream generator tests cannot build, here and in the pristine archive (redactor_test.go:116:23: undefined: redact). Consequence: go vet ./... and go test ./... now fail in pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact, a build change the T09 authorization does not cover.",
+      "the only fix that keeps the tests green adds an import spec to redactor_test.go and validation_test.go, which is beyond the two named editable files; measured in a throwaway module: 457 test events pass, nothing else changes. Not applied."
+    ],
+    "decision_needed": "migration/receipts/T09.json decision_needed: A authorize the import-only remedy (recommended), B carry T09-B1 as an authorized known defect, C authorize dropping the placed upstream tests (rejected by the no-delete rule), D rule on the scope of the unplaced protoc-driven integration_test.go / external_template_test.go and their examples/testdata fixtures",
+    "disclosed_gaps": [
+      "integration_test.go, external_template_test.go, examples/ and testdata/integration/ were not placed: they are protoc-driven subprocess tests that need protoc (absent on this host) and write generated files plus a plugin binary into the source tree.",
+      "go.mod still requires github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact although nothing imports it any more (go mod why: main module does not need it; go list -deps ./... matches 0). The one-line drop is deliberately held until the blocker decision so that go.mod changes are approved together.",
+      "upstream redact.pb.go vs the regenerated copy: the go_package change plus a 3-line doc-comment reflow produced by protoc-gen-go v1.36.11; disclosed, not normalized.",
+      "environment: /home/ubuntu/go/bin/protoc-gen-go was momentarily replaced by v1.36.12 during tool discovery and restored to v1.36.11; the hash differs from the machine's original install. All committed generation evidence used v1.36.11 on both sides.",
+      "measured after the first T09 ledger commit: the stale require is at go.mod:37 in the DIRECT require block with no '// indirect' marker (go.sum:351-352), so the module graph still resolves a package nothing imports; still held for the same reason.",
+      "measured after the first T09 ledger commit: api/localdeps/redact/redact/v1/redact.proto:8 keeps the upstream in-file 'option go_package = \"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact\"' verbatim, per the accepted T08 precedent that localization happens in the generator managed override; api/buf.redact.gen.yaml is what rewrites it. third_party/tx7do/ names the old path in 3 backup copies (proxy @v .mod, locks/go.mod:41, the BSR redact.proto) and is untouched: 'git diff -- third_party/' is empty."
+    ],
+    "constraints_still_in_force": [
+      "no push, no merge, no deploy; work stays on task/tx7do-takeover",
+      "_agent/ is not committed",
+      "missing/skip/fail/not_run is not success",
+      "no gate command runs with -vet=off; no package or upstream test is excluded with a build tag",
+      "only the authorized isolated lab databases; never quota-gpu-local-01-pg and never a business database"
+    ],
+    "resume_check_before_editing": [
+      "git merge-base --is-ancestor 53b3c0053ebf06435044b9b2928925ee528454de HEAD  -> exit 0",
+      "cat migration/accepted_head  ->  53b3c00 (T08), NOT 58a5439 (T09 parked)",
+      "git status --porcelain       ->  only '?? _agent/'",
+      "go build -mod=readonly ./... ->  exit 0",
+      "go vet ./...                 ->  exit 1 with exactly 2 findings: T03-F5 copylocks + T09-B1 undefined: redact",
+      "go test -count=1 ./pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/ -> exit 1 (T09-B1, must be reproduced before/after any remedy)",
+      "python3 tools/migration/require_tests.py --required migration/patches/T09/T09-required-profile.json --log /home/ubuntu/tx7do-pilot-run/T09/T09-tests-shipped.log.jsonl -> exit 0"
+    ],
+    "receipt": "migration/receipts/T09.json",
+    "receipt_amended_after_ledger_commit": "migration/receipts/T09.json now carries a receipt_amendments block: the shipped start_sha full hash was a transcription error (e327eb2a5f... is not a git object) and is corrected to e327eb2970b605614547ee14805c179d25908a45, which is the value this entry has recorded from the start; the two residual facts appended to disclosed_gaps above are also logged there. Ledger-only, no source changed.",
+    "next_task": "do not start T10. Resume T09 only with a decision on T09-B1 (options A-D). If option A is authorized: add the two import specs, re-run the 16-test gate plus the 457-test suite and the pre/post control, then drop the dead go.mod require and record accepted_head movement.",
+    "recorded_at": "T09 parked BLOCKED, phase C in progress"
   },
-  "constraints_still_in_force": [
-   "no push, no merge, no deploy",
-   "_agent/ is not committed",
-   "missing/skip/fail/not_run is not success",
-   "one batch at a time, receipts in ledger-only follow-up commits"
-  ],
-  "disclosed_not_fixed": [
-   "T03-F4 TestBootstrapPostgres fails at bootstrap_postgres_test.go:58 on a freshly created *_bootstrap_test database in both the accepted_head baseline and the migrated tree (pre-existing; production-behaviour assertion, outside the fixture authorization)",
-   "T03-F5 go vet 'assignment copies lock value' at accelerator_joint_http_test.go:503, identical at accepted_head, file untouched by T03"
-  ],
-  "environment_still_live": {
-   "containers": [
-    "tx7do-t07-guard-pg (127.0.0.1:55432)",
-    "tx7do-t07-acc-lab-pg (127.0.0.1:55433)"
-   ],
-   "databases_added_by_T03": [
-    "ani_t03_bootstrap_test",
-    "ani_t03base_bootstrap_test (each dropped and recreated before every run)"
-   ],
-   "helper": "bash /home/ubuntu/tx7do-pilot-run/T03/with_t03_env.sh <command> exports the pinned toolchain plus every task-owned DSN; GOV_BOOTSTRAP_DB selects the bootstrap database",
-   "never_touched": "quota-gpu-local-01-pg"
+  "phase_C_T09_closure": {
+    "supersedes": "phase_C_T09_blocked_parked_at, which is kept verbatim as the record of the park. One factual error in it is corrected here rather than edited away: api/buf.lock keeps 4 other entries after the redact removal (envoyproxy/protoc-gen-validate, gnostic/gnostic, googleapis/googleapis, kratos/apis), not 5.",
+    "verdict": "PASS_FOR_THE_EXECUTED_SCOPE_WITH_INTEGRATION_DEFERRED for T09; phase C stays open (T10, then the second make verify-gpu)",
+    "closed_at_user_instruction": "2026-09-25 supplemental authorization, option A for T09-B1 plus option D as a separate scheduling decision: migration/receipts/T09-authorization-missing-test-imports.json and the T09 subsection appended to the 失败与恢复 part of _agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
+    "start_sha": "e327eb2970b605614547ee14805c179d25908a45",
+    "source_chain": "58a5439725fe3dc63a3ac797d55097239948d778 (T09 source) -> 6c41775d42f9241a9a8c9d62040f0d0d11a981bb (BLOCKED park) -> d9cf8e1900e11d4c62d6c66f805e2d5bdc5a497d (ledger correction) -> b0e8fd424320b6542977e8c94297ab6e86784e58 (T09-B1 fix: 2 files, 4 insertions) -> this ledger commit",
+    "result_sha": "b0e8fd424320b6542977e8c94297ab6e86784e58",
+    "accepted_head_now": "b0e8fd424320b6542977e8c94297ab6e86784e58",
+    "frozen_baseline_still": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+    "t09_b1_resolved_by": "adding one import spec to each of pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/{redactor_test.go,validation_test.go}: redact \"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\". Nothing else changed: no test body, name, data or assertion, no production file, no Proto field, no redaction rule, no blank or dot import, no second runtime, no back-reference to the upstream module, no module-cache write. Patch migration/patches/T09-B1-missing-test-imports.patch, hashes migration/preflight/T09B1-patch-inventory.txt, guard+equiv+gofmt migration/preflight/T09B1-guard-import-only.json.",
+    "executed_scope_passed": {
+      "generator_package": "go vet exit 0; go test -json exit 0 with 78 top-level tests / 457 test events, 0 fail, 0 skip, default vet",
+      "runtime": "go vet of pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1 exit 0; its 5 named tests pass",
+      "gate": "94-name profile from migration/patches/T09/T09B1-required-profile.json, built by enumerating go test -list for the takeover packages and asserting the original 16 still exist, so the scope can only grow; require_tests.py exit 0 with bad_tests [] and failed_packages []",
+      "build": "go build -mod=readonly ./... exit 0; all 160 test binaries in the repository compile under default vet",
+      "wide_commands": "go vet ./... exit 1 with only the pre-existing T03-F5 copylocks finding (undefined:redact is gone, no new diagnostic); go test -mod=readonly -count=1 -json ./... exit 1 with only the pre-existing T03-F4 TestBootstrapPostgres (2641 pass / 6 skip / 1 fail). Carried under their own rulings: not exempted, not re-experienced, not added to a known-defect list. This is not a green-repository claim.",
+      "generation_reverified": "same pinned tools: scripts/generate-redact.sh exit 0 with the runtime directory byte-identical (hand-written interface.go/stream.go included), api/gen/go 347 files unchanged, PRE_REF=53b3c00 control exit 0 with exactly the 8 redact consumers differing and a 32-file noise baseline, descriptor delta still only options.go_package"
+    },
+    "deferred_not_passed": "the 6 protoc-driven cases from integration_test.go / external_template_test.go (TestIntegrationProtoCompilation, TestGeneratedCodeQuality, TestOptionalFieldsInGeneratedCode, TestExternalTemplateLoading, TestTemplateParameterValidation, BenchmarkCodeGeneration) are staged byte-identically under migration/patches/T09/_integration_staging/ (a path the go tool ignores), hashed in migration/patches/T09/T09-integration-staging.json and registered DEFERRED in migration/required-integration-deferred.json. Execution belongs to the T13 tooling stage and no later than the T15 sign-off, in a task-private tool directory and a disposable work tree. DEFERRED is not PASS, not not_applicable, not a skip and not a build tag.",
+    "second_ledger_for_the_group": "migration/required-integration-deferred.json is a new, separate ledger from migration/required-known-defects.json: these cases never failed, they were never run. T09-B1 is NOT recorded there.",
+    "deferred_to_t14": "the dead go.mod:37 / go.sum:351-352 require of protoc-gen-go-redact. Not deleted here, not by line number, and no go mod tidy was run: the absence of '// indirect' neither proves the require is used nor licenses blind removal.",
+    "environment_disclosure": "a user-global tool binary was overwritten during version discovery (/home/ubuntu/go/bin/protoc-gen-go went to v1.36.12) and was reinstalled at v1.36.11. The reinstated file is same-version, different-hash; it is NOT the machine's original binary and is not claimed to be. Controls contaminated by that window were re-run, and from now on no round writes to a user-global tool path: tools go in a task-private GOBIN or are invoked by absolute path with version, go version -m and sha256 recorded (see migration/patches/T09/T09B1-toolchain.txt).",
+    "future_rounds_general_authority": "section 六 of the authorization grants a narrow standing power to complete a missing ordinary import (or fix its local path/alias) in a test file when the referenced package is unique and already inside the approved closure, tests/assertions and production bodies are untouched, provenance is verifiable, the exact patch is saved and default vet stays on. It does not cover blank or dot imports, new dependencies, production changes, expectation edits or excluding a failing case; if a condition is not met, stop and report.",
+    "constraints_still_in_force": [
+      "no push, no merge, no deploy; local commits only, and _agent/ stays uncommitted",
+      "missing/skip/fail/not_run is not success",
+      "no gate command runs with -vet=off; require_tests.py is not relaxed",
+      "no test deleted, skipped, retagged or re-expected; the known-defect list is not widened",
+      "module cache is read-only; never overwrite the user's GOBIN; nested go.mod and blanket replace are out",
+      "only the authorized isolated lab databases; never quota-gpu-local-01-pg and never a business database",
+      "T03-F4/T03-F5 keep their own identity; a new functional failure is re-triaged as a regression, not absorbed by this authorization"
+    ],
+    "resume_check_before_editing": [
+      "git rev-parse HEAD && git merge-base --is-ancestor b0e8fd424320b6542977e8c94297ab6e86784e58 HEAD",
+      "cat migration/accepted_head  ->  b0e8fd424320b6542977e8c94297ab6e86784e58",
+      "git status --porcelain      ->  only '?? _agent/'",
+      "read _agent/ani-governance-tx7do-plan/goals/T10.md at T10 entry",
+      "python3 -c \"import json; json.load(open('migration/receipts/T09.json'))\"  ->  parses"
+    ],
+    "next": "T10 (phase C third task), then the second make verify-gpu to close phase C; phases D (T11-T13) and E (T14-T15) follow. Nothing in T09's passed scope is reopened by that work except where a later task names it."
   },
-  "ledger_commit": "this commit (names 8e5dbde, changes no source)",
-  "next_task": "T04. Read _agent/ani-governance-tx7do-plan/goals/T04.md on entry only.",
-  "receipt": "migration/receipts/T03.json",
-  "recorded_at": "T03 complete, group B in progress",
-  "required_tests_gate": {
-   "builder": "/home/ubuntu/tx7do-pilot-run/t03_profile.py builds the profile from the packages the task touched, never hand-picked",
-   "fail": 0,
-   "gated_excluded": 8,
-   "missing": 0,
-   "not_run": 0,
-   "pass": 599,
-   "required": 599,
-   "skip": 0
+  "t10_takeover_and_three_red_gates": {
+    "task": "T10",
+    "status": "BLOCKED",
+    "start_sha": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e",
+    "proven": [
+      "93 files placed verbatim, 25 of them rewritten and re-proved with equiv",
+      "212 consumer files rewritten, every one of the 736 changed lines an import spec, guard pass",
+      "conf Proto regenerated with 2530 symbols (124 messages, 883 fields, 1521 accessors) identical to the locked archive",
+      "8 external tx7do packages left, zero of them kratos-bootstrap or go-utils",
+      "entry builds 3/3, init smoke, PG Ent enableTrace false/true and database-clock cases, race suites and lab regression all exit 0",
+      "0 tests regressed against a replay of the same suite on the start commit"
+    ],
+    "needs_user_ruling": [
+      "T10-B1 four inherited upstream test cases now live in-repo and red",
+      "T10-B2 scripts/verify-gpu-format.sh has been red since 53b3c00, before T09",
+      "T10-B3 scripts/verify-gpu-audit.sh gitleaks is red at the start commit too, with the identical 4 findings",
+      "confirm the one-line audit fixture re-pin"
+    ],
+    "accepted_head": "b0e8fd424320b6542977e8c94297ab6e86784e58",
+    "not_pushed_merged_or_deployed": true
   },
-  "result_sha": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
-  "resume_check_before_editing": [
-   "git merge-base --is-ancestor 8e5dbdeec677405a44d263e814c2938cefe8bf20 HEAD",
-   "cat migration/accepted_head  -> 8e5dbdeec677405a44d263e814c2938cefe8bf20",
-   "git status --porcelain      -> only '?? _agent/'",
-   "git diff --name-only 8e5dbde -- pkg/localdeps/go-utils go.mod  -> empty"
-  ],
-  "still_external_on_purpose": [
-   "github.com/tx7do/go-utils/timeutil (T10; no second copy was made)",
-   "github.com/tx7do/kratos-bootstrap/* (T10)",
-   "github.com/tx7do/go-crud/api + pagination Proto (T05/T06)"
-  ],
-  "unverified_backlog": [
-   "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run (carried from T07)"
-  ],
-  "verdict": "PASS",
-  "worktrees_open": [
-   "/home/ubuntu/tx7do-pilot-run/T07/premigrate-ref (accepted T07 evidence)",
-   "/home/ubuntu/tx7do-pilot-run/T03/base-ref (a17cf52 baseline used for the gated comparisons)"
-  ]
- },
- "phase_B_T04_blocked": {
-  "accepted_head_unchanged": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
-  "blocked_on": "10 named cases + 5 examples shipped by the locked upstream modules (9 captcha image drivers, TestECDHCrypto_EncryptAndVerify) and go test's default vet rejection of pkg/localdeps/go-utils/captcha; all reproduced offline against byte-identical module-cache copies",
-  "code_commit": "f161a27f4a3395931a5d927960c8400967eb05ea",
-  "everything_else": "provenance, guard 21/21, equiv 47/47 + gofmt 18/18, build_only, residual scan and the 602-test consumer differential all passed",
-  "group_B_paused": true,
-  "ledger_commit_at_record": "8a4e652b6b9678be77113f69300cd343d18fef9e",
-  "raw_evidence": "/home/ubuntu/tx7do-pilot-run/T04/ and migration/preflight/T04-*.json",
-  "resume_instructions": [
-   "read migration/receipts/T04.json (decision_needed.recorded_decision) before any edit",
-   "re-provision the lab with /home/ubuntu/tx7do-pilot-run/T04/lab-reset.sh and keep -p 1 for data+service",
-   "keep the task-owned redis tx7do-t04-captcha-redis up if the captcha gate is re-measured",
-   "do not start T05/T06 until the upstream-red disposition is authorized"
-  ],
-  "status": "BLOCKED",
-  "task": "T04"
- },
- "phase_B_T04_closure": {
-  "accepted_head_now": "586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
-  "conclusion": "T04 MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS",
-  "delivery_wording_constraint": "no unconditional all-green claim; every later checkpoint and T15 must run BOTH the ordinary required gate and migration/required-known-defects.json (via tools/migration/known_defects.py) and, while the debt is carried, must use the same qualified wording.",
-  "known_defects_still_open": [
-   "the 9 graph-driver captcha tests are functionally broken upstream and are only isolated+recorded as KNOWN_BASELINE_FAILURE; they are NOT fixed"
-  ],
-  "next_task": "T05. Read _agent/ani-governance-tx7do-plan/goals/T05.md on entry only.",
-  "receipt": "migration/receipts/T04-closure-known-defects.json",
-  "resume_check_before_editing": [
-   "git merge-base --is-ancestor 586c44a2bb07c881d46eb51575bb5ba0c9d8d69c HEAD",
-   "cat migration/accepted_head -> 586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
-   "git status --porcelain -> only '?? _agent/'",
-   "go vet ./pkg/localdeps/go-utils/captcha/ and ./password/ -> 0"
-  ],
-  "reverified_this_session_not_carried_forward": true,
-  "superseded_record": "phase_B_T04_blocked above and receipts/T04.json (status BLOCKED) are kept as evidence; the authorization in receipts/T04-authorization-known-defects.json closed them.",
-  "unverified_backlog": [
-   "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run (carried from T07)"
-  ],
-  "verdict": "MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS"
- },
- "phase_B_T05_blocked_parked_at": {
-  "kept_for_history": true,
-  "note": "the BLOCKED receipt is preserved in git at 1c8a5c0; superseded by phase_B_T05_closure below",
-  "sha": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d"
- },
- "phase_B_T05_closure": {
-  "accepted_head_now": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
-  "activated": {
-   "consumers_rewired": "8 repo-own files, import-only (guard 8/8)",
-   "files": "14 (10 .go + 2 LICENSE + 2 README); engine/noop and the kratos-authn root package not activated because nothing imports them",
-   "github.com/tx7do/kratos-authn/engine": "v1.1.11 -> go-wind-admin/pkg/localdeps/kratos-authn/engine",
-   "github.com/tx7do/kratos-authn/engine/jwt": "v1.1.11 -> go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt"
+  "phase_C_T10_closure": {
+    "task": "T10",
+    "status": "MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS",
+    "start_sha": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e",
+    "result_sha": "162b28ed268732392547c2343dc9b4f2f575f30f",
+    "tested_code_sha": "162b28ed268732392547c2343dc9b4f2f575f30f",
+    "resume_head": "162b28ed268732392547c2343dc9b4f2f575f30f",
+    "accepted_head_now": "162b28ed268732392547c2343dc9b4f2f575f30f",
+    "authorization": "migration/receipts/T10-authorization-classified-remediation.json",
+    "resolved": [
+      "T10-B1 rpc repaired as a test",
+      "T10-B1 bootstrap repaired as a fixture",
+      "T10-B1 id: three unreachable cases isolated with the nondeterministic rule",
+      "T10-B2 format gate green after a formatting-only sweep",
+      "T10-B3 four verified false positives pinned as exact exceptions"
+    ],
+    "carried": [
+      "three order-id cases under upstream_known_defects",
+      "nine T04 captcha cases",
+      "T09 protoc-driven integration cases (DEFERRED, not passed)",
+      "T03-F4 and T03-F5 under their own rulings",
+      "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY still not_run"
+    ],
+    "milestone_exit": 0,
+    "not_pushed_merged_or_deployed": true,
+    "next_task": "T11. Read _agent/ani-governance-tx7do-plan/goals/T11.md on entry only.",
+    "resume_check_before_editing": [
+      "git rev-parse HEAD must equal 162b28ed268732392547c2343dc9b4f2f575f30f",
+      "cat migration/accepted_head must equal 162b28ed268732392547c2343dc9b4f2f575f30f",
+      "git status --porcelain must show only '?? _agent/'",
+      "bash scripts/verify-gpu-format.sh must exit 0",
+      "python3 -c \"import json; json.load(open('migration/receipts/T10-closure-classified-remediation.json'))\""
+    ]
   },
-  "constraints_still_in_force": [
-   "no push, no merge, no deploy",
-   "_agent/ is not committed",
-   "missing/skip/fail/not_run is not success",
-   "one batch at a time, receipts in ledger-only follow-up commits",
-   "no -vet=off on any release/gate command"
-  ],
-  "differential": "two independent `go run` processes (OLD against v1.1.11 from the module cache, NEW against pkg/localdeps), fixed HS256 key, tokens exchanged only as files; all four verify reports byte-identical (sha256 30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06), token strings byte-identical, wrong-key/tampered/expired reject identically",
-  "disclosed_exclusion": {
-   "consequence_stated_plainly": "go test ./... across the repository still reports FAIL go-wind-admin/pkg/localdeps/kratos-authn/engine [build failed]; the repository is NOT green",
-   "decision": "user chose 「Exclude engine self-tests from gate」 on 2026-09-25",
-   "not_done": [
-    "no upstream production edit",
-    "no -vet=off on a release/gate command",
-    "no test deleted or given a changed expectation",
-    "no new entry in migration/required-known-defects.json"
-   ],
-   "what": "the taken-over engine package's own upstream test IDs (only TestParseNumber) are outside the must-pass gate",
-   "why": "frozen upstream engine/metadata.go AuthFromMD lines 31/40 trip go test's default printf vet, so that test binary cannot build; metadata.go is byte-identical to v1.1.11"
+  "phase_D_T11_blocked_parked_at": {
+    "task": "T11",
+    "status": "BLOCKED",
+    "parked_at": "2026-09-25T22:55+08:00",
+    "start_sha": "ce28159d8d68fec81f860a5d53069bf60a1b7fcd",
+    "accepted_head_unchanged": "162b28ed268732392547c2343dc9b4f2f575f30f",
+    "receipt": "migration/receipts/T11.json",
+    "blocker": "T11-B1: 5 deterministic upstream test failures and 10 never-terminating upstream harness cases come with the placed test files; ./pkg/... inside make verify-gpu runs them",
+    "proven": [
+      "the six-module closure is complete and placed byte-identically",
+      "14 files import-rewritten; 7 consumers guard-clean and 7 placed files equiv-clean",
+      "go build ./... and all three entry builds exit 0; vet shows only the pre-existing T03-F5",
+      "the six transport packages are gone from go list -deps for default and quota_lab",
+      "78 of 93 placed upstream tests pass and 27 named consumer tests pass"
+    ],
+    "inheritance_control": "byte-identical import-unrewritten copies in a disposable worktree reproduce all fifteen identically",
+    "decision_needed": "choose among options A/B/C in migration/patches/T11/T11-gate-conflict.json; nothing was excluded meanwhile",
+    "resume_check_before_editing": [
+      "git rev-parse HEAD",
+      "cat migration/accepted_head -> 162b28e...",
+      "git status --porcelain -> only '?? _agent/' plus the T11 checkpoint commit",
+      "read _agent/ani-governance-tx7do-plan/goals/T11.md again"
+    ],
+    "next": "T11 stays open; T12 does not start before this ruling because the same ./pkg/... gate would inherit it"
   },
-  "environment_still_live": {
-   "containers": [
-    "tx7do-t07-guard-pg (127.0.0.1:55432)",
-    "tx7do-t07-acc-lab-pg (127.0.0.1:55433)",
-    "tx7do-t04-captcha-redis"
-   ],
-   "databases_added_by_T05": [
-    "ani_t05_bootstrap_test (dropped and recreated before the run; only reachable through the gated TestBootstrapPostgres)"
-   ],
-   "helper": "bash /home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh <command>",
-   "never_touched": "quota-gpu-local-01-pg"
-  },
-  "gate": {
-   "fail": 0,
-   "missing": 0,
-   "not_run": 0,
-   "packages": 6,
-   "pass": 596,
-   "required": 596,
-   "run_exit": 0,
-   "skip": 0,
-   "vet": "default; no -vet=off on any gate command"
-  },
-  "go_mod_note": "grpc-ecosystem/go-grpc-middleware v1.4.0 lost `// indirect` (now imported directly by engine/metadata.go); the two tx7do/kratos-authn requires remain until the phase E `go mod tidy`",
-  "ledger_commit": "this commit (adds T05 evidence and the closure receipt; changes no source)",
-  "next_task": "T06. Read _agent/ani-governance-tx7do-plan/goals/T06.md on entry only.",
-  "receipt": "migration/receipts/T05.json",
-  "recorded_at": "T05 closed with the disclosed exclusion, group B continues",
-  "result_sha": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
-  "resume_check_before_editing": [
-   "git merge-base --is-ancestor 1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d HEAD",
-   "cat migration/accepted_head  -> 1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
-   "git status --porcelain      -> only '?? _agent/'",
-   "cmp pkg/localdeps/kratos-authn/engine/metadata.go $GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/engine/metadata.go -> identical (the disclosed vet blocker must still be upstream, not silently edited)",
-   "python3 tools/migration/known_defects.py replay against migration/required-known-defects.json must still be PASS with both exit codes 1"
-  ],
-  "status_now": "superseded_by: phase_B_T05_remediation_closure (the disclosed exclusion is closed; the record is kept as history)",
-  "still_external_on_purpose": [
-   "github.com/tx7do/kratos-authz/* and casbin (T06)",
-   "github.com/tx7do/kratos-bootstrap/* including bootstrap.Context and conf types (T10)",
-   "github.com/tx7do/go-crud/api + pagination Proto (T06)",
-   "github.com/tx7do/go-utils/{timeutil,id,tls} and kratos-transport / kratos-swagger-ui / go-wind-* (later groups)"
-  ],
-  "superseded_by": "phase_B_T06_closure",
-  "unverified_backlog": [
-   "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run",
-   "9 captcha image drivers remain KNOWN_BASELINE_FAILURE (replayed PASS in this checkpoint, still not green)",
-   "pre-existing copylocks vet finding at accelerator_joint_http_test.go:503"
-  ],
-  "verdict": "PASS_WITH_DISCLOSED_EXCLUSION"
- },
- "phase_B_T05_remediation_closure": {
-  "accepted_head_now": "8e83d260d311b0ea26050f720cecca02990b317d",
-  "authorised_by": "user; migration/receipts/T05-authorization-metadata-fix.json",
-  "blob_hashes_verified_against_git": {
-   "migration/patches/T05/_orig/kratos-authn-engine-metadata.go": "b7907194f4ef659c11c90773305d7589c440f30a1757c0f8a06b0305edaf827d",
-   "pkg/localdeps/kratos-authn/engine/authfrommd_approved_contract_test.go": "5b9e449f76cfe4d92378eb3ce959bf60ea0c9e1cb73330174edc87529c77cb89",
-   "pkg/localdeps/kratos-authn/engine/metadata.go": "ce57d7661f631b211f3e96b922605d13897385a77d2f03712d74ab6ea84d93ad"
-  },
-  "change": "exactly the two AuthFromMD dynamic-message calls status.Errorf -> status.Error; auth conditions, token extraction, SplitN malformed-header branch, EqualFold matching, error codes and every other function untouched",
-  "constraints_still_in_force": [
-   "no push, no merge, no deploy, no amend",
-   "_agent/ is not committed for unrelated reasons",
-   "missing/skip/fail/not_run is not success",
-   "no -vet=off on any gate or release command",
-   "only the authorized isolated lab databases; never quota-gpu-local-01-pg or any business DB",
-   "one batch at a time, receipts in ledger-only follow-up commits"
-  ],
-  "date": "2026-09-25",
-  "exclusion_restored": "pkg/localdeps/kratos-authn/engine and TestParseNumber are back in the must-pass profile",
-  "hashes": {
-   "after": "ce57d7661f631b211f3e96b922605d13897385a77d2f03712d74ab6ea84d93ad",
-   "before": "b7907194f4ef659c11c90773305d7589c440f30a1757c0f8a06b0305edaf827d",
-   "inventory": "migration/patches/T05/T05-patch-inventory.json",
-   "patch": "migration/patches/T05/P1-engine-authfrommd-status-error.patch"
-  },
-  "measurements": [
-   {
-    "command": "go vet -mod=readonly ./pkg/localdeps/kratos-authn/engine",
-    "evidence": "migration/preflight/T05R-vet-engine.*",
-    "exit": 0
-   },
-   {
-    "command": "go test -mod=readonly -count=1 -json -v ./pkg/localdeps/kratos-authn/engine",
-    "evidence": "migration/preflight/T05R-tests-engine.*",
-    "exit": 0,
-    "result": "23 named pass events incl. TestParseNumber"
-   },
-   {
-    "command": "restored T05 profile, 7 packages, per-package -run alternation, default vet",
-    "evidence": "migration/preflight/T05R-required-run.*",
-    "exit": 0,
-    "result": "604 required cases"
-   },
-   {
-    "command": "python3 tools/migration/require_tests.py --required .../T05R-required-profile.json --log migration/preflight/T05R-required.log",
-    "exit": 0,
-    "result": {
-     "bad_tests": [],
-     "failed_packages": [],
-     "pass": true,
-     "required": 604
-    }
-   },
-   {
-    "command": "full scoped run of the same 7 packages",
-    "exit": 1,
-    "result": "1023 pass / 1 fail / 7 skip; the single failure is the inherited repo-gated TestBootstrapPostgres (T03-F4), unchanged by this fix"
-   },
-   {
-    "command": "go test -count=1 -run '^ZZNoSuchTestZZ$' ./...",
-    "exit": 0,
-    "result": "48 ok, no FAIL: every test binary in the repository now compiles under default vet"
-   },
-   {
-    "command": "make build_only",
-    "evidence": "migration/preflight/T05R-build-all.*",
-    "exit": 0
-   },
-   {
-    "command": "make build_only",
-    "evidence": "migration/preflight/T05R-build-all.*",
-    "exit": 0
-   }
-  ],
-  "next_task": "phase C: T08 -> T09 -> T10 (with the second make verify-gpu), then D T11 -> T13, E T14 -> T15 plus go mod tidy and the third make verify-gpu",
-  "production_files_changed": [
-   "pkg/localdeps/kratos-authn/engine/metadata.go"
-  ],
-  "protection_tool": "guard/equiv stay switched on; for this file the equiv reference is 'pristine upstream + the approved patch' (migration/patches/T05/_ref/...), proven equiv exit 0 and cmp exit 0, while equiv against the UNPATCHED upstream is recorded honestly at exit 1",
-  "receipt": "migration/receipts/T05.json (status PASS_WITH_APPROVED_PRODUCTION_FIX; the earlier PASS_WITH_DISCLOSED_EXCLUSION conclusion and decision_record are preserved inside the same file as conclusion_superseded_2026-09-25 / status_superseded_2026-09-25, and the parked BLOCKED receipt stays at 1c8a5c0)",
-  "scope_limits": "closes only these two AuthFromMD diagnostics. Still open and carried: T03-F4 TestBootstrapPostgres, the 8 repo-precondition-gated cases (QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY), the 9 captcha known-defect cases, the pre-existing copylocks finding under a full go vet ./... . No repo-wide green claim.",
-  "semantics_disclosed": "normal scheme messages unchanged; a scheme containing % is now plain text instead of being format-interpreted - the approved change, no claim of verbatim output for every input",
-  "source_commit": "8e83d260d311b0ea26050f720cecca02990b317d",
-  "t06_untouched": "the committed T06 takeover c48bd4b and its ledger commit f24455b are preserved; nothing was reverted, rebased, amended or pushed",
-  "task": "T05 remediation: close the excluded engine vet finding with the one approved production-source fix",
-  "tests_added": [
-   "pkg/localdeps/kratos-authn/engine/authfrommd_approved_contract_test.go (missing header, valid Bearer, case-insensitive scheme, scheme mismatch, malformed header, % in scheme, kratos context type)"
-  ],
-  "tests_deleted_or_edited": 0
- },
- "phase_B_T06_closure": {
-  "accepted_head_now": "c48bd4b6c9536c037f53a5cee5ed0928c66a9d4a",
-  "code_commit": "see git log; the commit titled 'Take over kratos-authz engine, casbin, noop and middleware into localdeps'",
-  "constraints_still_in_force": [
-   "no push, no merge, no deploy",
-   "_agent/ is not committed",
-   "missing/skip/fail/not_run is not success",
-   "one batch at a time, receipts in ledger-only follow-up commits",
-   "no -vet=off on any release/gate command",
-   "T05's engine exclusion remains in force until the user's chosen remedy is applied; do not present the repository as `go test ./...` green",
-   "fixing the T05 leftover must not be smuggled into a later takeover task; it changes frozen upstream production code and therefore needs its own record"
-  ],
-  "decision_equivalence": "31/31 old(upstream, pre-activation, rebased scratch module) vs new(activated localdeps) verdict lines identical; assets and model text separately proven byte-identical",
-  "environment_still_live": {
-   "containers": [
-    "tx7do-t07-guard-pg (127.0.0.1:55432)",
-    "tx7do-t07-acc-lab-pg (127.0.0.1:55433)",
-    "tx7do-t04-captcha-redis"
-   ],
-   "databases_added_by_T05": [
-    "ani_t05_bootstrap_test (dropped and recreated before the run; only reachable through the gated TestBootstrapPostgres)"
-   ],
-   "helper": "bash /home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh <command>",
-   "never_touched": "quota-gpu-local-01-pg"
-  },
-  "gate": {
-   "fail": 0,
-   "full_scoped_run_exit": 1,
-   "full_scoped_single_failure": "inherited TestBootstrapPostgres (T03-F4) and the package-level fail it causes",
-   "listed": 610,
-   "missing": 0,
-   "not_run": 0,
-   "pass": 602,
-   "require_tests_exit": 0,
-   "required": 602,
-   "skip": 0,
-   "vet": "default; -vet=off never on a gate or release command"
-  },
-  "go_mod_note": "grpc-ecosystem/go-grpc-middleware v1.4.0 lost `// indirect` (now imported directly by engine/metadata.go); the two tx7do/kratos-authn requires remain until the phase E `go mod tidy`; T06 additionally dropped the // indirect marker from github.com/casbin/casbin/v2, go.sum untouched; the three github.com/tx7do/kratos-authz requires remain until the phase-E go mod tidy",
-  "next_task": "phase C: T08. Read _agent/ani-governance-tx7do-plan/goals/T08.md on entry only. The user-directed T05 interruption is closed by phase_B_T05_remediation_closure below.",
-  "phase_B_status": "T03, T04, T05, T06 complete; phase B closed",
-  "receipt": "migration/receipts/T06.json",
-  "single_registry": "github.com/tx7do/kratos-authz occurs 0 times in both go list -deps graphs; the only registry definition is pkg/localdeps/kratos-authz/engine/factory.go",
-  "startup_casbin_gate": "proved behaviourally with the real server binary: type=noop refused, authz.type absent refused, type=casbin passes the gate and only then fails on a deliberately unreachable datasource",
-  "still_external_on_purpose": [
-   "github.com/tx7do/kratos-authz/* and casbin (T06)",
-   "github.com/tx7do/kratos-bootstrap/* including bootstrap.Context and conf types (T10)",
-   "github.com/tx7do/go-crud/api + pagination Proto (T06)",
-   "github.com/tx7do/go-utils/{timeutil,id,tls} and kratos-transport / kratos-swagger-ui / go-wind-* (later groups)"
-  ],
-  "task": "T06 authorization engine and middleware atomic takeover",
-  "unverified_backlog": [
-   "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run",
-   "9 captcha image drivers remain KNOWN_BASELINE_FAILURE (replayed PASS in this checkpoint, still not green)",
-   "pre-existing copylocks vet finding at accelerator_joint_http_test.go:503",
-   "no T05-style two-process byte differential was built for the authz decision table"
-  ],
-  "verdict": "PASS"
- },
- "plan": {
-  "master_goal": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
-  "override": "This goal waives only the per-batch human-confirmation cadence of the old plan; functional, security, method-level and acceptance constraints stay in force.",
-  "phase_order": [
-   "A=T07",
-   "B=T03,T04,T05,T06",
-   "C=T08,T09,T10",
-   "D=T11,T12,T13",
-   "E=T14,T15"
-  ]
- },
- "purpose": "Resume ledger for the continuous T03~T15 takeover. Recovery must re-check these SHAs against migration/receipts before any edit.",
- "recorded_at": "T08 complete, phase C in progress",
- "schema_version": 1,
- "phase_C_T08_closure": {
-  "verdict": "PASS for T08 only; phase C stays open (T09, T10, then the second make verify-gpu)",
-  "result_sha": "53b3c0053ebf06435044b9b2928925ee528454de",
-  "accepted_head_now": "53b3c0053ebf06435044b9b2928925ee528454de",
-  "start_sha": "b8e4093a392def8dec47bd16f3310beaa48bff4b",
-  "frozen_baseline_still": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
-  "ledger_commit": "this commit (records 53b3c00, changes no source)",
-  "closed_by_this_task": [
-   "pagination Proto has exactly one source in the repository: api/localdeps/pagination, byte-identical to go-crud/api@v0.0.7, and buf.build/tx7do/pagination is gone from api/buf.yaml and api/buf.lock",
-   "the pagination runtime, filter/paginator/sorting converters, the codec registry with encoding/json and go-wind/log are ordinary packages of the main module under pkg/localdeps",
-   "one token secret instance, one codec registry, one logger family, one pagination descriptor: proven by behaviour tests plus a two-binary descriptor comparison, not by grep",
-   "0 retired tx7do pagination/codec/logger paths in the build graph, the -test graph and the tag-gated GPU simulator graph"
-  ],
-  "constraints_still_in_force": [
-   "no push, no merge, no deploy",
-   "_agent/ is not committed",
-   "missing/skip/fail/not_run is not success",
-   "one batch at a time, receipts in ledger-only follow-up commits",
-   "no gate command runs with -vet=off; no package or upstream test is excluded with a build tag",
-   "only the authorized isolated lab databases; never quota-gpu-local-01-pg and never a business database"
-  ],
-  "resume_check_before_editing": [
-   "git merge-base --is-ancestor 53b3c0053ebf06435044b9b2928925ee528454de HEAD",
-   "cat migration/accepted_head  ->  53b3c0053ebf06435044b9b2928925ee528454de",
-   "git status --porcelain      ->  only '?? _agent/'",
-   "go build -mod=readonly ./...  ->  exit 0",
-   "bash /home/ubuntu/tx7do-pilot-run/T08/t08_residual.py  ->  retired_hits [] in all 4 scopes",
-   "BUF=/home/ubuntu/go/bin/buf make api-pagination  ->  regeneration keeps pagination.pb.go sha256 68556b2c"
-  ],
-  "environment_still_live": {
-   "containers": [
-    "tx7do-t07-guard-pg (127.0.0.1:55432)",
-    "tx7do-t07-acc-lab-pg (127.0.0.1:55433)",
-    "tx7do-t04-captcha-redis"
-   ],
-   "helper": "bash /home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh <command>",
-   "tags_used": [
-    "quota_pg (paging compatibility matrix)",
-    "quota_lab (simulator dependency listing)"
-   ],
-   "never_touched": "quota-gpu-local-01-pg"
-  },
-  "still_external_on_purpose": {
-   "tx7do_package_paths_in_graph": 26,
-   "next_batches": "T09 protoc-gen-go-redact runtime; T10 kratos-bootstrap api/bootstrap/logger/rpc/cache/transport plus go-utils/id, which is also what keeps go-utils/stringcase and go-utils/trans externally reachable",
-   "go_mod_requires_still_naming_tx7do_modules": 43,
-   "tidy_deferred_to": "phase E (T14/T15), together with the third make verify-gpu"
-  },
-  "disclosed_not_fixed": [
-   "TestBootstrapPostgres (T03-F4) still fails in the affected run; it is not in T08's required profile and was not narrowed away",
-   "go vet copylocks at accelerator_joint_http_test.go:503 (T03-F5) still makes the wide vet exit 1",
-   "24 generated files still differ from a clean regeneration because the tree stores newer protoc-gen-go / protoc-gen-go-grpc headers than the verified local tools",
-   "the two *.pb.redact.go files are the only Go changes outside the import-only proof: one import alias and 2/3 selector qualifiers, reproduced byte-for-byte by the localized generation chain (migration/preflight/T08-redact-alias-diff.log)"
-  ],
-  "unverified_backlog": [
-   "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY remain not_run (external populated backup/restore window)",
-   "9 captcha KNOWN_BASELINE_FAILURE cases from the T04 authorization are unchanged",
-   "no service startup, HTTP path or deployment was exercised"
-  ],
-  "next_task": "T09. Read _agent/ani-governance-tx7do-plan/goals/T09.md on entry only.",
-  "receipt": "migration/receipts/T08.json",
-  "recorded_at": "T08 complete, phase C in progress"
- },
- "phase_C_T09_blocked_parked_at": {
-  "verdict": "BLOCKED for T09; phase C stays open (T09 decision, then T10, then the second make verify-gpu)",
-  "start_sha": "e327eb2970b605614547ee14805c179d25908a45",
-  "result_sha": "58a5439725fe3dc63a3ac797d55097239948d778 (T09 source work, committed and preserved)",
-  "accepted_head_now": "53b3c0053ebf06435044b9b2928925ee528454de (unchanged: T09 is not accepted)",
-  "frozen_baseline_still": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
-  "ledger_commit": "this commit (adds migration/receipts/T09.json and migration/patches/T09/)",
-  "what_is_verified": [
-   "redact has exactly one Proto source (api/localdeps/redact, byte-identical to protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2) and buf.build/go-wind/redact is gone from api/buf.yaml and api/buf.lock with the other 5 lock entries untouched",
-   "redact.pb.go is generated exactly once, into the takeover package, idempotently, and the hand-written interface.go/stream.go survive generation (clean:false + manifest assertions)",
-   "the generator is upstream code with only the authorized path strings changed in imports.go and process.go; 12 placed files are byte-identical to the archive and 3 differ in an import spec only (t09_nonimport_delta.py)",
-   "Buf uses tools/bin/protoc-gen-go-redact built from repository sources; the post-change control ran with protoc-gen-go-redact absent from PATH and still produced the tree",
-   "descriptor of redact/v1 equals upstream except options.go_package (+11 bytes), proven by a two-binary dump comparison; validate/HTTP/redact options are still on the business descriptors",
-   "rest_server.go untouched; the production registration is re-exercised over a real HTTP request in 5 new server tests; 16/16 named tests pass the require_tests gate (exit 0), go build -mod=readonly ./... exit 0"
-  ],
-  "blocked_on": [
-   "T09-B1: the byte-identical upstream generator tests cannot build, here and in the pristine archive (redactor_test.go:116:23: undefined: redact). Consequence: go vet ./... and go test ./... now fail in pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact, a build change the T09 authorization does not cover.",
-   "the only fix that keeps the tests green adds an import spec to redactor_test.go and validation_test.go, which is beyond the two named editable files; measured in a throwaway module: 457 test events pass, nothing else changes. Not applied."
-  ],
-  "decision_needed": "migration/receipts/T09.json decision_needed: A authorize the import-only remedy (recommended), B carry T09-B1 as an authorized known defect, C authorize dropping the placed upstream tests (rejected by the no-delete rule), D rule on the scope of the unplaced protoc-driven integration_test.go / external_template_test.go and their examples/testdata fixtures",
-  "disclosed_gaps": [
-   "integration_test.go, external_template_test.go, examples/ and testdata/integration/ were not placed: they are protoc-driven subprocess tests that need protoc (absent on this host) and write generated files plus a plugin binary into the source tree.",
-   "go.mod still requires github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact although nothing imports it any more (go mod why: main module does not need it; go list -deps ./... matches 0). The one-line drop is deliberately held until the blocker decision so that go.mod changes are approved together.",
-   "upstream redact.pb.go vs the regenerated copy: the go_package change plus a 3-line doc-comment reflow produced by protoc-gen-go v1.36.11; disclosed, not normalized.",
-   "environment: /home/ubuntu/go/bin/protoc-gen-go was momentarily replaced by v1.36.12 during tool discovery and restored to v1.36.11; the hash differs from the machine's original install. All committed generation evidence used v1.36.11 on both sides.",
-   "measured after the first T09 ledger commit: the stale require is at go.mod:37 in the DIRECT require block with no '// indirect' marker (go.sum:351-352), so the module graph still resolves a package nothing imports; still held for the same reason.",
-   "measured after the first T09 ledger commit: api/localdeps/redact/redact/v1/redact.proto:8 keeps the upstream in-file 'option go_package = \"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact\"' verbatim, per the accepted T08 precedent that localization happens in the generator managed override; api/buf.redact.gen.yaml is what rewrites it. third_party/tx7do/ names the old path in 3 backup copies (proxy @v .mod, locks/go.mod:41, the BSR redact.proto) and is untouched: 'git diff -- third_party/' is empty."
-  ],
-  "constraints_still_in_force": [
-   "no push, no merge, no deploy; work stays on task/tx7do-takeover",
-   "_agent/ is not committed",
-   "missing/skip/fail/not_run is not success",
-   "no gate command runs with -vet=off; no package or upstream test is excluded with a build tag",
-   "only the authorized isolated lab databases; never quota-gpu-local-01-pg and never a business database"
-  ],
-  "resume_check_before_editing": [
-   "git merge-base --is-ancestor 53b3c0053ebf06435044b9b2928925ee528454de HEAD  -> exit 0",
-   "cat migration/accepted_head  ->  53b3c00 (T08), NOT 58a5439 (T09 parked)",
-   "git status --porcelain       ->  only '?? _agent/'",
-   "go build -mod=readonly ./... ->  exit 0",
-   "go vet ./...                 ->  exit 1 with exactly 2 findings: T03-F5 copylocks + T09-B1 undefined: redact",
-   "go test -count=1 ./pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/ -> exit 1 (T09-B1, must be reproduced before/after any remedy)",
-   "python3 tools/migration/require_tests.py --required migration/patches/T09/T09-required-profile.json --log /home/ubuntu/tx7do-pilot-run/T09/T09-tests-shipped.log.jsonl -> exit 0"
-  ],
-  "receipt": "migration/receipts/T09.json",
-  "receipt_amended_after_ledger_commit": "migration/receipts/T09.json now carries a receipt_amendments block: the shipped start_sha full hash was a transcription error (e327eb2a5f... is not a git object) and is corrected to e327eb2970b605614547ee14805c179d25908a45, which is the value this entry has recorded from the start; the two residual facts appended to disclosed_gaps above are also logged there. Ledger-only, no source changed.",
-  "next_task": "do not start T10. Resume T09 only with a decision on T09-B1 (options A-D). If option A is authorized: add the two import specs, re-run the 16-test gate plus the 457-test suite and the pre/post control, then drop the dead go.mod require and record accepted_head movement.",
-  "recorded_at": "T09 parked BLOCKED, phase C in progress"
- },
- "phase_C_T09_closure": {
-  "supersedes": "phase_C_T09_blocked_parked_at, which is kept verbatim as the record of the park. One factual error in it is corrected here rather than edited away: api/buf.lock keeps 4 other entries after the redact removal (envoyproxy/protoc-gen-validate, gnostic/gnostic, googleapis/googleapis, kratos/apis), not 5.",
-  "verdict": "PASS_FOR_THE_EXECUTED_SCOPE_WITH_INTEGRATION_DEFERRED for T09; phase C stays open (T10, then the second make verify-gpu)",
-  "closed_at_user_instruction": "2026-09-25 supplemental authorization, option A for T09-B1 plus option D as a separate scheduling decision: migration/receipts/T09-authorization-missing-test-imports.json and the T09 subsection appended to the 失败与恢复 part of _agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
-  "start_sha": "e327eb2970b605614547ee14805c179d25908a45",
-  "source_chain": "58a5439725fe3dc63a3ac797d55097239948d778 (T09 source) -> 6c41775d42f9241a9a8c9d62040f0d0d11a981bb (BLOCKED park) -> d9cf8e1900e11d4c62d6c66f805e2d5bdc5a497d (ledger correction) -> b0e8fd424320b6542977e8c94297ab6e86784e58 (T09-B1 fix: 2 files, 4 insertions) -> this ledger commit",
-  "result_sha": "b0e8fd424320b6542977e8c94297ab6e86784e58",
-  "accepted_head_now": "b0e8fd424320b6542977e8c94297ab6e86784e58",
-  "frozen_baseline_still": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
-  "t09_b1_resolved_by": "adding one import spec to each of pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/{redactor_test.go,validation_test.go}: redact \"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\". Nothing else changed: no test body, name, data or assertion, no production file, no Proto field, no redaction rule, no blank or dot import, no second runtime, no back-reference to the upstream module, no module-cache write. Patch migration/patches/T09-B1-missing-test-imports.patch, hashes migration/preflight/T09B1-patch-inventory.txt, guard+equiv+gofmt migration/preflight/T09B1-guard-import-only.json.",
-  "executed_scope_passed": {
-   "generator_package": "go vet exit 0; go test -json exit 0 with 78 top-level tests / 457 test events, 0 fail, 0 skip, default vet",
-   "runtime": "go vet of pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1 exit 0; its 5 named tests pass",
-   "gate": "94-name profile from migration/patches/T09/T09B1-required-profile.json, built by enumerating go test -list for the takeover packages and asserting the original 16 still exist, so the scope can only grow; require_tests.py exit 0 with bad_tests [] and failed_packages []",
-   "build": "go build -mod=readonly ./... exit 0; all 160 test binaries in the repository compile under default vet",
-   "wide_commands": "go vet ./... exit 1 with only the pre-existing T03-F5 copylocks finding (undefined:redact is gone, no new diagnostic); go test -mod=readonly -count=1 -json ./... exit 1 with only the pre-existing T03-F4 TestBootstrapPostgres (2641 pass / 6 skip / 1 fail). Carried under their own rulings: not exempted, not re-experienced, not added to a known-defect list. This is not a green-repository claim.",
-   "generation_reverified": "same pinned tools: scripts/generate-redact.sh exit 0 with the runtime directory byte-identical (hand-written interface.go/stream.go included), api/gen/go 347 files unchanged, PRE_REF=53b3c00 control exit 0 with exactly the 8 redact consumers differing and a 32-file noise baseline, descriptor delta still only options.go_package"
-  },
-  "deferred_not_passed": "the 6 protoc-driven cases from integration_test.go / external_template_test.go (TestIntegrationProtoCompilation, TestGeneratedCodeQuality, TestOptionalFieldsInGeneratedCode, TestExternalTemplateLoading, TestTemplateParameterValidation, BenchmarkCodeGeneration) are staged byte-identically under migration/patches/T09/_integration_staging/ (a path the go tool ignores), hashed in migration/patches/T09/T09-integration-staging.json and registered DEFERRED in migration/required-integration-deferred.json. Execution belongs to the T13 tooling stage and no later than the T15 sign-off, in a task-private tool directory and a disposable work tree. DEFERRED is not PASS, not not_applicable, not a skip and not a build tag.",
-  "second_ledger_for_the_group": "migration/required-integration-deferred.json is a new, separate ledger from migration/required-known-defects.json: these cases never failed, they were never run. T09-B1 is NOT recorded there.",
-  "deferred_to_t14": "the dead go.mod:37 / go.sum:351-352 require of protoc-gen-go-redact. Not deleted here, not by line number, and no go mod tidy was run: the absence of '// indirect' neither proves the require is used nor licenses blind removal.",
-  "environment_disclosure": "a user-global tool binary was overwritten during version discovery (/home/ubuntu/go/bin/protoc-gen-go went to v1.36.12) and was reinstalled at v1.36.11. The reinstated file is same-version, different-hash; it is NOT the machine's original binary and is not claimed to be. Controls contaminated by that window were re-run, and from now on no round writes to a user-global tool path: tools go in a task-private GOBIN or are invoked by absolute path with version, go version -m and sha256 recorded (see migration/patches/T09/T09B1-toolchain.txt).",
-  "future_rounds_general_authority": "section 六 of the authorization grants a narrow standing power to complete a missing ordinary import (or fix its local path/alias) in a test file when the referenced package is unique and already inside the approved closure, tests/assertions and production bodies are untouched, provenance is verifiable, the exact patch is saved and default vet stays on. It does not cover blank or dot imports, new dependencies, production changes, expectation edits or excluding a failing case; if a condition is not met, stop and report.",
-  "constraints_still_in_force": [
-   "no push, no merge, no deploy; local commits only, and _agent/ stays uncommitted",
-   "missing/skip/fail/not_run is not success",
-   "no gate command runs with -vet=off; require_tests.py is not relaxed",
-   "no test deleted, skipped, retagged or re-expected; the known-defect list is not widened",
-   "module cache is read-only; never overwrite the user's GOBIN; nested go.mod and blanket replace are out",
-   "only the authorized isolated lab databases; never quota-gpu-local-01-pg and never a business database",
-   "T03-F4/T03-F5 keep their own identity; a new functional failure is re-triaged as a regression, not absorbed by this authorization"
-  ],
-  "resume_check_before_editing": [
-   "git rev-parse HEAD && git merge-base --is-ancestor b0e8fd424320b6542977e8c94297ab6e86784e58 HEAD",
-   "cat migration/accepted_head  ->  b0e8fd424320b6542977e8c94297ab6e86784e58",
-   "git status --porcelain      ->  only '?? _agent/'",
-   "read _agent/ani-governance-tx7do-plan/goals/T10.md at T10 entry",
-   "python3 -c \"import json; json.load(open('migration/receipts/T09.json'))\"  ->  parses"
-  ],
-  "next": "T10 (phase C third task), then the second make verify-gpu to close phase C; phases D (T11-T13) and E (T14-T15) follow. Nothing in T09's passed scope is reopened by that work except where a later task names it."
- },
- "t10_takeover_and_three_red_gates": {
-  "task": "T10",
-  "status": "BLOCKED",
-  "start_sha": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e",
-  "proven": [
-   "93 files placed verbatim, 25 of them rewritten and re-proved with equiv",
-   "212 consumer files rewritten, every one of the 736 changed lines an import spec, guard pass",
-   "conf Proto regenerated with 2530 symbols (124 messages, 883 fields, 1521 accessors) identical to the locked archive",
-   "8 external tx7do packages left, zero of them kratos-bootstrap or go-utils",
-   "entry builds 3/3, init smoke, PG Ent enableTrace false/true and database-clock cases, race suites and lab regression all exit 0",
-   "0 tests regressed against a replay of the same suite on the start commit"
-  ],
-  "needs_user_ruling": [
-   "T10-B1 four inherited upstream test cases now live in-repo and red",
-   "T10-B2 scripts/verify-gpu-format.sh has been red since 53b3c00, before T09",
-   "T10-B3 scripts/verify-gpu-audit.sh gitleaks is red at the start commit too, with the identical 4 findings",
-   "confirm the one-line audit fixture re-pin"
-  ],
-  "accepted_head": "b0e8fd424320b6542977e8c94297ab6e86784e58",
-  "not_pushed_merged_or_deployed": true
- },
- "phase_C_T10_closure": {
-  "task": "T10",
-  "status": "MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS",
-  "start_sha": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e",
-  "result_sha": "162b28ed268732392547c2343dc9b4f2f575f30f",
-  "tested_code_sha": "162b28ed268732392547c2343dc9b4f2f575f30f",
-  "resume_head": "162b28ed268732392547c2343dc9b4f2f575f30f",
-  "accepted_head_now": "162b28ed268732392547c2343dc9b4f2f575f30f",
-  "authorization": "migration/receipts/T10-authorization-classified-remediation.json",
-  "resolved": [
-   "T10-B1 rpc repaired as a test",
-   "T10-B1 bootstrap repaired as a fixture",
-   "T10-B1 id: three unreachable cases isolated with the nondeterministic rule",
-   "T10-B2 format gate green after a formatting-only sweep",
-   "T10-B3 four verified false positives pinned as exact exceptions"
-  ],
-  "carried": [
-   "three order-id cases under upstream_known_defects",
-   "nine T04 captcha cases",
-   "T09 protoc-driven integration cases (DEFERRED, not passed)",
-   "T03-F4 and T03-F5 under their own rulings",
-   "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY still not_run"
-  ],
-  "milestone_exit": 0,
-  "not_pushed_merged_or_deployed": true,
-  "next_task": "T11. Read _agent/ani-governance-tx7do-plan/goals/T11.md on entry only.",
-  "resume_check_before_editing": [
-   "git rev-parse HEAD must equal 162b28ed268732392547c2343dc9b4f2f575f30f",
-   "cat migration/accepted_head must equal 162b28ed268732392547c2343dc9b4f2f575f30f",
-   "git status --porcelain must show only '?? _agent/'",
-   "bash scripts/verify-gpu-format.sh must exit 0",
-   "python3 -c \"import json; json.load(open('migration/receipts/T10-closure-classified-remediation.json'))\""
-  ]
- },
- "phase_D_T11_blocked_parked_at": {
-  "task": "T11",
-  "status": "BLOCKED",
-  "parked_at": "2026-09-25T22:55+08:00",
-  "start_sha": "ce28159d8d68fec81f860a5d53069bf60a1b7fcd",
-  "accepted_head_unchanged": "162b28ed268732392547c2343dc9b4f2f575f30f",
-  "receipt": "migration/receipts/T11.json",
-  "blocker": "T11-B1: 5 deterministic upstream test failures and 10 never-terminating upstream harness cases come with the placed test files; ./pkg/... inside make verify-gpu runs them",
-  "proven": [
-   "the six-module closure is complete and placed byte-identically",
-   "14 files import-rewritten; 7 consumers guard-clean and 7 placed files equiv-clean",
-   "go build ./... and all three entry builds exit 0; vet shows only the pre-existing T03-F5",
-   "the six transport packages are gone from go list -deps for default and quota_lab",
-   "78 of 93 placed upstream tests pass and 27 named consumer tests pass"
-  ],
-  "inheritance_control": "byte-identical import-unrewritten copies in a disposable worktree reproduce all fifteen identically",
-  "decision_needed": "choose among options A/B/C in migration/patches/T11/T11-gate-conflict.json; nothing was excluded meanwhile",
-  "resume_check_before_editing": [
-   "git rev-parse HEAD",
-   "cat migration/accepted_head -> 162b28e...",
-   "git status --porcelain -> only '?? _agent/' plus the T11 checkpoint commit",
-   "read _agent/ani-governance-tx7do-plan/goals/T11.md again"
-  ],
-  "next": "T11 stays open; T12 does not start before this ruling because the same ./pkg/... gate would inherit it"
- }
+  "phase_D_T11_closure": {
+    "task": "T11",
+    "status": "MIGRATION_PASS_TARGETED",
+    "start_sha": "ce28159d8d68fec81f860a5d53069bf60a1b7fcd",
+    "result_sha": "6978ca4f76fb6f7550aa5fb21a933f6a5e475051",
+    "tested_code_sha": "6978ca4f76fb6f7550aa5fb21a933f6a5e475051",
+    "resume_head": "6978ca4f76fb6f7550aa5fb21a933f6a5e475051",
+    "accepted_head_now": "6978ca4f76fb6f7550aa5fb21a933f6a5e475051",
+    "authorization": [
+      "migration/receipts/T11-authorization-test-assembly.json",
+      "the standing continuation instruction that covers T11 through T15 without per-stage approval"
+    ],
+    "resolved": [
+      "T11-B1: all 15 named upstream cases repaired as test assembly, none deleted, tagged or exempted",
+      "the 45-test named must-run profile passes with require_tests (0 fail, 0 test-level skip)",
+      "the ./pkg/... recipe inside make verify-gpu now gets its environment from scripts/verify-gpu-redis.sh",
+      "one exact gitleaks exception for the jwt.io demo token carried by the placed SSE demo page",
+      "FORMAT_ONLY sweep over the four files the import rewrite left unsorted"
+    ],
+    "new_business_coverage": [
+      "TestTaskService_RealAsynqSchedulerLifecycle closes the 'real asynq scheduler and Redis queue' gap the TaskService SQLite suite records as skipped",
+      "TestRetryAfterHandlerFailure, TestPeriodicTaskRemoveAll, TestServerTryPublishFullBuffer, TestServerSlowSubscriberCouplingSameStream, TestHTTPStreamHandlerTwoUserStreamIsolation"
+    ],
+    "boundaries_recorded_not_hidden": [
+      "InternalMessageService.HandleAuthorize itself is not executed: it depends on *data.Authenticator, whose access-token path needs the Redis-backed user token cache, so a unit test would need a production seam that is out of scope. Its rule (token decides the user id, ?stream= must name that same user) is asserted at the transport boundary through TestHTTPStreamHandlerTwoUserStreamIsolation, and the authorize/subscribe hooks are proven to be the ones NewSseServer injects.",
+      "A periodic entry registered while the transport is not Started never fires, because WithRedisURI creates but does not run the scheduler; that is v1.3.14 behaviour and is unchanged. The business acceptance therefore starts the server, exactly as the production wiring order does.",
+      "asynq's Inspector.SchedulerEntries() reports nothing for in-process registrations here, so periodic registration is proven through entry IDs plus real firings rather than through the Inspector.",
+      "Same-stream slow-subscriber coupling is recorded as an observation (the dispatch loop blocks on a full subscriber and the rest of the stream queues) and is not turned into a new contract."
+    ],
+    "carried": [
+      "three order-id cases under upstream_known_defects",
+      "nine T04 captcha cases",
+      "T09 protoc-driven integration cases (DEFERRED, handled in T13)",
+      "T03-F4 and T03-F5 under their own rulings",
+      "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY still not_run",
+      "make verify-gpu has not been run for T11 by design: that chain is the T15 milestone"
+    ],
+    "milestone_exit": 0,
+    "not_pushed_merged_or_deployed": true,
+    "next_task": "T12. Read _agent/ani-governance-tx7do-plan/goals/T12.md on entry only.",
+    "resume_check_before_editing": [
+      "git rev-parse HEAD must equal 6978ca4f76fb6f7550aa5fb21a933f6a5e475051",
+      "cat migration/accepted_head must equal 6978ca4f76fb6f7550aa5fb21a933f6a5e475051",
+      "git status --porcelain must be clean apart from the untracked _agent/ plan material",
+      "every go invocation must carry GOFLAGS=-mod=readonly GOWORK=off and the pinned /home/ubuntu/sdk/go1.26.7 (the host go env GOFLAGS=-mod=mod and host GOROOT go1.26.4 have both already caused damage in this program)"
+    ]
+  }
 }

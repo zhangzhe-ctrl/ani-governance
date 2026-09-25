@@ -1,0 +1,93 @@
+--- /dev/null	2026-07-02 16:33:08.154000000 +0800
++++ scripts/verify-gpu-redis.sh	2026-09-26 00:58:35.789170926 +0800
+@@ -0,0 +1,90 @@
++#!/usr/bin/env bash
++# Task-owned disposable Redis for the localized kratos-transport tests (T11).
++#
++# Loopback only, dynamic host port, no volume, no persistence, and it never reuses
++# the developer instance on 127.0.0.1:6379. The URI reaches the tests through
++# ANI_TEST_REDIS_URI; the tests fail outright when it is absent instead of falling
++# back to a default address.
++#
++#   verify-gpu-redis.sh start        create or reuse, print the URI
++#   verify-gpu-redis.sh stop         remove what this script created
++#   verify-gpu-redis.sh uri          print the URI of a running instance
++#   verify-gpu-redis.sh run -- CMD   export the URI around CMD, cleaning up if it started it
++set -euo pipefail
++
++NAME=${ANI_TEST_REDIS_CONTAINER:-ani-governance-t11-redis}
++IMAGE=${ANI_TEST_REDIS_IMAGE:-redis:7-alpine}
++STATE_DIR=${ANI_TEST_REDIS_STATE_DIR:-/tmp/ani-governance-t11-redis}
++URI_FILE=$STATE_DIR/uri
++OWNER_FILE=$STATE_DIR/owner
++
++die() { echo "verify-gpu-redis: $*" >&2; exit 1; }
++
++started_by_us() { [ "$(cat "$OWNER_FILE" 2>/dev/null || true)" = "${ANI_TEST_REDIS_OWNER:-make}" ]; }
++
++start() {
++  mkdir -p "$STATE_DIR"
++  if [ -n "$(docker ps -q --filter name=^${NAME}$)" ]; then
++    # Reuse a running instance, and re-derive its mapping if the state file was
++    # cleaned up underneath us: the port comes from docker, never from a default.
++    if [ ! -s "$URI_FILE" ]; then
++      addr=$(docker port "$NAME" 6379/tcp 2>/dev/null | head -1)
++      case "$addr" in
++        127.0.0.1:*) printf '%s' "$addr" > "$URI_FILE" ;;
++        *) die "$NAME is running but has no loopback mapping (got '${addr:-none}')" ;;
++      esac
++    fi
++  elif [ -n "$(docker ps -aq --filter name=^${NAME}$)" ]; then
++    die "$NAME exists but is stopped; refusing to touch a container we did not verify"
++  else
++    docker run -d --name "$NAME" --label ani-governance-task=t11 \
++      -p 127.0.0.1:0:6379 "$IMAGE" --save '' --appendonly no --shutdown-timeout 5 >/dev/null
++    addr=$(docker port "$NAME" 6379/tcp 2>/dev/null | head -1)
++    case "$addr" in
++      127.0.0.1:*) ;;
++      *) docker rm -f "$NAME" >/dev/null 2>&1 || true; die "expected a loopback mapping, got '${addr:-none}'" ;;
++    esac
++    printf '%s' "$addr" > "$URI_FILE"
++    echo "${ANI_TEST_REDIS_OWNER:-make}" > "$OWNER_FILE"
++    for _ in $(seq 1 50); do
++      docker exec "$NAME" redis-cli --no-auth-warning PING >/dev/null 2>&1 && break
++      sleep 0.2
++    done
++    docker exec "$NAME" redis-cli --no-auth-warning PING >/dev/null 2>&1 || die "$NAME never answered PING"
++  fi
++  cat "$URI_FILE"
++}
++
++stop() {
++  if [ -n "$(docker ps -aq --filter name=^${NAME}$)" ]; then
++    docker rm -f "$NAME" >/dev/null
++  fi
++  rm -rf "$STATE_DIR"
++}
++
++uri() {
++  [ -f "$URI_FILE" ] || die "no task Redis URI at $URI_FILE; run 'start' first"
++  cat "$URI_FILE"
++}
++
++case "${1:-start}" in
++  start) start ;;
++  stop)  stop ;;
++  uri)   uri ;;
++  run)
++    shift
++    [ "${1:-}" = "--" ] && shift
++    [ $# -gt 0 ] || die "run -- requires a command"
++    preexisted=$( [ -n "$(docker ps -q --filter name=^${NAME}$)" ] && echo yes || echo no )
++    ANI_TEST_REDIS_URI=$(start)
++    export ANI_TEST_REDIS_URI
++    echo "verify-gpu-redis: ANI_TEST_REDIS_URI=$ANI_TEST_REDIS_URI" >&2
++    if [ "$preexisted" = "no" ]; then
++      set +e; "$@"; rc=$?; set -e
++      stop
++      exit $rc
++    fi
++    exec "$@"
++    ;;
++  *) die "unknown subcommand ${1:-}" ;;
++esac

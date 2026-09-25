@@ -1,0 +1,82 @@
+diff --git a/Makefile b/Makefile
+index f10f527..24df332 100644
+--- a/Makefile
++++ b/Makefile
+@@ -221,7 +221,11 @@ verify-gpu-regressions:
+ 	go build -o /dev/null ./app/admin/service/cmd/server
+ 	go build -tags quota_lab -o /dev/null ./app/admin/service/cmd/server
+ 	go build -o /dev/null ./app/admin/service/cmd/admin
+-	go test ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
++	# The taken-over transport tests need a queue broker: scripts/verify-gpu-redis.sh
++	# starts a loopback-only, non-persistent container for this recipe and exports
++	# ANI_TEST_REDIS_URI. Those tests fail rather than skip when it is absent, so the
++	# variable must come from here and not from a developer shell.
++	bash scripts/verify-gpu-redis.sh run -- go test ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
+ 	go test -tags quota_pg ./app/admin/service/internal/data -run 'TestQuota|TestPlanQuota' -count=1 -timeout=15m
+ 	go test -tags quota_pg ./app/admin/service/internal/service -run 'TestPlanQuota' -count=1 -timeout=10m
+ 	go test -race -tags quota_pg ./app/admin/service/internal/data -run 'TestQuotaEnt|TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard|TestQuotaPostgresPolicyChanges|TestQuotaGpu|TestQuotaProcess' -count=1 -timeout=20m
+diff --git a/app/admin/service/internal/server/asynq_server.go b/app/admin/service/internal/server/asynq_server.go
+index 2acdab8..be897bf 100644
+--- a/app/admin/service/internal/server/asynq_server.go
++++ b/app/admin/service/internal/server/asynq_server.go
+@@ -4,9 +4,9 @@
+ 	"github.com/go-kratos/kratos/v2/log"
+ 	"google.golang.org/protobuf/types/known/emptypb"
+ 
+-	asynqServer "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+ 	bootstrapAsynq "go-wind-admin/pkg/localdeps/kratos-bootstrap/transport/asynq"
++	asynqServer "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq"
+ 
+ 	"go-wind-admin/app/admin/service/internal/service"
+ 
+diff --git a/app/admin/service/internal/service/internal_message_service.go b/app/admin/service/internal/service/internal_message_service.go
+index 9c1efe3..e03ac54 100644
+--- a/app/admin/service/internal/service/internal_message_service.go
++++ b/app/admin/service/internal/service/internal_message_service.go
+@@ -8,7 +8,6 @@
+ 	"time"
+ 
+ 	"github.com/hibiken/asynq"
+-	"go-wind-admin/pkg/localdeps/kratos-transport/transport/sse"
+ 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+ 	"go-wind-admin/pkg/localdeps/go-crud/viewer"
+ 	"go-wind-admin/pkg/localdeps/go-utils/aggregator"
+@@ -17,6 +16,7 @@
+ 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+ 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+ 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
++	"go-wind-admin/pkg/localdeps/kratos-transport/transport/sse"
+ 	"google.golang.org/protobuf/types/known/emptypb"
+ 
+ 	"go-wind-admin/app/admin/service/internal/data"
+diff --git a/app/admin/service/internal/service/internal_message_service_sqlite_test.go b/app/admin/service/internal/service/internal_message_service_sqlite_test.go
+index f1644e5..ae82ecd 100644
+--- a/app/admin/service/internal/service/internal_message_service_sqlite_test.go
++++ b/app/admin/service/internal/service/internal_message_service_sqlite_test.go
+@@ -17,10 +17,10 @@
+ 
+ 	"github.com/hibiken/asynq"
+ 	"github.com/stretchr/testify/require"
+-	"go-wind-admin/pkg/localdeps/kratos-transport/transport/sse"
+ 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+ 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+ 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
++	"go-wind-admin/pkg/localdeps/kratos-transport/transport/sse"
+ 
+ 	"go-wind-admin/app/admin/service/internal/data"
+ 	"go-wind-admin/app/admin/service/internal/data/enttest"
+diff --git a/pkg/localdeps/kratos-bootstrap/transport/asynq/asynq_server.go b/pkg/localdeps/kratos-bootstrap/transport/asynq/asynq_server.go
+index 66d2252..59c29a2 100644
+--- a/pkg/localdeps/kratos-bootstrap/transport/asynq/asynq_server.go
++++ b/pkg/localdeps/kratos-bootstrap/transport/asynq/asynq_server.go
+@@ -7,8 +7,8 @@
+ 
+ 	tlsUtils "go-wind-admin/pkg/localdeps/go-utils/tls"
+ 
+-	asynqTransport "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq"
+ 	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
++	asynqTransport "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq"
+ )
+ 
+ // NewAsynqServer creates a new Asynq server.

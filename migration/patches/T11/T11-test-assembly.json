@@ -1,0 +1,173 @@
+{
+  "schema_version": "t11-test-assembly/1",
+  "authorization": "migration/receipts/T11-authorization-test-assembly.json",
+  "base_commit": "b7d5ddb01439f45e52e7bcef1320b0589088642a",
+  "patches_dir": "migration/patches/T11/patches",
+  "old_then_new_verification": {
+    "kind": "before: reflect.DeepEqual compared a transport.Kind against an untyped constant, so the assertion could never hold (measured on the pristine upstream copies in /home/ubuntu/tx7do-pilot-run/T11/pristine); after: the direct constant comparison passes and would still fail if Kind() changed",
+    "lifecycle": "before: 10 cases blocked on <-interrupt / a blocking Start / the fixed :8800 and were measured BLOCKED(timeout) under a 25s per-test deadline; after: each terminates on its own completion condition (real handler observations, dialed listener, gRPC health check) and a timeout is a failure",
+    "event-ids": "before: two cases asserted caller-supplied ids 1/2/3 that the locked implementation never produces; after: replay-off keeps the caller id, replay-on asserts the UUIDv7 overwrite plus eventLog.Replay equality",
+    "business": "before: TaskService scheduling was proven only against a local stub (recorded as skipped in task_service_sqlite_test.go); after: TestTaskService_RealAsynqSchedulerLifecycle enqueues, consumes, restarts and stops through the real taken-over transport on the task-owned Redis"
+  },
+  "named_must_run": {
+    "profile": "migration/patches/T11/T11-named-must-run.json",
+    "count": 45,
+    "verified_with": "python3 tools/migration/require_tests.py --required migration/patches/T11/T11-named-must-run.json --log <go test -json>",
+    "result": "pass=true, bad_tests=[], failed_packages=[]",
+    "log_archived": "/home/ubuntu/tx7do-pilot-run/T11/named-all.jsonl (machine paths and full transcripts stay out of the ledger)"
+  },
+  "production_code": "besides the four FORMAT_ONLY import-order fixes nothing outside _test.go changed; all 42 placed production files were re-verified equivalent to their locked upstream sources (T11-equiv-production-rechecked.json)",
+  "files": [
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/asynq/transport_test.go",
+      "authorized_for": [
+        "group-2 Kind"
+      ],
+      "head_b7d5ddb_sha256": "fa773d523f00cccbdf25262d2e4d6c39ed6457fd7ed434ce5782e6e3ca7ad87c",
+      "current_sha256": "0fb21f51ce17b26b6c2042036e9e3245a9fb8d303d72b8dba44960baf502d605",
+      "status": "modified"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/transport_test.go",
+      "authorized_for": [
+        "group-2 Kind"
+      ],
+      "head_b7d5ddb_sha256": "f9a1219d46bb5fdff1f4ff69f4c862b94898e65137ea412d36cef090387d38c6",
+      "current_sha256": "08312476aa1f377eaddd8e548de2a4dabf797708fb3c6a667ed4b54d139560a4",
+      "status": "modified"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/keepalive/transport_test.go",
+      "authorized_for": [
+        "group-2 Kind"
+      ],
+      "head_b7d5ddb_sha256": "abedfe0ddbd8367ce42ceb4123bb5394cdcd3e7988db8b57232d51bcf5c6420e",
+      "current_sha256": "bdd9e6b67907d2bdcd34f90cd7c9a8d75b87f00cb521489a58d7582d8ad19bbc",
+      "status": "modified"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/asynq/server_test.go",
+      "authorized_for": [
+        "group-3 lifecycle (6 blocked cases)",
+        "new TestRetryAfterHandlerFailure",
+        "new TestPeriodicTaskRemoveAll"
+      ],
+      "head_b7d5ddb_sha256": "28454c2e0f7bf4c311b806240f794d82e2e25c7fdbe1165014db611aafc235c1",
+      "current_sha256": "c77dd255ee47ef16f0258a55377bcc43ec29a3cb7111ede814959150f0a43145",
+      "status": "modified"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/keepalive/server_test.go",
+      "authorized_for": [
+        "group-3 lifecycle (TestKeepAliveService)"
+      ],
+      "head_b7d5ddb_sha256": "72cd6f85ed3851c6070fd8ff8fd866c79d4f6a5a6a432606fdaacbf7f2a8d06f",
+      "current_sha256": "981e53e9d6771c2fada7c02c0e11f4e0bc6d4f571bcdfc77fd601a5c84e3959e",
+      "status": "modified"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/client_test.go",
+      "authorized_for": [
+        "group-3 lifecycle (TestSubscribeWithContextDone goroutine convergence)"
+      ],
+      "head_b7d5ddb_sha256": "cd6bbcd3bababad3e977743b9ba4dbf0bc4b3c21795c10adc32e837c3884cbe6",
+      "current_sha256": "f1e6666ffbfb56a99d9f9d74ece176647d0fac70da1eaa557acfb5fbcf3d4166",
+      "status": "modified"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/server_test.go",
+      "authorized_for": [
+        "group-3 lifecycle (startServing, existing/non-existent publish)",
+        "group-4 event ids (TestServerPublishDataWithMeta split)",
+        "new TestServerTryPublishFullBuffer",
+        "new TestServerSlowSubscriberCouplingSameStream"
+      ],
+      "head_b7d5ddb_sha256": "5e100d5e746511b96cc1aa633d5ff9e98c7ab4873e97229f3fafe1ec4f6c0099",
+      "current_sha256": "e793ee4d9cd74a35197fe63173e1939247d62dcb6885abc96502530184cdfa01",
+      "status": "modified"
+    },
+    {
+      "file": "pkg/localdeps/kratos-transport/transport/sse/http_test.go",
+      "authorized_for": [
+        "group-4 event ids (TestHTTPStreamHandlerEventID, header flush)",
+        "new openUser/nextFrame/assertQuiet helpers",
+        "new TestHTTPStreamHandlerTwoUserStreamIsolation"
+      ],
+      "head_b7d5ddb_sha256": "3473a00bb2bc25fb3d5874f03e9e619c914ac18143c8ab1449d101248317fbeb",
+      "current_sha256": "92cabefd4b7d95e62f68b20ee30bbfa3f3a2a2801dac8e1a17b5bf8852e122de",
+      "status": "modified"
+    },
+    {
+      "file": "app/admin/service/internal/service/task_service_asynq_sqlite_test.go",
+      "authorized_for": [
+        "section-6 business acceptance against the real transport + task Redis (new file)"
+      ],
+      "head_b7d5ddb_sha256": null,
+      "current_sha256": "dcd257ba03774ffd3c090db58e00fb8f92dc520e2bc71ffe2985bf71f41e2531",
+      "status": "new"
+    },
+    {
+      "file": "app/admin/service/internal/server/asynq_server.go",
+      "authorized_for": [
+        "FORMAT_ONLY: import order after the T11 rewrite"
+      ],
+      "head_b7d5ddb_sha256": "5fef84ed10682288df0fca5121d7f23f7e4da804822b9e39807cae0682de7328",
+      "current_sha256": "74c12786900fc8c39cb0e8194f4832ed9574dc36a3f995ad1de2a155c7036784",
+      "status": "modified"
+    },
+    {
+      "file": "app/admin/service/internal/service/internal_message_service.go",
+      "authorized_for": [
+        "FORMAT_ONLY: import order after the T11 rewrite"
+      ],
+      "head_b7d5ddb_sha256": "cb08e24b31f5a417f7485e018b7038429f2b3bfb448bf485265c3f7a5dc5a4b1",
+      "current_sha256": "e10b37cf7597b699900fd72e9d36c003a37622eb70898e2b6b1439c035f7ca0f",
+      "status": "modified"
+    },
+    {
+      "file": "app/admin/service/internal/service/internal_message_service_sqlite_test.go",
+      "authorized_for": [
+        "FORMAT_ONLY: import order after the T11 rewrite"
+      ],
+      "head_b7d5ddb_sha256": "550c090f95f5b8b80a51a145bd8b1f057444245ea79935a63d55620137780c33",
+      "current_sha256": "a14520785bf2f5901002c323fde68c7894942f2844abec962959262577b70503",
+      "status": "modified"
+    },
+    {
+      "file": "pkg/localdeps/kratos-bootstrap/transport/asynq/asynq_server.go",
+      "authorized_for": [
+        "FORMAT_ONLY: import order after the T11 rewrite"
+      ],
+      "head_b7d5ddb_sha256": "f0e9537719a052f41e33e80a3f471642d8c72334c1bef7dcde855c21796df223",
+      "current_sha256": "9af2aa17ccf1b647548533abc110ba119c6018b4c5d705b3006dfeb634f237e8",
+      "status": "modified"
+    },
+    {
+      "file": "Makefile",
+      "authorized_for": [
+        "formal test entry: the ./pkg/... recipe now runs inside scripts/verify-gpu-redis.sh run"
+      ],
+      "head_b7d5ddb_sha256": "3a23bc4aaf92d558fb2e0c6fbe515ce33bba97d8346061b6e82c4ba3d1bb6cbe",
+      "current_sha256": "924596ba0242f2c9c4b5ff1f243c3e9c73204da828dde6f76de3eacb8785d214",
+      "status": "modified"
+    },
+    {
+      "file": "scripts/verify-gpu-redis.sh",
+      "authorized_for": [
+        "new: loopback-only disposable Redis entry point (start/stop/uri/run)"
+      ],
+      "head_b7d5ddb_sha256": null,
+      "current_sha256": "a45a1b35f11f417290540140239f2c6c0634f5eec94c63102496fa811885b67d",
+      "status": "new"
+    },
+    {
+      "file": ".gitleaks.toml",
+      "authorized_for": [
+        "exact false-positive exception for the jwt.io demo token in the placed SSE demo page"
+      ],
+      "head_b7d5ddb_sha256": "d49e096e3d498c91c7113379dff76f5d3c5822be51553ef21471049715d592c8",
+      "current_sha256": "39d5bab3c417b38bd1052cb959cd7b669dd34cfcd13975018d8361904ff54b88",
+      "status": "modified"
+    }
+  ]
+}

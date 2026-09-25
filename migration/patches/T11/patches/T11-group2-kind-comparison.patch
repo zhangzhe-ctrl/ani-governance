@@ -1,0 +1,54 @@
+diff --git a/pkg/localdeps/kratos-transport/transport/asynq/transport_test.go b/pkg/localdeps/kratos-transport/transport/asynq/transport_test.go
+index 2fd583f..8462d6e 100644
+--- a/pkg/localdeps/kratos-transport/transport/asynq/transport_test.go
++++ b/pkg/localdeps/kratos-transport/transport/asynq/transport_test.go
+@@ -7,8 +7,11 @@
+ 
+ func TestTransport_Kind(t *testing.T) {
+ 	o := &Transport{}
+-	if !reflect.DeepEqual(KindAsynq, o.Kind()) {
+-		t.Errorf("expect %v, got %v", KindAsynq, o.Kind())
++	// Kind() returns the named transport.Kind, while the constant is untyped: a
++	// direct comparison is what the contract is, and reflect.DeepEqual would
++	// compare two different types and always report a difference.
++	if got := o.Kind(); got != KindAsynq {
++		t.Errorf("expect %v, got %v", KindAsynq, got)
+ 	}
+ }
+ 
+diff --git a/pkg/localdeps/kratos-transport/transport/keepalive/transport_test.go b/pkg/localdeps/kratos-transport/transport/keepalive/transport_test.go
+index 24911f2..ebcf7e3 100644
+--- a/pkg/localdeps/kratos-transport/transport/keepalive/transport_test.go
++++ b/pkg/localdeps/kratos-transport/transport/keepalive/transport_test.go
+@@ -8,8 +8,11 @@
+ 
+ func TestTransport_Kind(t *testing.T) {
+ 	o := &Transport{}
+-	if !reflect.DeepEqual(KindKeepAlive, o.Kind()) {
+-		t.Errorf("expect %v, got %v", KindKeepAlive, o.Kind())
++	// Kind() returns the named transport.Kind, while the constant is untyped: a
++	// direct comparison is what the contract is, and reflect.DeepEqual would
++	// compare two different types and always report a difference.
++	if got := o.Kind(); got != KindKeepAlive {
++		t.Errorf("expect %v, got %v", KindKeepAlive, got)
+ 	}
+ }
+ 
+diff --git a/pkg/localdeps/kratos-transport/transport/sse/transport_test.go b/pkg/localdeps/kratos-transport/transport/sse/transport_test.go
+index 34e187a..559b73d 100644
+--- a/pkg/localdeps/kratos-transport/transport/sse/transport_test.go
++++ b/pkg/localdeps/kratos-transport/transport/sse/transport_test.go
+@@ -12,8 +12,11 @@
+ 
+ func TestTransport_Kind(t *testing.T) {
+ 	o := &Transport{}
+-	if !reflect.DeepEqual(KindSSE, o.Kind()) {
+-		t.Errorf("expect %v, got %v", KindSSE, o.Kind())
++	// Kind() returns the named transport.Kind, while the constant is untyped: a
++	// direct comparison is what the contract is, and reflect.DeepEqual would
++	// compare two different types and always report a difference.
++	if got := o.Kind(); got != KindSSE {
++		t.Errorf("expect %v, got %v", KindSSE, got)
+ 	}
+ }
+ 
