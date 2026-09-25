@@ -27,5 +27,7 @@
     "run admin verified against a minimal test service with bounded shutdown, touching only that child process",
     "an official repeatable entry for the protoc integration cases (tools_integration tag), failing rather than skipping when the tools are absent"
   ],
-  "final_statement_required": "在用命令已本地接管；未接管完整通用脚手架 — the program must not claim full gow equivalence"
+  "final_statement_required": "在用命令已本地接管；未接管完整通用脚手架 — the program must not claim full gow equivalence",
+  "master_goal_sha256": "daa9ca128913e9b2affee0e6b182a8879238d7f74194cf7323914e41eb9b3162",
+  "t13_goal_note_sha256": "fe50337986671dae50d8b271f461a466e5fd75065a33160b1e447fad028d57c7"
 }
