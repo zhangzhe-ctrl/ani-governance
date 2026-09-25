@@ -1,0 +1,5 @@
+?   	go-wind-admin/pkg/localdeps/kratos-authz/engine	[no test files]
+ok  	go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin	0.004s [no tests to run]
+?   	go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin/assets	[no test files]
+?   	go-wind-admin/pkg/localdeps/kratos-authz/engine/noop	[no test files]
+ok  	go-wind-admin/pkg/localdeps/kratos-authz/middleware	0.004s [no tests to run]

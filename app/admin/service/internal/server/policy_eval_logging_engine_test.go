@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
-	authzEngine "github.com/tx7do/kratos-authz/engine"
+	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
 
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 )

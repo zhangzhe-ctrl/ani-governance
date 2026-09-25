@@ -1,0 +1,68 @@
+=== RUN   TestFilterAuthorizedPairs
+=== RUN   TestFilterAuthorizedPairs/admin
+=== RUN   TestFilterAuthorizedPairs/admin#01
+=== RUN   TestFilterAuthorizedPairs/bobo
+=== RUN   TestFilterAuthorizedPairs/bobo01
+=== RUN   TestFilterAuthorizedPairs/bobo01#01
+=== RUN   TestFilterAuthorizedPairs/bobo01#02
+--- PASS: TestFilterAuthorizedPairs (0.00s)
+    --- PASS: TestFilterAuthorizedPairs/admin (0.00s)
+    --- PASS: TestFilterAuthorizedPairs/admin#01 (0.00s)
+    --- PASS: TestFilterAuthorizedPairs/bobo (0.00s)
+    --- PASS: TestFilterAuthorizedPairs/bobo01 (0.00s)
+    --- PASS: TestFilterAuthorizedPairs/bobo01#01 (0.00s)
+    --- PASS: TestFilterAuthorizedPairs/bobo01#02 (0.00s)
+=== RUN   TestFilterAuthorizedProjects
+[project1 project2]
+=== RUN   TestFilterAuthorizedProjects/bobo
+=== RUN   TestFilterAuthorizedProjects/bobo01
+=== RUN   TestFilterAuthorizedProjects/admin
+=== RUN   TestFilterAuthorizedProjects/admin_role
+--- PASS: TestFilterAuthorizedProjects (0.00s)
+    --- PASS: TestFilterAuthorizedProjects/bobo (0.00s)
+    --- PASS: TestFilterAuthorizedProjects/bobo01 (0.00s)
+    --- PASS: TestFilterAuthorizedProjects/admin (0.00s)
+    --- PASS: TestFilterAuthorizedProjects/admin_role (0.00s)
+=== RUN   TestProjectsAuthorized
+[project1]
+=== RUN   TestProjectsAuthorized/bobo
+=== RUN   TestProjectsAuthorized/bobo#01
+=== RUN   TestProjectsAuthorized/bobo#02
+=== RUN   TestProjectsAuthorized/bobo#03
+=== RUN   TestProjectsAuthorized/bobo#04
+=== RUN   TestProjectsAuthorized/bobo#05
+=== RUN   TestProjectsAuthorized/bobo#06
+=== RUN   TestProjectsAuthorized/bobo999
+=== RUN   TestProjectsAuthorized/bobo01
+=== RUN   TestProjectsAuthorized/bobo01#01
+=== RUN   TestProjectsAuthorized/admin
+=== RUN   TestProjectsAuthorized/admin#01
+=== RUN   TestProjectsAuthorized/admin_role
+=== RUN   TestProjectsAuthorized/admin_role#01
+--- PASS: TestProjectsAuthorized (0.00s)
+    --- PASS: TestProjectsAuthorized/bobo (0.00s)
+    --- PASS: TestProjectsAuthorized/bobo#01 (0.00s)
+    --- PASS: TestProjectsAuthorized/bobo#02 (0.00s)
+    --- PASS: TestProjectsAuthorized/bobo#03 (0.00s)
+    --- PASS: TestProjectsAuthorized/bobo#04 (0.00s)
+    --- PASS: TestProjectsAuthorized/bobo#05 (0.00s)
+    --- PASS: TestProjectsAuthorized/bobo#06 (0.00s)
+    --- PASS: TestProjectsAuthorized/bobo999 (0.00s)
+    --- PASS: TestProjectsAuthorized/bobo01 (0.00s)
+    --- PASS: TestProjectsAuthorized/bobo01#01 (0.00s)
+    --- PASS: TestProjectsAuthorized/admin (0.00s)
+    --- PASS: TestProjectsAuthorized/admin#01 (0.00s)
+    --- PASS: TestProjectsAuthorized/admin_role (0.00s)
+    --- PASS: TestProjectsAuthorized/admin_role#01 (0.00s)
+PASS
+ok  	go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin	0.008s
+=== RUN   TestServer_Casbin
+--- PASS: TestServer_Casbin (0.00s)
+=== RUN   TestServer_CasbinWithDomain
+--- PASS: TestServer_CasbinWithDomain (0.00s)
+=== RUN   TestServer_OPA
+--- PASS: TestServer_OPA (0.00s)
+=== RUN   TestServer_OPAWithDomain
+--- PASS: TestServer_OPAWithDomain (0.00s)
+PASS
+ok  	go-wind-admin/pkg/localdeps/kratos-authz/middleware	0.004s

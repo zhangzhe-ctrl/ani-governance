@@ -12,7 +12,7 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/http"
 
-	authz "github.com/tx7do/kratos-authz/middleware"
+	authz "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
 
 	swaggerUI "github.com/tx7do/kratos-swagger-ui"
 

@@ -1,0 +1,48 @@
+{
+ "casbin_model_and_assets_byte_identical": true,
+ "extra_local_files": [],
+ "files": [
+  {
+   "file": "abac.conf",
+   "upstream_sha256": "9211cc80ff62dc2bc0fac4051d7047fc533023b33dd618cb2c2ef0741e4f8ca6",
+   "local_sha256": "9211cc80ff62dc2bc0fac4051d7047fc533023b33dd618cb2c2ef0741e4f8ca6",
+   "identical": true
+  },
+  {
+   "file": "acl.conf",
+   "upstream_sha256": "10f281d006f6e3b3210e56fa0ffc1771993156fdc5e131f8bdc975b03ef0ef26",
+   "local_sha256": "10f281d006f6e3b3210e56fa0ffc1771993156fdc5e131f8bdc975b03ef0ef26",
+   "identical": true
+  },
+  {
+   "file": "assets.go",
+   "upstream_sha256": "b88e170d356e2e14afb47b31dcc700cf6b6788219d9703d3301166468efdb452",
+   "local_sha256": "b88e170d356e2e14afb47b31dcc700cf6b6788219d9703d3301166468efdb452",
+   "identical": true
+  },
+  {
+   "file": "rbac.conf",
+   "upstream_sha256": "280b90d2f371388abe18d74ad883753eba9e2f9ae658ce371b6a815a50cc9c46",
+   "local_sha256": "280b90d2f371388abe18d74ad883753eba9e2f9ae658ce371b6a815a50cc9c46",
+   "identical": true
+  },
+  {
+   "file": "rbac_with_domains.conf",
+   "upstream_sha256": "29752c3ea535ec28d8a531e8aeb90b0d172f7a083f9489a0cf0daf1ca54a93b1",
+   "local_sha256": "29752c3ea535ec28d8a531e8aeb90b0d172f7a083f9489a0cf0daf1ca54a93b1",
+   "identical": true
+  },
+  {
+   "file": "restfull.conf",
+   "upstream_sha256": "34e184a19c1808a0c64a04af95661cdb2a6f2525f0d1dcf43027ad657a2cdbca",
+   "local_sha256": "34e184a19c1808a0c64a04af95661cdb2a6f2525f0d1dcf43027ad657a2cdbca",
+   "identical": true
+  },
+  {
+   "file": "restfull_with_role.conf",
+   "upstream_sha256": "8f429da7f8cc3657bc8c0c392ea3cb27e784da1ecaf934963e4611db5c9afe4e",
+   "local_sha256": "8f429da7f8cc3657bc8c0c392ea3cb27e784da1ecaf934963e4611db5c9afe4e",
+   "identical": true
+  }
+ ]
+}

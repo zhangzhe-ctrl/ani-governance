@@ -21,7 +21,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/transport"
 
-	authzEngine "github.com/tx7do/kratos-authz/engine"
+	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
 
 	"go-wind-admin/app/admin/service/internal/data"
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"

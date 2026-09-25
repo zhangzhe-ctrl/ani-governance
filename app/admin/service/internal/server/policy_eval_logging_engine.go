@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/transport"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
-	authzEngine "github.com/tx7do/kratos-authz/engine"
+	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"

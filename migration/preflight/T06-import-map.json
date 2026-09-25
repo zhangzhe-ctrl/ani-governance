@@ -1,0 +1,7 @@
+{
+ "github.com/tx7do/kratos-authz/engine/casbin/assets": "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin/assets",
+ "github.com/tx7do/kratos-authz/engine/casbin": "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin",
+ "github.com/tx7do/kratos-authz/engine/noop": "go-wind-admin/pkg/localdeps/kratos-authz/engine/noop",
+ "github.com/tx7do/kratos-authz/middleware": "go-wind-admin/pkg/localdeps/kratos-authz/middleware",
+ "github.com/tx7do/kratos-authz/engine": "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+}

@@ -1,0 +1,57 @@
+{
+ "meaning": "per-package exit of the profile-restricted T06 run",
+ "single_global_run_flag": "go test accepts only one -run per invocation, so the profile is executed package-by-package",
+ "packages": {
+  "go-wind-admin/app/admin/service/internal/data": {
+   "exit": 0,
+   "required": 297,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/app/admin/service/internal/server": {
+   "exit": 0,
+   "required": 11,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/app/admin/service/internal/service": {
+   "exit": 0,
+   "required": 172,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/pkg/authorizer": {
+   "exit": 0,
+   "required": 16,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin": {
+   "exit": 0,
+   "required": 3,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/pkg/localdeps/kratos-authz/middleware": {
+   "exit": 0,
+   "required": 4,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/pkg/middleware/auth": {
+   "exit": 0,
+   "required": 21,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/pkg/middleware/logging": {
+   "exit": 0,
+   "required": 78,
+   "stderr_tail": ""
+  }
+ },
+ "argv": [
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./app/admin/service/internal/data",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./app/admin/service/internal/server",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./app/admin/service/internal/service",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./pkg/authorizer",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run ^(TestFilterAuthorizedPairs|TestFilterAuthorizedProjects|TestProjectsAuthorized)$ ./pkg/localdeps/kratos-authz/engine/casbin",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run ^(TestServer_Casbin|TestServer_CasbinWithDomain|TestServer_OPA|TestServer_OPAWithDomain)$ ./pkg/localdeps/kratos-authz/middleware",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./pkg/middleware/auth",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./pkg/middleware/logging"
+ ],
+ "aggregate_exit": 0
+}

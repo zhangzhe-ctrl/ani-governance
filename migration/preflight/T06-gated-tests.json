@@ -1,0 +1,46 @@
+{
+ "meaning": "repo-precondition-gated cases removed from the T06 named required set; reported as not_run, never as pass, and not deleted or edited by this task",
+ "inherited_from": "migration/preflight/T05-gated-tests.json verbatim (same case names, same reason strings, nothing added)",
+ "cases": [
+  {
+   "Package": "go-wind-admin/app/admin/service/internal/data",
+   "Test": "TestBootstrapPostgres",
+   "reason": "app/admin/service/internal/data/bootstrap_postgres_test.go:22 requires GOV_BOOTSTRAP_TEST_DSN; fails identically at accepted_head and after T05 (pre-existing defect T03-F4)"
+  },
+  {
+   "Package": "go-wind-admin/app/admin/service/internal/data",
+   "Test": "TestQuotaGpuOldPopulatedUpgradeReplay",
+   "reason": "quota_upgrade_pg_test.go:18 requires separately upgraded populated old backup (QUOTA_UPGRADE_VERIFY)"
+  },
+  {
+   "Package": "go-wind-admin/app/admin/service/internal/data",
+   "Test": "TestQuotaGpuRestoredProjectionContinuation",
+   "reason": "quota_gpu_pg_test.go:338 separate populated-restore gate (QUOTA_RESTORE_VERIFY)"
+  },
+  {
+   "Package": "go-wind-admin/app/admin/service/internal/data",
+   "Test": "TestQuotaProcessChild",
+   "reason": "quota_process_pg_test.go:72 OS subprocess helper (QUOTA_PROCESS_SPEC)"
+  },
+  {
+   "Package": "go-wind-admin/app/admin/service/internal/service",
+   "Test": "TestAcceleratorFormalSessionRefresh",
+   "reason": "accelerator_joint_http_test.go:539 requires the explicit private formal process fixture"
+  },
+  {
+   "Package": "go-wind-admin/app/admin/service/internal/service",
+   "Test": "TestAcceleratorJointHTTP",
+   "reason": "accelerator_joint_http_test.go:66 requires isolated joint B PostgreSQL, Redis and Accelerator helper"
+  },
+  {
+   "Package": "go-wind-admin/app/admin/service/internal/service",
+   "Test": "TestOnboardingAPIRegistration",
+   "reason": "account_invitation_test.go:309 requires disposable PostgreSQL"
+  },
+  {
+   "Package": "go-wind-admin/app/admin/service/internal/service",
+   "Test": "TestOnboardingConcurrentAcceptance",
+   "reason": "account_invitation_test.go:241 requires disposable PostgreSQL"
+  }
+ ]
+}

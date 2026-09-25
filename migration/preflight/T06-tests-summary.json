@@ -1,0 +1,141 @@
+{
+ "task": "T06",
+ "module": "go-wind-admin",
+ "tags": [
+  "quota_pg"
+ ],
+ "derivation": {
+  "base_commit": "474eee824c07b0d3da00f1f4d64f130bfdf246da",
+  "rule": "union of (packages whose files T06 created or rewrote) and (packages transitively importing go-wind-admin/pkg/localdeps/kratos-authz)",
+  "test_tags": [
+   "-tags",
+   "quota_pg"
+  ],
+  "touched_packages": [
+   "go-wind-admin/app/admin/service/internal/server",
+   "go-wind-admin/app/admin/service/internal/service",
+   "go-wind-admin/pkg/authorizer",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin/assets",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/noop",
+   "go-wind-admin/pkg/localdeps/kratos-authz/middleware",
+   "go-wind-admin/pkg/middleware/auth"
+  ],
+  "consumer_packages": [
+   "go-wind-admin/app/admin/service/cmd/server",
+   "go-wind-admin/app/admin/service/internal/data",
+   "go-wind-admin/app/admin/service/internal/server",
+   "go-wind-admin/app/admin/service/internal/service",
+   "go-wind-admin/pkg/authorizer",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/noop",
+   "go-wind-admin/pkg/localdeps/kratos-authz/middleware",
+   "go-wind-admin/pkg/middleware/auth",
+   "go-wind-admin/pkg/middleware/logging"
+  ]
+ },
+ "package_dirs": [
+  "./app/admin/service/cmd/server",
+  "./app/admin/service/internal/data",
+  "./app/admin/service/internal/server",
+  "./app/admin/service/internal/service",
+  "./pkg/authorizer",
+  "./pkg/localdeps/kratos-authz/engine",
+  "./pkg/localdeps/kratos-authz/engine/casbin",
+  "./pkg/localdeps/kratos-authz/engine/casbin/assets",
+  "./pkg/localdeps/kratos-authz/engine/noop",
+  "./pkg/localdeps/kratos-authz/middleware",
+  "./pkg/middleware/auth",
+  "./pkg/middleware/logging"
+ ],
+ "listed_total": 610,
+ "required_total": 602,
+ "gated_cases": [
+  "TestBootstrapPostgres",
+  "TestQuotaGpuOldPopulatedUpgradeReplay",
+  "TestQuotaGpuRestoredProjectionContinuation",
+  "TestQuotaProcessChild",
+  "TestAcceleratorFormalSessionRefresh",
+  "TestAcceleratorJointHTTP",
+  "TestOnboardingAPIRegistration",
+  "TestOnboardingConcurrentAcceptance"
+ ],
+ "runs": {
+  "full_scoped_run": {
+   "log": "migration/preflight/T06-gate.log",
+   "exit": 1,
+   "test_events_total": 1020,
+   "pass": 1012,
+   "fail": 1,
+   "skip": 7,
+   "package_level_failures": [
+    "go-wind-admin/app/admin/service/internal/data"
+   ],
+   "nonpass_cases": [
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/data",
+     "Test": "TestBootstrapPostgres",
+     "action": "fail"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/data",
+     "Test": "TestQuotaGpuOldPopulatedUpgradeReplay",
+     "action": "skip"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/data",
+     "Test": "TestQuotaGpuRestoredProjectionContinuation",
+     "action": "skip"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/data",
+     "Test": "TestQuotaProcessChild",
+     "action": "skip"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/service",
+     "Test": "TestAcceleratorFormalSessionRefresh",
+     "action": "skip"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/service",
+     "Test": "TestAcceleratorJointHTTP",
+     "action": "skip"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/service",
+     "Test": "TestOnboardingAPIRegistration",
+     "action": "skip"
+    },
+    {
+     "Package": "go-wind-admin/app/admin/service/internal/service",
+     "Test": "TestOnboardingConcurrentAcceptance",
+     "action": "skip"
+    }
+   ]
+  },
+  "profile_restricted_run": {
+   "log": "migration/preflight/T06-required.log",
+   "exit": 0,
+   "test_events_total": 1012,
+   "pass": 1012,
+   "fail": 0,
+   "skip": 0,
+   "package_level_failures": [],
+   "nonpass_cases": []
+  }
+ },
+ "require_tests": {
+  "log": "migration/preflight/T06-require-tests.log",
+  "exit": 0,
+  "verdict": {
+   "pass": true,
+   "required": 602,
+   "bad_tests": [],
+   "failed_packages": []
+  }
+ },
+ "every_required_case_passed": true,
+ "vet": "default go test vet subset; -vet=off was not used on any gate or release command"
+}

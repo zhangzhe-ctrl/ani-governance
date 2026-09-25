@@ -24,7 +24,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
-	authzMiddleware "github.com/tx7do/kratos-authz/middleware"
+	authzMiddleware "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
 	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"

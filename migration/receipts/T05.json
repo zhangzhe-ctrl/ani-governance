@@ -337,5 +337,10 @@
   "migration/preflight/T05-residual-non-test.txt"
  ],
  "self_assessment": "PASS_WITH_DISCLOSED_EXCLUSION. The takeover itself meets every T05.md constraint: package ownership only, algorithms/Claims/signature verification/expiry/Redis Lua/key names/client types/errors unchanged, no parallel Principal type, no JWT-only downgrade, no vendor / module-cache edit / permanent replace / nested go.mod. The one thing that is NOT claimed is full green: the engine package's own upstream tests are outside the gate by explicit decision and a repository-wide go test ./... still fails on them.",
- "verdict": "PASS_WITH_DISCLOSED_EXCLUSION"
+ "verdict": "PASS_WITH_DISCLOSED_EXCLUSION",
+ "corrigendum_2026-09-26_gitattributes_normalisation": {
+  "recorded_by": "T06 blob-vs-upstream audit",
+  "text": "Where this receipt says a placed file is byte-identical to upstream, that equality holds for the working-tree file. For CRLF upstream documentation (pkg/localdeps/kratos-authn/engine/README.md) the stored git blob is LF-normalised by .gitattributes and therefore differs in line endings from the module-cache file. No hash gate, test verdict, equiv/guard result or the PASS_WITH_DISCLOSED_EXCLUSION conclusion changes: the casbin/jwt production files and every file covered by a hash requirement were and are byte-identical in the blob.",
+  "conclusion_unchanged": true
+ }
 }

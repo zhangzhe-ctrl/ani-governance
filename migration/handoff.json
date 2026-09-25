@@ -289,7 +289,8 @@
    "9 captcha image drivers remain KNOWN_BASELINE_FAILURE (replayed PASS in this checkpoint, still not green)",
    "pre-existing copylocks vet finding at accelerator_joint_http_test.go:503"
   ],
-  "verdict": "PASS_WITH_DISCLOSED_EXCLUSION"
+  "verdict": "PASS_WITH_DISCLOSED_EXCLUSION",
+  "superseded_by": "phase_B_T06_closure"
  },
  "plan": {
   "master_goal": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
@@ -303,6 +304,64 @@
   ]
  },
  "purpose": "Resume ledger for the continuous T03~T15 takeover. Recovery must re-check these SHAs against migration/receipts before any edit.",
- "recorded_at": "T03-T15 master goal, phase A entry",
- "schema_version": 1
+ "recorded_at": "T03-T15 master goal, phase B closed at T06",
+ "schema_version": 1,
+ "phase_B_T06_closure": {
+  "accepted_head_now": "set to this task's code commit in the following ledger commit (T02/T05 precedent)",
+  "task": "T06 authorization engine and middleware atomic takeover",
+  "verdict": "PASS",
+  "receipt": "migration/receipts/T06.json",
+  "gate": {
+   "listed": 610,
+   "required": 602,
+   "pass": 602,
+   "fail": 0,
+   "skip": 0,
+   "missing": 0,
+   "not_run": 0,
+   "require_tests_exit": 0,
+   "full_scoped_run_exit": 1,
+   "full_scoped_single_failure": "inherited TestBootstrapPostgres (T03-F4) and the package-level fail it causes",
+   "vet": "default; -vet=off never on a gate or release command"
+  },
+  "startup_casbin_gate": "proved behaviourally with the real server binary: type=noop refused, authz.type absent refused, type=casbin passes the gate and only then fails on a deliberately unreachable datasource",
+  "decision_equivalence": "31/31 old(upstream, pre-activation, rebased scratch module) vs new(activated localdeps) verdict lines identical; assets and model text separately proven byte-identical",
+  "single_registry": "github.com/tx7do/kratos-authz occurs 0 times in both go list -deps graphs; the only registry definition is pkg/localdeps/kratos-authz/engine/factory.go",
+  "phase_B_status": "T03, T04, T05, T06 complete; phase B closed",
+  "next_task": "user-directed interruption BEFORE phase C: resolve the T05 leftover (the excluded pkg/localdeps/kratos-authn/engine self-test, i.e. the frozen upstream AuthFromMD default-vet printf finding). Phase C (T08 -> T09 -> T10) waits for that decision.",
+  "constraints_still_in_force": [
+   "no push, no merge, no deploy",
+   "_agent/ is not committed",
+   "missing/skip/fail/not_run is not success",
+   "one batch at a time, receipts in ledger-only follow-up commits",
+   "no -vet=off on any release/gate command",
+   "T05's engine exclusion remains in force until the user's chosen remedy is applied; do not present the repository as `go test ./...` green",
+   "fixing the T05 leftover must not be smuggled into a later takeover task; it changes frozen upstream production code and therefore needs its own record"
+  ],
+  "environment_still_live": {
+   "containers": [
+    "tx7do-t07-guard-pg (127.0.0.1:55432)",
+    "tx7do-t07-acc-lab-pg (127.0.0.1:55433)",
+    "tx7do-t04-captcha-redis"
+   ],
+   "databases_added_by_T05": [
+    "ani_t05_bootstrap_test (dropped and recreated before the run; only reachable through the gated TestBootstrapPostgres)"
+   ],
+   "helper": "bash /home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh <command>",
+   "never_touched": "quota-gpu-local-01-pg"
+  },
+  "unverified_backlog": [
+   "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run",
+   "9 captcha image drivers remain KNOWN_BASELINE_FAILURE (replayed PASS in this checkpoint, still not green)",
+   "pre-existing copylocks vet finding at accelerator_joint_http_test.go:503",
+   "no T05-style two-process byte differential was built for the authz decision table"
+  ],
+  "go_mod_note": "grpc-ecosystem/go-grpc-middleware v1.4.0 lost `// indirect` (now imported directly by engine/metadata.go); the two tx7do/kratos-authn requires remain until the phase E `go mod tidy`; T06 additionally dropped the // indirect marker from github.com/casbin/casbin/v2, go.sum untouched; the three github.com/tx7do/kratos-authz requires remain until the phase-E go mod tidy",
+  "still_external_on_purpose": [
+   "github.com/tx7do/kratos-authz/* and casbin (T06)",
+   "github.com/tx7do/kratos-bootstrap/* including bootstrap.Context and conf types (T10)",
+   "github.com/tx7do/go-crud/api + pagination Proto (T06)",
+   "github.com/tx7do/go-utils/{timeutil,id,tls} and kratos-transport / kratos-swagger-ui / go-wind-* (later groups)"
+  ]
+ }
 }

@@ -6,9 +6,9 @@ import (
 
 	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
 
-	authzEngine "github.com/tx7do/kratos-authz/engine"
-	"github.com/tx7do/kratos-authz/engine/casbin"
-	"github.com/tx7do/kratos-authz/engine/noop"
+	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+	"go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin"
+	"go-wind-admin/pkg/localdeps/kratos-authz/engine/noop"
 
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"

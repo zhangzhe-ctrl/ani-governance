@@ -22,8 +22,8 @@ import (
 	kmeta "github.com/go-kratos/kratos/v2/metadata"
 	"github.com/go-kratos/kratos/v2/transport"
 
-	authzEngine "github.com/tx7do/kratos-authz/engine"
-	authzMw "github.com/tx7do/kratos-authz/middleware"
+	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+	authzMw "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"

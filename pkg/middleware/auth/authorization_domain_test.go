@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	engine "github.com/tx7do/kratos-authz/engine"
-	"github.com/tx7do/kratos-authz/engine/casbin"
-	authz "github.com/tx7do/kratos-authz/middleware"
+	engine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+	"go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin"
+	authz "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 )

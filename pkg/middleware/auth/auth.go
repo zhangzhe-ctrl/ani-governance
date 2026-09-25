@@ -15,7 +15,7 @@ import (
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 
 	authnEngine "go-wind-admin/pkg/localdeps/kratos-authn/engine"
-	authzEngine "github.com/tx7do/kratos-authz/engine"
+	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
 
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/metadata"

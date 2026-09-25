@@ -1,0 +1,140 @@
+{
+ "meaning": "non-import AST and Go directives of every placed file are identical to the locked upstream source",
+ "checked": 19,
+ "failures": [],
+ "results": [
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/claims.go",
+   "upstream": "github.com/tx7do/kratos-authz@v1.1.8/engine/claims.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/consts.go",
+   "upstream": "github.com/tx7do/kratos-authz@v1.1.8/engine/consts.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/engine.go",
+   "upstream": "github.com/tx7do/kratos-authz@v1.1.8/engine/engine.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/errors.go",
+   "upstream": "github.com/tx7do/kratos-authz@v1.1.8/engine/errors.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/factory.go",
+   "upstream": "github.com/tx7do/kratos-authz@v1.1.8/engine/factory.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/options.go",
+   "upstream": "github.com/tx7do/kratos-authz@v1.1.8/engine/options.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/noop/noop.go",
+   "upstream": "github.com/tx7do/kratos-authz@v1.1.8/engine/noop/noop.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/casbin/adapter.go",
+   "upstream": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/adapter.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/casbin/casbin.go",
+   "upstream": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/casbin.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/casbin/casbin_test.go",
+   "upstream": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/casbin_test.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/casbin/consts.go",
+   "upstream": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/consts.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/casbin/options.go",
+   "upstream": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/options.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/casbin/rule.go",
+   "upstream": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/rule.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/casbin/assets/assets.go",
+   "upstream": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/assets.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/middleware/authz.go",
+   "upstream": "github.com/tx7do/kratos-authz/middleware@v1.1.13/authz.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/middleware/authz_test.go",
+   "upstream": "github.com/tx7do/kratos-authz/middleware@v1.1.13/authz_test.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/middleware/context.go",
+   "upstream": "github.com/tx7do/kratos-authz/middleware@v1.1.13/context.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/middleware/errors.go",
+   "upstream": "github.com/tx7do/kratos-authz/middleware@v1.1.13/errors.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/middleware/options.go",
+   "upstream": "github.com/tx7do/kratos-authz/middleware@v1.1.13/options.go",
+   "exit": 0,
+   "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "stderr": ""
+  }
+ ]
+}

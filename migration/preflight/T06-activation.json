@@ -1,0 +1,419 @@
+{
+ "modules": {
+  "engine": "github.com/tx7do/kratos-authz@v1.1.8",
+  "casbin": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12",
+  "middleware": "github.com/tx7do/kratos-authz/middleware@v1.1.13"
+ },
+ "map": [
+  [
+   "github.com/tx7do/kratos-authz/engine/casbin/assets",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin/assets"
+  ],
+  [
+   "github.com/tx7do/kratos-authz/engine/casbin",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin"
+  ],
+  [
+   "github.com/tx7do/kratos-authz/engine/noop",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/noop"
+  ],
+  [
+   "github.com/tx7do/kratos-authz/middleware",
+   "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
+  ],
+  [
+   "github.com/tx7do/kratos-authz/engine",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+  ]
+ ],
+ "placed_files": [
+  {
+   "module": "engine",
+   "upstream_version": "v1.1.8",
+   "source": "github.com/tx7do/kratos-authz@v1.1.8/engine/claims.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/claims.go",
+   "kind": "go",
+   "source_sha256": "843bf551c6087023c500f1a99304cb429ddb02926a8cde58c9279354ff42f400",
+   "placed_sha256": "843bf551c6087023c500f1a99304cb429ddb02926a8cde58c9279354ff42f400",
+   "byte_identical": true,
+   "package": "engine",
+   "is_go": true
+  },
+  {
+   "module": "engine",
+   "upstream_version": "v1.1.8",
+   "source": "github.com/tx7do/kratos-authz@v1.1.8/engine/consts.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/consts.go",
+   "kind": "go",
+   "source_sha256": "36eead4f2401228e5cfdef69faca182e7876f5af380b1090259b219e809f6c66",
+   "placed_sha256": "36eead4f2401228e5cfdef69faca182e7876f5af380b1090259b219e809f6c66",
+   "byte_identical": true,
+   "package": "engine",
+   "is_go": true
+  },
+  {
+   "module": "engine",
+   "upstream_version": "v1.1.8",
+   "source": "github.com/tx7do/kratos-authz@v1.1.8/engine/engine.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/engine.go",
+   "kind": "go",
+   "source_sha256": "4fa7ddd81641191e549b9045891213669b6b85d9df46818b411c1652961464f8",
+   "placed_sha256": "4fa7ddd81641191e549b9045891213669b6b85d9df46818b411c1652961464f8",
+   "byte_identical": true,
+   "package": "engine",
+   "is_go": true
+  },
+  {
+   "module": "engine",
+   "upstream_version": "v1.1.8",
+   "source": "github.com/tx7do/kratos-authz@v1.1.8/engine/errors.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/errors.go",
+   "kind": "go",
+   "source_sha256": "4e22f3bbdc941a73f31218a527dfdc738c9294f3ba770e119c08dfe307ef3efe",
+   "placed_sha256": "4e22f3bbdc941a73f31218a527dfdc738c9294f3ba770e119c08dfe307ef3efe",
+   "byte_identical": true,
+   "package": "engine",
+   "is_go": true
+  },
+  {
+   "module": "engine",
+   "upstream_version": "v1.1.8",
+   "source": "github.com/tx7do/kratos-authz@v1.1.8/engine/factory.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/factory.go",
+   "kind": "go",
+   "source_sha256": "101b4d7f5e2fdd604708715857b8c8b5d4015713b4aed898557ff20607484cf7",
+   "placed_sha256": "101b4d7f5e2fdd604708715857b8c8b5d4015713b4aed898557ff20607484cf7",
+   "byte_identical": true,
+   "package": "engine",
+   "is_go": true
+  },
+  {
+   "module": "engine",
+   "upstream_version": "v1.1.8",
+   "source": "github.com/tx7do/kratos-authz@v1.1.8/engine/options.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/options.go",
+   "kind": "go",
+   "source_sha256": "f69474bf53c8f747eec07e92a8becc984d40938666365463d99e5c8114bc5cf1",
+   "placed_sha256": "f69474bf53c8f747eec07e92a8becc984d40938666365463d99e5c8114bc5cf1",
+   "byte_identical": true,
+   "package": "engine",
+   "is_go": true
+  },
+  {
+   "module": "engine",
+   "upstream_version": "v1.1.8",
+   "source": "github.com/tx7do/kratos-authz@v1.1.8/engine/noop/noop.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/noop/noop.go",
+   "kind": "go",
+   "source_sha256": "1dc4ed98393b8078f588d2f854815d8a2777aa665c451fd77b0093c0bd6a92d8",
+   "placed_sha256": "be996ab677e186e9f2525f763281f66ada49557e02561bc89e10cacea0474dfb",
+   "byte_identical": false,
+   "package": "noop",
+   "is_go": true
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/adapter.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/adapter.go",
+   "kind": "go",
+   "source_sha256": "2e382bd416aba2e171b04be0c69256362b0bdaf9a6920bf46c477744bc704449",
+   "placed_sha256": "2e382bd416aba2e171b04be0c69256362b0bdaf9a6920bf46c477744bc704449",
+   "byte_identical": true,
+   "package": "casbin",
+   "is_go": true
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/casbin.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/casbin.go",
+   "kind": "go",
+   "source_sha256": "3543eb487a5a646679df103923e95abfeb415f92e00c7a6492c85773f320bb81",
+   "placed_sha256": "423e3438ac1f6f3122ca31fda17c3ecd47c3969d4c6b3bb90b6a9fe58532913e",
+   "byte_identical": false,
+   "package": "casbin",
+   "is_go": true
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/casbin_test.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/casbin_test.go",
+   "kind": "go",
+   "source_sha256": "a72eedd92d1ad6b1115100acbdb98b38643864190a6291d7e16b55e3e42506fe",
+   "placed_sha256": "ed9905c7a768b84a376e7aa931f0d23bc488d8663b816e0396f4de93fc72d0c3",
+   "byte_identical": false,
+   "package": "casbin",
+   "is_go": true
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/consts.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/consts.go",
+   "kind": "go",
+   "source_sha256": "1c7534a7423a15cf5c363fe03151767f4783d637c84912e214bfe57493b359e9",
+   "placed_sha256": "1c7534a7423a15cf5c363fe03151767f4783d637c84912e214bfe57493b359e9",
+   "byte_identical": true,
+   "package": "casbin",
+   "is_go": true
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/options.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/options.go",
+   "kind": "go",
+   "source_sha256": "46529bc30a5f56b1e09c94ff89ef20b237d71788cacfe39ce7a73ba0734f9ece",
+   "placed_sha256": "d8c84ea0001ebad84c8e10e0f5af34af05ac339c5f29691f0da325d3880feaae",
+   "byte_identical": false,
+   "package": "casbin",
+   "is_go": true
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/rule.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/rule.go",
+   "kind": "go",
+   "source_sha256": "a5c826da4663ccc244951c69ae45424c771c2c92de0540fcabed1bb73a3ac3c7",
+   "placed_sha256": "a5c826da4663ccc244951c69ae45424c771c2c92de0540fcabed1bb73a3ac3c7",
+   "byte_identical": true,
+   "package": "casbin",
+   "is_go": true
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/abac.conf",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/assets/abac.conf",
+   "kind": "asset",
+   "source_sha256": "9211cc80ff62dc2bc0fac4051d7047fc533023b33dd618cb2c2ef0741e4f8ca6",
+   "placed_sha256": "9211cc80ff62dc2bc0fac4051d7047fc533023b33dd618cb2c2ef0741e4f8ca6",
+   "byte_identical": true,
+   "package": null,
+   "is_go": false
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/acl.conf",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/assets/acl.conf",
+   "kind": "asset",
+   "source_sha256": "10f281d006f6e3b3210e56fa0ffc1771993156fdc5e131f8bdc975b03ef0ef26",
+   "placed_sha256": "10f281d006f6e3b3210e56fa0ffc1771993156fdc5e131f8bdc975b03ef0ef26",
+   "byte_identical": true,
+   "package": null,
+   "is_go": false
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/assets.go",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/assets/assets.go",
+   "kind": "go",
+   "source_sha256": "b88e170d356e2e14afb47b31dcc700cf6b6788219d9703d3301166468efdb452",
+   "placed_sha256": "b88e170d356e2e14afb47b31dcc700cf6b6788219d9703d3301166468efdb452",
+   "byte_identical": true,
+   "package": "assets",
+   "is_go": true
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/rbac.conf",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/assets/rbac.conf",
+   "kind": "asset",
+   "source_sha256": "280b90d2f371388abe18d74ad883753eba9e2f9ae658ce371b6a815a50cc9c46",
+   "placed_sha256": "280b90d2f371388abe18d74ad883753eba9e2f9ae658ce371b6a815a50cc9c46",
+   "byte_identical": true,
+   "package": null,
+   "is_go": false
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/rbac_with_domains.conf",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/assets/rbac_with_domains.conf",
+   "kind": "asset",
+   "source_sha256": "29752c3ea535ec28d8a531e8aeb90b0d172f7a083f9489a0cf0daf1ca54a93b1",
+   "placed_sha256": "29752c3ea535ec28d8a531e8aeb90b0d172f7a083f9489a0cf0daf1ca54a93b1",
+   "byte_identical": true,
+   "package": null,
+   "is_go": false
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/restfull.conf",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/assets/restfull.conf",
+   "kind": "asset",
+   "source_sha256": "34e184a19c1808a0c64a04af95661cdb2a6f2525f0d1dcf43027ad657a2cdbca",
+   "placed_sha256": "34e184a19c1808a0c64a04af95661cdb2a6f2525f0d1dcf43027ad657a2cdbca",
+   "byte_identical": true,
+   "package": null,
+   "is_go": false
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/restfull_with_role.conf",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/assets/restfull_with_role.conf",
+   "kind": "asset",
+   "source_sha256": "8f429da7f8cc3657bc8c0c392ea3cb27e784da1ecaf934963e4611db5c9afe4e",
+   "placed_sha256": "8f429da7f8cc3657bc8c0c392ea3cb27e784da1ecaf934963e4611db5c9afe4e",
+   "byte_identical": true,
+   "package": null,
+   "is_go": false
+  },
+  {
+   "module": "middleware",
+   "upstream_version": "v1.1.13",
+   "source": "github.com/tx7do/kratos-authz/middleware@v1.1.13/authz.go",
+   "target_path": "pkg/localdeps/kratos-authz/middleware/authz.go",
+   "kind": "go",
+   "source_sha256": "2587bc3f325958627183e0cb1e62e129122f68f512765f5e5a6423a5c86bb109",
+   "placed_sha256": "41eb3d8728bef5b1e96ef9f2218c09d6b91391884a4caee9bd0c798c56eb9ab7",
+   "byte_identical": false,
+   "package": "middleware",
+   "is_go": true
+  },
+  {
+   "module": "middleware",
+   "upstream_version": "v1.1.13",
+   "source": "github.com/tx7do/kratos-authz/middleware@v1.1.13/authz_test.go",
+   "target_path": "pkg/localdeps/kratos-authz/middleware/authz_test.go",
+   "kind": "go",
+   "source_sha256": "531af68fe448010b6a68dcd86f1b22c3c36226730301637037f9f94bcc78d1d4",
+   "placed_sha256": "531af68fe448010b6a68dcd86f1b22c3c36226730301637037f9f94bcc78d1d4",
+   "byte_identical": true,
+   "package": "middleware",
+   "is_go": true
+  },
+  {
+   "module": "middleware",
+   "upstream_version": "v1.1.13",
+   "source": "github.com/tx7do/kratos-authz/middleware@v1.1.13/context.go",
+   "target_path": "pkg/localdeps/kratos-authz/middleware/context.go",
+   "kind": "go",
+   "source_sha256": "465c87d72a8e85c55e7ace24313f0ef8d94cf60fc637442efc303fcee1f37bdf",
+   "placed_sha256": "23358f69eb890ea4899d4b1815719a2b7cfc8616dd5cd07c684f5ad18d3e9646",
+   "byte_identical": false,
+   "package": "middleware",
+   "is_go": true
+  },
+  {
+   "module": "middleware",
+   "upstream_version": "v1.1.13",
+   "source": "github.com/tx7do/kratos-authz/middleware@v1.1.13/errors.go",
+   "target_path": "pkg/localdeps/kratos-authz/middleware/errors.go",
+   "kind": "go",
+   "source_sha256": "f72ba6c0017c6bda002d123144866983e8f62d5c1481ae1a2d96f673784ff54d",
+   "placed_sha256": "f72ba6c0017c6bda002d123144866983e8f62d5c1481ae1a2d96f673784ff54d",
+   "byte_identical": true,
+   "package": "middleware",
+   "is_go": true
+  },
+  {
+   "module": "middleware",
+   "upstream_version": "v1.1.13",
+   "source": "github.com/tx7do/kratos-authz/middleware@v1.1.13/options.go",
+   "target_path": "pkg/localdeps/kratos-authz/middleware/options.go",
+   "kind": "go",
+   "source_sha256": "095c64bee4596c308e06dc647e8ff928863f7c132fb1dc15e158f17d28813b8e",
+   "placed_sha256": "095c64bee4596c308e06dc647e8ff928863f7c132fb1dc15e158f17d28813b8e",
+   "byte_identical": true,
+   "package": "middleware",
+   "is_go": true
+  },
+  {
+   "module": "engine",
+   "upstream_version": "v1.1.8",
+   "source": "github.com/tx7do/kratos-authz@v1.1.8/LICENSE",
+   "target_path": "pkg/localdeps/kratos-authz/engine/LICENSE",
+   "kind": "doc",
+   "source_sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c",
+   "placed_sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c",
+   "byte_identical": true,
+   "package": null,
+   "is_go": false
+  },
+  {
+   "module": "engine",
+   "upstream_version": "v1.1.8",
+   "source": "github.com/tx7do/kratos-authz@v1.1.8/README.md",
+   "target_path": "pkg/localdeps/kratos-authz/engine/README.md",
+   "kind": "doc",
+   "source_sha256": "a257934ef5a67c915fd92586fbb9d0036be19f3155e79b6ad7b081fd2c7f3542",
+   "placed_sha256": "a257934ef5a67c915fd92586fbb9d0036be19f3155e79b6ad7b081fd2c7f3542",
+   "byte_identical": true,
+   "package": null,
+   "is_go": false
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/LICENSE",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/LICENSE",
+   "kind": "doc",
+   "source_sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c",
+   "placed_sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c",
+   "byte_identical": true,
+   "package": null,
+   "is_go": false
+  },
+  {
+   "module": "casbin",
+   "upstream_version": "v1.1.12",
+   "source": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/README.md",
+   "target_path": "pkg/localdeps/kratos-authz/engine/casbin/README.md",
+   "kind": "doc",
+   "source_sha256": "33590e38178a4598ebe1a1e7e3bf03dca512ae9a498ad8aef6ee1ec67373ac2a",
+   "placed_sha256": "33590e38178a4598ebe1a1e7e3bf03dca512ae9a498ad8aef6ee1ec67373ac2a",
+   "byte_identical": true,
+   "package": null,
+   "is_go": false
+  },
+  {
+   "module": "middleware",
+   "upstream_version": "v1.1.13",
+   "source": "github.com/tx7do/kratos-authz/middleware@v1.1.13/LICENSE",
+   "target_path": "pkg/localdeps/kratos-authz/middleware/LICENSE",
+   "kind": "doc",
+   "source_sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c",
+   "placed_sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c",
+   "byte_identical": true,
+   "package": null,
+   "is_go": false
+  }
+ ],
+ "placed": 30,
+ "expected": 30,
+ "problems": [],
+ "consumers_to_rewire": [
+  "app/admin/service/internal/server/policy_eval_logging_engine.go",
+  "app/admin/service/internal/server/policy_eval_logging_engine_guard_test.go",
+  "app/admin/service/internal/server/policy_eval_logging_engine_test.go",
+  "app/admin/service/internal/server/rest_server.go",
+  "app/admin/service/internal/service/accelerator_joint_http_test.go",
+  "pkg/authorizer/authorizer.go",
+  "pkg/authorizer/authorizer_test.go",
+  "pkg/middleware/auth/auth.go",
+  "pkg/middleware/auth/auth_test.go",
+  "pkg/middleware/auth/authorization_domain_test.go",
+  "pkg/middleware/auth/utils.go"
+ ],
+ "consumers_inside_taken_over_packages": [],
+ "upstream_doc_files_absent": [
+  "github.com/tx7do/kratos-authz/middleware@v1.1.13/README.md"
+ ],
+ "assets_sha256": {
+  "pkg/localdeps/kratos-authz/engine/casbin/assets/abac.conf": "9211cc80ff62dc2bc0fac4051d7047fc533023b33dd618cb2c2ef0741e4f8ca6",
+  "pkg/localdeps/kratos-authz/engine/casbin/assets/acl.conf": "10f281d006f6e3b3210e56fa0ffc1771993156fdc5e131f8bdc975b03ef0ef26",
+  "pkg/localdeps/kratos-authz/engine/casbin/assets/rbac.conf": "280b90d2f371388abe18d74ad883753eba9e2f9ae658ce371b6a815a50cc9c46",
+  "pkg/localdeps/kratos-authz/engine/casbin/assets/rbac_with_domains.conf": "29752c3ea535ec28d8a531e8aeb90b0d172f7a083f9489a0cf0daf1ca54a93b1",
+  "pkg/localdeps/kratos-authz/engine/casbin/assets/restfull.conf": "34e184a19c1808a0c64a04af95661cdb2a6f2525f0d1dcf43027ad657a2cdbca",
+  "pkg/localdeps/kratos-authz/engine/casbin/assets/restfull_with_role.conf": "8f429da7f8cc3657bc8c0c392ea3cb27e784da1ecaf934963e4611db5c9afe4e"
+ }
+}

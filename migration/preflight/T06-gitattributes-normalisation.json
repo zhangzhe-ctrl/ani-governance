@@ -1,0 +1,29 @@
+{
+ "claim": "which placed files are byte-identical to the locked upstream module cache, measured on the COMMITTED GIT BLOB and not only on the working tree",
+ "measured_at": "2026-09-25, before the T06 code commit",
+ "byte_identical_in_blob": {
+  "6 casbin model .conf files": "yes",
+  "engine/casbin/assets/assets.go": "yes",
+  "3 LICENSE files": "yes (identical to all three upstream LICENSEs)",
+  "19 .go files": "import rebase only; equivalence proved by migrate_imports equiv"
+ },
+ "normalised_by_gitattributes": [
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/README.md",
+   "upstream": "github.com/tx7do/kratos-authz@v1.1.8/README.md",
+   "worktree_sha256": "a257934ef5a67c915fd92586fbb9d0036be19f3155e79b6ad7b081fd2c7f3542",
+   "blob_sha256": "9e2f3854e9de62ccc5ecb65b7f2b2979cdad04c7125c2a183bc31ba6ce86833f",
+   "why": "the upstream file uses CRLF; .gitattributes `* text=auto` plus `*.md text eol=lf` normalises the stored blob to LF"
+  },
+  {
+   "file": "pkg/localdeps/kratos-authz/engine/casbin/README.md",
+   "upstream": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/README.md",
+   "worktree_sha256": "33590e38178a4598ebe1a1e7e3bf03dca512ae9a498ad8aef6ee1ec67373ac2a",
+   "blob_sha256": "f5c3828c3afc3b2b2170880e569f61306fc52677d6f71981f65a5611b583a315",
+   "why": "same CRLF to LF normalisation"
+  }
+ ],
+ "effect": "none on behaviour, the casbin model hash gate, the embedded assets or any test: README.md is not compiled, not embedded and not referenced by any hash requirement. Recorded because 'byte-identical' must not be read as claiming the stored blob equals upstream bytes for these two documents.",
+ "same_situation_in_earlier_tasks": "T05's pkg/localdeps/kratos-authn/engine/README.md and any other placed CRLF document are in the same position: working tree equals upstream, stored blob is LF-normalised. A corrigendum is recorded in migration/receipts/T05.json; no verdict, hash or test claim there is changed by it.",
+ "open_choice_for_the_user": "either accept this normalisation for inert documentation, or add a pkg/localdeps/** -text -eol rule to .gitattributes (mirroring the existing third_party/tx7do/** rule) so upstream snapshots are byte-exact in the repository object as well"
+}

@@ -1,0 +1,212 @@
+[
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/LICENSE",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz@v1.1.8/engine/LICENSE",
+  "worktree_eq_upstream": false,
+  "blob_eq_upstream": false,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/README.md",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz@v1.1.8/engine/README.md",
+  "worktree_eq_upstream": false,
+  "blob_eq_upstream": false,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/LICENSE",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/LICENSE",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/README.md",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/README.md",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": false,
+  "crlf_in_upstream": true
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/adapter.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/adapter.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/assets/abac.conf",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/abac.conf",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/assets/acl.conf",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/acl.conf",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/assets/assets.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/assets.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/assets/rbac.conf",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/rbac.conf",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/assets/rbac_with_domains.conf",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/rbac_with_domains.conf",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/assets/restfull.conf",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/restfull.conf",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/assets/restfull_with_role.conf",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/assets/restfull_with_role.conf",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/casbin.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/casbin.go",
+  "worktree_eq_upstream": false,
+  "blob_eq_upstream": false,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/casbin_test.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/casbin_test.go",
+  "worktree_eq_upstream": false,
+  "blob_eq_upstream": false,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/consts.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/consts.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/options.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/options.go",
+  "worktree_eq_upstream": false,
+  "blob_eq_upstream": false,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/casbin/rule.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/rule.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/claims.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz@v1.1.8/engine/claims.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/consts.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz@v1.1.8/engine/consts.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/engine.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz@v1.1.8/engine/engine.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/errors.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz@v1.1.8/engine/errors.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/factory.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz@v1.1.8/engine/factory.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/noop/noop.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz@v1.1.8/engine/noop/noop.go",
+  "worktree_eq_upstream": false,
+  "blob_eq_upstream": false,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/engine/options.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz@v1.1.8/engine/options.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/middleware/LICENSE",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/middleware@v1.1.13/LICENSE",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/middleware/authz.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/middleware@v1.1.13/authz.go",
+  "worktree_eq_upstream": false,
+  "blob_eq_upstream": false,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/middleware/authz_test.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/middleware@v1.1.13/authz_test.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/middleware/context.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/middleware@v1.1.13/context.go",
+  "worktree_eq_upstream": false,
+  "blob_eq_upstream": false,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/middleware/errors.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/middleware@v1.1.13/errors.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ },
+ {
+  "local": "pkg/localdeps/kratos-authz/middleware/options.go",
+  "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-authz/middleware@v1.1.13/options.go",
+  "worktree_eq_upstream": true,
+  "blob_eq_upstream": true,
+  "crlf_in_upstream": false
+ }
+]

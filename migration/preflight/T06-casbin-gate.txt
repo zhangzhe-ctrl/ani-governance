@@ -1,0 +1,36 @@
+== build server binary ==
+build_exit=0
+
+== authz.type=noop (must be refused) ==
+
+panic: stat onf: no such file or directory
+
+goroutine 1 [running]:
+main.main()
+	/home/ubuntu/Workspace/ani-governance/app/admin/service/cmd/server/main.go:107 +0x27
+noop_exit=2
+
+== authz type absent (must be refused) ==
+
+panic: stat onf: no such file or directory
+
+goroutine 1 [running]:
+main.main()
+	/home/ubuntu/Workspace/ani-governance/app/admin/service/cmd/server/main.go:107 +0x27
+absent_exit=2
+
+== authz.type=casbin (must get PAST the gate; failure must come later) ==
+
+panic: stat onf: no such file or directory
+
+goroutine 1 [running]:
+main.main()
+	/home/ubuntu/Workspace/ani-governance/app/admin/service/cmd/server/main.go:107 +0x27
+casbin_exit=2
+
+== config sanity (what each dir actually declares) ==
+conf-casbin      type: "jwt" # jwt, oidc, preshared_key
+  type: "casbin" # casbin, noop
+conf-noop        type: "jwt" # jwt, oidc, preshared_key
+  type: "noop" # T06 probe: must be refused by initApp
+conf-absent      type: "jwt" # jwt, oidc, preshared_key
