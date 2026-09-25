@@ -1,0 +1,90 @@
+{
+ "schema_version": "t05-patch-inventory/1",
+ "task": "T05",
+ "purpose": "exact, separately reviewable production-source patch that closes the vet/printf finding the original T05 receipt only excluded",
+ "authorisation": "migration/receipts/T05-authorization-metadata-fix.json",
+ "granted_by": "user",
+ "granted_on": "2026-09-25",
+ "production_files_changed": [
+  "pkg/localdeps/kratos-authn/engine/metadata.go"
+ ],
+ "provenance_chain": {
+  "upstream_module": "github.com/tx7do/kratos-authn",
+  "upstream_version": "v1.1.11",
+  "upstream_path": "engine/metadata.go",
+  "pristine_copy": "migration/patches/T05/_orig/kratos-authn-engine-metadata.go",
+  "pristine_sha256": "b7907194f4ef659c11c90773305d7589c440f30a1757c0f8a06b0305edaf827d",
+  "pristine_plus_approved_patch": "migration/patches/T05/_ref/kratos-authn-engine-metadata.plus-P1.go",
+  "reference_sha256": "ce57d7661f631b211f3e96b922605d13897385a77d2f03712d74ab6ea84d93ad",
+  "reference_built_by": "cp pristine copy to _ref, then `patch --fuzz=0 -p0` with the P1 hunk headers rewritten to the reference file name; verified `cmp` clean against the repo file (migration/preflight/T05R-cmp-ref-vs-repo.exit = 0)",
+  "how_the_protection_tool_is_still_used": "the original guard/equiv rules stay switched on for every other production file. For this one file the equiv reference is 'pristine upstream source + the approved patch', not the unpatched upstream file, so equiv(pristine -> repo) is expected to fail and equiv(reference -> repo) is expected to pass; neither result is edited, hashed away or suppressed.",
+  "repo_file_after_fix": "pkg/localdeps/kratos-authn/engine/metadata.go",
+  "repo_file_sha256": "ce57d7661f631b211f3e96b922605d13897385a77d2f03712d74ab6ea84d93ad"
+ },
+ "patches": [
+  {
+   "id": "P1",
+   "title": "AuthFromMD: build the two dynamic unauthenticated messages with status.Error instead of status.Errorf",
+   "scope": "production source, error construction only",
+   "authorised_by_user_verbatim": "pkg/localdeps/kratos-authn/engine/metadata.go 中AuthFromMD的两处动态错误消息调用，将 `status.Errorf(codes.Unauthenticated, \"Request unauthenticated with \"+expectedScheme)` 改为 `status.Error(codes.Unauthenticated, \"Request unauthenticated with \"+expectedScheme)`。只改这两处调用，不改认证条件、token提取、大小写匹配、错误码或其他分支。",
+   "explicitly_not_changed": [
+    "the emptiness condition on the extracted header value",
+    "token extraction (extractTokenFromContext / grpc and kratos paths)",
+    "strings.SplitN(val, \" \", 2) and the len(splits) < 2 branch, including its status.Errorf(\"Bad authorization string\") call",
+    "strings.EqualFold case-insensitive scheme matching",
+    "codes.Unauthenticated on every branch",
+    "MDWithAuth and every other function in the file"
+   ],
+   "files": [
+    {
+     "path": "pkg/localdeps/kratos-authn/engine/metadata.go",
+     "before_sha256": "b7907194f4ef659c11c90773305d7589c440f30a1757c0f8a06b0305edaf827d",
+     "after_sha256": "ce57d7661f631b211f3e96b922605d13897385a77d2f03712d74ab6ea84d93ad"
+    }
+   ],
+   "file": "migration/patches/T05/P1-engine-authfrommd-status-error.patch",
+   "hunks": [
+    "@@ -28,7 +28,7 @@ empty-header branch",
+    "@@ -37,7 +37,7 @@ scheme-mismatch branch"
+   ],
+   "diff_exit": 1,
+   "diff_exit_code_meaning": "1 means the two files differ",
+   "sha256_of_patch": "3d3ab521d3894a0dfc0a9efa0e3a4640955e88d4db1d43e04565ed84fdfceb67",
+   "reproduces_repo_file": "patch -p1 --fuzz=0 of this file over the pristine upstream copy yields exactly the committed repo file (cmp exit 0)"
+  }
+ ],
+ "semantic_disclosure_recorded_with_the_fix": {
+  "normal_schemes": "for a scheme without % the message text is unchanged, e.g. \"Request unauthenticated with Bearer\"",
+  "schemes_containing_percent_signs": "previously status.Errorf interpreted the concatenated string as a format string, so a scheme containing % was rewritten or had verbs substituted (e.g. missing-argument %!s(MISSING) artefacts); after the fix such a scheme is emitted as plain text. This is the behaviour change the user approved as part of the error-construction fix; it is NOT claimed that every input produces a byte-identical message to the old code.",
+  "error_code": "codes.Unauthenticated on both branches, before and after",
+  "returned_token": "unchanged: the second SplitN field on success, empty string together with the error on every failure branch",
+  "test_binding": "pkg/localdeps/kratos-authn/engine/authfrommd_approved_contract_test.go"
+ },
+ "protected_tool_runs": [
+  {
+   "name": "equiv pristine -> repo (expected to fail after the approved patch)",
+   "command": "go run tools/migration/migrate_imports.go equiv -before migration/patches/T05/_orig/kratos-authn-engine-metadata.go -after pkg/localdeps/kratos-authn/engine/metadata.go",
+   "exit": 1,
+   "output": "non-import AST changed: ... (recorded verbatim in migration/preflight/T05R-equiv-post-patch.log)"
+  },
+  {
+   "name": "equiv pristine -> in-repo reference (expected to fail: the reference is the patched source)",
+   "command": "go run tools/migration/migrate_imports.go equiv -before migration/patches/T05/_orig/kratos-authn-engine-metadata.go -after migration/patches/T05/_ref/kratos-authn-engine-metadata.plus-P1.go",
+   "exit": 1,
+   "output": "recorded in migration/preflight/T05R-equiv-pristine-vs-ref.log"
+  },
+  {
+   "name": "equiv reference -> repo (the protective check for this file)",
+   "command": "go run tools/migration/migrate_imports.go equiv -before migration/patches/T05/_ref/kratos-authn-engine-metadata.plus-P1.go -after pkg/localdeps/kratos-authn/engine/metadata.go",
+   "exit": 0,
+   "output": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+   "name": "cmp reference vs repo",
+   "command": "cmp migration/patches/T05/_ref/kratos-authn-engine-metadata.plus-P1.go pkg/localdeps/kratos-authn/engine/metadata.go",
+   "exit": 0,
+   "output": "byte-identical"
+  }
+ ],
+ "out_of_scope_for_this_patch": "any other vet, copylocks, build or test finding anywhere else in the repository; the 9 captcha known-defect cases; the 8 repo-precondition-gated cases"
+}

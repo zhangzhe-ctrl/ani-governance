@@ -28,7 +28,7 @@ func MDWithAuth(ctx context.Context, expectedScheme string, tokenStr string, ctx
 func AuthFromMD(ctx context.Context, expectedScheme string, ctxType ContextType) (string, error) {
 	val := extractTokenFromContext(ctx, ctxType)
 	if val == "" {
-		return "", status.Error(codes.Unauthenticated, "Request unauthenticated with "+expectedScheme)
+		return "", status.Errorf(codes.Unauthenticated, "Request unauthenticated with "+expectedScheme)
 	}
 
 	splits := strings.SplitN(val, " ", 2)
@@ -37,7 +37,7 @@ func AuthFromMD(ctx context.Context, expectedScheme string, ctxType ContextType)
 	}
 
 	if !strings.EqualFold(splits[0], expectedScheme) {
-		return "", status.Error(codes.Unauthenticated, "Request unauthenticated with "+expectedScheme)
+		return "", status.Errorf(codes.Unauthenticated, "Request unauthenticated with "+expectedScheme)
 	}
 
 	return splits[1], nil
