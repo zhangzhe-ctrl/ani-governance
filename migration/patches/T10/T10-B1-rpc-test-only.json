@@ -1,0 +1,44 @@
+{
+ "schema_version": "t10-b1-rpc-test-only/1",
+ "authorization": "T03-T15-master-goal.md 「### T10 补充授权」 三; migration/receipts/T10-authorization-classified-remediation.json",
+ "test": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc :: TestWhiteListNormalization",
+ "file_changed": "pkg/localdeps/kratos-bootstrap/rpc/whitelist_test.go",
+ "patch": "migration/patches/T10/T10-B1-rpc-test-only.patch",
+ "production_untouched": {
+  "whitelist_go_sha256_local": "1f6b08fa56ae6c69fc2c97f765d12a783d5ac1baffd41bb3bed1af975ac7486d",
+  "whitelist_go_sha256_pristine_v0.1.3": "1f6b08fa56ae6c69fc2c97f765d12a783d5ac1baffd41bb3bed1af975ac7486d",
+  "statement": "Add, normalizeOp, isWhitelistedLocked, IsWhitelisted, MatchFunc, Set, Clear, Snapshot and the package-level wrappers are byte-identical to the locked upstream module; git status shows only the _test.go file modified"
+ },
+ "what_the_upstream_assertion_claimed": "that registering \"/pkg.Service/MethodX\" also whitelists a bare \"MethodX\" query. isWhitelistedLocked only applies the method-only fallback when the *query* itself contains a slash, so a bare-method query never matches a full-path entry; the case list had no want column and the loop asserted true for all three spellings.",
+ "contract_now_locked": [
+  {"case": "register /pkg.Service/MethodX, query /pkg.Service/MethodX", "want": "whitelisted", "reason": "normalizeOp trims the leading slash on both sides"},
+  {"case": "register /pkg.Service/MethodX, query pkg.Service/MethodX", "want": "whitelisted", "reason": "direct map hit"},
+  {"case": "register /pkg.Service/MethodX, query MethodX", "want": "not whitelisted", "reason": "no slash in the query, so no method-only fallback"},
+  {"case": "register /pkg.Service/MethodX, query pkg.Service/MethodY", "want": "not whitelisted", "reason": "another method of the same service"},
+  {"case": "register /pkg.Service/MethodX, query pkg.Other/MethodX", "want": "not whitelisted", "reason": "the same method name under another service must not inherit the entry"},
+  {"case": "register /pkg.Service/MethodX, query pkg.Service or empty", "want": "not whitelisted", "reason": "service alone and the empty operation"},
+  {"case": "register bare MethodX, query pkg.Service/MethodX", "want": "whitelisted", "reason": "this is the only situation where the method-only fallback applies, verified on a separate instance"},
+  {"case": "register bare MethodX, query pkg.Service/MethodY", "want": "not whitelisted", "reason": "the fallback does not become a wildcard"},
+  {"case": "MatchFunc on pkg.Service/MethodX", "want": "false", "reason": "whitelisted operations skip the middleware"},
+  {"case": "MatchFunc on pkg.Other/MethodX and pkg.Service/MethodZ", "want": "true", "reason": "protected operations still run the middleware, which is the security-relevant direction"},
+  {"case": "MatchFunc on the empty operation", "want": "true", "reason": "unchanged production behaviour, now pinned instead of untested"},
+  {"case": "Clear then IsWhitelisted", "want": "not whitelisted", "reason": "through the package-level API"}
+ ],
+ "global_state_handling": "the test snapshots DefaultWhiteList and restores it in t.Cleanup, so an assertion failure cannot leak a mutated process-wide whitelist into the other tests; nothing in this file calls t.Parallel, and the fallback case runs on its own NewWhiteList instance rather than by clearing the shared one mid-test",
+ "how_it_was_not_widened": "no production match rule changed, so a bare method still cannot whitelist anything implicitly; the previously failing case now asserts the true behaviour (false) with the reason stated, which is the opposite of relaxing a gate",
+ "runs": [
+  {"side": "local package", "command": "go test -count=1 ./pkg/localdeps/kratos-bootstrap/rpc/...", "exit": 0, "note": "rpc plus its two middleware sub-packages"},
+  {"side": "local package", "command": "go test -count=1 -race ./pkg/localdeps/kratos-bootstrap/rpc", "exit": 0, "note": "covers TestWhiteListConcurrent under the race detector"},
+  {"side": "isolated locked upstream copy", "command": "cd <task-private>/rpc && go test -count=1 .", "exit": 0},
+  {"side": "isolated locked upstream copy", "command": "cd <task-private>/rpc && go test -count=1 -race .", "exit": 0}
+ ],
+ "isolated_copy_organization": {
+  "layout": "task-private directory holding rpc/ (a copy of the module-cache directory of github.com/tx7do/kratos-bootstrap/rpc@v0.1.3) beside api/ (the copy of kratos-bootstrap/api@v0.0.45 that this repository pins)",
+  "why_api_sits_there": "rpc@v0.1.3/go.mod carries 'replace github.com/tx7do/kratos-bootstrap/api => ../api', so the sibling directory has to exist for the package to build at all",
+  "version_disclosed": "the replace makes the required v0.0.44 moot and points at v0.0.45, which is the only version in the local module cache; nothing was fetched and no other file was changed",
+  "patch_application": "patch -p5 -i T10-B1-rpc-test-only.patch inside the copy, then diff against the local file: identical, so both sides run exactly the same test source",
+  "module_cache": "read-only throughout; the copy was made with cp -r and chmod u+w on the copy only"
+ },
+ "test_files_still_verbatim": "the other two tests in the file (TestWhiteListBasic, TestWhiteListConcurrent) are untouched upstream source",
+ "remaining_for_this_package": "none"
+}

@@ -40,19 +40,85 @@ func TestWhiteListBasic(t *testing.T) {
 }
 
 func TestWhiteListNormalization(t *testing.T) {
-	ClearWhiteList()
-	// add with leading slash (as gRPC may provide)
-	AddWhiteList("/pkg.Service/MethodX")
+	// DefaultWhiteList is shared with the other tests in this file, so restore
+	// whatever this test perturbs even when an assertion fails, and never run
+	// this test in parallel.
+	saved := DefaultWhiteList.Snapshot()
+	t.Cleanup(func() { SetWhiteList(saved) })
 
-	// normalized lookup should work for various representations
-	cases := []string{"/pkg.Service/MethodX", "pkg.Service/MethodX", "MethodX"}
-	for _, c := range cases {
-		if !DefaultWhiteList.IsWhitelisted(c) {
-			t.Fatalf("expected %q to be whitelisted (normalization/fallback)", c)
+	const registered = "/pkg.Service/MethodX"
+
+	// An entry registered with its leading slash is stored with the slash
+	// trimmed. The full operation matches in either spelling; a bare method name
+	// does not, and neither does the same method under another service.
+	exact := NewWhiteList(Exact, registered)
+	for _, c := range []struct {
+		op   string
+		want bool
+	}{
+		{"/pkg.Service/MethodX", true},
+		{"pkg.Service/MethodX", true},
+		{"MethodX", false},
+		{"pkg.Service/MethodY", false},
+		{"pkg.Other/MethodX", false},
+		{"pkg.Service", false},
+		{"", false},
+	} {
+		if got := exact.IsWhitelisted(c.op); got != c.want {
+			t.Errorf("IsWhitelisted(%q) = %v, want %v (entry %q)", c.op, got, c.want, registered)
 		}
 	}
 
+	// The method-only fallback exists only for an explicitly registered bare
+	// method. A separate instance keeps that difference observable.
+	bare := NewWhiteList(Exact, "MethodX")
+	for _, c := range []struct {
+		op   string
+		want bool
+	}{
+		{"MethodX", true},
+		{"/pkg.Service/MethodX", true},
+		{"pkg.Service/MethodX", true},
+		{"pkg.Service/MethodY", false},
+	} {
+		if got := bare.IsWhitelisted(c.op); got != c.want {
+			t.Errorf("fallback IsWhitelisted(%q) = %v, want %v", c.op, got, c.want)
+		}
+	}
+
+	// MatchFunc reports whether middleware must run: a whitelisted operation
+	// skips it, and a protected operation that merely shares a method name with
+	// an entry still goes through it.
+	m := exact.MatchFunc()
+	ctx := context.Background()
+	for _, c := range []struct {
+		op   string
+		want bool
+	}{
+		{"pkg.Service/MethodX", false},
+		{"/pkg.Service/MethodX", false},
+		{"pkg.Other/MethodX", true},
+		{"pkg.Service/MethodZ", true},
+		{"", true},
+	} {
+		if got := m(ctx, c.op); got != c.want {
+			t.Errorf("MatchFunc(%q) = %v, want %v", c.op, got, c.want)
+		}
+	}
+
+	// The same contract holds through the package-level API, and Clear is visible.
 	ClearWhiteList()
+	AddWhiteList(registered)
+	if !DefaultWhiteList.IsWhitelisted("pkg.Service/MethodX") {
+		t.Errorf("the package-level list lost the entry %q", registered)
+	}
+	if DefaultWhiteList.IsWhitelisted("MethodX") {
+		t.Errorf("the package-level list matched a bare method with no explicit entry for it")
+	}
+	ClearWhiteList()
+	if DefaultWhiteList.IsWhitelisted("pkg.Service/MethodX") {
+		t.Errorf("Clear did not empty the package-level list")
+	}
 }
 
 func TestWhiteListConcurrent(t *testing.T) {
