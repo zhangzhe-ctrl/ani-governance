@@ -1,0 +1,90 @@
+== build stamps (proves which implementation each process used) ==
+old imports: auth "github.com/tx7do/kratos-authn/engine/jwt" "github.com/tx7do/kratos-authn/engine"
+new imports: auth "go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt" "go-wind-admin/pkg/localdeps/kratos-authn/engine"
+
+== sign with OLD, verify with NEW ==
+sign: signed=true len=468
+err=<nil>
+marshal_err=<nil> claims={"aud":["tenant-7","admin"],"data_scope":4,"dtypes":["super_admin","tenant_admin"],"exp":4102444800,"iat":1700000000,"iss":"ani-governance-t05-differential","jti":"t05-fixed-jti","nbf":1700000000,"perms":["*"],"scope":["read:users","write:posts"],"sub":"user-42","tenant_id":"t-7","uid":42}
+GetIssuer="ani-governance-t05-differential" err=<nil>
+GetSubject="user-42" err=<nil>
+GetJwtID="t05-fixed-jti" err=<nil>
+GetScopes=[read:users write:posts] err=<nil>
+GetAudience=[tenant-7 admin] err=<nil>
+GetExpirationTime=2100-01-01 08:00:00 +0800 CST err=<nil>
+GetNotBefore=2023-11-15 06:13:20 +0800 CST err=<nil>
+GetIssuedAt=2023-11-15 06:13:20 +0800 CST err=<nil>
+claim[uid] string="" err=rpc error: code = Code(500) desc = invalid type strings=[] err=<nil> int64=42 err=<nil>
+claim[tenant_id] string="t-7" err=<nil> strings=[t-7] err=<nil> int64=0 err=rpc error: code = Code(500) desc = invalid type
+claim[dtypes] string="" err=rpc error: code = Code(500) desc = invalid type strings=[super_admin tenant_admin] err=<nil> int64=0 err=rpc error: code = Code(500) desc = invalid type
+claim[perms] string="" err=rpc error: code = Code(500) desc = invalid type strings=[*] err=<nil> int64=0 err=rpc error: code = Code(500) desc = invalid type
+claim[data_scope] string="" err=rpc error: code = Code(500) desc = invalid type strings=[] err=<nil> int64=4 err=<nil>
+raw[aud]=["tenant-7","admin"]
+raw[data_scope]=4
+raw[dtypes]=["super_admin","tenant_admin"]
+raw[exp]=4102444800
+raw[iat]=1700000000
+raw[iss]="ani-governance-t05-differential"
+raw[jti]="t05-fixed-jti"
+raw[nbf]=1700000000
+raw[perms]=["*"]
+raw[scope]=["read:users","write:posts"]
+raw[sub]="user-42"
+raw[tenant_id]="t-7"
+raw[uid]=42
+
+== sign with NEW, verify with OLD ==
+sign: signed=true len=468
+err=<nil>
+marshal_err=<nil> claims={"aud":["tenant-7","admin"],"data_scope":4,"dtypes":["super_admin","tenant_admin"],"exp":4102444800,"iat":1700000000,"iss":"ani-governance-t05-differential","jti":"t05-fixed-jti","nbf":1700000000,"perms":["*"],"scope":["read:users","write:posts"],"sub":"user-42","tenant_id":"t-7","uid":42}
+GetIssuer="ani-governance-t05-differential" err=<nil>
+GetSubject="user-42" err=<nil>
+GetJwtID="t05-fixed-jti" err=<nil>
+GetScopes=[read:users write:posts] err=<nil>
+GetAudience=[tenant-7 admin] err=<nil>
+GetExpirationTime=2100-01-01 08:00:00 +0800 CST err=<nil>
+GetNotBefore=2023-11-15 06:13:20 +0800 CST err=<nil>
+GetIssuedAt=2023-11-15 06:13:20 +0800 CST err=<nil>
+claim[uid] string="" err=rpc error: code = Code(500) desc = invalid type strings=[] err=<nil> int64=42 err=<nil>
+claim[tenant_id] string="t-7" err=<nil> strings=[t-7] err=<nil> int64=0 err=rpc error: code = Code(500) desc = invalid type
+claim[dtypes] string="" err=rpc error: code = Code(500) desc = invalid type strings=[super_admin tenant_admin] err=<nil> int64=0 err=rpc error: code = Code(500) desc = invalid type
+claim[perms] string="" err=rpc error: code = Code(500) desc = invalid type strings=[*] err=<nil> int64=0 err=rpc error: code = Code(500) desc = invalid type
+claim[data_scope] string="" err=rpc error: code = Code(500) desc = invalid type strings=[] err=<nil> int64=4 err=<nil>
+raw[aud]=["tenant-7","admin"]
+raw[data_scope]=4
+raw[dtypes]=["super_admin","tenant_admin"]
+raw[exp]=4102444800
+raw[iat]=1700000000
+raw[iss]="ani-governance-t05-differential"
+raw[jti]="t05-fixed-jti"
+raw[nbf]=1700000000
+raw[perms]=["*"]
+raw[scope]=["read:users","write:posts"]
+raw[sub]="user-42"
+raw[tenant_id]="t-7"
+raw[uid]=42
+
+== byte-identical token from both sides ==
+token strings identical
+
+== OLD-signed token rejected by wrong key on both sides ==
+err=rpc error: code = Code(1015) desc = sign token failed claims_nil=true
+err=rpc error: code = Code(1015) desc = sign token failed claims_nil=true
+
+== OLD-signed tampered token rejected on both sides ==
+err=rpc error: code = Code(1015) desc = sign token failed claims_nil=true
+err=rpc error: code = Code(1015) desc = sign token failed claims_nil=true
+
+== positive cross-verify, OLD side re-run (claims dump must be identical both ways) ==
+old-verify-oldtok        lines=28 sha256=30fe5b5563320e24\nold-verify-newtok        lines=28 sha256=30fe5b5563320e24\nnew-verify-oldtok        lines=28 sha256=30fe5b5563320e24\nnew-verify-newtok        lines=28 sha256=30fe5b5563320e24\nOLD-verify-NEW-token == NEW-verify-OLD-token
+self-consistent: NEW verifies both tokens identically
+err=<nil>
+marshal_err=<nil> claims={"aud":["tenant-7","admin"],"data_scope":4,"dtypes":["super_admin","tenant_admin"],"exp":4102444800,"iat":1700000000,"iss":"ani-governance-t05-differential","jti":"t05-fixed-jti","nbf":1700000000,"perms":["*"],"scope":["read:users","write:posts"],"sub":"user-42","tenant_id":"t-7","uid":42}
+GetIssuer="ani-governance-t05-differential" err=<nil>
+
+== expired token: signed and verified, both sides agree ==
+sign-expired: signed=true len=468
+err=rpc error: code = Code(1011) desc = token expired
+claims_nil=true
+err=rpc error: code = Code(1011) desc = token expired
+claims_nil=true

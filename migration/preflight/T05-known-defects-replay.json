@@ -1,0 +1,412 @@
+{
+ "meaning": "isolated locked-upstream defects: each must actually run, must fail, and must fail the same way as the identically organised pristine copy in the same environment; a failure is never recorded as a pass",
+ "candidate_label": "candidate",
+ "reference_label": "pristine",
+ "candidate_exit_code": "1",
+ "reference_exit_code": "1",
+ "candidate_package_action": "fail",
+ "reference_package_action": "fail",
+ "tag": "upstream_known_defects",
+ "known_defect_count": 9,
+ "status_counts": {
+  "KNOWN_BASELINE_FAILURE": 9
+ },
+ "tests": [
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "Test": "TestGenerate_ClickCaptcha",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:135"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:135:",
+     "Error Trace: upstream_known_defects_test.go:135",
+     "Error: Received unexpected error:",
+     "failed to generate click captcha: freetype: DrawText called with a nil font",
+     "Test: TestGenerate_ClickCaptcha",
+     "--- FAIL: TestGenerate_ClickCaptcha (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:135"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:135:",
+     "Error Trace: upstream_known_defects_test.go:135",
+     "Error: Received unexpected error:",
+     "failed to generate click captcha: freetype: DrawText called with a nil font",
+     "Test: TestGenerate_ClickCaptcha",
+     "--- FAIL: TestGenerate_ClickCaptcha (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "fdeb7578a748de3f239115ca080b7635ac85cbc5d853b2f709ac1511d907fa96",
+   "reference_output_sha256": "6eafc6679f4366e7e947fb81987ed04294128bdeea1365f06ec22ee1682e5371",
+   "status": "KNOWN_BASELINE_FAILURE"
+  },
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "Test": "TestGenerate_RotateCaptcha",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:251"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:251:",
+     "Error Trace: upstream_known_defects_test.go:251",
+     "Error: Received unexpected error:",
+     "failed to generate rotate captcha: no image",
+     "Test: TestGenerate_RotateCaptcha",
+     "--- FAIL: TestGenerate_RotateCaptcha (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:251"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:251:",
+     "Error Trace: upstream_known_defects_test.go:251",
+     "Error: Received unexpected error:",
+     "failed to generate rotate captcha: no image",
+     "Test: TestGenerate_RotateCaptcha",
+     "--- FAIL: TestGenerate_RotateCaptcha (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "70d72bd38ba2ae47f3f804dd55d889c799dac1dd03b1be90a40c82a4a66b2440",
+   "reference_output_sha256": "aa7dd018901e7cb2ddc9f0b69dea76ae6cee9aa8116742268767ab31118654f0",
+   "status": "KNOWN_BASELINE_FAILURE"
+  },
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "Test": "TestGenerate_SlideCaptcha",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:32"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:32:",
+     "Error Trace: upstream_known_defects_test.go:32",
+     "Error: Received unexpected error:",
+     "failed to generate slide captcha: graph image is invalid",
+     "Test: TestGenerate_SlideCaptcha",
+     "--- FAIL: TestGenerate_SlideCaptcha (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:32"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:32:",
+     "Error Trace: upstream_known_defects_test.go:32",
+     "Error: Received unexpected error:",
+     "failed to generate slide captcha: graph image is invalid",
+     "Test: TestGenerate_SlideCaptcha",
+     "--- FAIL: TestGenerate_SlideCaptcha (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "aab6561886702660416ba18a3c3369e163e66d2e000eeb8f8d7181658de57c13",
+   "reference_output_sha256": "b3ff664925f033be7dda871b3febbe8e7d2da62334279ffdec94fa255d3c3126",
+   "status": "KNOWN_BASELINE_FAILURE"
+  },
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "Test": "TestSaveAndVerify_ClickCaptcha",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:166"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:166:",
+     "Error Trace: upstream_known_defects_test.go:166",
+     "Error: Received unexpected error:",
+     "failed to generate click captcha: freetype: DrawText called with a nil font",
+     "Test: TestSaveAndVerify_ClickCaptcha",
+     "--- FAIL: TestSaveAndVerify_ClickCaptcha (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:166"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:166:",
+     "Error Trace: upstream_known_defects_test.go:166",
+     "Error: Received unexpected error:",
+     "failed to generate click captcha: freetype: DrawText called with a nil font",
+     "Test: TestSaveAndVerify_ClickCaptcha",
+     "--- FAIL: TestSaveAndVerify_ClickCaptcha (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "9445ba830af04fba4489fd4307c95fa985d5d6fde13cf2f1e5fc7b79502cbf28",
+   "reference_output_sha256": "215b7612b1ab99d0e2a611707cf724865e8a90e6793f2058b5fd6d1f725c7eb8",
+   "status": "KNOWN_BASELINE_FAILURE"
+  },
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "Test": "TestSaveAndVerify_RotateCaptcha",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:285"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:285:",
+     "Error Trace: upstream_known_defects_test.go:285",
+     "Error: Received unexpected error:",
+     "failed to generate rotate captcha: no image",
+     "Test: TestSaveAndVerify_RotateCaptcha",
+     "--- FAIL: TestSaveAndVerify_RotateCaptcha (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:285"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:285:",
+     "Error Trace: upstream_known_defects_test.go:285",
+     "Error: Received unexpected error:",
+     "failed to generate rotate captcha: no image",
+     "Test: TestSaveAndVerify_RotateCaptcha",
+     "--- FAIL: TestSaveAndVerify_RotateCaptcha (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "51899aa7f86aa698bc99419ba1ec30253aac5d1de3abb4d8b36c02e92dfce64e",
+   "reference_output_sha256": "cce80346e80c6fca45f60e8aaba64062e87218a6c45e7190f9bca033728a31ca",
+   "status": "KNOWN_BASELINE_FAILURE"
+  },
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "Test": "TestSaveAndVerify_SlideCaptcha",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:65"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:65:",
+     "Error Trace: upstream_known_defects_test.go:65",
+     "Error: Received unexpected error:",
+     "failed to generate slide captcha: graph image is invalid",
+     "Test: TestSaveAndVerify_SlideCaptcha",
+     "--- FAIL: TestSaveAndVerify_SlideCaptcha (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:65"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:65:",
+     "Error Trace: upstream_known_defects_test.go:65",
+     "Error: Received unexpected error:",
+     "failed to generate slide captcha: graph image is invalid",
+     "Test: TestSaveAndVerify_SlideCaptcha",
+     "--- FAIL: TestSaveAndVerify_SlideCaptcha (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "134f2cfb0b4572bf66b0378d95d79a86390e3d41990432159b43746d4572b78e",
+   "reference_output_sha256": "abd8849e7d4f3bf316043a102d7a5ea00c2d99a554efae638108246d5ec89120",
+   "status": "KNOWN_BASELINE_FAILURE"
+  },
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "Test": "TestVerify_ClickCaptcha_WithTolerance",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:213"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:213:",
+     "Error Trace: upstream_known_defects_test.go:213",
+     "Error: Received unexpected error:",
+     "failed to generate click captcha: freetype: DrawText called with a nil font",
+     "Test: TestVerify_ClickCaptcha_WithTolerance",
+     "--- FAIL: TestVerify_ClickCaptcha_WithTolerance (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:213"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:213:",
+     "Error Trace: upstream_known_defects_test.go:213",
+     "Error: Received unexpected error:",
+     "failed to generate click captcha: freetype: DrawText called with a nil font",
+     "Test: TestVerify_ClickCaptcha_WithTolerance",
+     "--- FAIL: TestVerify_ClickCaptcha_WithTolerance (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "e16a9403bb2062b8b507a016f8a9b5d67dea9c0127f8339901753eee598773f2",
+   "reference_output_sha256": "8b5365a1e06520a1ec0365507754965256a771147aa71fc59a26b52903ee34f7",
+   "status": "KNOWN_BASELINE_FAILURE"
+  },
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "Test": "TestVerify_RotateCaptcha_WithTolerance",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:321"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:321:",
+     "Error Trace: upstream_known_defects_test.go:321",
+     "Error: Received unexpected error:",
+     "failed to generate rotate captcha: no image",
+     "Test: TestVerify_RotateCaptcha_WithTolerance",
+     "--- FAIL: TestVerify_RotateCaptcha_WithTolerance (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:321"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:321:",
+     "Error Trace: upstream_known_defects_test.go:321",
+     "Error: Received unexpected error:",
+     "failed to generate rotate captcha: no image",
+     "Test: TestVerify_RotateCaptcha_WithTolerance",
+     "--- FAIL: TestVerify_RotateCaptcha_WithTolerance (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "594d2489e20552ee9750999b5abc7608a6ec3634d11d206299757df60fa6a084",
+   "reference_output_sha256": "107a22cec45540289d399a74fa7fb4bd24ed4a200548a13fb4c4d7f29b24eb6c",
+   "status": "KNOWN_BASELINE_FAILURE"
+  },
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "Test": "TestVerify_SlideCaptcha_WithTolerance",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:101"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:101:",
+     "Error Trace: upstream_known_defects_test.go:101",
+     "Error: Received unexpected error:",
+     "failed to generate slide captcha: graph image is invalid",
+     "Test: TestVerify_SlideCaptcha_WithTolerance",
+     "--- FAIL: TestVerify_SlideCaptcha_WithTolerance (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:101"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:101:",
+     "Error Trace: upstream_known_defects_test.go:101",
+     "Error: Received unexpected error:",
+     "failed to generate slide captcha: graph image is invalid",
+     "Test: TestVerify_SlideCaptcha_WithTolerance",
+     "--- FAIL: TestVerify_SlideCaptcha_WithTolerance (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "cd1b8c73ebc1a5c687f713fc94f3fcf12f793083baf28dcf2ab1f350fedb6b3a",
+   "reference_output_sha256": "b567cd8078a059695cbcda0193152cf8d2573a3151c2605e2df6de1eac0472ef",
+   "status": "KNOWN_BASELINE_FAILURE"
+  }
+ ],
+ "isolated_file": "pkg/localdeps/go-utils/captcha/upstream_known_defects_test.go",
+ "locked_source_copy": "migration/patches/T04/_orig/captcha-captcha_test.go",
+ "moved_tests_verbatim": [
+  {
+   "Test": "TestGenerate_ClickCaptcha",
+   "identical_to_locked_source": true,
+   "sha256_moved": "f8f468046e7433a270c3b990191a5caff88106d6b85de3fa9bf9d4bc456aaced",
+   "sha256_locked_source": "f8f468046e7433a270c3b990191a5caff88106d6b85de3fa9bf9d4bc456aaced"
+  },
+  {
+   "Test": "TestGenerate_RotateCaptcha",
+   "identical_to_locked_source": true,
+   "sha256_moved": "1ca8cd1df0c2fd0da95a5865fddbc247f1a6dbce78857ec66490f9982a2c142c",
+   "sha256_locked_source": "1ca8cd1df0c2fd0da95a5865fddbc247f1a6dbce78857ec66490f9982a2c142c"
+  },
+  {
+   "Test": "TestGenerate_SlideCaptcha",
+   "identical_to_locked_source": true,
+   "sha256_moved": "add27d6e42231126109e2279a23c3c590859b58d3f45067fccca067dd41343e3",
+   "sha256_locked_source": "add27d6e42231126109e2279a23c3c590859b58d3f45067fccca067dd41343e3"
+  },
+  {
+   "Test": "TestSaveAndVerify_ClickCaptcha",
+   "identical_to_locked_source": true,
+   "sha256_moved": "725f037109d3002f4670fc75427b4be132a72be818c7a61dca83cae4a6d602d3",
+   "sha256_locked_source": "725f037109d3002f4670fc75427b4be132a72be818c7a61dca83cae4a6d602d3"
+  },
+  {
+   "Test": "TestSaveAndVerify_RotateCaptcha",
+   "identical_to_locked_source": true,
+   "sha256_moved": "fd07ff78228d374b5e59e548092b01d5e56106832ef177049f9fa36e59a7a694",
+   "sha256_locked_source": "fd07ff78228d374b5e59e548092b01d5e56106832ef177049f9fa36e59a7a694"
+  },
+  {
+   "Test": "TestSaveAndVerify_SlideCaptcha",
+   "identical_to_locked_source": true,
+   "sha256_moved": "991695ad9e3338efa4670e95c7af5660a1a246882a5e860e66163977da680650",
+   "sha256_locked_source": "991695ad9e3338efa4670e95c7af5660a1a246882a5e860e66163977da680650"
+  },
+  {
+   "Test": "TestVerify_ClickCaptcha_WithTolerance",
+   "identical_to_locked_source": true,
+   "sha256_moved": "e88253601c8e9bff5cc86b979bb42ec7e4d712e09a4b5a0982f647566e8bd78c",
+   "sha256_locked_source": "e88253601c8e9bff5cc86b979bb42ec7e4d712e09a4b5a0982f647566e8bd78c"
+  },
+  {
+   "Test": "TestVerify_RotateCaptcha_WithTolerance",
+   "identical_to_locked_source": true,
+   "sha256_moved": "0d7579a107d3fa2e8b6195d7f1d1b0fbf43704673861e2ac33e43bf5afaf0f24",
+   "sha256_locked_source": "0d7579a107d3fa2e8b6195d7f1d1b0fbf43704673861e2ac33e43bf5afaf0f24"
+  },
+  {
+   "Test": "TestVerify_SlideCaptcha_WithTolerance",
+   "identical_to_locked_source": true,
+   "sha256_moved": "d58772e00d29a9befafb102ce2a410ddd8c008b897550113cab2a5eedda522fb",
+   "sha256_locked_source": "d58772e00d29a9befafb102ce2a410ddd8c008b897550113cab2a5eedda522fb"
+  }
+ ],
+ "allowed_failure_function_set": [
+  "TestGenerate_ClickCaptcha",
+  "TestGenerate_RotateCaptcha",
+  "TestGenerate_SlideCaptcha",
+  "TestSaveAndVerify_ClickCaptcha",
+  "TestSaveAndVerify_RotateCaptcha",
+  "TestSaveAndVerify_SlideCaptcha",
+  "TestVerify_ClickCaptcha_WithTolerance",
+  "TestVerify_RotateCaptcha_WithTolerance",
+  "TestVerify_SlideCaptcha_WithTolerance"
+ ],
+ "normalisation_rules": [
+  "elapsed time",
+  "absolute prefix of the copy under test",
+  "uuid",
+  "long hex",
+  "base64-ish token",
+  "host:port"
+ ],
+ "error_content_compared": true,
+ "blocking": [],
+ "verdict": "PASS",
+ "note": "the fully tagged run is NOT green by design: these 9 cases are recorded as KNOWN_BASELINE_FAILURE and the run's own non-zero exit code is preserved"
+}

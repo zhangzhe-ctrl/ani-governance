@@ -90,7 +90,7 @@
  },
  "phase_A_closure": {
   "accepted_head_now": "a17cf5293b599a68e053e9fd1be4ebc8246cecd4",
-  "authorization_now_in_force": "The master goal gained \u300c### \u6d4b\u8bd5\u5939\u5177\u4fee\u590d\u7684\u6709\u9650\u6388\u6743\u300d (8 conditions) on 2026-09-25, which pre-authorizes reproducible-pre-existing, data-preparation-only fixture repair inside the same task. It does not weaken any functional, security or acceptance gate, and it does not extend to changing assertions.",
+  "authorization_now_in_force": "The master goal gained 「### 测试夹具修复的有限授权」 (8 conditions) on 2026-09-25, which pre-authorizes reproducible-pre-existing, data-preparation-only fixture repair inside the same task. It does not weaken any functional, security or acceptance gate, and it does not extend to changing assertions.",
   "environment_still_live": [
    "tx7do-t07-guard-pg -> GUARD_TEST_PG_DSN (127.0.0.1:55432)",
    "tx7do-t07-acc-lab-pg -> QUOTA_LAB_PG_DSN (127.0.0.1:55433)"
@@ -190,42 +190,106 @@
  "phase_B_T04_closure": {
   "accepted_head_now": "586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
   "conclusion": "T04 MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS",
-  "receipt": "migration/receipts/T04-closure-known-defects.json",
-  "superseded_record": "phase_B_T04_blocked above and receipts/T04.json (status BLOCKED) are kept as evidence; the authorization in receipts/T04-authorization-known-defects.json closed them.",
-  "reverified_this_session_not_carried_forward": true,
+  "delivery_wording_constraint": "no unconditional all-green claim; every later checkpoint and T15 must run BOTH the ordinary required gate and migration/required-known-defects.json (via tools/migration/known_defects.py) and, while the debt is carried, must use the same qualified wording.",
   "known_defects_still_open": [
    "the 9 graph-driver captcha tests are functionally broken upstream and are only isolated+recorded as KNOWN_BASELINE_FAILURE; they are NOT fixed"
   ],
-  "delivery_wording_constraint": "no unconditional all-green claim; every later checkpoint and T15 must run BOTH the ordinary required gate and migration/required-known-defects.json (via tools/migration/known_defects.py) and, while the debt is carried, must use the same qualified wording.",
   "next_task": "T05. Read _agent/ani-governance-tx7do-plan/goals/T05.md on entry only.",
+  "receipt": "migration/receipts/T04-closure-known-defects.json",
   "resume_check_before_editing": [
    "git merge-base --is-ancestor 586c44a2bb07c881d46eb51575bb5ba0c9d8d69c HEAD",
    "cat migration/accepted_head -> 586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
    "git status --porcelain -> only '?? _agent/'",
    "go vet ./pkg/localdeps/go-utils/captcha/ and ./password/ -> 0"
   ],
+  "reverified_this_session_not_carried_forward": true,
+  "superseded_record": "phase_B_T04_blocked above and receipts/T04.json (status BLOCKED) are kept as evidence; the authorization in receipts/T04-authorization-known-defects.json closed them.",
   "unverified_backlog": [
    "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run (carried from T07)"
   ],
   "verdict": "MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS"
  },
- "phase_B_T05_blocked": {
-  "accepted_head_unchanged": "586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
-  "task": "T05",
-  "status": "BLOCKED",
-  "receipt": "migration/receipts/T05.json",
-  "what_worked": "engine + engine/jwt copied verbatim (equiv 10/10), 9 import sites rewritten, 8 repo-own files guarded import-only, go build ./... clean, repo authn tests + engine/jwt tests pass, engine out of the external graph",
-  "blocked_on": "go test's default-vet printf analyzer rejects frozen upstream engine/metadata.go AuthFromMD (lines 31,40 non-constant format string), so the newly-imported engine package's own test binary cannot build under the no-vet-off rule; byte-identical to kratos-authn@v1.1.11",
-  "also_fixed": "committed T04 evidence-dir regression repair (orig -> _orig) at feface7 so go build/test ./... is valid again",
-  "decision_needed": "A: authorize a behaviour-preserving upstream fix to AuthFromMD; B: authorize a T04-style scoped known-defect for the engine self-tests (mechanism must not be -vet=off on release); C: user-specified alternative.",
-  "evidence": ["migration/preflight/T05-engine-vet-blocked.log", "migration/preflight/T05-metadata-pristine-snippet.txt", "migration/preflight/T05-import-map.json"],
-  "resume_instructions": [
-   "T05 source takeover is held in this commit's tree; do NOT treat it as accepted",
-   "on the user's decision apply the fix / known-defect mechanism, then run the full T05 gate incl the lab Redis/PG authenticator+refresh+session tests (not re-provisioned this session)",
-   "do not start T06 until T05 disposition is authorized"
+ "phase_B_T05_blocked_parked_at": {
+  "kept_for_history": true,
+  "note": "the BLOCKED receipt is preserved in git at 1c8a5c0; superseded by phase_B_T05_closure below",
+  "sha": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d"
+ },
+ "phase_B_T05_closure": {
+  "accepted_head_now": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
+  "activated": {
+   "consumers_rewired": "8 repo-own files, import-only (guard 8/8)",
+   "files": "14 (10 .go + 2 LICENSE + 2 README); engine/noop and the kratos-authn root package not activated because nothing imports them",
+   "github.com/tx7do/kratos-authn/engine": "v1.1.11 -> go-wind-admin/pkg/localdeps/kratos-authn/engine",
+   "github.com/tx7do/kratos-authn/engine/jwt": "v1.1.11 -> go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt"
+  },
+  "constraints_still_in_force": [
+   "no push, no merge, no deploy",
+   "_agent/ is not committed",
+   "missing/skip/fail/not_run is not success",
+   "one batch at a time, receipts in ledger-only follow-up commits",
+   "no -vet=off on any release/gate command"
   ],
-  "group_B_paused": true,
-  "next_task_after_decision": "finish T05, then T06"
+  "differential": "two independent `go run` processes (OLD against v1.1.11 from the module cache, NEW against pkg/localdeps), fixed HS256 key, tokens exchanged only as files; all four verify reports byte-identical (sha256 30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06), token strings byte-identical, wrong-key/tampered/expired reject identically",
+  "disclosed_exclusion": {
+   "consequence_stated_plainly": "go test ./... across the repository still reports FAIL go-wind-admin/pkg/localdeps/kratos-authn/engine [build failed]; the repository is NOT green",
+   "decision": "user chose 「Exclude engine self-tests from gate」 on 2026-09-25",
+   "not_done": [
+    "no upstream production edit",
+    "no -vet=off on a release/gate command",
+    "no test deleted or given a changed expectation",
+    "no new entry in migration/required-known-defects.json"
+   ],
+   "what": "the taken-over engine package's own upstream test IDs (only TestParseNumber) are outside the must-pass gate",
+   "why": "frozen upstream engine/metadata.go AuthFromMD lines 31/40 trip go test's default printf vet, so that test binary cannot build; metadata.go is byte-identical to v1.1.11"
+  },
+  "environment_still_live": {
+   "containers": [
+    "tx7do-t07-guard-pg (127.0.0.1:55432)",
+    "tx7do-t07-acc-lab-pg (127.0.0.1:55433)",
+    "tx7do-t04-captcha-redis"
+   ],
+   "databases_added_by_T05": [
+    "ani_t05_bootstrap_test (dropped and recreated before the run; only reachable through the gated TestBootstrapPostgres)"
+   ],
+   "helper": "bash /home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh <command>",
+   "never_touched": "quota-gpu-local-01-pg"
+  },
+  "gate": {
+   "fail": 0,
+   "missing": 0,
+   "not_run": 0,
+   "packages": 6,
+   "pass": 596,
+   "required": 596,
+   "run_exit": 0,
+   "skip": 0,
+   "vet": "default; no -vet=off on any gate command"
+  },
+  "go_mod_note": "grpc-ecosystem/go-grpc-middleware v1.4.0 lost `// indirect` (now imported directly by engine/metadata.go); the two tx7do/kratos-authn requires remain until the phase E `go mod tidy`",
+  "ledger_commit": "this commit (adds T05 evidence and the closure receipt; changes no source)",
+  "next_task": "T06. Read _agent/ani-governance-tx7do-plan/goals/T06.md on entry only.",
+  "receipt": "migration/receipts/T05.json",
+  "recorded_at": "T05 closed with the disclosed exclusion, group B continues",
+  "result_sha": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
+  "resume_check_before_editing": [
+   "git merge-base --is-ancestor 1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d HEAD",
+   "cat migration/accepted_head  -> 1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
+   "git status --porcelain      -> only '?? _agent/'",
+   "cmp pkg/localdeps/kratos-authn/engine/metadata.go $GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/engine/metadata.go -> identical (the disclosed vet blocker must still be upstream, not silently edited)",
+   "python3 tools/migration/known_defects.py replay against migration/required-known-defects.json must still be PASS with both exit codes 1"
+  ],
+  "still_external_on_purpose": [
+   "github.com/tx7do/kratos-authz/* and casbin (T06)",
+   "github.com/tx7do/kratos-bootstrap/* including bootstrap.Context and conf types (T10)",
+   "github.com/tx7do/go-crud/api + pagination Proto (T06)",
+   "github.com/tx7do/go-utils/{timeutil,id,tls} and kratos-transport / kratos-swagger-ui / go-wind-* (later groups)"
+  ],
+  "unverified_backlog": [
+   "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run",
+   "9 captcha image drivers remain KNOWN_BASELINE_FAILURE (replayed PASS in this checkpoint, still not green)",
+   "pre-existing copylocks vet finding at accelerator_joint_http_test.go:503"
+  ],
+  "verdict": "PASS_WITH_DISCLOSED_EXCLUSION"
  },
  "plan": {
   "master_goal": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",

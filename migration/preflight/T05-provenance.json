@@ -1,0 +1,169 @@
+{
+ "base_for_guard": "586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
+ "locked_versions": {
+  "github.com/tx7do/kratos-authn": "v1.1.11",
+  "github.com/tx7do/kratos-authn/engine/jwt": "v1.1.11"
+ },
+ "pristine_source": "read-only module cache ($GOMODCACHE), no network fetch",
+ "files": [
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/claims.go",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/engine/claims.go",
+   "local_sha256": "1251ac821f5f1220a21ff868399df572a342c4a4f8db7a7ca50e2c75e2f2d388",
+   "pristine_sha256": "1251ac821f5f1220a21ff868399df572a342c4a4f8db7a7ca50e2c75e2f2d388",
+   "expected": "import-only",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": "",
+   "note": "no import line needed rewriting"
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/claims_test.go",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/engine/claims_test.go",
+   "local_sha256": "a0d538be1ea0de6c43bce892d92cdb28cc731f560eaf4f255fa7ac9809289ede",
+   "pristine_sha256": "a0d538be1ea0de6c43bce892d92cdb28cc731f560eaf4f255fa7ac9809289ede",
+   "expected": "import-only",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": "",
+   "note": "no import line needed rewriting"
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/constant.go",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/engine/constant.go",
+   "local_sha256": "9362e409312d9564ac35b934a6d923431c1c808ef58fe64a3d43f7d0222c1632",
+   "pristine_sha256": "9362e409312d9564ac35b934a6d923431c1c808ef58fe64a3d43f7d0222c1632",
+   "expected": "import-only",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": "",
+   "note": "no import line needed rewriting"
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/context.go",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/engine/context.go",
+   "local_sha256": "4803faccee81d57016323a7aaacf6eb8712ccb92af4834bca47304c32b423d4d",
+   "pristine_sha256": "4803faccee81d57016323a7aaacf6eb8712ccb92af4834bca47304c32b423d4d",
+   "expected": "import-only",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": "",
+   "note": "no import line needed rewriting"
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/engine.go",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/engine/engine.go",
+   "local_sha256": "b49da74ce3804470f1ff3e5d93fd5d7d32912a84f2425192d44c732a0826c379",
+   "pristine_sha256": "b49da74ce3804470f1ff3e5d93fd5d7d32912a84f2425192d44c732a0826c379",
+   "expected": "import-only",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": "",
+   "note": "no import line needed rewriting"
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/errors.go",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/engine/errors.go",
+   "local_sha256": "bf2e3339d5a15774f3ac303a93e72213ef45af2c6d86950539b29f514a0e8d26",
+   "pristine_sha256": "bf2e3339d5a15774f3ac303a93e72213ef45af2c6d86950539b29f514a0e8d26",
+   "expected": "import-only",
+   "byte_identical": true,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": "",
+   "note": "no import line needed rewriting"
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/metadata.go",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/engine/metadata.go",
+   "local_sha256": "b7907194f4ef659c11c90773305d7589c440f30a1757c0f8a06b0305edaf827d",
+   "pristine_sha256": "b7907194f4ef659c11c90773305d7589c440f30a1757c0f8a06b0305edaf827d",
+   "expected": "identical",
+   "byte_identical": true
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/LICENSE",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/LICENSE",
+   "local_sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c",
+   "pristine_sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c",
+   "expected": "identical",
+   "byte_identical": true
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/README.md",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn@v1.1.11/README.md",
+   "local_sha256": "1cdfdd57834964df82cf6e2c2e1a8baa16205355286ea5417fa072eac3977b87",
+   "pristine_sha256": "1cdfdd57834964df82cf6e2c2e1a8baa16205355286ea5417fa072eac3977b87",
+   "expected": "identical",
+   "byte_identical": true
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/jwt/jwt.go",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn/engine/jwt@v1.1.11/jwt.go",
+   "local_sha256": "32ef2a1fe1252cad740fa141a9aaa0d1cdf36f93b463ce956418cf2e1e2e1df7",
+   "pristine_sha256": "69e937e27dee6b89f5adb06de03af8d75ce481179bdac1428ec1c606aec35cb8",
+   "expected": "import-only",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn/engine/jwt@v1.1.11/jwt_test.go",
+   "local_sha256": "7b16bd7e0aa3d461cb44262be09a3ee7945a38907fe6d0119378e2b93fd57fb5",
+   "pristine_sha256": "57ded537c454d742db01924ea39f39259201eac47255b645b45f9c8d3b478e66",
+   "expected": "import-only",
+   "byte_identical": false,
+   "equiv_exit": 0,
+   "equiv_stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)",
+   "equiv_stderr": ""
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/jwt/options.go",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn/engine/jwt@v1.1.11/options.go",
+   "local_sha256": "1c553c495f9277f001b8306e235a265fa80926e35f18f779afb2f9d054965c42",
+   "pristine_sha256": "1c553c495f9277f001b8306e235a265fa80926e35f18f779afb2f9d054965c42",
+   "expected": "identical",
+   "byte_identical": true
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/jwt/LICENSE",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn/engine/jwt@v1.1.11/LICENSE",
+   "local_sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c",
+   "pristine_sha256": "7ae9a33952d4d71ba84d64efb5e35d24cdab267f9a88346af38f8c670db81e3c",
+   "expected": "identical",
+   "byte_identical": true
+  },
+  {
+   "local": "pkg/localdeps/kratos-authn/engine/jwt/README.md",
+   "pristine": "$GOMODCACHE/github.com/tx7do/kratos-authn/engine/jwt@v1.1.11/README.md",
+   "local_sha256": "203d186d1f4545077b6bc0208f1d4674f5670e64742a6410c8d63d9e5f176bcc",
+   "pristine_sha256": "203d186d1f4545077b6bc0208f1d4674f5670e64742a6410c8d63d9e5f176bcc",
+   "expected": "identical",
+   "byte_identical": true
+  }
+ ],
+ "checked": 14,
+ "repo_own_guard": {
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "files": [
+   "app/admin/service/internal/data/authenticator.go",
+   "pkg/jwt/refresh_token_payload.go",
+   "pkg/jwt/refresh_token_payload_test.go",
+   "pkg/jwt/user_token_payload.go",
+   "pkg/jwt/user_token_payload_extras_test.go",
+   "pkg/jwt/user_token_payload_test.go",
+   "pkg/middleware/auth/auth.go",
+   "pkg/middleware/logging/harness_test.go"
+  ]
+ },
+ "problems": []
+}

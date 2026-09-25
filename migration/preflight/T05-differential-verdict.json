@@ -1,0 +1,78 @@
+{
+ "verdict": "PASS",
+ "report_sha256": {
+  "old-verify-oldtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06",
+  "old-verify-newtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06",
+  "new-verify-oldtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06",
+  "new-verify-newtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06"
+ },
+ "checks": [
+  {
+   "check": "new verifies old-signed token without error",
+   "result": "PASS",
+   "detail": "err=<nil>"
+  },
+  {
+   "check": "old verifies new-signed token without error",
+   "result": "PASS",
+   "detail": "err=<nil>"
+  },
+  {
+   "check": "NEW-verify(OLD-token) report == OLD-verify(NEW-token) report",
+   "result": "PASS",
+   "detail": {
+    "sha256": {
+     "old-verify-oldtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06",
+     "old-verify-newtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06",
+     "new-verify-oldtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06",
+     "new-verify-newtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06"
+    }
+   }
+  },
+  {
+   "check": "old side report identical for both tokens",
+   "result": "PASS",
+   "detail": true
+  },
+  {
+   "check": "new side report identical for both tokens",
+   "result": "PASS",
+   "detail": true
+  },
+  {
+   "check": "claims contain every fixed field",
+   "result": "PASS",
+   "detail": "10 raw claim lines present"
+  },
+  {
+   "check": "claims JSON parses",
+   "result": "PASS",
+   "detail": "{\"aud\":[\"tenant-7\",\"admin\"],\"data_scope\":4,\"dtypes\":[\"super_admin\",\"tenant_admin\"],\"exp\":4102444800,\"iat\":1700000000,\"is"
+  },
+  {
+   "check": "claim values preserved",
+   "result": "PASS",
+   "detail": "{\"aud\": [\"tenant-7\", \"admin\"], \"data_scope\": 4, \"dtypes\": [\"super_admin\", \"tenant_admin\"], \"exp\": 4102444800, \"iat\": 1700000000, \"iss\": \"ani-governance-t05-differential\", \"jti\": \"t05-fixed-jti\", \"nbf\""
+  },
+  {
+   "check": "wrong-key rejection identical on both sides",
+   "result": "PASS",
+   "detail": "err=rpc error: code = Code(1015) desc = sign token failed claims_nil=true\nerr=rpc error: code = Code(1015) desc = sign token failed claims_nil=true"
+  },
+  {
+   "check": "tampered rejection identical on both sides",
+   "result": "PASS",
+   "detail": "err=rpc error: code = Code(1015) desc = sign token failed claims_nil=true\nerr=rpc error: code = Code(1015) desc = sign token failed claims_nil=true"
+  },
+  {
+   "check": "expired rejection identical on both sides",
+   "result": "PASS",
+   "detail": "sign-expired: signed=true len=468\nerr=rpc error: code = Code(1011) desc = token expired\nclaims_nil=true\nerr=rpc error: code = Code(1011) desc = token expired\nclaims_nil=true"
+  },
+  {
+   "check": "byte-identical token strings from both implementations",
+   "result": "PASS",
+   "detail": "cmp of tok.old and tok.new"
+  }
+ ]
+}

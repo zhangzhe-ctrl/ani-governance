@@ -1,0 +1,32 @@
+{
+ "tags": [
+  "quota_pg"
+ ],
+ "module": "go-wind-admin",
+ "scope_source": "git diff --name-only 586c44a2bb07c881d46eb51575bb5ba0c9d8d69c..1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d -- '*.go' package dirs, plus app/admin/service/internal/service named by T05.md",
+ "package_patterns": [
+  "./app/admin/service/internal/data",
+  "./app/admin/service/internal/service",
+  "./pkg/jwt",
+  "./pkg/localdeps/kratos-authn/engine/jwt",
+  "./pkg/middleware/auth",
+  "./pkg/middleware/logging"
+ ],
+ "excluded_package_patterns": [
+  "./pkg/localdeps/kratos-authn/engine"
+ ],
+ "packages_with_tests": {
+  "go-wind-admin/app/admin/service/internal/data": 301,
+  "go-wind-admin/app/admin/service/internal/service": 176,
+  "go-wind-admin/pkg/jwt": 21,
+  "go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt": 7,
+  "go-wind-admin/pkg/middleware/auth": 21,
+  "go-wind-admin/pkg/middleware/logging": 78
+ },
+ "packages_without_test_files": [],
+ "profile_cases": 596,
+ "gated_cases": 8,
+ "engine_own_tests_excluded_by_decision": [
+  "TestParseNumber"
+ ]
+}

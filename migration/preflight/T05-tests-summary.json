@@ -1,0 +1,63 @@
+{
+ "profile": {
+  "tags": [
+   "quota_pg"
+  ],
+  "module": "go-wind-admin",
+  "scope_source": "git diff --name-only 586c44a2bb07c881d46eb51575bb5ba0c9d8d69c..1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d -- '*.go' package dirs, plus app/admin/service/internal/service named by T05.md",
+  "package_patterns": [
+   "./app/admin/service/internal/data",
+   "./app/admin/service/internal/service",
+   "./pkg/jwt",
+   "./pkg/localdeps/kratos-authn/engine/jwt",
+   "./pkg/middleware/auth",
+   "./pkg/middleware/logging"
+  ],
+  "excluded_package_patterns": [
+   "./pkg/localdeps/kratos-authn/engine"
+  ],
+  "packages_with_tests": {
+   "go-wind-admin/app/admin/service/internal/data": 301,
+   "go-wind-admin/app/admin/service/internal/service": 176,
+   "go-wind-admin/pkg/jwt": 21,
+   "go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt": 7,
+   "go-wind-admin/pkg/middleware/auth": 21,
+   "go-wind-admin/pkg/middleware/logging": 78
+  },
+  "packages_without_test_files": [],
+  "profile_cases": 596,
+  "gated_cases": 8,
+  "engine_own_tests_excluded_by_decision": [
+   "TestParseNumber"
+  ]
+ },
+ "gate_run": {
+  "command": "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run <595 named> <6 packages>",
+  "exit": 0,
+  "require_tests": {
+   "pass": true,
+   "required": 596,
+   "bad_tests": [],
+   "failed_packages": []
+  }
+ },
+ "full_scoped_run": {
+  "command": "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg <6 packages>",
+  "exit": 1,
+  "note": "exit 1 solely from the repo-gated pre-existing TestBootstrapPostgres; identical at accepted_head (finding T03-F4)"
+ },
+ "known_defects_replay_verdict": "PASS",
+ "differential_verdict": "PASS",
+ "differential_report_sha256": {
+  "old-verify-oldtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06",
+  "old-verify-newtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06",
+  "new-verify-oldtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06",
+  "new-verify-newtok": "30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06"
+ },
+ "provenance_problems": [],
+ "guard": {
+  "checked_files": 8,
+  "pass": true,
+  "scope": "non-import AST and Go directives, not runtime behavior"
+ }
+}

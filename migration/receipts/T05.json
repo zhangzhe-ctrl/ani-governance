@@ -1,58 +1,341 @@
 {
-  "schema_version": "t05-receipt/1",
-  "task": "T05",
-  "phase": "B (T03->T04->T05->T06)",
-  "status": "BLOCKED",
-  "start_sha": "586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
-  "blocked_at_sha": "feface7 (T04 evidence-dir repair); T05 source changes held uncommitted in the working tree",
-  "scope_done": [
-    "recorded provenance + copied locked github.com/tx7do/kratos-authn@v1.1.11/engine (7 go files) and github.com/tx7do/kratos-authn/engine/jwt@v1.1.11 (3 go files) verbatim into pkg/localdeps/kratos-authn/{engine,engine/jwt} with package names, LICENSE and README preserved; no nested go.mod",
-    "migrate_imports equiv PASS for all 10 copied files (non-import AST + Go directives byte-identical to the locked archive)",
-    "rewrite of the copied jwt.go + jwt_test.go internal engine import, and of all 8 repo-own import sites, to go-wind-admin/pkg/localdeps/kratos-authn/engine[/jwt]",
-    "migrate_imports guard -base HEAD PASS for the 8 repo-own files (only imports changed)",
-    "go build ./... PASS (production consumers compile against the local engine packages; engine is now out of the external graph)",
-    "repo authn tests PASS: pkg/jwt, pkg/middleware/auth, and the taken-over engine/jwt package"
+ "schema_version": "t05/2",
+ "task": "T05",
+ "phase": "B",
+ "goal_file": "_agent/ani-governance-tx7do-plan/goals/T05.md",
+ "status": "PASS_WITH_DISCLOSED_EXCLUSION",
+ "conclusion": "T05 takeover of github.com/tx7do/kratos-authn@v1.1.11 engine + engine/jwt into go-wind-admin/pkg/localdeps is complete and provably inert: 14 copied files carry byte-identical non-import AST/directives, the 8 repo-own files changed imports only, the old packages are gone from the production and test import graphs, and 596/596 named required tests actually pass. It is NOT an unconditional green pass: the taken-over engine package's OWN upstream tests are excluded from the must-pass gate by explicit user decision, and `go test ./...` across the repository still reports FAIL .../kratos-authn/engine [build failed] on two frozen-upstream vet diagnostics.",
+ "start_sha": "586c44a2bb07c881d46eb51575bb5ba0c9d8d69c",
+ "blocked_at_sha": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
+ "resume_head_at_closure": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
+ "branch": "task/tx7do-takeover",
+ "blocked_record_superseded": "the BLOCKED state and the A/B/C options are preserved in git at commit 1c8a5c0 (migration/receipts/T05.json); this receipt records the chosen disposition and the evidence behind it",
+ "decision_record": {
+  "date": "2026-09-25",
+  "question": "How should T05 handle the frozen-upstream AuthFromMD printf-vet finding that blocks go test of the newly-imported engine package?",
+  "chosen": "Exclude engine self-tests from gate",
+  "meaning_as_applied": "the taken-over pkg/localdeps/kratos-authn/engine package's own upstream test IDs (the only one is TestParseNumber in claims_test.go) are removed from the T05 must-pass profile. The package itself is still taken over, built, provenance- and guard-checked and consumed by engine/jwt and the repository auth code.",
+  "not_done_to_avoid_it": [
+   "no upstream production file was edited (metadata.go is byte-identical to v1.1.11)",
+   "no -vet=off on any gate or release command",
+   "no test deleted, renamed, skipped or given a changed expectation",
+   "no known-defect entry added to migration/required-known-defects.json"
   ],
-  "verbatim_block": {
-    "summary": "go test's default vet subset includes the printf analyzer, which rejects the frozen upstream package engine/metadata.go, so the newly-imported engine package's own test binary cannot build under the mandatory default-vet rule.",
-    "package": "go-wind-admin/pkg/localdeps/kratos-authn/engine",
-    "command": "go test ./pkg/localdeps/kratos-authn/engine/",
-    "exit": 1,
-    "log": "migration/preflight/T05-engine-vet-blocked.log",
-    "finding": [
-      "pkg/localdeps/kratos-authn/engine/metadata.go:31:51: non-constant format string in call to google.golang.org/grpc/status.Errorf",
-      "pkg/localdeps/kratos-authn/engine/metadata.go:40:51: non-constant format string in call to google.golang.org/grpc/status.Errorf"
-    ],
-    "function": "AuthFromMD (explicitly a T05 focus method)",
-    "pristine_identical": "metadata.go is byte-for-byte equal to github.com/tx7do/kratos-authn@v1.1.11/engine/metadata.go (cmp clean); snippet saved at migration/preflight/T05-metadata-pristine-snippet.txt",
-    "why_now": "while engine was an external module dependency, go test ./... never ran vet on it; bringing it into the main module made go test vet it and surfaced the finding",
-    "production_impact": "none — go build ./... is clean; the concatenated string is a legitimate non-format message, so behaviour is unchanged; only the test-vet gate trips",
-    "scope_of_finding": "the ONLY taken-over package that trips default vet; every T03/T04 package (captcha, crypto, jwtutil, password, aggregator, mapping, stringcase, sliceutil, fieldmaskutil, trans) vets to 0"
-  },
-  "why_not_self_fixed": [
-    "Editing AuthFromMD is a change to frozen upstream production code (master goal: 业务方法体/常量默认不变; 不修改生产实现; 已有缺陷单独报告). Even a behaviour-preserving `\"...%s\", scheme` rewrite is still a production edit that must not be made autonomously.",
-    "-vet=off is forbidden on release commands (T04 supplemental authorization §五; carried rule).",
-    "Carrying the engine self-tests as a known defect / excluding them needs a supplemental authorization. The T04 authorization is explicitly limited to captcha/password and states 本授权只涵盖本次点名范围 and 不允许自主扩大已知失败集合.",
-    "Keeping engine as an external dependency contradicts the T05 acceptance criterion 旧认证engine包不再出现在当前生产/测试入口包图."
+  "stated_plainly": "a repository-wide `go test ./...` is NOT green: the engine package's test binary cannot build under the mandatory default vet."
+ },
+ "verbatim_block": {
+  "package": "go-wind-admin/pkg/localdeps/kratos-authn/engine",
+  "command": "go test ./pkg/localdeps/kratos-authn/engine/  (default vet)",
+  "exit": 1,
+  "finding": [
+   "pkg/localdeps/kratos-authn/engine/metadata.go:31:51: non-constant format string in call to google.golang.org/grpc/status.Errorf",
+   "pkg/localdeps/kratos-authn/engine/metadata.go:40:51: non-constant format string in call to google.golang.org/grpc/status.Errorf"
   ],
-  "decision_needed": {
-    "question": "How should T05 handle the frozen upstream AuthFromMD printf-vet finding that blocks go test of the newly-imported engine package?",
-    "options": [
-      "A: Authorize a behaviour-preserving two-line upstream fix (status.Errorf(c, \"Request unauthenticated with %s\", expectedScheme)) — identical resulting message; production edit to frozen source, single, scoped, logged.",
-      "B: Authorize a T04-style supplemental known-defect scope for the engine package's own tests (define the mechanism; note it cannot be -vet=off on release commands).",
-      "C: Any other disposition the user prefers (e.g., exclude engine/*_test.go named tests from the T05 required gate by explicit instruction)."
-    ]
-  },
-  "residual_target_dependencies": {
-    "still_external_after_takeover": ["github.com/tx7do/kratos-authn (root package) — not imported by repo code or by engine/engine-jwt, intentionally untouched", "github.com/tx7do/kratos-authn/engine/noop — not activated (unused)"],
-    "go_mod_annotation_change": "github.com/grpc-ecosystem/go-grpc-middleware moved from // indirect to direct require at the SAME version v1.4.0 (engine/metadata.go now imports util/metautils directly); no module added or upgraded",
-    "requires_still_present": ["github.com/tx7do/kratos-authn v1.1.11", "github.com/tx7do/kratos-authn/engine/jwt v1.1.11"]
-  },
-  "not_verified": [
-    "engine package self-tests (blocked by vet as above)",
-    "app/admin/service/internal/data authenticator + refresh/session + TokenChecker/UserTokenCache tests requiring the authorized isolated Redis/PG lab (not re-provisioned in this session)"
+  "function": "AuthFromMD, a T05 focus method; behaviour is correct, only the vet analyzer rejects it",
+  "pristine_identical": "metadata.go byte-for-byte equals github.com/tx7do/kratos-authn@v1.1.11/engine/metadata.go (cmp clean; migration/preflight/T05-metadata-pristine-snippet.txt)",
+  "why_now": "while engine was an external module, go test never vetted it; importing it into the main module made the default vet gate apply",
+  "logs": [
+   "migration/preflight/T05-engine-vet-blocked.log",
+   "migration/preflight/T05-vet-engine.log"
+  ]
+ },
+ "source_package_versions": {
+  "github.com/tx7do/kratos-authn": "v1.1.11",
+  "github.com/tx7do/kratos-authn/engine/jwt": "v1.1.11",
+  "pristine_source": "read-only Go module cache, no network fetch, no module added or upgraded",
+  "not_activated_on_purpose": [
+   "github.com/tx7do/kratos-authn (root package, unused)",
+   "github.com/tx7do/kratos-authn/engine/noop (unused)"
+  ]
+ },
+ "changed_files": {
+  "taken_over_new": [
+   "pkg/localdeps/kratos-authn/engine/claims.go",
+   "pkg/localdeps/kratos-authn/engine/claims_test.go",
+   "pkg/localdeps/kratos-authn/engine/constant.go",
+   "pkg/localdeps/kratos-authn/engine/context.go",
+   "pkg/localdeps/kratos-authn/engine/engine.go",
+   "pkg/localdeps/kratos-authn/engine/errors.go",
+   "pkg/localdeps/kratos-authn/engine/metadata.go",
+   "pkg/localdeps/kratos-authn/engine/LICENSE",
+   "pkg/localdeps/kratos-authn/engine/README.md",
+   "pkg/localdeps/kratos-authn/engine/jwt/jwt.go",
+   "pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go",
+   "pkg/localdeps/kratos-authn/engine/jwt/options.go",
+   "pkg/localdeps/kratos-authn/engine/jwt/LICENSE",
+   "pkg/localdeps/kratos-authn/engine/jwt/README.md"
   ],
-  "group_B_status": "T05 blocked at the default-vet gate on frozen upstream code; T06 not started; A/B/C/D/E checkpoint ordering preserved",
-  "pushed_merged_deployed": false,
-  "verdict": "BLOCKED"
+  "repo_own_import_only": [
+   "app/admin/service/internal/data/authenticator.go",
+   "pkg/jwt/refresh_token_payload.go",
+   "pkg/jwt/refresh_token_payload_test.go",
+   "pkg/jwt/user_token_payload.go",
+   "pkg/jwt/user_token_payload_extras_test.go",
+   "pkg/jwt/user_token_payload_test.go",
+   "pkg/middleware/auth/auth.go",
+   "pkg/middleware/logging/harness_test.go"
+  ],
+  "go_mod": "github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 lost its `// indirect` annotation because engine/metadata.go now imports util/metautils from the main module. Same version; no module added or upgraded. Reproduced by make build_only, not hand-edited."
+ },
+ "non_import_changes": {
+  "repo_own_guard": {
+   "exit": 0,
+   "stdout": "",
+   "stderr": "",
+   "files": [
+    "app/admin/service/internal/data/authenticator.go",
+    "pkg/jwt/refresh_token_payload.go",
+    "pkg/jwt/refresh_token_payload_test.go",
+    "pkg/jwt/user_token_payload.go",
+    "pkg/jwt/user_token_payload_extras_test.go",
+    "pkg/jwt/user_token_payload_test.go",
+    "pkg/middleware/auth/auth.go",
+    "pkg/middleware/logging/harness_test.go"
+   ]
+  },
+  "guard_result": {
+   "checked_files": 8,
+   "pass": true,
+   "scope": "non-import AST and Go directives, not runtime behavior",
+   "base": "586c44a2bb07c881d46eb51575bb5ba0c9d8d69c"
+  },
+  "equiv_on_copied_files": {
+   "checked": 14,
+   "import_only_files": [
+    "pkg/localdeps/kratos-authn/engine/claims.go",
+    "pkg/localdeps/kratos-authn/engine/claims_test.go",
+    "pkg/localdeps/kratos-authn/engine/constant.go",
+    "pkg/localdeps/kratos-authn/engine/context.go",
+    "pkg/localdeps/kratos-authn/engine/engine.go",
+    "pkg/localdeps/kratos-authn/engine/errors.go",
+    "pkg/localdeps/kratos-authn/engine/jwt/jwt.go",
+    "pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go"
+   ],
+   "all_equiv_exit_0": true,
+   "problems": []
+  },
+  "redis_keys_and_lua": "app/admin/service/internal/data/user_token_cache.go is untouched by T05 (git diff empty); authenticator.go changed imports only under guard. Key prefixes and Lua literals are line-identical between the pre-T05 base and HEAD.",
+  "claims_fields_and_algorithm": "unchanged: engine/claims.go, errors.go, context.go, constant.go, engine.go and metadata.go are byte-identical or import-identical to v1.1.11, and jwt.go/options.go only moved the engine import. Signing methods, key handling, expiry checks and error identities are proved equal by the two-process differential below."
+ },
+ "commands": [
+  {
+   "name": "provenance-equiv",
+   "command": "python3 /home/ubuntu/tx7do-pilot-run/T05/t05_provenance.py",
+   "exit": 0,
+   "result": "14 files checked, problems []; 10 import-only files equiv PASS; 4 byte-identical; guard exit 0"
+  },
+  {
+   "name": "scope",
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T05/t05_lists.sh",
+   "exit": 0,
+   "result": "7 touched packages; no github.com/tx7do/kratos-authn import remains in any .go file"
+  },
+  {
+   "name": "profile",
+   "command": "python3 /home/ubuntu/tx7do-pilot-run/T05/t05_profile.py",
+   "exit": 0,
+   "result": "6 listed packages (604 listed cases) + 1 package excluded by decision; 8 repo-gated cases -> 596 named required"
+  },
+  {
+   "name": "tests-full",
+   "command": "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg <6 packages> with task-owned guard/lab/bootstrap DSNs",
+   "exit": 1,
+   "result": "1000 pass / 1 fail / 7 skip; the single failure is the pre-existing repo-gated TestBootstrapPostgres at bootstrap_postgres_test.go:58 ('An error is expected but got nil'), byte-for-byte the T03-F4 signature; the 7 skips report their own repo preconditions"
+  },
+  {
+   "name": "tests-required",
+   "command": "the same scoped run restricted to the 596 named profile cases (default vet, no -vet=off)",
+   "exit": 0,
+   "result": "1000 pass / 0 fail / 0 skip; 6/6 packages pass"
+  },
+  {
+   "name": "require-tests",
+   "command": "python3 tools/migration/require_tests.py --required T05/required-profile.json --log T05/tests-required.log",
+   "exit": 0,
+   "result": "pass true, required 596, bad_tests [], failed_packages [] (checker rules untouched)"
+  },
+  {
+   "name": "known-defects-replay",
+   "command": "python3 tools/migration/known_defects.py --list migration/required-known-defects.json --log T04/ev-t04-captcha-tagged-gate.log --reference-log T04/ev-ref-captcha-tagged.log --moved-file pkg/localdeps/go-utils/captcha/upstream_known_defects_test.go --locked-file migration/patches/T04/_orig/captcha-captcha_test.go",
+   "exit": 0,
+   "result": "verdict PASS, 9 KNOWN_BASELINE_FAILURE, candidate exit 1 and reference exit 1 preserved, blocking []"
+  },
+  {
+   "name": "differential",
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T05/t05_differential.sh",
+   "exit": 0,
+   "result": "two independent `go run` processes (OLD against v1.1.11, NEW against pkg/localdeps); all four verify reports byte-identical"
+  },
+  {
+   "name": "build",
+   "command": "make build_only",
+   "exit": 0,
+   "result": "clean"
+  },
+  {
+   "name": "vet-gate-packages",
+   "command": "go vet <6 gate packages>",
+   "exit": 1,
+   "result": "one finding only: the pre-existing copylocks at app/admin/service/internal/service/accelerator_joint_http_test.go:503, line-identical at the pre-T05 base, file untouched by T05, recorded in migration/preflight/repo-copylocks-baseline.json"
+  },
+  {
+   "name": "vet-engine",
+   "command": "go vet ./pkg/localdeps/kratos-authn/engine/",
+   "exit": 1,
+   "result": "the two frozen-upstream printf diagnostics recorded verbatim as the disclosed blocker"
+  },
+  {
+   "name": "residual",
+   "command": "go list -deps ./... ; go list -deps -test ./...",
+   "exit": 0,
+   "result": "github.com/tx7do/kratos-authn ABSENT from both the production and the test dependency graph"
+  }
+ ],
+ "mandated_by_T05_md": [
+  {
+   "set": "pkg/jwt focus methods (NewUserTokenAuthClaims, NewUserTokenPayloadWithClaims, ParseRefreshTokenClaims)",
+   "cases": "pkg/jwt 21 named tests",
+   "result": "21/21 pass, 0 skip"
+  },
+  {
+   "set": "pkg/middleware/auth (AuthFromMD consumption, AuthClaims context, checker gating)",
+   "cases": "pkg/middleware/auth 21 named tests",
+   "result": "21/21 pass, 0 skip"
+  },
+  {
+   "set": "taken-over engine/jwt (Authenticate/CreateUserToken/VerifyRefreshToken path, all signing methods)",
+   "cases": "engine/jwt 7 named tests (TestAuthenticator, RS256, RS256WithPEM, ES256, ES256WithPEM, EdDSA, PS256)",
+   "result": "7/7 pass, 0 skip"
+  },
+  {
+   "set": "data.newAdminAuthenticator + TokenChecker + UserTokenCache.VerifyAndRevokeTokenPair",
+   "cases": "TestNewAdminAuthenticator, TestGetExpires, TestUserTokenCache_BasicOperations, TestUserTokenCache_RevokeTokenPreservesPartialFailure, TestUserTokenCache_VerifyAndRevokeTokenPair, plus all 300 other named data cases",
+   "result": "all pass, 0 skip; refresh single-use consumption and revocation are asserted by the retained upstream/repository tests, including the 'at:' key-prefix assertion in user_token_cache_test.go which the task did not edit"
+  },
+  {
+   "set": "refresh / session consumers",
+   "cases": "TestAuthSvcSqlite_{RefreshTokenFlow,ValidateTokenBranches,DisabledTenantViaRefresh}, TestOnlineSessionServiceSqlite_{ForceLogoutSession,RevokeMySession}, TestUserService_AccountSessionRevocation and the rest of the 176 named service cases",
+   "result": "all pass, 0 skip"
+  },
+  {
+   "set": "固定测试密钥旧Token->新实现 / 旧会话数据->新代码 / 刷新单次消费和撤销",
+   "cases": "two independent processes (OLD = github.com/tx7do/kratos-authn@v1.1.11, NEW = pkg/localdeps), one fixed HS256 key file, identical claim sets, tokens exchanged only as files",
+   "result": "PASS: OLD-signed token verifies on NEW and NEW-signed token verifies on OLD with byte-identical reports (sha256 30fe5b5563320e24d337558ca182554decf00c77cd839a434e82ada0b8b83c06 for all four), the token strings themselves are byte-identical, and wrong-key / tampered / expired all reject identically. Session data: the Redis key and Lua source is unchanged code (see non_import_changes)."
+  },
+  {
+   "set": "no parallel Principal/SecurityContext; Redis check not reduced to JWT-signature-only",
+   "cases": "authenticator.go changed imports only under guard; TokenChecker/UserTokenCache call sites unchanged",
+   "result": "holds: the guard proof plus the passing TestUserTokenCache_* and TestAuthSvcSqlite_* cases"
+  }
+ ],
+ "required_tests": {
+  "verdict_rule": "require_tests.py counts missing/skip/fail/not_run as failure; its rules were not modified. The profile is generated from the packages T05 touched (git diff of the parked T05 commit) plus the service package named by T05.md, so a package cannot be quietly left out.",
+  "profile_final": {
+   "required": 596,
+   "pass": 596,
+   "fail": 0,
+   "skip": 0,
+   "missing": 0,
+   "not_run": 0
+  },
+  "packages_in_profile": {
+   "go-wind-admin/app/admin/service/internal/data": 301,
+   "go-wind-admin/app/admin/service/internal/service": 176,
+   "go-wind-admin/pkg/jwt": 21,
+   "go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt": 7,
+   "go-wind-admin/pkg/middleware/auth": 21,
+   "go-wind-admin/pkg/middleware/logging": 78
+  },
+  "listed_per_package_before_gating": {
+   "go-wind-admin/app/admin/service/internal/data": 301,
+   "go-wind-admin/app/admin/service/internal/service": 176,
+   "go-wind-admin/pkg/jwt": 21,
+   "go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt": 7,
+   "go-wind-admin/pkg/middleware/auth": 21,
+   "go-wind-admin/pkg/middleware/logging": 78
+  },
+  "gated_not_run": {
+   "count": 8,
+   "recorded_as": "not_run with the repository's own precondition reason, never as pass",
+   "detail": "migration/preflight/T05-gated-tests.json"
+  },
+  "excluded_by_user_decision": {
+   "package": "pkg/localdeps/kratos-authn/engine",
+   "own_test_ids": [
+    "TestParseNumber"
+   ],
+   "reason": "cannot build under the mandatory default vet (see verbatim_block)",
+   "detail": "migration/preflight/T05-excluded-packages.json",
+   "is_not_a_pass": true
+  }
+ },
+ "test_environment": {
+  "helper": "/home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh (outside the repository; exports the pinned toolchain and the task-owned DSNs only)",
+  "authorized_isolated_instances": [
+   {
+    "container": "tx7do-t07-guard-pg",
+    "purpose": "GUARD_TEST_PG_DSN plus ani_t05_bootstrap_test created by this task for the gated bootstrap comparison",
+    "owned_by_this_task": true
+   },
+   {
+    "container": "tx7do-t07-acc-lab-pg",
+    "purpose": "QUOTA_LAB_PG_DSN / QUOTA_LAB_REGRESSION_DSN / QUOTA_LAB_PG_ADMIN_DSN",
+    "owned_by_this_task": true
+   },
+   {
+    "container": "tx7do-t04-captcha-redis",
+    "purpose": "task-owned captcha lab, still up from T04; not needed by the T05 gate",
+    "owned_by_this_task": true
+   }
+  ],
+  "never_touched": "quota-gpu-local-01-pg and every business database",
+  "toolchain": "go1.26.7, GOWORK=off, GOFLAGS empty, GOTOOLCHAIN=local",
+  "no_network": "module cache only"
+ },
+ "residual_target_dependencies": {
+  "kratos_authn_in_import_graph": "absent (production and test graphs)",
+  "go_mod_requires_still_listed": [
+   "github.com/tx7do/kratos-authn v1.1.11",
+   "github.com/tx7do/kratos-authn/engine/jwt v1.1.11"
+  ],
+  "why_still_listed": "T05 removes the imports but does not run `go mod tidy`; tidy is scheduled for phase E (T14/T15). `go mod why github.com/tx7do/kratos-authn` already reports 'main module does not need package'.",
+  "deferred_by_plan": {
+   "github.com/tx7do/kratos-authz/*": "T06",
+   "github.com/tx7do/kratos-bootstrap/*": "T10",
+   "github.com/tx7do/go-crud/api + pagination Proto": "T06"
+  },
+  "full_residual_tx7do_list": "migration/preflight/T05-residual-non-test.txt (39 package paths)"
+ },
+ "remaining_debt_carried": [
+  "9 captcha image-driver tests remain KNOWN_BASELINE_FAILURE behind the upstream_known_defects tag (T04); replayed PASS in this checkpoint, still not green",
+  "engine package's own tests (TestParseNumber) remain unbuildable under default vet — disclosed exclusion, not a pass",
+  "pre-existing copylocks vet finding at accelerator_joint_http_test.go:503",
+  "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY remain not_run (need an external production-shaped dump/restore window)"
+ ],
+ "not_verified": [
+  "engine package self-tests (excluded by decision, cannot build under default vet)",
+  "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY (external restore window, outside every authorised scope so far)",
+  "any deployment or real business-database path: T05 does not deploy and does not connect to a business database"
+ ],
+ "group_B_status": "T05 closed with the disclosed exclusion; T06 (kratos-authz / casbin) is the next task in group B; A/B/C/D/E checkpoint ordering preserved; one batch at a time",
+ "pushed_merged_deployed": false,
+ "evidence_directory": "/home/ubuntu/tx7do-pilot-run/T05 (raw logs, outside the repository)",
+ "ledger_evidence": [
+  "migration/preflight/T05-provenance.json",
+  "migration/preflight/T05-guard.json",
+  "migration/preflight/T05-required-profile.json",
+  "migration/preflight/T05-profile-packages.json",
+  "migration/preflight/T05-gated-tests.json",
+  "migration/preflight/T05-excluded-packages.json",
+  "migration/preflight/T05-known-defects-replay.json",
+  "migration/preflight/T05-differential-verdict.json",
+  "migration/preflight/T05-differential.txt",
+  "migration/preflight/T05-tests-summary.json",
+  "migration/preflight/T05-vet-engine.log",
+  "migration/preflight/T05-vet-gate.log",
+  "migration/preflight/T05-residual-authn.txt",
+  "migration/preflight/T05-residual-non-test.txt"
+ ],
+ "self_assessment": "PASS_WITH_DISCLOSED_EXCLUSION. The takeover itself meets every T05.md constraint: package ownership only, algorithms/Claims/signature verification/expiry/Redis Lua/key names/client types/errors unchanged, no parallel Principal type, no JWT-only downgrade, no vendor / module-cache edit / permanent replace / nested go.mod. The one thing that is NOT claimed is full green: the engine package's own upstream tests are outside the gate by explicit decision and a repository-wide go test ./... still fails on them.",
+ "verdict": "PASS_WITH_DISCLOSED_EXCLUSION"
 }
