@@ -6,6 +6,8 @@ import (
 	pgs "github.com/lyft/protoc-gen-star/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	redact "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
 )
 
 // TestRedactionDefaults tests the default redaction values for various protobuf types
