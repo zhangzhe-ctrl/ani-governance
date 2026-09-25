@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"

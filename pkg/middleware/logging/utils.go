@@ -17,7 +17,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/tx7do/go-utils/id"
+	"go-wind-admin/pkg/localdeps/go-utils/id"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	"github.com/mileusna/useragent"

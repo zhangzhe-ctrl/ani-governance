@@ -11,7 +11,7 @@ import (
 
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	entBootstrap "go-wind-admin/pkg/localdeps/kratos-bootstrap/database/ent"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"

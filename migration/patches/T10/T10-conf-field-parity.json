@@ -1,0 +1,9 @@
+{
+ "generated_files": 17,
+ "config_field_or_message_diffs_vs_archive": {
+  "only_in_archive": [],
+  "only_in_localized": []
+ },
+ "files_byte_differing_from_archive": 17,
+ "byte_difference": "rawDesc go_package string and its enclosing FileOptions length varint only"
+}

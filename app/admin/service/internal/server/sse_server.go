@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	"github.com/tx7do/kratos-bootstrap/transport/sse"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/transport/sse"
 
 	sseServer "github.com/tx7do/kratos-transport/transport/sse"
 

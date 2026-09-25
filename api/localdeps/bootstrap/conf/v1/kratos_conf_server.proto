@@ -1,0 +1,454 @@
+syntax = "proto3";
+
+package conf;
+
+option go_package = "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1;conf";
+
+import "google/protobuf/duration.proto";
+
+import "conf/v1/kratos_conf_middleware.proto";
+import "conf/v1/kratos_conf_tls.proto";
+
+// 服务器
+message Server {
+  // REST
+  message REST {
+    message CORS {
+      repeated string headers = 1;  //
+      repeated string methods = 2;  //
+      repeated string origins = 3;  //
+      // 跨域请求携带凭据（Cookie）：响应 Access-Control-Allow-Credentials: true，
+      // 前端 withCredentials=true 时必须开启，否则浏览器拒绝预检
+      bool allow_credentials = 4;  //
+    }
+
+    string network = 1; // 网络
+    string addr = 2;  // 服务监听地址
+    google.protobuf.Duration timeout = 3; // 超时时间
+
+    CORS cors = 10;  // 服务监听地址
+    Middleware middleware = 11;  // 中间件
+    TLS tls = 12;  // TLS配置
+
+    bool enable_swagger = 20;  // 启用SwaggerUI
+    bool enable_pprof = 21;  // 启用pprof
+  }
+
+  // gPRC
+  message GRPC {
+    string network = 1; // 网络
+    string addr = 2;  // 服务监听地址
+
+    google.protobuf.Duration timeout = 3; // 超时时间
+
+    Middleware middleware = 4;
+
+    TLS tls = 5;  // TLS配置
+
+    google.protobuf.Duration connection_timeout = 10; // 连接建立超时时间
+    google.protobuf.Duration max_connection_idle = 11; // 空闲连接保活的最长时间(keepalive)
+    google.protobuf.Duration max_connection_age = 12; // 连接最大存活时间(keepalive)
+    google.protobuf.Duration max_connection_age_grace = 13; // 超龄连接强制关闭前的宽限期
+    google.protobuf.Duration keepalive_time = 14; // keepalive探测间隔
+    google.protobuf.Duration keepalive_timeout = 15; // keepalive探测等待响应的超时时间
+
+    optional int32 max_recv_msg_size = 16; // 最大接收消息大小(字节),默认4MB
+    optional int32 max_send_msg_size = 17; // 最大发送消息大小(字节),默认math.MaxInt32
+    optional int32 max_concurrent_streams = 18; // 单连接最大并发流数
+    optional bool disable_reflection = 19; // 禁用gRPC reflection服务(kratos默认开启)
+  }
+
+  // Websocket
+  message Websocket {
+    string network = 1; // 网络样式：http、https
+    string addr = 2;  // 服务监听地址
+    string path = 3;  // 路径
+    string codec = 4;  // 编解码器: json,xml,yaml...
+    google.protobuf.Duration timeout = 5; // 超时时间
+    TLS tls = 6;  // TLS配置
+  }
+
+  // MQTT
+  message Mqtt {
+    string endpoint = 1;  // 对端网络地址
+    string codec = 2;  // 编解码器: json,xml,yaml...
+    TLS tls = 3;  // TLS配置
+    string username = 4;  // 用户名
+    string password = 5;  // 密码
+    string client_id = 6;  // 客户端ID
+    bool clean_session = 7;  // 清除会话
+
+    google.protobuf.Duration keep_alive = 10; // 心跳间隔,默认30s
+    bool auto_reconnect = 11; // 断线自动重连
+    bool resume_subs = 12; // 重连后恢复订阅
+    bool order_matters = 13; // 保证消息顺序处理
+    google.protobuf.Duration max_reconnect_interval = 14; // 重连最大间隔
+    google.protobuf.Duration connect_retry_interval = 15; // 连接重试间隔
+    google.protobuf.Duration write_timeout = 16; // 写超时时间
+  }
+
+  // Kafka
+  message Kafka {
+    repeated string endpoints = 1;  // 对端网络地址
+    string codec = 2;  // 编解码器: json,xml,yaml...
+    TLS tls = 3;  // TLS配置
+
+    optional int32 max_attempts = 4; // 最大尝试次数
+    optional int32 batch_size = 5; // 批量大小
+    optional int64 batch_bytes = 6; // 批量字节数
+    optional int32 publish_max_attempts = 7; // 发布最大尝试次数
+
+    optional google.protobuf.Duration batch_timeout = 10; // 批量超时时间
+    optional google.protobuf.Duration read_timeout = 11; // 读取超时时间
+    optional google.protobuf.Duration write_timeout = 12; // 写入超时时间
+
+    optional bool enable_one_topic_one_writer = 20; // 启用一主题一写入器
+    optional bool allow_publish_auto_topic_creation = 21; // 允许发布自动创建主题
+    optional bool async = 22; // 异步发送
+    optional bool enable_logger = 23; // 启用日志记录
+    optional bool enable_error_logger = 24; // 启用错误日志记录
+
+    message PlainMechanism {
+      string username = 1;  // 用户名
+      string password = 2;  // 密码
+    }
+    message ScramMechanism {
+      enum Algorithm {
+        SHA256 = 0;
+        SHA512 = 1;
+      }
+      string algorithm = 1; // 算法
+      string username = 2;  // 用户名
+      string password = 3;  // 密码
+    }
+    oneof auth_mechanism {
+      PlainMechanism plain = 30; // PLAIN认证机制
+      ScramMechanism scram = 31; // SCRAM认证机制
+    }
+
+    optional string start_offset = 32; // 消费起始位置: first、last
+    optional string required_acks = 33; // 生产确认级别: one、all(默认all)
+    optional string balancer = 34; // 分区均衡策略: round_robin、least_bytes、hash、crc32、murmur2、reference_hash
+  }
+
+  // RabbitMQ
+  message RabbitMQ {
+    repeated string endpoints = 1;  // 对端网络地址
+    string codec = 2;  // 编解码器: json,xml,yaml...
+    TLS tls = 3;  // TLS配置
+  }
+
+  // ActiveMQ
+  message ActiveMQ {
+    string endpoint = 1;  // 对端网络地址
+    string codec = 2;  // 编解码器: json,xml,yaml...
+    TLS tls = 3;  // TLS配置
+  }
+
+  // NATS
+  message NATS {
+    string endpoint = 1;  // 对端网络地址
+    string codec = 2;  // 编解码器: json,xml,yaml...
+    TLS tls = 3;  // TLS配置
+  }
+
+  // NSQ
+  message NSQ {
+    string endpoint = 1;  // 对端网络地址
+    string codec = 2;  // 编解码器: json,xml,yaml...
+    TLS tls = 3;  // TLS配置
+  }
+
+  // Pulsar
+  message Pulsar {
+    string endpoint = 1;  // 对端网络地址
+    string codec = 2;  // 编解码器: json,xml,yaml...
+    TLS tls = 3;  // TLS配置
+  }
+
+  // Redis
+  message Redis {
+    string endpoint = 1;  // 对端网络地址
+    string codec = 2;  // 编解码器: json,xml,yaml...
+    TLS tls = 3;  // TLS配置
+  }
+
+  // RocketMQ
+  message RocketMQ {
+    string version = 1; // 驱动版本：aliyun、v2、v5
+    string codec = 2;  // 编解码器: json,xml,yaml...
+
+    repeated string name_servers = 3;
+    string name_server_domain = 4;
+
+    string access_key = 5;
+    string secret_key = 6;
+    string security_token = 7;
+
+    string namespace = 8;
+    string instance_name = 9;
+    string group_name = 10;
+
+    TLS tls = 11;  // TLS配置
+
+    bool enable_trace = 100;
+  }
+
+  // Asynq
+  message Asynq {
+    message RedisClientOpt {
+      string network = 1;  // Redis对端网络地址样式：tcp、unix
+      string addr = 2;  // Redis对端网络地址
+      string username = 3;  // Redis登录用户名
+      string password = 4;  // Redis登录密码
+      int32 db = 5;  // Redis数据库索引
+      int32 pool_size = 9; // Redis连接池大小
+    }
+    message RedisClusterClientOpt {
+      repeated string addrs = 1;  // Redis对端网络地址
+      optional int32 max_redirects = 2; // Redis最大重定向次数
+      string username = 3;  // Redis登录用户名
+      string password = 4;  // Redis登录密码
+    }
+    message RedisFailoverClientOpt {
+      string master_name = 1; // Redis主节点名称
+      repeated string sentinel_addrs = 2;  // Redis对端网络地址
+      string sentinel_username = 3;  // Redis Sentinel登录用户名
+      string sentinel_password = 4;  // Redis Sentinel登录密码
+      string username = 5;  // Redis登录用户名
+      string password = 6;  // Redis登录密码
+      int32 pool_size = 10; // Redis连接池大小
+    }
+
+    oneof redis_client_opts {
+      RedisClientOpt redis_opt = 1;
+      RedisClusterClientOpt redis_cluster_opt = 2;
+      RedisFailoverClientOpt redis_failover_opt = 3;
+      string uri = 4;  // Redis URI
+    }
+
+    optional string codec = 5;  // 编解码器: json,xml,yaml...
+    optional TLS tls = 6;  // TLS配置
+
+    optional google.protobuf.Duration dial_timeout = 7; // 拨号超时时间
+    optional google.protobuf.Duration read_timeout = 8; // 读取超时时间
+    optional google.protobuf.Duration write_timeout = 9; // 写入超时时间
+
+    optional string location = 10; // 时区
+    optional int32 concurrency = 11; // 并发数
+    optional int32 group_max_size = 12; // 组最大大小
+    map<string, int32> queues = 13; // 队列
+
+    optional bool enable_gracefully_shutdown = 20; // 优雅关闭
+    optional bool enable_strict_priority = 21; // 严格优先级
+
+    optional google.protobuf.Duration shutdown_timeout = 30; // 关闭超时时间
+    optional google.protobuf.Duration task_check_interval = 31; // 任务检查时间间隔
+    optional google.protobuf.Duration health_check_interval = 32; // 健康检查时间间隔
+    optional google.protobuf.Duration delayed_task_check_interval = 33; // 延迟任务检查时间间隔
+    optional google.protobuf.Duration group_grace_period = 34; // 组宽限期
+    optional google.protobuf.Duration group_max_delay = 35; // 组最大延迟
+    optional google.protobuf.Duration janitor_interval = 36; // 清扫器时间间隔
+    optional int32 janitor_batch_size = 37; // 清扫器批量大小
+  }
+
+  // Machinery
+  message Machinery {
+    string broker_type = 1; // broker类型，可以根据实际使用的存储介质，分别指定Redis、AMQP或AWS SQS；
+    string broker_addr = 2;  // broker的地址
+    int32 broker_db = 3;  // broker的数据库索引
+
+    string backend_type = 10; // backend类型，可以分别指定为：redis、memcached或mongodb等；
+    string backend_addr = 11;  // backend的地址
+    int32 backend_db = 12;  // backend的数据库索引
+
+    string lock_type = 20; // lock类型，可以分别指定为：redis、memcached或mongodb等；
+    string lock_addr = 21;  // lock的地址
+    int32 lock_db = 22;  // lock的数据库索引
+
+    string consumer_tag = 30; // 消费者标签
+    int32 consumer_concurrency = 31; // 消费者并发数
+    string consumer_queue = 32; // 消费者队列
+
+    TLS tls = 50;  // TLS配置
+    string default_queue = 51; // 默认队列
+    int32 results_expire_in = 52; // 结果过期时间
+    bool no_unix_signals = 53; // 禁用Unix信号
+
+    message Redis {
+      int32 max_idle = 1;
+      int32 max_active = 2;
+      int32 max_idle_timeout = 3;
+      bool wait = 4;
+      int32 read_timeout = 5;
+      int32 write_timeout = 6;
+      int32 connect_timeout = 7;
+      int32 normal_tasks_poll_period = 8;
+      int32 delayed_tasks_poll_period = 9;
+      string delayed_tasks_key = 10;
+      string master_name = 11;
+    }
+    Redis redis = 100; // Redis配置
+
+    message AMQP {
+      string exchange = 1;
+      string exchange_type = 2;
+      map<string, string> queue_declare_args = 3;
+      map<string, string> queue_binding_args = 4;
+      string binding_key = 5;
+      int32 prefetch_count = 6;
+      bool auto_delete = 7;
+      string delayed_queue = 8;
+    }
+    AMQP amqp = 101; // AMQP配置
+
+    message SQS {
+      int32 receive_wait_time_seconds = 1;
+      optional int32 receive_visibility_timeout = 2;
+    }
+    SQS sqs = 102; // SQS配置
+
+    message GCP {
+      google.protobuf.Duration max_extension = 1;
+    }
+    GCP gcp = 103; // GCP配置
+
+    message MongoDB {
+      string database = 1;
+    }
+    MongoDB mongodb = 104; // MongoDB配置
+
+    message DynamoDB {
+      string task_states_table = 1;
+      string group_metas_table = 2;
+    }
+    DynamoDB dynamodb = 105; // DynamoDB配置
+  }
+
+  // SSE
+  message SSE {
+    string network = 1; // 网络
+    string addr = 2;  // 服务监听地址
+    string path = 3;  // 路径
+    string codec = 4;  // 编解码器
+    TLS tls = 5;  // TLS配置
+
+    google.protobuf.Duration timeout = 10; // 超时时间
+    google.protobuf.Duration event_ttl = 11; // 事件存活时间
+
+    bool auto_stream = 20; // 自动管理流
+    bool auto_reply = 21; // 自动回复事件
+    bool split_data = 22; // 分割数据
+    bool encode_base64 = 23; // 进行BASE64编码
+
+    optional int32 buffer_size = 24; // 每流事件通道缓冲大小,默认1024
+    map<string, string> headers = 25; // 自定义响应头(如禁缓存、代理透传)
+  }
+
+  // SocketIO
+  message SocketIO {
+    string network = 1; // 网络
+    string addr = 2;  // 服务监听地址
+    string path = 3;  // 路径
+    string codec = 4;  // 编解码器
+    TLS tls = 5;  // TLS配置
+  }
+
+  // SignalR
+  message SignalR {
+    string network = 1; // 网络
+    string addr = 2;  // 服务监听地址
+    string codec = 3;  // 编解码器
+    TLS tls = 4;  // TLS配置
+
+    google.protobuf.Duration keep_alive_interval = 10; // 超时时间
+    google.protobuf.Duration chan_receive_timeout = 11; // 超时时间
+
+    bool debug = 6; // 调试开关
+    uint32 stream_buffer_capacity = 7; //
+  }
+
+  // MCP
+  message MCP {
+    string server_name = 1;  // 服务器名称
+    string server_version = 2;  // 服务器版本
+    string server_type = 3;  // 服务器类型，SSE、HTTP、STDIO、IN_PROCESS。
+    string address = 4; // 服务器地址
+    TLS tls = 5;  // TLS配置
+    string instructions = 6;  // 指令集
+
+    bool recovery = 10; // 恢复模式
+    bool logging = 11; // 日志记录
+    bool tool_capabilities = 12; // 工具能力集
+    bool prompt_capabilities = 13; // 提示词能力集
+    bool elicitation = 14; // 需求挖掘
+    bool roots = 15; // 根源
+
+    bool resource_capabilities = 16; // 资源能力集(订阅/列表变更)
+    bool enable_completions = 17; // 补全能力
+    bool enable_input_schema_validation = 18; // 入参Schema校验
+    bool enable_output_schema_validation = 19; // 出参Schema校验
+  }
+
+  // GraphQL
+  message GraphQL {
+    string network = 1; // 网络
+    string addr = 2;  // 服务监听地址
+    string path = 3;  // 路径
+    string codec = 4;  // 编解码器
+    google.protobuf.Duration timeout = 5; // 超时时间
+    bool strict_slash = 6;
+    TLS tls = 7;  // TLS配置
+  }
+
+  // Thrift
+  message Thrift {
+    string network = 1; // 网络
+    string addr = 2;  // 服务监听地址
+    string protocol = 3;
+    bool buffered = 4;
+    bool framed = 5;
+    bool buffer_size = 6;
+    TLS tls = 7;  // TLS配置
+  }
+
+  // 保活服务
+  message KeepAlive {
+    string network = 1; // 网络
+    string addr = 2;  // 服务监听地址
+    TLS tls = 3;  // TLS配置
+  }
+
+  // RPC
+
+  optional REST rest = 1;  // REST服务
+  optional GRPC grpc = 2;  // gRPC服务
+  optional GraphQL graphql = 3;  // GraphQL服务
+  optional Thrift thrift = 4;  // Thrift服务
+  optional KeepAlive keepalive = 5;  // 保活服务
+
+  // Message Queue
+
+  optional Mqtt mqtt = 10;  // MQTT服务
+  optional Kafka kafka = 11;  // Kafka服务
+  optional RabbitMQ rabbitmq = 12;  // RabbitMQ服务
+  optional ActiveMQ activemq = 13; // ActiveMQ
+  optional NATS nats = 14; // NATS
+  optional NSQ nsq = 15; // NATS
+  optional Pulsar pulsar = 16; // Pulsar
+  optional Redis redis = 17; // Redis
+  optional RocketMQ rocketmq = 18; // RocketMQ
+
+  // RealTime
+
+  optional Websocket websocket = 20;  // Websocket服务
+  optional SSE sse = 21;  // SSE服务
+  optional SocketIO socketio = 22;  // SocketIO服务
+  optional SignalR signalr = 23;  // SignalR服务
+  optional MCP mcp = 24;  // MCP服务
+
+  // Task Queue
+
+  optional Asynq asynq = 30;  // Asynq服务
+  optional Machinery machinery = 31;  // Machinery服务
+}

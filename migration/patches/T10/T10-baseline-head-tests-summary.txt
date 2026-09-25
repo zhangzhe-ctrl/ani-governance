@@ -1,0 +1,21 @@
+test pass=2635 fail=0 skip=12  package pass=56 fail=0
+
+fail (0):
+
+skip (12):
+  go-wind-admin/app/admin/service/internal/data :: TestBootstrapPostgres
+  go-wind-admin/app/admin/service/internal/data/ent :: TestOrgUnitPathExpansionTenantBounded
+  go-wind-admin/app/admin/service/internal/data/ent :: TestPositionDataScopeGuard
+  go-wind-admin/app/admin/service/internal/data/ent :: TestTenantGuardDeleteOneCreate
+  go-wind-admin/app/admin/service/internal/data/ent :: TestTenantMutationGuard
+  go-wind-admin/app/admin/service/internal/data/ent :: TestTenantMutationGuardAccessKey
+  go-wind-admin/app/admin/service/internal/service :: TestAcceleratorFormalSessionRefresh
+  go-wind-admin/app/admin/service/internal/service :: TestAcceleratorJointHTTP
+  go-wind-admin/app/admin/service/internal/service :: TestOnboardingAPIRegistration
+  go-wind-admin/app/admin/service/internal/service :: TestOnboardingConcurrentAcceptance
+  go-wind-admin/app/admin/service/tests/gpucontract :: TestJointGovernanceProcess
+  go-wind-admin/app/admin/service/tests/gpucontract :: TestJointOwnerProcess
+  go-wind-admin/app/admin/service/internal/data/ent            5
+  go-wind-admin/app/admin/service/internal/service             4
+  go-wind-admin/app/admin/service/tests/gpucontract            2
+  go-wind-admin/app/admin/service/internal/data                1

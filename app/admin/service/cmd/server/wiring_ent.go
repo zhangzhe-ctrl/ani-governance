@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/transport"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/server"

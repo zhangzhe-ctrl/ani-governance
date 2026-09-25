@@ -1,0 +1,10 @@
+# audit fixture re-pin (T10)
+# scripts/gpu-audit-fixture-sha256.txt pins two audit-critical fixtures. T10 changed the bytes of one of
+# them, so the gate reported FAILED. The entry was re-pinned, not deleted; the other entry is untouched.
+#
+# pinned before: 91d7d520493d661b0da6cdc5f07a64013de01ae0996082f68eb74645d77efa92  app/admin/service/internal/data/authenticator_test.go
+# pinned after : dd81554c92920815e2c5f4ac895a39938788534645938f4f34ad17ffdd0ec351  app/admin/service/internal/data/authenticator_test.go
+# the whole content difference of that file between HEAD and now:
+-	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
++	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
+# guard proof that the difference is import-only: see T10-guard-consumers report for this file

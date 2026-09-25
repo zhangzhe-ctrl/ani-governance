@@ -1,0 +1,49 @@
+{
+ "module": "go-wind-admin",
+ "external_prefix": "github.com/tx7do/",
+ "default": {
+  "packages_in_graph": 1053,
+  "external_tx7do_packages": [
+   "github.com/tx7do/kratos-swagger-ui",
+   "github.com/tx7do/kratos-swagger-ui/internal/swagger",
+   "github.com/tx7do/kratos-transport/broker",
+   "github.com/tx7do/kratos-transport/tracing",
+   "github.com/tx7do/kratos-transport/transport",
+   "github.com/tx7do/kratos-transport/transport/asynq",
+   "github.com/tx7do/kratos-transport/transport/keepalive",
+   "github.com/tx7do/kratos-transport/transport/sse"
+  ],
+  "external_tx7do_count": 8,
+  "localized_roots_still_external": []
+ },
+ "quota_lab": {
+  "packages_in_graph": 1056,
+  "external_tx7do_packages": [
+   "github.com/tx7do/kratos-swagger-ui",
+   "github.com/tx7do/kratos-swagger-ui/internal/swagger",
+   "github.com/tx7do/kratos-transport/broker",
+   "github.com/tx7do/kratos-transport/tracing",
+   "github.com/tx7do/kratos-transport/transport",
+   "github.com/tx7do/kratos-transport/transport/asynq",
+   "github.com/tx7do/kratos-transport/transport/keepalive",
+   "github.com/tx7do/kratos-transport/transport/sse"
+  ],
+  "external_tx7do_count": 8,
+  "localized_roots_still_external": []
+ },
+ "quota_pg": {
+  "packages_in_graph": 1053,
+  "external_tx7do_packages": [
+   "github.com/tx7do/kratos-swagger-ui",
+   "github.com/tx7do/kratos-swagger-ui/internal/swagger",
+   "github.com/tx7do/kratos-transport/broker",
+   "github.com/tx7do/kratos-transport/tracing",
+   "github.com/tx7do/kratos-transport/transport",
+   "github.com/tx7do/kratos-transport/transport/asynq",
+   "github.com/tx7do/kratos-transport/transport/keepalive",
+   "github.com/tx7do/kratos-transport/transport/sse"
+  ],
+  "external_tx7do_count": 8,
+  "localized_roots_still_external": []
+ }
+}

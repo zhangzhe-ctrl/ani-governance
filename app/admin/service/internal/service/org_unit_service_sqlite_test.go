@@ -19,9 +19,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/enttest"

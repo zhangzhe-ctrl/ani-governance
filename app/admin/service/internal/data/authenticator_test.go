@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/durationpb"
 
-	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
+	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 

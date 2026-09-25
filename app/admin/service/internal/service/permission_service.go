@@ -5,14 +5,14 @@ import (
 	"sort"
 	"strings"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"go-wind-admin/pkg/localdeps/go-utils/aggregator"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/go-utils/stringcase"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 
 	"go-wind-admin/app/admin/service/internal/data"
 

@@ -1,0 +1,63 @@
+{
+ "schema_version": "t10-required-profile/1",
+ "log": "/home/ubuntu/tx7do-pilot-run/T10/T10-affected-tests.log.jsonl",
+ "floor_T09B1": 94,
+ "total_required": 761,
+ "added_from_localized_packages": 78,
+ "added_from_rewritten_consumers": 598,
+ "consumer_packages": [
+  "go-wind-admin/app/admin/service/cmd/server",
+  "go-wind-admin/app/admin/service/internal/data",
+  "go-wind-admin/app/admin/service/internal/quotalab",
+  "go-wind-admin/app/admin/service/internal/quotalab/simulator",
+  "go-wind-admin/app/admin/service/internal/server",
+  "go-wind-admin/app/admin/service/internal/service",
+  "go-wind-admin/app/admin/service/tests/gpucontract",
+  "go-wind-admin/pkg/authorizer",
+  "go-wind-admin/pkg/constants",
+  "go-wind-admin/pkg/jwt",
+  "go-wind-admin/pkg/localdeps/go-crud/entgo/mixin",
+  "go-wind-admin/pkg/localdeps/go-utils/copierutil",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/database/ent",
+  "go-wind-admin/pkg/middleware/auth",
+  "go-wind-admin/pkg/middleware/logging"
+ ],
+ "localized_packages_with_tests": [
+  "go-wind-admin/pkg/localdeps/go-utils/id",
+  "go-wind-admin/pkg/localdeps/go-utils/id/machineid",
+  "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc/middleware/requestid"
+ ],
+ "packages_without_test_files": [
+  "go-wind-admin/pkg/localdeps/go-utils/tls",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/cache/redis",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/config",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/registry",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc/middleware/validate",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/tracer",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/transport/asynq",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/transport/sse"
+ ],
+ "not_assertable_as_pass": {
+  "go-wind-admin/app/admin/service/internal/data#TestBootstrapPostgres": "skip",
+  "go-wind-admin/app/admin/service/internal/service#TestAcceleratorFormalSessionRefresh": "skip",
+  "go-wind-admin/app/admin/service/internal/service#TestAcceleratorJointHTTP": "skip",
+  "go-wind-admin/app/admin/service/internal/service#TestOnboardingAPIRegistration": "skip",
+  "go-wind-admin/app/admin/service/internal/service#TestOnboardingConcurrentAcceptance": "skip",
+  "go-wind-admin/app/admin/service/tests/gpucontract#TestJointGovernanceProcess": "skip",
+  "go-wind-admin/app/admin/service/tests/gpucontract#TestJointOwnerProcess": "skip",
+  "go-wind-admin/pkg/localdeps/go-utils/id#TestGenerateOrderIdWithTenantIdCollision": "fail",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap#TestBootstrapWithNameVersion": "fail",
+  "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc#TestWhiteListNormalization": "fail"
+ },
+ "inherited_upstream_defects_still_running": [
+  "TestBootstrapWithNameVersion",
+  "TestGenerateOrderIdWithTenantIdCollision",
+  "TestWhiteListNormalization"
+ ],
+ "excludes_any_run": false
+}

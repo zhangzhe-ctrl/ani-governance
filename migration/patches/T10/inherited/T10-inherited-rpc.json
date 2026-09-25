@@ -1,0 +1,6 @@
+[
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc",
+  "Test": "TestWhiteListNormalization"
+ }
+]

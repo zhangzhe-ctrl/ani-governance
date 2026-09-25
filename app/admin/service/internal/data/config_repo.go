@@ -8,15 +8,15 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	"github.com/redis/go-redis/v9"
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
 	"go-wind-admin/pkg/localdeps/go-utils/mapper"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	configV1 "go-wind-admin/api/gen/go/config/service/v1"

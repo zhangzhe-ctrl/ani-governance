@@ -10,9 +10,9 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
-	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 

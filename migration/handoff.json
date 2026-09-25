@@ -608,5 +608,25 @@
    "python3 -c \"import json; json.load(open('migration/receipts/T09.json'))\"  ->  parses"
   ],
   "next": "T10 (phase C third task), then the second make verify-gpu to close phase C; phases D (T11-T13) and E (T14-T15) follow. Nothing in T09's passed scope is reopened by that work except where a later task names it."
+ },
+ "t10_takeover_and_two_red_gates": {
+  "task": "T10",
+  "status": "BLOCKED",
+  "start_sha": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e",
+  "proven": [
+   "93 files placed verbatim, 25 of them rewritten and re-proved with equiv",
+   "212 consumer files rewritten, every one of the 736 changed lines an import spec, guard pass",
+   "conf Proto regenerated with 2530 symbols (124 messages, 883 fields, 1521 accessors) identical to the locked archive",
+   "8 external tx7do packages left, zero of them kratos-bootstrap or go-utils",
+   "entry builds 3/3, init smoke, PG Ent enableTrace false/true and database-clock cases, race suites and lab regression all exit 0",
+   "0 tests regressed against a replay of the same suite on the start commit"
+  ],
+  "needs_user_ruling": [
+   "T10-B1 four inherited upstream test cases now live in-repo and red",
+   "T10-B2 scripts/verify-gpu-format.sh has been red since 53b3c00, before T09",
+   "confirm the one-line audit fixture re-pin"
+  ],
+  "accepted_head": "b0e8fd424320b6542977e8c94297ab6e86784e58",
+  "not_pushed_merged_or_deployed": true
  }
 }

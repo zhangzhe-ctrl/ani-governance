@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"github.com/stretchr/testify/require"
 	"go-wind-admin/app/admin/service/internal/data/enttest"
 )

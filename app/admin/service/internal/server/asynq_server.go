@@ -4,9 +4,9 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	bootstrapAsynq "github.com/tx7do/kratos-bootstrap/transport/asynq"
 	asynqServer "github.com/tx7do/kratos-transport/transport/asynq"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bootstrapAsynq "go-wind-admin/pkg/localdeps/kratos-bootstrap/transport/asynq"
 
 	"go-wind-admin/app/admin/service/internal/service"
 

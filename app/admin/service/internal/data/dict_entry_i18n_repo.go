@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
 	"go-wind-admin/pkg/localdeps/go-utils/mapper"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"

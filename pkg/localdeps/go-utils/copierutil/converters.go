@@ -7,7 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/tx7do/go-utils/timeutil"
+	"go-wind-admin/pkg/localdeps/go-utils/timeutil"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 )
 

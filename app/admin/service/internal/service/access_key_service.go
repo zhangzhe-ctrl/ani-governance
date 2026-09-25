@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	accesskeyV1 "go-wind-admin/api/gen/go/access_key/service/v1"
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	"go-wind-admin/pkg/middleware/auth"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

@@ -1,0 +1,11 @@
+{
+ "schema_version": "t10-diff-audit/1",
+ "base": "HEAD",
+ "files_audited": 212,
+ "line_classes": {
+  "import": 736
+ },
+ "files_with_non_import_changed_lines": 0,
+ "non_import_changed_lines": [],
+ "conclusion": "every changed line is an import spec or import-block line"
+}

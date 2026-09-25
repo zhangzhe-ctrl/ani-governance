@@ -27,12 +27,12 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	gocrypto "go-wind-admin/pkg/localdeps/go-utils/crypto"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
+	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 

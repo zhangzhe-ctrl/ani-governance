@@ -38,11 +38,11 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"go-wind-admin/pkg/localdeps/go-utils/captcha"
 	utilCrypto "go-wind-admin/pkg/localdeps/go-utils/crypto"
 	"go-wind-admin/pkg/localdeps/go-utils/password"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	ktransport "github.com/go-kratos/kratos/v2/transport"
@@ -51,10 +51,10 @@ import (
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/enttest"
 
-	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
+	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 
 	"go-wind-admin/pkg/constants"
 	"go-wind-admin/pkg/middleware/auth"

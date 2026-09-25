@@ -8,7 +8,7 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 )
 
 // newRedisCacheMonitorRepoSqlite 白盒构造 RedisCacheMonitorRepo：

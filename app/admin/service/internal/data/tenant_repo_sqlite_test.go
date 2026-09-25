@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"

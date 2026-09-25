@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 
-	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
+	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 )

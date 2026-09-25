@@ -24,7 +24,7 @@ import (
 
 	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
 	authzMw "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 

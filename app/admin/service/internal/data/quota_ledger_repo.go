@@ -12,9 +12,9 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	kratosErrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/google/uuid"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/gpudeleteacceptance"

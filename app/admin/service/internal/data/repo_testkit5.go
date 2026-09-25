@@ -26,7 +26,7 @@
 package data
 
 import (
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
@@ -40,7 +40,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/sysconfig"
 	"go-wind-admin/app/admin/service/internal/data/ent/usercredential"
 
-	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
+	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	configV1 "go-wind-admin/api/gen/go/config/service/v1"

@@ -108,6 +108,13 @@ api-redact:
 api-pagination:
 	bash scripts/generate-pagination.sh
 
+# generate the localized bootstrap conf Proto into pkg/localdeps.
+# The Proto source is api/localdeps/bootstrap and buf.bootstrap.conf.gen.yaml is the only
+# template that writes that target, so the 17 conf files are generated exactly once.
+# BUF must point at a verified buf v1.60.0; the script refuses any other version.
+api-bootstrap-conf:
+	bash scripts/generate-bootstrap-conf.sh
+
 # generate protobuf api OpenAPI v3 docs.
 openapi:
 	cd api && \

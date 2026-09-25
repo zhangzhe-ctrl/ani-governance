@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
+	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 
 	authzEngine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
 	"go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin"
 	"go-wind-admin/pkg/localdeps/kratos-authz/engine/noop"
 
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 )
 
 // Authorizer 权限管理器

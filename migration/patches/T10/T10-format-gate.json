@@ -1,0 +1,184 @@
+{
+ "gate": "scripts/verify-gpu-format.sh",
+ "unformatted_now": [
+  "app/admin/service/cmd/server/wiring_quota_default.go",
+  "app/admin/service/cmd/server/wiring_quota_lab.go",
+  "app/admin/service/internal/data/authenticator_test.go",
+  "app/admin/service/internal/data/dashboard_repo_sqlite_test.go",
+  "app/admin/service/internal/data/login_rate_limiter.go",
+  "app/admin/service/internal/data/mfa_challenge_cache.go",
+  "app/admin/service/internal/data/redis_cache_monitor_repo.go",
+  "app/admin/service/internal/data/role_org_unit_repo_sqlite_test.go",
+  "app/admin/service/internal/data/server_monitor_repo_sqlite_test.go",
+  "app/admin/service/internal/data/user_mfa_factor_repo_sqlite_test.go",
+  "app/admin/service/internal/server/policy_eval_logging_engine.go",
+  "app/admin/service/internal/server/policy_eval_logging_engine_guard_test.go",
+  "app/admin/service/internal/service/accelerator_joint_http_test.go",
+  "app/admin/service/internal/service/dashboard_service.go",
+  "app/admin/service/internal/service/data_access_audit_log_service.go",
+  "app/admin/service/internal/service/internal_message_recipient_service.go",
+  "app/admin/service/internal/service/login_audit_log_service.go",
+  "app/admin/service/internal/service/operation_audit_log_service.go",
+  "app/admin/service/internal/service/permission_audit_log_service.go",
+  "app/admin/service/internal/service/policy_evaluation_log_service.go",
+  "app/admin/service/internal/service/quota_admin_service.go",
+  "app/admin/service/internal/service/redis_cache_monitor_service.go",
+  "app/admin/service/internal/service/server_monitor_service.go",
+  "app/admin/service/internal/service/user_field_permission.go",
+  "pkg/jwt/user_token_payload_test.go",
+  "pkg/localdeps/go-crud/pagination/filter/filter_string_converter_test.go",
+  "pkg/localdeps/go-wind/log/global_helpers.go",
+  "pkg/localdeps/go-wind/log/global_helpers_test.go",
+  "pkg/middleware/auth/auth_test.go",
+  "pkg/middleware/auth/authorization_domain_test.go",
+  "pkg/middleware/auth/utils.go",
+  "pkg/middleware/logging/harness_test.go"
+ ],
+ "unformatted_at_head": [
+  "app/admin/service/internal/data/mfa_challenge_cache.go",
+  "app/admin/service/internal/server/policy_eval_logging_engine.go",
+  "app/admin/service/internal/server/policy_eval_logging_engine_guard_test.go",
+  "app/admin/service/internal/service/accelerator_joint_http_test.go",
+  "app/admin/service/internal/service/data_access_audit_log_service.go",
+  "app/admin/service/internal/service/internal_message_recipient_service.go",
+  "app/admin/service/internal/service/login_audit_log_service.go",
+  "app/admin/service/internal/service/operation_audit_log_service.go",
+  "app/admin/service/internal/service/permission_audit_log_service.go",
+  "app/admin/service/internal/service/policy_evaluation_log_service.go",
+  "app/admin/service/internal/service/quota_admin_service.go",
+  "app/admin/service/internal/service/user_field_permission.go",
+  "pkg/authorizer/authorizer_test.go",
+  "pkg/jwt/user_token_payload_test.go",
+  "pkg/localdeps/go-crud/pagination/filter/filter_string_converter_test.go",
+  "pkg/localdeps/go-wind/log/global_helpers.go",
+  "pkg/localdeps/go-wind/log/global_helpers_test.go",
+  "pkg/middleware/auth/auth_test.go",
+  "pkg/middleware/auth/authorization_domain_test.go",
+  "pkg/middleware/auth/utils.go",
+  "pkg/middleware/logging/harness_test.go"
+ ],
+ "only_now_T10_surface_area": [
+  "app/admin/service/cmd/server/wiring_quota_default.go",
+  "app/admin/service/cmd/server/wiring_quota_lab.go",
+  "app/admin/service/internal/data/authenticator_test.go",
+  "app/admin/service/internal/data/dashboard_repo_sqlite_test.go",
+  "app/admin/service/internal/data/login_rate_limiter.go",
+  "app/admin/service/internal/data/redis_cache_monitor_repo.go",
+  "app/admin/service/internal/data/role_org_unit_repo_sqlite_test.go",
+  "app/admin/service/internal/data/server_monitor_repo_sqlite_test.go",
+  "app/admin/service/internal/data/user_mfa_factor_repo_sqlite_test.go",
+  "app/admin/service/internal/service/dashboard_service.go",
+  "app/admin/service/internal/service/redis_cache_monitor_service.go",
+  "app/admin/service/internal/service/server_monitor_service.go"
+ ],
+ "only_at_head_fixed_by_T10": [
+  "pkg/authorizer/authorizer_test.go"
+ ],
+ "classification_of_the_T10_surface_area": [
+  {
+   "file": "app/admin/service/cmd/server/wiring_quota_default.go",
+   "gofmt_changed_lines": 2,
+   "gofmt_non_import_lines": 0,
+   "non_import_examples": [],
+   "head_copy_already_unformatted": true
+  },
+  {
+   "file": "app/admin/service/cmd/server/wiring_quota_lab.go",
+   "gofmt_changed_lines": 2,
+   "gofmt_non_import_lines": 0,
+   "non_import_examples": [],
+   "head_copy_already_unformatted": true
+  },
+  {
+   "file": "app/admin/service/internal/data/authenticator_test.go",
+   "gofmt_changed_lines": 6,
+   "gofmt_non_import_lines": 6,
+   "non_import_examples": [
+    "\t\tMethod:      \"RS256\",",
+    "\t\tPrivateKey:  ptrString(testRSAPrivateKey),",
+    "\t\tPublicKey:   ptrString(testRSAPublicKey),",
+    "\t\tMethod:     \"RS256\","
+   ],
+   "head_copy_already_unformatted": true
+  },
+  {
+   "file": "app/admin/service/internal/data/dashboard_repo_sqlite_test.go",
+   "gofmt_changed_lines": 6,
+   "gofmt_non_import_lines": 4,
+   "non_import_examples": [
+    "\t\trequire.Equal(t, today.AddDate(0, 0, -(2 - i)).Format(\"2006-01-02\"), row.Date,",
+    "\t\trequire.Equal(t, today.AddDate(0, 0, -(2-i)).Format(\"2006-01-02\"), row.Date,",
+    "\t\trequire.Equal(t, today.AddDate(0, 0, -(6 - i)).Format(\"2006-01-02\"), row.Date,",
+    "\t\trequire.Equal(t, today.AddDate(0, 0, -(6-i)).Format(\"2006-01-02\"), row.Date,"
+   ],
+   "head_copy_already_unformatted": true
+  },
+  {
+   "file": "app/admin/service/internal/data/login_rate_limiter.go",
+   "gofmt_changed_lines": 2,
+   "gofmt_non_import_lines": 0,
+   "non_import_examples": [],
+   "head_copy_already_unformatted": true
+  },
+  {
+   "file": "app/admin/service/internal/data/redis_cache_monitor_repo.go",
+   "gofmt_changed_lines": 14,
+   "gofmt_non_import_lines": 12,
+   "non_import_examples": [
+    "\t\t\tId:            s.ID,",
+    "\t\t\tCreatedAt:     timestamppb.New(s.Time),",
+    "\t\t\tDurationUsec:  s.Duration.Microseconds(),",
+    "\t\t\tArgs:          sanitizeSlowLogArgs(s.Args),"
+   ],
+   "head_copy_already_unformatted": true
+  },
+  {
+   "file": "app/admin/service/internal/data/role_org_unit_repo_sqlite_test.go",
+   "gofmt_changed_lines": 2,
+   "gofmt_non_import_lines": 0,
+   "non_import_examples": [],
+   "head_copy_already_unformatted": true
+  },
+  {
+   "file": "app/admin/service/internal/data/server_monitor_repo_sqlite_test.go",
+   "gofmt_changed_lines": 2,
+   "gofmt_non_import_lines": 0,
+   "non_import_examples": [],
+   "head_copy_already_unformatted": true
+  },
+  {
+   "file": "app/admin/service/internal/data/user_mfa_factor_repo_sqlite_test.go",
+   "gofmt_changed_lines": 6,
+   "gofmt_non_import_lines": 4,
+   "non_import_examples": [
+    "\t\t\tSetSecretHash(\"secret-\" + string(method)).",
+    "\t\t\tSetDisplayName(\"display-\" + string(method)).",
+    "\t\t\tSetSecretHash(\"secret-\"+string(method)).",
+    "\t\t\tSetDisplayName(\"display-\"+string(method))."
+   ],
+   "head_copy_already_unformatted": true
+  },
+  {
+   "file": "app/admin/service/internal/service/dashboard_service.go",
+   "gofmt_changed_lines": 2,
+   "gofmt_non_import_lines": 0,
+   "non_import_examples": [],
+   "head_copy_already_unformatted": true
+  },
+  {
+   "file": "app/admin/service/internal/service/redis_cache_monitor_service.go",
+   "gofmt_changed_lines": 2,
+   "gofmt_non_import_lines": 0,
+   "non_import_examples": [],
+   "head_copy_already_unformatted": true
+  },
+  {
+   "file": "app/admin/service/internal/service/server_monitor_service.go",
+   "gofmt_changed_lines": 2,
+   "gofmt_non_import_lines": 0,
+   "non_import_examples": [],
+   "head_copy_already_unformatted": true
+  }
+ ],
+ "verdict_note": "import-only hunks are T10's own doing and must be gofmt'd; a file whose HEAD copy is already unformatted carries a defect older than T10 that the gate only now covers because T10 touched the file"
+}

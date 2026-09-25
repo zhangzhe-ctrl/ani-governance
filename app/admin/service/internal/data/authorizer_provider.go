@@ -4,10 +4,10 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 

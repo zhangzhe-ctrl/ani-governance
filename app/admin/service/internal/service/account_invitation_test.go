@@ -20,11 +20,11 @@ import (
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 	"go-wind-admin/pkg/localdeps/go-utils/password"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	authV1 "go-wind-admin/api/gen/go/authentication/service/v1"

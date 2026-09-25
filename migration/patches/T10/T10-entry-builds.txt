@@ -1,0 +1,7 @@
+# three entry builds, same commands as Makefile:221-223 (the chained make aborts earlier, at the format gate)
+build-server             exit=0  bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go build -o /home/ubuntu/tx7do-pilot-run/T10/bin/server ./app/admin/service/cmd/server 
+build-server-quotalab    exit=0  bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go build -tags quota_lab -o /home/ubuntu/tx7do-pilot-run/T10/bin/server_quotalab ./app/admin/service/cmd/server 
+build-admin              exit=0  bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go build -o /home/ubuntu/tx7do-pilot-run/T10/bin/admin ./app/admin/service/cmd/admin 
+2cdd4e5d64bae2dc7d03bf552826795ce14e00ca76b3a1845d694f07eeaf4094  /home/ubuntu/tx7do-pilot-run/T10/bin/server
+0906c977d157d5b0a512263467ee6adf7e44ce07fbb7572e60ac0c13d001b9e1  /home/ubuntu/tx7do-pilot-run/T10/bin/server_quotalab
+8a6ccc1462d0b4c7d30e8d4241d93ebf15bfceab3d9c63e76549a2c790a47146  /home/ubuntu/tx7do-pilot-run/T10/bin/admin

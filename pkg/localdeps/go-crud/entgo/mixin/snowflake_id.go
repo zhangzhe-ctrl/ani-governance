@@ -6,7 +6,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 
-	"github.com/tx7do/go-utils/id"
+	"go-wind-admin/pkg/localdeps/go-utils/id"
 )
 
 // 确保 SnowflakeId 实现了 ent.Mixin 接口

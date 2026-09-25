@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"strings"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/go-utils/sliceutil"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go-wind-admin/app/admin/service/internal/data"

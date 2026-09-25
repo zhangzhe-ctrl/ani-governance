@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/tx7do/go-utils/timeutil"
+	"go-wind-admin/pkg/localdeps/go-utils/timeutil"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"github.com/redis/go-redis/v9"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 )
 
 // 登录失败计数与锁定相关常量（H5：登录限流）。

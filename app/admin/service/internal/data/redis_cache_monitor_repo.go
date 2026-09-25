@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"github.com/redis/go-redis/v9"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 
 	redisCacheV1 "go-wind-admin/api/gen/go/redis_cache/service/v1"
 

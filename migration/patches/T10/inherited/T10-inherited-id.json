@@ -1,0 +1,10 @@
+[
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestGenerateOrderIdWithIndexThread"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestGenerateOrderIdWithTenantIdCollision"
+ }
+]

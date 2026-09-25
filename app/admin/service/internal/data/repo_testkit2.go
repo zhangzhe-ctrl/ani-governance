@@ -14,7 +14,7 @@
 package data
 
 import (
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 

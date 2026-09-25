@@ -8,12 +8,12 @@ import (
 
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/stretchr/testify/require"
-	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	"go-wind-admin/app/admin/service/internal/service"
 	"go-wind-admin/pkg/authorizer"
+	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 )
 
 func TestInvitationPage(t *testing.T) {

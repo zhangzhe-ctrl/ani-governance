@@ -16,9 +16,9 @@ import (
 
 	swaggerUI "github.com/tx7do/kratos-swagger-ui"
 
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
-	"github.com/tx7do/kratos-bootstrap/rpc"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc"
 
 	"go-wind-admin/app/admin/service/cmd/server/assets"
 	"go-wind-admin/app/admin/service/internal/data"
