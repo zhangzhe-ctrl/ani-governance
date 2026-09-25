@@ -1055,7 +1055,21 @@
   ],
   "generated_go_files": 17,
   "generated_go_files_containing_CR": 0,
-  "why_eol_cannot_leak": "protoc emits a FileDescriptorProto; source bytes and line endings are not part of it, and none of the 17 generated .pb.go carries a single CR byte"
+  "why_eol_cannot_leak": "protoc emits a FileDescriptorProto; source bytes and line endings are not part of it, and none of the 17 generated .pb.go carries a single CR byte",
+  "regen_control": {
+   "run_at": "2026-09-25T17:58+08:00",
+   "purpose": "replace the 'buf ignores line endings' argument with a measurement: regenerate from a checkout whose protos are the committed LF blobs and compare the output",
+   "commands": [
+    "git worktree add --detach /home/ubuntu/tx7do-pilot-run/T10/eol-control HEAD   (checkout stores the protos as LF, per .gitattributes)",
+    "cd <worktree> && BUF=/home/ubuntu/go/bin/buf bash scripts/generate-bootstrap-conf.sh   -> exit 0",
+    "diff -r <worktree>/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1 <repo>/same/path   -> no output"
+   ],
+   "buf": "v1.60.0 at /home/ubuntu/go/bin/buf, invoked by absolute path; nothing was written to any user-global tool path",
+   "generated_files_compared": 17,
+   "sha256_equal_to_the_committed_files": 17,
+   "conclusion": "the committed LF protos regenerate the 17 committed .pb.go byte-for-byte, so the eol=lf normalization changes no generated artifact and the takeover stays reproducible from the committed tree",
+   "also_observed": "the same worktree's checked-out protos differ from this session's worktree copies by line endings only, which is the git policy effect recorded above"
+  }
  },
  "audit_gate_head_control": {
   "schema_version": "t10-audit-leak-control/1",
