@@ -1,0 +1,8 @@
+141da3f02acfdbd8b886b0c3c037c0273d80f29934cedaa47e872f5a775baa74  /home/ubuntu/tx7do-pilot-run/T09/t09b1/generator-tests.jsonl
+67ada5b069af619a3da7297c4a29936724ccbd4e5c8627319889a10f25e98151  /home/ubuntu/tx7do-pilot-run/T09/t09b1/runtime-tests.jsonl
+cf2950898a21f5a7b3afb00b72c27a80f6e6c9d4148644ce5b4918a7109a669e  /home/ubuntu/tx7do-pilot-run/T09/t09b1/gate-run.jsonl
+18df1c46a4fc0d7a6a3b2a050904172d31c6e963e5b0bfc7f04fa046ea921e6d  /home/ubuntu/tx7do-pilot-run/T09/t09b1/wide-test.jsonl
+7a6466cbbb8331ee42ead905409fd879567e19811101934733ef3140e406dc03  /home/ubuntu/tx7do-pilot-run/T09/t09b1/compile-all-tests.log
+
+# appended after the pre-ledger re-verification (see receipt_amendments.pre_ledger_reconfirmation)
+207651d2d972608510b148b8953212115cb5721ef60215c0ca2ae170df80bf7e  t09b1/gate-recheck-before-ledger-commit.jsonl

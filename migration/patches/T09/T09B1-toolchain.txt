@@ -1,0 +1,41 @@
+# toolchain actually used for the T09-B1 re-verification on 2026-09-25 (all lines measured, not inferred)
+
+## pinned toolchain used for every test/vet/build gate this round
+command prefix: GOROOT=/home/ubuntu/sdk/go1.26.7 GOTOOLCHAIN=local GOWORK=off  <go>
+go version go1.26.7 linux/amd64
+
+## /usr/local/go (the system go, used by the generation control exactly as the original control did)
+go1.26.4
+time 2026-05-29T15:26:39Z
+and in this module directory it resolves to (GOTOOLCHAIN=auto + the go.mod toolchain directive):
+go version go1.26.7 linux/amd64
+go1.26.7
+so both entry points ran go1.26.7; the 1.26.4 base is only the installer, not the compiler used.
+
+## buf
+1.60.0
+
+## protoc-gen-go reachable on PATH - the binary affected by the disclosed environment mutation
+-rwxrwxr-x 1 ubuntu ubuntu 10743933 2026-09-25T13:36:38 /home/ubuntu/go/bin/protoc-gen-go
+8c06db74e8c09fdc67b07d05e9d54bce186edd917d189bd50336cc478df16b11  /home/ubuntu/go/bin/protoc-gen-go
+/home/ubuntu/go/bin/protoc-gen-go: go1.26.7
+	path	google.golang.org/protobuf/cmd/protoc-gen-go
+	mod	google.golang.org/protobuf	v1.36.11	h1:fV6ZwhNocDyBLK0dj+fg8ektcVegBBuEolpbTQyBNVE=
+
+## the v1.36.12 copy moved out of PATH (kept, not deleted, so the mutation stays inspectable)
+59e0cd9ddac459d93a698d77b6ab71492233e254669f351755ce9927bcfb7088  /home/ubuntu/tx7do-pilot-run/T09/bin/protoc-gen-go.v1.36.12.copy
+
+## repository-built redact plugin (tools/bin is gitignored; make api rebuilds it)
+04d423a634cae42f97213efff1ec444546164481144ee41608fdd50506fd64c9  tools/bin/protoc-gen-go-redact
+tools/bin/protoc-gen-go-redact: go1.26.7
+	path	go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact
+	mod	go-wind-admin	v0.0.0-20260925063527-d9cf8e1900e1+dirty	
+	dep	github.com/lyft/protoc-gen-star/v2	v2.0.4	h1:JDlNKttNIRd68AAIychs0AqEpO8/I/WYi01OQ7Raw6Q=
+	dep	github.com/spf13/afero	v1.15.0	h1:b/YBCLWAJdFWJTN9cLhiXXcD7mzKn9Dm86dNnfyQw1I=
+
+## external redact plugin still installed by the old Makefile line (the control's 'pre' side)
+-rwxrwxr-x 1 ubuntu ubuntu 19123649 2026-09-20T16:00:22 /home/ubuntu/go/bin/protoc-gen-go-redact
+
+## absent tools (nothing was installed to make a check pass)
+protoc: absent
+golangci-lint: absent

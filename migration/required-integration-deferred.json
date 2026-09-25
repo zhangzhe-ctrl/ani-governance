@@ -1,0 +1,113 @@
+{
+ "schema_version": "t09-integration-deferred/1",
+ "note": "DEFERRED-required integration cases. These are not failures and not skips: they are cases whose sources and resources are preserved and hashed but whose execution is scheduled for the T13 tooling stage (at the latest before T15 sign-off) because protoc is absent on this host. T09 and every later checkpoint must restate them as DEFERRED; only a real run with recorded tool versions may turn one into pass.",
+ "status": "DEFERRED",
+ "source_module": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2",
+ "staging_manifest": "migration/patches/T09/T09-integration-staging.json",
+ "due": {
+  "earliest": "T13 (tooling stage)",
+  "latest": "T15 (final sign-off)"
+ },
+ "tests": [
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "TestIntegrationProtoCompilation",
+   "Kind": "test",
+   "File": "integration_test.go",
+   "Line": 19,
+   "needs": [
+    "protoc",
+    "protoc-gen-go (--go_out)",
+    "built plugin binary ./protoc-gen-redact",
+    "testdata/integration/test.proto",
+    "go build ./testdata/integration",
+    "go vet ./testdata/integration"
+   ],
+   "writes_into_source_tree": [
+    "protoc-gen-redact",
+    "testdata/integration/test.pb.go",
+    "testdata/integration/test.pb.redact.go",
+    "testdata/integration/test_grpc.pb.go"
+   ],
+   "honours_testing_short": true
+  },
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "TestGeneratedCodeQuality",
+   "Kind": "test",
+   "File": "integration_test.go",
+   "Line": 347,
+   "needs": [
+    "os.Stat on testdata/integration/test.proto"
+   ],
+   "writes_into_source_tree": [],
+   "honours_testing_short": true
+  },
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "TestOptionalFieldsInGeneratedCode",
+   "Kind": "test",
+   "File": "integration_test.go",
+   "Line": 380,
+   "needs": [
+    "protoc",
+    "protoc-gen-go (--go_out)",
+    "built plugin binary ./protoc-gen-redact",
+    "testdata/integration/test.proto"
+   ],
+   "writes_into_source_tree": [
+    "protoc-gen-redact",
+    "testdata/integration/test.pb.redact.go"
+   ],
+   "honours_testing_short": true
+  },
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "TestExternalTemplateLoading",
+   "Kind": "test",
+   "File": "external_template_test.go",
+   "Line": 16,
+   "needs": [
+    "protoc",
+    "protoc-gen-go (--go_out)",
+    "built plugin binary ./protoc-gen-redact",
+    "examples/custom-template.tmpl",
+    "redact --template handling"
+   ],
+   "writes_into_source_tree": [
+    "protoc-gen-redact",
+    "testdata/integration/test.pb.redact.go"
+   ],
+   "honours_testing_short": false
+  },
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "TestTemplateParameterValidation",
+   "Kind": "test",
+   "File": "external_template_test.go",
+   "Line": 171,
+   "needs": [
+    "nothing external: builds &Module{ModuleBase: &pgs.ModuleBase{}} and calls the production loadTemplateFromFile with an empty path and a directory (all 6 exec.Command sites in this file are inside TestExternalTemplateLoading)"
+   ],
+   "writes_into_source_tree": [],
+   "honours_testing_short": false,
+   "note": "the only staged case that is runnable on this host today; it stays DEFERRED because it lives in the same file as a protoc-driven case and the file cannot be activated without activating that one. No repository test executed here may be reported in its place."
+  },
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "BenchmarkCodeGeneration",
+   "Kind": "benchmark",
+   "File": "integration_test.go",
+   "Line": 461,
+   "needs": [
+    "protoc",
+    "built plugin binary ./protoc-gen-redact",
+    "-bench"
+   ],
+   "writes_into_source_tree": [
+    "protoc-gen-redact"
+   ],
+   "honours_testing_short": true
+  }
+ ]
+}

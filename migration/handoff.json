@@ -567,5 +567,46 @@
   "receipt_amended_after_ledger_commit": "migration/receipts/T09.json now carries a receipt_amendments block: the shipped start_sha full hash was a transcription error (e327eb2a5f... is not a git object) and is corrected to e327eb2970b605614547ee14805c179d25908a45, which is the value this entry has recorded from the start; the two residual facts appended to disclosed_gaps above are also logged there. Ledger-only, no source changed.",
   "next_task": "do not start T10. Resume T09 only with a decision on T09-B1 (options A-D). If option A is authorized: add the two import specs, re-run the 16-test gate plus the 457-test suite and the pre/post control, then drop the dead go.mod require and record accepted_head movement.",
   "recorded_at": "T09 parked BLOCKED, phase C in progress"
+ },
+ "phase_C_T09_closure": {
+  "supersedes": "phase_C_T09_blocked_parked_at, which is kept verbatim as the record of the park. One factual error in it is corrected here rather than edited away: api/buf.lock keeps 4 other entries after the redact removal (envoyproxy/protoc-gen-validate, gnostic/gnostic, googleapis/googleapis, kratos/apis), not 5.",
+  "verdict": "PASS_FOR_THE_EXECUTED_SCOPE_WITH_INTEGRATION_DEFERRED for T09; phase C stays open (T10, then the second make verify-gpu)",
+  "closed_at_user_instruction": "2026-09-25 supplemental authorization, option A for T09-B1 plus option D as a separate scheduling decision: migration/receipts/T09-authorization-missing-test-imports.json and the T09 subsection appended to the 失败与恢复 part of _agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
+  "start_sha": "e327eb2970b605614547ee14805c179d25908a45",
+  "source_chain": "58a5439725fe3dc63a3ac797d55097239948d778 (T09 source) -> 6c41775d42f9241a9a8c9d62040f0d0d11a981bb (BLOCKED park) -> d9cf8e1900e11d4c62d6c66f805e2d5bdc5a497d (ledger correction) -> b0e8fd424320b6542977e8c94297ab6e86784e58 (T09-B1 fix: 2 files, 4 insertions) -> this ledger commit",
+  "result_sha": "b0e8fd424320b6542977e8c94297ab6e86784e58",
+  "accepted_head_now": "b0e8fd424320b6542977e8c94297ab6e86784e58",
+  "frozen_baseline_still": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "t09_b1_resolved_by": "adding one import spec to each of pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/{redactor_test.go,validation_test.go}: redact \"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\". Nothing else changed: no test body, name, data or assertion, no production file, no Proto field, no redaction rule, no blank or dot import, no second runtime, no back-reference to the upstream module, no module-cache write. Patch migration/patches/T09-B1-missing-test-imports.patch, hashes migration/preflight/T09B1-patch-inventory.txt, guard+equiv+gofmt migration/preflight/T09B1-guard-import-only.json.",
+  "executed_scope_passed": {
+   "generator_package": "go vet exit 0; go test -json exit 0 with 78 top-level tests / 457 test events, 0 fail, 0 skip, default vet",
+   "runtime": "go vet of pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1 exit 0; its 5 named tests pass",
+   "gate": "94-name profile from migration/patches/T09/T09B1-required-profile.json, built by enumerating go test -list for the takeover packages and asserting the original 16 still exist, so the scope can only grow; require_tests.py exit 0 with bad_tests [] and failed_packages []",
+   "build": "go build -mod=readonly ./... exit 0; all 160 test binaries in the repository compile under default vet",
+   "wide_commands": "go vet ./... exit 1 with only the pre-existing T03-F5 copylocks finding (undefined:redact is gone, no new diagnostic); go test -mod=readonly -count=1 -json ./... exit 1 with only the pre-existing T03-F4 TestBootstrapPostgres (2641 pass / 6 skip / 1 fail). Carried under their own rulings: not exempted, not re-experienced, not added to a known-defect list. This is not a green-repository claim.",
+   "generation_reverified": "same pinned tools: scripts/generate-redact.sh exit 0 with the runtime directory byte-identical (hand-written interface.go/stream.go included), api/gen/go 347 files unchanged, PRE_REF=53b3c00 control exit 0 with exactly the 8 redact consumers differing and a 32-file noise baseline, descriptor delta still only options.go_package"
+  },
+  "deferred_not_passed": "the 6 protoc-driven cases from integration_test.go / external_template_test.go (TestIntegrationProtoCompilation, TestGeneratedCodeQuality, TestOptionalFieldsInGeneratedCode, TestExternalTemplateLoading, TestTemplateParameterValidation, BenchmarkCodeGeneration) are staged byte-identically under migration/patches/T09/_integration_staging/ (a path the go tool ignores), hashed in migration/patches/T09/T09-integration-staging.json and registered DEFERRED in migration/required-integration-deferred.json. Execution belongs to the T13 tooling stage and no later than the T15 sign-off, in a task-private tool directory and a disposable work tree. DEFERRED is not PASS, not not_applicable, not a skip and not a build tag.",
+  "second_ledger_for_the_group": "migration/required-integration-deferred.json is a new, separate ledger from migration/required-known-defects.json: these cases never failed, they were never run. T09-B1 is NOT recorded there.",
+  "deferred_to_t14": "the dead go.mod:37 / go.sum:351-352 require of protoc-gen-go-redact. Not deleted here, not by line number, and no go mod tidy was run: the absence of '// indirect' neither proves the require is used nor licenses blind removal.",
+  "environment_disclosure": "a user-global tool binary was overwritten during version discovery (/home/ubuntu/go/bin/protoc-gen-go went to v1.36.12) and was reinstalled at v1.36.11. The reinstated file is same-version, different-hash; it is NOT the machine's original binary and is not claimed to be. Controls contaminated by that window were re-run, and from now on no round writes to a user-global tool path: tools go in a task-private GOBIN or are invoked by absolute path with version, go version -m and sha256 recorded (see migration/patches/T09/T09B1-toolchain.txt).",
+  "future_rounds_general_authority": "section 六 of the authorization grants a narrow standing power to complete a missing ordinary import (or fix its local path/alias) in a test file when the referenced package is unique and already inside the approved closure, tests/assertions and production bodies are untouched, provenance is verifiable, the exact patch is saved and default vet stays on. It does not cover blank or dot imports, new dependencies, production changes, expectation edits or excluding a failing case; if a condition is not met, stop and report.",
+  "constraints_still_in_force": [
+   "no push, no merge, no deploy; local commits only, and _agent/ stays uncommitted",
+   "missing/skip/fail/not_run is not success",
+   "no gate command runs with -vet=off; require_tests.py is not relaxed",
+   "no test deleted, skipped, retagged or re-expected; the known-defect list is not widened",
+   "module cache is read-only; never overwrite the user's GOBIN; nested go.mod and blanket replace are out",
+   "only the authorized isolated lab databases; never quota-gpu-local-01-pg and never a business database",
+   "T03-F4/T03-F5 keep their own identity; a new functional failure is re-triaged as a regression, not absorbed by this authorization"
+  ],
+  "resume_check_before_editing": [
+   "git rev-parse HEAD && git merge-base --is-ancestor b0e8fd424320b6542977e8c94297ab6e86784e58 HEAD",
+   "cat migration/accepted_head  ->  b0e8fd424320b6542977e8c94297ab6e86784e58",
+   "git status --porcelain      ->  only '?? _agent/'",
+   "read _agent/ani-governance-tx7do-plan/goals/T10.md at T10 entry",
+   "python3 -c \"import json; json.load(open('migration/receipts/T09.json'))\"  ->  parses"
+  ],
+  "next": "T10 (phase C third task), then the second make verify-gpu to close phase C; phases D (T11-T13) and E (T14-T15) follow. Nothing in T09's passed scope is reopened by that work except where a later task names it."
  }
 }

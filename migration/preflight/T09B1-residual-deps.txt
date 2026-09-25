@@ -1,0 +1,19 @@
+# T09-B1 residual dependency re-check, 2026-09-25T15:35:24+08:00, work tree = HEAD d9cf8e1 + the 2 authorized import lines
+
+## live import references to the external module in Go sources
+1
+
+## go list -deps ./... matches
+0
+## go list -deps -test ./... matches
+0
+
+## go mod why
+# github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1
+(main module does not need package github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1)
+
+## the one local runtime in the build graph
+1
+## redact packages present in ./... graph
+go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact
+go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1

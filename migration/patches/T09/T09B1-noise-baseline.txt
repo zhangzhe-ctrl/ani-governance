@@ -1,0 +1,32 @@
+Files pre/api/gen/go/access_key/service/v1/access_key_grpc.pb.go and head/api/gen/go/access_key/service/v1/access_key_grpc.pb.go differ
+Files pre/api/gen/go/admin/service/v1/admin_doc.pb.go and head/api/gen/go/admin/service/v1/admin_doc.pb.go differ
+Only in pre/api/gen/go/admin/service/v1: i_accelerator.pb.validate.go
+Files pre/api/gen/go/admin/service/v1/i_accelerator_grpc.pb.go and head/api/gen/go/admin/service/v1/i_accelerator_grpc.pb.go differ
+Files pre/api/gen/go/admin/service/v1/i_access_key_grpc.pb.go and head/api/gen/go/admin/service/v1/i_access_key_grpc.pb.go differ
+Files pre/api/gen/go/admin/service/v1/i_authentication.pb.go and head/api/gen/go/admin/service/v1/i_authentication.pb.go differ
+Files pre/api/gen/go/admin/service/v1/i_network_grpc.pb.go and head/api/gen/go/admin/service/v1/i_network_grpc.pb.go differ
+Only in pre/api/gen/go/admin/service/v1: i_quota.pb.validate.go
+Files pre/api/gen/go/admin/service/v1/i_quota_grpc.pb.go and head/api/gen/go/admin/service/v1/i_quota_grpc.pb.go differ
+Files pre/api/gen/go/admin/service/v1/i_user_profile.pb.go and head/api/gen/go/admin/service/v1/i_user_profile.pb.go differ
+Files pre/api/gen/go/audit/service/v1/api_audit_log_grpc.pb.go and head/api/gen/go/audit/service/v1/api_audit_log_grpc.pb.go differ
+Files pre/api/gen/go/authentication/service/v1/authentication.pb.go and head/api/gen/go/authentication/service/v1/authentication.pb.go differ
+Only in pre/api/gen/go/catalog/service/v1: accelerator.pb.validate.go
+Files pre/api/gen/go/identity/service/v1/plan_quota.pb.validate.go and head/api/gen/go/identity/service/v1/plan_quota.pb.validate.go differ
+Files pre/api/gen/go/identity/service/v1/plan_quota_grpc.pb.go and head/api/gen/go/identity/service/v1/plan_quota_grpc.pb.go differ
+Files pre/api/gen/go/identity/service/v1/tenant.pb.validate.go and head/api/gen/go/identity/service/v1/tenant.pb.validate.go differ
+Files pre/api/gen/go/identity/service/v1/tenant_grpc.pb.go and head/api/gen/go/identity/service/v1/tenant_grpc.pb.go differ
+Files pre/api/gen/go/identity/service/v1/user.pb.go and head/api/gen/go/identity/service/v1/user.pb.go differ
+Files pre/api/gen/go/quota/service/v1/quota_catalog.pb.go and head/api/gen/go/quota/service/v1/quota_catalog.pb.go differ
+Only in pre/api/gen/go/quota/service/v1: quota_catalog.pb.validate.go
+Files pre/api/gen/go/quota/service/v1/quota_release.pb.go and head/api/gen/go/quota/service/v1/quota_release.pb.go differ
+Only in pre/api/gen/go/quota/service/v1: quota_release.pb.validate.go
+Files pre/api/gen/go/quota/service/v1/quota_release_grpc.pb.go and head/api/gen/go/quota/service/v1/quota_release_grpc.pb.go differ
+Files pre/api/gen/go/quota_lab/service/v1/gpu_simulator.pb.go and head/api/gen/go/quota_lab/service/v1/gpu_simulator.pb.go differ
+Only in pre/api/gen/go/quota_lab/service/v1: gpu_simulator.pb.validate.go
+Files pre/api/gen/go/quota_lab/service/v1/gpu_simulator_grpc.pb.go and head/api/gen/go/quota_lab/service/v1/gpu_simulator_grpc.pb.go differ
+Files pre/api/gen/go/quota_lab/service/v1/i_quota_lab.pb.go and head/api/gen/go/quota_lab/service/v1/i_quota_lab.pb.go differ
+Only in pre/api/gen/go/quota_lab/service/v1: i_quota_lab.pb.validate.go
+Files pre/api/gen/go/quota_lab/service/v1/i_quota_lab_grpc.pb.go and head/api/gen/go/quota_lab/service/v1/i_quota_lab_grpc.pb.go differ
+Files pre/api/gen/go/quota_lab/service/v1/i_quota_lab_http.pb.go and head/api/gen/go/quota_lab/service/v1/i_quota_lab_http.pb.go differ
+Files pre/api/gen/go/quota_lab/service/v1/quota_lab.pb.go and head/api/gen/go/quota_lab/service/v1/quota_lab.pb.go differ
+Only in pre/api/gen/go/quota_lab/service/v1: quota_lab.pb.validate.go

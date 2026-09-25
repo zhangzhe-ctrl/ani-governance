@@ -1,0 +1,26 @@
+diff --git a/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redactor_test.go b/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redactor_test.go
+index 6e190c4..e67fd60 100644
+--- a/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redactor_test.go
++++ b/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redactor_test.go
+@@ -6,6 +6,8 @@
+ 	pgs "github.com/lyft/protoc-gen-star/v2"
+ 	"github.com/stretchr/testify/assert"
+ 	"github.com/stretchr/testify/require"
++
++	redact "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ )
+ 
+ // TestRedactionDefaults tests the default redaction values for various protobuf types
+diff --git a/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/validation_test.go b/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/validation_test.go
+index c1eea66..d7dc47f 100644
+--- a/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/validation_test.go
++++ b/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/validation_test.go
+@@ -7,6 +7,8 @@
+ 	pgs "github.com/lyft/protoc-gen-star/v2"
+ 	"github.com/stretchr/testify/assert"
+ 	"google.golang.org/grpc/codes"
++
++	redact "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ )
+ 
+ // TestFieldTypeValidation tests validation of field types against redaction rules
