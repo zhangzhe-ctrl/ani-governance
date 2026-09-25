@@ -1,0 +1,63 @@
+{
+  "schema_version": "t14/1",
+  "task": "T14",
+  "phase": "E",
+  "goal_file": "_agent/ani-governance-tx7do-plan/goals/T14.md",
+  "status": "MIGRATION_PASS_TARGETED",
+  "conclusion": "Module-level cleanup done: no github.com/tx7do module or package remains anywhere in the resolution graph, and no surviving module moved a single version. Behavioural acceptance is explicitly not claimed here; that is T15.",
+  "start_sha": "2f82b70",
+  "accepted_head_at_start": "77898ac",
+  "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "commands_and_exits": {
+    "remove the 42 tx7do require lines then go mod tidy": 0,
+    "go build ./...": 0,
+    "go build server default/quota_lab/quota_pg, cmd/admin, tools/register": 0,
+    "go mod verify": "all modules verified",
+    "go vet ./...": "1 finding, the inherited T03-F5 accelerator_joint_http_test.go:503 copy-lock; nothing new",
+    "go build -tags tools_integration ./pkg/localdeps/...protoc-gen-go-redact/": 0,
+    "go list -m all | grep tx7do": 0,
+    "go mod graph | grep tx7do": 0,
+    "go list -deps -test ./... per tag default/quota_lab/quota_pg": [
+      0,
+      0,
+      0
+    ]
+  },
+  "must_run": {
+    "pass": "all of the above executed",
+    "fail": 0,
+    "skip": 0,
+    "not_run": [
+      "make verify-gpu (T15)",
+      "regeneration idempotency and runtime acceptance (T15)"
+    ]
+  },
+  "version_discipline": {
+    "surviving_modules_whose_version_moved": 0,
+    "modules_dropped_because_only_tx7do_pulled_them": [
+      "github.com/gobwas/glob",
+      "github.com/google/cel-go"
+    ],
+    "attribution": "go mod graph before tidy shows both came only from github.com/tx7do/go-utils@v1.1.40 and github.com/tx7do/kratos-bootstrap/rpc@v0.1.3",
+    "no go get -u, no @latest": true
+  },
+  "artifacts": {
+    "report": "migration/patches/T14/T14-final-dependency-report.json",
+    "entry": "migration/patches/T14/T14-entry.json",
+    "buildinfo": "migration/patches/T14/buildinfo/{server,admin,register}.txt with a zero-tx7do check line each",
+    "before_after_build_lists": "/home/ubuntu/tx7do-pilot-run/T14/buildlist-{before,after}.txt"
+  },
+  "nested_module_check": {
+    "go_mod_under_ordinary_dirs": [],
+    "note": "pkg/localdeps and tools/localdeps are plain packages of the main module"
+  },
+  "residual_upstream_path_strings": [
+    "pkg/localdeps/go-utils/id/machineid/id.go keeps the canonical import comment of the locked source (sha256 equal to go-utils/id@v0.0.6/machineid/id.go); it is not enforced and no tx7do module is in the graph. Editing it would break byte-identity, so it is recorded for the owner rather than whitelisted.",
+    "test fixtures and README/sample-proto text mention upstream paths as data only"
+  ],
+  "constraints_still_in_force": [
+    "no push/merge/deploy",
+    "no business database or Redis",
+    "readonly + pinned toolchain on every go call"
+  ]
+}

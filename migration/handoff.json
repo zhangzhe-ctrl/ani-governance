@@ -824,5 +824,23 @@
       "build the tool with make gow before using gow",
       "every go invocation must carry GOFLAGS=-mod=readonly GOWORK=off and the pinned go1.26.7"
     ]
+  },
+  "phase_E_T14_closure": {
+    "task": "T14",
+    "status": "MIGRATION_PASS_TARGETED",
+    "start_sha": "2f82b70",
+    "accepted_head_now": "pending_this_commit",
+    "resolved": [
+      "42 tx7do requires removed and tidy run",
+      "zero tx7do modules in go list -m all and go mod graph",
+      "zero version movement among survivors",
+      "buildinfo of server/admin/register carries no tx7do"
+    ],
+    "carried": [
+      "machineid canonical import comment recorded for the owner",
+      "T03-F4/F5, 3 id cases, 9 captcha cases, two QUOTA_*_VERIFY windows not_run",
+      "make verify-gpu and clean regeneration belong to T15"
+    ],
+    "next_task": "T15. Read _agent/ani-governance-tx7do-plan/goals/T15.md on entry only."
   }
 }
