@@ -1,0 +1,163 @@
+{
+ "upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2",
+ "redact.proto": {
+  "pristine_sha256": "5780be8a947e04cdf5365eb8acf430ceae0ec38eb41b3cca11b9f8c1dd31d1df",
+  "local_sha256": "5780be8a947e04cdf5365eb8acf430ceae0ec38eb41b3cca11b9f8c1dd31d1df",
+  "identical": true
+ },
+ "go_files": [
+  {
+   "file": "doc.go",
+   "kind": "byte-identical",
+   "sha256": "b2ac261ca8a7f74682ff7e8ff626f8e1d4f3e98c7a427f816128826632a88f07"
+  },
+  {
+   "file": "errors.go",
+   "kind": "import-path-rewrite-only",
+   "lines_changed": 1,
+   "detail": [
+    {
+     "line": 9,
+     "pristine": "\"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+     "local": "\"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+     "inside_import_spec": true
+    }
+   ]
+  },
+  {
+   "file": "errors_test.go",
+   "kind": "import-path-rewrite-only",
+   "lines_changed": 1,
+   "detail": [
+    {
+     "line": 10,
+     "pristine": "\"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+     "local": "\"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+     "inside_import_spec": true
+    }
+   ]
+  },
+  {
+   "file": "fields.go",
+   "kind": "import-path-rewrite-only",
+   "lines_changed": 1,
+   "detail": [
+    {
+     "line": 8,
+     "pristine": "\"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+     "local": "\"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+     "inside_import_spec": true
+    }
+   ]
+  },
+  {
+   "file": "imports.go",
+   "kind": "MODULE-PATH-CHANGE-OUTSIDE-IMPORT-SPEC",
+   "lines_changed": 2,
+   "detail": [
+    {
+     "line": 28,
+     "pristine": "\"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1\": \"redact\",",
+     "local": "\"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\": \"redact\",",
+     "inside_import_spec": false
+    },
+    {
+     "line": 35,
+     "pristine": "\"redact\":  \"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1\",",
+     "local": "\"redact\":  \"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\",",
+     "inside_import_spec": false
+    }
+   ]
+  },
+  {
+   "file": "imports_test.go",
+   "kind": "byte-identical",
+   "sha256": "552d1d95a2585572beeae5384a597cb33e0bcb760ab085a5d04f6f680f903a1c"
+  },
+  {
+   "file": "main.go",
+   "kind": "byte-identical",
+   "sha256": "6335090462ba1095afd720be2e37dfa82e8b11979593ebb6fc146e5b1bcb79c2"
+  },
+  {
+   "file": "module.go",
+   "kind": "byte-identical",
+   "sha256": "83059a6b8ba29fa2f902129216c7f45f565b4c31910d3cf7aa7df084d6ccc399"
+  },
+  {
+   "file": "oneof_test.go",
+   "kind": "byte-identical",
+   "sha256": "8b5fee44a4dfbbd23271c074e12d66b6fc3f93f5cfb8a7d7076142a731c25f11"
+  },
+  {
+   "file": "optional_fields_test.go",
+   "kind": "byte-identical",
+   "sha256": "645ff1d57a4f680f2265f823eb29c046b08b1d461212577feab5c09688213089"
+  },
+  {
+   "file": "process.go",
+   "kind": "MODULE-PATH-CHANGE-OUTSIDE-IMPORT-SPEC",
+   "lines_changed": 2,
+   "detail": [
+    {
+     "line": 9,
+     "pristine": "\"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+     "local": "\"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+     "inside_import_spec": true
+    },
+    {
+     "line": 293,
+     "pristine": "data.Imports[\"redact\"] = \"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+     "local": "data.Imports[\"redact\"] = \"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+     "inside_import_spec": false
+    }
+   ]
+  },
+  {
+   "file": "redactor_test.go",
+   "kind": "byte-identical",
+   "sha256": "27c76791bfa6dba36531d761c7d04e3d9e552139d7893f86f64061003cdc303d"
+  },
+  {
+   "file": "types.go",
+   "kind": "byte-identical",
+   "sha256": "e6865d951ef26b0082d04cb682ea3d7c573c3e27e37c4b221918140eaf3f898d"
+  },
+  {
+   "file": "utils.go",
+   "kind": "byte-identical",
+   "sha256": "aadb446a79240586d43728ab20b74b4bb5161748c2e5085db512e09b2cdcf006"
+  },
+  {
+   "file": "validation_test.go",
+   "kind": "byte-identical",
+   "sha256": "3a961c89463ef2b3c0a272d4fafb6032f6c120762d6b1372623da7164cb3b7a2"
+  },
+  {
+   "file": "redact/v1/interface.go",
+   "kind": "byte-identical",
+   "sha256": "971779900470a3b1a4931fc3edbc2ce7e05ef7f006755e3a957e2c9aa8701678"
+  },
+  {
+   "file": "redact/v1/redact.pb.go",
+   "kind": "NON-IMPORT-DIFFERENCE",
+   "lines_changed": 1,
+   "detail": [
+    {
+     "unified_diff": "--- /home/ubuntu/go/pkg/mod/github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2/redact/v1/redact.pb.go\t2026-09-19 21:22:13.555371164 +0800\n+++ /home/ubuntu/Workspace/ani-governance/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/redact.pb.go\t2026-09-25 13:59:17.579495933 +0800\n@@ -622,9 +622,10 @@\n \tPattern string `protobuf:\"bytes,1,opt,name=pattern,proto3\" json:\"pattern,omitempty\"`\n \t// Replacement is the replacement string. Use ${1}, ${2}, etc. to\n \t// reference captured groups. For example:\n-\t//   pattern:      \"^(\\\\d{3})\\\\d{4}(\\\\d{4})$\"\n-\t//   replacement:  \"${1}****${2}\"\n-\t//   13812345678 -> 138****5678\n+\t//\n+\t//\tpattern:      \"^(\\\\d{3})\\\\d{4}(\\\\d{4})$\"\n+\t//\treplacement:  \"${1}****${2}\"\n+\t//\t13812345678 -> 138****5678\n \tReplacement   string `protobuf:\"bytes,2,opt,name=replacement,proto3\" json:\"replacement,omitempty\"`\n \tunknownFields protoimpl.UnknownFields\n \tsizeCache     protoimpl.SizeCache\n@@ -1730,7 +1731,7 @@\n \t\"\\x03nil\\x12\\x1f.google.protobuf.MessageOptions\\x18\\xeb\\xa6\\x03 \\x01(\\bR\\x03nil:7\\n\" +\n \t\"\\x05empty\\x12\\x1f.google.protobuf.MessageOptions\\x18\\xec\\xa6\\x03 \\x01(\\bR\\x05empty:;\\n\" +\n \t\"\\aignored\\x12\\x1f.google.protobuf.MessageOptions\\x18\\xed\\xa6\\x03 \\x01(\\bR\\aignored:I\\n\" +\n-\t\"\\x05value\\x12\\x1d.google.protobuf.FieldOptions\\x18\\xeb\\xa6\\x03 \\x01(\\v2\\x12.redact.FieldRulesR\\x05valueBHZFgithub.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redactb\\x06proto3\"\n+\t\"\\x05value\\x12\\x1d.google.protobuf.FieldOptions\\x18\\xeb\\xa6\\x03 \\x01(\\v2\\x12.redact.FieldRulesR\\x05valueBSZQgo-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redactb\\x06proto3\"\n \n var (\n \tfile_redact_v1_redact_proto_rawDescOnce sync.Once\n"
+    }
+   ]
+  },
+  {
+   "file": "redact/v1/stream.go",
+   "kind": "byte-identical",
+   "sha256": "e89ced6f718a26b51a6448f70d90682e8d7d42454c16f929268e0099029026ef"
+  },
+  {
+   "file": "redact/v1/t09_runtime_contract_test.go",
+   "kind": "new-hand-written",
+   "pristine": null,
+   "note": "authored for T09, not an upstream file"
+  }
+ ]
+}

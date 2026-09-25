@@ -1,0 +1,275 @@
+{
+ "schema_version": "t09/1",
+ "task": "T09",
+ "phase": "C",
+ "goal_file": "_agent/ani-governance-tx7do-plan/goals/T09.md",
+ "status": "BLOCKED",
+ "conclusion": "The takeover itself is sound and fully verified, but the round is parked BLOCKED on one inherited build defect that T09's authorization does not cover. protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2 is now an ordinary package of go-wind-admin: the redact Proto has exactly one source (api/localdeps/redact), the runtime pb is generated exactly once into pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1, the plugin is built from repository sources into tools/bin and is the only plugin Buf can reach during the post-change generation, and the 8 redact consumers in api/gen/go changed by 16 +/- lines that are all import strings. Reproducibility, descriptor equivalence, option survival and the real HTTP redaction path are all proven. BLOCKED because placing the upstream generator's own tests byte-identically introduces a module-wide build failure that did not exist at accepted_head: go vet ./... and go test ./... now fail in pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact with the exact error the unmodified upstream archive produces (redactor_test.go:116:23: undefined: redact). The only remedy that keeps the tests and turns them green is a 2-line change that ADDS a missing import spec to redactor_test.go and validation_test.go. That is not an import-string rewrite of an existing string, and the goal names only imports.go and process.go as editable, so it was validated in a throwaway copy and deliberately NOT applied here. Deleting the tests, excluding the package, or shipping a permanently failing go test ./... are all rejected as gate-lowering. See decision_needed.",
+ "scope_statement": "zhangzhe-ctrl/ani-governance only. No protocol, database, identity, authorization, tenancy or query-semantics change; no vendor, no module-cache write, no nested go.mod, no permanent replace; no deploy; no business database.",
+ "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+ "start_sha": "e327eb2a5f52a92a58c6a9b1b3f83f2e30c9c1f0",
+ "start_sha_note": "e327eb2 (HEAD at entry, 'Record the accepted T08 commit in the migration ledger'); migration/accepted_head pointed at 53b3c0053ebf06435044b9b2928925ee528454de (T08 code commit). Working tree was clean apart from untracked _agent/ plan material.",
+ "accepted_head_at_start": "53b3c0053ebf06435044b9b2928925ee528454de",
+ "end_sha": "58a5439725fe3dc63a3ac797d55097239948d778 (the T09 source commit); this receipt ships in the ledger commit on top of it. accepted_head is deliberately NOT advanced while T09 is BLOCKED, so the next round must resume from 53b3c00 for accepted code and from 58a5439 for the working tree.",
+ "blocked_at_sha": "58a5439725fe3dc63a3ac797d55097239948d778 - the parked tree is committed rather than left dangling, mirroring the T05 park commit 1c8a5c0",
+ "branch": "task/tx7do-takeover (the branch used by every round since T02; main and origin are untouched, nothing pushed)",
+ "working_tree_at_entry": "clean except untracked _agent/ plan material, which is deliberately never committed",
+ "source_package_versions": {
+  "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact": "v0.0.0-20260831125122-5bb4931991b2 (the Makefile go install pin; taken over from the read-only module cache, no network fetch)",
+  "github.com/lyft/protoc-gen-star/v2": "v2.0.4 (added to go.mod as a direct requirement: the placed generator is a pgs plugin)",
+  "github.com/spf13/afero": "v1.15.0 // indirect (pulled in by pgs v2.0.4)",
+  "buf.build/go-wind/redact": "BSR module commit d1f98995227e44d6b839e578d9fa1466 removed from api/buf.yaml deps and from api/buf.lock; the other 5 lock entries and all their digests are untouched (git diff -- api/buf.lock is 3 deletions only)",
+  "redact.proto_provenance": "api/localdeps/redact/redact/v1/redact.proto sha256 5780be8a947e04cdf5365eb8acf430ceae0ec38eb41b3cca11b9f8c1dd31d1df, byte-identical to the archive file; the BSR copy differed only by CRLF (bsr sha256 040c1fed6f97bfcde7eed50d80466af20a47c486646a2c9d3dba598176e67c9f)",
+  "no_other_version_changes": "go.mod/go.sum diffs are 4 insertions / 0 deletions plus the 2 new requires; no non-tx7do dependency was upgraded",
+  "provenance_evidence": "migration/patches/T09/T09-placement.json (22 placed files, all copied-verbatim with pristine/local sha256 pairs) and migration/patches/T09/_pristine/go-wind-toolkit-redact-pb.go (locked archive copy of the generated runtime pb, kept for comparison)"
+ },
+ "toolchain_verified_before_the_generation_batch": {
+  "file": "migration/patches/T09/T09-toolchain-versions.txt (measured, not inferred)",
+  "go": "go1.26.7 linux/amd64, GOROOT=/home/ubuntu/sdk/go1.26.7",
+  "gow": "v1.0.3",
+  "buf": "1.60.0 (host /home/ubuntu/go/bin/buf and go-run github.com/bufbuild/buf/cmd/buf@v1.60.0 agree; scripts/generate-redact.sh refuses any other version)",
+  "protoc": "absent - buf drives the local plugins",
+  "protoc-gen-go": "v1.36.11 (repository convention: 107 generated headers say v1.36.11, 4 say v1.36.12; the control pins v1.36.11 for both sides)",
+  "protoc-gen-go-grpc": "1.6.2",
+  "protoc-gen-go-http": "v2.9.2",
+  "protoc-gen-go-errors": "v2.9.2",
+  "protoc-gen-validate": "PATH binary, no --version flag; api/buf.aksk.gen.yaml pins github.com/envoyproxy/protoc-gen-validate@v1.3.3",
+  "protoc-gen-openapi": "not version-reportable when run directly; api/buf.admin.openapi.gen.yaml pins github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1",
+  "repo_built_plugin": "tools/bin/protoc-gen-go-redact, built by scripts/build-redact-plugin.sh from pkg/localdeps sources (go1.26.7), gitignored like the other tool binaries"
+ },
+ "changed_files": {
+  "takeover_sources_new": [
+   "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/{doc.go,errors.go,fields.go,imports.go,main.go,module.go,process.go,types.go,utils.go} - generator, package main + Module logic kept as shipped",
+   "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/{errors_test.go,imports_test.go,oneof_test.go,optional_fields_test.go,redactor_test.go,validation_test.go} - upstream tests, byte-identical except errors_test.go's import path",
+   "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/{interface.go,stream.go} - hand-written runtime, survived Buf clean (template uses clean:false and the script asserts the 3-file manifest)",
+   "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/redact.pb.go - the only generated copy in the repository",
+   "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/{LICENSE,NOTICE,README.md} - license/notice kept with the code"
+  ],
+  "proto_single_source_new": [
+   "api/localdeps/redact/redact/v1/redact.proto - byte-identical to the locked archive; registered as a v2 workspace module in api/buf.yaml",
+   "api/buf.redact.gen.yaml - the only template that writes the runtime target"
+  ],
+  "generation_wiring_modified": [
+   "api/buf.yaml - add localdeps/redact module, drop the buf.build/go-wind/redact dep",
+   "api/buf.lock - drop the go-wind/redact entry only",
+   "api/buf.gen.yaml - plugin line local: protoc-gen-go-redact -> local: ../tools/bin/protoc-gen-go-redact; managed override for redact/v1 go_package; drop the stale managed.disable module line",
+   "api/buf.admin.openapi.gen.yaml, api/buf.aksk.gen.yaml, api/buf.pagination.gen.yaml, api/buf.quota.gen.yaml, api/buf.quota-lab.gen.yaml - same managed override and stale disable removal",
+   "Makefile - 'plugin' no longer go-installs the external module; new redact-plugin and api-redact targets; 'api' now depends on redact-plugin so the binary always matches the repository sources",
+   "scripts/build-redact-plugin.sh, scripts/generate-redact.sh - new"
+  ],
+  "generated_output_modified": "8 files in api/gen/go, one import line each (16 +/- lines total): admin/service/v1/{i_user.pb.go,i_user.pb.redact.go}, authentication/service/v1/{ani_auth,authentication,ani_auth.pb.redact,authentication.pb.redact}.pb(.redact).go and identity/service/v1/{user.pb.go,user.pb.redact.go}",
+  "tests_authored_new": [
+   "app/admin/service/internal/server/user_redaction_http_test.go - 5 tests over a real HTTP User List/Get through the production registration",
+   "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/t09_runtime_contract_test.go - 5 tests on the taken-over runtime contract"
+  ],
+  "ledger_new": "migration/patches/T09/** and migration/receipts/T09.json",
+  "untouched_and_required": "app/admin/service/internal/server/rest_server.go is byte-for-byte unchanged: NewRestServer still registers adminV1.RedactedUserServiceServer(service.NewFieldPermissionUserServiceServer(&userServiceServerAdapter{...}), nil) at rest_server.go:222-226 with the adapter at 280-285, so the mandated inner/outer/adapter shape is preserved by non-modification and re-exercised by the new HTTP tests"
+ },
+ "non_import_changes": {
+  "authorized_import_string_edits": [
+   "imports.go:28 - Module.importPaths/standard-import table key: 'github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1' -> 'go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1' (value 'redact' unchanged)",
+   "imports.go:35 - Module.references['redact'] value, same string",
+   "process.go:293 - data.Imports[\"redact\"] hardcoded runtime path in Module.processMessage, same string",
+   "process.go:9, errors.go:9, fields.go:8, errors_test.go:10 - Go import specs of the runtime package"
+  ],
+  "classification_command": "python3 migration/patches/T09/t09_nonimport_delta.py > T09-nonimport-delta.json; it diffs every placed .go file against the pristine archive after substituting only the module-path substring",
+  "measured_result": "12 files byte-identical, 3 files import-spec-path-only, 2 files (imports.go, process.go) differ only in the 3 authorized path strings, 1 file (redact/v1/redact.pb.go) regenerated, 1 file (t09_runtime_contract_test.go) authored by T09",
+  "no_rule_or_algorithm_change": "field rules, mask/pattern/keep logic, template text, wrapper order and the alias 'redact' are untouched; no hand-written re-implementor exists anywhere in the placed tree",
+  "regenerated_runtime_pb": "redact/v1/redact.pb.go differs from the archived copy in exactly two ways (migration/patches/T09/T09-redact-pb-vs-pristine.diff): (a) the go_package option string, which is the authorized path change (+11 bytes in the raw descriptor), and (b) gofmt-style reflow of three doc-comment lines inside the Replacement field comment, produced by protoc-gen-go v1.36.11 versus whatever version built the archived copy. (b) is comment text in generated code with no descriptor or behaviour effect; it is disclosed rather than hidden or normalized.",
+  "descriptor_equivalence": "two binaries in one harness module (protobuf-go panics on double registration) dump the full FileDescriptorProto of redact/v1; migration/patches/T09/desc/T09-descriptor.diff shows 457 dumped lines with a single semantic difference, options.go_package, plus the re-marshal length 3367 -> 3378 that the path change explains. All 14 extensions, their numbers, types, option targets and json names are identical."
+ },
+ "mandated_by_T09_md": {
+  "single_source_per_proto": "PASS - api/buf.yaml has exactly one redact module (localdeps/redact); the external BSR dep is gone; the only template that writes the runtime target is api/buf.redact.gen.yaml; scripts/generate-redact.sh asserts that api/gen/go/redact never appears",
+  "hand_written_runtime_survives_clean": "PASS - buf.redact.gen.yaml runs with clean:false and the script re-asserts the redact/v1/{redact.pb.go,interface.go,stream.go} manifest after generation; re-running into a throwaway copy reproduced the repository state byte-for-byte",
+  "generator_path_changed_not_just_output": "PASS - imports.go/process.go hold the new path, so the plugin itself emits the local import; the 8 consumer files were produced by running the repository-built plugin, never hand-edited",
+  "buf_uses_the_task_bin": "PASS - control run 2 executed with a PATH that contains no protoc-gen-go-redact at all; only ../tools/bin/protoc-gen-go-redact could serve the template, and it did (exit 0)",
+  "makefile_go_install_replaced": "PASS - 'go install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@...' is gone from the plugin target, replaced by scripts/build-redact-plugin.sh",
+  "other_locks_not_upgraded": "PASS - buf.lock loses only the redact entry; go.mod/go.sum gain only pgs v2.0.4 and afero v1.15.0 and lose nothing",
+  "descriptor_diff_whitelist": "PASS - go_package only (see non_import_changes.descriptor_equivalence); validate, HTTP and redact options are still present on the business descriptors and are asserted at runtime by TestT09RedactOptionsSurviveOnBusinessDescriptors",
+  "no_old_runtime_call_after_regen": "PASS - grep over api/gen/go, pkg/localdeps and app/admin finds no live import of the external package; go list -deps ./... matches it 0 times; go mod why reports 'main module does not need package'. The remaining textual occurrences are the upstream README and inert string literals inside byte-identical upstream tests",
+  "did_not_reach_the_bar_by_deleting": "PASS - the plugin is still invoked, (redact.value)/mask rules are still present and enforced, and the RedactedUserServiceServer wrapper is still the outer registration"
+ },
+ "commands": [
+  { "name": "entry_state", "command": "git status --porcelain && git rev-parse HEAD && cat migration/accepted_head", "exit": 0, "result": "HEAD e327eb2, accepted_head 53b3c00, clean apart from _agent/" },
+  { "name": "build_plugin_from_repo_sources", "command": "bash scripts/build-redact-plugin.sh", "exit": 0, "result": "tools/bin/protoc-gen-go-redact present; go1.26.7 binary" },
+  { "name": "localized_redact_proto_generation", "command": "BUF=/home/ubuntu/go/bin/buf bash scripts/generate-redact.sh", "exit": 0, "result": "run twice; sha256 of pkg/localdeps/.../redact/v1/redact.pb.go identical across runs (idempotent); no api/gen/go/redact" },
+  { "name": "business_generation", "command": "PATH=$PWD/tools/bin:$PATH make api", "exit": 0, "log": "T09-make-api-2.log; the redact-plugin prerequisite rebuilds the binary first", "result": "8 redact consumers regenerated with the local runtime import; 4 .pb.redact.go files identical to the committed-then-synced content" },
+  { "name": "pre_vs_post_control", "command": "bash migration/patches/T09/t09_ctl.sh", "exit": 0, "result": "both sides generate every template with exit 0; regeneration noise that exists without T09 = 32 files (T09-noise-baseline.txt); pre-vs-post api/gen/go trees differ in exactly the 8 redact files and add no file (T09-ctl-trees.diff, T09-ctl-8files.diff); the throwaway regeneration of redact.pb.go is byte-identical to the repository copy" },
+  { "name": "commit_only_takeover_generated_lines", "command": "python3 migration/patches/T09/t09_sync_gen.py", "exit": 0, "result": "restores api/gen/go to HEAD, drops the 8 empty protoc-gen-validate shells only after the control proves the takeover adds nothing, then applies only hunks whose changed lines are the redact import: 8 files, 16 +/- lines, 'offending lines: none'; 6 files identical to the regeneration, 2 differ by the pre-existing toolchain-header line only" },
+  { "name": "descriptor_comparison", "command": "in /home/ubuntu/tx7do-pilot-run/T09/desc (throwaway module t09desc, protobuf v1.36.12): go build -o bin-desc-upstream ./desc-upstream && go build -o bin-desc-local ./desc-local && diff upstream.txt local.txt", "exit": 1, "result": "exit 1 is the intended finding: one semantic line (options.go_package) plus the re-marshal length it changes; the harness sources and both dumps are archived under migration/patches/T09/desc/ (binaries and the throwaway go.sum are not)" },
+  { "name": "compile", "command": "go build -mod=readonly ./...", "exit": 0, "result": "clean" },
+  { "name": "required_tests", "command": "go test -json -count=1 ./app/admin/service/internal/server/... ./pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/... ./app/admin/service/internal/service/... ./pkg/localdeps/go-crud/pagination/...", "exit": 0, "log": "/home/ubuntu/tx7do-pilot-run/T09/T09-tests-shipped.log.jsonl" },
+  { "name": "required_tests_gate", "command": "python3 tools/migration/require_tests.py --required migration/patches/T09/T09-required-profile.json --log /home/ubuntu/tx7do-pilot-run/T09/T09-tests-shipped.log.jsonl", "exit": 0, "result": "{pass: true, required: 16, bad_tests: [], failed_packages: []}", "evidence": "migration/patches/T09/T09-require-tests.txt" },
+  { "name": "wide_vet", "command": "go vet ./...", "exit": 1, "result": "two diagnostics: (1) the documented pre-existing copylocks at app/admin/service/internal/service/accelerator_joint_http_test.go:503 (T03-F5, migration/preflight/repo-copylocks-baseline.json, unchanged by T09 and its file is untouched); (2) NEW - vet: pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redactor_test.go:116:23: undefined: redact", "evidence": "migration/patches/T09/T09-vet-all.log" },
+  { "name": "placed_generator_tests", "command": "go test -count=1 ./pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/", "exit": 1, "result": "package go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact reports FAIL [build failed] with 10+ 'undefined: redact' occurrences (truncated by the compiler at 'too many errors')", "evidence": "migration/patches/T09/T09-upstream-test-build-failure.log" },
+  { "name": "same_command_in_the_pristine_archive", "command": "cd $GOMODCACHE/github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2 && go test -count=1 .", "exit": 1, "result": "the identical error list against the identical line numbers in the unmodified upstream module: the defect is inherited, not caused by the takeover" },
+  { "name": "minimal_fix_measurement_not_applied", "command": "throwaway module directory /home/ubuntu/tx7do-pilot-run/T09/scratch-tests (package go-wind-admin/t09scratch/redact), outside the repository: same placed sources plus the runtime import spec added to redactor_test.go and validation_test.go only, then go test -json -count=1 ./...", "exit": 0, "result": "package reports pass with 457 test-level pass events (subtests included) and zero fail/skip; no expectation was touched and no field rule changed. Log kept at /home/ubuntu/tx7do-pilot-run/T09/T09-generator-tests-MINIMAL-FIX-ATTEMPT.log.jsonl. NOT applied to the repository because it exceeds the two named editable files." },
+  { "name": "make_lint", "command": "make lint", "exit": "not_run", "result": "golangci-lint is not installed on this host and AGENTS.md forbids installing dependencies for a read-only check" },
+  { "name": "go_mod_tidy", "command": "go mod tidy -diff", "exit": "not_applied", "result": "tidy proposes deleting requirements that are demonstrably still imported (go-crud/api, go-crud/entgo ...), so it is not a safe authority in this repository today; go.mod was not tidied. This is a pre-existing condition of the module, not a T09 change." },
+  { "name": "verify_gpu", "command": "make verify-gpu", "exit": "not_run", "result": "the phase-C obligation is the SECOND verify-gpu at the end of the phase, i.e. after T10; the first one (8/8) still stands as recorded for T07/T08" }
+ ],
+ "required_tests": {
+  "profile": "migration/patches/T09/T09-required-profile.json",
+  "required": 16,
+  "pass": 16,
+  "fail": 0,
+  "skip": 0,
+  "missing": 0,
+  "not_run": 0,
+  "whole_log_totals": { "tests_pass": 456, "tests_skip": 4, "tests_fail": 0 },
+  "packages_covered_by_the_shipped_run": [
+   "app/admin/service/internal/server",
+   "app/admin/service/internal/service",
+   "pkg/localdeps/go-crud/pagination (+ filter, paginator, sorting)",
+   "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+  ],
+  "packages_deliberately_not_run": "app/admin/service/internal/data and the Ent/PostgreSQL suites: nothing T09 changes reaches them, so TestBootstrapPostgres (T03-F4) was not re-measured this round and its T08 state is carried as-is",
+  "wider_run_for_context": "the 7-package lab run at /home/ubuntu/tx7do-pilot-run/T09/T09-affected-tests-lab.log.jsonl (461 pass / 4 skip / 0 fail, exit 0) covers the same ground plus the go-crud pagination packages",
+  "the_4_skips": [
+   "TestAcceleratorFormalSessionRefresh (needs the private formal process fixture)",
+   "TestAcceleratorJointHTTP (needs the isolated joint-B PostgreSQL/Redis/Accelerator helper)",
+   "TestOnboardingAPIRegistration (needs a fresh isolated database)",
+   "TestOnboardingConcurrentAcceptance (needs a fresh isolated database)"
+  ],
+  "skips_are_preexisting": true,
+  "authored_by_T09": {
+   "server_http_redaction": [
+    "TestT09UserHTTPListRedactsEmailAndMobile - a real HTTP GET to /admin/v1/users through httptest + a loopback kratos HTTP listener, registered with the production expression adminV1.RegisterUserServiceHTTPServer(srv, adminV1.RedactedUserServiceServer(service.NewFieldPermissionUserServiceServer(&userServiceServerAdapter{...}), nil)); email becomes zh******@example.com, mobile 138****5678, plaintext appears nowhere in the body, unassigned optional fields are absent from the protojson output and uint64 total is rendered as the string \"1\"",
+    "TestT09UserHTTPGetFieldPermissionClearsBeforeRedaction - a permission-restricted caller sees email cleared by the inner wrapper and still redacted by the outer one",
+    "TestT09UserHTTPFieldPermissionOnMobileKeepsRedactedEmail - per-field permission on one column does not disable the other column's redaction",
+    "TestT09UserHTTPRedactionIsNotBypassable - no request-shape path returns plaintext email/mobile",
+    "TestT09RedactOptionsSurviveOnBusinessDescriptors - (redact.value) rules on identity.user.email (keep_local_first=2) and .mobile (keep_first=3, keep_last=4) and the google.api.http option on UserService.List are still on the descriptor, and redact/v1 is registered exactly once in protoregistry.GlobalFiles with the localized go_package"
+   ],
+   "runtime_contract": [
+    "TestT09ApplyOnlyTouchesRedactors",
+    "TestT09BypassDefaultsToFalseAndWrapperOverrides",
+    "TestT09CustomRedactorRegistryIsSharedSingleton",
+    "TestT09StreamRedactorsApplyBeforeForwarding",
+    "TestT09StreamRedactorsTolerateNonRedactors"
+   ]
+  },
+  "carried_from_earlier_phases": "4 TestFieldPermissionUser_* in app/admin/service/internal/service (field-permission semantics must survive the wrapper re-pointing) and the 2 T08 pagination descriptor guards",
+  "not_in_profile_and_why": "the 457 upstream generator tests are NOT reported as passing: the package cannot build (see blocker). They are recorded below as not_run with proof, which is the honest state rather than a claim."
+ },
+ "not_run": {
+  "placed_upstream_generator_tests": {
+   "count": 457,
+   "state": "not_run (build failure)",
+   "reason": "inherited defect: redactor_test.go and validation_test.go reference the identifier redact without importing the runtime package",
+   "proof_it_is_inherited": "migration/patches/T09/T09-upstream-test-build-failure.log runs the same command in the unmodified $GOMODCACHE archive and gets the same diagnostics at the same line numbers"
+  },
+  "upstream_tests_not_placed": {
+   "files": ["integration_test.go", "external_template_test.go"],
+   "state": "not placed and therefore not_run",
+   "reason": "both are protoc-driven subprocess tests: they exec protoc with --go_out/--go-grpc_out/--redact_out, run 'go build'/'go vet' children, need examples/custom-template.tmpl and testdata/integration/, and write generated files and a plugin binary into the source tree while the test runs. protoc is absent on this host (buf drives generation), so placing them byte-identically would add environment-dependent failures and tree mutation. This is a disclosed gap in 'take over the templates and required resources', not a silent omission; ratification is requested in decision_needed."
+  },
+  "make_lint": "golangci-lint absent",
+  "second_make_verify_gpu": "belongs to the end of phase C, after T10"
+ },
+ "test_environment": {
+  "isolated_lab_only": true,
+  "database_use_in_this_round": "none. T09 needs no PostgreSQL/Redis; the 16 required tests run fully in-process (httptest + a loopback kratos HTTP listener) or as pure unit tests",
+  "containers_left_untouched": "tx7do-t07-guard-pg, tx7do-t07-acc-lab-pg, tx7do-t04-captcha-redis exist from earlier phases; no business database and no quota-gpu-local-01-pg was contacted",
+  "no_migration_or_startup_write": "no schema migration, no service start, no deploy, no seed",
+  "never_installed_for_read_only_checks": "no new tool was installed to make a check pass"
+ },
+ "blocker": {
+  "id": "T09-B1",
+  "severity": "high",
+  "finding": "Accepting the byte-identical upstream generator tests changes the repository build surface: at accepted_head go vet ./... and go test ./... failed only on the documented pre-existing copylocks line, and after T09 they additionally fail to build pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact. The error text is upstream's own and reproduces verbatim in the locked archive.",
+  "rule_invoked": "'如发现其他未说明的源码或构建变化，记录差异并停止，不自行认定已经验收' and '需要改变业务语义…或现有实现安全缺陷…时，报告 BLOCKED'. The defect is in existing implementation source (upstream test files), and the only fix that keeps the tests adds an import spec that is not an 'import string' rewrite of an existing string; the goal's editable list names only imports.go and process.go.",
+  "predecessor": "1c8a5c0 'Park T05 BLOCKED: engine takeover sound but frozen upstream vet finding awaits decision' - same shape: sound takeover, one inherited analyzer failure, parked for a decision instead of self-fixing"
+ },
+ "decision_needed": {
+  "question": "How should the inherited protoc-gen-go-redact test-build defect be carried, given that the takeover itself is verified?",
+  "options": [
+   {
+    "id": "A",
+    "label": "Authorize the import-only remedy (recommended)",
+    "change": "add the spec 'go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1' to the import blocks of pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/{redactor_test.go,validation_test.go}; identical in shape to the import rewrite already applied to errors_test.go",
+    "effect": "go vet ./... returns to the single pre-existing copylocks finding; the package's 457 tests build and pass (measured in a throwaway copy, exit 0)",
+    "cost": "the placed tests stop being byte-identical to the archive in 2 files, and the editable-file list (imports.go, process.go) is exceeded; recorded as an approved deviation in the T09 receipt, mirroring the T05 remediation-authorization pattern"
+   },
+   {
+    "id": "B",
+    "label": "Authorize carrying T09-B1 as a known defect without touching the tests",
+    "change": "none; go test ./... and go vet ./... stay red for this package",
+    "effect": "byte-identical placement is preserved",
+    "cost": "the repository permanently fails its own AGENTS.md test command; a wide gate can no longer be used as a signal, and every later phase inherits the red state. Requires an explicit known-defect authorization like T04's, and is rejected by '不忽略失败' unless the user states otherwise."
+   },
+   {
+    "id": "C",
+    "label": "Authorize dropping the 6 placed upstream generator test files",
+    "change": "remove them from the takeover and keep the whole upstream suite as out-of-module evidence only",
+    "effect": "the build surface is exactly as at accepted_head",
+    "cost": "'禁止删除测试'; this is the option explicitly avoided. Not recommended."
+   },
+   {
+    "id": "D",
+    "label": "Decide the scope question for integration_test.go / external_template_test.go and their fixtures",
+    "change": "either accept the disclosed non-placement (this round) or authorize an isolated out-of-tree harness that vendors protoc for these two files",
+    "effect": "clarifies whether '模板及所需资源' includes the protoc-driven tests"
+   }
+  ],
+  "not_self_served": [
+   "no -vet=off, no build-tag exclusion, no package skip, no expectation edit",
+   "the fix was validated only in a throwaway directory outside the repository and is not present in the shipped tree",
+   "accepted_head is not advanced and T10 is not started"
+  ]
+ },
+ "residual_target_dependencies": {
+  "live_code_references_to_the_external_module": 0,
+  "go_list_deps_match": 0,
+  "go_mod_why": "'main module does not need package github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1'",
+  "dead_requirement_left_in_place": "go.mod line 37 and 2 go.sum lines still list protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2. Dropping it is a one-line 'go mod edit -droprequire' and is now safe, but it was not applied: with T09-B1 open, every go.mod change should be approved together with the blocker decision. Recorded here as the residual dependency to clear.",
+  "textual_occurrences_that_are_not_dependencies": [
+   "pkg/localdeps/.../README.md - upstream documentation, kept verbatim for provenance (it also carries the go install instructions this repository no longer follows)",
+   "pkg/localdeps/.../oneof_test.go and imports_test.go - inert string literals inside hand-built fixture maps (e.g. \"redact\": \"github.com/tx7do/...\" as an alias/path pair); they never read imports.go's table, which is why the 457-test measurement passes without touching them",
+   "migration/ and docs/evidence/ - historical evidence that must keep naming the old path"
+  ],
+  "external_plugin_binary_still_on_the_machine": "/home/ubuntu/go/bin/protoc-gen-go-redact (go-installed earlier by the old Makefile target) was deliberately kept: it is the 'pre' side of the pre/post generation control. The 'post' side runs with a PATH that excludes it, which proves the repository no longer depends on it.",
+  "tool_binaries": "tools/bin/protoc-gen-go-redact is built from repository sources and is gitignored with the rest of tools/bin; make api rebuilds it through the redact-plugin prerequisite, so a stale binary cannot silently serve generation"
+ },
+ "environment_mutation_to_disclose": {
+  "what_happened": "While discovering which protoc-gen-go version the tree expects, 'GOBIN=$pilot/pg12 go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12' was run; because GOBIN handling in that shell fell back to the default, it temporarily replaced the user's /home/ubuntu/go/bin/protoc-gen-go with v1.36.12. A first control run produced a 129-file noise baseline before this was noticed.",
+  "remedy": "restored with 'GOBIN= go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11'; the binary now reports v1.36.11 and the control baseline returned to the expected 32 files. The file hash differs from the machine's original installation even though the version matches, and the v1.36.12 copy was moved out of PATH to migration-external storage ($pilot/bin/protoc-gen-go.v1.36.12.copy).",
+  "impact_on_conclusions": "all recorded generation evidence after 13:39 used the v1.36.11 binary on both sides of the comparison; the two affected files' header drift is explicitly excluded from the committed diff by t09_sync_gen.py and disclosed in non_import_changes",
+  "no_repo_file_affected": "the mutation was outside the repository; nothing in ani-governance depends on that PATH binary's version except the regeneration measured here"
+ },
+ "remaining_debt_carried": [
+  "T03-F5 go vet copylocks at app/admin/service/internal/service/accelerator_joint_http_test.go:503 (still makes wide vet exit 1)",
+  "the 4 environment-gated skips listed under required_tests",
+  "the 32-file regeneration noise class documented in scripts/post-generate-clean.sh and re-measured by this round's control",
+  "the go.mod dead require of protoc-gen-go-redact, cleared only together with the T09-B1 decision",
+  "the second make verify-gpu at the end of phase C",
+  "T10 (global secret/registry/logger/context unification for this group) is not started"
+ ],
+ "not_verified": [
+  "the 457 upstream generator tests were never run inside the repository (they cannot build there); their pass count comes from a throwaway copy with an unapplied import fix",
+  "no service startup, no deployment, no production or business database, no real external gRPC/HTTP peer: the HTTP tests exercise the in-repository kratos handler chain over loopback, not a running admin service",
+  "grpc/gateway behaviour of the redacted services beyond the registered HTTP path is not covered by this round",
+  "custom redactor registration end-to-end through generated wrappers is covered only at runtime-contract level (TestT09* on redact/v1), not by a business-level custom redactor",
+  "make lint and any CI pipeline: not executed here"
+ ],
+ "pushed_merged_deployed": "no push, no merge, no deploy; two local commits on task/tx7do-takeover (source, then this ledger record)",
+ "self_assessment": "Mechanically the takeover meets every clause of goals/T09.md that can be measured without changing an unapproved file: one proto source, one generated runtime pb, plugin built and consumed locally, Makefile install line replaced, hand-written runtime intact, descriptor equal except go_package, options intact, wiring untouched, and 16 named tests proven to pass. What makes this round BLOCKED is not the takeover but the newly placed upstream tests, and the judgement withheld is exactly the one the plan forbids making alone: whether to touch a third file pair to repair an inherited defect, or to accept a red repository gate. I did not decide it.",
+ "ledger_evidence": {
+  "directory": "migration/patches/T09/",
+  "files": [
+   "T09-required-profile.json (16 named tests)",
+   "T09-require-tests.txt (gate output, exit 0)",
+   "T09-placement.json (22 files, pristine/local sha256 pairs, extraction policy)",
+   "T09-nonimport-delta.json (every placed file classified vs the archive)",
+   "T09-redact-pb-vs-pristine.diff",
+   "T09-descriptor.diff + desc/ (dump.go, two main.go, go.mod, upstream.txt, local.txt)",
+   "T09-ctl-trees.diff (8 differing files, zero additions), T09-ctl-8files.diff, T09-noise-baseline.txt (32)",
+   "T09-toolchain-versions.txt",
+   "T09-vet-all.log (exit 1, both findings)",
+   "T09-upstream-test-build-failure.log (repo vs pristine: identical diagnostics)",
+   "T09-residual-deps.log",
+   "t09_ctl.sh, t09_sync_gen.py, t09_nonimport_delta.py (the reproducible controls)"
+  ],
+  "raw_go_test_json_logs": "/home/ubuntu/tx7do-pilot-run/T09/T09-tests-shipped.log.jsonl (authoritative, the tree state shipped here), plus T09-tests-final.log.jsonl and T09-affected-tests*.log.jsonl"
+ },
+ "verdict": "BLOCKED - takeover verified, decision required on the inherited generator-test build defect (T09-B1) and on the scope of the unplaced protoc-driven upstream tests (option D). accepted_head stays at 53b3c00 (T08); T10 is not started."
+}

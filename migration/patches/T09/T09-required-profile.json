@@ -1,0 +1,66 @@
+[
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/server",
+    "Test": "TestT09UserHTTPListRedactsEmailAndMobile"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/server",
+    "Test": "TestT09UserHTTPGetFieldPermissionClearsBeforeRedaction"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/server",
+    "Test": "TestT09UserHTTPFieldPermissionOnMobileKeepsRedactedEmail"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/server",
+    "Test": "TestT09UserHTTPRedactionIsNotBypassable"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/server",
+    "Test": "TestT09RedactOptionsSurviveOnBusinessDescriptors"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1",
+    "Test": "TestT09ApplyOnlyTouchesRedactors"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1",
+    "Test": "TestT09BypassDefaultsToFalseAndWrapperOverrides"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1",
+    "Test": "TestT09CustomRedactorRegistryIsSharedSingleton"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1",
+    "Test": "TestT09StreamRedactorsApplyBeforeForwarding"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1",
+    "Test": "TestT09StreamRedactorsTolerateNonRedactors"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/service",
+    "Test": "TestFieldPermissionUser_ListAndGetReadMask"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/service",
+    "Test": "TestFieldPermissionUser_ListWithoutTokenNoTrim"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/service",
+    "Test": "TestFieldPermissionUser_WriteStrip"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/service",
+    "Test": "TestFieldPermissionUser_Passthrough"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestT08PaginationProtoIsRegisteredExactlyOnce"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestT08PagingRequestContractIsUnchanged"
+  }
+]

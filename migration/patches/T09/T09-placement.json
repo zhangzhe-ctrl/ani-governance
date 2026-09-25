@@ -1,0 +1,198 @@
+{
+ "task": "T09",
+ "step": "place sources verbatim",
+ "pristine_source": "read-only module cache ($GOMODCACHE/github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2), no network fetch, no module-cache write",
+ "locked_versions": {
+  "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact": "v0.0.0-20260831125122-5bb4931991b2"
+ },
+ "bsr_module_replaced": {
+  "name": "buf.build/go-wind/redact",
+  "commit": "d1f98995227e44d6b839e578d9fa1466",
+  "bsr_proto_sha256": "040c1fed6f97bfcde7eed50d80466af20a47c486646a2c9d3dba598176e67c9f",
+  "archive_proto_sha256": "5780be8a947e04cdf5365eb8acf430ceae0ec38eb41b3cca11b9f8c1dd31d1df",
+  "difference": "CRLF vs LF only; byte-identical after tr -d '\\r'"
+ },
+ "extraction_policy": "complete generator + runtime package files; no function-level trimming; upstream go.mod/go.sum, protoc-driven tests, testdata/ and examples/ not copied",
+ "files": [
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/doc.go",
+   "pristine_path": "doc.go",
+   "pristine_sha256": "d7c82c4e4d4f1f43ee71394e9471b83b61f90c47e7818bbe4f0a1ffb32612eae",
+   "local_sha256": "d7c82c4e4d4f1f43ee71394e9471b83b61f90c47e7818bbe4f0a1ffb32612eae",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/main.go",
+   "pristine_path": "main.go",
+   "pristine_sha256": "bbb5cf0e8d79fc3d35e604bb538a88b10de1ec262f9edc2f2e3fd68451ada20e",
+   "local_sha256": "bbb5cf0e8d79fc3d35e604bb538a88b10de1ec262f9edc2f2e3fd68451ada20e",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/module.go",
+   "pristine_path": "module.go",
+   "pristine_sha256": "5bdfa97056ad62749f492ea1ed3deac8188f3287c12852393d93c198bfb854b3",
+   "local_sha256": "5bdfa97056ad62749f492ea1ed3deac8188f3287c12852393d93c198bfb854b3",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/imports.go",
+   "pristine_path": "imports.go",
+   "pristine_sha256": "074ddb02f27ed36f0c27f1dd5c194e75c743a6ceb05ae321261abe7e8d32e00d",
+   "local_sha256": "074ddb02f27ed36f0c27f1dd5c194e75c743a6ceb05ae321261abe7e8d32e00d",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/process.go",
+   "pristine_path": "process.go",
+   "pristine_sha256": "4d89bf7f603bfaddf125fe1155571003725b3d6ac880efe0d06e203e374528ee",
+   "local_sha256": "4d89bf7f603bfaddf125fe1155571003725b3d6ac880efe0d06e203e374528ee",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/fields.go",
+   "pristine_path": "fields.go",
+   "pristine_sha256": "eb9404ed6e5a2d6b7606a110811801ad5bb1f60178f17a691c14ca278fce14ad",
+   "local_sha256": "eb9404ed6e5a2d6b7606a110811801ad5bb1f60178f17a691c14ca278fce14ad",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/errors.go",
+   "pristine_path": "errors.go",
+   "pristine_sha256": "3fb8d9411d09fcc10ee00167916bfce5b337aa29454184bac4a0b85c9701e189",
+   "local_sha256": "3fb8d9411d09fcc10ee00167916bfce5b337aa29454184bac4a0b85c9701e189",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/types.go",
+   "pristine_path": "types.go",
+   "pristine_sha256": "08e38fa933ab6f35237552c1e153915987186db819fcd4248786f8126bbdc935",
+   "local_sha256": "08e38fa933ab6f35237552c1e153915987186db819fcd4248786f8126bbdc935",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/utils.go",
+   "pristine_path": "utils.go",
+   "pristine_sha256": "11feb9394b2826b64ebc63818d3ed65f1ac0c7ed8583d1e6648327f06bd024a5",
+   "local_sha256": "11feb9394b2826b64ebc63818d3ed65f1ac0c7ed8583d1e6648327f06bd024a5",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/errors_test.go",
+   "pristine_path": "errors_test.go",
+   "pristine_sha256": "a0334fd1ebac25702fa641536f27875b83058610160d3fa5b1f5816cfdae9a0e",
+   "local_sha256": "a0334fd1ebac25702fa641536f27875b83058610160d3fa5b1f5816cfdae9a0e",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/imports_test.go",
+   "pristine_path": "imports_test.go",
+   "pristine_sha256": "6a807a2e10885e31a8ad010ddcb3f7acc661795262f4871737c79911bcb6a837",
+   "local_sha256": "6a807a2e10885e31a8ad010ddcb3f7acc661795262f4871737c79911bcb6a837",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/oneof_test.go",
+   "pristine_path": "oneof_test.go",
+   "pristine_sha256": "cc68f388f9c15c7091dc6127bf88930a6448f8e293c198d2750a8c14ded99419",
+   "local_sha256": "cc68f388f9c15c7091dc6127bf88930a6448f8e293c198d2750a8c14ded99419",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/optional_fields_test.go",
+   "pristine_path": "optional_fields_test.go",
+   "pristine_sha256": "35b3c62b94e595287208d525a2d448bc4e5d64e70322a9716a9ea91c9d70877d",
+   "local_sha256": "35b3c62b94e595287208d525a2d448bc4e5d64e70322a9716a9ea91c9d70877d",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redactor_test.go",
+   "pristine_path": "redactor_test.go",
+   "pristine_sha256": "0a831280de4ce9e8995df9f8121ed958980f88759631e0f388ec7a2040afc649",
+   "local_sha256": "0a831280de4ce9e8995df9f8121ed958980f88759631e0f388ec7a2040afc649",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/validation_test.go",
+   "pristine_path": "validation_test.go",
+   "pristine_sha256": "aca9f3d145bb1633e4824374b53222fc1f4be6e9bf429129edf69659e5812563",
+   "local_sha256": "aca9f3d145bb1633e4824374b53222fc1f4be6e9bf429129edf69659e5812563",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/LICENSE",
+   "pristine_path": "LICENSE",
+   "pristine_sha256": "65a50dadfb4ab4f8f2c4136234166e4fe50c9b01472186d33b9c325cb303d266",
+   "local_sha256": "65a50dadfb4ab4f8f2c4136234166e4fe50c9b01472186d33b9c325cb303d266",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/NOTICE",
+   "pristine_path": "NOTICE",
+   "pristine_sha256": "16725b472b9daffaa1cad39bacbfc03504553baac40e23f1c3024955eefdf331",
+   "local_sha256": "16725b472b9daffaa1cad39bacbfc03504553baac40e23f1c3024955eefdf331",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/README.md",
+   "pristine_path": "README.md",
+   "pristine_sha256": "7362bfdeab26f98c829aeca6cfa6ff7ceb2523461ee37aa66ece9ff81c73557e",
+   "local_sha256": "7362bfdeab26f98c829aeca6cfa6ff7ceb2523461ee37aa66ece9ff81c73557e",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/interface.go",
+   "pristine_path": "redact/v1/interface.go",
+   "pristine_sha256": "7d1ee6344a8d4cd688e5387f5ea3314d611c32242c75125fa25275e92ed265bf",
+   "local_sha256": "7d1ee6344a8d4cd688e5387f5ea3314d611c32242c75125fa25275e92ed265bf",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/stream.go",
+   "pristine_path": "redact/v1/stream.go",
+   "pristine_sha256": "4a8aae7531f859660e12e87fb0ef33d7cea515bffda7fc2c994ce61c6a6e430a",
+   "local_sha256": "4a8aae7531f859660e12e87fb0ef33d7cea515bffda7fc2c994ce61c6a6e430a",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "api/localdeps/redact/redact/v1/redact.proto",
+   "pristine_path": "redact/v1/redact.proto",
+   "pristine_sha256": "5780be8a947e04cdf5365eb8acf430ceae0ec38eb41b3cca11b9f8c1dd31d1df",
+   "local_sha256": "5780be8a947e04cdf5365eb8acf430ceae0ec38eb41b3cca11b9f8c1dd31d1df",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  },
+  {
+   "local": "migration/patches/T09/_pristine/go-wind-toolkit-redact-pb.go",
+   "pristine_path": "redact/v1/redact.pb.go",
+   "pristine_sha256": "8fa488815ce009d053313c268420865afa436ff5d02474f3ac455b4438795935",
+   "local_sha256": "8fa488815ce009d053313c268420865afa436ff5d02474f3ac455b4438795935",
+   "byte_identical": true,
+   "action": "copied-verbatim"
+  }
+ ],
+ "counts": {
+  "placed": 22,
+  "skipped": 0
+ }
+}

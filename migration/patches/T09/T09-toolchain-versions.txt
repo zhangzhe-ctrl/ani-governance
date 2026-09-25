@@ -1,0 +1,18 @@
+T09 generation-batch tool verification (measured, not inferred) — 2026-09-25T14:20:33+08:00
+host: Linux 6.8.0-41-generic x86_64
+go version go1.26.7 linux/amd64
+GOROOT        /home/ubuntu/sdk/go1.26.7
+buf (host)    1.60.0
+buf (go-run)  1.60.0
+gow           gow version v1.0.3 (commit: none, built: unknown)
+protoc        absent - buf drives the local plugins
+protoc-gen-go       protoc-gen-go v1.36.11
+protoc-gen-go-grpc  protoc-gen-go-grpc 1.6.2
+protoc-gen-go-http  protoc-gen-go-http v2.9.2
+protoc-gen-go-errors protoc-gen-go-errors v2.9.2
+protoc-gen-validate no files to generate
+protoc-gen-openapi  protoc-gen-openapi: unknown argument "--version" (this program should be run by protoc, not directly)
+awk: cmd. line:1: {print $5" bytes "$6" "$7" "$8"}
+awk: cmd. line:1:                               ^ unterminated string
+protoc-gen-go-redact (external PATH copy, only used by the pre-change control): 
+protoc-gen-go-redact (repo-built, used by make api): tools/bin/protoc-gen-go-redact: go1.26.7

@@ -1,0 +1,8 @@
+Files pre/api/gen/go/admin/service/v1/i_user.pb.go and post/api/gen/go/admin/service/v1/i_user.pb.go differ
+Files pre/api/gen/go/admin/service/v1/i_user.pb.redact.go and post/api/gen/go/admin/service/v1/i_user.pb.redact.go differ
+Files pre/api/gen/go/authentication/service/v1/ani_auth.pb.go and post/api/gen/go/authentication/service/v1/ani_auth.pb.go differ
+Files pre/api/gen/go/authentication/service/v1/ani_auth.pb.redact.go and post/api/gen/go/authentication/service/v1/ani_auth.pb.redact.go differ
+Files pre/api/gen/go/authentication/service/v1/authentication.pb.go and post/api/gen/go/authentication/service/v1/authentication.pb.go differ
+Files pre/api/gen/go/authentication/service/v1/authentication.pb.redact.go and post/api/gen/go/authentication/service/v1/authentication.pb.redact.go differ
+Files pre/api/gen/go/identity/service/v1/user.pb.go and post/api/gen/go/identity/service/v1/user.pb.go differ
+Files pre/api/gen/go/identity/service/v1/user.pb.redact.go and post/api/gen/go/identity/service/v1/user.pb.redact.go differ
