@@ -141,5 +141,79 @@
       "placed_sha256": "cec1b251e4d91385a5045fd77c5079c152f38a63db500c1aa402bbd9bb2661e3",
       "byte_identical_after_placement": true
     }
+  ],
+  "placement_byte_identical_at_copy_time": true,
+  "note_on_byte_identity": "all_byte_identical_after_placement describes the copy step. The four Go files whose own-module imports were rewritten and the README line-ending case are listed individually below, so provenance is not claimed by a single boolean.",
+  "files_after_rewrite": [
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/LICENSE",
+      "upstream_sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+      "working_tree_sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+      "committed_blob_sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+      "state_after_this_stage": "byte-identical to upstream in the working tree and in the committed blob"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/README.md",
+      "upstream_sha256": "f22b9d236797470385ebb49029d128851406da41b9e2fe709aa7a813d7f48ed7",
+      "working_tree_sha256": "f22b9d236797470385ebb49029d128851406da41b9e2fe709aa7a813d7f48ed7",
+      "committed_blob_sha256": "b1ab2f3131b7c91d467aad4b1684c06a71ece2e69acb9a9595060c756222c7de",
+      "state_after_this_stage": "working tree byte-identical to upstream; the committed blob differs only by the repository's documented CRLF-to-LF normalization in .gitattributes"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/embedded.go",
+      "upstream_sha256": "d4c1ff90c5e840337bf19ae9102e2a710c5fb7bc5a97b1e013ede04d16f7e7fe",
+      "working_tree_sha256": "d4c1ff90c5e840337bf19ae9102e2a710c5fb7bc5a97b1e013ede04d16f7e7fe",
+      "committed_blob_sha256": "d4c1ff90c5e840337bf19ae9102e2a710c5fb7bc5a97b1e013ede04d16f7e7fe",
+      "state_after_this_stage": "byte-identical to upstream in the working tree and in the committed blob"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/handler.go",
+      "upstream_sha256": "ac916ee66f2a56d079665ea2370b6a9af7737ca95b8b5a583e405e7ffd1c93f1",
+      "working_tree_sha256": "c4550cc960e1af622f161c8f4df1aa1242bef8575c90029a284aa2e677f52589",
+      "committed_blob_sha256": "c4550cc960e1af622f161c8f4df1aa1242bef8575c90029a284aa2e677f52589",
+      "state_after_this_stage": "import path rewritten (see T12-equiv.json: non-import AST and directives equivalent to upstream)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/kratos.go",
+      "upstream_sha256": "0f3dfe8d71606c08953ea80cca73e5a00773428ca2e2fb8144e436e2d10d06ac",
+      "working_tree_sha256": "4e8348e22ac1fb053341d07fcee3d753e8ac1ffd6ed9c3e3fa95668c69c29643",
+      "committed_blob_sha256": "4e8348e22ac1fb053341d07fcee3d753e8ac1ffd6ed9c3e3fa95668c69c29643",
+      "state_after_this_stage": "import path rewritten (see T12-equiv.json: non-import AST and directives equivalent to upstream)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/options.go",
+      "upstream_sha256": "ee0da59a14f3a5cebcda5bf86ffd111c1f299e527e33bb52afdf7d20791cec7c",
+      "working_tree_sha256": "68403e955e75257a7d9384c0b94c2c192f1dda5e43251c40a54640230a3cc030",
+      "committed_blob_sha256": "68403e955e75257a7d9384c0b94c2c192f1dda5e43251c40a54640230a3cc030",
+      "state_after_this_stage": "import path rewritten (see T12-equiv.json: non-import AST and directives equivalent to upstream)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/_examples/http/main.go",
+      "upstream_sha256": "e1c7c0a8a99baac57cad186d2f890bde844c2aaf1c6976a04b5e01c2f841f09c",
+      "working_tree_sha256": "2226461d403c3acfdb3c7a47aee941f16bb603ce2775437d439fd5d0d8f498c6",
+      "committed_blob_sha256": "2226461d403c3acfdb3c7a47aee941f16bb603ce2775437d439fd5d0d8f498c6",
+      "state_after_this_stage": "import path rewritten (see T12-equiv.json: non-import AST and directives equivalent to upstream)"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/internal/swagger/handler.go",
+      "upstream_sha256": "6ee9793c587dd6a3e2cc4665feb6e7fafcc8de92a0ee25dc7d2c011707021e14",
+      "working_tree_sha256": "6ee9793c587dd6a3e2cc4665feb6e7fafcc8de92a0ee25dc7d2c011707021e14",
+      "committed_blob_sha256": "6ee9793c587dd6a3e2cc4665feb6e7fafcc8de92a0ee25dc7d2c011707021e14",
+      "state_after_this_stage": "byte-identical to upstream in the working tree and in the committed blob"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/internal/swagger/index.tpl.go",
+      "upstream_sha256": "0918eb0f5a6795e2f4342eb2949ff39ccda25f61e7c3c961c90e7126320cefcc",
+      "working_tree_sha256": "0918eb0f5a6795e2f4342eb2949ff39ccda25f61e7c3c961c90e7126320cefcc",
+      "committed_blob_sha256": "0918eb0f5a6795e2f4342eb2949ff39ccda25f61e7c3c961c90e7126320cefcc",
+      "state_after_this_stage": "byte-identical to upstream in the working tree and in the committed blob"
+    },
+    {
+      "file": "pkg/localdeps/kratos-swagger-ui/internal/swagger/options.go",
+      "upstream_sha256": "cec1b251e4d91385a5045fd77c5079c152f38a63db500c1aa402bbd9bb2661e3",
+      "working_tree_sha256": "cec1b251e4d91385a5045fd77c5079c152f38a63db500c1aa402bbd9bb2661e3",
+      "committed_blob_sha256": "cec1b251e4d91385a5045fd77c5079c152f38a63db500c1aa402bbd9bb2661e3",
+      "state_after_this_stage": "byte-identical to upstream in the working tree and in the committed blob"
+    }
   ]
 }

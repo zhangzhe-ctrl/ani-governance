@@ -1,0 +1,80 @@
+{
+  "schema_version": "t12/1",
+  "task": "T12",
+  "phase": "D",
+  "goal_file": "_agent/ani-governance-tx7do-plan/goals/T12.md",
+  "status": "MIGRATION_PASS_TARGETED",
+  "conclusion": "T12 PASS on the targeted acceptance of its goal. The full make verify-gpu chain stays with T15.",
+  "start_sha": "dc8e7a3c341482739813e08d52e00a79b9e9799b",
+  "accepted_head_at_start": "6978ca4f76fb6f7550aa5fb21a933f6a5e475051",
+  "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "end_sha": "6445990eaf5fa090d578dd490e460aba64606cfd",
+  "commits": [
+    {
+      "sha": "52175f9",
+      "what": "open T12 with the measured entry state"
+    },
+    {
+      "sha": "1ef5fb0",
+      "what": "correction to the T11 remove-all settle window, found by this stage's combined run"
+    },
+    {
+      "sha": "6445990eaf5fa090d578dd490e460aba64606cfd",
+      "what": "place kratos-swagger-ui, rewrite the single consumer import, add the httptest acceptance"
+    }
+  ],
+  "source_package": {
+    "module": "github.com/tx7do/kratos-swagger-ui",
+    "version": "v0.0.1",
+    "manifest": "migration/patches/T12/T12-placement.json",
+    "files_placed": 10,
+    "all_byte_identical": true,
+    "excluded_with_hashes": [
+      "go.mod",
+      "go.sum",
+      "tag.bat",
+      ".gitignore"
+    ],
+    "exclusion_reason": "the first two would turn the copy into a nested module, tag.bat is a Windows helper, and copying .gitignore would silently hide future *.test/*.out/*.so files under that directory",
+    "license_readme_and_provenance_kept": true,
+    "assets": "the UI assets continue to come from github.com/swaggest/swgui/v5/static via vearutop/statigz; no CDN, no second UI, no download"
+  },
+  "non_import_differences": {
+    "checked": 8,
+    "evidence": "migration/patches/T12/T12-equiv.json",
+    "result": "every placed Go file is equivalent to its pristine upstream source on the non-import AST and Go directives, and the consumer file is guard-clean against the T12 entry commit; the only change at the call site is the import path"
+  },
+  "consumer_change": "app/admin/service/internal/server/rest_server.go: swaggerUI alias now points at go-wind-admin/pkg/localdeps/kratos-swagger-ui; NewRestServer still calls RegisterSwaggerUIServerWithOption with WithTitle and WithMemoryData(assets.OpenApiData, \"yaml\") behind cfg.GetServer().GetRest().GetEnableSwagger()",
+  "acceptance": {
+    "manifest": "migration/patches/T12/T12-acceptance.json",
+    "named_must_run": "migration/patches/T12/T12-named-must-run.json (52: the 45 T11 regressions plus 7 new)",
+    "ui_package": "HTML page with the configured title, in-memory document byte-for-byte, a packaged static asset discovered from the embedded FS, local-file mode, the unreadable-file branch, and option isolation between two registrations",
+    "assembly": "TestNewRestServerRegistersTheTakenOverSwaggerUi and TestNewRestServerKeepsTheUiDisabledWhenConfiguredOff build the real REST server and assert the enabled and disabled routes over httptest",
+    "not_verified": [
+      "browser-level rendering of the UI (only the served documents and assets are asserted)",
+      "no deployment or public endpoint was started"
+    ]
+  },
+  "residual_dependencies": {
+    "in_the_package_graph": [],
+    "go_mod": "github.com/tx7do/kratos-swagger-ui v0.0.1 is still required in go.mod because module pruning is T14; nothing imports it any more, which the dependency graph above shows",
+    "carried_from_earlier_phases": [
+      "3 id cases",
+      "9 captcha cases",
+      "T09 protoc-driven redact integration cases (T13)",
+      "T03-F4/F5",
+      "two QUOTA_*_VERIFY windows not_run"
+    ]
+  },
+  "constraints_still_in_force": [
+    "no vendor, nested go.mod, permanent replace or module-cache edits",
+    "functionality freeze",
+    "no new public port",
+    "-mod=readonly / GOWORK=off / pinned go1.26.7",
+    "no push, merge or deploy"
+  ],
+  "provenance_detail": "migration/patches/T12/T12-placement.json now lists per-file hashes for the working tree and the committed blob: four Go files differ from upstream only by the rewritten import path, and README.md is byte-identical on disk while its committed blob carries the repository's documented CRLF-to-LF normalization. A single boolean no longer carries the whole provenance claim.",
+  "environment_incidents": [
+    "go env GOFLAGS=-mod=mod on this host rewrote go.mod indirect markers during a dependency-graph query; the diff was archived at /home/ubuntu/tx7do-pilot-run/T12/ and reverted. Module pruning is deliberately NOT done here: github.com/tx7do/kratos-swagger-ui stays required in go.mod until T14."
+  ]
+}

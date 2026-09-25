@@ -735,5 +735,37 @@
       "git status --porcelain must be clean apart from the untracked _agent/ plan material",
       "every go invocation must carry GOFLAGS=-mod=readonly GOWORK=off and the pinned /home/ubuntu/sdk/go1.26.7 (the host go env GOFLAGS=-mod=mod and host GOROOT go1.26.4 have both already caused damage in this program)"
     ]
+  },
+  "phase_D_T12_closure": {
+    "task": "T12",
+    "status": "MIGRATION_PASS_TARGETED",
+    "start_sha": "dc8e7a3c341482739813e08d52e00a79b9e9799b",
+    "result_sha": "6445990eaf5fa090d578dd490e460aba64606cfd",
+    "tested_code_sha": "6445990eaf5fa090d578dd490e460aba64606cfd",
+    "resume_head": "6445990eaf5fa090d578dd490e460aba64606cfd",
+    "accepted_head_now": "6445990eaf5fa090d578dd490e460aba64606cfd",
+    "resolved": [
+      "kratos-swagger-ui v0.0.1 placed and import-rewritten; the package graph now resolves zero github.com/tx7do packages under default, quota_lab and quota_pg",
+      "enabled and disabled swagger behaviour asserted through the real NewRestServer over httptest",
+      "the T11 remove-all periodic assertion fixed after this stage's combined run caught it"
+    ],
+    "carried": [
+      "3 id cases under upstream_known_defects",
+      "9 captcha known defects",
+      "T09 protoc-driven redact integration cases DEFERRED (T13)",
+      "T03-F4/F5",
+      "two QUOTA_*_VERIFY windows not_run",
+      "github.com/tx7do/kratos-swagger-ui is still a go.mod requirement with no importer: pruning belongs to T14",
+      "make verify-gpu has not been run for T12 by design: that chain is the T15 milestone"
+    ],
+    "milestone_exit": 0,
+    "not_pushed_merged_or_deployed": true,
+    "next_task": "T13. Read _agent/ani-governance-tx7do-plan/goals/T13.md on entry only.",
+    "resume_check_before_editing": [
+      "git rev-parse HEAD must be the ledger commit whose tested_code_sha is 6445990eaf5fa090d578dd490e460aba64606cfd",
+      "cat migration/accepted_head must equal 6445990eaf5fa090d578dd490e460aba64606cfd",
+      "git status --porcelain must be clean apart from the untracked _agent/ plan material",
+      "every go invocation must carry GOFLAGS=-mod=readonly GOWORK=off and the pinned /home/ubuntu/sdk/go1.26.7"
+    ]
   }
 }
