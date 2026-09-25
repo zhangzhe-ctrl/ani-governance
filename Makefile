@@ -31,7 +31,10 @@ plugin:
 	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	go install github.com/envoyproxy/protoc-gen-validate@latest
-	go install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2
+	# protoc-gen-go-redact 已接管到本仓库 pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact
+	# （锁定版本 v0.0.0-20260831125122-5bb4931991b2），从本地源码构建到 tools/bin，
+	# 不再 go install 外部模块；生成链见 make api-redact。
+	bash scripts/build-redact-plugin.sh
 
 # install cli tools
 cli:
@@ -82,9 +85,21 @@ register:
 	go run ./tools/register -entity $(ENTITY)
 
 # generate protobuf api go code
-api:
+# 业务模板用 ../tools/bin/protoc-gen-go-redact 生成脱敏代码，先确保该二进制与本地源码一致。
+api: redact-plugin
 	cd api && \
 	buf generate
+
+# build the localized protoc-gen-go-redact plugin from pkg/localdeps sources
+redact-plugin:
+	bash scripts/build-redact-plugin.sh
+
+# generate the localized redact Proto into the takeover package.
+# The Proto source is api/localdeps/redact and buf.redact.gen.yaml is the only
+# template that writes that target, so redact.pb.go is generated exactly once.
+# BUF must point at a verified buf v1.60.0; the script refuses any other version.
+api-redact:
+	bash scripts/generate-redact.sh
 
 # generate the localized pagination Proto into pkg/localdeps.
 # The Proto source is api/localdeps/pagination and this is the only template that

@@ -6,7 +6,7 @@ package authenticationpb
 import (
 	context "context"
 	validate "github.com/envoyproxy/protoc-gen-validate/validate"
-	redact "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+	redact "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
 	annotations "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"

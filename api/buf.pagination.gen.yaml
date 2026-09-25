@@ -13,13 +13,20 @@ managed:
     - module: buf.build/gnostic/gnostic
     - module: 'buf.build/envoyproxy/protoc-gen-validate'
     - module: 'buf.build/kratos/apis'
-    - module: 'buf.build/go-wind/redact'
   override:
     - file_option: go_package_prefix
       value: go-wind-admin/api/gen/go
     - file_option: go_package
       path: pagination/v1
       value: go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
+    # 本地化脱敏 Proto（api/localdeps/redact，与 protoc-gen-go-redact 锁定归档逐字节一致）。
+    # 这一条取代原先 managed.disable 里的外部模块 buf.build/go-wind/redact：接管后 redact 的
+    # go_package 必须与生成器 imports.go 标准 import 表里的本地运行时路径逐字符相等，
+    # Module.importPaths 才会把这个 import 认作脱敏运行时本身并沿用别名 redact，
+    # 生成的 .pb.redact.go 才引用得到符号。;redact 包名别名保持归档生成物一致，协议内容不变。
+    - file_option: go_package
+      path: redact/v1
+      value: go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact
 inputs:
   - directory: localdeps/pagination
 plugins:

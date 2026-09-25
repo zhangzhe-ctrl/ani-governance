@@ -64,6 +64,7 @@ require (
 
 require (
 	github.com/dlclark/regexp2 v1.12.0 // indirect
+	github.com/spf13/afero v1.15.0 // indirect
 	github.com/yuin/gopher-lua v1.1.2 // indirect
 )
 
@@ -123,6 +124,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/lithammer/shortuuid/v4 v4.3.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20260802145828-341c2f0c90b5 // indirect
+	github.com/lyft/protoc-gen-star/v2 v2.0.4
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.28 // indirect

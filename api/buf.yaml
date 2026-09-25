@@ -18,11 +18,20 @@ modules:
     breaking:
       use:
         - FILE
+  # 本地化脱敏 Proto（protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2 源码接管，
+  # 与该锁定归档的 redact/v1/redact.proto 逐字节一致）。逻辑 import 路径保持
+  # redact/v1/...，外部 buf.build/go-wind/redact 已移除，redact Proto 在全仓只有这一份定义。
+  - path: localdeps/redact
+    lint:
+      use:
+        - STANDARD
+    breaking:
+      use:
+        - FILE
 deps:
   - 'buf.build/googleapis/googleapis'
   - 'buf.build/kratos/apis'
   - 'buf.build/gnostic/gnostic'
-  - 'buf.build/go-wind/redact'
   - 'buf.build/envoyproxy/protoc-gen-validate'
 
 breaking:

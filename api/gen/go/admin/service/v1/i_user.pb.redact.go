@@ -5,9 +5,9 @@ package adminpb
 
 import (
 	context "context"
-	redact "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
 	identitypb "go-wind-admin/api/gen/go/identity/service/v1"
 	v1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+	redact "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
