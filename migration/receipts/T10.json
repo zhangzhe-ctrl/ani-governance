@@ -1,0 +1,1221 @@
+{
+ "schema_version": "t10/1",
+ "task": "T10",
+ "phase": "C",
+ "goal_file": "_agent/ani-governance-tx7do-plan/goals/T10.md",
+ "status": "BLOCKED",
+ "conclusion": "BLOCKED (T10-B1 and T10-B2 below). The takeover itself executed and is proven: 93 files of kratos-bootstrap and go-utils source were placed verbatim, all 212 consumer files were switched with import-line-only edits, the conf Proto was regenerated with zero field drift, and every gate the goal names for configuration, logging, entry initialization, the three entry builds and the PG Ent trace/clock cases passed. What cannot be accepted without a ruling is that the takeover also brought four locked-upstream test cases into the repository, and those cases fail for reasons that predate this task: they turn the repository's own test gates red. A second, independent finding is that make verify-gpu was already red on this host before T10 began.",
+ "scope_statement": "T10 only, the bootstrap/conf/logger/rpc/cache/redis/Asynq/SSE and remaining timeutil/id/machineid/tls packages. This is not a system-wide migration claim: 8 tx7do packages are still resolved from outside the repository (kratos-transport asynq/sse and their four support packages, kratos-swagger-ui and its internal package), and T11-T15 are still open.",
+ "start_sha": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e",
+ "accepted_head_at_start": "b0e8fd424320b6542977e8c94297ab6e86784e58",
+ "branch": "task/tx7do-takeover",
+ "working_tree_at_entry": "clean apart from _agent/ plan material, which is never committed",
+ "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+ "source_package_versions": {
+  "github.com/tx7do/go-utils": "v1.1.40",
+  "github.com/tx7do/go-utils/id": "v0.0.6",
+  "github.com/tx7do/kratos-bootstrap/api": "v0.0.45",
+  "github.com/tx7do/kratos-bootstrap/bootstrap": "v0.1.17",
+  "github.com/tx7do/kratos-bootstrap/cache/redis": "v0.1.2",
+  "github.com/tx7do/kratos-bootstrap/config": "v0.2.3",
+  "github.com/tx7do/kratos-bootstrap/logger": "v0.1.3",
+  "github.com/tx7do/kratos-bootstrap/registry": "v0.2.3",
+  "github.com/tx7do/kratos-bootstrap/rpc": "v0.1.3",
+  "github.com/tx7do/kratos-bootstrap/tracer": "v0.1.5",
+  "github.com/tx7do/kratos-bootstrap/transport/asynq": "v0.0.7",
+  "github.com/tx7do/kratos-bootstrap/transport/sse": "v0.0.5"
+ },
+ "source_versions_vs_go_mod": {
+  "note": "every module below is still a go.mod require; the require list is not cleaned in T10 (the standing instruction is not to run a full tidy), that is T14's step",
+  "count_placed_modules_still_required": 12,
+  "of_total_placed_modules": 12,
+  "entries": {
+   "github.com/tx7do/go-utils": {
+    "go_mod_require": "v1.1.40",
+    "placed_from": "v1.1.40",
+    "same_version": true
+   },
+   "github.com/tx7do/go-utils/id": {
+    "go_mod_require": "v0.0.6",
+    "placed_from": "v0.0.6",
+    "same_version": true
+   },
+   "github.com/tx7do/kratos-bootstrap/api": {
+    "go_mod_require": "v0.0.45",
+    "placed_from": "v0.0.45",
+    "same_version": true
+   },
+   "github.com/tx7do/kratos-bootstrap/bootstrap": {
+    "go_mod_require": "v0.1.17",
+    "placed_from": "v0.1.17",
+    "same_version": true
+   },
+   "github.com/tx7do/kratos-bootstrap/cache/redis": {
+    "go_mod_require": "v0.1.2",
+    "placed_from": "v0.1.2",
+    "same_version": true
+   },
+   "github.com/tx7do/kratos-bootstrap/logger": {
+    "go_mod_require": "v0.1.3",
+    "placed_from": "v0.1.3",
+    "same_version": true
+   },
+   "github.com/tx7do/kratos-bootstrap/rpc": {
+    "go_mod_require": "v0.1.3",
+    "placed_from": "v0.1.3",
+    "same_version": true
+   },
+   "github.com/tx7do/kratos-bootstrap/transport/asynq": {
+    "go_mod_require": "v0.0.7",
+    "placed_from": "v0.0.7",
+    "same_version": true
+   },
+   "github.com/tx7do/kratos-bootstrap/transport/sse": {
+    "go_mod_require": "v0.0.5",
+    "placed_from": "v0.0.5",
+    "same_version": true
+   },
+   "github.com/tx7do/kratos-bootstrap/config": {
+    "go_mod_require": "indirect",
+    "placed_from": "v0.2.3",
+    "same_version": false
+   },
+   "github.com/tx7do/kratos-bootstrap/registry": {
+    "go_mod_require": "indirect",
+    "placed_from": "v0.2.3",
+    "same_version": false
+   },
+   "github.com/tx7do/kratos-bootstrap/tracer": {
+    "go_mod_require": "indirect",
+    "placed_from": "v0.1.5",
+    "same_version": false
+   }
+  }
+ },
+ "placement_provenance": {
+  "module_cache": "/home/ubuntu/go/pkg/mod/github.com/tx7do",
+  "files_placed": 93,
+  "byte_identical_after_placement": [
+   "pkg/localdeps/go-utils/id/LICENSE",
+   "pkg/localdeps/go-utils/id/README.md",
+   "pkg/localdeps/go-utils/id/machine_id_test.go",
+   "pkg/localdeps/go-utils/id/machineid/LICENSE.md",
+   "pkg/localdeps/go-utils/id/machineid/README.md",
+   "pkg/localdeps/go-utils/id/machineid/helper.go",
+   "pkg/localdeps/go-utils/id/machineid/helper_test.go",
+   "pkg/localdeps/go-utils/id/machineid/id.go",
+   "pkg/localdeps/go-utils/id/machineid/id_aix.go",
+   "pkg/localdeps/go-utils/id/machineid/id_bsd.go",
+   "pkg/localdeps/go-utils/id/machineid/id_darwin.go",
+   "pkg/localdeps/go-utils/id/machineid/id_darwin_test.go",
+   "pkg/localdeps/go-utils/id/machineid/id_linux.go",
+   "pkg/localdeps/go-utils/id/machineid/id_test.go",
+   "pkg/localdeps/go-utils/id/machineid/id_windows.go",
+   "pkg/localdeps/go-utils/id/machineid/id_windows_test.go",
+   "pkg/localdeps/go-utils/id/machineid/id_zos.go",
+   "pkg/localdeps/go-utils/id/machineid/logo.png",
+   "pkg/localdeps/go-utils/id/order_id_test.go",
+   "pkg/localdeps/go-utils/id/snowflake.go",
+   "pkg/localdeps/go-utils/id/sonyflake.go",
+   "pkg/localdeps/go-utils/id/uuid.go",
+   "pkg/localdeps/go-utils/id/uuid_test.go",
+   "pkg/localdeps/go-utils/timeutil/consts.go",
+   "pkg/localdeps/go-utils/timeutil/diff.go",
+   "pkg/localdeps/go-utils/timeutil/diff_test.go",
+   "pkg/localdeps/go-utils/timeutil/format.go",
+   "pkg/localdeps/go-utils/timeutil/format_test.go",
+   "pkg/localdeps/go-utils/timeutil/range.go",
+   "pkg/localdeps/go-utils/timeutil/range_test.go",
+   "pkg/localdeps/go-utils/tls/tls.go",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/LICENSE",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/README.md",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/cli.go",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/daemon.go",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/flag.go",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/options.go",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/process_unix.go",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/process_windows.go",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/types.go",
+   "pkg/localdeps/kratos-bootstrap/cache/redis/LICENSE",
+   "pkg/localdeps/kratos-bootstrap/config/LICENSE",
+   "pkg/localdeps/kratos-bootstrap/config/README.md",
+   "pkg/localdeps/kratos-bootstrap/config/config_test.go",
+   "pkg/localdeps/kratos-bootstrap/config/types.go",
+   "pkg/localdeps/kratos-bootstrap/logger/LICENSE",
+   "pkg/localdeps/kratos-bootstrap/logger/README.md",
+   "pkg/localdeps/kratos-bootstrap/logger/adapter.go",
+   "pkg/localdeps/kratos-bootstrap/logger/interface.go",
+   "pkg/localdeps/kratos-bootstrap/logger/types.go",
+   "pkg/localdeps/kratos-bootstrap/registry/LICENSE",
+   "pkg/localdeps/kratos-bootstrap/registry/README.md",
+   "pkg/localdeps/kratos-bootstrap/registry/normalize.go",
+   "pkg/localdeps/kratos-bootstrap/registry/types.go",
+   "pkg/localdeps/kratos-bootstrap/rpc/LICENSE",
+   "pkg/localdeps/kratos-bootstrap/rpc/README.md",
+   "pkg/localdeps/kratos-bootstrap/rpc/middleware/requestid/requestid.go",
+   "pkg/localdeps/kratos-bootstrap/rpc/middleware/requestid/requestid_test.go",
+   "pkg/localdeps/kratos-bootstrap/rpc/middleware/validate/validate.go",
+   "pkg/localdeps/kratos-bootstrap/rpc/middleware/validate/validate_test.go",
+   "pkg/localdeps/kratos-bootstrap/rpc/whitelist.go",
+   "pkg/localdeps/kratos-bootstrap/rpc/whitelist_test.go",
+   "pkg/localdeps/kratos-bootstrap/tracer/LICENSE",
+   "pkg/localdeps/kratos-bootstrap/tracer/README.md",
+   "pkg/localdeps/kratos-bootstrap/tracer/exporter.go",
+   "pkg/localdeps/kratos-bootstrap/tracer/types.go",
+   "pkg/localdeps/kratos-bootstrap/transport/asynq/LICENSE",
+   "pkg/localdeps/kratos-bootstrap/transport/sse/LICENSE"
+  ],
+  "rewritten_after_placement": [
+   "pkg/localdeps/go-utils/id/machine_id.go",
+   "pkg/localdeps/go-utils/id/machineid/example_test.go",
+   "pkg/localdeps/go-utils/id/order_id.go",
+   "pkg/localdeps/go-utils/timeutil/trans.go",
+   "pkg/localdeps/go-utils/timeutil/trans_test.go",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/app_info.go",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/bootstrap.go",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/bootstrap_test.go",
+   "pkg/localdeps/kratos-bootstrap/bootstrap/context.go",
+   "pkg/localdeps/kratos-bootstrap/cache/redis/redis.go",
+   "pkg/localdeps/kratos-bootstrap/config/bootstrap_config.go",
+   "pkg/localdeps/kratos-bootstrap/config/config.go",
+   "pkg/localdeps/kratos-bootstrap/config/factory.go",
+   "pkg/localdeps/kratos-bootstrap/logger/factory.go",
+   "pkg/localdeps/kratos-bootstrap/logger/factory_test.go",
+   "pkg/localdeps/kratos-bootstrap/logger/logger.go",
+   "pkg/localdeps/kratos-bootstrap/registry/discovery.go",
+   "pkg/localdeps/kratos-bootstrap/registry/registrar.go",
+   "pkg/localdeps/kratos-bootstrap/rpc/grpc.go",
+   "pkg/localdeps/kratos-bootstrap/rpc/rest.go",
+   "pkg/localdeps/kratos-bootstrap/rpc/utils.go",
+   "pkg/localdeps/kratos-bootstrap/tracer/factory.go",
+   "pkg/localdeps/kratos-bootstrap/tracer/tracer.go",
+   "pkg/localdeps/kratos-bootstrap/transport/asynq/asynq_server.go",
+   "pkg/localdeps/kratos-bootstrap/transport/sse/sse_server.go"
+  ],
+  "equiv_proof_over_rewritten_files": "25 of 25 PASS in T10-equiv-log.tsv (non-import AST and directives equal to the staged pristine copy)",
+  "generated_separately": [
+   "pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1/*.pb.go (17 files, generated by api/buf.bootstrap.conf.gen.yaml from api/localdeps/bootstrap/conf/v1, which is itself a byte copy of the archive protos/conf/v1)"
+  ],
+  "staging_note": "every placed file is a verbatim copy of the locked archive at the moment of copying; only import specs change afterwards, via migrate_imports rewrite, and are re-proved with equiv against these pristine hashes"
+ },
+ "changed_files": {
+  "consumer_files_rewritten": [
+   "app/admin/service/cmd/server/main.go",
+   "app/admin/service/cmd/server/wiring_ent.go",
+   "app/admin/service/cmd/server/wiring_quota_default.go",
+   "app/admin/service/cmd/server/wiring_quota_lab.go",
+   "app/admin/service/internal/data/access_key_repo.go",
+   "app/admin/service/internal/data/api_audit_log_repo.go",
+   "app/admin/service/internal/data/api_audit_log_repo_sqlite_test.go",
+   "app/admin/service/internal/data/api_repo.go",
+   "app/admin/service/internal/data/api_repo_sqlite_test.go",
+   "app/admin/service/internal/data/audit_log_archive_repo.go",
+   "app/admin/service/internal/data/audit_log_archive_repo_sqlite_test.go",
+   "app/admin/service/internal/data/authenticator.go",
+   "app/admin/service/internal/data/authenticator_test.go",
+   "app/admin/service/internal/data/authorizer_provider.go",
+   "app/admin/service/internal/data/config_repo.go",
+   "app/admin/service/internal/data/config_repo_test.go",
+   "app/admin/service/internal/data/dashboard_repo.go",
+   "app/admin/service/internal/data/dashboard_repo_sqlite_test.go",
+   "app/admin/service/internal/data/data.go",
+   "app/admin/service/internal/data/data_access_audit_log_repo.go",
+   "app/admin/service/internal/data/data_access_audit_log_repo_sqlite_test.go",
+   "app/admin/service/internal/data/dict_entry_i18n_repo.go",
+   "app/admin/service/internal/data/dict_entry_i18n_repo_sqlite_test.go",
+   "app/admin/service/internal/data/dict_entry_repo.go",
+   "app/admin/service/internal/data/dict_entry_repo_sqlite_test.go",
+   "app/admin/service/internal/data/dict_type_repo.go",
+   "app/admin/service/internal/data/dict_type_repo_sqlite_test.go",
+   "app/admin/service/internal/data/ent_client.go",
+   "app/admin/service/internal/data/ent_client_test.go",
+   "app/admin/service/internal/data/internal_message_category_repo.go",
+   "app/admin/service/internal/data/internal_message_recipient_repo.go",
+   "app/admin/service/internal/data/internal_message_recipient_repo_sqlite_test.go",
+   "app/admin/service/internal/data/internal_message_repo.go",
+   "app/admin/service/internal/data/internal_message_repo_sqlite_test.go",
+   "app/admin/service/internal/data/language_repo.go",
+   "app/admin/service/internal/data/language_repo_sqlite_test.go",
+   "app/admin/service/internal/data/login_audit_log_repo.go",
+   "app/admin/service/internal/data/login_audit_log_repo_sqlite_test.go",
+   "app/admin/service/internal/data/login_policy_repo.go",
+   "app/admin/service/internal/data/login_policy_repo_sqlite_test.go",
+   "app/admin/service/internal/data/login_rate_limiter.go",
+   "app/admin/service/internal/data/membership_org_unit_repo.go",
+   "app/admin/service/internal/data/membership_org_unit_repo_sqlite_test.go",
+   "app/admin/service/internal/data/membership_position_repo.go",
+   "app/admin/service/internal/data/membership_position_repo_sqlite_test.go",
+   "app/admin/service/internal/data/membership_repo.go",
+   "app/admin/service/internal/data/membership_repo_sqlite_test.go",
+   "app/admin/service/internal/data/membership_role_repo.go",
+   "app/admin/service/internal/data/membership_role_repo_sqlite_test.go",
+   "app/admin/service/internal/data/menu_repo.go",
+   "app/admin/service/internal/data/menu_repo_sync_test.go",
+   "app/admin/service/internal/data/mfa_challenge_cache.go",
+   "app/admin/service/internal/data/notification_channel_repo.go",
+   "app/admin/service/internal/data/notification_channel_repo_sqlite_test.go",
+   "app/admin/service/internal/data/operation_audit_log_repo.go",
+   "app/admin/service/internal/data/operation_audit_log_repo_sqlite_test.go",
+   "app/admin/service/internal/data/org_unit_repo.go",
+   "app/admin/service/internal/data/org_unit_repo_sqlite_test.go",
+   "app/admin/service/internal/data/permission_api_repo.go",
+   "app/admin/service/internal/data/permission_api_repo_sqlite_test.go",
+   "app/admin/service/internal/data/permission_audit_log_repo.go",
+   "app/admin/service/internal/data/permission_audit_log_repo_sqlite_test.go",
+   "app/admin/service/internal/data/permission_group_repo.go",
+   "app/admin/service/internal/data/permission_group_repo_sqlite_test.go",
+   "app/admin/service/internal/data/permission_menu_repo.go",
+   "app/admin/service/internal/data/permission_repo.go",
+   "app/admin/service/internal/data/permission_repo_sqlite_test.go",
+   "app/admin/service/internal/data/plan_module_repo.go",
+   "app/admin/service/internal/data/plan_module_repo_sqlite_test.go",
+   "app/admin/service/internal/data/plan_quota_repo.go",
+   "app/admin/service/internal/data/plan_quota_repo_sqlite_test.go",
+   "app/admin/service/internal/data/plan_repo.go",
+   "app/admin/service/internal/data/plan_repo_sqlite_test.go",
+   "app/admin/service/internal/data/policy_evaluation_log_repo.go",
+   "app/admin/service/internal/data/policy_evaluation_log_repo_sqlite_test.go",
+   "app/admin/service/internal/data/position_repo.go",
+   "app/admin/service/internal/data/position_repo_sqlite_test.go",
+   "app/admin/service/internal/data/quota_admin_repo.go",
+   "app/admin/service/internal/data/quota_ent_pg_test.go",
+   "app/admin/service/internal/data/quota_gpu_pg_test.go",
+   "app/admin/service/internal/data/quota_ledger_pg_test.go",
+   "app/admin/service/internal/data/quota_ledger_repo.go",
+   "app/admin/service/internal/data/redis_cache_monitor_repo.go",
+   "app/admin/service/internal/data/redis_cache_monitor_repo_sqlite_test.go",
+   "app/admin/service/internal/data/repo_testkit.go",
+   "app/admin/service/internal/data/repo_testkit2.go",
+   "app/admin/service/internal/data/repo_testkit3.go",
+   "app/admin/service/internal/data/repo_testkit4.go",
+   "app/admin/service/internal/data/repo_testkit5.go",
+   "app/admin/service/internal/data/role_field_permission_repo.go",
+   "app/admin/service/internal/data/role_metadata_repo.go",
+   "app/admin/service/internal/data/role_metadata_repo_sqlite_test.go",
+   "app/admin/service/internal/data/role_org_unit_repo.go",
+   "app/admin/service/internal/data/role_org_unit_repo_sqlite_test.go",
+   "app/admin/service/internal/data/role_permission_repo.go",
+   "app/admin/service/internal/data/role_permission_repo_sqlite_test.go",
+   "app/admin/service/internal/data/role_repo.go",
+   "app/admin/service/internal/data/role_repo_sqlite_test.go",
+   "app/admin/service/internal/data/server_monitor_repo.go",
+   "app/admin/service/internal/data/server_monitor_repo_sqlite_test.go",
+   "app/admin/service/internal/data/task_repo.go",
+   "app/admin/service/internal/data/task_repo_sqlite_test.go",
+   "app/admin/service/internal/data/tenant_access_checker.go",
+   "app/admin/service/internal/data/tenant_access_checker_sqlite_test.go",
+   "app/admin/service/internal/data/tenant_repo.go",
+   "app/admin/service/internal/data/tenant_repo_sqlite_test.go",
+   "app/admin/service/internal/data/tenant_usage_repo.go",
+   "app/admin/service/internal/data/tenant_usage_repo_sqlite_test.go",
+   "app/admin/service/internal/data/token_checker.go",
+   "app/admin/service/internal/data/user_credential_repo.go",
+   "app/admin/service/internal/data/user_credential_repo_sqlite_test.go",
+   "app/admin/service/internal/data/user_mfa_factor_repo.go",
+   "app/admin/service/internal/data/user_mfa_factor_repo_sqlite_test.go",
+   "app/admin/service/internal/data/user_org_unit_repo.go",
+   "app/admin/service/internal/data/user_org_unit_repo_sqlite_test.go",
+   "app/admin/service/internal/data/user_position_repo.go",
+   "app/admin/service/internal/data/user_position_repo_sqlite_test.go",
+   "app/admin/service/internal/data/user_repo.go",
+   "app/admin/service/internal/data/user_repo_sqlite_test.go",
+   "app/admin/service/internal/data/user_repo_test.go",
+   "app/admin/service/internal/data/user_role_repo.go",
+   "app/admin/service/internal/data/user_role_repo_sqlite_test.go",
+   "app/admin/service/internal/data/user_token_cache.go",
+   "app/admin/service/internal/data/user_token_cache_test.go",
+   "app/admin/service/internal/data/vcode_cache.go",
+   "app/admin/service/internal/quotalab/gpu_lab_service.go",
+   "app/admin/service/internal/quotalab/simulator/integration_pg_test.go",
+   "app/admin/service/internal/server/asynq_server.go",
+   "app/admin/service/internal/server/invitation_page_test.go",
+   "app/admin/service/internal/server/rest_server.go",
+   "app/admin/service/internal/server/sse_server.go",
+   "app/admin/service/internal/service/accelerator_joint_http_test.go",
+   "app/admin/service/internal/service/access_key_service.go",
+   "app/admin/service/internal/service/account_invitation_test.go",
+   "app/admin/service/internal/service/admin_portal_service.go",
+   "app/admin/service/internal/service/api_audit_log_service.go",
+   "app/admin/service/internal/service/api_service.go",
+   "app/admin/service/internal/service/api_service_sqlite_test.go",
+   "app/admin/service/internal/service/authentication_data_scope_sqlite_test.go",
+   "app/admin/service/internal/service/authentication_service.go",
+   "app/admin/service/internal/service/authentication_service_sqlite_test.go",
+   "app/admin/service/internal/service/config_service.go",
+   "app/admin/service/internal/service/dashboard_service.go",
+   "app/admin/service/internal/service/data_access_audit_log_service.go",
+   "app/admin/service/internal/service/dict_entry_service.go",
+   "app/admin/service/internal/service/dict_entry_service_sqlite_test.go",
+   "app/admin/service/internal/service/dict_type_service.go",
+   "app/admin/service/internal/service/dict_type_service_sqlite_test.go",
+   "app/admin/service/internal/service/internal_message_category_service.go",
+   "app/admin/service/internal/service/internal_message_recipient_service.go",
+   "app/admin/service/internal/service/internal_message_service.go",
+   "app/admin/service/internal/service/internal_message_service_sqlite_test.go",
+   "app/admin/service/internal/service/language_service.go",
+   "app/admin/service/internal/service/language_service_sqlite_test.go",
+   "app/admin/service/internal/service/login_audit_log_service.go",
+   "app/admin/service/internal/service/login_policy_service.go",
+   "app/admin/service/internal/service/menu_service.go",
+   "app/admin/service/internal/service/menu_service_sqlite_test.go",
+   "app/admin/service/internal/service/mfa_service.go",
+   "app/admin/service/internal/service/notification_channel_service.go",
+   "app/admin/service/internal/service/notification_channel_service_sqlite_test.go",
+   "app/admin/service/internal/service/online_session_service.go",
+   "app/admin/service/internal/service/online_session_service_sqlite_test.go",
+   "app/admin/service/internal/service/operation_audit_log_service.go",
+   "app/admin/service/internal/service/org_unit_service.go",
+   "app/admin/service/internal/service/org_unit_service_sqlite_test.go",
+   "app/admin/service/internal/service/permission_audit_log_service.go",
+   "app/admin/service/internal/service/permission_group_service.go",
+   "app/admin/service/internal/service/permission_group_service_sqlite_test.go",
+   "app/admin/service/internal/service/permission_service.go",
+   "app/admin/service/internal/service/permission_service_test.go",
+   "app/admin/service/internal/service/plan_module_service.go",
+   "app/admin/service/internal/service/plan_module_service_sqlite_test.go",
+   "app/admin/service/internal/service/plan_quota_service.go",
+   "app/admin/service/internal/service/plan_quota_service_sqlite_test.go",
+   "app/admin/service/internal/service/plan_service.go",
+   "app/admin/service/internal/service/plan_service_sqlite_test.go",
+   "app/admin/service/internal/service/policy_evaluation_log_service.go",
+   "app/admin/service/internal/service/position_service.go",
+   "app/admin/service/internal/service/position_service_sqlite_test.go",
+   "app/admin/service/internal/service/quota_admin_service.go",
+   "app/admin/service/internal/service/quota_dispatch_worker.go",
+   "app/admin/service/internal/service/redis_cache_monitor_service.go",
+   "app/admin/service/internal/service/role_service.go",
+   "app/admin/service/internal/service/role_service_sqlite_test.go",
+   "app/admin/service/internal/service/server_monitor_service.go",
+   "app/admin/service/internal/service/session_meta.go",
+   "app/admin/service/internal/service/startup_test.go",
+   "app/admin/service/internal/service/task_service.go",
+   "app/admin/service/internal/service/task_service_sqlite_test.go",
+   "app/admin/service/internal/service/tenant_service.go",
+   "app/admin/service/internal/service/tenant_service_sqlite_test.go",
+   "app/admin/service/internal/service/user_profile_service.go",
+   "app/admin/service/internal/service/user_profile_service_sqlite_test.go",
+   "app/admin/service/internal/service/user_service.go",
+   "app/admin/service/internal/service/user_service_sqlite_test.go",
+   "app/admin/service/internal/service/user_session_revocation_test.go",
+   "app/admin/service/tests/gpucontract/dispatch_failure_test.go",
+   "app/admin/service/tests/gpucontract/governance_test.go",
+   "pkg/authorizer/authorizer.go",
+   "pkg/authorizer/authorizer_test.go",
+   "pkg/constants/default_data.go",
+   "pkg/jwt/user_token_payload.go",
+   "pkg/localdeps/go-crud/entgo/mixin/snowflake_id.go",
+   "pkg/localdeps/go-utils/copierutil/converters.go",
+   "pkg/localdeps/go-utils/copierutil/converters_test.go",
+   "pkg/localdeps/kratos-bootstrap/database/ent/client.go",
+   "pkg/middleware/auth/auth.go",
+   "pkg/middleware/auth/auth_test.go",
+   "pkg/middleware/auth/options.go",
+   "pkg/middleware/logging/login_audit_log.go",
+   "pkg/middleware/logging/utils.go"
+  ],
+  "consumer_diff_audit": {
+   "evidence": "migration/patches/T10/t10_diff_audit.py -> T10-diff-audit.json",
+   "files_audited": 212,
+   "changed_lines_by_class": {
+    "import": 736
+   },
+   "files_with_non_import_changed_lines": 0,
+   "reading": "every added and removed line in all 212 consumer diffs is an import spec; the audit found 0 lines of any other kind, so no consumer file carries a semantic or formatting edit from this task"
+  },
+  "guard": {
+   "checked_files": 212,
+   "pass": true,
+   "scope": "non-import AST and Go directives, not runtime behavior"
+  },
+  "placed_files_total": 93,
+  "placed_go_files": 73,
+  "placed_license_files": 11,
+  "placed_readme_files": 8,
+  "placed_other_assets": 1,
+  "new_localized_proto_files": 17,
+  "new_generated_conf_pb_go_files": 17,
+  "new_generation_infrastructure": [
+   "api/buf.bootstrap.conf.gen.yaml",
+   "scripts/generate-bootstrap-conf.sh"
+  ],
+  "modified_infrastructure": [
+   "Makefile (an api-bootstrap-conf target calling that script)",
+   "api/buf.yaml (a localdeps/bootstrap module entry in the workspace)",
+   "scripts/gpu-audit-fixture-sha256.txt (one hash re-pinned, see audit_fixture_repin)"
+  ]
+ },
+ "non_import_changes": [
+  {
+   "file": "Makefile",
+   "change": "adds the api-bootstrap-conf target; no existing target touched",
+   "reason": "T10.md requires the conf Proto to be regenerable from the repository"
+  },
+  {
+   "file": "api/buf.yaml",
+   "change": "adds one workspace module (localdeps/bootstrap) with the same STANDARD lint and FILE breaking settings the other localdeps modules use",
+   "reason": "the localized conf protos must be resolvable by buf without touching api/protos"
+  },
+  {
+   "file": "scripts/gpu-audit-fixture-sha256.txt",
+   "change": "one of two pinned hashes re-pinned",
+   "reason": "see audit_fixture_repin; the entry was updated, not removed"
+  },
+  {
+   "file": "(none)",
+   "change": "no production method, no test expectation, no build tag, no skip and no exclusion was introduced by this task",
+   "reason": "t10_diff_audit.py classified every changed line of all 212 consumer diffs and found 736 import specs and 0 lines of any other kind, and both HEAD controls (migration/patches/T10/T10-audit-leak-control.json and t10_gate_replay.py) show every red gate was already red before this task started"
+  }
+ ],
+ "mandated_by_T10_md": {
+  "context_get_set_lifecycle": "preserved untouched: bootstrap.NewContext, NewContextWithParam, GetContext/WithValue and the lifecycle helpers are the same code, and TestBootstrap* / TestQuotaGpuProductionEntComposition exercise them",
+  "load_bootstrap_config_scan_configs_register_config": "preserved; the localized config package is a verbatim copy and the conf-driven path is exercised by the PG composition case",
+  "logger_api_surface": "preserved: NewLogger, GetLogger, SetLogger, NewLoggerHelper, AsKratosLogger; the 4 logger tests pass and the entry smoke prints the real banner",
+  "rpc_surface": "preserved: AddWhiteList, NewRestWhiteListMatcher, CreateRestServer, and the package-level DefaultWhiteList; HTTP FilterKey(\"args\") and the auth/validate ordering were not edited (guard proves the middleware files are import-identical)",
+  "client_constructors": "preserved: NewRedisClient (cache/redis) and NewEntClient (database/ent), the latter now reading the localized conf type; the PG gate proves it",
+  "entry_wiring": "main.newApp/runApp, initApp and the cleanup stack are unchanged apart from import specs; the three entry builds and the failure-path smoke are the evidence",
+  "config_defaults_and_precedence": "unchanged; config loading priority still comes from the copied config package and no default value was edited",
+  "optional_nil_transport_and_atlas_checks": "unchanged (T11 owns the transport type boundary; the Atlas/schema check ran inside verify-quota-ent with exit 0)",
+  "regenerate_conf_without_changing_fields": {
+   "evidence": "migration/patches/T10/t10_conf_parity.py -> T10-conf-symbol-parity.json",
+   "files": "17 of 17, same names",
+   "symbols_compared": 2530,
+   "counts": {
+    "messages": {
+     "archive": 124,
+     "localized": 124
+    },
+    "fields": {
+     "archive": 883,
+     "localized": 883
+    },
+    "accessors": {
+     "archive": 1521,
+     "localized": 1521
+    },
+    "oneof_impls": {
+     "archive": 2,
+     "localized": 2
+    }
+   },
+   "drift": "none: 0 messages, fields, accessors or oneof implementations differ from the locked archive copy; the only byte difference is the go_package inside rawDesc, which is the point of regenerating",
+   "byte_identical_field_lists": {
+    "only_in_archive": [],
+    "only_in_localized": []
+   }
+  },
+  "no_second_copy": "residual-deps measured 8 external tx7do packages, none of them kratos-bootstrap or go-utils, so no un-localized package still reaches the old conf or logger"
+ },
+ "test_environment": {
+  "toolchain": {
+   "go": "go1.26.7 at /home/ubuntu/sdk/go1.26.7 (pinned through with_lab_env.sh)",
+   "buf": "1.60.0 at /home/ubuntu/go/bin/buf",
+   "protoc": "absent on this host; protoc-driven cases stay DEFERRED (T13 at the latest)",
+   "golangci_lint": "absent; make lint is not_run"
+  },
+  "isolated_instances": {
+   "tx7do-t07-acc-lab-pg": "127.0.0.1:55433, QUOTA_LAB_PG_DSN / QUOTA_LAB_REGRESSION_DSN / QUOTA_LAB_PG_ADMIN_DSN for every PG case in this receipt",
+   "tx7do-t07-guard-pg": "127.0.0.1:55432, GUARD_TEST_PG_DSN"
+  },
+  "forbidden_instance": "quota-gpu-local-01-pg (127.0.0.1:42193) was neither connected to nor modified; no business database was read or written",
+  "dsn_handling": "DSN files live outside the repository at mode 600 and were never printed; run_checked.sh records argv only, so no DSN reached any log or ledger file",
+  "go_mod": "go.mod and go.sum are byte-clean at the end of this task; every wide command carried an explicit -mod=readonly because the host's go env sets -mod=mod"
+ },
+ "commands": [
+  {
+   "name": "localdeps_tests",
+   "why": "go test -json over every package the takeover placed",
+   "exit": 1,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go test -json -count=1 ./pkg/localdeps/kratos-bootstrap/... ./pkg/localdeps/go-utils/id/... ./pkg/localdeps/go-utils/timeutil/...",
+   "evidence": "tx7do-pilot-run/T10/T10-localdeps-tests.*"
+  },
+  {
+   "name": "affected_tests",
+   "why": "go test -json over the whole affected surface: the localized packages plus every package holding a rewritten file",
+   "exit": 1,
+   "command": null,
+   "evidence": "tx7do-pilot-run/T10/T10-affected-tests.*"
+  },
+  {
+   "name": "baseline_head_tests",
+   "why": "the identical wide run replayed in a separate worktree of the start commit, so an inherited failure can be told apart from a regression",
+   "exit": 0,
+   "command": null,
+   "evidence": "tx7do-pilot-run/T10/T10-baseline-head-tests.*"
+  },
+  {
+   "name": "require_profile",
+   "why": "tools/migration/require_tests.py against the 761-name must-pass profile",
+   "exit": 1,
+   "command": "python3 tools/migration/require_tests.py --required migration/patches/T10/T10-required-profile.json --log /home/ubuntu/tx7do-pilot-run/T10/T10-affected-tests.log.jsonl",
+   "evidence": "tx7do-pilot-run/T10/T10-require-profile.*"
+  },
+  {
+   "name": "guard_consumers",
+   "why": "migrate_imports guard: non-import AST and Go-directive equivalence of all 212 rewritten consumers against the start commit",
+   "exit": 0,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go run ./tools/migration/migrate_imports.go guard -root . -base e3dc058 -files migration/patches/T10/T10-consumer-files.txt -out migration/patches/T10/T10-guard-consumers.json",
+   "evidence": "tx7do-pilot-run/T10/T10-guard-consumers.*"
+  },
+  {
+   "name": "residual_deps",
+   "why": "go list -deps for the default, quota_lab and quota_pg tag sets, to enumerate every tx7do package still resolved from outside the repository",
+   "exit": 0,
+   "command": "python3 migration/patches/T10/t10_residual_deps.py",
+   "evidence": "tx7do-pilot-run/T10/T10-residual-deps.*"
+  },
+  {
+   "name": "init_smoke",
+   "why": "entry-initialization smoke: compile and initialize every test binary in ./app ./pkg ./tools without running a case",
+   "exit": 0,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go test -count=1 -p 2 -run \\^\\$ ./app/... ./pkg/... ./tools/...",
+   "evidence": "tx7do-pilot-run/T10/T10-init-smoke.*"
+  },
+  {
+   "name": "build-server",
+   "why": "entry build 1 of 3, the command Makefile:221 uses",
+   "exit": 0,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go build -o /home/ubuntu/tx7do-pilot-run/T10/bin/server ./app/admin/service/cmd/server",
+   "evidence": "tx7do-pilot-run/T10/T10-build-server.*"
+  },
+  {
+   "name": "build-server-quotalab",
+   "why": "entry build 2 of 3, Makefile:222",
+   "exit": 0,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go build -tags quota_lab -o /home/ubuntu/tx7do-pilot-run/T10/bin/server_quotalab ./app/admin/service/cmd/server",
+   "evidence": "tx7do-pilot-run/T10/T10-build-server-quotalab.*"
+  },
+  {
+   "name": "build-admin",
+   "why": "entry build 3 of 3, Makefile:223",
+   "exit": 0,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go build -o /home/ubuntu/tx7do-pilot-run/T10/bin/admin ./app/admin/service/cmd/admin",
+   "evidence": "tx7do-pilot-run/T10/T10-build-admin.*"
+  },
+  {
+   "name": "pg_ent_trace_clock",
+   "why": "the goal's PG gate: production Ent composition through the localized conf/bootstrap/logger with enableTrace false and true, database-clock timestamps, transaction hooks and failure paths",
+   "exit": 0,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go test -json -count=1 -timeout=15m -tags quota_pg ./app/admin/service/internal/data -run TestQuota\\|TestPlanQuota",
+   "evidence": "tx7do-pilot-run/T10/T10-pg-ent-trace-clock.*"
+  },
+  {
+   "name": "cand_bootstrap",
+   "why": "the in-repo copy of the bootstrap test, run alone",
+   "exit": 1,
+   "command": null,
+   "evidence": "tx7do-pilot-run/T10/T10-cand-bootstrap.*"
+  },
+  {
+   "name": "ref_bootstrap",
+   "why": "a pristine copy of the same locked upstream module, same host",
+   "exit": 1,
+   "command": null,
+   "evidence": "tx7do-pilot-run/T10/T10-ref-bootstrap.*"
+  },
+  {
+   "name": "cand_rpc",
+   "why": "the in-repo copy of the rpc whitelist test",
+   "exit": 1,
+   "command": null,
+   "evidence": "tx7do-pilot-run/T10/T10-cand-rpc.*"
+  },
+  {
+   "name": "ref_rpc",
+   "why": "pristine copy of the locked upstream rpc module",
+   "exit": 1,
+   "command": null,
+   "evidence": "tx7do-pilot-run/T10/T10-ref-rpc.*"
+  },
+  {
+   "name": "cand_id",
+   "why": "the in-repo copy of the id order-id tests",
+   "exit": 1,
+   "command": null,
+   "evidence": "tx7do-pilot-run/T10/T10-cand-id.*"
+  },
+  {
+   "name": "ref_id",
+   "why": "pristine copy of the locked upstream id module",
+   "exit": 1,
+   "command": null,
+   "evidence": "tx7do-pilot-run/T10/T10-ref-id.*"
+  },
+  {
+   "name": "vgpu_224_pkg_tests",
+   "why": "Makefile:224 executed directly, because the chained target aborts before reaching it",
+   "exit": 1,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go test ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...",
+   "evidence": "tx7do-pilot-run/T10/T10-vgpu-224_pkg_tests.*"
+  },
+  {
+   "name": "vgpu_226_pg_service",
+   "why": "Makefile:226 executed directly",
+   "exit": 0,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go test -tags quota_pg ./app/admin/service/internal/service -run TestPlanQuota -count=1 -timeout=10m",
+   "evidence": "tx7do-pilot-run/T10/T10-vgpu-226_pg_service.*"
+  },
+  {
+   "name": "vgpu_227_pg_race",
+   "why": "Makefile:227, -race with -tags quota_pg",
+   "exit": 0,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go test -race -tags quota_pg ./app/admin/service/internal/data -run TestQuotaEnt\\|TestQuotaPostgresConcurrentLimit\\|TestQuotaPostgresCancelClaimRace\\|TestQuotaPostgresLeaseGenerationGuard\\|TestQuotaPostgresPolicyChanges\\|TestQuotaGpu\\|TestQuotaProcess -count=1 -timeout=20m",
+   "evidence": "tx7do-pilot-run/T10/T10-vgpu-227_pg_race.*"
+  },
+  {
+   "name": "vgpu_228_race_svc",
+   "why": "Makefile:228, -race",
+   "exit": 0,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go test -race ./app/admin/service/internal/service -run TestGpu\\|TestQuotaDurable\\|TestAccelerator -count=1 -timeout=10m",
+   "evidence": "tx7do-pilot-run/T10/T10-vgpu-228_race_svc.*"
+  },
+  {
+   "name": "vgpu_229_lab_regression",
+   "why": "Makefile:229 against QUOTA_LAB_REGRESSION_DSN",
+   "exit": 0,
+   "command": "bash -c $'. /home/ubuntu/tx7do-pilot-run/T07/guard-dsn.env; . /home/ubuntu/tx7do-pilot-run/T07/lab-dsn.env; \\\\\\n   GOROOT=/home/ubuntu/sdk/go1.26.7 GOWORK=off GOTOOLCHAIN=local GOFLAGS=-mod=readonly \\\\\\n   PATH=/home/ubuntu/sdk/go1.26.7/bin:/home/ubuntu/go/bin:/usr/local/bin:/usr/bin:/bin \\\\\\n   QUOTA_LAB_PG_DSN=\"$QUOTA_LAB_REGRESSION_DSN\" bash scripts/accelerator-acceptance/lab-regression.sh'",
+   "evidence": "tx7do-pilot-run/T10/T10-vgpu-229_lab_regression.*"
+  },
+  {
+   "name": "vgpu_audit",
+   "why": "Makefile:232, first attempt",
+   "exit": 2,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly make verify-gpu-audit",
+   "evidence": "tx7do-pilot-run/T10/T10-vgpu-audit.*"
+  },
+  {
+   "name": "vgpu_audit2",
+   "why": "Makefile:232 again after the reviewed fixture re-pin",
+   "exit": 1,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly bash scripts/verify-gpu-audit.sh",
+   "evidence": "tx7do-pilot-run/T10/T10-vgpu-audit2.*"
+  },
+  {
+   "name": "verify_gpu",
+   "why": "the phase-C checkpoint itself: the whole chained make verify-gpu",
+   "exit": 2,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly make verify-gpu",
+   "evidence": "tx7do-pilot-run/T10/T10-verify-gpu.*"
+  },
+  {
+   "name": "vet_wide",
+   "why": "go vet ./... after the takeover, no -vet=off anywhere",
+   "exit": 1,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go vet ./...",
+   "evidence": "tx7do-pilot-run/T10/T10-vet-wide.*"
+  },
+  {
+   "name": "vet_wide_head",
+   "why": "go vet ./... on the pre-takeover worktree, for comparison",
+   "exit": 1,
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh env GOFLAGS=-mod=readonly go vet ./...",
+   "evidence": "tx7do-pilot-run/T10/T10-vet-wide-head.*"
+  },
+  {
+   "name": "vet_localdeps",
+   "why": "go vet over the taken-over packages only",
+   "exit": 0,
+   "command": "bash -c cd\\ /home/ubuntu/Workspace/ani-governance\\ \\&\\&\\ exec\\ bash\\ /home/ubuntu/tx7do-pilot-run/T07/with_lab_env.sh\\ env\\ GOFLAGS=-mod=readonly\\ go\\ vet\\ ./pkg/localdeps/...",
+   "evidence": "tx7do-pilot-run/T10/T10-vet-localdeps.*"
+  },
+  {
+   "name": "conf_symbol_parity",
+   "why": "message, field, accessor and oneof sets of the regenerated conf against the locked archive copy",
+   "exit": 0,
+   "command": "python3 migration/patches/T10/t10_conf_parity.py",
+   "evidence": "tx7do-pilot-run/T10/T10-conf-symbol-parity.*"
+  },
+  {
+   "name": "diff_audit",
+   "why": "line-level classification of every changed line in the 212 consumer diffs",
+   "exit": 0,
+   "command": "python3 migration/patches/T10/t10_diff_audit.py",
+   "evidence": "tx7do-pilot-run/T10/T10-diff-audit.*"
+  }
+ ],
+ "required_tests": {
+  "profile": "migration/patches/T10/T10-required-profile.json",
+  "profile_build": "migration/patches/T10/t10_profile.py (grow-only: it refuses to shrink below the accepted T09-B1 floor and refuses any row that did not pass)",
+  "names": 761,
+  "floor_carried_from_T09B1": 94,
+  "added_from_localized_packages": 78,
+  "added_from_rewritten_consumers": 598,
+  "checker_exit": 1,
+  "checker_result": "1: every one of the 761 named tests passed, and the checker still fails the run because the three packages hosting the inherited defects report a package-level fail. That is the correct signal, not a mistake to be edited away.",
+  "not_assertable_as_pass": {
+   "go-wind-admin/app/admin/service/internal/data#TestBootstrapPostgres": "skip",
+   "go-wind-admin/app/admin/service/internal/service#TestAcceleratorFormalSessionRefresh": "skip",
+   "go-wind-admin/app/admin/service/internal/service#TestAcceleratorJointHTTP": "skip",
+   "go-wind-admin/app/admin/service/internal/service#TestOnboardingAPIRegistration": "skip",
+   "go-wind-admin/app/admin/service/internal/service#TestOnboardingConcurrentAcceptance": "skip",
+   "go-wind-admin/app/admin/service/tests/gpucontract#TestJointGovernanceProcess": "skip",
+   "go-wind-admin/app/admin/service/tests/gpucontract#TestJointOwnerProcess": "skip",
+   "go-wind-admin/pkg/localdeps/go-utils/id#TestGenerateOrderIdWithTenantIdCollision": "fail",
+   "go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap#TestBootstrapWithNameVersion": "fail",
+   "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc#TestWhiteListNormalization": "fail"
+  },
+  "excludes_any_run": false
+ },
+ "regression_comparison": {
+  "before": {
+   "run": "T10-baseline-head-tests",
+   "exit": 0,
+   "line": "test pass=2635 fail=0 skip=12  package pass=56 fail=0"
+  },
+  "after": {
+   "run": "T10-affected-tests",
+   "exit": 1,
+   "line": "test pass=2727 fail=3 skip=12  package pass=62 fail=3"
+  },
+  "tests_that_passed_before_and_now_fail_or_skip": [],
+  "tests_that_passed_before_and_disappeared": [],
+  "reading": "no test that passed at the start commit fails or skips after T10, and none vanished. The after run adds 95 named tests because the localized packages brought their own suite into the repository; 3 of them are the inherited defects in T10-B1."
+ },
+ "inherited_upstream_defects": {
+  "how_established": "each failing case was rebuilt next to a pristine copy of the same locked module version on the same host and same toolchain, then run repeatedly on both sides",
+  "repeatability": "# T10 inherited-failure repeatability (10 runs each side, -count=1)\nTestGenerateOrderIdWithIndexThread in_repo=9/10 pristine=9/10\nTestGenerateOrderIdWithTenantIdCollision in_repo=10/10 pristine=10/10\nbootstrap in-repo fail=3/3 pass=0/3 ; pristine fail=3/3 pass=0/3\nrpc in-repo fail=3/3 pass=0/3 ; pristine fail=3/3 pass=0/3",
+  "cases": [
+   {
+    "test": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc :: TestWhiteListNormalization",
+    "status": "KNOWN_BASELINE_FAILURE by tools/migration/known_defects.py (verdict PASS)",
+    "cause_read_from_source": "AddWhiteList stores the normalized full operation, while the method-only fallback only applies to a query that itself contains a slash, so a bare method query never matches. The matcher returns true for anything unmatched, which means middleware still runs: the gap is fail-closed, not an authorization bypass."
+   },
+   {
+    "test": "go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap :: TestBootstrapWithNameVersion",
+    "status": "fails identically on both sides 3/3; the only difference the signature tool found is the run banner (timestamp, pid, InstanceId) and the path prefix of the Error Trace line"
+   },
+   {
+    "test": "go-wind-admin/pkg/localdeps/go-utils/id :: TestGenerateOrderIdWithTenantIdCollision",
+    "status": "fails 10/10 on both sides; the test asserts that 1000 draws from a 4-random-digit space never collide, which cannot hold; the differing lines are the random order ids themselves"
+   },
+   {
+    "test": "go-wind-admin/pkg/localdeps/go-utils/id :: TestGenerateOrderIdWithIndexThread",
+    "status": "flaky, 9/10 in the repository and 9/10 in the pristine copy; it passed the wide run above and failed the localdeps-only run"
+   }
+  ],
+  "ani_consumes": "the repository calls id.GenerateSonyflakeID only, and the whitelist functions through pkg/middleware; none of the four assertions describes an ANI behaviour",
+  "what_was_not_done": "no test was deleted, retagged, skipped, excluded, given a noop, or had an expectation edited; the four cases run in every gate listed here"
+ },
+ "blocker": [
+  {
+   "id": "T10-B1",
+   "gate": "go test ./... (make test), Makefile:224 inside make verify-gpu, and tools/migration/require_tests.py package rule",
+   "observed": "3 deterministic failures and 1 flaky failure, all inherited from the locked upstream sources and reproduced identically in pristine copies (see inherited_upstream_defects)",
+   "why_t10_cannot_close_it": "the only three ways to turn these gates green are (a) the T04-style treatment: move the cases behind the upstream_known_defects build tag and register them in migration/required-known-defects.json, which is a new test exclusion and was authorized for T04 only; (b) change the locked upstream source or the test expectations, which the master goal forbids; (c) accept a permanently red repository-wide test gate. Choosing among them is the user's call, not the task's.",
+   "evidence": [
+    "tx7do-pilot-run/T10/T10-localdeps-tests.log.jsonl (exit 1, 1215 pass / 4 fail / 0 skip)",
+    "tx7do-pilot-run/T10/T10-vgpu-224_pkg_tests.log (exit 1)",
+    "tx7do-pilot-run/T10/T10-cand-*.log.jsonl and T10-ref-*.log.jsonl (both sides exit 1)",
+    "migration/patches/T10/inherited/ (three known_defects.py reports)",
+    "minimal reproduction: go test -count=1 ./pkg/localdeps/kratos-bootstrap/rpc ./pkg/localdeps/kratos-bootstrap/bootstrap ./pkg/localdeps/go-utils/id"
+   ]
+  },
+  {
+   "id": "T10-B2",
+   "gate": "scripts/verify-gpu-format.sh (Makefile:220), so the chained make verify-gpu aborts before its build and test lines",
+   "observed": "exit 2 reporting 32 unformatted files; the same command on a separate worktree of the start commit reports 21, and replaying the gate over history shows it went from 1 to 21 at 53b3c00 (T08's source commit), i.e. before T09 and long before T10",
+   "measurement": "migration/patches/T10/T10-format-gate.json and migration/patches/T10/t10_gate_replay.py",
+   "why_t10_cannot_close_it": "the gate covers every Go file differing from an old base, so its coverage grows the moment a task touches another file. All 12 files T10 added to the report are unformatted in their HEAD copy as well: the defects predate the takeover, while T10's own diff lines are import specs only. Clearing this needs a housekeeping gofmt sweep over files T10 has no mandate to edit, which is a separate authorization.",
+   "side_effect_worth_noting": "pkg/authorizer/authorizer_test.go was unformatted at the start commit and is clean now, because replacing its import path happened to sort the block; the report shrank by exactly one file",
+   "no_bypass": "nothing was reformatted, skipped or silenced to make the chain continue; the lines the chained target never reached were executed one by one and recorded instead"
+  },
+  {
+   "id": "T10-B3",
+   "gate": "scripts/verify-gpu-audit.sh (gitleaks, its last line), reached only after T10-B2 is cleared",
+   "observed": "exit 1 with 4 leak findings. A disposable `git worktree add --detach <dir> HEAD` copy of the start commit reports the same 4 (file, rule, matched-string) triples, so the step is red before T10 and this task adds nothing to it. 3 findings sit in files T10 never touches: pkg/localdeps/go-crud/pagination/README.md twice (T03's takeover of upstream documentation) and pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go (T05's takeover of upstream tests); the 4th is a 64-hex string inside migration/handoff.json, this migration's own ledger.",
+   "why_t10_cannot_close_it": "clearing it means an allowlist, an edit to upstream text carried in by earlier tasks, or a change to the ledger format decided before T10. None of those is inside T10's mandate, and deleting or rewriting the offending text would destroy evidence rather than fix a gate.",
+   "not_conflated": "this is the audit step only. The other half of the same script, govulncheck, exits 0 on 'Your code is affected by 0 vulnerabilities' and lists 8 advisories in required modules that the code does not call; that is a dependency-posture question for T14, not a red gate here.",
+   "evidence": [
+    "migration/patches/T10/T10-audit-leak-control.json (both scans, triple comparison, no secret values copied into the repository)",
+    "minimal reproduction: gitleaks dir --no-banner --no-color . in a worktree of the start commit"
+   ]
+  }
+ ],
+ "decision_needed": [
+  "T10-B1: choose the treatment of the four inherited upstream test cases (T04-style tag isolation plus registry entries, an upstream source or expectation change, or an accepted red test gate). Nothing was excluded in the meantime.",
+  "T10-B2: authorize (or decline) a gofmt sweep over the files scripts/verify-gpu-format.sh reports, which is a formatting-only change to files outside any takeover scope.",
+  "The audit fixture re-pin is disclosed for confirmation: scripts/gpu-audit-fixture-sha256.txt still pins app/admin/service/internal/data/authenticator_test.go, now at dd81554c92920815e2c5f4ac895a39938788534645938f4f34ad17ffdd0ec351 (was 91d7d520493d661b0da6cdc5f07a64013de01ae0996082f68eb74645d77efa92); the entire content difference in that file is one import line.",
+  "T10-B3 (inherited, disclosed rather than caused): the gitleaks step of scripts/verify-gpu-audit.sh reports 4 leaks, and a disposable worktree of the start commit reports the same 4 (file, rule, matched-string) triples, so make verify-gpu cannot go green on this host even without T10. Three of the four sit in two files that earlier takeovers carried in as upstream text (the pagination README twice, and the kratos-authn jwt test); the fourth is a hex string inside this migration's own ledger. Ruling on it means either accepting a red audit step, adding a gitleaks allowlist with a stated reason, or editing files outside T10's mandate; none of the three is this task's call. Evidence: migration/patches/T10/T10-audit-leak-control.json."
+ ],
+ "audit_fixture_repin": "# audit fixture re-pin (T10)\n# scripts/gpu-audit-fixture-sha256.txt pins two audit-critical fixtures. T10 changed the bytes of one of\n# them, so the gate reported FAILED. The entry was re-pinned, not deleted; the other entry is untouched.\n#\n# pinned before: 91d7d520493d661b0da6cdc5f07a64013de01ae0996082f68eb74645d77efa92  app/admin/service/internal/data/authenticator_test.go\n# pinned after : dd81554c92920815e2c5f4ac895a39938788534645938f4f34ad17ffdd0ec351  app/admin/service/internal/data/authenticator_test.go\n# the whole content difference of that file between HEAD and now:\n-\tconf \"github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1\"\n+\tconf \"go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1\"\n# guard proof that the difference is import-only: see T10-guard-consumers report for this file",
+ "conf_proto_line_endings": {
+  "schema_version": "t10-proto-eol/1",
+  "measured_at": "2026-09-25T17:45+08:00",
+  "command": "sha256 over the module-cache archive proto, the worktree copy and the staged git blob (git cat-file -p :<path>)",
+  "files": 17,
+  "worktree_copies_byte_identical_to_archive": 17,
+  "staged_blobs_differing_from_worktree": 14,
+  "all_differences_are_crlf_to_lf_only": true,
+  "cause": "repo .gitattributes ships '*.proto text eol=lf' (pre-existing policy, not added by T10); the archive itself stores 14 of the 17 protos with CRLF",
+  "consequence": "the committed blob is LF-normalized, so a later checkout of these protos is byte-identical to the locked archive only modulo line endings; buf regenerates the same descriptors either way (grpc-go/protoc ignore EOL)",
+  "per_file": [
+   {
+    "file": "app_info.proto",
+    "archive_sha256": "ce41c5cf32869b54700bf6a98b6e1570e51128ecd4f052c6475db24fd333e29e",
+    "worktree_sha256": "ce41c5cf32869b54700bf6a98b6e1570e51128ecd4f052c6475db24fd333e29e",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "ce41c5cf32869b54700bf6a98b6e1570e51128ecd4f052c6475db24fd333e29e",
+    "staged_blob_equal_worktree": true,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 0,
+    "worktree_crlf_lines": 0,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_ai.proto",
+    "archive_sha256": "74ba7a6399a5edd478bacb4eec837df4199f9a9ee8dc6080f3b6435f07646298",
+    "worktree_sha256": "74ba7a6399a5edd478bacb4eec837df4199f9a9ee8dc6080f3b6435f07646298",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "74ba7a6399a5edd478bacb4eec837df4199f9a9ee8dc6080f3b6435f07646298",
+    "staged_blob_equal_worktree": true,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 0,
+    "worktree_crlf_lines": 0,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_authn.proto",
+    "archive_sha256": "eff9381525fdc2baf51f64393fe9ed806566d772ac8ed1175572231a3ab16612",
+    "worktree_sha256": "eff9381525fdc2baf51f64393fe9ed806566d772ac8ed1175572231a3ab16612",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "02f766720fb773d6d0f7a8e474ad7dac82d7309747c2d5e31dc452fd9dcf216d",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 41,
+    "worktree_crlf_lines": 41,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_authz.proto",
+    "archive_sha256": "84bd6e17fc584419b3afcf4c3fa50e51c944fcd63b4e4616cdbacdd643bcbf68",
+    "worktree_sha256": "84bd6e17fc584419b3afcf4c3fa50e51c944fcd63b4e4616cdbacdd643bcbf68",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "29ef5ccf9c7d4a3458d50d598b4b84bb3664542396e490771b9f071d5c10f444",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 53,
+    "worktree_crlf_lines": 53,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_bootstrap.proto",
+    "archive_sha256": "b146ea2510d3c6acc03f118df26c5ae34f62726f38d21ed3125d598cf11b76d9",
+    "worktree_sha256": "b146ea2510d3c6acc03f118df26c5ae34f62726f38d21ed3125d598cf11b76d9",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "c54d1e1ca94261e7ecd71e0d004e5bd6040ee587e9d1b8335d0fd724d491acf9",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 36,
+    "worktree_crlf_lines": 36,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_client.proto",
+    "archive_sha256": "2da5f47805e70064d955f3f45964f2b7de62d6c2bd79690daa170fe928e44e27",
+    "worktree_sha256": "2da5f47805e70064d955f3f45964f2b7de62d6c2bd79690daa170fe928e44e27",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "02ee1a760cd1f49516bdc1d365a0c2065a37d711838c1d88c4cb03d95a21e63e",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 30,
+    "worktree_crlf_lines": 30,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_config.proto",
+    "archive_sha256": "5d1ba211dfee8b72959837675ac73785b08a8dbffa50901effab6a79ac4f6090",
+    "worktree_sha256": "5d1ba211dfee8b72959837675ac73785b08a8dbffa50901effab6a79ac4f6090",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "4ba4f9b72977f20065401a60590a7dc312a09b8a38f1cb29b3f6482b6a60f00a",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 131,
+    "worktree_crlf_lines": 131,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_data.proto",
+    "archive_sha256": "dfec1460aeca15136e6a6e3ed7d58b901139c1945b836a139b112b3defe574aa",
+    "worktree_sha256": "dfec1460aeca15136e6a6e3ed7d58b901139c1945b836a139b112b3defe574aa",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "ec03b1bca77053dba48a09a5ce1d6f8e06dd61de69533ad911bc9a9e51bbb930",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 347,
+    "worktree_crlf_lines": 347,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_logger.proto",
+    "archive_sha256": "89ee8c6d93d81ffef8ea56c161a304e31fd90897b50473494b72257c4f6fdc49",
+    "worktree_sha256": "89ee8c6d93d81ffef8ea56c161a304e31fd90897b50473494b72257c4f6fdc49",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "0503ec8ecc294d06551894bc10dbf1dbee53dd51c443b22452478e190ad41015",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 104,
+    "worktree_crlf_lines": 104,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_middleware.proto",
+    "archive_sha256": "a6fede6333cca6e92ebaf5dc5efca10caf18eb6572f32a1ef5c3e25311551a94",
+    "worktree_sha256": "a6fede6333cca6e92ebaf5dc5efca10caf18eb6572f32a1ef5c3e25311551a94",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "c6ae8ff6f82e9249676dd26e97d64047f233d56e320f40240346adccd22a2485",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 46,
+    "worktree_crlf_lines": 46,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_notify.proto",
+    "archive_sha256": "44e7c8aa3fbaaea69e8a71542c3a19bd5f41ea1bac43196a710c71d2409abc19",
+    "worktree_sha256": "44e7c8aa3fbaaea69e8a71542c3a19bd5f41ea1bac43196a710c71d2409abc19",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "ae05a2c93676185369bf6090cb954efb3a20515cdc2bb1eee12b1e2bf7b46980",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 18,
+    "worktree_crlf_lines": 18,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_oss.proto",
+    "archive_sha256": "0fdb384c99382b5fa5948f1d0923723345966038ce12c67a6940633625f4fcca",
+    "worktree_sha256": "0fdb384c99382b5fa5948f1d0923723345966038ce12c67a6940633625f4fcca",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "3b642af46ce1a68cc1bc7b2707dcd543ba971d8e579c440f9d15f616871a829d",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 51,
+    "worktree_crlf_lines": 51,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_registry.proto",
+    "archive_sha256": "b0abf17c318d0d71026dc46a333827a1ecb04343a1862d73703509e3ee1126c0",
+    "worktree_sha256": "b0abf17c318d0d71026dc46a333827a1ecb04343a1862d73703509e3ee1126c0",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "faf08df34f1b37c7cb701b91ba73d681d1524466eaa16686a3f2152b41aef469",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 190,
+    "worktree_crlf_lines": 190,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_script.proto",
+    "archive_sha256": "dfc34792d7b178d03c4f533e67f86774a8fb374ba03063154e8044c78d7481ea",
+    "worktree_sha256": "dfc34792d7b178d03c4f533e67f86774a8fb374ba03063154e8044c78d7481ea",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "dfc34792d7b178d03c4f533e67f86774a8fb374ba03063154e8044c78d7481ea",
+    "staged_blob_equal_worktree": true,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 0,
+    "worktree_crlf_lines": 0,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_server.proto",
+    "archive_sha256": "0aefc4503143eccba828b754841e9dfa411c8e3d9ffb53260f3bdf5e8bf2d422",
+    "worktree_sha256": "0aefc4503143eccba828b754841e9dfa411c8e3d9ffb53260f3bdf5e8bf2d422",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "c62e1176c6627f3034b19bdbf60323e77687a2cffb6859a89729e47dc1e4e2b1",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 454,
+    "worktree_crlf_lines": 454,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_tls.proto",
+    "archive_sha256": "ef63d12aaef1e99427c9544c32e07a0b1edfd7180fcfc106025426776d00ccac",
+    "worktree_sha256": "ef63d12aaef1e99427c9544c32e07a0b1edfd7180fcfc106025426776d00ccac",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "aafee3c3454a0d71fb2e3eca53f43217985588d2a108bbe5f3134344be5ad593",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 24,
+    "worktree_crlf_lines": 24,
+    "staged_crlf_lines": 0
+   },
+   {
+    "file": "kratos_conf_tracer.proto",
+    "archive_sha256": "185df90785df8f41387792580f723d290e90cacb82a24937320a2b09b9c419b6",
+    "worktree_sha256": "185df90785df8f41387792580f723d290e90cacb82a24937320a2b09b9c419b6",
+    "worktree_byte_equal_archive": true,
+    "staged_blob_sha256": "bd30eb1d8512b0936c3f1b471677da70e5fec16bd2d4876f79600221f5313f2c",
+    "staged_blob_equal_worktree": false,
+    "staged_blob_equal_archive_after_eol_normalization": true,
+    "archive_crlf_lines": 42,
+    "worktree_crlf_lines": 42,
+    "staged_crlf_lines": 0
+   }
+  ],
+  "generated_go_files": 17,
+  "generated_go_files_containing_CR": 0,
+  "why_eol_cannot_leak": "protoc emits a FileDescriptorProto; source bytes and line endings are not part of it, and none of the 17 generated .pb.go carries a single CR byte"
+ },
+ "audit_gate_head_control": {
+  "schema_version": "t10-audit-leak-control/1",
+  "measured_at": "2026-09-25T17:47+08:00",
+  "command": "gitleaks v8.30.1 dir --no-banner --no-color over the whole work tree, once on the current tree and once on a disposable `git worktree add --detach <dir> HEAD` copy of the start commit",
+  "note": "no leak value is copied here; only the file, the rule and whether T10 touched that file",
+  "current_tree": {
+   "count": 4,
+   "findings": [
+    {
+     "file": "migration/handoff.json",
+     "rule": "generic-api-key",
+     "tracked_in_git": true
+    },
+    {
+     "file": "pkg/localdeps/go-crud/pagination/README.md",
+     "rule": "generic-api-key",
+     "tracked_in_git": true
+    },
+    {
+     "file": "pkg/localdeps/go-crud/pagination/README.md",
+     "rule": "generic-api-key",
+     "tracked_in_git": true
+    },
+    {
+     "file": "pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go",
+     "rule": "jwt",
+     "tracked_in_git": true
+    }
+   ]
+  },
+  "head_control": {
+   "count": 4,
+   "findings": [
+    {
+     "file": "migration/handoff.json",
+     "rule": "generic-api-key",
+     "tracked_in_git": true,
+     "modified_by_T10": true
+    },
+    {
+     "file": "pkg/localdeps/go-crud/pagination/README.md",
+     "rule": "generic-api-key",
+     "tracked_in_git": true,
+     "modified_by_T10": false
+    },
+    {
+     "file": "pkg/localdeps/go-crud/pagination/README.md",
+     "rule": "generic-api-key",
+     "tracked_in_git": true,
+     "modified_by_T10": false
+    },
+    {
+     "file": "pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go",
+     "rule": "jwt",
+     "tracked_in_git": true,
+     "modified_by_T10": false
+    }
+   ]
+  },
+  "conclusion": {
+   "leaks_at_head": 4,
+   "leaks_now": 4,
+   "reading": "the audit step of make verify-gpu (scripts/verify-gpu-audit.sh, last line) is red at the start commit for the same 4 findings it reports now: 3 sit in files this task never touches (go-crud pagination README twice, kratos-authn jwt_test.go) and 1 in this migration's own tracked ledger, whose flagged hex string predates T10. No new finding comes from the takeover, so this gate condition is inherited, not caused."
+  },
+  "format_gate_control": {
+   "command": "bash scripts/verify-gpu-format.sh",
+   "head_exit": 1,
+   "head_files": 21,
+   "current_exit": 1,
+   "current_files": 32,
+   "cause_of_the_growth": "the gate lists every Go file differing from an old base, so a task touching an already-unformatted file surfaces it; see T10-format-gate.json"
+  },
+  "finding_identity_test": {
+   "method": "compare the (file, rule, matched string) triples between the two scans; the strings stay in the local report and are not copied into the repository",
+   "head_findings": 4,
+   "current_findings": 4,
+   "findings_present_in_both": 4,
+   "new_findings_introduced_by_T10": 0,
+   "handoff.json_note": "migration/handoff.json is a tracked ledger file this task appends to, which is why a 'did this task touch the file' probe answers yes. The flagged string predates T10: the HEAD worktree scan reports the identical triple. The T10 ledger entry adds more 64-hex SHA strings of the same shape, which is a property of the ledger format decided before this task."
+  }
+ },
+ "residual_target_dependencies": {
+  "measured_by": "migration/patches/T10/t10_residual_deps.py over go list -deps for three tag sets",
+  "packages": [
+   "github.com/tx7do/kratos-swagger-ui",
+   "github.com/tx7do/kratos-swagger-ui/internal/swagger",
+   "github.com/tx7do/kratos-transport/broker",
+   "github.com/tx7do/kratos-transport/tracing",
+   "github.com/tx7do/kratos-transport/transport",
+   "github.com/tx7do/kratos-transport/transport/asynq",
+   "github.com/tx7do/kratos-transport/transport/keepalive",
+   "github.com/tx7do/kratos-transport/transport/sse"
+  ],
+  "kratos_transport": "T11's boundary: pkg/localdeps/kratos-bootstrap/transport/{asynq,sse} and cmd/server still import github.com/tx7do/kratos-transport/transport/{asynq,sse}; the goal says the underlying transport keeps the old types until T11 and no second copy may be made",
+  "kratos_swagger_ui": "T12/T13 scope",
+  "localized_roots_still_external": [],
+  "go_mod_requirements": "still list every superseded module path; require-list cleanup is T14's (per the standing instruction not to run a full tidy now)"
+ },
+ "not_run": [
+  {
+   "item": "make lint",
+   "reason": "golangci-lint is not installed on this host; not installed by this task"
+  },
+  {
+   "item": "protoc-driven generation",
+   "reason": "carried over from T09: DEFERRED, due at T13 and no later than the T15 sign-off; not marked not_applicable and nothing was deleted for it"
+  },
+  {
+   "item": "go mod tidy",
+   "reason": "deliberately not run at the user's instruction; belongs to T14"
+  },
+  {
+   "item": "scripts/verify-gpu-format.sh on a formatted tree",
+   "reason": "would change files T10 has no mandate to format; see T10-B2"
+  }
+ ],
+ "not_verified": [
+  "runtime behaviour of the Asynq and SSE transports behind the localized wiring: the type boundary is T11's and no live broker was contacted",
+  "service startup against Consul, a config server, or a real registry: the failure and cleanup paths were exercised with isolated configurations only, as the goal requires",
+  "any production database: none was touched"
+ ],
+ "pushed_merged_deployed": {
+  "pushed": false,
+  "merged": false,
+  "deployed": false,
+  "accepted_head_advanced": false
+ },
+ "ledger_evidence": [
+  "T10-audit-fixture-repin.txt",
+  "T10-audit-leak-control.json",
+  "T10-baseline-head-tests-summary.txt",
+  "T10-conf-field-parity.json",
+  "T10-conf-symbol-parity.json",
+  "T10-consumer-files.txt",
+  "T10-consumer-rewrite-applied.json",
+  "T10-diff-audit.json",
+  "T10-entry-builds.txt",
+  "T10-equiv-log.tsv",
+  "T10-format-gate.json",
+  "T10-guard-consumers.json",
+  "T10-import-map.json",
+  "T10-placed-files.txt",
+  "T10-placement.json",
+  "T10-post-rewrite-hashes.json",
+  "T10-proto-line-ending.json",
+  "T10-required-profile-localdeps.json",
+  "T10-required-profile.build.json",
+  "T10-required-profile.json",
+  "T10-residual-deps.json",
+  "T10-rewrite-applied.json",
+  "T10-tests-summary.txt",
+  "_pristine",
+  "inherited",
+  "t10_conf_parity.py",
+  "t10_diff_audit.py",
+  "t10_format_gate.py",
+  "t10_gate_replay.py",
+  "t10_profile.py",
+  "t10_residual_deps.py"
+ ],
+ "self_assessment": "the takeover mechanics are complete and independently proven; the three red gates are reported with logs, diffs and a minimal reproduction, and accepted_head is deliberately left where it was"
+}

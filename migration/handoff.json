@@ -609,7 +609,7 @@
   ],
   "next": "T10 (phase C third task), then the second make verify-gpu to close phase C; phases D (T11-T13) and E (T14-T15) follow. Nothing in T09's passed scope is reopened by that work except where a later task names it."
  },
- "t10_takeover_and_two_red_gates": {
+ "t10_takeover_and_three_red_gates": {
   "task": "T10",
   "status": "BLOCKED",
   "start_sha": "e3dc0582b27e350925e7ecd290ee62f182ff2f3e",
@@ -624,6 +624,7 @@
   "needs_user_ruling": [
    "T10-B1 four inherited upstream test cases now live in-repo and red",
    "T10-B2 scripts/verify-gpu-format.sh has been red since 53b3c00, before T09",
+   "T10-B3 scripts/verify-gpu-audit.sh gitleaks is red at the start commit too, with the identical 4 findings",
    "confirm the one-line audit fixture re-pin"
   ],
   "accepted_head": "b0e8fd424320b6542977e8c94297ab6e86784e58",
