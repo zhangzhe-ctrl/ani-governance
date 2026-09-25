@@ -1,0 +1,52 @@
+{
+  "schema_version": "t12-entry/1",
+  "task": "T12",
+  "status": "OPEN",
+  "start_sha": "dc8e7a3c341482739813e08d52e00a79b9e9799b",
+  "accepted_head": "6978ca4f76fb6f7550aa5fb21a933f6a5e475051",
+  "branch": "task/tx7do-takeover",
+  "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "clean_status_apart_from_untracked_agent_plan": true,
+  "toolchain": {
+    "go": "go version go1.26.7 linux/amd64",
+    "GOROOT": "/home/ubuntu/sdk/go1.26.7",
+    "GOFLAGS": "-mod=readonly",
+    "GOWORK": "off",
+    "why": "the host go is 1.26.4 and the host go env GOFLAGS is -mod=mod; both have already damaged this program, so every invocation pins the toolchain and readonly mode"
+  },
+  "entry_dependency_state": {
+    "tx7do_packages_in_graph": [
+      "github.com/tx7do/kratos-swagger-ui",
+      "github.com/tx7do/kratos-swagger-ui/internal/swagger"
+    ],
+    "go_mod_line": "github.com/tx7do/kratos-swagger-ui v0.0.1",
+    "go_mod_sha256": "9c4281f02e32a5b721d38d0f3a0f0a40eefc38b8d533d66cb873cf4e4a6ec9a7",
+    "go_sum_sha256": "acd05f05dabaff92f12acbde0eeb53104a75135809c5d3899fa144ac870790a2"
+  },
+  "consumers": {
+    "direct_import_found": [
+      "app/admin/service/internal/server/rest_server.go:17 (swaggerUI alias)"
+    ],
+    "call_sites": [
+      "rest_server.go:258-264 guarded by cfg.GetServer().GetRest().GetEnableSwagger(), using RegisterSwaggerUIServerWithOption + WithTitle + WithMemoryData(assets.OpenApiData, \"yaml\")"
+    ],
+    "note": "migration/file-plan.json also lists cmd/server and tests/gpucontract because they depend on the server package transitively, not because they import the UI module"
+  },
+  "source_module": {
+    "path": "github.com/tx7do/kratos-swagger-ui",
+    "version": "v0.0.1",
+    "dir": "/home/ubuntu/go/pkg/mod/github.com/tx7do/kratos-swagger-ui@v0.0.1",
+    "packages": [
+      "github.com/tx7do/kratos-swagger-ui",
+      "github.com/tx7do/kratos-swagger-ui/internal/swagger"
+    ],
+    "static_assets_provenance": "the UI assets come from github.com/swaggest/swgui/v5/static through github.com/vearutop/statigz; those are alive non-tx7do dependencies and stay external, no CDN or second UI is introduced"
+  },
+  "plan": [
+    "place verbatim (recursive, minus go.mod/go.sum and editor noise)",
+    "rewrite the single consumer import",
+    "httptest acceptance for enabled/disabled",
+    "guard/equiv + format + builds + dependency-graph re-measure",
+    "close targeted"
+  ]
+}
