@@ -1,138 +1,203 @@
 {
-  "schema_version": "t13/1",
+  "schema_version": "t13/2",
   "task": "T13",
   "phase": "D",
   "goal_file": "_agent/ani-governance-tx7do-plan/goals/T13.md",
-  "status": "PARTIALLY_EXECUTED_REST_BLOCKED_BY_OWNER_DECISION",
-  "blocker_type": "owner decision required; not a symbol-level compile failure and not a disguised pass",
-  "start_sha": "eed06bb",
-  "start_sha_full": "eed06bb04bd7fe168c36b3ebb4cb898affd7b7ce",
+  "status": "MIGRATION_PASS_TARGETED_SCOPED_TOOL",
+  "conclusion": "T13 PASSES on the scope the owner set on 2026-09-26: the in-use gow commands are taken over as a local tool of the main module. This is explicitly NOT a claim of full gow equivalence: project/new/add/generate/extract/migrate/wire and their subtrees are not taken over and answer as unknown commands.",
+  "start_sha": "6351339348435944b74d635033a57194ee4a8523",
   "accepted_head_at_start": "6445990eaf5fa090d578dd490e460aba64606cfd",
   "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
-  "branch": "task/tx7do-takeover",
-  "scope_examined": [
-    "gow v1.0.3 (github.com/tx7do/go-wind-toolkit/gowind@v1.0.3): 252 files, 2.1 MB, its own nested go.mod, cmd/gow plus internal/{buf,build,ent,extract,generate,migrate,pkg,project,run,schemasource,service,wire} and pkg/{extract,frontendgen,generators}",
-    "its tool-side tx7do closure: go-utils v1.1.37 (the runtime here is v1.1.40), go-utils/code_generator v0.0.1, go-utils/ddl_parser v0.0.5",
-    "the T09 deferred protoc-driven protoc-gen-go-redact integration cases"
+  "end_sha": "77898acec2ba5715ff4c93bb7f162c05b06a2aba",
+  "authorization": "migration/receipts/T13-authorization-scoped-tool-slice.json",
+  "previous_blocked_view": {
+    "schema_version": "t13/1",
+    "task": "T13",
+    "phase": "D",
+    "goal_file": "_agent/ani-governance-tx7do-plan/goals/T13.md",
+    "status": "PARTIALLY_EXECUTED_REST_BLOCKED_BY_OWNER_DECISION",
+    "blocker_type": "owner decision required; not a symbol-level compile failure and not a disguised pass",
+    "start_sha": "eed06bb",
+    "start_sha_full": "eed06bb04bd7fe168c36b3ebb4cb898affd7b7ce",
+    "accepted_head_at_start": "6445990eaf5fa090d578dd490e460aba64606cfd",
+    "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+    "branch": "task/tx7do-takeover",
+    "scope_examined": [
+      "gow v1.0.3 (github.com/tx7do/go-wind-toolkit/gowind@v1.0.3): 252 files, 2.1 MB, its own nested go.mod, cmd/gow plus internal/{buf,build,ent,extract,generate,migrate,pkg,project,run,schemasource,service,wire} and pkg/{extract,frontendgen,generators}",
+      "its tool-side tx7do closure: go-utils v1.1.37 (the runtime here is v1.1.40), go-utils/code_generator v0.0.1, go-utils/ddl_parser v0.0.5",
+      "the T09 deferred protoc-driven protoc-gen-go-redact integration cases"
+    ],
+    "measurements": {
+      "gow_import_closure": "go list -deps ./cmd/gow inside a scratch copy of the locked module (outside the repository, so nothing in the main module was touched) resolves the whole tool: cobra registers every subcommand statically, so the closure of the binary includes the generate/migrate/wire/front-end subtrees, not only the three commands this repository uses",
+      "dependency_delta": "migration/patches/T13/T13-gow-dependency-delta.txt",
+      "dependency_delta_summary": {
+        "tool_requires": 94,
+        "absent_from_main_go_mod": 47,
+        "shared_but_pinned_older_by_the_tool": 29,
+        "gorm_family_modules_that_would_return_to_the_graph": [
+          "gorm.io/gorm",
+          "gorm.io/gen",
+          "gorm.io/datatypes",
+          "gorm.io/hints",
+          "gorm.io/plugin/dbresolver",
+          "gorm.io/rawsql",
+          "gorm.io/driver/clickhouse",
+          "gorm.io/driver/mysql",
+          "gorm.io/driver/postgres",
+          "gorm.io/driver/sqlite",
+          "gorm.io/driver/sqlserver"
+        ],
+        "other_examples_now_absent": [
+          "github.com/AlecAivazis/survey/v2",
+          "entgo.io/contrib",
+          "github.com/jhump/protoreflect",
+          "github.com/pingcap/tidb/pkg/parser",
+          "github.com/ClickHouse/clickhouse-go/v2",
+          "github.com/microsoft/go-mssqldb",
+          "go.uber.org/zap"
+        ],
+        "tool_pins_that_the_main_module_would_override": [
+          "ariga.io/atlas v1.1.0 -> v1.3.0",
+          "entgo.io/ent v0.14.5 -> v0.14.6",
+          "golang.org/x/tools v0.44.0 -> v0.49.0",
+          "golang.org/x/mod v0.35.0 -> v0.40.0",
+          "github.com/go-openapi/inflect v0.21.5 -> v1.0.0",
+          "github.com/stretchr/testify v1.11.1 -> v1.12.1"
+        ],
+        "correction_google_wire": "github.com/google/wire is NOT a graph dependency: internal/wire/cmd.go only names it in exec.LookPath(\"wire\") and the fallback go run command, so the wire subcommand shells out to an external binary. It is irrelevant to this repository because 不运行gow wire already holds, but it was listed as an incoming module in the first draft of this receipt and is corrected here."
+      },
+      "protoc_availability": {
+        "protoc": "not installed (command not found)",
+        "present_instead": [
+          "buf v1.60.0",
+          "protoc-gen-go",
+          "protoc-gen-go-grpc",
+          "protoc-gen-go-errors",
+          "protoc-gen-go-http",
+          "protoc-gen-validate",
+          "protoc-gen-openapi",
+          "protoc-gen-go-redact"
+        ],
+        "why_that_matters": "the six deferred cases exec.Command(\"protoc\", ...) with explicit --go_out/--redact_out flags; a buf-driven run would be a different tool chain than the one the cases assert, and installing protoc is not authorized for this stage"
+      },
+      "runtime_tools_the_tool_still_needs": [
+        "protoc (absent on this host except the task-local 29.3 installed for the deferred cases)",
+        "protoc-gen-go / protoc-gen-go-grpc / protoc-gen-validate / protoc-gen-go-errors / protoc-gen-go-http / protoc-gen-openapi (present in /home/ubuntu/go/bin)",
+        "buf v1.60.0 (present)",
+        "wire binary or 'go run github.com/google/wire/cmd/wire' for the unused wire subcommand",
+        "gow's own go.mod does not require google/wire, which confirms it is runtime-only"
+      ]
+    },
+    "why_this_is_a_decision_and_not_a_technical_stop": [
+      "The goal requires the same-named gow binary to be compiled from an ordinary directory of this main module without a nested go.mod, and forbids leaving go install github.com/tx7do/... behind. Doing that literally adds the 47 modules above to go-wind-admin/go.mod.",
+      "Two standing boundaries forbid exactly that: 不恢复 pgx/sqlc/OPA/GORM (11 gorm.io/* modules would come back into the graph, and AGENTS.md records the GORM assembly as removed) and 所有仍存活的非tx7do依赖保持T00所选版本 (these are not in the T00 selection at all).",
+      "The goal's own escape clause for a tool that cannot live in the main module says to stop and report the concrete conflicts rather than upgrade libraries or substitute another approach, which is what is recorded here.",
+      "The alternatives all cross a different boundary: a nested module under tools/ (explicitly forbidden), copying gorm/atlas/ent source into tools/localdeps and path-rewriting it (the sanctioned tool-local remap is described only for the tx7do go-utils v1.1.37 closure, and re-hosting those libraries is far beyond 只接管锁定版本必要源码), or keeping the external go install (explicitly forbidden by T13)."
+    ],
+    "not_started_because_it_depends_on_the_ruling": [
+      "placing gow and its code_generator/ddl_parser/templates",
+      "rewriting tx7do imports inside the templates",
+      "pointing Makefile, app.mk, AGENTS.md, Docker and CI install entry points at a local gow build",
+      "the go-utils v1.1.37 vs v1.1.40 tool/runtime split under tools/localdeps/gow_v1_0_3"
+    ],
+    "completed_anyway": [
+      "the entry state was measured and is clean: HEAD eed06bb, accepted_head 6445990, zero github.com/tx7do packages in the dependency graph after T12"
+    ],
+    "carried_unresolved": [
+      "T09's six protoc-driven integration cases remain DEFERRED; migration/required-integration-deferred.json still states them and only a real protoc run may turn them into pass",
+      "AGENTS.md still documents go install github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3, because no local gow can exist before the ruling"
+    ],
+    "constraints_honoured": [
+      "no dependency was added, upgraded or removed",
+      "no source file of the tool was placed",
+      "no nested go.mod",
+      "no push, merge or deploy",
+      "accepted_head deliberately not advanced"
+    ],
+    "conclusion": "T13 BLOCKED pending an owner ruling on the gow dependency expansion. The four questions asked back are recorded in migration/handoff.json under phase_D_T13_blocked_parked_at.",
+    "owner_ruling_2026_09_26": {
+      "question_asked": "how to handle gow given the 47-module / GORM-family expansion, and how to handle the protoc-deferred cases",
+      "answers": {
+        "gow": "暂停整个程序 (stop the whole program) — T13 tooling takeover, T14 tidy and T15 full chain are all suspended",
+        "protoc": "授权安装 protoc 后执行 (install protoc and run the deferred cases)"
+      },
+      "consequence": "the gow questions stay open and nothing further in T13/T14/T15 was started; the protoc part is closed with a real run"
+    },
+    "protoc_deferred_cases": {
+      "status": "EXECUTED_OUTSIDE_THE_BUILD",
+      "evidence": "migration/patches/T13/T13-integration-executed.json",
+      "toolchain": "protoc 29.3 (task-local, zip sha256 recorded), protoc-gen-go v1.36.11, protoc-gen-go-grpc v1.6.2, go1.26.7",
+      "results": {
+        "pass": 5,
+        "fail": 0,
+        "skip": 0,
+        "benchmark": "BenchmarkCodeGeneration 3x 26144064 ns/op"
+      },
+      "repository_impact": "none: the run happened in a temporary working copy; git status is clean apart from the untracked _agent/ plan material and the ledger files in this commit"
+    },
+    "gow_part": {
+      "status": "BLOCKED_NOT_STARTED",
+      "detail": "unchanged from the measurements above; the owner chose to stop the program rather than choose between the boundaries",
+      "open_questions": [
+        "Does the main module's dependency graph grow to host gow (gorm.io/*, google/wire, survey, entgo/contrib, tidb parser, ClickHouse and MSSQL drivers, zap ...), or does gow stay an external tool and T13's 'no go install github.com/tx7do/...' requirement is relaxed?",
+        "If it grows: is re-introducing the GORM family as a build-time-only tool dependency considered compatible with 不恢复 GORM, or is that boundary absolute?",
+        "If gow moves in: may its non-tx7do pins be overridden by the main module's newer versions (atlas 1.3.0, ent 0.14.6, x/tools 0.49.0, inflect 1.0.0), which is what MVS will do?",
+        "For the deferred cases: authorize a protoc installation with a recorded version, or keep them DEFERRED into T15 sign-off?"
+      ]
+    },
+    "end_sha": "a0891cbf1041d5ae11f6cd332899c3db4d03b6eb",
+    "accepted_head_unchanged": "6445990eaf5fa090d578dd490e460aba64606cfd"
+  },
+  "commits": [
+    {
+      "sha": "14be932",
+      "what": "place the retained command slice and its authorized tool-side changes"
+    },
+    {
+      "sha": "6133af4",
+      "what": "un-ignore internal/build so a clean checkout can build the tool"
+    },
+    {
+      "sha": "f58e35b",
+      "what": "match the upstream template walk order in the active list"
+    },
+    {
+      "sha": "77898acec2ba5715ff4c93bb7f162c05b06a2aba",
+      "what": "docs, Makefile, dev installers, the official tools-integration entry and the ledger"
+    }
   ],
-  "measurements": {
-    "gow_import_closure": "go list -deps ./cmd/gow inside a scratch copy of the locked module (outside the repository, so nothing in the main module was touched) resolves the whole tool: cobra registers every subcommand statically, so the closure of the binary includes the generate/migrate/wire/front-end subtrees, not only the three commands this repository uses",
-    "dependency_delta": "migration/patches/T13/T13-gow-dependency-delta.txt",
-    "dependency_delta_summary": {
-      "tool_requires": 94,
-      "absent_from_main_go_mod": 47,
-      "shared_but_pinned_older_by_the_tool": 29,
-      "gorm_family_modules_that_would_return_to_the_graph": [
-        "gorm.io/gorm",
-        "gorm.io/gen",
-        "gorm.io/datatypes",
-        "gorm.io/hints",
-        "gorm.io/plugin/dbresolver",
-        "gorm.io/rawsql",
-        "gorm.io/driver/clickhouse",
-        "gorm.io/driver/mysql",
-        "gorm.io/driver/postgres",
-        "gorm.io/driver/sqlite",
-        "gorm.io/driver/sqlserver"
-      ],
-      "other_examples_now_absent": [
-        "github.com/AlecAivazis/survey/v2",
-        "entgo.io/contrib",
-        "github.com/jhump/protoreflect",
-        "github.com/pingcap/tidb/pkg/parser",
-        "github.com/ClickHouse/clickhouse-go/v2",
-        "github.com/microsoft/go-mssqldb",
-        "go.uber.org/zap"
-      ],
-      "tool_pins_that_the_main_module_would_override": [
-        "ariga.io/atlas v1.1.0 -> v1.3.0",
-        "entgo.io/ent v0.14.5 -> v0.14.6",
-        "golang.org/x/tools v0.44.0 -> v0.49.0",
-        "golang.org/x/mod v0.35.0 -> v0.40.0",
-        "github.com/go-openapi/inflect v0.21.5 -> v1.0.0",
-        "github.com/stretchr/testify v1.11.1 -> v1.12.1"
-      ],
-      "correction_google_wire": "github.com/google/wire is NOT a graph dependency: internal/wire/cmd.go only names it in exec.LookPath(\"wire\") and the fallback go run command, so the wire subcommand shells out to an external binary. It is irrelevant to this repository because 不运行gow wire already holds, but it was listed as an incoming module in the first draft of this receipt and is corrected here."
-    },
-    "protoc_availability": {
-      "protoc": "not installed (command not found)",
-      "present_instead": [
-        "buf v1.60.0",
-        "protoc-gen-go",
-        "protoc-gen-go-grpc",
-        "protoc-gen-go-errors",
-        "protoc-gen-go-http",
-        "protoc-gen-validate",
-        "protoc-gen-openapi",
-        "protoc-gen-go-redact"
-      ],
-      "why_that_matters": "the six deferred cases exec.Command(\"protoc\", ...) with explicit --go_out/--redact_out flags; a buf-driven run would be a different tool chain than the one the cases assert, and installing protoc is not authorized for this stage"
-    },
-    "runtime_tools_the_tool_still_needs": [
-      "protoc (absent on this host except the task-local 29.3 installed for the deferred cases)",
-      "protoc-gen-go / protoc-gen-go-grpc / protoc-gen-validate / protoc-gen-go-errors / protoc-gen-go-http / protoc-gen-openapi (present in /home/ubuntu/go/bin)",
-      "buf v1.60.0 (present)",
-      "wire binary or 'go run github.com/google/wire/cmd/wire' for the unused wire subcommand",
-      "gow's own go.mod does not require google/wire, which confirms it is runtime-only"
+  "commands_and_exits": {
+    "go build ./...": 0,
+    "entry builds default/quota_lab/quota_pg + cmd/admin + tools/register": 0,
+    "go vet ./tools/localdeps/gow/...": 0,
+    "go test ./tools/localdeps/gow/...": "44 pass, 0 fail, 0 skip",
+    "make tools-integration with the pinned protoc": "exit 0; five cases pass, benchmark measured",
+    "make tools-integration without protoc": "exit 1 with a message, no skip",
+    "scripts/verify-gpu-format.sh": 0,
+    "gitleaks dir --no-banner --no-color --redact .": 0,
+    "go list -deps -test ./...": {
+      "default": 0,
+      "quota_lab": 0,
+      "quota_pg": 0,
+      "tools_integration": 0,
+      "unit": "github.com/tx7do packages"
+    }
+  },
+  "must_run": {
+    "named": "44 tool tests + 5 protoc integration cases + 1 benchmark, all executed",
+    "not_run": [
+      "make verify-gpu as a whole (T15)",
+      "full T00-T12 regression (not required at this stage)"
     ]
   },
-  "why_this_is_a_decision_and_not_a_technical_stop": [
-    "The goal requires the same-named gow binary to be compiled from an ordinary directory of this main module without a nested go.mod, and forbids leaving go install github.com/tx7do/... behind. Doing that literally adds the 47 modules above to go-wind-admin/go.mod.",
-    "Two standing boundaries forbid exactly that: 不恢复 pgx/sqlc/OPA/GORM (11 gorm.io/* modules would come back into the graph, and AGENTS.md records the GORM assembly as removed) and 所有仍存活的非tx7do依赖保持T00所选版本 (these are not in the T00 selection at all).",
-    "The goal's own escape clause for a tool that cannot live in the main module says to stop and report the concrete conflicts rather than upgrade libraries or substitute another approach, which is what is recorded here.",
-    "The alternatives all cross a different boundary: a nested module under tools/ (explicitly forbidden), copying gorm/atlas/ent source into tools/localdeps and path-rewriting it (the sanctioned tool-local remap is described only for the tx7do go-utils v1.1.37 closure, and re-hosting those libraries is far beyond 只接管锁定版本必要源码), or keeping the external go install (explicitly forbidden by T13)."
-  ],
-  "not_started_because_it_depends_on_the_ruling": [
-    "placing gow and its code_generator/ddl_parser/templates",
-    "rewriting tx7do imports inside the templates",
-    "pointing Makefile, app.mk, AGENTS.md, Docker and CI install entry points at a local gow build",
-    "the go-utils v1.1.37 vs v1.1.40 tool/runtime split under tools/localdeps/gow_v1_0_3"
-  ],
-  "completed_anyway": [
-    "the entry state was measured and is clean: HEAD eed06bb, accepted_head 6445990, zero github.com/tx7do packages in the dependency graph after T12"
-  ],
-  "carried_unresolved": [
-    "T09's six protoc-driven integration cases remain DEFERRED; migration/required-integration-deferred.json still states them and only a real protoc run may turn them into pass",
-    "AGENTS.md still documents go install github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3, because no local gow can exist before the ruling"
-  ],
-  "constraints_honoured": [
-    "no dependency was added, upgraded or removed",
-    "no source file of the tool was placed",
-    "no nested go.mod",
-    "no push, merge or deploy",
-    "accepted_head deliberately not advanced"
-  ],
-  "conclusion": "T13 BLOCKED pending an owner ruling on the gow dependency expansion. The four questions asked back are recorded in migration/handoff.json under phase_D_T13_blocked_parked_at.",
-  "owner_ruling_2026_09_26": {
-    "question_asked": "how to handle gow given the 47-module / GORM-family expansion, and how to handle the protoc-deferred cases",
-    "answers": {
-      "gow": "暂停整个程序 (stop the whole program) — T13 tooling takeover, T14 tidy and T15 full chain are all suspended",
-      "protoc": "授权安装 protoc 后执行 (install protoc and run the deferred cases)"
-    },
-    "consequence": "the gow questions stay open and nothing further in T13/T14/T15 was started; the protoc part is closed with a real run"
+  "residual_dependencies": {
+    "in_the_package_graph": 0,
+    "still_listed_in_go_mod": 42,
+    "handling": "T14 pruning, now unblocked because the tool entry point is local"
   },
-  "protoc_deferred_cases": {
-    "status": "EXECUTED_OUTSIDE_THE_BUILD",
-    "evidence": "migration/patches/T13/T13-integration-executed.json",
-    "toolchain": "protoc 29.3 (task-local, zip sha256 recorded), protoc-gen-go v1.36.11, protoc-gen-go-grpc v1.6.2, go1.26.7",
-    "results": {
-      "pass": 5,
-      "fail": 0,
-      "skip": 0,
-      "benchmark": "BenchmarkCodeGeneration 3x 26144064 ns/op"
-    },
-    "repository_impact": "none: the run happened in a temporary working copy; git status is clean apart from the untracked _agent/ plan material and the ledger files in this commit"
-  },
-  "gow_part": {
-    "status": "BLOCKED_NOT_STARTED",
-    "detail": "unchanged from the measurements above; the owner chose to stop the program rather than choose between the boundaries",
-    "open_questions": [
-      "Does the main module's dependency graph grow to host gow (gorm.io/*, google/wire, survey, entgo/contrib, tidb parser, ClickHouse and MSSQL drivers, zap ...), or does gow stay an external tool and T13's 'no go install github.com/tx7do/...' requirement is relaxed?",
-      "If it grows: is re-introducing the GORM family as a build-time-only tool dependency considered compatible with 不恢复 GORM, or is that boundary absolute?",
-      "If gow moves in: may its non-tx7do pins be overridden by the main module's newer versions (atlas 1.3.0, ent 0.14.6, x/tools 0.49.0, inflect 1.0.0), which is what MVS will do?",
-      "For the deferred cases: authorize a protoc installation with a recorded version, or keep them DEFERRED into T15 sign-off?"
-    ]
-  },
-  "end_sha": "a0891cbf1041d5ae11f6cd332899c3db4d03b6eb",
-  "accepted_head_unchanged": "6445990eaf5fa090d578dd490e460aba64606cfd"
+  "not_verified_or_open": [
+    "the 20 generated files gow api changes versus the committed tree, and the single migrate.go difference from gow ent admin: both appear identically for the pristine v1.0.3 tool, so they are pre-existing regeneration divergences to resolve at T15 with recorded tool versions",
+    "make cli and make plugin still install non-tx7do tools with @latest; that is outside this stage's authorization and is recorded rather than changed",
+    "no production service was started; gow run was exercised only against a scratch test service"
+  ]
 }

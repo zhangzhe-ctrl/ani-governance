@@ -789,48 +789,40 @@
     ]
   },
   "phase_D_T14_T15_blocked_by_T13": {
-    "task": "T14 (and therefore T15)",
-    "status": "NOT_STARTED_BLOCKED_BY_PREREQUISITE",
-    "recorded_at": "2026-09-26T02:25+08:00",
-    "accepted_head_unchanged": "6445990eaf5fa090d578dd490e460aba64606cfd",
-    "why": [
-      "T14 states its prerequisite as T03 through T13 all accepted, and its first rule is that the final tidy happens only after every run, test, generate and tool entry point has been taken over. T13 is parked on an owner decision, so the prerequisite is unmet.",
-      "Removing the 21 now-unused github.com/tx7do requires and running go mod tidy before that ruling would also prune the versions a local gow would need, which is the failure mode T14 explicitly warns against (deleting go.mod entries first and then patching compilation afterwards)."
-    ],
-    "measured_now": {
-      "tx7do_packages_in_the_dependency_graph": 0,
-      "tx7do_requires_still_listed_in_go_mod": 42,
-      "note": "the graph is clean since T12; what remains is module-level pruning plus the tool entry points, both gated on T13"
-    },
-    "next_action_once_ruled": "resume at migration/receipts/T13.json questions, then T14 tidy and verification, then T15 clean regeneration and the full make verify-gpu chain"
+    "task": "T14/T15",
+    "status": "UNBLOCKED_BY_T13_SCOPED_CLOSURE",
+    "note": "T14's prerequisite (all run/test/generate/tool entry points taken over within the agreed scope) is met; the protoc cases have a repeatable entry."
   },
-  "phase_D_program_halted_by_owner_ruling": {
-    "recorded_at": "2026-09-26T06:40+08:00",
-    "accepted_head": "6445990eaf5fa090d578dd490e460aba64606cfd",
-    "head_at_halt": "a0891cbf1041d5ae11f6cd332899c3db4d03b6eb",
-    "ruling": "暂停整个程序 after T12; T13's gow takeover, T14's module tidy and T15's full chain are not executed",
-    "done_instead": "the six T09-deferred protoc cases were authorized separately and were run for real with a task-local protoc 29.3: 5 pass, 0 fail, 0 skip, benchmark measured; see migration/patches/T13/T13-integration-executed.json",
-    "state_of_the_takeover": {
-      "github_com_tx7do_packages_in_the_dependency_graph": 0,
-      "github_com_tx7do_requires_still_in_go_mod": 42,
-      "stages_closed": [
-        "T00-T10",
-        "T11 MIGRATION_PASS_TARGETED",
-        "T12 MIGRATION_PASS_TARGETED"
-      ],
-      "stages_open": [
-        "T13 gow tooling (owner decision pending)",
-        "T14 module pruning",
-        "T15 clean regen + full make verify-gpu"
-      ],
-      "known_defects_carried": [
-        "3 order-id cases",
-        "9 captcha cases",
-        "T03-F4",
-        "T03-F5",
-        "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY not_run"
-      ]
-    },
-    "not_pushed_merged_or_deployed": true
+  "phase_D_T13_closure_scoped_tool": {
+    "task": "T13",
+    "status": "MIGRATION_PASS_TARGETED_SCOPED_TOOL",
+    "start_sha": "6351339348435944b74d635033a57194ee4a8523",
+    "result_sha": "77898acec2ba5715ff4c93bb7f162c05b06a2aba",
+    "tested_code_sha": "77898acec2ba5715ff4c93bb7f162c05b06a2aba",
+    "resume_head": "77898acec2ba5715ff4c93bb7f162c05b06a2aba",
+    "accepted_head_now": "77898acec2ba5715ff4c93bb7f162c05b06a2aba",
+    "scope": "in-use gow commands only (api/ent/run/version) built locally; the general scaffold is deliberately not taken over",
+    "resolved": [
+      "the 47-module/GORM-restoration conflict is gone: the retained closure needs five modules the main module already has at those exact versions",
+      "automatic go mod tidy removed from the four retained entries, measured against the pristine binary",
+      "no implicit tool install or buf dep update; explicit failures instead",
+      "official make tools-integration entry for the protoc cases, failing without protoc",
+      "docs/Makefile/dev installers point at make gow"
+    ],
+    "carried": [
+      "20-file api regeneration divergence and 1 ent migrate.go divergence (pristine tool shows the same) -> T15",
+      "42 tx7do requires still listed in go.mod -> T14",
+      "known defects carried from earlier phases",
+      "make cli/plugin still use @latest for non-tx7do tools (recorded, not changed)"
+    ],
+    "milestone_exit": 0,
+    "not_pushed_merged_or_deployed": true,
+    "next_task": "T14. Read _agent/ani-governance-tx7do-plan/goals/T14.md on entry only.",
+    "resume_check_before_editing": [
+      "git rev-parse HEAD must equal 77898acec2ba5715ff4c93bb7f162c05b06a2aba",
+      "cat migration/accepted_head must equal 77898acec2ba5715ff4c93bb7f162c05b06a2aba",
+      "build the tool with make gow before using gow",
+      "every go invocation must carry GOFLAGS=-mod=readonly GOWORK=off and the pinned go1.26.7"
+    ]
   }
 }
