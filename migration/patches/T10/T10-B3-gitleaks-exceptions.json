@@ -107,5 +107,14 @@
   "history_scan_out_of_gate_scope": "`gitleaks detect` (67 commits) still reports one finding in pkg/scripting/examples/crypto_example.lua at commit 10a7256, a file that no longer exists in the working tree. The audit step scans the working tree, and history is not rewritten",
   "localized_surface_still_green": "go test -count=1 ./pkg/localdeps/... with the isolated lab environment: 42 packages ok, no failures"
  },
- "honest_wording": "the scanner now reports zero unhandled alerts because four findings were verified as false positives and pinned with exact exceptions. It has found alerts before, and this step is the record of handling them, not a claim that nothing was ever reported."
+ "honest_wording": "the scanner now reports zero unhandled alerts because four findings were verified as false positives and pinned with exact exceptions. It has found alerts before, and this step is the record of handling them, not a claim that nothing was ever reported.",
+ "self_inflicted_incident": {
+  "what": "the first milestone attempt after committing this evidence failed the audit step with four new findings, all of them SHA-256 values this very file recorded",
+  "why": "a committed 64-hex string matches the generic-api-key rule regardless of its meaning, so the evidence manufactured the alerts it described",
+  "handling": "the digests were shortened to an eight-hex prefix and the full values moved to the task-directory report; nothing was allowlisted to make the failure disappear, and the four reviewed findings keep their exact-value exceptions",
+  "attempts": {
+   "1": "aborted at the format gate on this round's own bootstrap_test.go (fixed in 6e61518)",
+   "2": "aborted at the audit step on this evidence file (fixed in 62f84ce)"
+  }
+ }
 }
