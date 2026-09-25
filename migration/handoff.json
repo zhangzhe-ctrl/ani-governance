@@ -829,7 +829,7 @@
     "task": "T14",
     "status": "MIGRATION_PASS_TARGETED",
     "start_sha": "2f82b70",
-    "accepted_head_now": "pending_this_commit",
+    "accepted_head_now": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
     "resolved": [
       "42 tx7do requires removed and tidy run",
       "zero tx7do modules in go list -m all and go mod graph",
@@ -841,6 +841,14 @@
       "T03-F4/F5, 3 id cases, 9 captcha cases, two QUOTA_*_VERIFY windows not_run",
       "make verify-gpu and clean regeneration belong to T15"
     ],
-    "next_task": "T15. Read _agent/ani-governance-tx7do-plan/goals/T15.md on entry only."
+    "next_task": "T15. Read _agent/ani-governance-tx7do-plan/goals/T15.md on entry only.",
+    "result_sha": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+    "tested_code_sha": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+    "resume_head": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+    "resume_check_before_editing": [
+      "git rev-parse HEAD must equal 627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+      "cat migration/accepted_head must equal 627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+      "build the tool with make gow; the in-use commands are api/ent/run/version only"
+    ]
   }
 }
