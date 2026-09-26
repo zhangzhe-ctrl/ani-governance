@@ -223,10 +223,10 @@ func TestSyncBackRefusesLossAndUnapprovedValidators(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(stage, managed, "v1", "a.pb.go"), []byte("new\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	scope := map[string]any{"entries": []map[string]string{
+	scopeDoc := map[string]any{"entries": []map[string]string{
 		{"validator": filepath.Join(managed, "v1", "approved.pb.validate.go")},
 	}}
-	buf, _ := json.Marshal(scope)
+	buf, _ := json.Marshal(scopeDoc)
 	if err := os.MkdirAll(filepath.Join(root, "migration"), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -234,6 +234,17 @@ func TestSyncBackRefusesLossAndUnapprovedValidators(t *testing.T) {
 		t.Fatal(err)
 	}
 	roots := []managedRoot{{dir: managed, name: "buf.gen.yaml"}}
+	// The snapshot is taken now: everything below happens while generation runs in the stage, and a
+	// write-back must compare itself against this state rather than against whatever the tree looks
+	// like when it gets there.
+	snap, err := snapshotRoots(root, roots)
+	if err != nil {
+		t.Fatal(err)
+	}
+	scope, err := readPGVScope(root)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// 1. staged output lost a committed file -> refuse, leave the tree alone
 	if err := os.Remove(filepath.Join(stage, managed, "v1", "a.pb.go")); err != nil {
@@ -242,7 +253,7 @@ func TestSyncBackRefusesLossAndUnapprovedValidators(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(stage, managed, "v1", "b.pb.go"), []byte("only-in-stage\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := syncBack(root, stage, roots); err == nil {
+	if err := syncBack(root, stage, roots, snap, scope, false); err == nil {
 		t.Fatal("a lost managed file must fail the sync")
 	}
 	if got, _ := os.ReadFile(filepath.Join(root, managed, "v1", "a.pb.go")); string(got) != "old\n" {
@@ -259,7 +270,7 @@ func TestSyncBackRefusesLossAndUnapprovedValidators(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(stage, managed, "v1", "sneak.pb.validate.go"), []byte("x\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := syncBack(root, stage, roots); err == nil {
+	if err := syncBack(root, stage, roots, snap, scope, false); err == nil {
 		t.Fatal("a validator outside migration/pgv-scope.json must fail the sync")
 	}
 	if _, err := os.Stat(filepath.Join(root, managed, "v1", "sneak.pb.validate.go")); err == nil {
@@ -273,7 +284,7 @@ func TestSyncBackRefusesLossAndUnapprovedValidators(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(stage, managed, "v1", "approved.pb.validate.go"), []byte("ok\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := syncBack(root, stage, roots); err != nil {
+	if err := syncBack(root, stage, roots, snap, scope, false); err != nil {
 		t.Fatalf("sync of approved output: %v", err)
 	}
 	if got, _ := os.ReadFile(filepath.Join(root, managed, "v1", "a.pb.go")); string(got) != "new\n" {
