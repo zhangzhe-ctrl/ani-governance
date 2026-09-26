@@ -155,5 +155,65 @@
     "remaining": "field-level document diff (A committed vs B generated vs C source-built) not produced: three compile defects remain in the throwaway harness (stale fd reference in the imports loop, proto.Range which is not in this protobuf version, one unused binding). Fix: iterate fo.ProtoReflect().Range, take imports from fdp.GetDependency(), drop the unused variable. Input C already exists: buf build -o /tmp/t15_img.bin (1075131 bytes) from the clean copy.",
     "not_claimed": "no ADMIN_DOC_SYNC_VERIFIED and no acceptance of the regenerated admin_doc.pb.go until that comparison and the consumer check are done"
   },
-  "temp_hygiene": "_admindesc and _valcheck removed from the repository tree and the throwaway copy; no business file hand-edited"
+  "temp_hygiene": "_admindesc and _valcheck removed from the repository tree and the throwaway copy; no business file hand-edited",
+  "admin_doc_final": {
+    "status": "ADMIN_DOC_SYNC_VERIFIED",
+    "method": "one throwaway Go harness (main.go in /home/ubuntu/tx7do-pilot-run/T15/admin-doc-check) exporting the FileDescriptorProto of admin/service/v1/admin_doc.proto from the committed generated package (A), from the fixed-tool generated package (B) and from the buf-build image of the current source protos (C), each in its own process; the gnostic extension is decoded with the locked github.com/google/gnostic/openapiv3 type and walked to a field-path list",
+    "extension": {
+      "name": "openapi.v3.document",
+      "field_number": 1143
+    },
+    "evidence": {
+      "a_document_bytes": 635,
+      "b_document_bytes": 1027,
+      "c_document_bytes": 1027,
+      "b_equals_c": {
+        "bytes_equal": true,
+        "sha256_16_equal": true,
+        "path_set_equal": true,
+        "sha": "dcba827b281b874edeef2d1a1549dc25"
+      },
+      "a_sha": "d5559837fde4b8ac29aa03690c3c7aba",
+      "a_to_b": {
+        "paths_added": 33,
+        "paths_removed": 5,
+        "values_changed": 3,
+        "all_under": "document.components.security_schemes (new bearer/api-key/signature scheme entries, one obsolete password-flows subtree dropped, list length and first entry name/type updated)"
+      },
+      "other_file_options": {
+        "identical_a_vs_b": true,
+        "count": 9,
+        "unknown_fields_a": null,
+        "unknown_fields_b": null
+      },
+      "descriptor_structure_identical_a_vs_b": {
+        "messages": 0,
+        "services": 0,
+        "package": "admin.service.v1",
+        "syntax": "proto3",
+        "dependencies": [
+          "gnostic/openapi/v3/annotations.proto"
+        ]
+      }
+    },
+    "consumer_check": "the file declares no messages and no services on either side, so nothing in the runtime reads this option; route/auth/validation decisions come from the other generated files, and the final OpenAPI artifact is already proven byte-identical to the baseline",
+    "corrections": [
+      "my first pass filtered the extension by field number 10000; the real number is 1143, which is why a previous line reported the non-document options as different. With the right number all nine standard file options are byte-identical and there are no unknown fields.",
+      "the earlier 'B/C path lists differ' reading is only map iteration order: the serialized document bytes and the path sets are equal.",
+      "no option or unknown-extension block was dropped to make anything match"
+    ],
+    "artifacts": [
+      "A-document.json",
+      "B-document.json",
+      "C-document.json",
+      "document-diff.json",
+      "main.go",
+      "run.sh",
+      "diff.py",
+      "A.err",
+      "B.err",
+      "C.err"
+    ],
+    "next_step_is_not_a_decision": "R1 candidate closure (classify all 14 modified paths with this evidence) and then R2"
+  }
 }

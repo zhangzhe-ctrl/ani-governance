@@ -931,5 +931,11 @@
     "head": "781989ee6a68c9a56d7776b846ee2e9c9c3db67e",
     "next_command": "fix the three harness defects in a throwaway _admindesc/main.go, run it in the committed tree, the generated tree and against /tmp/t15_img.bin, then diff the document path lists",
     "no_new_authorization_needed": true
+  },
+  "phase_E_T15_admin_doc": {
+    "status": "ADMIN_DOC_SYNC_VERIFIED",
+    "head": "911fad30b78e7f4593f6f1b57916fadaac946710",
+    "next": "R1 收口（14 个 M 逐项按已批准条件归类并提交受控再生成结果），然后 R2；无需新授权",
+    "artifacts": "/home/ubuntu/tx7do-pilot-run/T15/admin-doc-check"
   }
 }
