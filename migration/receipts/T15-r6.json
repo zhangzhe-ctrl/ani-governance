@@ -2,9 +2,8 @@
   "schema_version": "t15-r6/1",
   "task": "T15",
   "item": "R6 - the two historical quota-data restore acceptances on independent disposable copies",
-  "status": "R6_BLOCKED_MISSING_AUTHORIZED_BACKUP",
+  "status": "BLOCKED_INPUT",
   "conclusion": "cannot be executed on this host: the two historical backup dumps it is defined against do not exist here, and no synthetic stand-in was used",
-
   "the_two_acceptances": [
     {
       "test": "TestQuotaGpuOldPopulatedUpgradeReplay",
@@ -23,7 +22,6 @@
       "needs": "new-populated.dump restored into a second disposable copy with the same grant scripts, plus the documented lost-ACK projection fault applied to that copy only (sql/gpu/ops/restore_pending_projection.sql)"
     }
   ],
-
   "required_inputs_and_where_they_are_recorded": {
     "record": "docs/evidence/gov-quota-ent-review-20260924/historical-inputs.sha256",
     "entries": [
@@ -32,21 +30,18 @@
     ],
     "procedure": "docs/evidence/gov-quota-ent-review-20260924/history.sh is the pre-takeover script this acceptance is defined by, including the per-copy createdb/pg_restore, the migration and grant order, the flock, the disposable-copy-only fault injection and the two DSNs"
   },
-
   "search_performed_on_this_host": {
     "absent_path": "/home/chabking does not exist on this host (ls: No such file or directory)",
     "filesystem_search": "find over /home/ubuntu and /tmp for *populated*.dump returned nothing; a broader search for *.dump, *.tar and *gov-data* returned nothing outside documentation",
     "documents_only": "the only hits are pre-takeover evidence documents under /home/ubuntu/tx7do-pilot-run/T07/premigrate-ref/docs/evidence/..., i.e. text describing the backups, not the backups",
     "no_container_holds_them": "the running containers are the task's lab and guard postgres plus an unrelated T04 redis; no authorized restore copy of these dumps exists in any of them, and the gate's own gov_acc_data / gov_acc_lab databases are explicitly not the historical source"
   },
-
   "not_substituted": [
     "no empty or freshly migrated database was restored and reported as a historical restore",
     "the switch-gated tests were not run without their switches to manufacture a result: both t.Skip, and a skip is never recorded as a pass",
     "the ordinary quota tests inside make verify-gpu (TestQuotaGpu, TestQuotaProcess, TestQuotaEnt, the concurrent/lease/policy race cases and the lab regression) are a different acceptance and are reported separately in migration/receipts/T15-r4-verify-gpu.json",
     "no authorization was assumed to fetch or recreate the dumps from somewhere else"
   ],
-
   "what_would_complete_it": {
     "input_needed": "the two dump files, or an authorized location for equivalents, with sha256 verified against docs/evidence/gov-quota-ent-review-20260924/historical-inputs.sha256",
     "then": [
@@ -58,5 +53,39 @@
       "record both named results and their real exit codes, drop only the two task copies, and leave the source databases unchanged"
     ],
     "blocker_owner": "the backups are an input this repository does not carry; the missing item is the files themselves"
+  },
+  "status_note": "R6 needs two historical dumps that do not exist on this host. Recorded precisely, with a\ndelivery point outside the repository: /home/ubuntu/tx7do-pilot-run/T15/r6-inputs/README.md.\nNothing was substituted, and no switch-off run is counted: both tests t.Skip without their\nenvironment variable, so an unswitched run cannot produce a pass.",
+  "blocked_input": {
+    "code": "BLOCKED_INPUT",
+    "missing_files": [
+      "old-populated.dump",
+      "new-populated.dump"
+    ],
+    "recorded_original_location": "/home/chabking/gov-acc-v12-01-20260923/evidence/gov-data/",
+    "recorded_sha256": {
+      "old-populated.dump": "424fff3a53901e23aa894492dcebeb55b6c750498ebae3ee29fa7d75f98bc971",
+      "new-populated.dump": "407376725048a80dff47b1658c6dd6fdeba038060d80f43bc41ae2619efafc69"
+    },
+    "checksum_source": "docs/evidence/gov-quota-ent-review-20260924/historical-inputs.sha256",
+    "provenance_known": "PostgreSQL 16.10 container gov-acc-v12-01-gov-pg from the v12-01 acceptance run, per docs/evidence/gov-acc-v12-01/data-pause.md; consumed by pg_restore --no-owner --no-acl --exit-on-error, i.e. pg_dump custom format",
+    "provenance_unknown": [
+      "exact byte sizes of each dump",
+      "the precise source database and full pg_dump command line for each file",
+      "the business point in time the data represents beyond the 20260923/20260924 directory dates"
+    ],
+    "consumers": [
+      {
+        "test": "TestQuotaGpuOldPopulatedUpgradeReplay",
+        "switch": "QUOTA_UPGRADE_VERIFY=1",
+        "tags": "quota_pg"
+      },
+      {
+        "test": "TestQuotaGpuRestoredProjectionContinuation",
+        "switch": "QUOTA_RESTORE_VERIFY=1",
+        "tags": "quota_pg"
+      }
+    ],
+    "delivery": "/home/ubuntu/tx7do-pilot-run/T15/r6-inputs/ (outside the repository, never committed, dumps never pasted into logs)",
+    "scope_of_search": "only the authorized task paths and the repository asset records were consulted; no other account, host or unauthorised backup was scanned"
   }
 }
