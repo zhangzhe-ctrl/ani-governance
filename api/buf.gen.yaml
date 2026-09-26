@@ -107,11 +107,7 @@ plugins:
     opt:
       - paths=source_relative # use relative paths
 
-  # generate message validator code
-	# 校验生成已移到 api/buf.validate.gen.yaml（T15 固定 PGV 文件级范围），此处不再运行 PGV。    out: gen/go
-    opt:
-      - paths=source_relative # use relative paths
-      - lang=go
+  # 校验生成已移到 api/buf.validate.gen.yaml（T15 固定 PGV 文件级 paths），此处不再运行 PGV。
 
   # generate redact code
   # 插件由本仓库 pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact 构建到 tools/bin，
