@@ -3,7 +3,7 @@
   "task": "T15",
   "phase": "E",
   "goal_file": "_agent/ani-governance-tx7do-plan/goals/T15.md",
-  "status": "IN_PROGRESS_R0_R7_EXECUTED_API_ENTRIES_UNIFIED_R6_BLOCKED",
+  "status": "IN_PROGRESS_R0_R7_EXECUTED_SSE_CASE_REPAIRED_API_CHAIN_SINGLE_ENTRY_R6_BLOCKED",
   "recorded_at": "2026-09-26T07:55+08:00",
   "start_sha": "66b52032bb503357216b38b889b092a61b72ff94",
   "accepted_head": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
@@ -33,5 +33,5 @@
     "no production seeds and no startup migrations"
   ],
   "r0_r1": "see migration/receipts/T15-ruling-regeneration-and-tools.json",
-  "progress_checkpoint": "R0-R5 and R7 executed; API and Ent generation entries are now single-contract and failsafe\n(migration/patches/T15/T15-api-entry-unification.json, T15-ent-entry-unification.json); final\nmake verify-gpu exits 0 over fecdcf5. Outstanding for sign-off: R6 needs two historical dumps\n(migration/receipts/T15-r6.json, BLOCKED_INPUT) and one inherited upstream SSE test race is\nreported for a ruling (migration/patches/T15/T15-inherited-sse-test-race.json). T15 is not closed."
+  "progress_checkpoint": "Code tip bd9f03b87a04f328b8e37a72e0869f1ca0bbd279 is the review candidate: Ent and API\ngeneration entries single-contract and failsafe, OpenAPI post-processing inside the staged chain,\nthe inherited SSE subscriber case repaired test-only, R5 legacy-client compatibility executed, R7\nzeroing re-verified. Outstanding for sign-off: R6 awaits two authorized historical dumps\n(receipts/T15-r6.json, BLOCKED_INPUT) and independent review of this candidate. Final gate log is\nrecorded in phase_E_T15_final_candidate."
 }

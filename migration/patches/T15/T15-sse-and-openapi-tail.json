@@ -1,0 +1,68 @@
+{
+  "schema_version": "t15-sse-and-openapi-tail/1",
+  "task": "T15",
+  "items": ["test-only repair of the inherited SSE subscriber case", "OpenAPI post-processing moved inside the staged generation chain"],
+  "code_commits": {
+    "sse_test_and_openapi_tail": "0389d60128c1696d7502328f263908fefd6ad337",
+    "doc_wording_only": "bd9f03b87a04f328b8e37a72e0869f1ca0bbd279"
+  },
+
+  "sse": {
+    "mechanism_rechecked_before_touching_anything": {
+      "original_log": "/home/ubuntu/tx7do-pilot-run/T15/final-nocache.log line 213 onward",
+      "what_failed": "stream_test.go:26 assert.Equal(t, 0, len(sub.connection)) with expected 0, actual 1",
+      "other_findings_in_that_log": "no DATA RACE, no other assertion, no panic; the package's other tests passed",
+      "production_reading": "with autoReplay the run loop either registers the subscriber first and then dispatches both buffered events, or processes the first event into the log and replays it at registration; in both interleavings the subscriber holds two events, so the upstream single-read-then-empty-queue assertion is timing-dependent rather than a property of the stream"
+    },
+    "patch_scope": {
+      "files_changed": ["pkg/localdeps/kratos-transport/transport/sse/stream_test.go"],
+      "test_only": true,
+      "production_files": "auth.go client.go client_options.go event.go event_log.go http.go logger.go server.go server_options.go stream.go stream_manager.go subscriber.go transport.go utils.go all show zero non-import diff against sse@v1.3.8, unchanged by this round",
+      "buffer_sizes_replay_auth_contract": "unchanged",
+      "patch": "/home/ubuntu/tx7do-pilot-run/T15/sse-fix/T15-sse-test-only.patch",
+      "hashes_before_after": {
+        "upstream_module_file": "a626e90030eb1914a0aee9084290d9fdb8c367c5d6e527ae1a89df24dad452f0",
+        "repository_before_patch": "a626e90030eb1914... (byte-identical to upstream, i.e. never edited before)",
+        "repository_after_patch": "5e10292af1044de2..."
+      }
+    },
+    "requirements_kept": [
+      "autoReplay stays true; the first publish is still before addSubscriber and the second after it; subscriber count is still asserted to be 1",
+      "two distinct payloads so the two messages are distinguishable, both received through the channel under a deadline, content and order asserted, and two different event ids required so a double delivery of one event cannot pass",
+      "after both are consumed the empty-queue check remains, then s.close() and the shutdown is observed on the connection itself within a deadline, with an extra message after close reported as a failure; close() returning is never treated as the goroutine having exited",
+      "the len assertion was not relaxed to allow 1, no sleep-only or Eventually-empty-queue substitute, the first message was not removed, replay was not disabled, received data was not discarded, and no retry-until-green loop exists"
+    ],
+    "stability_runs": {
+      "commands": [
+        "go test -mod=readonly ./ -run '^TestStreamAddSubscriber$' -count=100",
+        "go test -mod=readonly -race ./ -run '^TestStreamAddSubscriber$' -count=30"
+      ],
+      "local_patched": {"count100": "exit 0, verified by -v as 100 RUN and 100 PASS lines and 0 FAIL (the 0.012s elapsed is real work, not a filter that matched nothing)", "race30": "exit 0, 0 failures"},
+      "pristine_patched_same_file": {"setup": "isolated copy of the locked module rebuilt in its own multi-module layout (transport/sse with ../../broker, ../, ../keepalive, ../tracing from the module cache) so the upstream go.mod replaces resolve; index.html and every production file restored byte-for-byte afterwards", "count100": "exit 0", "race30": "exit 0"},
+      "pristine_unpatched": {"count100": "exit 0", "race30": "exit 0", "meaning_stated_plainly": "the original code passes a tight uncontended loop, which is why the fixed counts are a stability check and not a disproof of the recorded failure; /home/ubuntu/tx7do-pilot-run/T15/final-nocache.log stays the evidence that it did fail"},
+      "under_the_original_condition": {"five_whole_package_runs": "all exit 0", "the_exact_command_that_failed": "go test -count=1 over data, service, server and ./pkg/... -> exit 0 with 69 ok lines and 0 cached", "logs": "/home/ubuntu/tx7do-pilot-run/T15/sse-fix/{pkg-1..5.log,repro-fullset.{log,exit}}"},
+      "package_suite_caveat": "running the whole pristine package without -run hangs on its own un-repaired upstream harness cases (600s go test timeout), which is the pre-existing reason T11 repaired those locally; the targeted counts above are what was required and are reported as such"
+    },
+    "follows": "the test stays a normal mandatory case; nothing was added to any exclusion list"
+  },
+
+  "openapi_tail": {
+    "why": "the earlier matrix row B was honest that a direct gow api wrote back the pre-finalize document and needed make openapi afterwards, so the two entries were not equal in their final artifacts",
+    "change": "finalizeOpenAPI runs the repository's existing scripts/finalize-aksk-openapi.py inside the staged copy after the template walk and before syncBack; stagingInputs() now names both scripts the chain runs; make api no longer wraps make openapi",
+    "no_duplicate_and_no_recursion": "the finalize script is not idempotent by design - it removes one synthetic 200 response and raises SystemExit if that response is already gone - so an outer make openapi after a successful gow api would fail an otherwise good build; that property is pinned by TestFinalOpenApiDocumentIsNotIdempotent (a refused run also leaves the document byte-identical)",
+    "tests_added": [
+      "TestStagingInputsCarryEveryStepTheChainRuns",
+      "TestFinalizeOpenAPIRunsInsideTheStagedCopy (marker proves it runs with the stage as cwd and writes nothing into the repository; a stage without the script fails instead of skipping)",
+      "TestFinalizeOpenApiDocumentIsNotIdempotent"
+    ],
+    "verification": {
+      "A2a_direct_gow_api_from_clean_copy": "exit 0, managed digest 96184d0165d5bfd1 equal to the candidate, 0 tracked modifications, finalize observed in the log, no follow-up command needed",
+      "A2b_make_api_twice_from_clean_copy": "pass 1 and pass 2 both exit 0 with digest 96184d0165d5bfd1, 396 managed files, 0 tracked modifications, second pass identical",
+      "B_failing_postprocessing_make_api": "exit 2, managed digest and file count unchanged (96184d0165d5bfd1, 396 -> 396), the injected edit to docs and an untracked user file byte-identical afterwards, no git checkout anywhere",
+      "B_failing_postprocessing_direct_gow_api": "exit 1, same unchanged digest and counts, same intact user files",
+      "C3_uncommitted_proto_input": "a new untracked proto added inside the worktree is honoured: exit 0, exactly one new artifact reported (api/gen/go/catalog/service/v1/t15_probe.pb.go) and generated, so inputs come from the working tree and additions are surfaced rather than filtered",
+      "note": "the injected failing script lives only in a throwaway worktree and was never committed; the fault-injection lines are in the harness at /home/ubuntu/tx7do-pilot-run/T15/api-fix/matrix2.sh"
+    },
+    "unchanged_guarantees": "plugin pins per template, go_package mappings, the 103-file PGV scope, the parked model template, the five-feature Ent contract, hand-written runtime files and the migration chain; no second active template list and no general generation platform"
+  }
+}

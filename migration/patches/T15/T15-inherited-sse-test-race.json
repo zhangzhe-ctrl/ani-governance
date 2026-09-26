@@ -2,9 +2,8 @@
   "schema_version": "t15-inherited-sse-test-race/1",
   "task": "T15",
   "item": "an intermittent failure found by the final no-cache pass, in a test this repository never edited",
-  "status": "REPORTED_INHERITED_DEFECT_NO_EXCLUSION_ADDED",
+  "status": "RESOLVED_BY_APPROVED_TEST_ONLY_PATCH",
   "candidate": "fecdcf5",
-
   "observation": {
     "test": "TestStreamAddSubscriber",
     "package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
@@ -17,26 +16,36 @@
       "reading": "contention-dependent and rare; it passed inside make verify-gpu at 10f8577 with -count=1 and failed at fecdcf5 with the same command, so neither outcome is a proof about the other run"
     }
   },
-
   "why_this_is_inherited_not_introduced": {
     "file_identity": "pkg/localdeps/kratos-transport/transport/sse/stream_test.go sha256 a626e90030eb1914a0aee9084290d9fdb8c367c5d6e527ae1a89df24dad452f0 equals the recorded source_sha256 of github.com/tx7do/kratos-transport/transport/sse@v1.3.8/stream_test.go in migration/patches/T11/T11-placement.json (byte_identical_after_placement: true)",
     "no_local_edits": "git log for the file shows a single commit, b7d5ddb, the takeover placement itself",
     "production_side": "stream.go was checked at T11 as non-import AST and directive equivalent to v1.3.8 (migration/patches/T11/T11-equiv-production-rechecked.json), and nothing under pkg/localdeps/kratos-transport changed in this round",
     "mechanism": "the test publishes an event, then registers a subscriber with an empty cursor, then publishes again and asserts the channel is drained. Whether the first event is still buffered for the new subscriber depends on when the stream goroutine processes it, so the subscriber can legitimately receive two messages and leave one in the buffer. That is a property of the upstream test's sequencing, not of the taken-over implementation"
   },
-
   "what_was_not_done": [
     "the test was not deleted, skipped, tagged, reordered or had its expectation loosened",
     "migration/required-known-defects.json was not touched: it stays at the 9 captcha and 3 id entries approved under T04 and T10, and this case is not moved into it by this round",
     "no scan exclusion, vet suppression or gate change was added anywhere",
     "the passing make verify-gpu log at fecdcf5 was not rewritten: it is reported together with the fact that 67 of its 74 ok lines were cache results, which is exactly why the separate -count=1 pass exists"
   ],
-
   "options_for_the_owner": {
     "a_isolate_like_t04_and_t10": "move this one case behind the existing upstream_known_defects tag with a per-case proof and a pristine-copy comparison, adding it to migration/required-known-defects.json as an explicit 13th entry; the ordinary gate then neither runs nor hides it, and the tagged run keeps a real non-zero exit",
     "b_repair_the_case_in_place": "rewrite only the sequencing so the assertion tests what it means (subscribe, then publish, then require the buffer empty) and record the change as an authorized test-contract patch with the upstream diff preserved, as T11 did for the other harness defects in this same package",
     "c_accept_as_known_intermittent": "leave the test exactly as is, and re-run the gate on failure; not recommended, because it makes every future full gate result partly a coin toss for this package"
   },
-
-  "gate_state_unchanged_by_this_finding": "the final gate at fecdcf5 exited 0 with one continuous log; the honest qualification is that the sse package result in that log came from Go's test cache, and a fresh pass at the same commit showed this inherited intermittency"
+  "gate_state_unchanged_by_this_finding": "the final gate at fecdcf5 exited 0 with one continuous log; the honest qualification is that the sse package result in that log came from Go's test cache, and a fresh pass at the same commit showed this inherited intermittency",
+  "resolution": {
+    "decided_by": "owner ruling in the next round: precise test-only repair authorised, no exemption added",
+    "precondition_verified": "re-read of the original failure confirms it was the queue-length assertion at stream_test.go:26 (expected 0, actual 1) with no DATA RACE anywhere in the log, so the inherited-test mechanism applies and this is not a production defect being relabelled",
+    "patch": "/home/ubuntu/tx7do-pilot-run/T15/sse-fix/T15-sse-test-only.patch; only pkg/localdeps/kratos-transport/transport/sse/stream_test.go changed",
+    "hashes": {
+      "upstream_v1.3.8": "a626e90030eb1914...",
+      "local_before": "a626e90030eb1914... (identical, never edited before this patch)",
+      "local_after": "5e10292af1044de2..."
+    },
+    "commit": "0389d60128c1696d7502328f263908fefd6ad337",
+    "still_mandatory": true,
+    "known_defects_untouched": "migration/required-known-defects.json still holds exactly the approved 9 captcha + 3 id entries; no tag, skip, retry-until-green or expectation loosening",
+    "evidence": "migration/patches/T15/T15-sse-and-openapi-tail.json"
+  }
 }
