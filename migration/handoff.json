@@ -879,5 +879,16 @@
       "plan_quota.pb.validate.go stale validator block",
       "8 validate files present only in the regenerated tree"
     ]
+  },
+  "phase_E_T15_r1_items_ruling": {
+    "status": "ruling recorded; items 二/三 verification and item 四 scope list pending; INTERRUPTED at a safe checkpoint",
+    "head_before": "030d9b531ec8bf11ece86fdd13ad35c324a1786c",
+    "branch": "task/tx7do-t15",
+    "accepted_head": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+    "read_first": [
+      "migration/receipts/T15-ruling-r1-items.json",
+      "migration/patches/T15/T15-regen-candidate.patch"
+    ],
+    "do_not": "commit the 8 validators, hand-edit generated files, roll back to accepted_head, or claim descriptor immutability"
   }
 }
