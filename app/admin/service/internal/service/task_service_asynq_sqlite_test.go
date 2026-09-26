@@ -231,9 +231,27 @@ func TestTaskService_RealAsynqSchedulerLifecycle(t *testing.T) {
 	assert.Empty(t, srv.QueryPeriodicTaskEntryID(periodicType), "停止后周期任务注册表应清空")
 	assert.Empty(t, srv.QueryPeriodicTaskEntryID(task.TenantExpiryScanTaskType), "停止后系统级任务注册表应清空")
 
-	settled := rec.count(periodicType)
+	// asynq 的关停是异步的，而停止之前已入队的在途投递可能因为 CPU 竞争远晚于调度时刻
+	// 到达（整包并发下实测排空延迟可超过一个采样窗口），所以这里要求的是"最终静默"：
+	// 连续 5 个 500ms 采样不再有新增。周期是 @every 400ms，因此只要调度器还在产出就不
+	// 可能在 10s 时限内凑出这 2.5s 静默；静默确认后再等一个窗口，确认没有恢复 trickle。
+	quietSamples := 0
+	const quietNeeded = 5
+	last := rec.count(periodicType)
+	deadline := time.Now().Add(10 * time.Second)
+	for quietSamples < quietNeeded && time.Now().Before(deadline) {
+		time.Sleep(500 * time.Millisecond)
+		if now := rec.count(periodicType); now == last {
+			quietSamples++
+		} else {
+			quietSamples, last = 0, now
+		}
+	}
+	require.Equal(t, quietNeeded, quietSamples,
+		"StopAllTask 后调度器仍在产出周期消息：%d 次采样内未静默", quietNeeded+1)
+	settled := last
 	time.Sleep(1500 * time.Millisecond)
-	assert.Equal(t, settled, rec.count(periodicType), "StopAllTask 后调度器仍在产出周期消息")
+	assert.Equal(t, settled, rec.count(periodicType), "静默之后周期消息又重新开始产出")
 
 	// 停止只注销调度项，不伪造删除已入队的一次性消息（记录既有语义）。
 	assert.GreaterOrEqual(t, rec.count(delayType), 1, "已消费的一次性任务计数不应因停止而消失")

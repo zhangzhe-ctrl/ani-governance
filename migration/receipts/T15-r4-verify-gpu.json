@@ -46,6 +46,14 @@
       "handling": "commit 3054542 adds one reviewed exception pinned to the rule, both exact paths and the one exact value, with scripts/gitleaks-buildinfo-exception.sh as its negative controls; no rule disabled, no directory excluded, no baseline accepted, no exit code forced"
     }
   ],
+  "disclosed_after_the_fact": {
+    "what": "a later fresh -count=1 -json run of the same untagged package set over the same commit reported one failing test that this gate log does not contain: TestTaskService_RealAsynqSchedulerLifecycle in app/admin/service/internal/service, 'expected: 3, actual: 4' at task_service_asynq_sqlite_test.go:236, message 'StopAllTask 后调度器仍在产出周期消息'",
+    "how_it_was_characterized": "10 isolated repeats passed and 6 full-package repeats passed, so the rate is low and contention-dependent; the assertion itself was the defect - it sampled the delivery count immediately after StopAllTask and required it to be unchanged 1500ms later, while asynq shutdown is asynchronous and the periodic task fires every 400ms, so a pre-stop in-flight delivery legitimately lands after the sample",
+    "fix": "the check now requires sustained quiescence (5 consecutive 500ms samples without growth inside a 10s bound, then one more 1500ms window), which an unstopped scheduler cannot satisfy; detection power was verified by a mutation in a throwaway worktree that leaves the scheduler live: the test fails at 13.97s with exactly that message. The first mutation attempt is also recorded honestly - it failed in 0.04s only because the broker wrapper was omitted, and the test correctly refused to skip.",
+    "authorship": "this is a test this programme wrote in T11, not inherited upstream behaviour",
+    "effect_on_this_receipt": "the exit-0 log above stays the record of what that run did; the tree changed afterwards, so the complete gate must be re-run over the final candidate rather than treated as covering it"
+  },
+
   "explicitly_not_claimed": [
     "this gate is not runtime or deployment acceptance: the service was not started, no migration was applied and no business database was touched",
     "the 12 upstream_known_defects cases stay classified failures; they are excluded from this gate by build tag and their own tagged runs exit non-zero",
