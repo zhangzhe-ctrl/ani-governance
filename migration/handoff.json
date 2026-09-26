@@ -890,5 +890,14 @@
       "migration/patches/T15/T15-regen-candidate.patch"
     ],
     "do_not": "commit the 8 validators, hand-edit generated files, roll back to accepted_head, or claim descriptor immutability"
+  },
+  "phase_E_T15_pgv_loop_checkpoint": {
+    "status": "PGV range wired and measured; item 4 open because PGV also emits for imported dependencies",
+    "head": "a63a392d532421cae01bacb915b582d757f8846a",
+    "read_first": [
+      "migration/receipts/T15-pgv-loop.json",
+      "migration/pgv-scope.json"
+    ],
+    "next_command": "make pgv into a temporary --output directory, then sync only the 103 validator paths named by migration/pgv-scope.json (temp output plus managed sync is the route the ruling allows; no post-hoc deletion in the working tree)"
   }
 }

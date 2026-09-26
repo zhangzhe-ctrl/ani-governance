@@ -1,0 +1,74 @@
+{
+  "schema_version": "t15-pgv-loop/1",
+  "task": "T15 item two/three (PGV range)",
+  "at": "2026-09-26T11:50+08:00",
+  "attachment": {
+    "zip": "_agent/ani-governance-tx7do-plan/ani-governance-T15-pgv-unblock.zip",
+    "extracted_to": "/home/ubuntu/tx7do-pilot-run/T15/unblock",
+    "no_symlinks": true,
+    "files": [
+      "README.md",
+      "build_pgv_scope.py",
+      "continue-goal.md",
+      "smoke-results.json",
+      "test_build_pgv_scope.py"
+    ]
+  },
+  "scope_script": {
+    "command": "python3 build_pgv_scope.py --repo . --ref 627783cf43d8c7a3c49aeaa46fcd68759a3a5eda --output-prefix api/gen/go --proto-root api/protos --out migration/pgv-scope.json",
+    "exit": 0,
+    "result": "validators=103 unique_protos=103",
+    "agrees_with_independent_extraction": true
+  },
+  "wiring": {
+    "api/buf.validate.gen.yaml": "clean=false, protoc-gen-validate only, options/managed/output mapping copied from buf.gen.yaml, inputs.paths = the 103 scope paths (verified set-equal to migration/pgv-scope.json)",
+    "api/buf.gen.yaml": "PGV removed; repaired after a duplicate opt key broke YAML parsing; now go/go-grpc/go-http/go-errors/redact",
+    "Makefile": "api depends on the new pgv target",
+    "gow api": "walks *.gen.yaml so it uses the same scoped template",
+    "other PGV callers checked": "only buf.aksk.gen.yaml has its own pinned [go run protoc-gen-validate@v1.3.3] entry and it is already file-scoped"
+  },
+  "measured": {
+    "baseline": "throwaway worktree, all api/gen/go validators deleted first",
+    "full_make_api_exit": 0,
+    "validators_regenerated": 111,
+    "accepted_reproduced": 103,
+    "extra_validators": 8,
+    "extra_stems": [
+      "quota",
+      "quota_release",
+      "quota_catalog",
+      "quota_lab",
+      "i_quota",
+      "i_quota_lab",
+      "accelerator",
+      "i_accelerator",
+      "gpu_simulator"
+    ],
+    "extras_in_scope_list": false,
+    "extras_in_template_paths": false,
+    "second_pass_identical_to_first": true,
+    "go_mod_go_sum_touched": 0
+  },
+  "conclusion": "Item 4 is not closed: file-level inputs.paths cannot express the approved range because protoc-gen-validate emits output for message files that arrive as imported dependencies. Reported as required with concrete stems and the mechanism instead of stopping on a missing list.",
+  "next_command": "make pgv into a temporary --output directory, then sync only the 103 validator paths named by migration/pgv-scope.json (temp output plus managed sync is the route the ruling allows; no post-hoc deletion in the working tree)",
+  "then": [
+    "admin_doc three-way descriptor/document decode plus full OpenAPI comparison",
+    "plan_quota old/new Validate and ValidateAll parity",
+    "R2 two-pass full chain on a clean checkout",
+    "R3 required-tests/tools-integration/known-defects",
+    "R4 make verify-gpu",
+    "R5 in-repo historical client",
+    "R6 two isolated quota restore copies",
+    "R7 final zeroing"
+  ],
+  "state": {
+    "branch": "task/tx7do-t15",
+    "head": "a63a392d532421cae01bacb915b582d757f8846a",
+    "accepted_head": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+    "commits_since_ruling": [
+      "aa5d6af scoped PGV template and make wiring",
+      "a63a392 buf.gen.yaml repair plus versioned scope list"
+    ],
+    "status": "INTERRUPTED at a safe checkpoint; no push/merge/deploy, no business database, accepted_head untouched"
+  }
+}
