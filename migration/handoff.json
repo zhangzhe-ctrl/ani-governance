@@ -919,5 +919,11 @@
   "phase_E_T15_after_pgv": {
     "note": "PGV closed. Pending: admin_doc three-way descriptor/document decode plus final OpenAPI compare, plan_quota Validate/ValidateAll sample matrix, then R2 two-pass full chain, then R3..R7. accepted_head unchanged 627783c.",
     "head": "d2b02cb51d81737606def59621de50225e32f055"
+  },
+  "phase_E_T15_validators": {
+    "status": "VALIDATOR_DIFF_VERIFIED (2 validators: one no-rule placeholder proven by 20 identical outcome lines, one comment-only)",
+    "head": "22b5b2f1456b4b147b4c359c8aa110b52b37d4dd",
+    "next": "section three: admin_doc three-way descriptor/document decode (export from the generated packages' FileDescriptor, decode with the locked gnostic extension type, separate processes) then the full make openapi final-artifact comparison",
+    "cleanup": "temporary _valcheck directories removed from both trees; no business file hand-edited"
   }
 }

@@ -46,12 +46,7 @@
   },
   "verdict": "PGV_SCOPE_RESOLVED",
   "t15_status": "IN_PROGRESS",
-  "next": [
-    "admin_doc three-way descriptor/document decode plus final OpenAPI comparison",
-    "plan_quota Validate/ValidateAll old-new parity",
-    "R2 two-pass full chain on the final tree",
-    "R3..R7"
-  ],
+  "next": "section three: admin_doc three-way descriptor/document decode (export from the generated packages' FileDescriptor, decode with the locked gnostic extension type, separate processes) then the full make openapi final-artifact comparison",
   "boundary": "no PGV source or binary was modified, no dependency descriptor removed, no response filtering, no post-hoc deletion, the 103-item list unchanged, types pruning and skip rules not used",
   "wording_correction": {
     "confirmed_by_measurement": [
@@ -89,5 +84,45 @@
     "api/gen/go/identity/service/v1/user.pb.go",
     "app/admin/service/cmd/server/assets/openapi.yaml"
   ],
-  "measured_at": "2026-09-26T13:08+08:00"
+  "measured_at": "2026-09-26T13:08+08:00",
+  "retraction": "撤回『103个validator与基线全部零内容漂移』：实测仍有2个validator与基线不同（plan_quota、tenant）。PGV_SCOPE_RESOLVED只指批准输出范围闭环。历史111/8的逐文件来源标注未完整追溯，原始日志保留。",
+  "validator_verification": {
+    "at": "2026-09-26T13:32+08:00",
+    "set": [
+      {
+        "path": "api/gen/go/identity/service/v1/plan_quota.pb.validate.go",
+        "diff": "@@ -73,6 +73,10 @@ in func (m *PlanQuota) validate(all bool) error: added `if m.QuotaCode != nil {` + comment `// no validation rules for QuotaCode` + `}`",
+        "basis": "the only added statement is an if with an empty body placed after the existing nil-receiver guard; no new error construction, no nested Validate call, no side effect, no changed return path",
+        "behaviour_run": "same harness executed twice in two throwaway trees (committed file vs generated file) as _valcheck/main.go, one process each, never linked together",
+        "samples": 20,
+        "result": "all 20 Validate/ValidateAll outcome lines byte-identical",
+        "sample_coverage": [
+          "nil receiver Validate/ValidateAll",
+          "quota_code absent",
+          "quota_code present empty string",
+          "quota_code normal",
+          "quota_code longer value",
+          "id/plan_id zero",
+          "fully populated valid",
+          "valid createdAt",
+          "malformed createdAt",
+          "quota_code plus created_by/updated_by"
+        ],
+        "harness_artifact_note": "one additional stdout line differed: protojson's parse-error text for the deliberately malformed timestamp contains a U+00A0 in one run and a plain space in the other; it is printed before any validator call, it is not a validator outcome, and its origin in this pair of runs is unexplained and left recorded rather than smoothed over"
+      },
+      {
+        "path": "api/gen/go/identity/service/v1/tenant.pb.validate.go",
+        "diff": "single added comment line `// no validation rules for QuotaCode` inside func (m *QuotaUsage) validate(all bool) error at @@ -2086,6 +2086,8 @@",
+        "basis": "comment-only; already proven by the earlier full-file AST comparison (ast_identical_ignoring_comments=true) over the same generated inputs, so no separate behaviour harness was built",
+        "result": "accepted as DOCUMENT_FORMAT/no-op"
+      }
+    ],
+    "verdict": "VALIDATOR_DIFF_VERIFIED",
+    "not_touched": [
+      "production validation code",
+      "test expectations",
+      "the accepted 103-item list"
+    ],
+    "must_run_preserved": "the normal plan/quota request validation tests stay in the R3 required list; the full message and protocol checks remain in R2"
+  }
 }
