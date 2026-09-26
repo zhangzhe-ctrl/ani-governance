@@ -52,5 +52,42 @@
     "R2 two-pass full chain on the final tree",
     "R3..R7"
   ],
-  "boundary": "no PGV source or binary was modified, no dependency descriptor removed, no response filtering, no post-hoc deletion, the 103-item list unchanged, types pruning and skip rules not used"
+  "boundary": "no PGV source or binary was modified, no dependency descriptor removed, no response filtering, no post-hoc deletion, the 103-item list unchanged, types pruning and skip rules not used",
+  "wording_correction": {
+    "confirmed_by_measurement": [
+      "clean:true default pass erasing the just generated validators (prerequisite ordering)",
+      "buf.validate.gen.yaml missing from the gow active list causing exit 1"
+    ],
+    "not_fully_traced": "the per-file provenance of the historical 111-file/8-extra observation. A post-fix empty extra set does not reconstruct it; the original logs are kept unmodified in /home/ubuntu/tx7do-pilot-run/T15 and /tmp/t15_*.log",
+    "retracted": "no per-file source table is claimed for the pre-fix state, and nothing further will be spent reconstructing it. This does not block the current entries, which now measure 103/0/0 on both make api and gow api"
+  },
+  "plan_quota_diff_now": {
+    "status": "still differs from the accepted baseline after the PGV fix",
+    "baseline_or_head_sha256_prefix": "95124ea92db9",
+    "generated_sha256_prefix": "ed3acd98eac0",
+    "patch": "exactly three added lines: `if m.QuotaCode != nil {` + a comment line + `}`; the added if statement has no statements in its body, no return, no error construction and no nested validation call",
+    "classification": "no-rule placeholder, not a new validation rule; behaviour equivalence by control-flow inspection is recorded, the full Validate/ValidateAll sample matrix is still scheduled before this item is accepted",
+    "must_run_untouched": "existing quota/plan request validation tests remain in the R3 required list; the full message and protocol checks stay in R2"
+  },
+  "admin_doc_diff_now": {
+    "status": "differs; source protos untouched this round (`git diff --stat api/protos` empty)",
+    "changed_lines": 23,
+    "changed_region": "inside the serialized FileDescriptorProto: the gnostic annotations extension payload (B\\xc1\\t\\xbaG\\x83\\b ...), i.e. file-level option bytes",
+    "pending": "the field-level three-way decode with the locked gnostic extension type, the full final OpenAPI comparison after make openapi, and the reflection consumer check"
+  },
+  "generated_change_set_current_clean_copy": [
+    "api/gen/go/access_key/service/v1/access_key_grpc.pb.go",
+    "api/gen/go/admin/service/v1/admin_doc.pb.go",
+    "api/gen/go/admin/service/v1/i_accelerator_grpc.pb.go",
+    "api/gen/go/admin/service/v1/i_access_key_grpc.pb.go",
+    "api/gen/go/admin/service/v1/i_authentication.pb.go",
+    "api/gen/go/admin/service/v1/i_user_profile.pb.go",
+    "api/gen/go/audit/service/v1/api_audit_log_grpc.pb.go",
+    "api/gen/go/authentication/service/v1/authentication.pb.go",
+    "api/gen/go/identity/service/v1/plan_quota.pb.validate.go",
+    "api/gen/go/identity/service/v1/tenant.pb.validate.go",
+    "api/gen/go/identity/service/v1/user.pb.go",
+    "app/admin/service/cmd/server/assets/openapi.yaml"
+  ],
+  "measured_at": "2026-09-26T13:08+08:00"
 }

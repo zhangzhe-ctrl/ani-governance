@@ -915,5 +915,9 @@
     "head_at_fix": "76b6bbcf6a41c24bc3eb1d16086c3d9d433b9e63",
     "root_cause": "make api ran pgv before the clean:true default pass; gow active list lacked the new template",
     "next": "admin_doc decode verification, then plan_quota Validate parity, then R2"
+  },
+  "phase_E_T15_after_pgv": {
+    "note": "PGV closed. Pending: admin_doc three-way descriptor/document decode plus final OpenAPI compare, plan_quota Validate/ValidateAll sample matrix, then R2 two-pass full chain, then R3..R7. accepted_head unchanged 627783c.",
+    "head": "d2b02cb51d81737606def59621de50225e32f055"
   }
 }
