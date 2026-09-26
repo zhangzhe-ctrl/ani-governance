@@ -13,9 +13,10 @@ import (
 )
 
 func TestUnixMilliToStringPtr(t *testing.T) {
-	now := time.Now().UnixMilli()
-	str := UnixMilliToStringPtr(&now)
-	fmt.Println(now)
+	// 固定时刻 1678245350773 = 2023-03-08 03:15:50.773 UTC。
+	milli := int64(1678245350773)
+	str := UnixMilliToStringPtr(&milli)
+	fmt.Println(milli)
 	fmt.Println(*str)
 
 	fmt.Println(*UnixMilliToStringPtr(trans.Int64(1677135885288)))
@@ -32,12 +33,11 @@ func TestUnixMilliToStringPtr(t *testing.T) {
 	fmt.Println(StringTimeToTime(trans.Ptr("2023-03-08 00:00:00")).UnixMilli())
 	fmt.Println(StringDateToTime(trans.Ptr("2023-03-07")).UnixMilli())
 
-	// 测试有效输入
-	now = time.Now().UnixMilli()
-	result := UnixMilliToStringPtr(&now)
+	// 测试有效输入：UnixMilliToStringPtr 按 GetDefaultTimeLocation()（既有默认合同
+	// Asia/Shanghai）格式化，所以预期是东八区墙上时间，而不是运行进程的本地时区。
+	result := UnixMilliToStringPtr(&milli)
 	assert.NotNil(t, result)
-	expected := time.UnixMilli(now).Format(TimeLayout)
-	assert.Equal(t, expected, *result)
+	assert.Equal(t, "2023-03-08 11:15:50", *result)
 
 	// 测试空输入
 	result = UnixMilliToStringPtr(nil)
@@ -98,12 +98,11 @@ func TestStringTimeToTime(t *testing.T) {
 }
 
 func TestTimeToTimeString(t *testing.T) {
-	// 测试非空输入
-	now := time.Now()
-	result := TimeToTimeString(&now)
+	// 固定时刻按 UTC 构造，产出必须是既有默认合同 Asia/Shanghai 的墙上时间（+08:00）。
+	at := time.Date(2024, 2, 3, 4, 5, 6, 0, time.UTC)
+	result := TimeToTimeString(&at)
 	assert.NotNil(t, result)
-	expected := now.Format(TimeLayout)
-	assert.Equal(t, expected, *result)
+	assert.Equal(t, "2024-02-03 12:05:06", *result)
 
 	// 测试空输入
 	result = TimeToTimeString(nil)
@@ -137,12 +136,12 @@ func TestTimeToDateString(t *testing.T) {
 	fmt.Println(*TimeToTimeString(trans.Time(time.Now())))
 	fmt.Println(*TimeToDateString(trans.Time(time.Now())))
 
-	// 测试非空输入
-	now := time.Now()
-	result := TimeToDateString(&now)
+	// 测试非空输入：固定时刻在 UTC 仍是 2024-02-03，东八区合同下已是 2024-02-04，
+	// 因此这条断言只在按 GetDefaultTimeLocation() 产出时才成立。
+	at := time.Date(2024, 2, 3, 20, 30, 0, 0, time.UTC)
+	result := TimeToDateString(&at)
 	assert.NotNil(t, result)
-	expected := now.Format(DateLayout)
-	assert.Equal(t, expected, *result)
+	assert.Equal(t, "2024-02-04", *result)
 
 	// 测试空输入
 	result = TimeToDateString(nil)
