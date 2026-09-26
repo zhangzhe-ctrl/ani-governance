@@ -1,0 +1,100 @@
+{
+  "schema_version": "t15-r3/1",
+  "task": "T15",
+  "phase": "E",
+  "scope_this_round": "R3 and R4 only, plus the R2 evidence needed to keep those claims accurate. No new acceptance exemption, no re-investigation of PGV / admin_doc / validator, no R5-R7, nothing from T00-T14 redone.",
+  "status": "R3_VERIFIED + R4_VERIFIED",
+  "head": "1df0eb7 (commits this round: 8fca316 Ent regenerate, 3054542 gitleaks exception, 1df0eb7 redact proto localization)",
+  "accepted_head_untouched": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+  "frozen_baseline_untouched": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+
+  "r3a_tools_integration": {
+    "conclusion": "PASS after one reviewed one-line fix; first run on this tree failed and the failure is a real cross-task regression",
+    "entry": "make tools-integration",
+    "evidence": [
+      "migration/patches/T15/T15-r3a-tools-integration.json",
+      "/home/ubuntu/tx7do-pilot-run/T15/r3a-tools-integration.{log,exit} (exit 2, the failing first run, kept)",
+      "/home/ubuntu/tx7do-pilot-run/T15/r3a-tools-integration-2.{log,exit} (exit 0)",
+      "/home/ubuntu/tx7do-pilot-run/T15/r3a-named-cases.{log,exit} (exit 0, the five cases named)",
+      "/home/ubuntu/tx7do-pilot-run/T15/r3a-benchmark.{log,exit} (exit 0, measurement only)"
+    ],
+    "cases": { "pass": 5, "fail": 0, "skip": 0 },
+    "benchmark": "BenchmarkCodeGeneration-4  40  28188109 ns/op  10954 B/op  54 allocs/op, reported separately and never substituted for a functional case",
+    "what_the_failure_meant": "T14's pruning (627783c) removed the upstream module that the protoc-generated code still imported through the package copy of redact/v1/redact.proto, and T14 only re-ran go build for this tag, so the certified-green 77898ac entry went red silently. It also shows the T13 green run proved less than it looked: while the upstream module was still required, verify_code_compiles compiled the UPSTREAM runtime package, not the taken-over one."
+  },
+
+  "r3b_named_required_tests": {
+    "conclusion": "PASS",
+    "profile": "migration/required-tests.json (7 tests over 2 packages: pkg/localdeps/go-utils/trans 4, pkg/jwt 3)",
+    "command": "go test -count=1 -p 2 -json ./pkg/localdeps/go-utils/trans ./pkg/jwt",
+    "checker": "python3 tools/migration/require_tests.py --required migration/required-tests.json --log <the -json log>",
+    "evidence": "/home/ubuntu/tx7do-pilot-run/T15/r3b-required-tests.{command,log,exit} plus the checker output",
+    "run_exit": 0,
+    "checker_result": { "pass": true, "required": 7, "bad_tests": [], "failed_packages": [] },
+    "wording": "all seven named tests reached a real pass terminal action; nothing was counted from an earlier run"
+  },
+
+  "r3c_known_defect_classification": {
+    "conclusion": "CLASSIFICATION VERIFIED - the tagged runs are not green by design and their non-zero exit codes are preserved",
+    "checker": "python3 tools/migration/known_defects.py (independent of require_tests.py; neither checker's rules were changed)",
+    "groups": {
+      "captcha": {
+        "list": "migration/required-known-defects.json (9 entries)",
+        "candidate_command": "go test -count=1 -p 1 -tags upstream_known_defects -json ./pkg/localdeps/go-utils/captcha/",
+        "candidate_exit": 1,
+        "reference": "locked github.com/tx7do/go-utils/captcha@v0.0.4 with identically organised patched tests at /tmp/cap-patched, exit 1",
+        "status_counts": { "KNOWN_BASELINE_FAILURE": 9 },
+        "verbatim_bodies_identical_to_locked_source": 9,
+        "blocking": [],
+        "verdict": "PASS",
+        "report": "migration/patches/T15/T15-r3c-captcha-known-defects.json"
+      },
+      "id": {
+        "list": "migration/required-known-defects.json (3 entries, all mode=nondeterministic)",
+        "candidate_command": "go test -count=1 -p 1 -tags upstream_known_defects -json ./pkg/localdeps/go-utils/id/",
+        "candidate_exit": 1,
+        "reference": "identically organised nested pristine module /home/ubuntu/tx7do-pilot-run/T10/B1-id/go-utils/id (github.com/tx7do/go-utils/id), exit 1",
+        "tally": "migration/patches/T10/T10-B1-id-tally.json",
+        "this_run_outcome": {
+          "TestGenerateOrderIdWithTenantIdCollision": "candidate fail, reference fail -> KNOWN_NONDETERMINISTIC_DEFECT",
+          "TestGenerateOrderIdWithIndexThread": "candidate pass, reference fail -> KNOWN_NONDETERMINISTIC_DEFECT",
+          "TestGenerateOrderIdWithRandom": "candidate pass, reference pass -> KNOWN_NONDETERMINISTIC_DEFECT_NOT_OBSERVED_THIS_RUN"
+        },
+        "reported_honestly": "one of the three did not reproduce in this single run. That is recorded as NOT_OBSERVED_THIS_RUN, never as repaired: the recorded 200-run measurements still stand at 184/16 (candidate) and 182/18 (reference). No XPASS was claimed and the checker's blocking list is empty.",
+        "blocking": [],
+        "verdict": "PASS",
+        "report": "migration/patches/T15/T15-r3c-id-known-defects.json"
+      }
+    },
+    "raw_runs": "/home/ubuntu/tx7do-pilot-run/T15/r3c/{cand-captcha,ref-captcha,cand-id,ref-id}.{command,log,exit}",
+    "note": "the first id reference attempt failed as 'main module does not contain package ./id' because go-utils/id is a nested module; that setup error is recorded here and the run was repeated from inside the nested module. No test verdict was taken from the failed setup."
+  },
+
+  "r3_to_r4_coverage": [
+    { "item": "R3a protoc-driven cases", "covered_by_make_verify_gpu": false, "reason": "the Makefile states the entry is a developer-tool gate and is never part of the business test gate; verify-gpu builds and vets this package without the tools_integration tag" },
+    { "item": "R3b the 7 named tests", "covered_by_make_verify_gpu": true, "reason": "verify-gpu-regressions runs go test ./pkg/..., which includes both packages; R3b is the same work verified against an explicit named profile rather than a package-level ok" },
+    { "item": "R3c the 12 isolated defects", "covered_by_make_verify_gpu": false, "reason": "they sit behind the upstream_known_defects build tag precisely so the ordinary gate neither runs nor hides them; the tagged run is expected to exit non-zero" }
+  ],
+
+  "r2_evidence_correction": {
+    "why": "R2's rebuild claim was produced through gow ent admin, and this round established that this repository's committed Ent artifacts come from the gate's five-feature command. The claim had to be restated so it does not over-cover the entry that caused the drift.",
+    "authority_test": {
+      "accepted_baseline": "627783c:app/admin/service/internal/data/ent/migrate/migrate.go sha256 ecad9fce48563ec2f7d6bbaab5e564825163c823ff38058b393845ba5ccf1f66",
+      "gate_command_output": "same sha256 - byte identical",
+      "gow_ent_admin_output": "baseline plus a 32-line Diff/NamedDiff block, which is what make verify-gpu rejected",
+      "extra_flag_is_upstream": "/home/ubuntu/go/pkg/mod/github.com/tx7do/go-wind-toolkit/gowind@v1.0.3/internal/ent/cmd.go:133 passes sql/versioned-migration, so the divergence was inherited and the taken-over copy is faithful",
+      "decided": "the pinned five-feature command in scripts/verify-quota-schema.sh is authoritative for this tree; neither the gate nor the tool was edited"
+    },
+    "idempotency_now_proven_by": "two independent regenerations through that command agree and leave the tree unchanged: /home/ubuntu/tx7do-pilot-run/T15/r3r4/ent-canonical.{log,exit} (exit 0, empty diff) and the verify-quota-ent stage inside /home/ubuntu/tx7do-pilot-run/T15/r4b-verify-gpu.log (also exit 0 for that stage), while scripts/check-quota-ent.py reports 'quota Ent boundary: pass'",
+    "previous_r2_claim_kept": "the full-chain two-pass rebuild in a clean worktree of fc7804b (366 hashes, 0 modified, 0 untracked) is still true for the tree it tested; it is now read as 'the gow route reproduces fc7804b', not as 'the gate's Ent entry is reproduced'"
+  },
+
+  "r4": "see phase_E_T15_r3_r4 in migration/handoff.json and migration/receipts/T15-r4-verify-gpu.json; recorded separately from R3",
+  "not_claimed": [
+    "R5 in-repo historical client contract - not started this round",
+    "R6 the two isolated quota restore copies - not started this round",
+    "R7 final zeroing - not started this round",
+    "any pass for the 12 tagged known defects: they are classified failures, never passes",
+    "any runtime or deployment acceptance"
+  ]
+}
