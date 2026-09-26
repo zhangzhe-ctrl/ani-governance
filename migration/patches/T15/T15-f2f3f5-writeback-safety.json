@@ -1,0 +1,94 @@
+{
+  "schema_version": "t15-f2f3f5-writeback-safety/1",
+  "task": "T15",
+  "round": "independent-review F1-F5 remediation, review baseline b48dc44d519c1d2813dabd33e5a85a50e7f8da9c",
+  "items": [
+    "F2: start snapshot, generated-class-only write set, conflict preservation",
+    "F3: pre-checked targets, limited write set with backups and a bounded undo",
+    "F5: mandatory and complete PGV scope enforcement at the strict generation entry"
+  ],
+  "code_commits": {
+    "write_back": "f96e7f2",
+    "docs": "7b6ea11"
+  },
+  "design": {
+    "three_trees": {
+      "start_snapshot": "snapshotRoots() records every managed root's content when generation begins; it is the only baseline the comparison uses",
+      "staged_output": "the throwaway copy the templates write into, plus the repository's own OpenAPI post-processing",
+      "pre_write_working_tree": "re-read per target immediately before writing, solely to decide whether the user moved anything while generation ran"
+    },
+    "write_set": {
+      "rule": "only files in the generated classes the chain can emit may be written: *.pb.go, *.pb.validate.go, *.pb.redact.go and the single app/admin/service/cmd/server/assets/openapi.yaml; anything else under an output root is hand-written and is never a target",
+      "why_not_a_whole_directory_rule": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact holds 28 hand-written files (main.go, fields.go, redact/v1/interface.go, tests, .proto, .md, LICENSE) next to the one generated redact/v1/redact.pb.go, and the assets directory holds the hand-written go:embed assets.go next to openapi.yaml; an output-root rule is what overwrote the reviewer's interface.go",
+      "classification_test": "TestGeneratedArtifactClasses plus TestEveryCommittedArtifactUnderAManagedRootIsClassified, which counts the hand-written files that must survive the sweep per root (api/gen/go 0, go-crud 0, kratos-bootstrap 0, assets 1, redact package 28)"
+    },
+    "conflicts": {
+      "generated_artifact_moved": "refusal: the error names the file, nothing in the batch is written, and the user's content stays on disk",
+      "hand_written_file_moved": "never in the write set, so it cannot be clobbered; the run reports \"preserved hand-written edit\" and continues",
+      "non_generated_file_created_or_changed_by_generation": "refused as an unmanaged write target, because a template writing outside its classes is a defect, not something to propagate"
+    },
+    "full_chain_sweep": "sweepGenerated() deletes every generated-class file from the staged copy before a full-chain run, so previous output cannot be carried into the comparison and passed off as a rebuild; hand-written files stay so they are not mistaken for losses. A partial run keeps its seeded copy and is judged only on what it actually writes, which is what keeps it from being required to produce all 103 validators",
+    "scope": {
+      "mandatory": "readPGVScope fails on a missing file, unreadable file, corrupt JSON, no entries key, empty entries, a duplicate entry, an empty or escaping or absolute validator path, and a validator_count that disagrees with the entries; approvedValidators() returning \"nil means no rule\" is gone",
+      "complete_output_check": "the scope is applied to the whole validator output of the run, not only to additions: a validator in the write set must be approved whether it is new or already in the tree and being rewritten, an approved artifact the chain did not produce fails a full run, and an approved artifact missing from the tree fails too",
+      "no_count_inflation": "the 103-entry list, the parked model template, the plugin pins and the five-feature Ent contract are unchanged; nothing was deleted from the tree to make a comparison pass and no plugin response is filtered"
+    },
+    "limits_stated": "the rollback is a bounded undo of one write-back: it does not promise whole-directory atomicity under a power loss or a kill between two renames, and no general transaction layer was built"
+  },
+  "rollback": {
+    "before_any_write": "every destination is inspected for path and type conflicts, and needed parent directories are created; a directory or symlink on a destination path fails the run before the first byte moves",
+    "during": "each file being replaced is copied to a temporary backup directory outside the tree, and after each rename the destination digest is compared with the staged digest",
+    "on_failure": "files this run replaced are restored from the backups and files this run added are removed, newest first, and directories this run created are removed while still empty",
+    "user_content_after_us": "a file whose current content is not what this run wrote is left completely alone and named in the report, so the undo cannot overwrite a newer user edit",
+    "failed_rollback": "reported as its own condition: the message says the rollback is incomplete and the tree is not restored, names each file it could not undo, and preserves the backup directory instead of deleting it",
+    "not_used": "no git checkout, git reset or whole-tree restore anywhere in the tool; the injected faults live only in a throwaway worktree"
+  },
+  "unit_regressions": {
+    "file": "tools/localdeps/gow/internal/buf/writeback_test.go",
+    "cases": [
+      "TestWriteBackKeepsAHandWrittenFileEditedDuringGeneration",
+      "TestWriteBackRefusesAGeneratedFileEditedDuringGeneration",
+      "TestWriteBackRefusesADestinationCollisionBeforeWritingAnything",
+      "TestWriteBackUndoesAPartialWrite",
+      "TestRollbackWritesKeepsUserContentThatArrivedAfterTheWrite",
+      "TestWriteBackLeavesUnchangedOutputAlone",
+      "TestWriteBackScopeRules (new out-of-scope, existing out-of-scope rewritten, legitimate set, full chain missing an approved artifact versus the same result as a partial slice, missing scope file)",
+      "TestReadPGVScopeRejectsADamagedInventory (9 damaged shapes plus the real 103-entry inventory)",
+      "TestGeneratedArtifactClasses",
+      "TestEveryCommittedArtifactUnderAManagedRootIsClassified"
+    ],
+    "existing_test_kept": "TestSyncBackRefusesLossAndUnapprovedValidators was carried over to the new signature rather than deleted; the loss, unapproved-validator and approved-write cases all still run",
+    "result": "go test -mod=readonly -count=1 ./internal/buf/ exit 0; go test -race over ./tools/localdeps/gow/... exit 0 (5 packages, no DATA RACE)"
+  },
+  "probe_to_repo_assertion_map": {
+    "note": "the reviewer's TestReproduce cases pass when the bad behaviour happens, so they were converted into assertions of correct behaviour against the real implementation rather than copied in; the probe tree, its stubs and its go.mod stayed outside the repository",
+    "TestReproduceWorkingEditOverwrittenAfterStageSnapshot": "TestWriteBackKeepsAHandWrittenFileEditedDuringGeneration plus end-to-end case D1",
+    "TestReproducePartialWriteOnDestinationCollision": "TestWriteBackRefusesADestinationCollisionBeforeWritingAnything and TestWriteBackUndoesAPartialWrite, plus end-to-end case E",
+    "TestReproduceExistingOutOfScopeValidatorAccepted": "TestWriteBackScopeRules/existing out-of-scope validator and end-to-end case F5-5",
+    "TestReproduceMissingScopeDisablesValidation": "TestReadPGVScopeRejectsADamagedInventory, TestWriteBackScopeRules/a missing scope file, and end-to-end cases F5-1 to F5-3",
+    "TestControlNewUnapprovedValidatorRejectedBeforeWrite": "TestWriteBackScopeRules/new out-of-scope validator and end-to-end case F5-4",
+    "TestReproduceExistingOwnedPluginBypassesRebuild": "handled under F4 (see T15-f4-tool-identity.json)",
+    "TestReproducePATHPluginWrongVersionAccepted": "handled under F4 (see T15-f4-tool-identity.json)"
+  },
+  "end_to_end_matrix": {
+    "environment": "detached worktree at the candidate SHA, GOROOT=/home/ubuntu/sdk/go1.26.7, GOTOOLCHAIN=local, GOWORK=off, GOFLAGS=-mod=readonly, task-pinned buf v1.60.0 and plugins on PATH; the injection point is the repository's own OpenAPI post-processing script, which runs inside the staged copy after every template and before the write-back, so the injected edit lands in the same window a user edit would",
+    "accepted_baseline_digest": "96184d0165d5bfd1 over 396 managed files in 5 roots",
+    "A_make_api_from_clean_worktree": "exit 0 in 12.0s, digest 96184d0165d5bfd1, 396 files, 0 tracked modifications",
+    "B_direct_gow_api": "exit 0, \"0 to write\", same digest and count",
+    "C_repeat_generation": "exit 0, same digest, still 0 tracked modifications",
+    "C2_tools_bin_completely_absent": "exit 0; preflight rebuilt protoc-gen-go-redact from the current sources and verified its build info, then reproduced the accepted artifacts with 0 files to write",
+    "C3_uncommitted_proto_edit_present_at_start": "exit 0 with 2 files written back (api/gen/go/identity/service/v1/user.pb.go and the OpenAPI document), so a working-tree input added before the run is honoured rather than read from HEAD",
+    "D1_hand_written_file_edited_mid_run": "exit 0, the user's interface.go content is what remains on disk, and no other file changed",
+    "D2_generated_file_edited_mid_run": "exit 1 naming \"modified after the snapshot was taken\"; the user's content is still there, and openapi.yaml - which the same run would also have updated - was not written, so the refusal really is batch-wide",
+    "E_second_write_blocked_after_the_first_landed": "exit 1; the report says \"this run restored 1 replaced file(s) [api/gen/go/audit/service/v1/operation_audit_log.pb.go]\", and afterwards the only tracked changes are the two injected proto comments and the injection script itself - no generated file was left half-updated",
+    "F5_1_missing_scope": "exit 1 before generation, digest unchanged",
+    "F5_2_corrupt_scope": "exit 1, digest unchanged",
+    "F5_3_empty_scope": "exit 1, digest unchanged",
+    "F5_4_new_out_of_scope_validator": "a fresh proto plus the template path entry that generates it: refused naming the validator, digest unchanged, nothing written",
+    "F5_5_existing_out_of_scope_validator": "refused on both counts (outside the scope, and not produced by the chain) and the planted file is byte-identical afterwards",
+    "F5_6_approved_artifact_not_produced": "refused naming access_key.pb.validate.go as approved-but-not-produced, digest unchanged",
+    "F5_7_legitimate_set": "exit 0, 0 to write, 0 tracked modifications",
+    "logs": "/home/ubuntu/tx7do-pilot-run/T15/review-fixes/matrix/*.log"
+  },
+  "unchanged_scope": "business implementations, identity and authorization, tenant isolation, database, Proto contracts, the 9 captcha and 3 ID rulings, the scanner exceptions and every existing exclusion list are untouched; go.mod and go.sum do not change, and no migration or Ent history was regenerated by this round"
+}

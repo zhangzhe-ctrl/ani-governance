@@ -1,0 +1,51 @@
+{
+  "schema_version": "t15-f4-tool-identity/1",
+  "task": "T15",
+  "round": "independent-review F1-F5 remediation, review baseline b48dc44d519c1d2813dabd33e5a85a50e7f8da9c",
+  "items": [
+    "F4: plugin and tool identity verified from the binary and the current sources, not from presence"
+  ],
+  "code_commits": {
+    "identity": "c365479",
+    "docs": "7b6ea11"
+  },
+  "problem": {
+    "redact_plugin": "resolvePlugin accepted tools/bin/protoc-gen-go-redact after a bare os.Stat, so a stale binary kept generating for a package whose sources had changed; the reviewer's probe showed the build script was never invoked",
+    "path_plugins": "a PATH plugin was only asked for its --version banner and the result was printed, never compared with anything, so a shell script printing \"protoc-gen-go v0.0.0\" passed preflight",
+    "buf": "ensureBufInstalled checked that buf answers, and the banner was logged without a version comparison in the tool"
+  },
+  "rules_now": {
+    "identity_source": "go version -m on the resolved binary; the recorded main package path and the mod version are compared with migration/patches/T15/T15-tool-lock.json, which already carried those coordinates from the same measurement method",
+    "why_not_the_version_flag": "a banner is text the program chooses to print, and some plugins do not support the flag at all; a binary whose build info cannot be read fails the run instead of defaulting to success, and the refusal says so",
+    "real_executable": "the resolved file must be a regular file with an executable bit, so a non-executable or a directory cannot be a tool",
+    "redact_rebuild": "scripts/build-redact-plugin.sh runs for every generation from a direct gow api as well as from make api, so both entries share one preparation; the Go build cache carries the repeat cost",
+    "once_per_run": "verification is memoized per tool and the owned plugin is built once per generation, not once per template; a failed attempt is remembered too so eleven templates cannot trigger eleven rebuilds",
+    "provenance_of_the_built_binary": "the built plugin must report this repository's module and the package path go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact, and its dependency list must contain no github.com/tx7do/ module",
+    "not_touched": "each template keeps its own already approved plugin versions (the slices still pin protoc-gen-go-grpc v1.6.0 and protoc-gen-go-http v2.0.0-20251205160234 while the PATH tools stay at v1.6.2 and v2.0.0-20260404020628): nothing was unified, nothing is installed at @latest, the user's GOBIN tools were not rewritten, and no tx7do module came back"
+  },
+  "unit_regressions": {
+    "file": "tools/localdeps/gow/internal/buf/plugin_identity_test.go",
+    "cases": [
+      "TestPinnedToolIdentityAcceptsTheBinaryItClaimsToBe (accept at the recorded coordinates, reject a moved version, reject a moved package, reject an unpinned name, reject a non-executable file, both through PATH and through the direct path a file plugin takes)",
+      "TestImpostorWithAWrongVersionBannerIsRejected (the reviewer's v0.0.0 script: refused, and the banner text never reaches the decision)",
+      "TestOwnedPluginIsRebuiltFromCurrentSourcesEvenWhenPresent (the build script really runs against a pre-existing binary; a failing build surfaces; four templates naming one plugin cause exactly one build)",
+      "TestToolLockCoversEveryNamedPlugin (every PATH plugin named by the eleven active templates has a lock entry, and buf itself is pinned)",
+      "TestToolLockRejectsADamagedFile (7 damaged lock shapes plus a missing file)",
+      "TestLoadToolLockReadsTheRealFile (the committed lock loads completely, pins nothing to a floating version and names no tx7do module)"
+    ],
+    "fixture_note": "TestPreflightFailsWithoutTouchingOutputs now writes a go.mod and a tool lock into its temporary root, because preflight legitimately requires both; the assertions are unchanged and it still proves nothing is created or touched when preflight fails"
+  },
+  "end_to_end": {
+    "gow_api_preflight_log": "buf github.com/bufbuild/buf/cmd/buf@v1.60.0; protoc-gen-go google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11; protoc-gen-go-grpc ...@v1.6.2; protoc-gen-go-http ...@v2.0.0-20260404020628-f149714c1d54; protoc-gen-go-errors ...@v2.0.0-20260404020628-f149714c1d54; protoc-gen-validate github.com/envoyproxy/protoc-gen-validate@v1.3.3; each printed once per run",
+    "redact_build_once": "\"preflight: building protoc-gen-go-redact from the current pkg/localdeps sources\" appears exactly once for eleven templates, followed by its module and sha256",
+    "go_run_pins": "the pinned `go run module@version` plugins are still resolved against the local module cache only, with no fetch and no install",
+    "result": "the accepted artifacts are reproduced unchanged: digest 96184d0165d5bfd1, 396 files, 0 to write"
+  },
+  "end_to_end_negative_case": {
+    "setup": "a temporary directory holding an executable protoc-gen-go shell script that prints \"protoc-gen-go v0.0.0\" was placed first on PATH for a real tools/bin/gow api run; the user's GOBIN was not written to and the run happened in the throwaway worktree",
+    "result": "exit 1 with `tool \"protoc-gen-go\" at ... cannot be identified: ... (`--version` output is not accepted as identity)` and \"preflight failed with N problem(s); no generated file was touched\"",
+    "tree_after": "managed digest 96184d0165d5bfd1 over 396 files, unchanged; /home/ubuntu/go/bin/protoc-gen-go still hashes to 8c06db74e8c09fdc, the value recorded in the tool lock",
+    "log": "/home/ubuntu/tx7do-pilot-run/T15/review-fixes/matrix/F4-impostor-on-path.log"
+  },
+  "not_verified": "nothing in F4 is left unverified; the PATH shadowing was done through PATH order rather than by touching the user's tool directory, which is the same lookup path a stray global tool would take"
+}
