@@ -1,7 +1,7 @@
 {
   "schema_version": "t09-integration-deferred/1",
   "note": "The six cases were DEFERRED from T09 because protoc was absent. On 2026-09-26 the owner authorized installing a task-local protoc 29.3, and they were run for real in a temporary working copy of the taken-over plugin: five pass, the benchmark runs. They remain outside the repository build, so they are not part of any ./... gate; that placement question belongs to the parked T13 tooling ruling.",
-  "status": "EXECUTED_OUTSIDE_THE_BUILD",
+  "status": "EXECUTED_IN_REPOSITORY_BUILD",
   "source_module": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2",
   "staging_manifest": "migration/patches/T09/T09-integration-staging.json",
   "due": {
@@ -132,5 +132,22 @@
       "skip": 0
     },
     "benchmark": "BenchmarkCodeGeneration 3x 26144064 ns/op exit 0"
-  }
+  },
+  "status_history": [
+    {
+      "status": "DEFERRED",
+      "reason": "protoc absent at T09"
+    },
+    {
+      "status": "EXECUTED_OUTSIDE_THE_BUILD",
+      "executed_at": "2026-09-26T06:33:31+08:00",
+      "evidence": "migration/patches/T13/T13-integration-executed.json"
+    },
+    {
+      "status": "EXECUTED_IN_REPOSITORY_BUILD",
+      "executed_at": "2026-09-26T15:55:00+08:00",
+      "evidence": "migration/patches/T15/T15-r3a-tools-integration.json",
+      "note": "the six cases now run through the official make tools-integration entry over commit 8fca316 plus the reviewed one-line redact.proto go_package localization; five cases pass with no skip and the benchmark is recorded separately. The T13 outside-the-build record above is kept unchanged."
+    }
+  ]
 }

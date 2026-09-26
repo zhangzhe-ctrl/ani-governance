@@ -1,0 +1,51 @@
+{
+  "schema_version": "t15-r3a-tools-integration/1",
+  "task": "T15 / R3a",
+  "entry": "make tools-integration (added by 77898ac as the official repeatable protoc entry; it fails rather than skips when protoc is absent)",
+  "toolchain": {
+    "protoc": "libprotoc 29.3 at /home/ubuntu/tx7do-pilot-run/T13/protoc-root/bin/protoc (task-local, zip sha256 3e866620c5be27664f3d2fa2d656b5f3e09b5152b42f1bedbf427b333e90021a, binary sha256 5ae94ad986e83f0b52bd8139e036cbf94ddbba3ad348be8e4baf44447d7e19a4); nothing installed system-wide",
+    "protoc-gen-go": "v1.36.11 and protoc-gen-go-grpc 1.6.2 from /home/ubuntu/go/bin, as locked by api/buf.gen.yaml",
+    "go": "go1.26.7 with GOWORK=off and GOFLAGS=-mod=readonly",
+    "plugin_under_test": "built from this module by scripts/build-redact-plugin.sh into tools/bin/protoc-gen-go-redact"
+  },
+  "first_run_on_8fca316": {
+    "command": "make tools-integration",
+    "exit": 2,
+    "evidence": "/home/ubuntu/tx7do-pilot-run/T15/r3a-tools-integration.{command,log,exit} kept as the failing record",
+    "failure": "TestIntegrationProtoCompilation/verify_code_compiles: testdata/integration/test.pb.go:10:2: cannot find module providing package github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1: import lookup disabled by -mod=readonly"
+  },
+  "root_cause": {
+    "mechanism": "the case runs protoc with -I . inside the taken-over package and no M-flag override, so protoc-gen-go derives the import of redact/v1/redact.proto from that file's own go_package option. The package copy still carried the upstream module path, and 627783c (T14) removed every github.com/tx7do require, so nothing can satisfy that import inside this module.",
+    "regression_owner": "this takeover programme, not the environment: 77898ac certified make tools-integration at exit 0 while the upstream module was still required, and T14 pruned it without re-running the protoc-driven entry (migration/receipts/T14.json only did go build -tags tools_integration).",
+    "correction_of_an_earlier_claim": "migration/receipts/T14.json recorded 'test fixtures and README/sample-proto text mention upstream paths as data only'. For these fixtures that is false: the go_package string is consumed by protoc and decides whether the generated code compiles.",
+    "correction_of_the_T13_pass": "with the upstream module still in the graph, verify_code_compiles resolved github.com/tx7do/.../redact/v1 to the module cache, so the certified green run compiled the generated code against the UPSTREAM runtime package and did not exercise the taken-over one at all. After the change below it compiles against go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1, which is the package under takeover."
+  },
+  "change_applied": {
+    "file": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/redact.proto",
+    "lines_changed": 1,
+    "before": "option go_package = \"github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact\";",
+    "after": "option go_package = \"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact\";",
+    "rationale": "the takeover mapping github.com/tx7do/<suffix> -> go-wind-admin/pkg/localdeps/<suffix> applied where the program's own mapping had not reached; the value is identical to the managed override that api/buf.redact.gen.yaml already declares for the shipped descriptor (go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact)",
+    "blast_radius": "this file is not an input to any generation template: the buf template inputs are protos, localdeps/bootstrap, localdeps/pagination and localdeps/redact, all under api/. The shipped redact/v1/redact.pb.go is regenerated only from api/localdeps/redact, so no committed artifact changes. No Go source was touched, so the takeover's byte-identity claims are untouched.",
+    "not_locked_elsewhere": "migration/patches/T09/T09-placement.json locks the api/localdeps/redact copy as byte-identical to the archive; the package copy appears in no manifest or fixture hash list (scripts/gpu-audit-fixture-sha256.txt does not mention it), and no path regex in .gitleaks.toml or pgv-scope depends on it.",
+    "upstream_identical_files_left_alone": ["pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/testdata/integration/test.proto", "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/examples/tests/message.proto", "api/localdeps/redact/redact/v1/redact.proto"]
+  },
+  "after_fix": {
+    "make_tools_integration": { "exit": 0, "evidence": "/home/ubuntu/tx7do-pilot-run/T15/r3a-tools-integration-2.{command,log,exit}", "package_result": "ok go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact 3.520s" },
+    "named_cases": {
+      "evidence": "/home/ubuntu/tx7do-pilot-run/T15/r3a-named-cases.{command,log,exit}",
+      "exit": 0,
+      "top_level_pass": ["TestExternalTemplateLoading", "TestTemplateParameterValidation", "TestIntegrationProtoCompilation", "TestGeneratedCodeQuality", "TestOptionalFieldsInGeneratedCode"],
+      "fail": 0,
+      "skip": 0
+    },
+    "benchmark_recorded_separately": {
+      "evidence": "/home/ubuntu/tx7do-pilot-run/T15/r3a-benchmark.{command,log,exit}",
+      "exit": 0,
+      "result": "BenchmarkCodeGeneration-4  40  28188109 ns/op  10954 B/op  54 allocs/op",
+      "note": "the benchmark is reported as a measurement only; it is not evidence of functional correctness and is not merged into the case counts"
+    },
+    "tree_after": "git status shows only the intentional redact.proto edit; the cases' generated test.pb.go / test_grpc.pb.go / protoc-gen-redact are ignored by .gitignore and the generated test.pb.redact.go is removed by the case itself"
+  },
+  "migration_status_update": "migration/required-integration-deferred.json status EXECUTED_OUTSIDE_THE_BUILD is superseded for these cases: they now run inside the repository build through the official entry. T13's earlier working-copy execution record is kept unchanged."
+}

@@ -5,7 +5,7 @@ package redact;
 
 import "google/protobuf/descriptor.proto";
 
-option go_package = "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact";
+option go_package = "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact";
 
 // Redaction rules applied at the file level
 extend google.protobuf.FileOptions {
