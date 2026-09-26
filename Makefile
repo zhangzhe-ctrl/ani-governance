@@ -155,7 +155,7 @@ openapi:
 	buf generate --template buf.admin.openapi.gen.yaml
 	python3 scripts/finalize-aksk-openapi.py
 
-# build all service applications. `make api` 已在链尾执行 make openapi（含既有后处理），
+# build all service applications. `make api` 已在暂存链内完成 OpenAPI 后处理（同一 finalize 脚本），
 # 因此这里不再重复列 openapi，避免同一生成链在一次构建里跑两遍。
 build: api
 	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\

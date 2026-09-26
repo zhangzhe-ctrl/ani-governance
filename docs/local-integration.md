@@ -86,7 +86,7 @@ go1.26.7 install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20
 > 互相覆盖的入口（主模板用 PATH 插件与 managed `go_package`，切片模板钉旧插件版本并带显式
 > `go_package`）。T15 已把它收敛为单一已验收链：`make api` 先构建本仓 `tools/bin/gow` 与
 > `tools/bin/protoc-gen-go-redact`，再委托 `gow api`（校验插件/输入 → 隔离暂存副本生成 →
-> 按受管清单写回），链尾执行 `make openapi` 的既有后处理；插件与版本记录在
+> 按受管清单写回），并在暂存副本内先执行 `scripts/finalize-aksk-openapi.py` 这一既有后处理（与 `make openapi` 同一脚本、同一规则，因此无需再补命令）；插件与版本记录在
 > `migration/patches/T15/T15-tool-lock.json`，PGV 范围记录在 `migration/pgv-scope.json`。
 > 实测在干净检出上执行两遍，受管产物与已提交内容逐字节一致、`go.mod`/`go.sum` 不变。
 > 因此 `post-generate-clean.sh` 已退役（现拒绝执行且不改任何文件）：若再次生成出现漂移，
