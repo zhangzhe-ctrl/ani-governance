@@ -117,19 +117,25 @@ func generateEntAllService(ctx context.Context, projectRootPath string) error {
 	return lastErr
 }
 
+// entGenerateFeatures 是本仓 Ent 生成合同的 feature 列表，必须与 Ent 门禁
+// scripts/verify-quota-schema.sh 里的 --feature 集合逐项一致（见 feature_gate_test.go）。
+// 上游 gowind@v1.0.3 还带 sql/versioned-migration，那是给它自己的 gow migrate --versioned
+// 用的；本仓只接管了在用的 api/ent/run/version 命令，没有 migrate，门禁与已验收生成物
+// 也都不含该 feature 产生的 migrate.go Diff/NamedDiff 32 行。保留它会与
+// make verify-gpu 的 verify-quota-ent 阶段冲突，故按已裁决的生成合同去除。
+var entGenerateFeatures = []string{
+	"--feature", "privacy",
+	"--feature", "entql",
+	"--feature", "sql/modifier",
+	"--feature", "sql/upsert",
+	"--feature", "sql/lock",
+}
+
 // generateEnt 在指定服务目录下执行 ent code generation，要求该目录下存在 internal/data/ent/schema 目录。
 func generateEnt(ctx context.Context, serviceRootPath string) error {
 	target := filepath.Join(serviceRootPath, "internal", "data", "ent", "schema")
 	e := NewEntCmd(target)
-	return e.RunGenerate(ctx,
-		"--feature", "privacy",
-		"--feature", "entql",
-		"--feature", "sql/modifier",
-		"--feature", "sql/upsert",
-		"--feature", "sql/lock",
-		// 生成 migrate 包的版本化迁移 API(NamedDiff),供 gow migrate --versioned 使用。
-		"--feature", "sql/versioned-migration",
-	)
+	return e.RunGenerate(ctx, entGenerateFeatures...)
 }
 
 // GenerateService 为指定服务执行 ent code generation，供其他命令（如 migrate）
