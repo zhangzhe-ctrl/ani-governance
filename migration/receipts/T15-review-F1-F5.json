@@ -88,8 +88,23 @@
     "surviving_module_versions": "no non-tx7do module version moved and none was added; the upgrade of dependencies is out of scope for this round and none was performed",
     "scanner_exceptions": ".gitleaks.toml untouched; the exact T14 buildinfo exception and the 9 captcha plus 3 ID rulings are unchanged and were not re-adjudicated"
   },
+  "ci": {
+    "run": "36258444247",
+    "url": "https://github.com/zhangzhe-ctrl/ani-governance/actions/runs/36258444247",
+    "head_sha": "dafbf4768a1e05d18a67c447696962945bcea54a",
+    "workflow": "GPU quota data gate, triggered by push; permissions are contents: read and the job only runs the gate and uploads an artifact, so pushing does not deploy, release or write any environment",
+    "status": "completed",
+    "conclusion": "success",
+    "verify_exit_in_artifact": 0,
+    "wall": "2026-09-26T17:16:33Z to 2026-09-26T17:29:15Z (12m42s)",
+    "runner_environment": "go1.26.7, PostgreSQL 16.10 service container, UTC local time - which is why the F1 package that passed locally on the Asia/Shanghai host had failed on the previous run",
+    "log_summary": "74 ok lines, 0 FAIL lines, quota Ent boundary pass, all TestSimPG_ cases pass, gitleaks no leaks, govulncheck 0 affected",
+    "the_specific_fix_proven_in_ci": "go-wind-admin/pkg/localdeps/go-utils/timeutil passes on the UTC runner; run 36249402114 on b48dc44 failed there with the eight-hour gap this round corrected",
+    "artifact": "/home/ubuntu/tx7do-pilot-run/T15/review-fixes/ci-run/quota-ent-dafbf4768a1e05d18a67c447696962945bcea54a-1/",
+    "artifact_verify_log_sha256": "ade622c84bd002d299c73671356764e640896b3a5634040dbaf4bcd6c3f803d6"
+  },
   "not_verified_or_open": [
-    "CI on the new commits: not run yet at the time of writing; it is reported separately after the push, from the real workflow run, and never substituted by the local gate",
+    "the receipts-only commit that records this CI result is not itself gate-tested again; the code delta between it and the tested SHA is this file alone",
     "R6: still BLOCKED_INPUT, waiting for the two historical dumps at /home/ubuntu/tx7do-pilot-run/T15/r6-inputs/",
     "runtime, deployment and promotion acceptance: not performed in this round",
     "TestTimeDifferenceDays under a DST-observing zone remains a recorded inherited production-semantics defect; it is not in the gate's UTC runner path and was deliberately not softened",
