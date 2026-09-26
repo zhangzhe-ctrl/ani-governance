@@ -1,0 +1,433 @@
+{
+  "schema_version": "t15-pgv-scope/1",
+  "rev": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+  "buf_module_root": "api",
+  "output_domain": "api/gen/go",
+  "accepted_validators": 103,
+  "mapped": 103,
+  "mapped_validator_rows": 103,
+  "source_resolution_via": {
+    "own-header+input-directory": 103
+  },
+  "unresolved": [],
+  "duplicate_source_collisions": {},
+  "proto_paths": [
+    "api/protos/access_key/service/v1/access_key.proto",
+    "api/protos/admin/service/v1/admin_doc.proto",
+    "api/protos/admin/service/v1/admin_error.proto",
+    "api/protos/admin/service/v1/i_access_key.proto",
+    "api/protos/admin/service/v1/i_admin_portal.proto",
+    "api/protos/admin/service/v1/i_api.proto",
+    "api/protos/admin/service/v1/i_api_audit_log.proto",
+    "api/protos/admin/service/v1/i_authentication.proto",
+    "api/protos/admin/service/v1/i_config.proto",
+    "api/protos/admin/service/v1/i_dashboard.proto",
+    "api/protos/admin/service/v1/i_data_access_audit_log.proto",
+    "api/protos/admin/service/v1/i_dict_entry.proto",
+    "api/protos/admin/service/v1/i_dict_type.proto",
+    "api/protos/admin/service/v1/i_internal_message.proto",
+    "api/protos/admin/service/v1/i_internal_message_category.proto",
+    "api/protos/admin/service/v1/i_internal_message_recipient.proto",
+    "api/protos/admin/service/v1/i_language.proto",
+    "api/protos/admin/service/v1/i_login_audit_log.proto",
+    "api/protos/admin/service/v1/i_login_policy.proto",
+    "api/protos/admin/service/v1/i_menu.proto",
+    "api/protos/admin/service/v1/i_mfa.proto",
+    "api/protos/admin/service/v1/i_network.proto",
+    "api/protos/admin/service/v1/i_notification_channel.proto",
+    "api/protos/admin/service/v1/i_online_session.proto",
+    "api/protos/admin/service/v1/i_operation_audit_log.proto",
+    "api/protos/admin/service/v1/i_org_unit.proto",
+    "api/protos/admin/service/v1/i_permission.proto",
+    "api/protos/admin/service/v1/i_permission_audit_log.proto",
+    "api/protos/admin/service/v1/i_permission_group.proto",
+    "api/protos/admin/service/v1/i_plan.proto",
+    "api/protos/admin/service/v1/i_plan_module.proto",
+    "api/protos/admin/service/v1/i_plan_quota.proto",
+    "api/protos/admin/service/v1/i_policy_evaluation_log.proto",
+    "api/protos/admin/service/v1/i_position.proto",
+    "api/protos/admin/service/v1/i_redis_cache_monitor.proto",
+    "api/protos/admin/service/v1/i_role.proto",
+    "api/protos/admin/service/v1/i_server_monitor.proto",
+    "api/protos/admin/service/v1/i_task.proto",
+    "api/protos/admin/service/v1/i_tenant.proto",
+    "api/protos/admin/service/v1/i_user.proto",
+    "api/protos/admin/service/v1/i_user_profile.proto",
+    "api/protos/audit/service/v1/api_audit_log.proto",
+    "api/protos/audit/service/v1/audit_error.proto",
+    "api/protos/audit/service/v1/common.proto",
+    "api/protos/audit/service/v1/data_access_audit_log.proto",
+    "api/protos/audit/service/v1/device_info.proto",
+    "api/protos/audit/service/v1/login_audit_log.proto",
+    "api/protos/audit/service/v1/operation_audit_log.proto",
+    "api/protos/audit/service/v1/permission_audit_log.proto",
+    "api/protos/authentication/service/v1/ani_auth.proto",
+    "api/protos/authentication/service/v1/authentication.proto",
+    "api/protos/authentication/service/v1/authentication_error.proto",
+    "api/protos/authentication/service/v1/login_policy.proto",
+    "api/protos/authentication/service/v1/mfa.proto",
+    "api/protos/authentication/service/v1/oauth.proto",
+    "api/protos/authentication/service/v1/operator.proto",
+    "api/protos/authentication/service/v1/user_credential.proto",
+    "api/protos/authentication/service/v1/user_token.proto",
+    "api/protos/catalog/service/v1/vpc.proto",
+    "api/protos/config/service/v1/config.proto",
+    "api/protos/dict/service/v1/dict_entry.proto",
+    "api/protos/dict/service/v1/dict_error.proto",
+    "api/protos/dict/service/v1/dict_type.proto",
+    "api/protos/dict/service/v1/language.proto",
+    "api/protos/identity/service/v1/membership.proto",
+    "api/protos/identity/service/v1/membership_org_unit.proto",
+    "api/protos/identity/service/v1/membership_position.proto",
+    "api/protos/identity/service/v1/module.proto",
+    "api/protos/identity/service/v1/org_unit.proto",
+    "api/protos/identity/service/v1/plan.proto",
+    "api/protos/identity/service/v1/plan_module.proto",
+    "api/protos/identity/service/v1/plan_quota.proto",
+    "api/protos/identity/service/v1/position.proto",
+    "api/protos/identity/service/v1/tenant.proto",
+    "api/protos/identity/service/v1/types.proto",
+    "api/protos/identity/service/v1/user.proto",
+    "api/protos/identity/service/v1/user_error.proto",
+    "api/protos/identity/service/v1/user_org_unit.proto",
+    "api/protos/identity/service/v1/user_position.proto",
+    "api/protos/identity/service/v1/user_profile.proto",
+    "api/protos/internal_message/service/v1/internal_message.proto",
+    "api/protos/internal_message/service/v1/internal_message_category.proto",
+    "api/protos/internal_message/service/v1/internal_message_error.proto",
+    "api/protos/internal_message/service/v1/internal_message_recipient.proto",
+    "api/protos/notification_channel/service/v1/notification_channel.proto",
+    "api/protos/online_session/service/v1/online_session.proto",
+    "api/protos/permission/service/v1/api.proto",
+    "api/protos/permission/service/v1/membership_role.proto",
+    "api/protos/permission/service/v1/menu.proto",
+    "api/protos/permission/service/v1/permission.proto",
+    "api/protos/permission/service/v1/permission_api.proto",
+    "api/protos/permission/service/v1/permission_error.proto",
+    "api/protos/permission/service/v1/permission_group.proto",
+    "api/protos/permission/service/v1/permission_menu.proto",
+    "api/protos/permission/service/v1/permission_policy.proto",
+    "api/protos/permission/service/v1/policy_evaluation_log.proto",
+    "api/protos/permission/service/v1/role.proto",
+    "api/protos/permission/service/v1/role_permission.proto",
+    "api/protos/permission/service/v1/user_role.proto",
+    "api/protos/redis_cache/service/v1/redis_cache_monitor.proto",
+    "api/protos/server_monitor/service/v1/server_monitor.proto",
+    "api/protos/task/service/v1/task.proto",
+    "api/protos/task/service/v1/task_error.proto"
+  ],
+  "resolution_rules": {
+    "own-header+input-directory": 103
+  },
+  "validators_by_proto": {
+    "api/protos/access_key/service/v1/access_key.proto": [
+      "api/gen/go/access_key/service/v1/access_key.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/admin_doc.proto": [
+      "api/gen/go/admin/service/v1/admin_doc.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/admin_error.proto": [
+      "api/gen/go/admin/service/v1/admin_error.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_access_key.proto": [
+      "api/gen/go/admin/service/v1/i_access_key.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_admin_portal.proto": [
+      "api/gen/go/admin/service/v1/i_admin_portal.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_api.proto": [
+      "api/gen/go/admin/service/v1/i_api.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_api_audit_log.proto": [
+      "api/gen/go/admin/service/v1/i_api_audit_log.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_authentication.proto": [
+      "api/gen/go/admin/service/v1/i_authentication.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_config.proto": [
+      "api/gen/go/admin/service/v1/i_config.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_dashboard.proto": [
+      "api/gen/go/admin/service/v1/i_dashboard.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_data_access_audit_log.proto": [
+      "api/gen/go/admin/service/v1/i_data_access_audit_log.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_dict_entry.proto": [
+      "api/gen/go/admin/service/v1/i_dict_entry.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_dict_type.proto": [
+      "api/gen/go/admin/service/v1/i_dict_type.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_internal_message.proto": [
+      "api/gen/go/admin/service/v1/i_internal_message.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_internal_message_category.proto": [
+      "api/gen/go/admin/service/v1/i_internal_message_category.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_internal_message_recipient.proto": [
+      "api/gen/go/admin/service/v1/i_internal_message_recipient.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_language.proto": [
+      "api/gen/go/admin/service/v1/i_language.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_login_audit_log.proto": [
+      "api/gen/go/admin/service/v1/i_login_audit_log.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_login_policy.proto": [
+      "api/gen/go/admin/service/v1/i_login_policy.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_menu.proto": [
+      "api/gen/go/admin/service/v1/i_menu.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_mfa.proto": [
+      "api/gen/go/admin/service/v1/i_mfa.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_network.proto": [
+      "api/gen/go/admin/service/v1/i_network.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_notification_channel.proto": [
+      "api/gen/go/admin/service/v1/i_notification_channel.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_online_session.proto": [
+      "api/gen/go/admin/service/v1/i_online_session.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_operation_audit_log.proto": [
+      "api/gen/go/admin/service/v1/i_operation_audit_log.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_org_unit.proto": [
+      "api/gen/go/admin/service/v1/i_org_unit.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_permission.proto": [
+      "api/gen/go/admin/service/v1/i_permission.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_permission_audit_log.proto": [
+      "api/gen/go/admin/service/v1/i_permission_audit_log.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_permission_group.proto": [
+      "api/gen/go/admin/service/v1/i_permission_group.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_plan.proto": [
+      "api/gen/go/admin/service/v1/i_plan.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_plan_module.proto": [
+      "api/gen/go/admin/service/v1/i_plan_module.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_plan_quota.proto": [
+      "api/gen/go/admin/service/v1/i_plan_quota.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_policy_evaluation_log.proto": [
+      "api/gen/go/admin/service/v1/i_policy_evaluation_log.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_position.proto": [
+      "api/gen/go/admin/service/v1/i_position.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_redis_cache_monitor.proto": [
+      "api/gen/go/admin/service/v1/i_redis_cache_monitor.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_role.proto": [
+      "api/gen/go/admin/service/v1/i_role.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_server_monitor.proto": [
+      "api/gen/go/admin/service/v1/i_server_monitor.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_task.proto": [
+      "api/gen/go/admin/service/v1/i_task.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_tenant.proto": [
+      "api/gen/go/admin/service/v1/i_tenant.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_user.proto": [
+      "api/gen/go/admin/service/v1/i_user.pb.validate.go"
+    ],
+    "api/protos/admin/service/v1/i_user_profile.proto": [
+      "api/gen/go/admin/service/v1/i_user_profile.pb.validate.go"
+    ],
+    "api/protos/audit/service/v1/api_audit_log.proto": [
+      "api/gen/go/audit/service/v1/api_audit_log.pb.validate.go"
+    ],
+    "api/protos/audit/service/v1/audit_error.proto": [
+      "api/gen/go/audit/service/v1/audit_error.pb.validate.go"
+    ],
+    "api/protos/audit/service/v1/common.proto": [
+      "api/gen/go/audit/service/v1/common.pb.validate.go"
+    ],
+    "api/protos/audit/service/v1/data_access_audit_log.proto": [
+      "api/gen/go/audit/service/v1/data_access_audit_log.pb.validate.go"
+    ],
+    "api/protos/audit/service/v1/device_info.proto": [
+      "api/gen/go/audit/service/v1/device_info.pb.validate.go"
+    ],
+    "api/protos/audit/service/v1/login_audit_log.proto": [
+      "api/gen/go/audit/service/v1/login_audit_log.pb.validate.go"
+    ],
+    "api/protos/audit/service/v1/operation_audit_log.proto": [
+      "api/gen/go/audit/service/v1/operation_audit_log.pb.validate.go"
+    ],
+    "api/protos/audit/service/v1/permission_audit_log.proto": [
+      "api/gen/go/audit/service/v1/permission_audit_log.pb.validate.go"
+    ],
+    "api/protos/authentication/service/v1/ani_auth.proto": [
+      "api/gen/go/authentication/service/v1/ani_auth.pb.validate.go"
+    ],
+    "api/protos/authentication/service/v1/authentication.proto": [
+      "api/gen/go/authentication/service/v1/authentication.pb.validate.go"
+    ],
+    "api/protos/authentication/service/v1/authentication_error.proto": [
+      "api/gen/go/authentication/service/v1/authentication_error.pb.validate.go"
+    ],
+    "api/protos/authentication/service/v1/login_policy.proto": [
+      "api/gen/go/authentication/service/v1/login_policy.pb.validate.go"
+    ],
+    "api/protos/authentication/service/v1/mfa.proto": [
+      "api/gen/go/authentication/service/v1/mfa.pb.validate.go"
+    ],
+    "api/protos/authentication/service/v1/oauth.proto": [
+      "api/gen/go/authentication/service/v1/oauth.pb.validate.go"
+    ],
+    "api/protos/authentication/service/v1/operator.proto": [
+      "api/gen/go/authentication/service/v1/operator.pb.validate.go"
+    ],
+    "api/protos/authentication/service/v1/user_credential.proto": [
+      "api/gen/go/authentication/service/v1/user_credential.pb.validate.go"
+    ],
+    "api/protos/authentication/service/v1/user_token.proto": [
+      "api/gen/go/authentication/service/v1/user_token.pb.validate.go"
+    ],
+    "api/protos/catalog/service/v1/vpc.proto": [
+      "api/gen/go/catalog/service/v1/vpc.pb.validate.go"
+    ],
+    "api/protos/config/service/v1/config.proto": [
+      "api/gen/go/config/service/v1/config.pb.validate.go"
+    ],
+    "api/protos/dict/service/v1/dict_entry.proto": [
+      "api/gen/go/dict/service/v1/dict_entry.pb.validate.go"
+    ],
+    "api/protos/dict/service/v1/dict_error.proto": [
+      "api/gen/go/dict/service/v1/dict_error.pb.validate.go"
+    ],
+    "api/protos/dict/service/v1/dict_type.proto": [
+      "api/gen/go/dict/service/v1/dict_type.pb.validate.go"
+    ],
+    "api/protos/dict/service/v1/language.proto": [
+      "api/gen/go/dict/service/v1/language.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/membership.proto": [
+      "api/gen/go/identity/service/v1/membership.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/membership_org_unit.proto": [
+      "api/gen/go/identity/service/v1/membership_org_unit.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/membership_position.proto": [
+      "api/gen/go/identity/service/v1/membership_position.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/module.proto": [
+      "api/gen/go/identity/service/v1/module.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/org_unit.proto": [
+      "api/gen/go/identity/service/v1/org_unit.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/plan.proto": [
+      "api/gen/go/identity/service/v1/plan.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/plan_module.proto": [
+      "api/gen/go/identity/service/v1/plan_module.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/plan_quota.proto": [
+      "api/gen/go/identity/service/v1/plan_quota.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/position.proto": [
+      "api/gen/go/identity/service/v1/position.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/tenant.proto": [
+      "api/gen/go/identity/service/v1/tenant.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/types.proto": [
+      "api/gen/go/identity/service/v1/types.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/user.proto": [
+      "api/gen/go/identity/service/v1/user.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/user_error.proto": [
+      "api/gen/go/identity/service/v1/user_error.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/user_org_unit.proto": [
+      "api/gen/go/identity/service/v1/user_org_unit.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/user_position.proto": [
+      "api/gen/go/identity/service/v1/user_position.pb.validate.go"
+    ],
+    "api/protos/identity/service/v1/user_profile.proto": [
+      "api/gen/go/identity/service/v1/user_profile.pb.validate.go"
+    ],
+    "api/protos/internal_message/service/v1/internal_message.proto": [
+      "api/gen/go/internal_message/service/v1/internal_message.pb.validate.go"
+    ],
+    "api/protos/internal_message/service/v1/internal_message_category.proto": [
+      "api/gen/go/internal_message/service/v1/internal_message_category.pb.validate.go"
+    ],
+    "api/protos/internal_message/service/v1/internal_message_error.proto": [
+      "api/gen/go/internal_message/service/v1/internal_message_error.pb.validate.go"
+    ],
+    "api/protos/internal_message/service/v1/internal_message_recipient.proto": [
+      "api/gen/go/internal_message/service/v1/internal_message_recipient.pb.validate.go"
+    ],
+    "api/protos/notification_channel/service/v1/notification_channel.proto": [
+      "api/gen/go/notification_channel/service/v1/notification_channel.pb.validate.go"
+    ],
+    "api/protos/online_session/service/v1/online_session.proto": [
+      "api/gen/go/online_session/service/v1/online_session.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/api.proto": [
+      "api/gen/go/permission/service/v1/api.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/membership_role.proto": [
+      "api/gen/go/permission/service/v1/membership_role.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/menu.proto": [
+      "api/gen/go/permission/service/v1/menu.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/permission.proto": [
+      "api/gen/go/permission/service/v1/permission.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/permission_api.proto": [
+      "api/gen/go/permission/service/v1/permission_api.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/permission_error.proto": [
+      "api/gen/go/permission/service/v1/permission_error.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/permission_group.proto": [
+      "api/gen/go/permission/service/v1/permission_group.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/permission_menu.proto": [
+      "api/gen/go/permission/service/v1/permission_menu.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/permission_policy.proto": [
+      "api/gen/go/permission/service/v1/permission_policy.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/policy_evaluation_log.proto": [
+      "api/gen/go/permission/service/v1/policy_evaluation_log.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/role.proto": [
+      "api/gen/go/permission/service/v1/role.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/role_permission.proto": [
+      "api/gen/go/permission/service/v1/role_permission.pb.validate.go"
+    ],
+    "api/protos/permission/service/v1/user_role.proto": [
+      "api/gen/go/permission/service/v1/user_role.pb.validate.go"
+    ],
+    "api/protos/redis_cache/service/v1/redis_cache_monitor.proto": [
+      "api/gen/go/redis_cache/service/v1/redis_cache_monitor.pb.validate.go"
+    ],
+    "api/protos/server_monitor/service/v1/server_monitor.proto": [
+      "api/gen/go/server_monitor/service/v1/server_monitor.pb.validate.go"
+    ],
+    "api/protos/task/service/v1/task.proto": [
+      "api/gen/go/task/service/v1/task.pb.validate.go"
+    ],
+    "api/protos/task/service/v1/task_error.proto": [
+      "api/gen/go/task/service/v1/task_error.pb.validate.go"
+    ]
+  }
+}

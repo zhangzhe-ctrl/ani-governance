@@ -1,0 +1,203 @@
+# 独立 PGV（protoc-gen-validate）模板：T15 显式固定本轮校验生成范围。
+#
+# 插件、参数、managed 配置与输出映射逐字取自 api/buf.gen.yaml 中原有的 validate 段，
+# 唯一新增的是文件级 paths 范围（清单由 migration/patches/T15/T15-pgv-scope.json 固定，
+# 来源是已验收提交 627783c 里 103 个 .pb.validate.go 的 // source: 头）。
+# paths 相对 Buf 模块根（与 api/buf.admin.openapi.gen.yaml 的写法一致）。
+# 因此：普通 Go/gRPC/HTTP/OpenAPI/redact/conf 生成范围不变，只有校验生成被限制在
+# 已验收来源集合；不裁剪类型、不加 skip、不删 Proto 字段，也不靠生成后再删文件。
+# clean 必须为 false：共享输出根里的其他模板产物与手写 runtime 不能被本模板清除。
+version: v2
+
+clean: false
+
+managed:
+  enabled: true
+
+  disable:
+    - module: buf.build/googleapis/googleapis
+    - module: 'buf.build/envoyproxy/protoc-gen-validate'
+    - module: 'buf.build/kratos/apis'
+    - module: 'buf.build/gnostic/gnostic'
+    - module: 'buf.build/gogo/protobuf'
+
+  override:
+    # global go_package_prefix option
+    # 如果没有在各目录下单独配置go_package，则会使用该前缀。
+    - file_option: go_package_prefix
+      value: go-wind-admin/api/gen/go
+
+    # per-directory go_package options
+    # value第一部分是生成代码的包路径，第二部分是go包名。
+    - file_option: go_package
+      path: admin/service/v1
+      value: go-wind-admin/api/gen/go/admin/service/v1;adminpb
+    - file_option: go_package
+      path: audit/service/v1
+      value: go-wind-admin/api/gen/go/audit/service/v1;auditpb
+    - file_option: go_package
+      path: access_key/service/v1
+      value: go-wind-admin/api/gen/go/access_key/service/v1;accesskeypb
+    - file_option: go_package
+      path: authentication/service/v1
+      value: go-wind-admin/api/gen/go/authentication/service/v1;authenticationpb
+    - file_option: go_package
+      path: dict/service/v1
+      value: go-wind-admin/api/gen/go/dict/service/v1;dictpb
+    - file_option: go_package
+      path: storage/service/v1
+      value: go-wind-admin/api/gen/go/storage/service/v1;storagepb
+    - file_option: go_package
+      path: internal_message/service/v1
+      value: go-wind-admin/api/gen/go/internal_message/service/v1;internalmessagepb
+    - file_option: go_package
+      path: permission/service/v1
+      value: go-wind-admin/api/gen/go/permission/service/v1;permissionpb
+    - file_option: go_package
+      path: task/service/v1
+      value: go-wind-admin/api/gen/go/task/service/v1;taskpb
+    - file_option: go_package
+      path: identity/service/v1
+      value: go-wind-admin/api/gen/go/identity/service/v1;identitypb
+    - file_option: go_package
+      path: resource/service/v1
+      value: go-wind-admin/api/gen/go/permission/service/v1;resourcepb
+    - file_option: go_package
+      path: redis_cache/service/v1
+      value: go-wind-admin/api/gen/go/redis_cache/service/v1;rediscachepb
+    - file_option: go_package
+      path: config/service/v1
+      value: go-wind-admin/api/gen/go/config/service/v1;configpb
+
+    # 本地化分页 Proto（api/localdeps/pagination，源码与 go-crud/api@v0.0.7 逐字节一致）。
+    # managed 全局前缀 go-wind-admin/api/gen/go 对此 Proto 例外：生成到 pkg/localdeps 目标，
+    # Go 包名保持上游生成物的 v1（原 option go_package 的 ;pagination 别名在上游生成物中
+    # 已被 go_package_prefix 抹去，这里复刻既有行为，不改变协议）。
+    - file_option: go_package
+      path: pagination/v1
+      value: go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
+
+    # 本地化脱敏 Proto（api/localdeps/redact，与 protoc-gen-go-redact 锁定归档逐字节一致）。
+    # 这一条取代原先 managed.disable 里的外部模块 buf.build/go-wind/redact：接管后 redact 的
+    # go_package 必须与生成器 imports.go 标准 import 表里的本地运行时路径逐字符相等，
+    # Module.importPaths 才会把这个 import 认作脱敏运行时本身并沿用别名 redact，
+    # 生成的 .pb.redact.go 才引用得到符号。;redact 包名别名保持归档生成物一致，协议内容不变。
+    - file_option: go_package
+      path: redact/v1
+      value: go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact
+inputs:
+  - directory: protos
+    paths:
+      - protos/access_key/service/v1/access_key.proto
+      - protos/admin/service/v1/admin_doc.proto
+      - protos/admin/service/v1/admin_error.proto
+      - protos/admin/service/v1/i_access_key.proto
+      - protos/admin/service/v1/i_admin_portal.proto
+      - protos/admin/service/v1/i_api.proto
+      - protos/admin/service/v1/i_api_audit_log.proto
+      - protos/admin/service/v1/i_authentication.proto
+      - protos/admin/service/v1/i_config.proto
+      - protos/admin/service/v1/i_dashboard.proto
+      - protos/admin/service/v1/i_data_access_audit_log.proto
+      - protos/admin/service/v1/i_dict_entry.proto
+      - protos/admin/service/v1/i_dict_type.proto
+      - protos/admin/service/v1/i_internal_message.proto
+      - protos/admin/service/v1/i_internal_message_category.proto
+      - protos/admin/service/v1/i_internal_message_recipient.proto
+      - protos/admin/service/v1/i_language.proto
+      - protos/admin/service/v1/i_login_audit_log.proto
+      - protos/admin/service/v1/i_login_policy.proto
+      - protos/admin/service/v1/i_menu.proto
+      - protos/admin/service/v1/i_mfa.proto
+      - protos/admin/service/v1/i_network.proto
+      - protos/admin/service/v1/i_notification_channel.proto
+      - protos/admin/service/v1/i_online_session.proto
+      - protos/admin/service/v1/i_operation_audit_log.proto
+      - protos/admin/service/v1/i_org_unit.proto
+      - protos/admin/service/v1/i_permission.proto
+      - protos/admin/service/v1/i_permission_audit_log.proto
+      - protos/admin/service/v1/i_permission_group.proto
+      - protos/admin/service/v1/i_plan.proto
+      - protos/admin/service/v1/i_plan_module.proto
+      - protos/admin/service/v1/i_plan_quota.proto
+      - protos/admin/service/v1/i_policy_evaluation_log.proto
+      - protos/admin/service/v1/i_position.proto
+      - protos/admin/service/v1/i_redis_cache_monitor.proto
+      - protos/admin/service/v1/i_role.proto
+      - protos/admin/service/v1/i_server_monitor.proto
+      - protos/admin/service/v1/i_task.proto
+      - protos/admin/service/v1/i_tenant.proto
+      - protos/admin/service/v1/i_user.proto
+      - protos/admin/service/v1/i_user_profile.proto
+      - protos/audit/service/v1/api_audit_log.proto
+      - protos/audit/service/v1/audit_error.proto
+      - protos/audit/service/v1/common.proto
+      - protos/audit/service/v1/data_access_audit_log.proto
+      - protos/audit/service/v1/device_info.proto
+      - protos/audit/service/v1/login_audit_log.proto
+      - protos/audit/service/v1/operation_audit_log.proto
+      - protos/audit/service/v1/permission_audit_log.proto
+      - protos/authentication/service/v1/ani_auth.proto
+      - protos/authentication/service/v1/authentication.proto
+      - protos/authentication/service/v1/authentication_error.proto
+      - protos/authentication/service/v1/login_policy.proto
+      - protos/authentication/service/v1/mfa.proto
+      - protos/authentication/service/v1/oauth.proto
+      - protos/authentication/service/v1/operator.proto
+      - protos/authentication/service/v1/user_credential.proto
+      - protos/authentication/service/v1/user_token.proto
+      - protos/catalog/service/v1/vpc.proto
+      - protos/config/service/v1/config.proto
+      - protos/dict/service/v1/dict_entry.proto
+      - protos/dict/service/v1/dict_error.proto
+      - protos/dict/service/v1/dict_type.proto
+      - protos/dict/service/v1/language.proto
+      - protos/identity/service/v1/membership.proto
+      - protos/identity/service/v1/membership_org_unit.proto
+      - protos/identity/service/v1/membership_position.proto
+      - protos/identity/service/v1/module.proto
+      - protos/identity/service/v1/org_unit.proto
+      - protos/identity/service/v1/plan.proto
+      - protos/identity/service/v1/plan_module.proto
+      - protos/identity/service/v1/plan_quota.proto
+      - protos/identity/service/v1/position.proto
+      - protos/identity/service/v1/tenant.proto
+      - protos/identity/service/v1/types.proto
+      - protos/identity/service/v1/user.proto
+      - protos/identity/service/v1/user_error.proto
+      - protos/identity/service/v1/user_org_unit.proto
+      - protos/identity/service/v1/user_position.proto
+      - protos/identity/service/v1/user_profile.proto
+      - protos/internal_message/service/v1/internal_message.proto
+      - protos/internal_message/service/v1/internal_message_category.proto
+      - protos/internal_message/service/v1/internal_message_error.proto
+      - protos/internal_message/service/v1/internal_message_recipient.proto
+      - protos/notification_channel/service/v1/notification_channel.proto
+      - protos/online_session/service/v1/online_session.proto
+      - protos/permission/service/v1/api.proto
+      - protos/permission/service/v1/membership_role.proto
+      - protos/permission/service/v1/menu.proto
+      - protos/permission/service/v1/permission.proto
+      - protos/permission/service/v1/permission_api.proto
+      - protos/permission/service/v1/permission_error.proto
+      - protos/permission/service/v1/permission_group.proto
+      - protos/permission/service/v1/permission_menu.proto
+      - protos/permission/service/v1/permission_policy.proto
+      - protos/permission/service/v1/policy_evaluation_log.proto
+      - protos/permission/service/v1/role.proto
+      - protos/permission/service/v1/role_permission.proto
+      - protos/permission/service/v1/user_role.proto
+      - protos/redis_cache/service/v1/redis_cache_monitor.proto
+      - protos/server_monitor/service/v1/server_monitor.proto
+      - protos/task/service/v1/task.proto
+      - protos/task/service/v1/task_error.proto
+
+plugins:
+  # generate message validator code
+  #- plugin: buf.build/bufbuild/validate-go
+  - local: protoc-gen-validate
+    out: gen/go
+    opt:
+      - paths=source_relative # use relative paths
+      - lang=go
+

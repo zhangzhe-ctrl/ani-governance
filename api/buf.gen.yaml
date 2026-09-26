@@ -108,9 +108,7 @@ plugins:
       - paths=source_relative # use relative paths
 
   # generate message validator code
-  #- plugin: buf.build/bufbuild/validate-go
-  - local: protoc-gen-validate
-    out: gen/go
+	# 校验生成已移到 api/buf.validate.gen.yaml（T15 固定 PGV 文件级范围），此处不再运行 PGV。    out: gen/go
     opt:
       - paths=source_relative # use relative paths
       - lang=go

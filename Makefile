@@ -11,7 +11,7 @@ ROOT_DIR	:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
 SRCS_MK		:= $(foreach dir, app, $(wildcard $(dir)/*/*/Makefile))
 
-.PHONY: help gen ent build api openapi init all vendor dep test cover vet lint docker \
+.PHONY: help gen ent build api openapi pgv init all vendor dep test cover vet lint docker \
 		register install-dev install-prod pm2-deploy
 
 # show environment variables
@@ -109,9 +109,14 @@ register:
 
 # generate protobuf api go code
 # 业务模板用 ../tools/bin/protoc-gen-go-redact 生成脱敏代码，先确保该二进制与本地源码一致。
-api: redact-plugin
+api: redact-plugin pgv
 	cd api && \
 	buf generate
+
+# PGV 单独一遍：文件级范围由 api/buf.validate.gen.yaml 的清单固定（T15），clean:false 不动共享输出根。
+pgv:
+	cd api && \
+	buf generate --template buf.validate.gen.yaml
 
 # build the localized protoc-gen-go-redact plugin from pkg/localdeps sources
 redact-plugin:
