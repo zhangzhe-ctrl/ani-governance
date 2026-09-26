@@ -80,11 +80,17 @@ go1.26.7 install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20
 > - 因此 `1.60.0` 这个约束的性质是**钉版纪律**（保证生成链可复现、可追责），
 >   而非 buf 本身的能力要求。不要因为"旧版也能跑"就绕过脚本的断言。
 
-> **本仓生成链并未真正锁定**：`api/gen/go/` 的产物继承自上游 fork，其原始
-> 工具链没有记录（见 `AGENTS.md` 关于"发布复现需记录工具版本"的说明）。
-> 上面这些版本只保证"装上去不会让产物大面积漂移"，**不等于**能逐字节复现既有产物。
-> 需要严格复现时，请用 `scripts/generate-*-slice.sh` 的方式，并同时执行
-> `scripts/post-generate-clean.sh` 抹平残余噪声。
+> **生成链已记录并可逐字节复现（2026-09-26 T15 实测更新）**：早期本文认为
+> `api/gen/go/` 继承自上游 fork、原始工具链未记录，因而"不保证逐字节复现"，并要求在
+> 全量生成后执行 `scripts/post-generate-clean.sh` 抹平噪声。该判断的前提是当时存在两套
+> 互相覆盖的入口（主模板用 PATH 插件与 managed `go_package`，切片模板钉旧插件版本并带显式
+> `go_package`）。T15 已把它收敛为单一已验收链：`make api` 先构建本仓 `tools/bin/gow` 与
+> `tools/bin/protoc-gen-go-redact`，再委托 `gow api`（校验插件/输入 → 隔离暂存副本生成 →
+> 按受管清单写回），链尾执行 `make openapi` 的既有后处理；插件与版本记录在
+> `migration/patches/T15/T15-tool-lock.json`，PGV 范围记录在 `migration/pgv-scope.json`。
+> 实测在干净检出上执行两遍，受管产物与已提交内容逐字节一致、`go.mod`/`go.sum` 不变。
+> 因此 `post-generate-clean.sh` 已退役（现拒绝执行且不改任何文件）：若再次生成出现漂移，
+> 按缺陷排查，不要在生成之后还原或删除产物。
 
 ### 1.1 私有模块校验和不匹配（已定位根因，2026-09-21）
 

@@ -11,7 +11,7 @@
 | `deploy/sse/` | 可选 SSE 反向代理，按目标网络配置后端地址。 |
 | [backup/README.md](backup/README.md) | PostgreSQL 备份及恢复说明。 |
 | `generate-model-slice.sh`（**已暂停**）、`generate-network-slice.sh` | 固定范围的 API 生成脚本。model 接入已于 2026-09-21 暂摘，`generate-model-slice.sh` 保留作重接基线，重接前不可运行。 |
-| [post-generate-clean.sh](post-generate-clean.sh) | 全量 `make api` / `make openapi` 后的噪声清理：还原与本次改动无关的版本/命名漂移文件、删除仓库中原本不存在的空壳 `*.pb.validate.go`。仅抹平必然噪声，不替代切片生成脚本。 |
+| [post-generate-clean.sh](post-generate-clean.sh)（**已退役**） | 原用于在 `make api` 之后 `git checkout --` 还原生成漂移并删除空壳 `*.pb.validate.go`。`make api` 已收敛为委托 `tools/bin/gow api`（先校验插件与输入、在隔离暂存副本中生成、成功后按受管清单写回）再接 `make openapi`，实测从干净检出逐字节复现既有产物，因此不再需要事后改动正式产物；脚本现为拒绝执行并指向核对命令。 |
 | `bootstrap-network-access.sql`、`bootstrap-model-access.sql`（**已暂停**） | 专项权限登记，按脚本前提使用，不是通用种子。model 侧脚本因接入暂摘保留作重接基线，登记的 `/api/v1/models` 已下线。 |
 | [../docs/service-integration.md](../docs/service-integration.md) | 业务服务接入指南：mTLS 出站、身份 header 契约、装配锚点、Api 登记与验收清单。 |
 | [new-service-scaffold.sh](new-service-scaffold.sh) | 接入骨架生成（只写四个源文件，不执行生成/构建；生成、编译与验收按仓库执行环境约定运行）。 |

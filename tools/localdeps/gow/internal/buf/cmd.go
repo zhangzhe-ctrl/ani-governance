@@ -37,7 +37,7 @@ func RunGenerate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("api directory does not exist: %s", apiPath)
 	}
 
-	return GenerateFromPath(cmd.Context(), apiPath)
+	return GenerateLocked(cmd.Context(), inspector.Root, apiPath)
 }
 
 // GenerateFromPath 从指定路径生成 Protobuf 代码。
@@ -95,6 +95,63 @@ func GenerateFromPath(ctx context.Context, apiPath string) error {
 	}
 
 	fmt.Printf("Protobuf Code generation completed successfully.\n")
+	return nil
+}
+
+// GenerateLocked is the accepted API generation chain: parse every active template, verify every
+// tool, pinned plugin and input it names, and only then generate into a staging copy whose output
+// is compared and written back. The plain walk above is kept for callers that point at their own
+// directory; the repository's `api` command uses this one so that `make api` and a direct
+// `gow api` cannot behave differently.
+func GenerateLocked(ctx context.Context, root, apiPath string) error {
+	if !pkg.IsDirExists(apiPath) {
+		return fmt.Errorf("api directory does not exist: %s", apiPath)
+	}
+	if !isBufConfigExists(apiPath) {
+		return fmt.Errorf("buf config file (%s) does not exist in api directory: %s", defaultBufConfigFile, apiPath)
+	}
+	if !isBufLockExists(apiPath) {
+		return fmt.Errorf("buf.lock does not exist: %s; run `buf dep update` explicitly instead of letting this tool do it",
+			filepath.Join(apiPath, bufLockFile))
+	}
+
+	yamlFiles, err := scanYAMLFiles(apiPath)
+	if err != nil {
+		return err
+	}
+	selected, err := selectActiveTemplates(apiPath, yamlFiles)
+	if err != nil {
+		return err
+	}
+	templates := make([]*genTemplate, 0, len(selected))
+	for _, path := range selected {
+		t, err := parseGenTemplate(path)
+		if err != nil {
+			return err
+		}
+		templates = append(templates, t)
+	}
+
+	roots, err := deriveManagedRoots(root, apiPath, templates)
+	if err != nil {
+		return err
+	}
+	if err := preflightGenerate(ctx, root, apiPath, templates); err != nil {
+		return err
+	}
+	return stageAndGenerate(ctx, root, templates, roots)
+}
+
+// runBufGenerateIn 在给定目录执行 `buf generate --template <name>`，用于隔离暂存副本内的生成。
+func runBufGenerateIn(ctx context.Context, dir, templateName string) error {
+	cmd := exec.CommandContext(ctx, "buf", "generate", "--template", templateName)
+	cmd.Dir = dir
+	cmd.Env = os.Environ()
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to run `buf generate --template %s` in %s: %w", templateName, dir, err)
+	}
 	return nil
 }
 

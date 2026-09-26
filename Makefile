@@ -109,11 +109,16 @@ register:
 
 # generate protobuf api go code
 # 业务模板用 ../tools/bin/protoc-gen-go-redact 生成脱敏代码，先确保该二进制与本地源码一致。
-api: redact-plugin
-	cd api && \
-	buf generate
-	$(MAKE) pgv
+# api：唯一实现是委托本仓已接管 gow 的完整活跃模板链（与 `gow api` 同一调度，不再维护第二份模板清单）。
+# 依赖顺序：先从当前主模块构建 tools/bin/gow 与 tools/bin/protoc-gen-go-redact，再进入生成。
+# gow api 自身会先校验全部插件/输入，并在隔离暂存副本中生成，成功后才按受管清单写回，
+# 因此失败不会删除或覆盖 api/gen/go 等正式产物（api/buf.gen.yaml 的 clean:true 只作用于暂存副本）。
+# 链尾调用 make openapi：涉及 OpenAPI 产出的链路必须带既有后处理，不留中间文档。
+api: gow redact-plugin
+	tools/bin/gow api
+	$(MAKE) openapi
 
+# pgv / 单模板 buf generate 只是内部阶段；完整生成命令是 `gow api`（或 `make api`）。
 # PGV 单独一遍：文件级范围由 api/buf.validate.gen.yaml 的清单固定（T15），clean:false 不动共享输出根。
 pgv:
 	cd api && \
@@ -150,8 +155,9 @@ openapi:
 	buf generate --template buf.admin.openapi.gen.yaml
 	python3 scripts/finalize-aksk-openapi.py
 
-# build all service applications
-build: api openapi
+# build all service applications. `make api` 已在链尾执行 make openapi（含既有后处理），
+# 因此这里不再重复列 openapi，避免同一生成链在一次构建里跑两遍。
+build: api
 	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
       cd $(dir);\
       make build;\

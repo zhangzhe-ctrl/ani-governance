@@ -1,71 +1,30 @@
 #!/usr/bin/env bash
 #
-# 生成后清理：抹平 `make api` / `make openapi` 必然产生的非本次改动噪声。
+# 已退役：本脚本原先在 `make api` 之后抹平"必然噪声"——
+#   1) 对 5 个文件执行 `git checkout --`（版本头/protoc-gen-go-http 序号漂移）；
+#   2) 删除 2 个仓库中原本不存在的空壳 `*.pb.validate.go`。
 #
-# 背景（2026-09-21 实测）：
-#   api/gen/go/ 下的生成物是从上游 fork 继承的，其原始生成工具链**未被记录**，
-#   而本仓存在两套生成路径：
-#     - api/buf.gen.yaml          全量生成，protoc-gen-go-grpc 用 PATH 上的版本
-#     - api/buf.network.gen.yaml  Network 切片，显式钉 protoc-gen-go-grpc@v1.6.0
-#     - api/buf.model.gen.yaml    Model 切片（model 接入已暂摘，暂不可用）
-#   因此全量生成会覆盖切片产出，产生与本次改动无关的差异。
+# 噪声的成因是当时存在两套互相覆盖的生成入口（主模板用 PATH 上的插件并走 managed go_package，
+# 切片模板钉旧版本并带显式 go_package），并不是无法修正的固有属性。T15 已把 `make api` 收敛为
+# 委托 `tools/bin/gow api` 的同一条已验收链：先校验插件与输入，再在隔离暂存副本中生成，
+# 成功后按受管清单写回；实测两入口从干净状态执行的结果与已提交树逐字节一致。
 #
-# 两类噪声（都无功能影响，但会污染 review）：
-#   1) 版本/命名漂移：i_network_grpc 的版本头，
-#      以及 i_tenant / i_user / i_task / i_server_monitor 的 http handler
-#      序号（protoc-gen-go-http 按方法名全局计数，输入集变化即漂移）。
-#      → 直接还原为 HEAD 版本，保持与既有生成物一致。
-#   2) 空壳 validate：i_network / catalog 的 *.pb.validate.go
-#      在仓库中原本不存在，且对应 proto 的 validate.rules 数为 0，
-#      生成内容只有 imports 兜底、Validate() 恒返回 nil。
-#      → 删除，维持仓库既有文件集合。
-#
-# 用法（仓库根目录，或传入仓库根路径）：
-#   bash scripts/post-generate-clean.sh [repo_root]
-#
-# 注意：本脚本只处理"必然噪声"。若你确实有意改动 Network 切片，
-# 请改用 scripts/generate-network-slice.sh，不要依赖本脚本。
+# 继续保留这个会改文件的脚本等于保留一条"生成后再把手改/把产物删掉"的路径，
+# 与本轮约束（不得用 git checkout 吞掉工作区修改、不得筛除未批准 validator 凑数）直接冲突，
+# 因此改为拒绝执行。需要核对生成结果请直接用：
+#   tools/bin/gow api && make openapi && git status --porcelain api app pkg
+set -uo pipefail
 
-set -euo pipefail
+cat >&2 <<'MSG'
+scripts/post-generate-clean.sh 已退役，不再修改任何文件。
 
-REPO="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-cd "$REPO"
+原因：它曾用 `git checkout --` 还原生成漂移、并删除"空壳" *.pb.validate.go，
+这两件事在单一已验收生成链（make api → tools/bin/gow api + make openapi，生成于隔离暂存副本）
+下都不应发生；保留它就保留了一条在生成之后改动正式产物或掩盖差异的路径。
 
-GEN=api/gen/go
-
-# 1) 还原版本/命名漂移文件
-DRIFT_FILES=(
-  "$GEN/admin/service/v1/i_network_grpc.pb.go"
-  "$GEN/admin/service/v1/i_server_monitor_http.pb.go"
-  "$GEN/admin/service/v1/i_task_http.pb.go"
-  "$GEN/admin/service/v1/i_tenant_http.pb.go"
-  "$GEN/admin/service/v1/i_user_http.pb.go"
-)
-
-restored=0
-for f in "${DRIFT_FILES[@]}"; do
-  if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
-    if ! git diff --quiet -- "$f"; then
-      git checkout -- "$f"
-      echo "restored: $f"
-      restored=$((restored + 1))
-    fi
-  fi
-done
-
-# 2) 删除空壳 validate 文件（仓库中原本不存在）
-NOOP_VALIDATE=(
-  "$GEN/admin/service/v1/i_network.pb.validate.go"
-  "$GEN/catalog/service/v1/vpc.pb.validate.go"
-)
-
-removed=0
-for f in "${NOOP_VALIDATE[@]}"; do
-  if [ -f "$f" ] && ! git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
-    rm -f "$f"
-    echo "removed: $f"
-    removed=$((removed + 1))
-  fi
-done
-
-echo "post-generate clean done: restored=$restored removed=$removed"
+要确认生成是否一致，请执行完整链后检查工作区：
+  make api
+  git status --porcelain api app/admin/service/cmd/server/assets pkg/localdeps
+若该命令仍产生差异，请把差异当作缺陷上报，而不是清理它。
+MSG
+exit 1
