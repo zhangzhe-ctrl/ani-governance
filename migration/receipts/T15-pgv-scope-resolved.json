@@ -214,6 +214,45 @@
       "B.err",
       "C.err"
     ],
-    "next_step_is_not_a_decision": "R1 candidate closure (classify all 14 modified paths with this evidence) and then R2"
+    "next_step_is_not_a_decision": "R1 candidate closure (classify all 14 modified paths with this evidence) and then R2",
+    "wording_correction": "Nothing was deleted. A held one scheme (OAuth2PasswordBearer at map entry 0 with its password flows); B and C hold five (BearerAuth, AccessKeyAuth, SignatureAuth, SignatureTime, OAuth2PasswordBearer at entry 4) and OAuth2PasswordBearer's flow paths are unchanged. The five 'removed paths' and three 'value changes' were the 0->4 re-indexing inside my index-qualified path labels, not a removal. Name sets A-only = none, B-only = the four added schemes."
+  },
+  "r1_closure": {
+    "status": "R1_CLOSED",
+    "code_commit": "fc7804bc62440c7f873848631074cbf91d9ab517",
+    "chain": "make gow -> tools/bin/gow api -> make openapi -> tools/bin/gow ent admin",
+    "classified_files": 12,
+    "categories": {
+      "comment_only": 9,
+      "admin_doc_document_sync": 1,
+      "plan_quota_no_rule_placeholder": 1,
+      "ent_additive_helpers": 1
+    },
+    "evidence_reused": [
+      "ADMIN_DOC_SYNC_VERIFIED three-way decode",
+      "VALIDATOR_DIFF_VERIFIED 20 identical outcomes",
+      "OPENAPI_FINAL_MATCH",
+      "PGV 103/0/0",
+      "AST classification re-run against the committed bytes at fc7804b^ (9 comment-only, 3 special, none unclassified)"
+    ],
+    "self_correction": "an earlier 'zero content drift among the 103 validators' line came from a broken awk filter ($1==\" M\" never matches because git prefixes unstaged changes with a space); the real drift was the two validators, which were then verified properly. The original logs are untouched."
+  },
+  "r2": {
+    "status": "R2_VERIFIED",
+    "tree": "fresh detached worktree at fc7804bc62440c7f873848631074cbf91d9ab517",
+    "command_chain": [
+      "make api-redact (BUF=buf v1.60.0)",
+      "make api-pagination",
+      "make api (buf.gen.yaml then make pgv)",
+      "make openapi",
+      "make gow + gow ent admin",
+      "gow api",
+      "make openapi"
+    ],
+    "rebuild_from_scratch": "every managed *.pb*.go under api/gen/go and pkg/localdeps deleted first (366 tracked generated files); chain re-ran and git status showed 0 modified and 0 untracked generated files, 240 .pb.go and 103 validators back",
+    "second_pass": "gow api + make openapi + gow ent admin again: exits 0/0/0; sha256 -c over the 366 recorded hashes exit 0; modified 0, untracked 0, go.mod/go.sum untouched",
+    "ordering_finding": "make api alone is not the complete chain: it runs only buf.gen.yaml plus the scoped PGV template, so slice templates (network, catalog, quota, quota-lab, aksk, bootstrap conf) do not run and 13 files come out with plain buf.gen.yaml content instead of the accepted ones. The documented single entry that covers all active templates is gow api; make api plus the BUF-pinned api-redact/api-pagination remain the per-slice entries.",
+    "hand_edited_generated_files": 0,
+    "cleaned_up": "no post-generation deletion was used to force set equality"
   }
 }

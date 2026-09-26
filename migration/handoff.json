@@ -937,5 +937,12 @@
     "head": "911fad30b78e7f4593f6f1b57916fadaac946710",
     "next": "R1 收口（14 个 M 逐项按已批准条件归类并提交受控再生成结果），然后 R2；无需新授权",
     "artifacts": "/home/ubuntu/tx7do-pilot-run/T15/admin-doc-check"
+  },
+  "phase_E_T15_r1_r2": {
+    "status": "R1_CLOSED + R2_VERIFIED",
+    "r1_commit": "fc7804bc62440c7f873848631074cbf91d9ab517",
+    "head": "fc7804bc62440c7f873848631074cbf91d9ab517",
+    "next": "R3 required-tests + tools-integration + known-defects, then R4 make verify-gpu on the final tree, R5 in-repo historical client, R6 two isolated quota restore copies, R7 final zeroing; no new authorization needed",
+    "artifacts": "/home/ubuntu/tx7do-pilot-run/T15/{r2,admin-doc-check}, logs /tmp/t15_r2_*"
   }
 }
