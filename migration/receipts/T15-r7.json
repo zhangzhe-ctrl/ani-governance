@@ -1,0 +1,71 @@
+{
+  "schema_version": "t15-r7/1",
+  "task": "T15",
+  "item": "R7 - final zeroing across module graph, package graph, artifacts and in-use commands, compared against the frozen baseline",
+  "status": "R7_ZEROING_VERIFIED",
+  "candidate": "the commit that introduces this file; its SHA together with the final make verify-gpu exit code is written to migration/handoff.json under phase_E_T15_final, and the sweep itself ran against that tree with a clean working directory",
+
+  "module_level": {
+    "go_list_m_all": {"exit": 0, "modules": 372, "tx7do_modules": 0, "stderr_bytes": 0},
+    "go_mod_graph": {"exit": 0, "edges": 1514, "tx7do_edges": 0, "stderr_lines": 0},
+    "note_on_the_error_keyword_grep": "a keyword scan for 'error' over the module list matches module names only (hashicorp/go-multierror, pkg/errors, golang.org/x/xerrors, olekukonko/errors); both go commands wrote zero bytes to stderr, so nothing was swallowed and nothing was ignored to reach a clean count"
+  },
+
+  "package_level_per_build_tag": {
+    "command": "go list -deps -test ./... with and without -tags",
+    "results": {
+      "default": {"exit": 0, "packages": 1244, "tx7do": 0, "stderr_bytes": 0},
+      "quota_lab": {"exit": 0, "packages": 1249, "tx7do": 0, "stderr_bytes": 0},
+      "quota_pg": {"exit": 0, "packages": 1244, "tx7do": 0, "stderr_bytes": 0},
+      "tools_integration": {"exit": 0, "packages": 1244, "tx7do": 0, "stderr_bytes": 0},
+      "gpu_joint": {"exit": 0, "packages": 1244, "tx7do": 0, "stderr_bytes": 0}
+    },
+    "generated_integration_sample_included_separately": "the protoc sample package under testdata/integration is not part of ./... (verified: go list ./pkg/... returns 0 matches for it), so it was scanned on its own in migration/patches/T15/T15-redact-runtime-dependency.json: 313 packages, 7 modules, zero tx7do, both with and without -test"
+  },
+
+  "artifact_buildinfo": {
+    "checked_with": "go version -m on the binary actually produced by the in-use command",
+    "results": {
+      "app/admin/service/cmd/server": "module go-wind-admin, tx7do deps 0, sha256 5458e7ba63f0271a (built in this round)",
+      "app/admin/service/cmd/admin": "module go-wind-admin, tx7do deps 0, sha256 661f469bb3fcaccb (built in this round)",
+      "tools/bin/gow from make gow": "module go-wind-admin, tx7do deps 0, sha256 e7ccdf75c1948a31, identical to the private binary used in the two-order Ent proof",
+      "tools/bin/protoc-gen-go-redact": "module go-wind-admin, tx7do deps 0, sha256 bd499076ca729ea1, built by scripts/build-redact-plugin.sh from pkg/localdeps",
+      "counter_example_for_the_reader": "the legacy R5 probe built from the frozen baseline reports two tx7do deps in the same field, so a zero here is a measurement and not a reporting artefact"
+    }
+  },
+
+  "in_use_commands": {
+    "no_external_gow_install": "make gow builds tools/localdeps/gow/cmd/gow from this module; the Makefile states plainly that gow is no longer installed from github.com/tx7do",
+    "no_go_install_of_tx7do": "scripts/build-redact-plugin.sh replaced the former go install of the upstream redact plugin with a local go build, and api/buf.gen.yaml calls ../tools/bin/protoc-gen-go-redact by path",
+    "go_install_hits_are_pinned_dev_tools": "make plugin and make cli install protoc-gen-go v1.36.11, protoc-gen-go-grpc v1.6.2, protoc-gen-go-http/errors, gnostic, buf v1.60.0 and ent v0.14.6 at pinned versions; none is a tx7do module, and neither target is part of make verify-gpu",
+    "no_latest_no_tidy_no_automatic_dep_update": "no @latest anywhere in Makefile or scripts; the taken-over gow had its automatic go mod tidy removed and fails instead of running buf dep update or installing a tool",
+    "explicitly_unresolved_and_announced": "make cli prints that the kratos CLI and golangci-lint are not pinned because neither binary is present to verify (migration/patches/T15/T15-tool-lock.json unresolved_entries); no command pretends to run them"
+  },
+
+  "structure": {
+    "replace_or_exclude_directives_in_go_mod": 0,
+    "vendor_directory": "absent",
+    "nested_go_mod_outside_third_party": ["./go.mod (the module itself)", "./migration/patches/T09/desc/go.mod"],
+    "nested_module_explained": "the T09 entry is the throwaway 't09desc' descriptor-comparison harness recorded in migration/receipts/T09.json line 104; it sits under the ledger, is excluded from ./..., and its protobuf v1.36.12 requirement cannot affect the main module, which resolves v1.36.11",
+    "history_and_licensing_copies_not_counted": "third_party/tx7do/** (SHA256SUMS-manifested source backup), the locked zips, migration/patches/*/_orig and *_pristine copies and LICENSE/NOTICE files are reference material, not resolved dependencies, and are excluded from the dependency claim in this way deliberately"
+  },
+
+  "baseline_version_discipline": {
+    "method": "go list -m all was run twice for real - once on the final tree, once on a scratch directory holding only go.mod and go.sum extracted from the frozen baseline d27847b - and the two module sets were compared entry by entry, rather than inferring equality from go.mod being textually unchanged",
+    "baseline_modules": 416,
+    "final_modules": 372,
+    "tx7do_modules_baseline": 42,
+    "tx7do_modules_final": 0,
+    "modules_removed": 44,
+    "removal_attribution": "the 42 tx7do modules plus github.com/gobwas/glob and github.com/google/cel-go, which go mod graph showed at T14 as pulled only by go-utils v1.1.40 and kratos-bootstrap/rpc v0.1.3",
+    "modules_added": "NONE",
+    "non_tx7do_modules_whose_version_moved": "NONE across 372 shared entries",
+    "stderr_bytes_for_both_listings": 0
+  },
+
+  "not_claimed_by_r7": [
+    "R7 proves dependency and artifact zeroing plus unchanged surviving versions; it is not behavioural acceptance, which is what R4 and R5 carry",
+    "the final make verify-gpu over this candidate is a separate record and its exit code governs",
+    "R6 remains blocked on the missing historical dumps, so the task conclusion stays qualified regardless of this sweep"
+  ]
+}
