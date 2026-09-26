@@ -181,6 +181,19 @@ func TestPreflightFailsWithoutTouchingOutputs(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+	// preflight reads the module path the repository's own plugins must come from.
+	if err := os.WriteFile(filepath.Join(root, "go.mod"), []byte("module go-wind-admin\n\ngo 1.26.7\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// A damaged or absent tool lock is itself a preflight failure, so this fixture has to carry one.
+	lockDir := filepath.Join(root, filepath.Dir(toolLockRel))
+	if err := os.MkdirAll(lockDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(lockDir, filepath.Base(toolLockRel)),
+		[]byte(`{"tools":{"buf":{"module":"github.com/bufbuild/buf/cmd/buf","version":"v1.60.0"}}}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
 
 	bad := &genTemplate{
 		Name:      "buf.missing.gen.yaml",

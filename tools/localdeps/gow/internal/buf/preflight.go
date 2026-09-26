@@ -2,6 +2,7 @@ package buf
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -24,8 +25,23 @@ func preflightGenerate(ctx context.Context, root, apiPath string, templates []*g
 	if err != nil {
 		return err
 	}
+	lock, err := loadToolLock(root)
+	if err != nil {
+		return err
+	}
+	own, err := mainModulePath(root)
+	if err != nil {
+		return err
+	}
+	v := &pluginVerifier{root: root, apiPath: apiPath, cache: cache, lock: lock, module: own,
+		verifiedPaths: map[string]string{}, filePlugins: map[string]error{}}
 
 	var problems []string
+	// buf is not a plugin in a template, so it is checked explicitly with the same rule: the binary
+	// has to be the pinned one, not whatever happens to be on PATH.
+	if err := v.verifyPathTool(ctx, "buf"); err != nil {
+		problems = append(problems, err.Error())
+	}
 	for _, t := range templates {
 		for _, dir := range t.InputDirs {
 			if !isWithin(apiPath, dir) || !pkg.IsDirExists(filepath.Join(apiPath, dir)) {
@@ -42,7 +58,7 @@ func preflightGenerate(ctx context.Context, root, apiPath string, templates []*g
 			}
 		}
 		for _, ref := range t.Plugins {
-			if err := resolvePlugin(ctx, root, apiPath, cache, ref); err != nil {
+			if err := v.resolve(ctx, ref); err != nil {
 				problems = append(problems, fmt.Sprintf("%s: %v", t.Name, err))
 			}
 		}
@@ -57,53 +73,232 @@ func preflightGenerate(ctx context.Context, root, apiPath string, templates []*g
 	return nil
 }
 
-// resolvePlugin checks one plugin reference. Local build steps are allowed only for the plugin
-// this repository owns (protoc-gen-go-redact), through the same script the Makefile uses; nothing
-// is ever downloaded or installed by a version the caller did not pin.
-func resolvePlugin(ctx context.Context, root, apiPath, cache string, ref pluginRef) error {
+// pluginVerifier resolves the plugins one generation run needs, at most once each. Existence is never
+// accepted as identity: a PATH plugin has to carry the module and version the repository pins, and
+// the plugin this repository owns has to come out of its own build script for the current sources.
+type pluginVerifier struct {
+	root, apiPath, cache string
+	lock                 map[string]lockedTool
+	module               string
+	verifiedPaths        map[string]string
+	filePlugins          map[string]error
+}
+
+func (v *pluginVerifier) resolve(ctx context.Context, ref pluginRef) error {
 	switch ref.Kind {
 	case "remote":
 		return nil // resolved by buf from the checked-in buf.lock
 	case "command":
 		if mod, ok := ref.goRunModule(); ok {
-			return verifyGoRunModule(cache, mod)
+			return verifyGoRunModule(v.cache, mod)
 		}
 		if _, err := exec.LookPath(ref.Program); err != nil {
 			return fmt.Errorf("command %q for %v is not on PATH", ref.Program, ref.Args)
 		}
 		return nil
 	case "path":
-		path, err := exec.LookPath(ref.Program)
-		if err != nil {
-			return fmt.Errorf("plugin %q is not on PATH: %v", ref.Program, err)
-		}
-		fmt.Printf("preflight: plugin %-22s %s\n", ref.Program, pluginVersion(ctx, path))
-		return nil
+		return v.verifyPathTool(ctx, ref.Program)
 	case "file":
 		target := ref.Program
 		if !filepath.IsAbs(target) {
-			target = filepath.Join(apiPath, ref.Program)
+			target = filepath.Join(v.apiPath, ref.Program)
 		}
-		if !isWithin(root, target) {
+		target = filepath.Clean(target)
+		if !isWithin(v.root, target) {
 			return fmt.Errorf("plugin path %q escapes the module root", ref.Program)
 		}
-		if _, err := os.Stat(target); err == nil {
-			fmt.Printf("preflight: plugin %-22s present\n", filepath.Base(target))
+		// One attempt per plugin per generation. A failure is remembered too: retrying it for every
+		// template that names the same binary would only repeat the same cost and the same output.
+		if err, seen := v.filePlugins[target]; seen {
+			if err != nil {
+				return err
+			}
+			fmt.Printf("preflight: plugin %-22s %s (resolved this run)\n", filepath.Base(target), target)
 			return nil
 		}
-		if filepath.Base(target) != "protoc-gen-go-redact" {
-			return fmt.Errorf("plugin %s is missing and this tool does not know how to build it", target)
-		}
-		fmt.Printf("preflight: %s is missing, building it from pkg/localdeps first\n", filepath.Base(target))
-		if err := buildRedactPlugin(ctx, root); err != nil {
-			return err
-		}
-		if _, err := os.Stat(target); err != nil {
-			return fmt.Errorf("%s still missing after the build: %v", target, err)
-		}
-		return nil
+		err := v.resolveFilePlugin(ctx, target)
+		v.filePlugins[target] = err
+		return err
 	}
 	return fmt.Errorf("unhandled plugin reference %q", ref.Raw)
+}
+
+// resolveFilePlugin handles a plugin named by path inside the repository. The plugin this repository
+// owns is rebuilt first: presence proves nothing about the sources a binary came from, so the same
+// script `make api` runs is run here as well, and the Go build cache makes the repeat cheap.
+func (v *pluginVerifier) resolveFilePlugin(ctx context.Context, target string) error {
+	if filepath.Base(target) != "protoc-gen-go-redact" {
+		if _, err := os.Stat(target); err != nil {
+			return fmt.Errorf("plugin %s is missing and this tool does not know how to build it", target)
+		}
+		return v.verifyOwnBinary(ctx, target, "", "is an in-repository plugin this tool does not build")
+	}
+	fmt.Printf("preflight: building %s from the current pkg/localdeps sources\n", filepath.Base(target))
+	if err := buildRedactPlugin(ctx, v.root); err != nil {
+		return err
+	}
+	want := v.module + "/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact"
+	return v.verifyOwnBinary(ctx, target, want, "was built from the current sources but")
+}
+
+// verifyPathTool resolves one PATH tool and checks the binary itself against the tool lock. Reading
+// build info is the check; a version flag is something the program chooses to print.
+func (v *pluginVerifier) verifyPathTool(ctx context.Context, name string) error {
+	if seen, ok := v.verifiedPaths[name]; ok {
+		fmt.Printf("preflight: tool %-22s %s (verified this run)\n", name, seen)
+		return nil
+	}
+	path, err := exec.LookPath(name)
+	if err != nil {
+		return fmt.Errorf("tool %q is not on PATH: %v", name, err)
+	}
+	pinned, ok := v.lock[name]
+	if !ok {
+		return fmt.Errorf("tool %q at %s has no entry in %s; an unpinned tool is never accepted", name, path, toolLockRel)
+	}
+	info, err := buildInfo(ctx, path)
+	if err != nil {
+		return fmt.Errorf("tool %q at %s cannot be identified: %v (`--version` output is not accepted as identity)", name, path, err)
+	}
+	if info.PackagePath != pinned.Module || info.Version != pinned.Version {
+		return fmt.Errorf("tool %q at %s is %s@%s, %s pins %s@%s",
+			name, path, info.PackagePath, info.Version, toolLockRel, pinned.Module, pinned.Version)
+	}
+	v.verifiedPaths[name] = path
+	fmt.Printf("preflight: tool %-22s %s@%s at %s\n", name, info.PackagePath, info.Version, path)
+	return nil
+}
+
+// verifyOwnBinary checks that a plugin binary in the repository really came out of this module: its
+// build info must name this module and carry no dependency on the upstream tx7do tree.
+func (v *pluginVerifier) verifyOwnBinary(ctx context.Context, target, wantPackage, when string) error {
+	info, err := buildInfo(ctx, target)
+	if err != nil {
+		return fmt.Errorf("plugin %s %s cannot be identified: %v", filepath.Base(target), when, err)
+	}
+	if info.Module != v.module {
+		return fmt.Errorf("plugin %s %s reports module %s, expected this repository's %s",
+			filepath.Base(target), when, info.Module, v.module)
+	}
+	if wantPackage != "" && info.PackagePath != wantPackage {
+		return fmt.Errorf("plugin %s %s was built from %s, expected %s",
+			filepath.Base(target), when, info.PackagePath, wantPackage)
+	}
+	for _, d := range info.Deps {
+		if strings.HasPrefix(d, "github.com/tx7do/") {
+			return fmt.Errorf("plugin %s %s still depends on %s", filepath.Base(target), when, d)
+		}
+	}
+	sum, err := fileSum(target)
+	if err != nil {
+		return fmt.Errorf("plugin %s %s is not readable: %v", filepath.Base(target), when, err)
+	}
+	fmt.Printf("preflight: plugin %-22s %s sha256 %s\n", filepath.Base(target), info.PackagePath, sum[:16])
+	return nil
+}
+
+// lockedTool is one plugin entry of the repository's tool lock.
+type lockedTool struct {
+	Module  string
+	Version string
+}
+
+// loadToolLock reads the version lock the repository already keeps for its fixed tools. A missing
+// or unreadable lock is a preflight failure, never a reason to trust whatever $PATH happens to hold.
+func loadToolLock(root string) (map[string]lockedTool, error) {
+	raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(toolLockRel)))
+	if err != nil {
+		return nil, fmt.Errorf("reading %s: %w", toolLockRel, err)
+	}
+	var doc struct {
+		Tools map[string]struct {
+			Module  string `json:"module"`
+			Version string `json:"version"`
+		} `json:"tools"`
+	}
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		return nil, fmt.Errorf("parse %s: %w", toolLockRel, err)
+	}
+	lock := make(map[string]lockedTool, len(doc.Tools))
+	for name, t := range doc.Tools {
+		if t.Module == "" || t.Version == "" {
+			return nil, fmt.Errorf("%s: tool %q has no module or version", toolLockRel, name)
+		}
+		lock[name] = lockedTool{Module: t.Module, Version: t.Version}
+	}
+	if len(lock) == 0 {
+		return nil, fmt.Errorf("%s lists no tools", toolLockRel)
+	}
+	return lock, nil
+}
+
+// toolLockRel is the repository's own record of which version each fixed tool must have.
+const toolLockRel = "migration/patches/T15/T15-tool-lock.json"
+
+// buildID is what go version -m reports for one binary. PackagePath is the main package the binary
+// was built from, which is what the tool lock records as its module: the go install line names a
+// package, not the module that provides it.
+type buildID struct {
+	PackagePath string
+	Module      string
+	Version     string
+	Deps        []string
+}
+
+// buildInfo asks the pinned Go toolchain to read the build info out of the binary itself. A version
+// banner is text the program chooses to print; this is what the binary was built from.
+func buildInfo(ctx context.Context, program string) (*buildID, error) {
+	info, err := os.Stat(program)
+	if err != nil {
+		return nil, err
+	}
+	if !info.Mode().IsRegular() || info.Mode().Perm()&0o111 == 0 {
+		return nil, fmt.Errorf("%s is not a regular executable file", program)
+	}
+	cctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
+	out, err := exec.CommandContext(cctx, "go", "version", "-m", program).CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("`go version -m %s`: %w: %s", program, err, strings.TrimSpace(string(out)))
+	}
+	id := &buildID{}
+	for _, line := range strings.Split(string(out), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			continue
+		}
+		switch fields[0] {
+		case "path":
+			id.PackagePath = fields[1]
+		case "mod":
+			id.Module = fields[1]
+			if len(fields) > 2 {
+				id.Version = fields[2]
+			}
+		case "dep":
+			id.Deps = append(id.Deps, fields[1])
+		}
+	}
+	if id.Module == "" {
+		return nil, fmt.Errorf("%s carries no module build info", program)
+	}
+	return id, nil
+}
+
+// mainModulePath is the module the repository's own plugins are built from.
+func mainModulePath(root string) (string, error) {
+	raw, err := os.ReadFile(filepath.Join(root, "go.mod"))
+	if err != nil {
+		return "", err
+	}
+	for _, line := range strings.Split(string(raw), "\n") {
+		if rest, ok := strings.CutPrefix(strings.TrimSpace(line), "module "); ok {
+			if name := strings.TrimSpace(rest); name != "" {
+				return name, nil
+			}
+		}
+	}
+	return "", fmt.Errorf("no module line in %s", filepath.Join(root, "go.mod"))
 }
 
 // buildRedactPlugin runs the repository's own build script, so the Makefile entry and a direct
@@ -176,25 +371,6 @@ func goModuleCache(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("go env GOMODCACHE returned nothing")
 	}
 	return cache, nil
-}
-
-// pluginVersion records a plugin's own version banner. It is capped and fed from /dev/null so a
-// plugin that only speaks the protoc protocol on stdin cannot stall the preflight.
-func pluginVersion(ctx context.Context, program string) string {
-	cctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-	devNull, err := os.OpenFile(os.DevNull, os.O_RDONLY, 0)
-	if err != nil {
-		return "version unreadable"
-	}
-	defer devNull.Close()
-	cmd := exec.CommandContext(cctx, program, "--version")
-	cmd.Stdin = devNull
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return "version flag unsupported"
-	}
-	return strings.TrimSpace(string(out))
 }
 
 // isWithin keeps a template-declared path inside the base directory after cleaning, so a
