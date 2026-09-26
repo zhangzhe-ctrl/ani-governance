@@ -3,7 +3,7 @@
   "task": "T15",
   "phase": "E",
   "goal_file": "_agent/ani-governance-tx7do-plan/goals/T15.md",
-  "status": "IN_PROGRESS_R0_R4_COMPLETE",
+  "status": "IN_PROGRESS_R0_R7_EXECUTED_R6_BLOCKED",
   "recorded_at": "2026-09-26T07:55+08:00",
   "start_sha": "66b52032bb503357216b38b889b092a61b72ff94",
   "accepted_head": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
@@ -33,5 +33,5 @@
     "no production seeds and no startup migrations"
   ],
   "r0_r1": "see migration/receipts/T15-ruling-regeneration-and-tools.json",
-  "progress_checkpoint": "R0-R4 are recorded in migration/receipts/T15-pgv-scope-resolved.json (PGV scope, validators,\nadmin_doc, OpenAPI, R1 closure, R2 rebuild), migration/receipts/T15-r3.json (protoc tooling entry,\nnamed required tests, known-defect classification) and migration/receipts/T15-r4-verify-gpu.json\n(the complete make verify-gpu at exit 0 over 77dea49). R5, R6 and R7 remain, so T15 is not closed.\nNothing in this file supersedes the earlier records; they are all still the evidence."
+  "progress_checkpoint": "R0-R5, R7 executed and recorded (T15-pgv-scope-resolved.json, T15-r3.json,\nT15-r4-verify-gpu.json, T15-r5.json, T15-r7.json plus patches/T15/*). R6 is blocked on two\nhistorical backup dumps that do not exist on this host (T15-r6.json). The Ent and API generation\nentry audits are in patches/T15/T15-ent-entry-unification.json and\nT15-r7-generation-entry-audit.json; the latter leaves one owner decision open. T15 is not signed off."
 }
