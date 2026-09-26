@@ -361,3 +361,90 @@ func containsAll(hay, needles []string) bool {
 	}
 	return true
 }
+
+// TestStagingInputsCarryEveryStepTheChainRuns keeps the staged copy complete: a script the chain
+// runs but never stages would make the run fail in a way that only shows up on a clean checkout.
+func TestStagingInputsCarryEveryStepTheChainRuns(t *testing.T) {
+	root := repoRoot(t)
+	want := map[string]bool{"scripts/build-redact-plugin.sh": false, finalizeScriptRel: false}
+	have := map[string]bool{}
+	for _, in := range stagingInputs() {
+		have[in] = true
+	}
+	for path := range want {
+		if !have[path] {
+			t.Errorf("stagingInputs() does not copy %s, which the chain runs", path)
+		}
+		if _, err := os.Stat(filepath.Join(root, path)); err != nil {
+			t.Errorf("%s is missing from the repository: %v", path, err)
+		}
+	}
+	for _, in := range stagingInputs() {
+		if _, err := os.Stat(filepath.Join(root, in)); err != nil {
+			t.Errorf("staged input %s does not exist: %v", in, err)
+		}
+	}
+}
+
+// TestFinalizeOpenAPIRunsInsideTheStagedCopy proves the tail step executes against the copy rather
+// than the repository: the marker below can only appear under the stage directory.
+func TestFinalizeOpenAPIRunsInsideTheStagedCopy(t *testing.T) {
+	stage := t.TempDir()
+	script := filepath.Join(stage, filepath.FromSlash(finalizeScriptRel))
+	if err := os.MkdirAll(filepath.Dir(script), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	body := "import pathlib, sys\npathlib.Path('ran-inside-stage').write_text('ok')\n"
+	if err := os.WriteFile(script, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := finalizeOpenAPI(context.Background(), stage); err != nil {
+		t.Fatalf("finalizeOpenAPI: %v", err)
+	}
+	got, err := os.ReadFile(filepath.Join(stage, "ran-inside-stage"))
+	if err != nil {
+		t.Fatalf("the script did not run with the stage as its working directory: %v", err)
+	}
+	if string(got) != "ok" {
+		t.Errorf("marker = %q", got)
+	}
+	if _, err := os.Stat(filepath.Join(repoRoot(t), "ran-inside-stage")); err == nil {
+		t.Fatal("the post-processing step wrote into the repository instead of the staged copy")
+	}
+	if err := finalizeOpenAPI(context.Background(), t.TempDir()); err == nil {
+		t.Error("a staged copy without the post-processing script must fail rather than skip")
+	}
+}
+
+// TestFinalizeOpenApiDocumentIsNotIdempotent records why the post-processing belongs inside the
+// staged run: scripts/finalize-aksk-openapi.py removes one synthetic response and refuses to do it
+// twice, so an outer make openapi after gow api would break an otherwise good build.
+func TestFinalizeOpenApiDocumentIsNotIdempotent(t *testing.T) {
+	root := repoRoot(t)
+	stage := t.TempDir()
+	target := filepath.Join(stage, filepath.FromSlash("app/admin/service/cmd/server/assets/openapi.yaml"))
+	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	doc, err := os.ReadFile(filepath.Join(root, "app/admin/service/cmd/server/assets/openapi.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(target, doc, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := copyFile(filepath.Join(root, filepath.FromSlash(finalizeScriptRel)),
+		filepath.Join(stage, filepath.FromSlash(finalizeScriptRel))); err != nil {
+		t.Fatal(err)
+	}
+	if err := finalizeOpenAPI(context.Background(), stage); err == nil {
+		t.Fatal("running the post-processing over the already final document must fail loudly, not pass silently")
+	}
+	after, err := os.ReadFile(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(after) != string(doc) {
+		t.Error("the refused post-processing must leave the document byte-identical")
+	}
+}

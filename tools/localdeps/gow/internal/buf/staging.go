@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -43,10 +44,24 @@ func deriveManagedRoots(root, apiPath string, templates []*genTemplate) ([]manag
 	return out, nil
 }
 
-// stageAndGenerate runs the accepted template walk against a throwaway copy of the inputs and
-// only then brings managed files back. The point is that clean: true in api/buf.gen.yaml can
-// clear a directory all it likes: it clears the copy, never api/gen/go or the output roots that
-// hold hand-written runtime files, unless generation has already succeeded in full.
+// finalizeScriptRel is the repository's own OpenAPI post-processing step. It belongs to
+// generation, not to a follow-up command: scripts/finalize-aksk-openapi.py removes one synthetic
+// response and refuses to run twice, so the only safe place for it is inside the staged run,
+// before anything is written back.
+const finalizeScriptRel = "scripts/finalize-aksk-openapi.py"
+
+// stagingInputs lists what the staged copy needs: the module files, the two source trees the
+// templates read and write, both scripts the chain runs, and every managed root outside those
+// trees that already holds hand-written files.
+func stagingInputs() []string {
+	return []string{"go.mod", "go.sum", "api", "pkg", "scripts/build-redact-plugin.sh", finalizeScriptRel}
+}
+
+// stageAndGenerate runs the accepted template walk against a throwaway copy of the inputs,
+// post-processes the OpenAPI document there, and only then brings managed files back. The point is
+// that clean: true in api/buf.gen.yaml can clear a directory all it likes: it clears the copy,
+// never api/gen/go or the output roots that hold hand-written runtime files, unless generation
+// and its post-processing have both succeeded in full.
 func stageAndGenerate(ctx context.Context, root string, templates []*genTemplate, roots []managedRoot) error {
 	stage, err := os.MkdirTemp("", "gow-api-stage-")
 	if err != nil {
@@ -58,19 +73,13 @@ func stageAndGenerate(ctx context.Context, root string, templates []*genTemplate
 		}
 	}()
 
-	for _, in := range []string{"go.mod", "go.sum", "api", "pkg"} {
+	for _, in := range stagingInputs() {
 		if err := copyTree(filepath.Join(root, in), filepath.Join(stage, in)); err != nil {
 			return fmt.Errorf("staging %s: %w", in, err)
 		}
 	}
 	if err := os.MkdirAll(filepath.Join(stage, "tools", "bin"), 0o755); err != nil {
 		return err
-	}
-	if err := os.MkdirAll(filepath.Join(stage, "scripts"), 0o755); err != nil {
-		return err
-	}
-	if err := copyFile(filepath.Join(root, "scripts", "build-redact-plugin.sh"), filepath.Join(stage, "scripts", "build-redact-plugin.sh")); err != nil {
-		return fmt.Errorf("staging the redact build script: %w", err)
 	}
 	// Every managed output root has to exist in the copy with its current content, including the
 	// ones outside api/ and pkg/. The openapi template writes into
@@ -104,7 +113,37 @@ func stageAndGenerate(ctx context.Context, root string, templates []*genTemplate
 		}
 	}
 
+	if err := finalizeOpenAPI(ctx, stage); err != nil {
+		return err
+	}
+
 	return syncBack(root, stage, roots)
+}
+
+// finalizeOpenAPI runs the repository's existing OpenAPI post-processing inside the staged copy,
+// so a document with a synthetic response still in it can never be written back and no follow-up
+// command is needed to make the tree final. The script is self-locating relative to its own parent
+// directory, which is why running the staged copy is enough; its rules, plugin and paths are
+// unchanged.
+func finalizeOpenAPI(ctx context.Context, stage string) error {
+	script := filepath.Join(stage, filepath.FromSlash(finalizeScriptRel))
+	if _, err := os.Stat(script); err != nil {
+		return fmt.Errorf("staged %s missing: %w", finalizeScriptRel, err)
+	}
+	python, err := exec.LookPath("python3")
+	if err != nil {
+		return fmt.Errorf("python3 is required to run %s: %w", finalizeScriptRel, err)
+	}
+	cmd := exec.CommandContext(ctx, python, script)
+	cmd.Dir = stage
+	cmd.Env = os.Environ()
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("%s failed: %w", finalizeScriptRel, err)
+	}
+	fmt.Printf("post-processed the OpenAPI document with %s\n", finalizeScriptRel)
+	return nil
 }
 
 // syncBack compares the staged output with the working tree and copies only what generation
