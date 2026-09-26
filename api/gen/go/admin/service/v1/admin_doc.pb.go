@@ -25,10 +25,10 @@ var File_admin_service_v1_admin_doc_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_admin_doc_proto_rawDesc = "" +
 	"\n" +
-	" admin/service/v1/admin_doc.proto\x12\x10admin.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\xb9\x06\xbaG\xfb\x04\x12\xba\x01\n" +
+	" admin/service/v1/admin_doc.proto\x12\x10admin.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\xc1\t\xbaG\x83\b\x12\xba\x01\n" +
 	"\x10GoWind Admin API\x12\x10GoWind Admin API\"D\n" +
 	"\x05tx7do\x12&https://github.com/tx7do/go-wind-admin\x1a\x13yanglinbo@gmail.com*I\n" +
-	"\vMIT License\x12:https://github.com/tx7do/go-wind-admin/blob/master/LICENSE2\x031.0*\x9f\x03\n" +
+	"\vMIT License\x12:https://github.com/tx7do/go-wind-admin/blob/master/LICENSE2\x031.0*\xa7\x06\n" +
 	"\xd4\x01\n" +
 	"\xd1\x01\n" +
 	"\fKratosStatus\x12\xc0\x01\n" +
@@ -52,7 +52,24 @@ const file_admin_service_v1_admin_doc_proto_rawDesc = "" +
 	";\n" +
 	"\x10application/json\x12'\n" +
 	"%\x12#\n" +
-	"!#/components/schemas/KratosStatus:]\n" +
+	"!#/components/schemas/KratosStatus:\xe4\x03\n" +
+	"-\n" +
+	"\n" +
+	"BearerAuth\x12\x1f\n" +
+	"\x1d\n" +
+	"\x04http\x12\bUser JWT*\x06bearer2\x03JWT\n" +
+	"o\n" +
+	"\rAccessKeyAuth\x12^\n" +
+	"\\\n" +
+	"\x06apiKey\x12<Public AK; all three signature headers are required together\x1a\fX-Access-Key\"\x06header\n" +
+	"z\n" +
+	"\rSignatureAuth\x12i\n" +
+	"g\n" +
+	"\x06apiKey\x12HANI seven-line HMAC-SHA256, lowercase hex; Swagger does not calculate it\x1a\vX-Signature\"\x06header\n" +
+	"i\n" +
+	"\rSignatureTime\x12X\n" +
+	"V\n" +
+	"\x06apiKey\x127Positive Unix seconds within 300 seconds of server time\x1a\vX-Timestamp\"\x06header\n" +
 	"[\n" +
 	"\x14OAuth2PasswordBearer\x12C\n" +
 	"A\n" +

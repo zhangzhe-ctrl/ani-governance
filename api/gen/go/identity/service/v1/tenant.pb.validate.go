@@ -2086,6 +2086,8 @@ func (m *QuotaUsage) validate(all bool) error {
 
 	// no validation rules for QuotaValue
 
+	// no validation rules for QuotaCode
+
 	if len(errors) > 0 {
 		return QuotaUsageMultiError(errors)
 	}

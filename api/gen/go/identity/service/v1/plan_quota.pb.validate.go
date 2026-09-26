@@ -73,6 +73,10 @@ func (m *PlanQuota) validate(all bool) error {
 		// no validation rules for QuotaValue
 	}
 
+	if m.QuotaCode != nil {
+		// no validation rules for QuotaCode
+	}
+
 	if m.CreatedBy != nil {
 		// no validation rules for CreatedBy
 	}
