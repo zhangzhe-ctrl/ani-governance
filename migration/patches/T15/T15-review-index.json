@@ -1,0 +1,66 @@
+{
+  "schema_version": "t15-review-index/1",
+  "task": "T15",
+  "prepared_for": "independent code review of the tx7do source takeover",
+  "generated_at": "2026-09-26T22:20:00+08:00",
+
+  "identity": {
+    "branch": "task/tx7do-t15",
+    "accepted_head_not_rolled_back": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+    "frozen_migration_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+    "tested_code_sha_final_gate": "bcbe7893c8ef7a50dd8561831316f99ee7c82f84",
+    "final_code_tip_before_ledger": "bd9f03b87a04f328b8e37a72e0869f1ca0bbd279",
+    "head_after_this_index": "the commit that introduces this file; the delta from bcbe789 is this index alone, ledger-only, and the scanner was re-run over it (no leaks) because the gate's audit stage scans the tree",
+    "prior_gate_records": {
+      "77dea49": "make verify-gpu exit 0 (migration/receipts/T15-r4-verify-gpu.json)",
+      "b700522": "make verify-gpu exit 0, 19m41s",
+      "fecdcf5": "make verify-gpu exit 0, 20m41s"
+    }
+  },
+
+  "diff_scope": {
+    "frozen_baseline_to_head": "1708 files changed, 222929 insertions, 1783 deletions",
+    "area_breakdown": {"pkg/localdeps (taken-over sources)": 517, "migration/preflight (ledgers and profiles)": 306, "app/admin": 285, "migration/patches": 265, "api/gen": 162, "migration/receipts": 35, "tools/localdeps (gow slice)": 34, "api/localdeps": 19, "other pkg/*": 31, "scripts and docs": "remainder"},
+    "generated_pattern_files": 238,
+    "since_accepted_head": "65 files, 6015 insertions, 135 deletions; excluding migration/ and _agent/ the touched set is 31 files: 11 api/gen/go artifacts (9 generator-version comments, the approved admin_doc sync, one plan_quota placeholder), 2 api/buf templates, Makefile, .gitleaks.toml plus scripts/gitleaks-buildinfo-exception.sh, scripts/post-generate-clean.sh, scripts/README.md, docs/local-integration.md, docs/interface-integration-register.md, the taken-over gow buf/ent scheduling files and their tests, id/machineid/id.go comment path, redact/v1/redact.go proto go_package, two repaired test files"
+  },
+
+  "approved_patches_this_round": {
+    "production": "none. No business method, Proto field, validation rule, error mapping, database behaviour or plugin version changed. pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/redact.proto carries a one-line go_package localization (1df0eb7) and touches no shipped artifact",
+    "tool": [
+      "tools/localdeps/gow/internal/ent/cmd.go plus feature_gate_test.go (72f0c49): the Ent feature list follows the gate's five-feature contract; the gate script was not edited",
+      "tools/localdeps/gow/internal/buf/{cmd.go,template.go,preflight.go,staging.go} plus locked_chain_test.go (0389d60): make api delegates to one chain; preflight before any write; generation in a staged copy; write-back refused on lost files or out-of-scope validators; OpenAPI post-processing inside the staged chain"
+    ],
+    "test_only": [
+      "app/admin/service/internal/service/task_service_asynq_sqlite_test.go (8668362): sustained-quiescence assertion replacing a sample-before-drain race, mutation-verified for detection power",
+      "pkg/localdeps/kratos-transport/transport/sse/stream_test.go (0389d60): TestStreamAddSubscriber repaired test-only; production files untouched; patch at /home/ubuntu/tx7do-pilot-run/T15/sse-fix/T15-sse-test-only.patch, sha256 a626e900... (upstream and pre-patch) to 5e10292a... (post-patch)"
+    ],
+    "scanner_exceptions_exact_and_single_entry": "migration/patches/T15/T15-gitleaks-exception.json (two T14 buildinfo dirhash paths, one exact value, negative controls in scripts/gitleaks-buildinfo-exception.sh) plus the earlier reviewed per-value exceptions already in .gitleaks.toml; nothing directory-wide, no rule disabled, no forced exit"
+  },
+
+  "final_gate_and_execution_evidence": {
+    "complete_gate": {"command": "make verify-gpu QUOTA_LAB_PG_DSN=<task lab DSN> under run_checked.sh", "exit": 0, "wall": "18m6s (13:56:35Z to 14:14:41Z)", "log": "/home/ubuntu/tx7do-pilot-run/T15/final2-verify-gpu.{command,log,exit,started,finished}", "content": "74 ok lines, 0 FAIL/panic markers, quota Ent boundary pass, regenerate-and-diff silent, govulncheck 0 affected, gitleaks no leaks", "cache_disclosure": "66 of the 74 ok lines were Go cache results"},
+    "fresh_execution_at_this_sha": {"command": "go test -count=1 -json over data, service, server, ./pkg/... and ./tools/... with the task redis broker", "exit": 0, "packages_passed_fresh": 74, "cached": 0, "gate_cached_packages_not_re_proven": "NONE (the only package outside it, quotalab/simulator, is itself run with -count=1 inside lab-regression.sh)", "named_profile": "migration/required-tests.json 7/7 pass with zero bad entries via tools/migration/require_tests.py", "log": "/home/ubuntu/tx7do-pilot-run/T15/final2-fresh.{log,exit}"},
+    "generation_reproducibility": {"digest_of_five_managed_roots": "96184d0165d5bfd1 at bcbe789 and in every clean-copy run", "A2a_direct_gow_api_clean": "exit 0, digest equal, 0 tracked modifications, finalize seen, no follow-up command", "A2b_make_api_twice_clean": "0/0 exits, identical digests, second pass identical", "B_failing_finalize_make_api": "exit 2, managed digest and file count unchanged, user edits and untracked files byte-identical", "B_failing_finalize_gow_api": "exit 1, same unchanged results", "C3_uncommitted_proto": "honoured: one new artifact reported and generated", "earlier_matrix": "A/B/C/C2/D/E rows in migration/patches/T15/T15-api-entry-unification.json", "harness": "/home/ubuntu/tx7do-pilot-run/T15/api-fix/{matrix.sh,matrix2.sh,matrix-run2.log}"},
+    "sse_stability": {"local": "100 iterations verified as 100 RUN and 100 PASS; 30 with -race; 5 whole-package runs clean", "pristine_locked_copy": "same patch passes 100 and 30 in an isolated copy of sse@v1.3.8 rebuilt in its own multi-module layout", "unpatched_original": "also passes both fixed counts, so the counts are stability data only and the earlier failure log stands as recorded", "logs": "/home/ubuntu/tx7do-pilot-run/T15/sse-fix/"},
+    "dependency_zeroing_at_bcbe789": {"modules_total_lines": 373, "tx7do_modules": 0, "tx7do_graph_edges": 0, "package_graph_tx7do": {"default": 0, "quota_lab": 0, "quota_pg": 0, "tools_integration": 0, "gpu_joint": 0}, "artifact_buildinfo_tx7do": {"server": 0, "admin": 0, "gow": 0, "protoc-gen-go-redact": 0}, "generated_integration_sample": "313 packages / 7 modules / 0 tx7do with and without -test (migration/patches/T15/T15-redact-runtime-dependency.json)", "go_mod_go_sum": "5e33988887af338a... / 997d541cec2913e4..., unchanged since the R7 record; no non-tx7do module version moved and none added"}
+  },
+
+  "known_defects_and_boundaries": {
+    "isolated_upstream_defects": "9 captcha (KNOWN_BASELINE_FAILURE) + 3 id (nondeterministic) exactly as approved; reports migration/patches/T15/T15-r3c-{captcha,id}-known-defects.json; their tagged runs keep non-zero exit codes and are never reported as passes",
+    "vet_note": "go vet over internal/service still reports the inherited T03-F5 copylocks finding in accelerator_joint_http_test.go:503; that is not in go test's vet subset, which is why the gate passes, and it is not claimed as a clean whole-repo vet",
+    "unverified_or_open": [
+      "R6: BLOCKED_INPUT, two historical dumps missing (migration/receipts/T15-r6.json); delivery point /home/ubuntu/tx7do-pilot-run/T15/r6-inputs/",
+      "real external client application integration: not executed",
+      "gRPC legacy-client comparison: not applicable in this configuration (no gRPC listener), stated rather than skipped silently",
+      "runtime and deployment acceptance: not performed; no service promotion, no migration against a business database",
+      "kratos CLI and golangci-lint: unpinned and absent, announced by make cli, never assumed",
+      "model slice: parked and unrunnable by ruling; buf.model.gen.yaml untouched",
+      "Atlas: not installed here, so the R5 task database was built by applying the committed migration SQL in filename order; that substitution is recorded in receipts/T15-r5.json and is not the same as an Atlas-driven install rehearsal",
+      "one scratch-worktree go.sum prune of 157 lines was observed after an ad-hoc make api plus go build sequence and its cause was not chased; the documented entries leave go.sum byte-identical"
+    ]
+  },
+
+  "review_material_policy": "no database dumps, no private request bodies, no credentials and no module cache are included; secrets never entered the tree (the admin password and the access-key file exist only under /home/ubuntu/tx7do-pilot-run with mode 600 and are not quoted here); logs keep request ids and digests but no credential material",
+  "resources": {"this_round_worktrees": "all removed (only earlier rounds' reference worktrees remain, untouched)", "this_round_redis": "container created by scripts/verify-gpu-redis.sh stopped and removed", "task_databases": "tx7do_t15_r5 dropped; no tx7do* database remains", "gate_databases": "gov_acc_dev, gov_acc_joint_b, gov_acc_test_owner, gov_acc_data, gov_acc_lab present and untouched", "big_scrubbed": "reconstructible extracted trees deleted, logs and patches kept"}
+}
