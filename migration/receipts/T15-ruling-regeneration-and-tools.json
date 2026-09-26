@@ -1,0 +1,63 @@
+{
+  "schema_version": "t15-ruling/1",
+  "task": "T15",
+  "granted_by": "user",
+  "granted_at": "2026-09-26T10:15+08:00",
+  "recorded_in": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md, section 「### T15 补充授权：裁决重生成口径、machineid 注释、工具钉版、旧客户端与配额恢复的检查点式推进」",
+  "decision_verbatim": "请从当前T15检查点继续。本指令补充并优先覆盖旧goal中冲突的组织/授权限制，写入_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md及migration裁决记录。不要只更新文档后停止，不重做T00～T14。",
+  "resume_state": {
+    "head_at_ruling": "244a782cf31541bf0fd3a4f808c27769605f32b8",
+    "accepted_head": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+    "branch_created": "task/tx7do-t15",
+    "worktree_clean_apart_from_untracked_agent": true
+  },
+  "rulings": {
+    "regeneration": "conditional A with per-file contract proof",
+    "machineid": "approved COMMENT_PATH_ONLY localisation",
+    "tool_versions": "approved pinning of verified tools",
+    "old_client": "build the in-repo historical client in a throwaway tree; external app integration stays not_verified",
+    "quota_recovery": "two isolated task-owned restore copies, source database never touched",
+    "checkpointing": "INTERRUPTED at safe boundaries only"
+  },
+  "r0_result": {
+    "docker": "29.6.1",
+    "protoc": "/home/ubuntu/tx7do-pilot-run/T13/protoc-root/bin/protoc 29.3, binary sha256 5ae94ad986e83f0b",
+    "go": "go version go1.26.7 linux/amd64",
+    "GOFLAGS": "-mod=readonly",
+    "GOWORK": "off",
+    "leftover_worktrees_not_owned_by_this_stage": [
+      "T03/base-ref",
+      "T04/premigrate-ref",
+      "T07/premigrate-ref",
+      "T11/control2",
+      "/tmp/t10_baseline_wt"
+    ]
+  },
+  "r1_result": {
+    "baseline": "clean worktree at 244a782: make gow + scripts/build-redact-plugin.sh, then gow api (twice), make openapi, gow ent admin",
+    "idempotency": "second gow api run byte-identical (sha256 -c over the whole changed set, exit 0); make openapi reproduced the committed assets/openapi.yaml exactly",
+    "change_set": {
+      "modified": 12,
+      "untracked_new": 8,
+      "module_files_touched": 0
+    },
+    "classification": {
+      "comment_only_ast_identical": 9,
+      "admin_doc.pb.go": "the embedded descriptor constant changed: B\\xb9\\x06 -> B\\xc1\\t length of the gnostic OpenAPI option plus payload, i.e. the committed generated file is stale against the committed admin_doc.proto. Real descriptor/option content change -> sub-item STOPPED, candidate patch kept, not auto-accepted.",
+      "plan_quota.pb.validate.go": "adds an `if m.QuotaCode != nil { // no validation rules for QuotaCode }` block for a field present in the proto: stale generated validator. Behaviourally a placeholder, but it is a code change to a validation file -> STOPPED with the candidate.",
+      "ent_migrate.go": "pure additions of Diff/NamedDiff (package level and on *Schema) from the ent v0.14.6 template; zero removals and no Tables/columns/index changes, so the schema export and migration SQL construction are unchanged. Accepted as an explainable, contract-preserving generation difference.",
+      "eight_new_validate_files": "gow api runs every active template, while the accepted baseline was produced through make api plus individual slice scripts, so 8 .pb.validate.go outputs exist only in the regenerated tree. Adding files to the tree is a scope decision, not a proven no-op -> STOPPED with the candidate."
+    },
+    "verdict": "conditional A accepted 10 of 12 modified files (9 comment-only + migrate.go); the admin_doc descriptor/option difference, the stale plan_quota validator block and the 8 extra validate files are held as candidates for the owner, so the API regeneration is NOT committed as a whole.",
+    "artifacts": [
+      "migration/patches/T15/T15-regen-ast-classification.json",
+      "migration/patches/T15/T15-regen-candidate.patch",
+      "migration/patches/T15/T15-tool-lock.json"
+    ]
+  },
+  "done_this_turn": {
+    "machineid": "patched to the local path, equiv still PASS (AST and directives identical), package tests pass, patch migration/patches/T15/T15-machineid-COMMENT_PATH_ONLY.patch",
+    "tool_lock": "8 tools + protoc recorded from binary buildinfo; Makefile plugin/cli now use the locked variables, gnostic included; kratos CLI and golangci-lint are recorded as unresolved instead of being filled with @latest"
+  },
+  "next": "R2 with the owner's answer on the three held items, then R3 required-tests + tools-integration + known-defects, R4 full make verify-gpu on the final tree, R5 in-repo historical client contract, R6 the two isolated quota restore copies, R7 final graph/artifact sign-off."
+}

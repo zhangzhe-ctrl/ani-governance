@@ -3,7 +3,7 @@
   "task": "T15",
   "phase": "E",
   "goal_file": "_agent/ani-governance-tx7do-plan/goals/T15.md",
-  "status": "NOT_STARTED",
+  "status": "IN_PROGRESS_R0_R1_COMPLETE",
   "recorded_at": "2026-09-26T07:55+08:00",
   "start_sha": "66b52032bb503357216b38b889b092a61b72ff94",
   "accepted_head": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
@@ -31,5 +31,6 @@
     "no push, merge or deploy",
     "isolated lab PostgreSQL and the task-owned disposable Redis only",
     "no production seeds and no startup migrations"
-  ]
+  ],
+  "r0_r1": "see migration/receipts/T15-ruling-regeneration-and-tools.json"
 }

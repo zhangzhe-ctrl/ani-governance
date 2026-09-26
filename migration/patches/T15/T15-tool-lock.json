@@ -1,0 +1,84 @@
+{
+  "schema_version": "t15-tool-lock/1",
+  "how_verified": "each version comes from go version -m on the binary actually present in /home/ubuntu/go/bin (buildinfo mod line), not from a guess; protoc is the task-private 29.3 installed for this stage",
+  "tools": {
+    "protoc-gen-go": {
+      "module": "google.golang.org/protobuf/cmd/protoc-gen-go",
+      "version": "v1.36.11",
+      "binary_sha256": "8c06db74e8c09fdc",
+      "install": "go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11"
+    },
+    "protoc-gen-go-grpc": {
+      "module": "google.golang.org/grpc/cmd/protoc-gen-go-grpc",
+      "version": "v1.6.2",
+      "binary_sha256": "402835810af99d13",
+      "install": "go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2"
+    },
+    "protoc-gen-go-http": {
+      "module": "github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2",
+      "version": "v2.0.0-20260404020628-f149714c1d54",
+      "binary_sha256": "1b2d40e46baea840",
+      "install": "go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@v2.0.0-20260404020628-f149714c1d54"
+    },
+    "protoc-gen-go-errors": {
+      "module": "github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2",
+      "version": "v2.0.0-20260404020628-f149714c1d54",
+      "binary_sha256": "666987e27cca0578",
+      "install": "go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@v2.0.0-20260404020628-f149714c1d54"
+    },
+    "protoc-gen-openapi": {
+      "module": "github.com/google/gnostic/cmd/protoc-gen-openapi",
+      "version": "v0.7.1",
+      "binary_sha256": "21582664bf70075b",
+      "install": "go install github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1"
+    },
+    "protoc-gen-validate": {
+      "module": "github.com/envoyproxy/protoc-gen-validate",
+      "version": "v1.3.3",
+      "binary_sha256": "e748b20d0a77895d",
+      "install": "go install github.com/envoyproxy/protoc-gen-validate@v1.3.3"
+    },
+    "buf": {
+      "module": "github.com/bufbuild/buf/cmd/buf",
+      "version": "v1.60.0",
+      "binary_sha256": "6e470e12629d27b5",
+      "install": "go install github.com/bufbuild/buf/cmd/buf@v1.60.0"
+    },
+    "ent": {
+      "module": "entgo.io/ent/cmd/ent",
+      "version": "v0.14.6",
+      "binary_sha256": "7eb46147475b88dd",
+      "install": "go install entgo.io/ent/cmd/ent@v0.14.6"
+    }
+  },
+  "protoc": {
+    "version": "29.3",
+    "module": "private task install",
+    "path": "/home/ubuntu/tx7do-pilot-run/T13/protoc-root/bin/protoc",
+    "binary_sha256": "5ae94ad986e83f0b52bd8139e036cbf94ddbba3ad348be8e4baf44447d7e19a4",
+    "zip_sha256": "3e866620c5be27664f3d2fa2d656b5f3e09b5152b42f1bedbf427b333e90021a",
+    "download_url": "https://github.com/protocolbuffers/protobuf/releases/download/v29.3/protoc-29.3-linux-x86_64.zip",
+    "note": "development-time only; never installed into a production image"
+  },
+  "built_from_this_module": {
+    "gow": "make gow -> tools/bin/gow (in-use commands api/ent/run/version)",
+    "protoc-gen-go-redact": "scripts/build-redact-plugin.sh -> tools/bin/protoc-gen-go-redact",
+    "protoc-gen-go-redact source": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2 taken over into pkg/localdeps"
+  },
+  "unresolved_entries": [
+    {
+      "binary": "kratos (github.com/go-kratos/kratos/cmd/kratos/v2)",
+      "state": "not installed on this host, so no version could be verified; recorded rather than filled in with @latest",
+      "used_by_in_use_commands": false
+    },
+    {
+      "binary": "golangci-lint",
+      "state": "not installed on this host; `make lint` would need it, no version could be verified",
+      "used_by_in_use_commands": false
+    }
+  ],
+  "gates": {
+    "gitleaks": "v8.30.1 (already pinned by scripts/verify-gpu-audit.sh)",
+    "govulncheck": "v1.7.0 (same)"
+  }
+}

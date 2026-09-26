@@ -861,5 +861,23 @@
       "migration/patches/T14/T14-final-dependency-report.json",
       "migration/patches/T13/T13-scoped-tool-acceptance.json"
     ]
+  },
+  "phase_E_T15_r0_r1_checkpoint": {
+    "task": "T15",
+    "status": "R0+R1 complete, R2 held on three items",
+    "head": "244a782cf31541bf0fd3a4f808c27769605f32b8",
+    "accepted_head": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+    "branch": "task/tx7do-t15",
+    "tested_code_sha": "pending this checkpoint commit",
+    "resume_first": [
+      "migration/receipts/T15-ruling-regeneration-and-tools.json",
+      "migration/patches/T15/T15-regen-candidate.patch",
+      "migration/patches/T15/T15-tool-lock.json"
+    ],
+    "open_for_owner": [
+      "admin_doc.pb.go descriptor difference",
+      "plan_quota.pb.validate.go stale validator block",
+      "8 validate files present only in the regenerated tree"
+    ]
   }
 }
