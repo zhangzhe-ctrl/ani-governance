@@ -54,6 +54,12 @@ condition = "AND"
 regexTarget = "secret"
 paths = ['''^pkg/localdeps/go-crud/pagination/README\.md$''']
 regexes = ['''^eyJpZCI6MTAwfQ==$''', '''^eyJpZCI6MjAwfQ==$''']
+[[rules.allowlists]]
+description = "T14 `go version -m` buildinfo dumps. The matched string is the public Go module dirhash of github.com/getkin/kin-openapi v0.149.0: byte-identical to go.sum:140 and to what `go mod verify` checks, so it is a dependency content digest recorded on a line that names the module and version, not a credential. The scanner itself exempts the identical content by file name (a copy of go.sum is clean, a copy renamed other.txt is reported), which is the false-positive proof. Negative controls with this exception loaded: the same line under any other path is still reported, and a different h1 value appended inside these paths is still reported (scripts/gitleaks-buildinfo-exception.sh)."
+condition = "AND"
+regexTarget = "secret"
+paths = ['''^migration/patches/T14/buildinfo/admin\.txt$''', '''^migration/patches/T14/buildinfo/server\.txt$''']
+regexes = ['''^ZbhmVJ4yq5RZDUsyP8lcBcGMsjsaTqXEFt6isdtMDfA=$''']
 
 [[rules]]
 id = "jwt"
