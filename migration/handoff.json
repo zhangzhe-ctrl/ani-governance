@@ -899,5 +899,15 @@
       "migration/pgv-scope.json"
     ],
     "next_command": "make pgv into a temporary --output directory, then sync only the 103 validator paths named by migration/pgv-scope.json (temp output plus managed sync is the route the ruling allows; no post-hoc deletion in the working tree)"
+  },
+  "phase_E_T15_pgv_trace": {
+    "status": "scoped PGV cleared of blame (103 out, 0 extra); extras belong to another entry, cases B/C pending",
+    "head": "8fb0ca91f96f6911fec042d9c1a48c32d7f5dd41",
+    "read_first": [
+      "migration/receipts/T15-pgv-trace.json"
+    ],
+    "worktree": "/home/ubuntu/tx7do-pilot-run/T15/traced",
+    "traces": "/home/ubuntu/tx7do-pilot-run/T15/pgv-traces",
+    "next": "repeat the trace with the label buf-main on `cd api && buf generate` inside the throwaway worktree, then on gow api, and diff each response file set against migration/pgv-scope.json"
   }
 }

@@ -1,0 +1,176 @@
+{
+  "schema_version": "t15-pgv-trace/1",
+  "task": "T15 PGV call trace",
+  "at": "8fb0ca91f96f6911fec042d9c1a48c32d7f5dd41",
+  "question": "do the 8 extra validators come from the scoped PGV step (item 4.1) or from another generation entry (item 4.2)?",
+  "setup": {
+    "pgv_binary": "/home/ubuntu/tx7do-pilot-run/T15/pgv-bin/protoc-gen-validate",
+    "pgv_identity": "go version -m build github.com/envoyproxy/protoc-gen-validate@v1.3.3 h1:MVQghNeW+LZcmXe7SY1V36Z+WFMDjpqGAGacLe2T0ds=",
+    "note": "built into a task-private GOBIN with the pinned version; --help answers 'no files to generate' i.e. a stdin plugin. The official entries use `go run …@v1.3.3`, whose launcher hash would not be the plugin identity, hence this explicit build.",
+    "traced_template_only_in_throwaway_worktree": true,
+    "trace_plugin": "_agent/pgv-call-trace/trace_plugin.py (forwards bytes unchanged; traces stored task-private)"
+  },
+  "calls": [
+    {
+      "dir": "call-31f23m2a",
+      "file_to_generate": 1,
+      "proto_files": 6,
+      "dependency_only": 5,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-8bqx3zu9",
+      "file_to_generate": 1,
+      "proto_files": 11,
+      "dependency_only": 10,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-92gma7f3",
+      "file_to_generate": 13,
+      "proto_files": 27,
+      "dependency_only": 14,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-a7ethf7r",
+      "file_to_generate": 4,
+      "proto_files": 16,
+      "dependency_only": 12,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-e6rtc3ug",
+      "file_to_generate": 8,
+      "proto_files": 21,
+      "dependency_only": 13,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-eohgo6ll",
+      "file_to_generate": 4,
+      "proto_files": 15,
+      "dependency_only": 11,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-glcoz_9w",
+      "file_to_generate": 9,
+      "proto_files": 28,
+      "dependency_only": 19,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-je_qkezm",
+      "file_to_generate": 2,
+      "proto_files": 15,
+      "dependency_only": 13,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-jgcbkjqs",
+      "file_to_generate": 1,
+      "proto_files": 2,
+      "dependency_only": 1,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-jw71srw1",
+      "file_to_generate": 1,
+      "proto_files": 2,
+      "dependency_only": 1,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-l8lk9h5a",
+      "file_to_generate": 16,
+      "proto_files": 31,
+      "dependency_only": 15,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-rqvb8205",
+      "file_to_generate": 1,
+      "proto_files": 21,
+      "dependency_only": 20,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-tj4ul6fn",
+      "file_to_generate": 1,
+      "proto_files": 11,
+      "dependency_only": 10,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-ypfv4ld_",
+      "file_to_generate": 1,
+      "proto_files": 11,
+      "dependency_only": 10,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    },
+    {
+      "dir": "call-zfm8u3dd",
+      "file_to_generate": 40,
+      "proto_files": 98,
+      "dependency_only": 58,
+      "response_files": 0,
+      "exit": 0,
+      "parse_error": null,
+      "response_error": []
+    }
+  ],
+  "call_count": 15,
+  "result": {
+    "validators_after_scoped_buf_generate": 103,
+    "extra_validators_from_this_step": 0,
+    "buf_shards_plugin_into": 15,
+    "each_shard_has_its_own_file_to_generate_subset": true,
+    "dependency_files_are_parsed_not_generated": "sum over shards of file_to_generate equals the 103 target set while proto_file_names includes dependency protos"
+  },
+  "conclusion": "The scoped PGV template alone is correct: 15 parallel buf plugin calls, each with a real file_to_generate subset, produce exactly the 103 approved validators and nothing else. Therefore the earlier report blaming PGV dependency generation was wrong (the truncated sentence), and the 8 extras must be attributed to another entry, per item 四.2. Next: trace case B (make api default buf.gen.yaml pass) and case C (gow api and buf.aksk.gen.yaml), each with response file sets, and find the first command that emits quota/quota_lab/accelerator validators.",
+  "next_command": "repeat the trace with the label buf-main on `cd api && buf generate` inside the throwaway worktree, then on gow api, and diff each response file set against migration/pgv-scope.json",
+  "not_a_block": "no permission or inventory gap; this is a normal continue with measured evidence"
+}
