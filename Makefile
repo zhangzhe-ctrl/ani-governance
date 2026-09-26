@@ -109,9 +109,10 @@ register:
 
 # generate protobuf api go code
 # 业务模板用 ../tools/bin/protoc-gen-go-redact 生成脱敏代码，先确保该二进制与本地源码一致。
-api: redact-plugin pgv
+api: redact-plugin
 	cd api && \
 	buf generate
+	$(MAKE) pgv
 
 # PGV 单独一遍：文件级范围由 api/buf.validate.gen.yaml 的清单固定（T15），clean:false 不动共享输出根。
 pgv:

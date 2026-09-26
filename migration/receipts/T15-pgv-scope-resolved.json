@@ -1,0 +1,56 @@
+{
+  "schema_version": "t15-pgv-scope-resolved/1",
+  "task": "T15 PGV range closure",
+  "at": "2026-09-26T12:32+08:00",
+  "root_cause": "Two wiring faults, both mine, not PGV behaviour. (1) make api declared pgv as a prerequisite, so the scoped PGV ran BEFORE the default pass whose buf.gen.yaml carries clean=true; that clean wiped the freshly generated validators and left whatever other templates had written, which is where the '111 with 8 extra' and the two differing validators came from. (2) gow api correctly rejected the new buf.validate.gen.yaml as an unclassified template, so gow api aborted with exit 1 and produced nothing.",
+  "withdrawn_hypotheses": [
+    "protoc-gen-validate generates for imported dependencies (case A trace: 15 shards, every FileToGenerate inside the approved 103, zero extras)",
+    "buf.aksk.gen.yaml's own pinned PGV entry over-generates (its seven input protos are all inside the 103; with that entry untouched a full gow api still yields 103 and zero unexpected)",
+    "the earlier '8 vs 9 stems' count: the extra files no longer appear at all once the ordering is fixed"
+  ],
+  "fixes": [
+    {
+      "file": "Makefile",
+      "change": "api no longer depends on pgv; it runs buf generate first and then $(MAKE) pgv, so the clean:true default pass cannot erase the managed validators"
+    },
+    {
+      "file": "tools/localdeps/gow/internal/buf/cmd.go",
+      "change": "buf.validate.gen.yaml added to activeGenConfigs in the upstream walk position (after buf.gen.yaml), still with buf.model.gen.yaml parked and unknown templates rejected"
+    }
+  ],
+  "measurements": {
+    "clean_copy": "/home/ubuntu/tx7do-pilot-run/T15/clean at 76b6bbc",
+    "case_A_default_buf_generate_validators": 0,
+    "case_B_make_api": {
+      "exit": 0,
+      "validators": 103,
+      "unexpected": 0,
+      "missing": 0
+    },
+    "case_C_gow_api": {
+      "exit": 0,
+      "validators": 103,
+      "unexpected": 0,
+      "missing": 0
+    },
+    "second_gow_api_run": {
+      "exit": 0,
+      "validators": 103,
+      "identical": true
+    },
+    "content_drift_within_the_103": 0,
+    "pb_go_files_present": 240,
+    "deletions": 0,
+    "go_mod_or_go_sum_touched": 0,
+    "untracked_generated_files": 0
+  },
+  "verdict": "PGV_SCOPE_RESOLVED",
+  "t15_status": "IN_PROGRESS",
+  "next": [
+    "admin_doc three-way descriptor/document decode plus final OpenAPI comparison",
+    "plan_quota Validate/ValidateAll old-new parity",
+    "R2 two-pass full chain on the final tree",
+    "R3..R7"
+  ],
+  "boundary": "no PGV source or binary was modified, no dependency descriptor removed, no response filtering, no post-hoc deletion, the 103-item list unchanged, types pruning and skip rules not used"
+}

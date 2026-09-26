@@ -909,5 +909,11 @@
     "worktree": "/home/ubuntu/tx7do-pilot-run/T15/traced",
     "traces": "/home/ubuntu/tx7do-pilot-run/T15/pgv-traces",
     "next": "repeat the trace with the label buf-main on `cd api && buf generate` inside the throwaway worktree, then on gow api, and diff each response file set against migration/pgv-scope.json"
+  },
+  "phase_E_T15_pgv_scope_resolved": {
+    "status": "PGV_SCOPE_RESOLVED",
+    "head_at_fix": "76b6bbcf6a41c24bc3eb1d16086c3d9d433b9e63",
+    "root_cause": "make api ran pgv before the clean:true default pass; gow active list lacked the new template",
+    "next": "admin_doc decode verification, then plan_quota Validate parity, then R2"
   }
 }

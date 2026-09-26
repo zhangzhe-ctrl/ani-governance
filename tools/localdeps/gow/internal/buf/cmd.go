@@ -145,6 +145,7 @@ var activeGenConfigs = []string{
 	"buf.quota-lab.gen.yaml",
 	"buf.quota.gen.yaml",
 	"buf.redact.gen.yaml",
+	"buf.validate.gen.yaml",
 }
 
 // parkedGenConfigs 是已暂摘但保留作重接基线的模板；不执行、不删除。
