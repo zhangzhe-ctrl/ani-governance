@@ -1,0 +1,55 @@
+{
+  "schema_version": "t15-r4/1",
+  "task": "T15",
+  "phase": "E",
+  "item": "R4 - the complete make verify-gpu, executed as one run with its real exit code",
+  "status": "R4_VERIFIED",
+  "conclusion": "make verify-gpu exits 0 end to end on 77dea49. Two earlier runs of the same command on this branch failed and are kept as the record of what had to be fixed.",
+  "commit_under_test": "77dea49",
+  "tree_state": "git status showed only the untracked _agent/ task directory before and after the run; the run regenerated Ent and schema.sql in place and left them byte-identical, and go.mod, go.sum and the embedded openapi.yaml match the digests recorded before the run (sha256sum -c all OK)",
+  "invocation": {
+    "command": "bash tools/migration/run_checked.sh /home/ubuntu/tx7do-pilot-run/T15/r4c-verify-gpu make verify-gpu QUOTA_LAB_PG_DSN=<the task's authorized lab DSN>",
+    "environment": "GOROOT=/home/ubuntu/sdk/go1.26.7, GOTOOLCHAIN=local, GOWORK=off, GOFLAGS=-mod=readonly, PATH with the pinned Go first; guard and lab DSN files sourced from /home/ubuntu/tx7do-pilot-run/T07, no localhost fallback and no business DSN",
+    "started": "2026-09-26T07:58:45Z",
+    "finished": "2026-09-26T08:25:13Z",
+    "wall_clock": "26m28s",
+    "exit": 0,
+    "evidence": "/home/ubuntu/tx7do-pilot-run/T15/r4c-verify-gpu.{command,log,exit,started,finished} - one log from the first recipe line to the scanner's last line, not assembled from parts"
+  },
+  "stages_observed_in_the_single_log": {
+    "verify-quota-ent": "scripts/verify-quota-schema.sh regenerated the whole Ent tree plus schema.sql from the pinned ent@v0.14.6 five-feature command and diffed silently against the committed tree; scripts/check-quota-ent.py printed 'quota Ent boundary: pass'",
+    "toolchain-and-dependency": "go version go1.26.7 linux/amd64; github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9173",
+    "format": "scripts/verify-gpu-format.sh clean",
+    "builds": "cmd/server default, cmd/server -tags quota_lab, cmd/admin all built",
+    "package_tests": "scripts/verify-gpu-redis.sh started a loopback broker and exported ANI_TEST_REDIS_URI=127.0.0.1:32785, then go test over data, service, server and ./pkg/... reported ok for every package with no FAIL or panic line in the log",
+    "postgres_quota": "go test -tags quota_pg data -count=1 ok 7.246s; service -count=1 ok 0.125s",
+    "race": "go test -race -tags quota_pg data ok 57.080s; go test -race service ok 1.154s",
+    "lab_regression": "scripts/accelerator-acceptance/lab-regression.sh against QUOTA_LAB_REGRESSION_DSN: simulator package ok 4.964s, with the auth, ack-loss, provider-commit, partial-cleanup, partial-release, replay, contract-error and concurrent-delete cases each listed as --- PASS",
+    "audit": "verify-gpu-audit.sh re-checked govulncheck v1.7.0 and gitleaks v8.30.1 by go version -m and sha256, verified the fixture digests, reported 'Your code is affected by 0 vulnerabilities' (1 imported and 8 required-module findings not reachable in called code), then 'no leaks found'"
+  },
+  "cache_disclosure": {
+    "fact": "67 of the 74 ok lines in the gate log were Go test-cache results; 7 ran fresh, and the four -count=1 stages were fresh by construction",
+    "supplementary_run": "the same package list was then re-executed with -count=1 through the same official broker script: /home/ubuntu/tx7do-pilot-run/T15/r4c-nocache.{log,exit}, exit 0, 69 ok lines, 0 cached, no FAIL or panic",
+    "why_it_matters": "a cached ok is only as good as the run that produced it; this way the pass does not depend on cache reuse across the earlier failing tree"
+  },
+  "runs_that_failed_first_and_why": [
+    {
+      "run": "/home/ubuntu/tx7do-pilot-run/T15/r4-verify-gpu (exit 2), against e168df5",
+      "failure": "make: *** [Makefile:240: verify-quota-ent] Error 1 - the gate's regeneration produced a migrate.go without the 32-line Diff/NamedDiff block that fc7804b had committed",
+      "cause": "the R1 regeneration had used gow ent admin, which passes the sixth feature sql/versioned-migration (upstream gowind@v1.0.3/internal/ent/cmd.go:133), while the accepted artifacts match the gate's five-feature command",
+      "handling": "commit 8fca316 keeps the tool-produced file that is byte-identical to accepted_head; scripts/verify-quota-schema.sh was not edited and tools/localdeps/gow was not edited"
+    },
+    {
+      "run": "/home/ubuntu/tx7do-pilot-run/T15/r4b-verify-gpu (exit 2), against 8fca316",
+      "failure": "verify-quota-ent and every regression stage passed, govulncheck reported 0 affected, then make: *** [Makefile:265: verify-gpu-audit] Error 1 with 'leaks found: 2'",
+      "cause": "generic-api-key hits on the go dirhash of a public module revision inside T14's buildinfo evidence dumps, which the audit had never scanned because T14 recorded make verify-gpu as not_run",
+      "handling": "commit 3054542 adds one reviewed exception pinned to the rule, both exact paths and the one exact value, with scripts/gitleaks-buildinfo-exception.sh as its negative controls; no rule disabled, no directory excluded, no baseline accepted, no exit code forced"
+    }
+  ],
+  "explicitly_not_claimed": [
+    "this gate is not runtime or deployment acceptance: the service was not started, no migration was applied and no business database was touched",
+    "the 12 upstream_known_defects cases stay classified failures; they are excluded from this gate by build tag and their own tagged runs exit non-zero",
+    "R5, R6 and R7 were not run this round",
+    "the 8 golang.org/x/image and 1 imported findings govulncheck lists are reachable-in-import only and are reported by the tool, not asserted benign here"
+  ]
+}
