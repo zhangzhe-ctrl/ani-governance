@@ -925,5 +925,11 @@
     "head": "22b5b2f1456b4b147b4c359c8aa110b52b37d4dd",
     "next": "section three: admin_doc three-way descriptor/document decode (export from the generated packages' FileDescriptor, decode with the locked gnostic extension type, separate processes) then the full make openapi final-artifact comparison",
     "cleanup": "temporary _valcheck directories removed from both trees; no business file hand-edited"
+  },
+  "phase_E_T15_openapi_and_admindoc": {
+    "status": "OPENAPI_FINAL_MATCH; ADMIN_DOC field-level diff still open",
+    "head": "781989ee6a68c9a56d7776b846ee2e9c9c3db67e",
+    "next_command": "fix the three harness defects in a throwaway _admindesc/main.go, run it in the committed tree, the generated tree and against /tmp/t15_img.bin, then diff the document path lists",
+    "no_new_authorization_needed": true
   }
 }

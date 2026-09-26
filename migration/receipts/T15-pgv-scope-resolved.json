@@ -84,7 +84,7 @@
     "api/gen/go/identity/service/v1/user.pb.go",
     "app/admin/service/cmd/server/assets/openapi.yaml"
   ],
-  "measured_at": "2026-09-26T13:08+08:00",
+  "measured_at": "2026-09-26T13:51+08:00",
   "retraction": "撤回『103个validator与基线全部零内容漂移』：实测仍有2个validator与基线不同（plan_quota、tenant）。PGV_SCOPE_RESOLVED只指批准输出范围闭环。历史111/8的逐文件来源标注未完整追溯，原始日志保留。",
   "validator_verification": {
     "at": "2026-09-26T13:32+08:00",
@@ -124,5 +124,36 @@
       "the accepted 103-item list"
     ],
     "must_run_preserved": "the normal plan/quota request validation tests stay in the R3 required list; the full message and protocol checks remain in R2"
-  }
+  },
+  "openapi_final": {
+    "status": "OPENAPI_FINAL_MATCH",
+    "command": "cd <clean copy> && make openapi  (buf generate --template buf.admin.openapi.gen.yaml + python3 scripts/finalize-aksk-openapi.py)",
+    "exit": 0,
+    "bytes": 468993,
+    "sha256_prefix_generated": "303e3fa19b0139f7775e2",
+    "sha256_prefix_baseline_627783c": "303e3fa19b0139f7775e2",
+    "strict_yaml_parse": "ok, no duplicate keys",
+    "structure_equal": true,
+    "differing_paths": 0,
+    "explanation": "the earlier 'M assets/openapi.yaml' came from my ad-hoc sequence running only make api; including the existing post-processing step the final document is byte-identical to the accepted baseline. No hand edit of the YAML, no copying the old file over the generated one."
+  },
+  "admin_doc_partial": {
+    "status": "PARTIAL_NOT_YET_VERIFIED",
+    "measured": {
+      "committed_fd": "926 bytes, sha256/12 df85e55dda15329ca5ffbe94",
+      "generated_fd": "1318 bytes, sha256/12 272a121ba243b7b4f080f4b2",
+      "identical_across_both": [
+        "messages=0",
+        "services=0",
+        "package=admin.service.v1",
+        "syntax=proto3",
+        "imports=[gnostic/openapi/v3/annotations.proto]",
+        "declared file options go_package/deprecated/java_package"
+      ],
+      "source_protos": "git diff --name-only 627783c -- api/protos is empty and the tree is clean apart from untracked _agent/"
+    },
+    "remaining": "field-level document diff (A committed vs B generated vs C source-built) not produced: three compile defects remain in the throwaway harness (stale fd reference in the imports loop, proto.Range which is not in this protobuf version, one unused binding). Fix: iterate fo.ProtoReflect().Range, take imports from fdp.GetDependency(), drop the unused variable. Input C already exists: buf build -o /tmp/t15_img.bin (1075131 bytes) from the clean copy.",
+    "not_claimed": "no ADMIN_DOC_SYNC_VERIFIED and no acceptance of the regenerated admin_doc.pb.go until that comparison and the consumer check are done"
+  },
+  "temp_hygiene": "_admindesc and _valcheck removed from the repository tree and the throwaway copy; no business file hand-edited"
 }
