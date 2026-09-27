@@ -8,5 +8,6 @@ python3 -m unittest discover -s scripts/tests -p 'test_*.py'
 make check-repo-entrypoints
 go build -o "${TMPDIR:-/tmp}/ani-server-$$" ./app/admin/service/cmd/server
 go build -o "${TMPDIR:-/tmp}/ani-admin-$$" ./app/admin/service/cmd/admin
-go test -count=1 ./app/admin/service/internal/data ./app/admin/service/internal/server ./pkg/...
+go test -count=1 ./app/admin/service/internal/data ./app/admin/service/internal/server
+bash scripts/ci/with-redis.sh run -- go test -count=1 ./pkg/...
 bash scripts/ci/audit.sh
