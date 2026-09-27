@@ -1,35 +1,26 @@
-# 后端脚本指南
+# ANI Governance 脚本导航
 
-所有命令从仓库根目录执行，并遵守当前任务指定的执行环境。镜像构建使用根 `Dockerfile`，数据库、Redis 和部署配置由目标环境提供。
+日常开发统一见 [本仓开发指南](../docs/development.md)，执行边界见 [AGENTS.md](../AGENTS.md)。所有命令先核对工作目录和操作对象；脚本存在不等于适合在当前环境执行。
 
-| 入口 | 用途与边界 |
+| 类别 | 入口与边界 |
 |---|---|
-| `env/install_unix_dev.sh` | Unix 开发工具安装，会修改主机环境；使用前检查工具版本及安装范围。 |
-| `env/install_unix_prod.sh` | Unix 运行工具安装，不等于应用已部署。 |
-| `env/install_windows_dev.ps1` | Windows 开发工具安装；执行前审阅安装范围。 |
-| `deploy/pm2_service.sh` | 可选 PM2 部署，包含编译、复制配置和服务管理。 |
-| `deploy/sse/` | 可选 SSE 反向代理，按目标网络配置后端地址。 |
-| [backup/README.md](backup/README.md) | PostgreSQL 备份及恢复说明。 |
-| `generate-model-slice.sh`（**已暂停**）、`generate-network-slice.sh` | 固定范围的 API 生成脚本。model 接入已于 2026-09-21 暂摘，`generate-model-slice.sh` 保留作重接基线，重接前不可运行。 |
-| [post-generate-clean.sh](post-generate-clean.sh)（**已退役**） | 原用于在 `make api` 之后 `git checkout --` 还原生成漂移并删除空壳 `*.pb.validate.go`。`make api` 已收敛为委托 `tools/bin/gow api`（先校验插件与输入、在隔离暂存副本中生成、成功后按受管清单写回）；OpenAPI 后处理（`scripts/finalize-aksk-openapi.py`）在同一暂存副本内、写回之前完成，实测从干净检出逐字节复现既有产物且无需再补命令，因此不再需要事后改动正式产物；脚本现为拒绝执行并指向核对命令。 |
-| `bootstrap-network-access.sql`、`bootstrap-model-access.sql`（**已暂停**） | 专项权限登记，按脚本前提使用，不是通用种子。model 侧脚本因接入暂摘保留作重接基线，登记的 `/api/v1/models` 已下线。 |
-| [../docs/service-integration.md](../docs/service-integration.md) | 业务服务接入指南：mTLS 出站、身份 header 契约、装配锚点、Api 登记与验收清单。 |
-| [new-service-scaffold.sh](new-service-scaffold.sh) | 接入骨架生成（只写四个源文件，不执行生成/构建；生成、编译与验收按仓库执行环境约定运行）。 |
-| [model-lab/README.md](model-lab/README.md)（**已暂停**）、[network-lab/README.md](network-lab/README.md) | 历史隔离实验入口，包含特定环境和验收前提。model-lab 因接入暂摘而不可运行，保留作重接基线。 |
-| [lab/README.md](lab/README.md) | 当前隔离实验镜像构建：服务镜像 / 运维 CLI 镜像 / Atlas 镜像（可选 network），导入 kind。 |
-| [deploy/atlas/](deploy/atlas/) | 独立 Atlas 迁移镜像的 Dockerfile 与构建脚本；应用镜像不含 Atlas。 |
-| `backup-tx7do.py` | 源码备份及恢复校验，见 [备份说明](../third_party/tx7do/README.md)。 |
+| 完整 API | 根 `make api` / `tools/bin/gow api`；调用已锁定暂存链，不直接跑单模板代替全链 |
+| 本地工具 | `build-redact-plugin.sh`、根 `make gow`，从当前源码构建 |
+| 独立文档 | 根 `make openapi`，重新生成后再处理；不对最终 YAML 单独重复后处理 |
+| Ent/SQL | 根 `make ent` 或指南中的显式两步；与数据库应用迁移不同 |
+| 命令接线回归 | `tests/check-repo-entrypoints.py` / `make check-repo-entrypoints`；只在临时模拟树执行 |
+| 脱敏集成 | `make tools-integration`，需固定 protoc，不因缺工具 skip |
+| 旧开发安装器 | `env/install_unix_dev.sh`、`env/install_windows_dev.ps1`、`make install-dev` 已退役，副作用前退出 |
+| 其他主机/运维安装器 | 不属于推荐开发流程；`env/install_unix_prod.sh` 等仍按独立授权审阅，不因本次整理声称已验证 |
+| Atlas | [deploy/atlas/](deploy/atlas/)、`atlas.sh`，显式数据库结构操作；不在服务启动中执行 |
+| 备份与恢复 | [backup/README.md](backup/README.md)，只操作已确认的目标，不随开发任务执行 |
+| 可选部署 | `deploy/pm2_service.sh`、`deploy/sse/`，包含编译或服务/网络操作，先审阅前提 |
+| 服务接入 | [指南](../docs/service-integration.md)、`new-service-scaffold.sh`，骨架不代表装配和验收完成 |
+| 隔离实验 | [lab/README.md](lab/README.md)、[network-lab/README.md](network-lab/README.md)，绑定环境和输入，不是通用生产命令 |
+| 暂停的 Model 材料 | `model-lab/`、`generate-model-slice.sh`、`bootstrap-model-access.sql` 保留作重接基线，未重接前不可运行 |
+| 旧产物清理 | `post-generate-clean.sh` 已退役；不通过回退/删文件掩盖生成差异 |
+| 来源归档 | `backup-tx7do.py` 按 [来源说明](../third_party/tx7do/README.md) 使用，不是当前工具安装方式 |
 
-## 常用开发命令
+单模板/切片生成只用于其明确的输入与输出范围。不能从旧教程直接执行安装上游 redact 或使用任意 latest 插件。共享脚本库中的通用函数保留，不代表其环境修改功能获得本次执行授权。
 
-```bash
-gow run admin          # 先配置目标环境依赖及服务配置
-gow api                # Proto 改动后生成
-gow ent admin          # Ent schema 改动后生成
-make openapi
-make build_only        # 编译现有源码，不触发生成
-```
-
-`make docker` 是镜像构建入口，不负责启动数据库或部署应用。执行部署、备份恢复和实验脚本前核对目标环境；不能把脚本存在或构建成功当作运行验收。
-
-当前工作流见 [WORKFLOWS_AND_BEST_PRACTICES.md](WORKFLOWS_AND_BEST_PRACTICES.md)，开发规则见 [AGENTS.md](../AGENTS.md)。
+运行时凭据、业务数据库、证书和历史备份不进入开发文档或 Git；各项命令的实际验证范围以当前 PR 和相应原始证据为准。

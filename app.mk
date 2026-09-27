@@ -1,4 +1,4 @@
-# Makefile for building the GoWind micro service application
+# Makefile for building ANI Governance service applications
 
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 MKFILE_DIR  := $(dir $(MKFILE_PATH))
@@ -71,7 +71,7 @@ APP_RELATIVE_PATH	:= $(shell a=`basename $$PWD` && cd .. && b=`basename $$PWD` &
 SERVICE_NAME		:= $(shell a=`basename $$PWD` && cd .. && b=`basename $$PWD` && echo $$b)
 APP_NAME			:= $(shell echo $(APP_RELATIVE_PATH) | sed -En "s/\//-/p")
 
-.PHONY: build clean docker docker_server docker_admin gen ent api openapi run app help
+.PHONY: build build_only clean docker docker_server docker_admin gen ent api openapi run app help
 
 # show environment variables
 env:
@@ -89,7 +89,7 @@ env:
 	echo "VERSION: $(VERSION)"
 
 # build golang application
-build: api openapi
+build: api
 	go build $(GOFLAGS) -ldflags "$(LDFLAGS)" -o ./bin/ ./...
 
 # build golang application only
@@ -97,11 +97,12 @@ build_only:
 	go build $(GOFLAGS) -ldflags "$(LDFLAGS)" -o ./bin/ ./...
 
 # run application
-run: api openapi
+run: api
 	go run $(GOFLAGS) -ldflags "$(LDFLAGS)" ./cmd/server -c ./configs
 
 # build service app
-app: api openapi ent build
+app: gen
+	$(MAKE) build_only
 
 # clean build files
 clean:
@@ -109,7 +110,9 @@ clean:
 	$(if $(IS_WINDOWS), del "coverage.out", rm -f "coverage.out")
 
 # generate code
-gen: ent api openapi
+gen:
+	$(MAKE) ent
+	$(MAKE) api
 
 # generate ent code, if ent schema exist in the project's internal/data/ent folder
 ent:
@@ -125,13 +128,11 @@ endif
 
 # generate protobuf api go code
 api:
-	cd ../../../api && \
-	buf generate
+	$(MAKE) -C "$(MKFILE_DIR)" api
 
 # generate protobuf api OpenAPI v3 docs
 openapi:
-	cd ../../../api && \
-	buf generate --template buf.admin.openapi.gen.yaml
+	$(MAKE) -C "$(MKFILE_DIR)" openapi
 
 # build both docker images (server runtime + admin CLI)
 docker: docker_server docker_admin

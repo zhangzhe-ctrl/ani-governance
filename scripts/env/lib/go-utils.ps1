@@ -229,40 +229,15 @@ function Install-GoPackages {
     }
 }
 
-# ========== Plugin installation (unchanged, calls the functions above) ==========
+# ========== Retired development-only plugin installers ==========
+# These functions are kept as fail-fast compatibility entrypoints. General-purpose
+# utilities above are intentionally unchanged; do not install an upstream runtime.
 function Install-GoPlugins {
-    Log "Installing Protobuf compiler plugins..."
-    
-    $plugins = @(
-        'google.golang.org/protobuf/cmd/protoc-gen-go@latest',
-        'google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest',
-        'github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest',
-        'github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest',
-        'github.com/google/gnostic/cmd/protoc-gen-openapi@latest',
-        'github.com/envoyproxy/protoc-gen-validate@latest',
-        'github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2'
-    )
-    
-    Install-GoPackages -Packages $plugins
+    throw 'Retired: use the pinned ANI Governance tool steps in docs/development.md.'
 }
 
-# ========== CLI tool installation (unchanged) ==========
 function Install-GoCliTools {
-    Log "Installing CLI scaffold tools..."
-    
-    $cliTools = @(
-        'github.com/go-kratos/kratos/cmd/kratos/v2@latest',
-        'github.com/google/gnostic@latest',
-        'github.com/bufbuild/buf/cmd/buf@latest',
-        'entgo.io/ent/cmd/ent@latest',
-        'github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest'
-    )
-    
-    if ($cliTools.Count -gt 0) {
-        Install-GoPackages -Packages $cliTools
-    } else {
-        Log "No CLI tools to install"
-    }
+    throw 'Retired: use the pinned ANI Governance tool steps in docs/development.md.'
 }
 
 # ========== Initialization function (fixed function name calls) ==========
