@@ -17,7 +17,7 @@ case "${1:-}" in
     GOWORK=off go install github.com/bufbuild/buf/cmd/buf@v1.60.0
     work=$(mktemp -d "${TMPDIR:-/tmp}/ani-protoc.XXXXXXXX")
     trap 'rm -rf "$work"' EXIT
-    curl --fail --location --silent --show-error \
+    curl --http1.1 --fail --location --silent --show-error \
       'https://github.com/protocolbuffers/protobuf/releases/download/v29.3/protoc-29.3-linux-x86_64.zip' \
       -o "$work/protoc.zip"
     printf '%s  %s\n' '3e866620c5be27664f3d2fa2d656b5f3e09b5152b42f1bedbf427b333e90021a' "$work/protoc.zip" | sha256sum -c -
