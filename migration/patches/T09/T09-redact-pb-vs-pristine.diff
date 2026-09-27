@@ -1,0 +1,25 @@
+--- migration/patches/T09/_pristine/go-wind-toolkit-redact-pb.go	2026-09-25 13:07:33.414019549 +0800
++++ pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/redact.pb.go	2026-09-25 13:24:38.861908031 +0800
+@@ -622,9 +622,10 @@
+ 	Pattern string `protobuf:"bytes,1,opt,name=pattern,proto3" json:"pattern,omitempty"`
+ 	// Replacement is the replacement string. Use ${1}, ${2}, etc. to
+ 	// reference captured groups. For example:
+-	//   pattern:      "^(\\d{3})\\d{4}(\\d{4})$"
+-	//   replacement:  "${1}****${2}"
+-	//   13812345678 -> 138****5678
++	//
++	//	pattern:      "^(\\d{3})\\d{4}(\\d{4})$"
++	//	replacement:  "${1}****${2}"
++	//	13812345678 -> 138****5678
+ 	Replacement   string `protobuf:"bytes,2,opt,name=replacement,proto3" json:"replacement,omitempty"`
+ 	unknownFields protoimpl.UnknownFields
+ 	sizeCache     protoimpl.SizeCache
+@@ -1730,7 +1731,7 @@
+ 	"\x03nil\x12\x1f.google.protobuf.MessageOptions\x18\xeb\xa6\x03 \x01(\bR\x03nil:7\n" +
+ 	"\x05empty\x12\x1f.google.protobuf.MessageOptions\x18\xec\xa6\x03 \x01(\bR\x05empty:;\n" +
+ 	"\aignored\x12\x1f.google.protobuf.MessageOptions\x18\xed\xa6\x03 \x01(\bR\aignored:I\n" +
+-	"\x05value\x12\x1d.google.protobuf.FieldOptions\x18\xeb\xa6\x03 \x01(\v2\x12.redact.FieldRulesR\x05valueBHZFgithub.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redactb\x06proto3"
++	"\x05value\x12\x1d.google.protobuf.FieldOptions\x18\xeb\xa6\x03 \x01(\v2\x12.redact.FieldRulesR\x05valueBSZQgo-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redactb\x06proto3"
+ 
+ var (
+ 	file_redact_v1_redact_proto_rawDescOnce sync.Once

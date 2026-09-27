@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/tx7do/go-utils/timeutil"
-	"github.com/tx7do/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/go-utils/timeutil"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/proto"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"

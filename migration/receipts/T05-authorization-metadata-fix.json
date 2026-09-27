@@ -1,0 +1,42 @@
+{
+ "schema_version": "t05-authorization-metadata-fix/1",
+ "task": "T05 remediation (the excluded engine vet finding)",
+ "kind": "supplemental authorization (production-source fix + restoration of the excluded must-pass set)",
+ "granted_by": "user",
+ "granted_at": "2026-09-25",
+ "granted_via": "answer to the AskUserQuestion raised at the T05/T06 safe stop point",
+ "granted_from_state": "T06 committed and closed (c48bd4b, ledger f24455b); T05 recorded PASS_WITH_DISCLOSED_EXCLUSION at 474eee8. Nothing was reverted, reset, amended or pushed to take this authorization.",
+ "trigger_in_user_words": "我理解当前T05只是按排除后的范围通过，并没有解决engine包的vet失败。不要把PASS_WITH_DISCLOSED_EXCLUSION当作该问题已关闭。请在当前成果上补一项精确修复，再继续T06；已完成的T06修改保留，不回退或覆盖。",
+ "approved_scope_verbatim": "批准范围：pkg/localdeps/kratos-authn/engine/metadata.go 中AuthFromMD的两处动态错误消息调用，将 `status.Errorf(codes.Unauthenticated, \"Request unauthenticated with \"+expectedScheme)` 改为 `status.Error(codes.Unauthenticated, \"Request unauthenticated with \"+expectedScheme)`。只改这两处调用，不改认证条件、token提取、大小写匹配、错误码或其他分支。",
+ "required_semantic_record_verbatim": "明确记录：正常scheme消息保持；含%的scheme改为按普通文本处理，这是本次批准的错误构造修复，不声称所有输入逐字等价。",
+ "evidence_verbatim": "保存独立补丁、修改前后哈希和授权说明。其他生产文件继续按原guard/equiv；该文件用\"原始来源＋批准补丁\"作参考，不关闭保护工具。",
+ "restored_gate_verbatim": "恢复engine包及TestParseNumber的必跑要求，不再保留本次排除。",
+ "new_test_requirements_verbatim": "补充AuthFromMD测试，覆盖：缺少认证信息、scheme不匹配、合法Bearer、大小写兼容、畸形认证头，以及含%的scheme。验证错误码、消息和token返回符合上述批准合同，不修改现有测试预期掩盖其他回归。",
+ "mandatory_execution_verbatim": "实际执行：go vet -mod=readonly ./pkg/localdeps/kratos-authn/engine；go test -mod=readonly ./pkg/localdeps/kratos-authn/engine -count=1 -json。再执行T05原定消费者测试。保持默认vet，不用-vet=off；记录真实退出码和具名结果。同时在回执中写明此前实际排除了哪个测试包、使用了什么命令，不仅写\"删除TestParseNumber名单\"。",
+ "closure_and_continue_verbatim": "本次修复和原T05约定检查通过后，更新T05结论为\"通过，含已批准的两处生产源码修复\"，保留旧回执作为历史，然后自动继续原总goal。这只关闭本次两条诊断，不宣称全仓其他问题全部解决。",
+ "transcript_correction_verbatim": "脚本漏写go后重新执行正确命令；提交说明笔误补充记录即可，不amend、不push、不部署。",
+ "what_it_permits": [
+  "exactly the two status.Errorf -> status.Error call-site changes named above in pkg/localdeps/kratos-authn/engine/metadata.go",
+  "a new test file in the same package asserting the approved AuthFromMD contract",
+  "restoring pkg/localdeps/kratos-authn/engine, including TestParseNumber, to the T05 must-pass profile and dropping the 2026-09-25 exclusion",
+  "recording the fix as an 'original source + approved patch' equiv reference while keeping guard/equiv switched on everywhere else"
+ ],
+ "what_it_does_not_permit": [
+  "any change to authentication conditions, token extraction, case folding, error codes or other branches, in this file or any other",
+  "-vet=off in any gate or release command, and no relaxation of require_tests.py",
+  "deleting, skipping, renaming or re-expecting any existing test to absorb a regression",
+  "touching any other production file beyond this authorization, or widening the known-failure set",
+  "any business or non-isolated database, no push, no merge, no deploy, no amend of the existing commits",
+  "claiming the whole repository is now free of vet, build or test problems: only the two named AuthFromMD diagnostics are closed"
+ ],
+ "still_in_force": "every other freeze, provenance, security, method and acceptance clause of _agent/ani-governance-tx7do-plan/T03-T15-master-goal.md and the T04 supplemental authorization apply unchanged.",
+ "conclusion_condition": "T05 may be restated as 通过，含已批准的两处生产源码修复 only if: go vet of the engine package exits 0 under default vet; the engine package's own tests, TestParseNumber included, actually pass under go test -json with default vet; the restored T05 consumer profile passes require_tests.py with no missing/skip/fail/not_run; the patch, before/after hashes and this authorization are stored; and the receipt says which package was excluded before and with which command.",
+ "artifacts": {
+  "patch_inventory": "migration/patches/T05/T05-patch-inventory.json",
+  "patch": "migration/patches/T05/P1-engine-authfrommd-status-error.patch",
+  "pristine_upstream_copy": "migration/patches/T05/_orig/kratos-authn-engine-metadata.go",
+  "in_repo_patched_reference": "migration/patches/T05/_ref/kratos-authn-engine-metadata.plus-P1.go",
+  "new_test": "pkg/localdeps/kratos-authn/engine/authfrommd_approved_contract_test.go",
+  "evidence_prefix": "migration/preflight/T05R-*"
+ }
+}

@@ -1,0 +1,320 @@
+{
+ "activated_import_paths": [
+  "github.com/tx7do/go-utils/aggregator",
+  "github.com/tx7do/go-utils/captcha",
+  "github.com/tx7do/go-utils/crypto",
+  "github.com/tx7do/go-utils/jwtutil",
+  "github.com/tx7do/go-utils/password"
+ ],
+ "closure": {
+  "already_active_from_earlier_batches": [
+   "github.com/tx7do/go-utils/trans",
+   "github.com/tx7do/go-utils/stringcase",
+   "github.com/tx7do/go-utils/sliceutil",
+   "github.com/tx7do/go-utils/fieldmaskutil",
+   "github.com/tx7do/go-utils/mapper",
+   "github.com/tx7do/go-utils/copierutil"
+  ],
+  "deliberately_left_on_old_path_by_T04_md": [],
+  "non_tx7do_external_dependencies_kept": [
+   "_",
+   "bytes",
+   "context",
+   "crypto/aes",
+   "crypto/cipher",
+   "crypto/ecdh",
+   "crypto/ecdsa",
+   "crypto/elliptic",
+   "crypto/hmac",
+   "crypto/rand",
+   "crypto/rsa",
+   "crypto/sha256",
+   "crypto/sha512",
+   "crypto/subtle",
+   "crypto/x509",
+   "encoding/asn1",
+   "encoding/base64",
+   "encoding/binary",
+   "encoding/hex",
+   "encoding/json",
+   "encoding/pem",
+   "errors",
+   "fmt",
+   "github.com/go-kratos/kratos/v2/encoding",
+   "github.com/golang-jwt/jwt/v5",
+   "github.com/google/uuid",
+   "github.com/graph-gophers/dataloader/v7",
+   "github.com/mojocn/base64Captcha",
+   "github.com/redis/go-redis/v9",
+   "github.com/stretchr/testify/assert",
+   "github.com/stretchr/testify/require",
+   "github.com/tjfoc/gmsm/sm2",
+   "github.com/tjfoc/gmsm/sm3",
+   "github.com/tjfoc/gmsm/sm4",
+   "github.com/wenlng/go-captcha/v2/base/option",
+   "github.com/wenlng/go-captcha/v2/click",
+   "github.com/wenlng/go-captcha/v2/rotate",
+   "github.com/wenlng/go-captcha/v2/slide",
+   "golang.org/x/crypto/argon2",
+   "golang.org/x/crypto/bcrypt",
+   "golang.org/x/sync/errgroup",
+   "hash",
+   "image",
+   "image/color",
+   "math/big",
+   "math/rand/v2",
+   "net/http",
+   "net/http/httptest",
+   "reflect",
+   "regexp",
+   "strconv",
+   "strings",
+   "sync",
+   "sync/atomic",
+   "testing",
+   "time"
+  ],
+  "resolved_by_this_activation_set": [
+   "github.com/tx7do/go-utils/captcha"
+  ],
+  "tx7do_imports_seen_in_staged_sources": [
+   "github.com/tx7do/go-utils/captcha"
+  ],
+  "unresolved_tx7do_imports": []
+ },
+ "hash_failures": [],
+ "modules": [
+  {
+   "embed_resources": [],
+   "file_count": 17,
+   "files_license_count": 1,
+   "files_other_count": 1,
+   "files_source_count": 8,
+   "files_test_count": 7,
+   "go_directives": [],
+   "license_files_declared": [
+    {
+     "path": "github.com/tx7do/go-utils/password@v0.0.2/LICENSE",
+     "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+    }
+   ],
+   "module": "github.com/tx7do/go-utils/password",
+   "module_requires_from_manifest": null,
+   "package_dirs": [],
+   "packages": [
+    "password"
+   ],
+   "safety_clean": true,
+   "safety_findings": {
+    "absolute_or_traversal": [],
+    "duplicate_targets": [],
+    "outside_prefix": [],
+    "symlinks_or_devices": []
+   },
+   "skipped_entries": [
+    {
+     "path": "go.mod",
+     "reason": "nested module file; pkg/localdeps must stay an ordinary package of go-wind-admin"
+    },
+    {
+     "path": "go.sum",
+     "reason": "nested module file; pkg/localdeps must stay an ordinary package of go-wind-admin"
+    }
+   ],
+   "suffix": "go-utils/password",
+   "tx7do_imports": [],
+   "version": "v0.0.2",
+   "zip_matches_manifest": true,
+   "zip_sha256": "53fdc415bf96e9f67bb6ce8cb2ca59af87d962985f5c22b19eb279f20b5686ce"
+  },
+  {
+   "embed_resources": [],
+   "file_count": 19,
+   "files_license_count": 1,
+   "files_other_count": 1,
+   "files_source_count": 10,
+   "files_test_count": 7,
+   "go_directives": [],
+   "license_files_declared": [
+    {
+     "path": "github.com/tx7do/go-utils/crypto@v0.0.2/LICENSE",
+     "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+    }
+   ],
+   "module": "github.com/tx7do/go-utils/crypto",
+   "module_requires_from_manifest": null,
+   "package_dirs": [],
+   "packages": [
+    "crypto"
+   ],
+   "safety_clean": true,
+   "safety_findings": {
+    "absolute_or_traversal": [],
+    "duplicate_targets": [],
+    "outside_prefix": [],
+    "symlinks_or_devices": []
+   },
+   "skipped_entries": [
+    {
+     "path": "go.mod",
+     "reason": "nested module file; pkg/localdeps must stay an ordinary package of go-wind-admin"
+    },
+    {
+     "path": "go.sum",
+     "reason": "nested module file; pkg/localdeps must stay an ordinary package of go-wind-admin"
+    }
+   ],
+   "suffix": "go-utils/crypto",
+   "tx7do_imports": [],
+   "version": "v0.0.2",
+   "zip_matches_manifest": true,
+   "zip_sha256": "6906712218c9ed7d9261801ebee32e68119a9feabb4903e225852ba6f3f0d99b"
+  },
+  {
+   "embed_resources": [],
+   "file_count": 3,
+   "files_license_count": 1,
+   "files_other_count": 0,
+   "files_source_count": 1,
+   "files_test_count": 1,
+   "go_directives": [],
+   "license_files_declared": [
+    {
+     "path": "github.com/tx7do/go-utils/jwtutil@v0.0.3/LICENSE",
+     "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+    }
+   ],
+   "module": "github.com/tx7do/go-utils/jwtutil",
+   "module_requires_from_manifest": null,
+   "package_dirs": [],
+   "packages": [
+    "jwtutil"
+   ],
+   "safety_clean": true,
+   "safety_findings": {
+    "absolute_or_traversal": [],
+    "duplicate_targets": [],
+    "outside_prefix": [],
+    "symlinks_or_devices": []
+   },
+   "skipped_entries": [
+    {
+     "path": "go.mod",
+     "reason": "nested module file; pkg/localdeps must stay an ordinary package of go-wind-admin"
+    },
+    {
+     "path": "go.sum",
+     "reason": "nested module file; pkg/localdeps must stay an ordinary package of go-wind-admin"
+    }
+   ],
+   "suffix": "go-utils/jwtutil",
+   "tx7do_imports": [],
+   "version": "v0.0.3",
+   "zip_matches_manifest": true,
+   "zip_sha256": "cc737ef559eff1a6c33dd3ca9bf1bfc131140233f184547fd6593fb7c2fc8965"
+  },
+  {
+   "embed_resources": [],
+   "file_count": 6,
+   "files_license_count": 1,
+   "files_other_count": 1,
+   "files_source_count": 2,
+   "files_test_count": 2,
+   "go_directives": [],
+   "license_files_declared": [
+    {
+     "path": "github.com/tx7do/go-utils/captcha@v0.0.4/LICENSE",
+     "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+    }
+   ],
+   "module": "github.com/tx7do/go-utils/captcha",
+   "module_requires_from_manifest": null,
+   "package_dirs": [],
+   "packages": [
+    "captcha",
+    "captcha_test"
+   ],
+   "safety_clean": true,
+   "safety_findings": {
+    "absolute_or_traversal": [],
+    "duplicate_targets": [],
+    "outside_prefix": [],
+    "symlinks_or_devices": []
+   },
+   "skipped_entries": [
+    {
+     "path": "go.mod",
+     "reason": "nested module file; pkg/localdeps must stay an ordinary package of go-wind-admin"
+    },
+    {
+     "path": "go.sum",
+     "reason": "nested module file; pkg/localdeps must stay an ordinary package of go-wind-admin"
+    }
+   ],
+   "suffix": "go-utils/captcha",
+   "tx7do_imports": [
+    "github.com/tx7do/go-utils/captcha"
+   ],
+   "version": "v0.0.4",
+   "zip_matches_manifest": true,
+   "zip_sha256": "f937e078b3005f504d1542871fefe2c0183e07fc42ce9aa7e5a0aec81573066e"
+  },
+  {
+   "embed_resources": [],
+   "file_count": 11,
+   "files_license_count": 1,
+   "files_other_count": 1,
+   "files_source_count": 5,
+   "files_test_count": 4,
+   "go_directives": [],
+   "license_files_declared": [
+    {
+     "path": "github.com/tx7do/go-utils/aggregator@v0.0.5/LICENSE",
+     "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+    }
+   ],
+   "module": "github.com/tx7do/go-utils/aggregator",
+   "module_requires_from_manifest": null,
+   "package_dirs": [],
+   "packages": [
+    "aggregator"
+   ],
+   "safety_clean": true,
+   "safety_findings": {
+    "absolute_or_traversal": [],
+    "duplicate_targets": [],
+    "outside_prefix": [],
+    "symlinks_or_devices": []
+   },
+   "skipped_entries": [
+    {
+     "path": "go.mod",
+     "reason": "nested module file; pkg/localdeps must stay an ordinary package of go-wind-admin"
+    },
+    {
+     "path": "go.sum",
+     "reason": "nested module file; pkg/localdeps must stay an ordinary package of go-wind-admin"
+    }
+   ],
+   "suffix": "go-utils/aggregator",
+   "tx7do_imports": [],
+   "version": "v0.0.5",
+   "zip_matches_manifest": true,
+   "zip_sha256": "20067ae4df5eb8fd3880365764f6d33065423cf88992bceaaf7d055fbf83ba79"
+  }
+ ],
+ "schema_version": 1,
+ "task": "T04-pre-activation",
+ "totals": {
+  "all_byte_identical_to_archive": true,
+  "all_three_way_match": true,
+  "embed": 0,
+  "files_staged": 56,
+  "license": 5,
+  "other": 4,
+  "source": 26,
+  "test": 21
+ },
+ "verdict": "OK",
+ "wrote_into_repo": false
+}

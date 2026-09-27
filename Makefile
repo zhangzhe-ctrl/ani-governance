@@ -11,7 +11,7 @@ ROOT_DIR	:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
 SRCS_MK		:= $(foreach dir, app, $(wildcard $(dir)/*/*/Makefile))
 
-.PHONY: help gen ent build api openapi init all vendor dep test cover vet lint docker \
+.PHONY: help gen ent build api openapi pgv init all vendor dep test cover vet lint docker \
 		register install-dev install-prod pm2-deploy
 
 # show environment variables
@@ -20,27 +20,53 @@ env:
 	echo "ROOT_DIR: $(ROOT_DIR)"
 	echo "SRCS_MK: $(SRCS_MK)"
 
+# 固定开发工具版本（migration/patches/T15/T15-tool-lock.json）：
+# 版本来自本机二进制的 go version -m 构建信息，不用 @latest，不改应用依赖选择，不进生产镜像。
+PROTOC_GEN_GO_VER ?= v1.36.11
+PROTOC_GEN_GO_GRPC_VER ?= v1.6.2
+PROTOC_GEN_GO_HTTP_VER ?= v2.0.0-20260404020628-f149714c1d54
+PROTOC_GEN_GO_ERRORS_VER ?= v2.0.0-20260404020628-f149714c1d54
+PROTOC_GEN_OPENAPI_VER ?= v0.7.1
+PROTOC_GEN_VALIDATE_VER ?= v1.3.3
+BUF_VER ?= v1.60.0
+ENT_VER ?= v0.14.6
+
 # initialize develop environment
 init: plugin cli
 
 # install protoc plugin
 plugin:
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest
-	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
-	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
-	go install github.com/envoyproxy/protoc-gen-validate@latest
-	go install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@$(PROTOC_GEN_GO_VER)
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@$(PROTOC_GEN_GO_GRPC_VER)
+	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@$(PROTOC_GEN_GO_HTTP_VER)
+	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@$(PROTOC_GEN_GO_ERRORS_VER)
+	go install github.com/google/gnostic/cmd/protoc-gen-openapi@$(PROTOC_GEN_OPENAPI_VER)
+	go install github.com/envoyproxy/protoc-gen-validate@$(PROTOC_GEN_VALIDATE_VER)
+	# protoc-gen-go-redact 已接管到本仓库 pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact
+	# （锁定版本 v0.0.0-20260831125122-5bb4931991b2），从本地源码构建到 tools/bin，
+	# 不再 go install 外部模块；生成链见 make api-redact。
+	bash scripts/build-redact-plugin.sh
 
 # install cli tools
 cli:
-	go install github.com/go-kratos/kratos/cmd/kratos/v2@latest
-	go install github.com/google/gnostic@latest
-	go install github.com/bufbuild/buf/cmd/buf@latest
-	go install entgo.io/ent/cmd/ent@latest
-	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
-	go install github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3
+	@echo 'kratos CLI 未钉版本：本机无该二进制可核验，见 migration/patches/T15/T15-tool-lock.json 的 unresolved_entries（本仓在用命令不需要它）'
+	go install github.com/google/gnostic@$(PROTOC_GEN_OPENAPI_VER)   # 同一模块，与 protoc-gen-openapi 一起钉版
+	go install github.com/bufbuild/buf/cmd/buf@$(BUF_VER)
+	go install entgo.io/ent/cmd/ent@$(ENT_VER)
+	@echo 'golangci-lint 未钉版本：本机无该二进制可核验，见 tool-lock unresolved_entries；make lint 需要时由使用方显式安装'
+	@echo 'gow 不再从 github.com/tx7do 安装：本仓库在用命令已接管到 tools/localdeps/gow，用 make gow 构建到 tools/bin/gow'
+
+.PHONY: gow tools-integration
+
+# build the localized gow from this module's sources (in-use commands: api, ent, run, version)
+gow:
+	go build -trimpath -o tools/bin/gow ./tools/localdeps/gow/cmd/gow
+
+# protoc-driven redact integration cases: an explicit developer-tool entry, never part of
+# the business test gate or a production image. Missing protoc FAILS (no skip).
+tools-integration: gow redact-plugin
+	command -v protoc >/dev/null 2>&1 || { echo 'protoc is required for make tools-integration; install the task-pinned protoc (see docs) and put it on PATH'; exit 1; }
+	go test -tags tools_integration -count=1 -timeout=900s ./pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/
 
 # download dependencies of module
 dep:
@@ -82,9 +108,46 @@ register:
 	go run ./tools/register -entity $(ENTITY)
 
 # generate protobuf api go code
-api:
+# 业务模板用 ../tools/bin/protoc-gen-go-redact 生成脱敏代码，先确保该二进制与本地源码一致。
+# api：唯一实现是委托本仓已接管 gow 的完整活跃模板链（与 `gow api` 同一调度，不再维护第二份模板清单）。
+# 依赖顺序：先从当前主模块构建 tools/bin/gow 与 tools/bin/protoc-gen-go-redact，再进入生成。
+# gow api 自身会先校验全部插件/输入，并在隔离暂存副本中生成，成功后才按受管清单写回，
+# 因此失败不会删除或覆盖 api/gen/go 等正式产物（api/buf.gen.yaml 的 clean:true 只作用于暂存副本）。
+# OpenAPI 后处理已在暂存链末尾执行（见 tools/localdeps/gow/internal/buf/staging.go），
+# 因此这里不再套一层 make openapi：该后处理脚本按设计拒绝二次执行，重复调用只会让构建失败。
+api: gow redact-plugin
+	tools/bin/gow api
+
+# pgv / 单模板 buf generate 只是内部阶段；完整生成命令是 `gow api`（或 `make api`）。
+# PGV 单独一遍：文件级范围由 api/buf.validate.gen.yaml 的清单固定（T15），clean:false 不动共享输出根。
+pgv:
 	cd api && \
-	buf generate
+	buf generate --template buf.validate.gen.yaml
+
+# build the localized protoc-gen-go-redact plugin from pkg/localdeps sources
+redact-plugin:
+	bash scripts/build-redact-plugin.sh
+
+# generate the localized redact Proto into the takeover package.
+# The Proto source is api/localdeps/redact and buf.redact.gen.yaml is the only
+# template that writes that target, so redact.pb.go is generated exactly once.
+# BUF must point at a verified buf v1.60.0; the script refuses any other version.
+api-redact:
+	bash scripts/generate-redact.sh
+
+# generate the localized pagination Proto into pkg/localdeps.
+# The Proto source is api/localdeps/pagination and this is the only template that
+# writes that target, so pagination is generated exactly once. BUF must point at a
+# verified buf v1.60.0; the script refuses any other version.
+api-pagination:
+	bash scripts/generate-pagination.sh
+
+# generate the localized bootstrap conf Proto into pkg/localdeps.
+# The Proto source is api/localdeps/bootstrap and buf.bootstrap.conf.gen.yaml is the only
+# template that writes that target, so the 17 conf files are generated exactly once.
+# BUF must point at a verified buf v1.60.0; the script refuses any other version.
+api-bootstrap-conf:
+	bash scripts/generate-bootstrap-conf.sh
 
 # generate protobuf api OpenAPI v3 docs.
 openapi:
@@ -92,8 +155,9 @@ openapi:
 	buf generate --template buf.admin.openapi.gen.yaml
 	python3 scripts/finalize-aksk-openapi.py
 
-# build all service applications
-build: api openapi
+# build all service applications. `make api` 已在暂存链内完成 OpenAPI 后处理（同一 finalize 脚本），
+# 因此这里不再重复列 openapi，避免同一生成链在一次构建里跑两遍。
+build: api
 	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
       cd $(dir);\
       make build;\
@@ -192,7 +256,14 @@ verify-gpu-regressions:
 	go build -o /dev/null ./app/admin/service/cmd/server
 	go build -tags quota_lab -o /dev/null ./app/admin/service/cmd/server
 	go build -o /dev/null ./app/admin/service/cmd/admin
-	go test ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
+	# The taken-over transport tests need a queue broker: scripts/verify-gpu-redis.sh
+	# starts a loopback-only, non-persistent container for this recipe and exports
+	# ANI_TEST_REDIS_URI. Those tests fail rather than skip when it is absent, so the
+	# variable must come from here and not from a developer shell.
+	# -count=1 on the plain package run: without it Go can answer from its build cache, and a gate
+	# whose SSE line reads "(cached)" has not executed the tests it is being credited for. The package
+	# list, tags and assertions are unchanged.
+	bash scripts/verify-gpu-redis.sh run -- go test -count=1 ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
 	go test -tags quota_pg ./app/admin/service/internal/data -run 'TestQuota|TestPlanQuota' -count=1 -timeout=15m
 	go test -tags quota_pg ./app/admin/service/internal/service -run 'TestPlanQuota' -count=1 -timeout=10m
 	go test -race -tags quota_pg ./app/admin/service/internal/data -run 'TestQuotaEnt|TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard|TestQuotaPostgresPolicyChanges|TestQuotaGpu|TestQuotaProcess' -count=1 -timeout=20m

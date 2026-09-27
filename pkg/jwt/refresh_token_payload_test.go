@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	authn "github.com/tx7do/kratos-authn/engine"
+	authn "go-wind-admin/pkg/localdeps/kratos-authn/engine"
 )
 
 // TestNewRefreshTokenAuthClaims_Validation 创建刷新令牌 claims 前必须

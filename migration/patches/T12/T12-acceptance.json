@@ -1,0 +1,59 @@
+{
+  "schema_version": "t12-acceptance/1",
+  "commands": [
+    {
+      "cmd": "bash scripts/verify-gpu-redis.sh run -- env GOFLAGS=-mod=readonly GOROOT=/home/ubuntu/sdk/go1.26.7 GOTOOLCHAIN=local GOWORK=off go test -json -count=1 -timeout=900s ./pkg/localdeps/kratos-transport/... ./pkg/localdeps/kratos-swagger-ui/... ./app/admin/service/internal/server",
+      "exit": 0
+    },
+    {
+      "cmd": "same wrapper, -run '^(TestTaskService_[A-Za-z_]+|TestInternalMessageServiceSqlite_[A-Za-z_]+)$' ./app/admin/service/internal/service",
+      "exit": 0
+    },
+    {
+      "cmd": "python3 tools/migration/require_tests.py --required migration/patches/T12/T12-named-must-run.json --log <merged json>",
+      "result": {
+        "pass": true,
+        "required": 52,
+        "bad_tests": [],
+        "failed_packages": []
+      }
+    },
+    {
+      "cmd": "go build ./... / server under default, quota_lab and quota_pg / cmd/admin / tools/register",
+      "exit": 0
+    },
+    {
+      "cmd": "go vet ./pkg/localdeps/kratos-swagger-ui/... ./app/admin/service/internal/server/...",
+      "exit": 0,
+      "note": "the only repository-wide vet finding remains the inherited T03-F5 one in accelerator_joint_http_test.go:503"
+    },
+    {
+      "cmd": "bash scripts/verify-gpu-format.sh",
+      "exit": 0
+    },
+    {
+      "cmd": "gitleaks dir --no-banner --no-color --redact .",
+      "exit": 0,
+      "unhandled_findings": 0,
+      "note": "no new exception was needed for the placed UI assets or README"
+    },
+    {
+      "cmd": "go list -deps -test ./...",
+      "tx7do_packages_remaining": []
+    }
+  ],
+  "test_level_totals": {
+    "pass": 149,
+    "fail": 0,
+    "skip": 0
+  },
+  "repeat_runs": [
+    "the combined command above ran clean twice in a row under concurrent package execution (that is where the T11 remove-all settle-window defect had surfaced)",
+    "the two NewRestServer assembly tests were measured with -count=2"
+  ],
+  "log_archived": "/home/ubuntu/tx7do-pilot-run/T12/ (machine paths and transcripts stay out of the ledger)",
+  "corrections_during_this_stage": [
+    "TestPeriodicTaskRemoveAll sampled handler counts without draining an already-in-flight periodic message, so it read a legitimate late delivery as 'kept firing'. Fixed in 1ef5fb0 by adopting the drain-then-sample shape TestPeriodicTask already used; nothing in the transport itself was implicated.",
+    "The first draft of the UI acceptance test asserted a yaml Content-Type; openJsonFileHandler never sets one, so Go sniffs text/plain. The assertion now records what the locked implementation does."
+  ]
+}

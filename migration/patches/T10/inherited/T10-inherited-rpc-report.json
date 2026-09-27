@@ -1,0 +1,61 @@
+{
+ "meaning": "isolated locked-upstream defects: each must actually run, must fail, and must fail the same way as the identically organised pristine copy in the same environment; a failure is never recorded as a pass",
+ "candidate_label": "ani-governance in-repo localized copy",
+ "reference_label": "pristine pinned upstream module",
+ "candidate_exit_code": "1",
+ "reference_exit_code": "1",
+ "candidate_package_action": "fail",
+ "reference_package_action": "fail",
+ "tag": "upstream_known_defects",
+ "known_defect_count": 1,
+ "status_counts": {
+  "KNOWN_BASELINE_FAILURE": 1
+ },
+ "tests": [
+  {
+   "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc",
+   "Test": "TestWhiteListNormalization",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "whitelist_test.go:51"
+    ],
+    "transcript": [
+     "whitelist_test.go:51: expected \"MethodX\" to be whitelisted (normalization/fallback)",
+     "--- FAIL: <TOKEN> (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "whitelist_test.go:51"
+    ],
+    "transcript": [
+     "whitelist_test.go:51: expected \"MethodX\" to be whitelisted (normalization/fallback)",
+     "--- FAIL: <TOKEN> (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "060ce25c4562cb99c577a0653c658e5606ee1855975637423fbd64ee2aed4f6a",
+   "reference_output_sha256": "060ce25c4562cb99c577a0653c658e5606ee1855975637423fbd64ee2aed4f6a",
+   "status": "KNOWN_BASELINE_FAILURE"
+  }
+ ],
+ "isolated_file": null,
+ "locked_source_copy": null,
+ "moved_tests_verbatim": [],
+ "allowed_failure_function_set": [
+  "TestWhiteListNormalization"
+ ],
+ "normalisation_rules": [
+  "elapsed time",
+  "absolute prefix of the copy under test",
+  "uuid",
+  "long hex",
+  "base64-ish token",
+  "host:port"
+ ],
+ "error_content_compared": true,
+ "blocking": [],
+ "verdict": "PASS",
+ "note": "the fully tagged run is NOT green by design: these 1 cases are recorded as KNOWN_BASELINE_FAILURE and the run's own non-zero exit code is preserved"
+}

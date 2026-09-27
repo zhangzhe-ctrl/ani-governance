@@ -1,0 +1,76 @@
+{
+  "action": "T07-B1 test-fixture repair under the limited authorization added to the master goal",
+  "authorization": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md :: ### 测试夹具修复的有限授权 (8 conditions; adopted 2026-09-25)",
+  "file": "app/admin/service/internal/data/ent/tenant_guard_test.go",
+  "test": "TestTenantMutationGuardAccessKey",
+  "patch": {
+    "path": "migration/patches/T07-B1-accesskey-guard-fixture.patch",
+    "sha256": "3d615e96dd397bc01760acb51c592d3970f50932fe6f475f2e18b19be014e055",
+    "size": "23 insertions / 2 deletions, all inside the test file",
+    "scope": "data preparation and targeted cleanup only",
+    "applies_to_both_trees": "git apply succeeded unchanged on the pre-migration file and on the post-migration file; the hunks never touch the import path that T07 rewrote"
+  },
+  "hashes": {
+    "pre_migration_reference_2b1e132": "07d79d5c3987429c37381814025504bc68a2338e81ad55e8073e07ed464ac499",
+    "pre_migration_reference_plus_patch": "07337e98bdd4445044bd61a0ce594abeab1c4e65123c749554b42b689c8da0f2",
+    "migrated_working_copy": "1ec73afc8d8a035427d507d78ad112c25fc639371d0f2b7749e375d0c213e2b9"
+  },
+  "defect_provenance": {
+    "condition_1_reproduced_before_migration": true,
+    "pre_patch_baseline": {
+      "tree": "pristine worktree at 2b1e132568b29a98d7429af9ed0a85f9bd62f59d",
+      "command": "go test -mod=readonly -count=1 -tags quota_pg ./app/admin/service/internal/data/ent",
+      "exit": 1,
+      "log": "T07/baseline-guard.log",
+      "failure": "--- FAIL: TestTenantMutationGuardAccessKey ; panic: ent: missing required field \"AccessKey.secret_ciphertext\" [recovered, repanicked]"
+    },
+    "schema_history": "field secret_ciphertext (NotEmpty+Sensitive) and role_id (Positive) were added to schema/access_key.go in commit 0c8e567; tenant_guard_test.go dates to 10a7256 and was never updated, so the panic is a pre-existing fixture defect, not a takeover regression",
+    "generated_builder_confirmation": "accesskey_create.go check() requires status, tenant_id, access_key, secret_ciphertext and role_id; status/tenant_id/access_key were already satisfied, so exactly the two named fields were missing and both were supplied (no first-error-only fix)"
+  },
+  "fixture_content": {
+    "secret_ciphertext": "guardAKCipher = \"guard-test-placeholder-ciphertext\" — the field is only NotEmpty+Sensitive and no assertion in this case reads the column, so a placeholder is used instead of a real key (same style as access_key_repo_sqlite_test.go SetSecretCiphertext(\"sk-plaintext\"))",
+    "role_id": "seedGuardRole creates the role through client.Role.Create() inside the caller's own tenant context (ctx1 for tenant 1, ctx2 for tenant 2) and returns the primary key read back with client.Role.Query().Where(role.CodeEQ(code)).OnlyX(ctx).ID; no guessed 1/2, no cross-tenant borrow, no system identity",
+    "tenant_context": "unchanged: seeding, mutation and cleanup all run under the original tenantCtx(ctx, 1) / tenantCtx(ctx, 2) viewers",
+    "cleanup": "targeted only: delete-by-code before create and delete-by-id in t.Cleanup, both restricted to the case's own codes (GUARD_AK_ROLE_T1 / GUARD_AK_ROLE_T2); sys_dict_types/sys_access_keys truncation in openGuardTestClient is untouched"
+  },
+  "assertions_unchanged": {
+    "condition_3": "test name, tested operations (AccessKey Update/Delete), caller identity, tenant relation, permissions and every assertion are byte-identical to the pre-migration reference apart from the fixture lines; the only added statement is data preparation",
+    "guard_mechanism": "migrate_imports guard is not exempted: tenant_guard_test.go is compared with equiv against the reference \"original test + approved fixture patch\" (condition 7), and the other 262 consumer files keep the original guard check",
+    "equiv": {
+      "command": "migrate_imports equiv -root . -before T07/premigrate-ref/app/admin/service/internal/data/ent/tenant_guard_test.go -after <working copy>",
+      "exit": 0,
+      "stdout": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+    },
+    "guard_262": {
+      "command": "migrate_imports guard -root . -base 2b1e132568b29a98d7429af9ed0a85f9bd62f59d -files T07/guard-files-262.txt -out migration/preflight/T07-guard-262-postfix.json",
+      "exit": 0,
+      "result": { "checked_files": 262, "pass": true }
+    }
+  },
+  "condition_6_both_trees": {
+    "pre_migration_with_patch": {
+      "tree": "git worktree at 2b1e132 + patch (old tx7do import paths, module-cache resolution)",
+      "command": "go test -mod=readonly -count=1 -v -p 1 -tags quota_pg -run '^TestTenantMutationGuardAccessKey$' ./app/admin/service/internal/data/ent",
+      "exit": 0,
+      "log": "T07/fixture-post-premigration.log",
+      "result": "--- PASS: TestTenantMutationGuardAccessKey (0.25s)"
+    },
+    "migrated_with_patch": {
+      "tree": "task/tx7do-takeover at 3c5933c + patch",
+      "exit": 0,
+      "log": "T07/fixture-post-migrated.log",
+      "result": "--- PASS: TestTenantMutationGuardAccessKey (0.55s)"
+    },
+    "note": "the original assertions actually execute and pass on both sides; this is not a no-panic-only claim"
+  },
+  "database_environment": {
+    "guard_db": "GUARD_TEST_PG_DSN -> container tx7do-t07-guard-pg (127.0.0.1:55432), task-owned disposable, created and truncated by the guard suite itself",
+    "not_used": "no business database, no quota-restricted runtime database; the pre-existing quota-gpu-local-01-pg was never connected to",
+    "dsn_storage": "DSN file lives outside the repository at mode 600 and run_checked.sh records argv only"
+  },
+  "conditions_5_8": {
+    "no_illegal_input_case_touched": "the negative paths (cross-tenant update/delete expecting 0 affected rows) were not converted into success input; only the legitimate success-path seed rows were completed",
+    "no_test_deleted_no_skip_no_profile_shrink": "required-tests profile still 76 named cases; skip count 0",
+    "expected_result_changed": false
+  }
+}

@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
-	entCrud "github.com/tx7do/go-crud/entgo"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 
-	apiauditlog "go-wind-admin/app/admin/service/internal/data/ent/apiauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent"
+	apiauditlog "go-wind-admin/app/admin/service/internal/data/ent/apiauditlog"
 	dataaccessauditlog "go-wind-admin/app/admin/service/internal/data/ent/dataaccessauditlog"
 	loginauditlog "go-wind-admin/app/admin/service/internal/data/ent/loginauditlog"
 	operationauditlog "go-wind-admin/app/admin/service/internal/data/ent/operationauditlog"

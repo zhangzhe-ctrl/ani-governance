@@ -8,12 +8,41 @@ modules:
     breaking:
       use:
         - FILE
+  # 本地化分页 Proto（go-crud/api@v0.0.7 源码接管，逐字节一致）。
+  # 逻辑 import 路径保持 pagination/v1/...，外部 buf.build/tx7do/pagination 已移除，
+  # 分页 Proto 在全仓只有这一份定义。
+  - path: localdeps/pagination
+    lint:
+      use:
+        - STANDARD
+    breaking:
+      use:
+        - FILE
+  # 本地化脱敏 Proto（protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2 源码接管，
+  # 与该锁定归档的 redact/v1/redact.proto 逐字节一致）。逻辑 import 路径保持
+  # redact/v1/...，外部 buf.build/go-wind/redact 已移除，redact Proto 在全仓只有这一份定义。
+  - path: localdeps/redact
+    lint:
+      use:
+        - STANDARD
+    breaking:
+      use:
+        - FILE
+  # 本地化配置 Proto（kratos-bootstrap/api@v0.0.45 源码接管，与该锁定归档
+  # protos/conf/v1/*.proto 逐字节一致，共 17 个文件）。逻辑 import 路径保持
+  # conf/v1/...；该模块从来只通过 Go 包被消费，api/protos 下没有任何 Proto 引用它。
+  # 生成物落在 pkg/localdeps/kratos-bootstrap/api/gen/go，见 api/buf.bootstrap.conf.gen.yaml。
+  - path: localdeps/bootstrap
+    lint:
+      use:
+        - STANDARD
+    breaking:
+      use:
+        - FILE
 deps:
   - 'buf.build/googleapis/googleapis'
   - 'buf.build/kratos/apis'
   - 'buf.build/gnostic/gnostic'
-  - 'buf.build/tx7do/pagination'
-  - 'buf.build/go-wind/redact'
   - 'buf.build/envoyproxy/protoc-gen-validate'
 
 breaking:

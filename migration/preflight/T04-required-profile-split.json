@@ -1,0 +1,48 @@
+{
+ "previous_profile_entries": 590,
+ "default_profile_entries": 587,
+ "known_defect_profile_entries": 9,
+ "previous_profile_archived_at": "migration/preflight/T04-required-profile-before-split.json",
+ "sha256": {
+  "previous_profile": "860a68db9e7183bf2231f5307dfa46cb903828747a19cd4a0331e87c37f803a5",
+  "default_profile_after": "1948389e4a3dfda8966f91cc46ecb853e6522fcdd10b57bd0fad7be91a1b4c40",
+  "known_defect_profile": "f6f30d2591a61e928228d0b56e9f87f2f3718df4122115c16c046939643bf0b1"
+ },
+ "moved_out_of_default": [
+  "TestGenerate_ClickCaptcha",
+  "TestGenerate_RotateCaptcha",
+  "TestGenerate_SlideCaptcha",
+  "TestSaveAndVerify_ClickCaptcha",
+  "TestSaveAndVerify_RotateCaptcha",
+  "TestSaveAndVerify_SlideCaptcha",
+  "TestVerify_ClickCaptcha_WithTolerance",
+  "TestVerify_RotateCaptcha_WithTolerance",
+  "TestVerify_SlideCaptcha_WithTolerance"
+ ],
+ "added_to_default": [
+  "ExampleCaptcha_GetRemainingTime",
+  "ExampleCaptcha_VerifyWithoutDelete",
+  "ExampleNewCaptcha_chineseCaptcha",
+  "ExampleNewCaptcha_digitCaptcha",
+  "ExampleNewCaptcha_mathCaptcha",
+  "ExampleNewCaptcha_optionsPattern"
+ ],
+ "nothing_else_removed": true,
+ "package_level_exclusions": [],
+ "list_cross_check": {
+  "default_named": 32,
+  "tagged_named": 41,
+  "tagged_minus_default": [
+   "TestGenerate_ClickCaptcha",
+   "TestGenerate_RotateCaptcha",
+   "TestGenerate_SlideCaptcha",
+   "TestSaveAndVerify_ClickCaptcha",
+   "TestSaveAndVerify_RotateCaptcha",
+   "TestSaveAndVerify_SlideCaptcha",
+   "TestVerify_ClickCaptcha_WithTolerance",
+   "TestVerify_RotateCaptcha_WithTolerance",
+   "TestVerify_SlideCaptcha_WithTolerance"
+  ]
+ },
+ "problems": []
+}

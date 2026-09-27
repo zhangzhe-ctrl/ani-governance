@@ -12,11 +12,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tx7do/go-utils/trans"
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"go-wind-admin/pkg/mailer"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

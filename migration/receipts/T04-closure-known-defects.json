@@ -1,0 +1,72 @@
+{
+  "schema_version": "t04-closure/1",
+  "task": "T04",
+  "kind": "closure of the T04 supplemental authorization (migration/receipts/T04-authorization-known-defects.json)",
+  "status": "RESOLVED",
+  "conclusion": "T04 MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS",
+  "head_at_closure": "7640c92",
+  "supersedes_status": "T04.json recorded status BLOCKED before the supplemental authorization; that BLOCKED record and all its failure logs are kept unchanged as evidence. This file closes the same task under the authorization.",
+  "reverified_this_session": {
+    "method": "every gate below was re-run in this session; no pass is carried forward from an earlier artifact",
+    "standalone_go_vet_captcha_default_exit": 0,
+    "standalone_go_vet_password_default_exit": 0,
+    "local_captcha_default_tests_and_6_examples": "PASS (exit 0, default vet ON); all 6 renamed examples present and passing",
+    "local_password_default_tests": "PASS (exit 0) incl TestECDSACrypto_EncryptAndVerify and the restructured TestECDHCrypto_EncryptAndVerify",
+    "patched_pristine_captcha_default_tests_and_6_examples": "PASS (exit 0, default vet ON) on /tmp/cap-patched (module github.com/tx7do/go-utils/captcha, locked v0.0.4 prod + identical patched tests)",
+    "patched_pristine_password_ecdh": "PASS (exit 0) on /tmp/pw-patched (locked password@v0.0.2 prod, ecdsa_ecdh.go byte-identical to local, P4-patched internal test)",
+    "consumer_build_data_service_localdeps": "PASS (exit 0)",
+    "consumer_service_login_captcha_bcrypt_tests": "PASS (exit 0) — string-captcha generate/store/one-time/expiry and bcrypt login paths exercised through the real consumers",
+    "release_commands_use_default_vet": true,
+    "vet_off_used": false
+  },
+  "known_defect_isolation": {
+    "tag": "upstream_known_defects",
+    "count": 9,
+    "checker": "tools/migration/known_defects.py (independent of require_tests.py; its missing/skip/fail rules untouched)",
+    "report": "migration/preflight/T04-known-defects.json",
+    "profile_before_split": "migration/preflight/T04-required-profile-before-split.json (590 entries)",
+    "default_profile_after": "migration/preflight/T04-required-profile.json (587 default; only the 9 left, nothing else removed)",
+    "known_defect_profile": "migration/required-known-defects.json (the 9)",
+    "added_to_default": "the 6 renamed Examples",
+    "package_level_exclusions": [],
+    "candidate_exit_code": 1,
+    "reference_exit_code": 1,
+    "status_counts": { "KNOWN_BASELINE_FAILURE": 9 },
+    "signatures": "each of the 9 matches the identically organised pristine copy site-by-site and transcript-by-transcript; only path/time/random normalised; error content compared",
+    "moved_verbatim": "the 9 test bodies are byte-identical to the archived locked source (checker --moved-file/--locked-file + independent body diff)",
+    "NOT_GREEN_DISCLAIMER": "the fully tagged run is NOT green by design: these 9 are recorded as KNOWN_BASELINE_FAILURE and never as pass; their non-zero exit code is preserved."
+  },
+  "unchanged": {
+    "production_files": [],
+    "schema": "none",
+    "crypto_algorithm": "bcrypt default and captcha string default unchanged",
+    "default_driver": "DriverString (data.NewCaptcha) unchanged; verified as the only business construction",
+    "tolerance_and_external_interfaces": "unchanged",
+    "non_tx7do_modules_added_or_upgraded": "none (miniredis v2.39.0 already a dependency)"
+  },
+  "reachability": {
+    "record": "migration/preflight/T04-reachability-audit.json",
+    "confirmed": "no business request or config path reaches slide/click/rotate drivers or NewECDHCrypto; grep-independent confirmation this session: only data.NewCaptcha(WithDriverType DriverString) exists in repo code, no WithDriverType/SetConfig to a graph driver, no NewECDHCrypto outside localdeps tests",
+    "therefore": "the never-enabled image-driver defects may be retained as recorded debt under section 一"
+  },
+  "pre_existing_copylocks": {
+    "file": "app/admin/service/internal/service/accelerator_joint_http_test.go",
+    "location": "503:9",
+    "diagnostic": "assignment copies lock value to ref: ...GpuUsageRef ... contains sync.Mutex",
+    "handling": "pre-existing at HEAD, unrelated to T04, not introduced by these test-only patches; recorded by file/location/diagnostic only; does not disable repo-wide vet, does not absorb the 6 example diagnostics, and is outside go test's default vet subset so it does not gate the release commands"
+  },
+  "patches": {
+    "inventory": "migration/patches/T04/T04-test-patch-inventory.json",
+    "files": [
+      "migration/patches/T04/P1-captcha-examples.patch",
+      "migration/patches/T04/P2-captcha-test-redis-helper.patch",
+      "migration/patches/T04/P3-captcha-known-defect-move.patch",
+      "migration/patches/T04/P4-password-ecdh-contract-test.patch"
+    ],
+    "scope": "test-only"
+  },
+  "remaining_debt": "the 9 image-captcha functions remain functionally broken upstream; they are NOT fixed, only isolated and recorded. This is not a claim that all upstream tests pass.",
+  "continues_to": "T05 and the rest of the master goal continue automatically from this qualified state; every later checkpoint and T15 must run both the ordinary required gate and this exact known-defect list, and may only deliver with this qualified wording while the debt is carried.",
+  "not_verified": [],
+  "pushed_merged_deployed": false
+}

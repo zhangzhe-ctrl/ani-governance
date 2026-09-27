@@ -1,0 +1,182 @@
+[
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestNewTaskOnly"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestNewPeriodicTaskOnly"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestDelayTask"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestPeriodicTask"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestTaskSubscribe"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestAllInOne"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestTransport_Kind"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestWaitResultTask"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestPeriodicTaskSameTypeName"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestTransport_Endpoint"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestTransport_Operation"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestRetryAfterHandlerFailure"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq",
+    "Test": "TestPeriodicTaskRemoveAll"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestTransport_Kind"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestHTTPStreamHandlerEventID"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestHTTPStreamHandlerHeaderFlushIfNoEvents"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestServerExistingStreamPublish"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestServerNonExistentStreamPublish"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestServerPublishDataWithMeta"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestServerTryPublishFullBuffer"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestServerSlowSubscriberCouplingSameStream"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestHTTPStreamHandlerTwoUserStreamIsolation"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestHTTPStreamHandlerAuthorizeUnauthorized"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestHTTPStreamHandlerAuthorizeForbidden"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestHTTPStreamHandlerAuthorizeSuccessWithAuthorizationHeader"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestHTTPStreamHandlerSubscriberCanReadAuthorizationToken"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestSubscribeWithContextDone"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestStreamAddSubscriber"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestStreamMultipleSubscribers"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestStreamDisableAutoReplay"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestClientChanReconnect"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse",
+    "Test": "TestClientChanSubscribe"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/keepalive",
+    "Test": "TestTransport_Kind"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/keepalive",
+    "Test": "TestKeepAliveService"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/broker",
+    "Test": "TestChainSubscriberMiddleware_Order"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/broker",
+    "Test": "TestChainPublishMiddleware_Order"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/service",
+    "Test": "TestTaskService_RealAsynqSchedulerLifecycle"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/service",
+    "Test": "TestTaskService_RestartAllTask"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/service",
+    "Test": "TestTaskService_StopAllTask"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/service",
+    "Test": "TestTaskService_ConvertTaskOption"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/service",
+    "Test": "TestTaskService_ControlTaskDispatch"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/service",
+    "Test": "TestTaskService_CreateEnabledEntersScheduler"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/service",
+    "Test": "TestInternalMessageServiceSqlite_RegisterSeams"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport",
+    "Test": "TestAdjustAddress"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/kratos-transport/transport",
+    "Test": "TestGetIPAddressByInterfaceName"
+  }
+]

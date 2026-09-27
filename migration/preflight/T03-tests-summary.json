@@ -1,0 +1,97 @@
+{
+ "task": "T03",
+ "toolchain": "go1.26.7 GOWORK=off GOTOOLCHAIN=local -mod=readonly -tags quota_pg -count=1 -v -p 1",
+ "environment": "task-owned disposable PostgreSQL only (guard instance 127.0.0.1:55432 plus its lab companion); no business database; DSNs stay outside the repository and run_checked.sh records argv only",
+ "scope_packages": [
+  "./pkg/localdeps/go-utils/{stringcase,sliceutil,fieldmaskutil,mapper,copierutil}",
+  "./pkg/utils",
+  "./pkg/utils/converter",
+  "./pkg/jwt",
+  "./app/admin/service/internal/data",
+  "./app/admin/service/internal/data/ent",
+  "./app/admin/service/internal/service",
+  "./pkg/localdeps/go-crud/entgo{,/field,/filter,/update}"
+ ],
+ "runs": {
+  "tests_final_scope_unfiltered": {
+   "exit": 1,
+   "test_pass": 926,
+   "test_fail": 1,
+   "test_skip": 7,
+   "package_pass": 14,
+   "package_fail": 1,
+   "nonpass_tests": [
+    "go-wind-admin/app/admin/service/internal/data::TestBootstrapPostgres",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuOldPopulatedUpgradeReplay",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuRestoredProjectionContinuation",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaProcessChild",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorFormalSessionRefresh",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorJointHTTP",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingAPIRegistration",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingConcurrentAcceptance"
+   ]
+  },
+  "tests_required_named_profile": {
+   "exit": 0,
+   "test_pass": 926,
+   "test_fail": 0,
+   "test_skip": 0,
+   "package_pass": 15,
+   "package_fail": 0,
+   "nonpass_tests": []
+  },
+  "baseline_gated_at_accepted_head": {
+   "exit": 1,
+   "test_pass": 0,
+   "test_fail": 1,
+   "test_skip": 7,
+   "package_pass": 1,
+   "package_fail": 1,
+   "nonpass_tests": [
+    "go-wind-admin/app/admin/service/internal/data::TestBootstrapPostgres",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuOldPopulatedUpgradeReplay",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuRestoredProjectionContinuation",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaProcessChild",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorFormalSessionRefresh",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorJointHTTP",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingAPIRegistration",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingConcurrentAcceptance"
+   ]
+  },
+  "bootstrap_fresh_database_migrated": {
+   "exit": 1,
+   "fail_line": "app/admin/service/internal/data/bootstrap_postgres_test.go:58",
+   "verdict": "FAIL"
+  },
+  "bootstrap_fresh_database_baseline": {
+   "exit": 1,
+   "fail_line": "app/admin/service/internal/data/bootstrap_postgres_test.go:58",
+   "verdict": "FAIL"
+  }
+ },
+ "require_tests_named_profile": {
+  "pass": true,
+  "required": 599,
+  "bad_tests": [],
+  "failed_packages": []
+ },
+ "require_tests_exit": 0,
+ "vet": {
+  "exit": 1,
+  "diagnostics": [
+   "app/admin/service/internal/service/accelerator_joint_http_test.go:503:9: assignment copies lock value to ref: github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1.GpuUsageRef contains google.golang.org/protobuf/runtime/protoimpl.MessageState contains sync.Mutex"
+  ],
+  "baseline_exit": 1,
+  "baseline_diagnostics": [
+   "app/admin/service/internal/service/accelerator_joint_http_test.go:503:9: assignment copies lock value to ref: github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1.GpuUsageRef contains google.golang.org/protobuf/runtime/protoimpl.MessageState contains sync.Mutex"
+  ],
+  "flagged_file_touched_by_t03": false
+ },
+ "build_only": {
+  "exit": 0,
+  "attributed_go_mod_change": {
+   "exit": 0,
+   "reproducible": "go.mod restored to HEAD, make build_only re-produced the byte-identical file (diff -q identical)"
+  }
+ }
+}

@@ -1,0 +1,45 @@
+{
+ "schema_version": "t10-b1-bootstrap-test-only/1",
+ "authorization": "T03-T15-master-goal.md 「### T10 补充授权」 四; migration/receipts/T10-authorization-classified-remediation.json",
+ "test": "go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap :: TestBootstrapWithNameVersion",
+ "file_changed": "pkg/localdeps/kratos-bootstrap/bootstrap/bootstrap_test.go",
+ "patch": "migration/patches/T10/T10-B1-bootstrap-test-only.patch",
+ "full_failure_first": {
+  "log": "migration/patches/T10/T10-B1-bootstrap-failure-excerpt.txt (excerpt of the -v run; the whole output is in the task directory)",
+  "command": "GOFLAGS=-mod=readonly go test -count=1 -v -run TestBootstrapWithNameVersion ./pkg/localdeps/kratos-bootstrap/bootstrap/",
+  "exit": 1,
+  "error": "Expected nil, but got: &fs.PathError{Op:\"stat\", Path:\"../../configs\", Err:0x2} at bootstrap_test.go:30, after cobra printed the usage block",
+  "why_this_is_a_fixture_problem_and_not_a_production_defect": [
+   "the path comes from the default of the package-level CommandFlags (flag.go: Conf \"../../configs\"), i.e. a layout default aimed at the upstream repository's own example tree; the test never overrode it, so RunApp fails on the first step regardless of anything production-side",
+   "even with a config present, bootstrap() ends in kratos.App.Run(), which blocks on signal.Notify(os.Interrupt, ...) until Stop is called; the old test had no way to stop it, so it could only ever pass by erroring out early",
+   "the cobra root also inherits the arguments of the test binary when SetArgs is never called, which is the classic go-test leak this fixture now closes"
+  ]
+ },
+ "what_the_fix_does": [
+  "keeps the test name and the original semantics: build a Context with AppId and Version, call RunApp through the real path, require a nil return",
+  "uses the existing RunApp option to call root.SetArgs with --conf pointing at a temporary minimal config (env: unittest) plus --env and --daemon=false, so no user configuration and no remote config source is read",
+  "supplies a lifecycle test server implementing transport.Server: Start records that it ran and closes a channel, and a goroutine waiting on that channel calls the app's own Stop, so the run ends without sleeping, guessing timing, or sending a signal to the process",
+  "asserts the original meaning rather than an error string: the version reaches the app, the name is the Project + \"/\" + AppId composition that NewApp performs, the server started, the server was stopped through Stop, and the cleanup function returned by initApp ran",
+  "runs that whole path in a child test binary, because bootstrap fills package-level state no test can reset: the parsed-config singleton in bConfig (an init sync.Once plus a proto scanned in place) and the command flags bound to the root command. The parent process keeps its own state, and the child's own assertions plus its PASS line are checked by the parent"
+ ],
+ "pinned_cobra_detail": "spf13/cobra v1.10.2 declares SetArgs(a []string) with no result, and its pflag parses the single-dash '-conf' as the shorthand cluster -c with value 'onf'; the first attempt therefore failed with 'stat onf'. The test passes the long-form flags instead. This is a property of how upstream names its flags, and nothing in production was changed to accommodate it.",
+ "production_untouched": "git status shows exactly one modified file, the _test.go file; bootstrap.go, cli.go, context.go, flag.go, options.go, types.go, daemon.go, app_info.go, process_unix.go and process_windows.go are unchanged by this step",
+ "isolated_locked_copy": {
+  "layout": "task-private directory holding the module-cache copies of bootstrap@v0.1.17 beside its replaced siblings api@v0.0.45, config@v0.2.3, logger@v0.1.3, registry@v0.2.3 and tracer@v0.1.5, which bootstrap@v0.1.17/go.mod needs as ../api, ../config, ../logger, ../registry and ../tracer",
+  "patch_application": "patch -p5 -i T10-B1-bootstrap-test-only.patch inside the copy: 'succeeded at 2 with fuzz 1'",
+  "resulting_difference": "diff against the localized patched file reports one line: the conf import is github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1 there and go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1 here, which is the import path the takeover rebases. No second edit was needed and the module cache stayed read-only",
+  "order": "the localized run happened first while iterating on the fixture; the recorded verification order is old then new: the locked copy passes, then the localized package was re-run and passes with the same commands"
+ },
+ "runs": [
+  {"side": "isolated locked upstream copy", "command": "go test -count=1 -v -run TestBootstrapWithNameVersion .", "exit": 0},
+  {"side": "isolated locked upstream copy", "command": "go test -count=3 -race .", "exit": 0},
+  {"side": "local package", "command": "go test -count=1 -timeout 180s ./pkg/localdeps/kratos-bootstrap/bootstrap/", "exit": 0},
+  {"side": "local package", "command": "go test -count=3 -race -timeout 300s ./pkg/localdeps/kratos-bootstrap/bootstrap/", "exit": 0}
+ ],
+ "not_done": [
+  "the test was not reduced to calling NewApp directly, and it does not expect the old stat error as a pass condition",
+  "no sleep-based timing, no signal sent to the test process, no network listener, no registry or tracer endpoint",
+  "no production behaviour changed to make the fixture fit"
+ ],
+ "remaining_for_this_package": "none"
+}

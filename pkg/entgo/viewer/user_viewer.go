@@ -3,7 +3,7 @@ package viewer
 import (
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 
-	"github.com/tx7do/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 )
 
 // UserViewer describes a user-viewer.

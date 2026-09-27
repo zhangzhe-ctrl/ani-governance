@@ -978,3 +978,24 @@ HTTP 不接受 tenant/actor/context 作为身份来源；服务从已验证 Prin
 ### 2026-09-24：Governance Ent 审核整改
 
 套餐配额列表恢复已接受的 SEARCH 空白、数值和时间字段语义；字段白名单、参数绑定、原分页/过滤、鉴权入口和报文不变。配额及 usage sync 的持久化时间恢复同一 PostgreSQL 事务时间。补充事务异常回滚与生产 SQL 审计断言，修复完整 checkout 格式门禁、Ent race 选择及 CI 证据 artifact。具体修改与执行证据见 [审核整改记录](evidence/gov-quota-ent-review-20260924/README.md)。本批不新增接口、权限、数据库迁移或生产启用事实。
+
+## 2026-09-26 排查：T15 R5 旧客户端 → 新服务 HTTP 合同对照
+
+用冻结基线 d27847b 的 `api/gen/go` 生成物（buildinfo 仍含 `github.com/tx7do/go-crud/api v0.0.7`
+与 protoc-gen-go-redact）编出旧客户端，与接管后同一提交编译的客户端跑同一份探测源码，分别调用
+隔离环境中已 `admin init` 种子并通过 `admin check` 的当前服务，14 项用例在归一化 request_id、
+随机用户名后缀与自增 id 后逐项一致（证据 migration/receipts/T15-r5.json）。
+
+排查中记录三项既有接口行为，本批只登记不改接口：
+
+- `GET /admin/v1/users/{id}` 读取不存在的 id 返回 `code=500`、`reason` 为空、message
+  `ent: user not found`；旧新两侧解析结果相同，说明是服务侧错误映射而非报文差异。若后续要把
+  “对象不存在”归到 404，需单独批次评估对既有前端与审计的影响。
+- `GET /admin/v1/users:exists` 按 username 查询要求租户范围，平台管理员令牌（tenant_id=0）
+  返回 `400 tenant scope required to check user exists by username`；调用方需显式带租户。
+- 用户报文 `mobile` 由服务端脱敏为 `138****1234`，`email` 原样返回；旧客户端同样解析出脱敏值，
+  因此脱敏合同与接管无关，属既有字段权限行为。
+
+本轮结论仅为“历史客户端对新服务的 HTTP 读写、错误、权限、分页/mask 与脱敏合同一致”，不含 gRPC
+（该配置只启 REST、SSE 与 asynq，无 gRPC 监听），也不含真实外部客户端应用联调（仍记 not_verified）。
+整体接口登记仍未结项。

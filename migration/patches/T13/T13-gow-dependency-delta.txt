@@ -1,0 +1,81 @@
+gow v1.0.3 requires 94 modules; absent from the main module: 47; pinned older than the main module: 29
+
+ABSENT (the takeover would have to add these to go-wind-admin/go.mod)
+  entgo.io/contrib                                     v0.7.0
+  github.com/AlecAivazis/survey/v2                     v2.3.7
+  github.com/ClickHouse/ch-go                          v0.61.5
+  github.com/ClickHouse/clickhouse-go/v2               v2.30.0
+  github.com/cznic/mathutil                            v0.0.0-20181122101859-297441e03548
+  github.com/davecgh/go-spew                           v1.1.2-0.20180830191138-d8f796af33cc
+  github.com/go-faster/city                            v1.0.1
+  github.com/go-faster/errors                          v0.7.1
+  github.com/go-viper/mapstructure/v2                  v2.4.0
+  github.com/golang-sql/civil                          v0.0.0-20220223132316-b832511892a9
+  github.com/golang-sql/sqlexp                         v0.1.0
+  github.com/golang/protobuf                           v1.5.4
+  github.com/hashicorp/go-version                      v1.6.0
+  github.com/jhump/protoreflect                        v1.10.1
+  github.com/jinzhu/now                                v1.1.5
+  github.com/kballard/go-shellquote                    v0.0.0-20180428030007-95032a82bc51
+  github.com/mgutz/ansi                                v0.0.0-20170206155736-9520e82c474b
+  github.com/microsoft/go-mssqldb                      v1.8.2
+  github.com/paulmach/orb                              v0.11.1
+  github.com/pierrec/lz4/v4                            v4.1.21
+  github.com/pingcap/errors                            v0.11.5-0.20240311024730-e056997136bb
+  github.com/pingcap/failpoint                         v0.0.0-20220801062533-2eaa32854a6c
+  github.com/pingcap/log                               v1.1.0
+  github.com/pingcap/tidb/pkg/parser                   v0.0.0-20240407083020-62d6f4737bfb
+  github.com/pkg/errors                                v0.9.1
+  github.com/pmezard/go-difflib                        v1.0.1-0.20181226105442-5d4384ee4fb2
+  github.com/rogpeppe/go-internal                      v1.14.1
+  github.com/segmentio/asm                             v1.2.0
+  github.com/shopspring/decimal                        v1.4.0
+  github.com/stretchr/objx                             v0.5.2
+  github.com/tx7do/go-utils/code_generator             v0.0.1
+  github.com/tx7do/go-utils/ddl_parser                 v0.0.5
+  go.uber.org/multierr                                 v1.11.0
+  go.uber.org/zap                                      v1.27.0
+  golang.org/x/term                                    v0.42.0
+  gopkg.in/natefinch/lumberjack.v2                     v2.2.1
+  gorm.io/datatypes                                    v1.2.4
+  gorm.io/driver/clickhouse                            v0.7.0
+  gorm.io/driver/mysql                                 v1.6.0
+  gorm.io/driver/postgres                              v1.6.0
+  gorm.io/driver/sqlite                                v1.6.0
+  gorm.io/driver/sqlserver                             v1.6.3
+  gorm.io/gen                                          v0.3.27
+  gorm.io/gorm                                         v1.31.1
+  gorm.io/hints                                        v1.1.0
+  gorm.io/plugin/dbresolver                            v1.6.2
+  gorm.io/rawsql                                       v1.0.3-0.20250701131124-e260ec7d3588
+
+SHARED WITH AN OLDER TOOL PIN (MVS resolves the main module's newer version)
+  ariga.io/atlas                                       tool v1.1.0 -> main v1.3.0
+  entgo.io/ent                                         tool v0.14.5 -> main v0.14.6
+  filippo.io/edwards25519                              tool v1.1.0 -> main v1.2.0
+  github.com/andybalholm/brotli                        tool v1.1.1 -> main v1.2.3
+  github.com/go-openapi/inflect                        tool v0.21.5 -> main v1.0.0
+  github.com/go-sql-driver/mysql                       tool v1.9.3 -> main v1.10.1
+  github.com/hashicorp/hcl/v2                          tool v2.18.1 -> main v2.24.0
+  github.com/jackc/pgx/v5                              tool v5.6.0 -> main v5.11.0
+  github.com/klauspost/compress                        tool v1.17.9 -> main v1.20.0
+  github.com/lib/pq                                    tool v1.11.1 -> main v1.12.3
+  github.com/mattn/go-colorable                        tool v0.1.14 -> main v0.1.15
+  github.com/mattn/go-isatty                           tool v0.0.20 -> main v0.0.24
+  github.com/mattn/go-sqlite3                          tool v1.14.28 -> main v1.14.52
+  github.com/stretchr/testify                          tool v1.11.1 -> main v1.12.1
+  github.com/tx7do/go-utils                            tool v1.1.37 -> main v1.1.40
+  github.com/zclconf/go-cty                            tool v1.14.4 -> main v1.19.0
+  github.com/zclconf/go-cty-yaml                       tool v1.1.0 -> main v1.2.0
+  go.opentelemetry.io/otel                             tool v1.34.0 -> main v1.46.0
+  go.opentelemetry.io/otel/trace                       tool v1.34.0 -> main v1.46.0
+  golang.org/x/crypto                                  tool v0.50.0 -> main v0.56.0
+  golang.org/x/exp                                     tool v0.0.0-20260410095643-746e56fc9e2f -> main v0.0.0-20260824195058-e88cd73687aa
+  golang.org/x/mod                                     tool v0.35.0 -> main v0.40.0
+  golang.org/x/sync                                    tool v0.20.0 -> main v0.22.0
+  golang.org/x/sys                                     tool v0.43.0 -> main v0.47.0
+  golang.org/x/text                                    tool v0.36.0 -> main v0.41.0
+  golang.org/x/tools                                   tool v0.44.0 -> main v0.49.0
+  google.golang.org/genproto/googleapis/rpc            tool v0.0.0-20250303144028-a0af3efb3deb -> main v0.0.0-20260908043556-f8649ddbbfe6
+  google.golang.org/grpc                               tool v1.71.1 -> main v1.83.2
+  google.golang.org/protobuf                           tool v1.36.11 -> main v1.36.12

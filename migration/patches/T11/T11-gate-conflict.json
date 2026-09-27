@@ -1,0 +1,113 @@
+{
+ "schema_version": "t11-gate-conflict/1",
+ "statement": "the takeover itself is complete and proven; the blocker is that the upstream test files the file-plan expects to be placed bring fifteen non-green cases into ./pkg/..., which the verify-gpu test line runs",
+ "measured_totals": {
+  "pass": 78,
+  "BLOCKED(timeout)": 10,
+  "fail": 5
+ },
+ "named_tests": 93,
+ "deterministic_failures": [
+  {
+   "test": "TestTransport_Kind",
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "cause": "transport_test.go:11 compares reflect.DeepEqual(KindAsynq, o.Kind()); KindAsynq is the untyped constant \"asynq\" (transport.go:8) while Kind() returns transport.Kind, so the two values never compare equal"
+  },
+  {
+   "test": "TestHTTPStreamHandlerEventID",
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "cause": "http_test.go:129 expects a nil error from reading one SSE event and gets errors.errorString{\"timeout\"}"
+  },
+  {
+   "test": "TestServerPublishDataWithMeta",
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "cause": "server_test.go:157 expects the literal bytes \"evt-001\" while the implementation writes a generated 32-hex identifier"
+  },
+  {
+   "test": "TestTransport_Kind",
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "cause": "transport_test.go:16, the same untyped-constant comparison as asynq, for KindSse"
+  },
+  {
+   "test": "TestTransport_Kind",
+   "package": "pkg/localdeps/kratos-transport/transport/keepalive",
+   "cause": "transport_test.go:12, the same untyped-constant comparison, for KindKeepalive"
+  }
+ ],
+ "never_terminating": [
+  {
+   "test": "TestNewTaskOnly",
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "cause": "server_test.go:42-72: the body ends in signal.Notify + <-interrupt, so it waits for a real process signal; the file also dials redis://:*Abcd123456@127.0.0.1:6379"
+  },
+  {
+   "test": "TestNewPeriodicTaskOnly",
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "cause": "server_test.go:74-105, same shape"
+  },
+  {
+   "test": "TestDelayTask",
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "cause": "server_test.go:107-150, same shape"
+  },
+  {
+   "test": "TestPeriodicTask",
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "cause": "server_test.go:152-185, same shape"
+  },
+  {
+   "test": "TestTaskSubscribe",
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "cause": "server_test.go:187-218, same shape"
+  },
+  {
+   "test": "TestAllInOne",
+   "package": "pkg/localdeps/kratos-transport/transport/asynq",
+   "cause": "server_test.go:220-275, same shape"
+  },
+  {
+   "test": "TestHTTPStreamHandlerHeaderFlushIfNoEvents",
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "cause": "stream.go:64 in Stream.run: the handler waits for an event that the test never produces, so the response body never completes"
+  },
+  {
+   "test": "TestServerExistingStreamPublish",
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "cause": "server_test.go:75: Publish onto an existing stream with no reader, the test then blocks on a channel nothing writes to"
+  },
+  {
+   "test": "TestServerNonExistentStreamPublish",
+   "package": "pkg/localdeps/kratos-transport/transport/sse",
+   "cause": "server_test.go:102: the same shape for a non-existent stream"
+  },
+  {
+   "test": "TestKeepAliveService",
+   "package": "pkg/localdeps/kratos-transport/transport/keepalive",
+   "cause": "keepalive server.go:82-114: Start calls Serve and only returns after Shutdown, so the upstream test asserting a nil return from Start can never get there"
+  }
+ ],
+ "inheritance_proof": {
+  "method": "the same per-test command run against byte-identical, import-UNrewritten copies of the locked modules placed in a disposable worktree of ce28159, built with the repository's own dependency selections",
+  "result": "all fifteen reproduce identically on the control: 5 fail with the same assertion text and 10 time out; none is caused by the rewrite",
+  "log": "migration/patches/T11/T11-placed-tests.jsonl and the control records in this file"
+ },
+ "why_the_task_cannot_close_it": [
+  "deleting, skipping, tagging or re-writing the expectations of these fifteen cases is a new test exclusion: the approved exception sets are the nine T04 captcha cases and the three T10 order-id cases, and the standing instruction is explicitly not to widen them on my own",
+  "the six asynq harnesses also dial a hardcoded redis://:*Abcd123456@127.0.0.1:6379; the current boundaries forbid using the default localhost Redis, so even a bounded rewrite would need a task-private Redis plus a decision about the hardcoded URI",
+  "leaving them as they are means make verify-gpu's ./pkg/... line panics each of the four affected packages after its 20-minute test timeout and the milestone can never be reported green"
+ ],
+ "options_for_a_ruling": [
+  "A: test-only repair where the assertion is simply wrong (the three Kind comparisons, and the two SSE cases after a cause ruling), and precise isolation of the ten never-terminating harness cases behind upstream_known_defects with their own ledger mode, e.g. KNOWN_UNRUNNABLE_HARNESS, since a must-fail or nondeterministic rule cannot describe a case that has no terminal result",
+  "B: do not place these fifteen upstream test functions at all and record that as an explicit, listed deviation from the file-plan's has_tests entries",
+  "C: accept a permanently red or hanging ./pkg/... gate line, which the rules do not allow to be reported as a pass"
+ ],
+ "what_is_already_done_and_verified": {
+  "placement": "69 files, all byte-identical to the locked modules, nested go.mod/go.sum excluded",
+  "rewrite": "14 files changed by migrate_imports; the seven consumers prove non-import equivalence against ce28159 and the seven changed placed files prove equiv against the pristine sources",
+  "graph": "transport asynq/sse/keepalive/broker/tracing/transport no longer appear in go list -deps for default or quota_lab; only kratos-swagger-ui remains, which is T12",
+  "builds": "go build ./... exit 0; server, server -tags quota_lab and admin all build",
+  "vet": "only the pre-existing T03-F5 copylocks diagnostic",
+  "consumers": "27 named Task/InternalMessage tests pass in the service and data packages",
+  "placed_tests": "78 of 93 named upstream tests pass"
+ }
+}

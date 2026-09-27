@@ -1,0 +1,6 @@
+=== RUN   TestBootstrapWithNameVersion
+  Version: v0.0.1
+  InstanceId: gowind-test-v0.0.1@i-8yg2l7u8@dar6g0vn44ro1a37l66g
+Error: stat ../../configs: no such file or directory
+Usage:
+        	Error Trace:	/home/ubuntu/Workspace/ani-governance/pkg/localdeps/kratos-bootstrap/bootstrap/bootstrap_test.go:30

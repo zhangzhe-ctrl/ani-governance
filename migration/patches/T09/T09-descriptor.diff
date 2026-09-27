@@ -1,0 +1,11 @@
+--- upstream.txt	2026-09-25 13:50:55.616667749 +0800
++++ local.txt	2026-09-25 13:50:55.620667843 +0800
+@@ -452,6 +452,6 @@
+ extension[13].type=enum(11)
+ extension[13].type_name=.redact.FieldRules
+ extension[13].json_name=value
+-options.go_package=github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact
++options.go_package=go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact
+ syntax=proto3
+----- runtime re-marshal: 3367 bytes sha256=eb4674391dccd80f47be446d937efa972fb5998b89cdafd803321c4ddae39eba ----
++---- runtime re-marshal: 3378 bytes sha256=7fac48ca041a38b265e488c38fe6ae23048e1a25a5f0ea47c9f020b5d9bf75f4 ----

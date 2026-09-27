@@ -1,0 +1,686 @@
+{
+  "placed": [
+    {
+      "path": "LICENSE",
+      "source_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+      "placed_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+      "identical": true,
+      "pristine_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+      "pristine_identical": true
+    },
+    {
+      "path": "cmd/gow/main.go",
+      "source_sha256": "acd2e9258375c3f2d71fe41f0d26c4a26f6877467f9849fa6e821b8ed19654d9",
+      "placed_sha256": "acd2e9258375c3f2d71fe41f0d26c4a26f6877467f9849fa6e821b8ed19654d9",
+      "identical": true,
+      "pristine_sha256": "facc8ed59df25ee538c3c38d0de60a598087bb3822e024adab600ee0098a8ac9",
+      "pristine_identical": false
+    },
+    {
+      "path": "cmd/gow/buf.go",
+      "source_sha256": "ca211a34e127e08ad5cc8b8634f31e7639bffdd50b90d7b1c0d846355e3598f0",
+      "placed_sha256": "ca211a34e127e08ad5cc8b8634f31e7639bffdd50b90d7b1c0d846355e3598f0",
+      "identical": true,
+      "pristine_sha256": "ca211a34e127e08ad5cc8b8634f31e7639bffdd50b90d7b1c0d846355e3598f0",
+      "pristine_identical": false
+    },
+    {
+      "path": "cmd/gow/ent.go",
+      "source_sha256": "4c32e1514db6ad754dbb41ae07b878df2a512276a821de60233394fa1bc09fa6",
+      "placed_sha256": "4c32e1514db6ad754dbb41ae07b878df2a512276a821de60233394fa1bc09fa6",
+      "identical": true,
+      "pristine_sha256": "4c32e1514db6ad754dbb41ae07b878df2a512276a821de60233394fa1bc09fa6",
+      "pristine_identical": false
+    },
+    {
+      "path": "cmd/gow/version.go",
+      "source_sha256": "4d23afb3fc853ec396f81c35c9de21733a14b9486997fd4bf02ba33009cccb3f",
+      "placed_sha256": "4d23afb3fc853ec396f81c35c9de21733a14b9486997fd4bf02ba33009cccb3f",
+      "identical": true,
+      "pristine_sha256": "4d23afb3fc853ec396f81c35c9de21733a14b9486997fd4bf02ba33009cccb3f",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/run/run.go",
+      "source_sha256": "d9550b66ad7107e394f7f6ba6fd82f32c294fabdcdcb2d0071f5f114dd20325f",
+      "placed_sha256": "d9550b66ad7107e394f7f6ba6fd82f32c294fabdcdcb2d0071f5f114dd20325f",
+      "identical": true,
+      "pristine_sha256": "d9550b66ad7107e394f7f6ba6fd82f32c294fabdcdcb2d0071f5f114dd20325f",
+      "pristine_identical": false
+    },
+    {
+      "path": "internal/run/watch.go",
+      "source_sha256": "195e60a9de3431ff03241d32065246bd753ebbe2f8fd098c11d2793c3f2c5517",
+      "placed_sha256": "195e60a9de3431ff03241d32065246bd753ebbe2f8fd098c11d2793c3f2c5517",
+      "identical": true,
+      "pristine_sha256": "195e60a9de3431ff03241d32065246bd753ebbe2f8fd098c11d2793c3f2c5517",
+      "pristine_identical": false
+    },
+    {
+      "path": "internal/run/watch_test.go",
+      "source_sha256": "bb5585f2eb94e96dd112eb0da94745d292be8bcc08ae8daa1b99bc41faff1b07",
+      "placed_sha256": "bb5585f2eb94e96dd112eb0da94745d292be8bcc08ae8daa1b99bc41faff1b07",
+      "identical": true,
+      "pristine_sha256": "bb5585f2eb94e96dd112eb0da94745d292be8bcc08ae8daa1b99bc41faff1b07",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/build/cmd.go",
+      "source_sha256": "8dd068c9dcdc84c986a39e0038b62e250b03d200e306c7ffe8a5fec1c30b5241",
+      "placed_sha256": "8dd068c9dcdc84c986a39e0038b62e250b03d200e306c7ffe8a5fec1c30b5241",
+      "identical": true,
+      "pristine_sha256": "8dd068c9dcdc84c986a39e0038b62e250b03d200e306c7ffe8a5fec1c30b5241",
+      "pristine_identical": false
+    },
+    {
+      "path": "internal/build/build_args_test.go",
+      "source_sha256": "6528c11024197d80dd290454f81ff7f4a40213fcc5a246d541fdb5ee91980bfd",
+      "placed_sha256": "6528c11024197d80dd290454f81ff7f4a40213fcc5a246d541fdb5ee91980bfd",
+      "identical": true,
+      "pristine_sha256": "6528c11024197d80dd290454f81ff7f4a40213fcc5a246d541fdb5ee91980bfd",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/build/output_path_test.go",
+      "source_sha256": "99e631cbe03729efc103ffa28f15b88bb928dda8c0682ef015845c2ca3d06319",
+      "placed_sha256": "99e631cbe03729efc103ffa28f15b88bb928dda8c0682ef015845c2ca3d06319",
+      "identical": true,
+      "pristine_sha256": "99e631cbe03729efc103ffa28f15b88bb928dda8c0682ef015845c2ca3d06319",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/ent/cmd.go",
+      "source_sha256": "1d195954c3d560366a66d150bd2a48903929758c2dcfb8c04675ec876b2597ca",
+      "placed_sha256": "1d195954c3d560366a66d150bd2a48903929758c2dcfb8c04675ec876b2597ca",
+      "identical": true,
+      "pristine_sha256": "1d195954c3d560366a66d150bd2a48903929758c2dcfb8c04675ec876b2597ca",
+      "pristine_identical": false
+    },
+    {
+      "path": "internal/ent/ent.go",
+      "source_sha256": "d3dd88de43135408ac45fc108a35edbc79692730ee9a5dbff84ea371dc221e1d",
+      "placed_sha256": "d3dd88de43135408ac45fc108a35edbc79692730ee9a5dbff84ea371dc221e1d",
+      "identical": true,
+      "pristine_sha256": "d3dd88de43135408ac45fc108a35edbc79692730ee9a5dbff84ea371dc221e1d",
+      "pristine_identical": false
+    },
+    {
+      "path": "internal/ent/ent_test.go",
+      "source_sha256": "89de6aec711c8b49e3604bd618f490f5e02f6219cdcfb1976f332cfbfd313455",
+      "placed_sha256": "89de6aec711c8b49e3604bd618f490f5e02f6219cdcfb1976f332cfbfd313455",
+      "identical": true,
+      "pristine_sha256": "89de6aec711c8b49e3604bd618f490f5e02f6219cdcfb1976f332cfbfd313455",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/buf/cmd.go",
+      "source_sha256": "e996799503e12d3f0a9849ee7d25c1835e4ec02c6fddcf1bb16ed1f568a89eb0",
+      "placed_sha256": "e996799503e12d3f0a9849ee7d25c1835e4ec02c6fddcf1bb16ed1f568a89eb0",
+      "identical": true,
+      "pristine_sha256": "e996799503e12d3f0a9849ee7d25c1835e4ec02c6fddcf1bb16ed1f568a89eb0",
+      "pristine_identical": false
+    },
+    {
+      "path": "internal/buf/cmd_test.go",
+      "source_sha256": "9a4080ca58bae8a9327e84397d5b20e647a0dddf929255d2928dcd12f8438e5f",
+      "placed_sha256": "9a4080ca58bae8a9327e84397d5b20e647a0dddf929255d2928dcd12f8438e5f",
+      "identical": true,
+      "pristine_sha256": "9a4080ca58bae8a9327e84397d5b20e647a0dddf929255d2928dcd12f8438e5f",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/file.go",
+      "source_sha256": "9b673606c8b88f4829ac97dbec366770d89717e160997a51c81918e5a3e22201",
+      "placed_sha256": "9b673606c8b88f4829ac97dbec366770d89717e160997a51c81918e5a3e22201",
+      "identical": true,
+      "pristine_sha256": "9b673606c8b88f4829ac97dbec366770d89717e160997a51c81918e5a3e22201",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/file_test.go",
+      "source_sha256": "0ce1285969472463b22ba2bbd8e3df8c2315279f8c1328bd10f74bb7cddcf9f9",
+      "placed_sha256": "0ce1285969472463b22ba2bbd8e3df8c2315279f8c1328bd10f74bb7cddcf9f9",
+      "identical": true,
+      "pristine_sha256": "0ce1285969472463b22ba2bbd8e3df8c2315279f8c1328bd10f74bb7cddcf9f9",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/flags.go",
+      "source_sha256": "92cbd50802f77ca5dc25b5d7b60c36ac6644750d42846a64af13c20b0b6268f4",
+      "placed_sha256": "92cbd50802f77ca5dc25b5d7b60c36ac6644750d42846a64af13c20b0b6268f4",
+      "identical": true,
+      "pristine_sha256": "92cbd50802f77ca5dc25b5d7b60c36ac6644750d42846a64af13c20b0b6268f4",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/gocmd.go",
+      "source_sha256": "dfbcb77c38e8afe4d70255cb6e371c628b999545c76d4878211487f32c011d76",
+      "placed_sha256": "dfbcb77c38e8afe4d70255cb6e371c628b999545c76d4878211487f32c011d76",
+      "identical": true,
+      "pristine_sha256": "dfbcb77c38e8afe4d70255cb6e371c628b999545c76d4878211487f32c011d76",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/list_services_test.go",
+      "source_sha256": "cc60c122db03b860aa8d794b608c05c03a5c7faa23b8b269f82b7da8a8f9b16c",
+      "placed_sha256": "cc60c122db03b860aa8d794b608c05c03a5c7faa23b8b269f82b7da8a8f9b16c",
+      "identical": true,
+      "pristine_sha256": "cc60c122db03b860aa8d794b608c05c03a5c7faa23b8b269f82b7da8a8f9b16c",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/module_inspector.go",
+      "source_sha256": "5a7db23c98247f103fac3caa0a373a0260c11f0cadfb952ce5c1ec6f46083a01",
+      "placed_sha256": "5a7db23c98247f103fac3caa0a373a0260c11f0cadfb952ce5c1ec6f46083a01",
+      "identical": true,
+      "pristine_sha256": "5a7db23c98247f103fac3caa0a373a0260c11f0cadfb952ce5c1ec6f46083a01",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/module_inspector_test.go",
+      "source_sha256": "4f1e5e3f3893ebd85d7f961ad8f9972e33664ae15d97bb2555be61fc42a0e0a7",
+      "placed_sha256": "4f1e5e3f3893ebd85d7f961ad8f9972e33664ae15d97bb2555be61fc42a0e0a7",
+      "identical": true,
+      "pristine_sha256": "4f1e5e3f3893ebd85d7f961ad8f9972e33664ae15d97bb2555be61fc42a0e0a7",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/path.go",
+      "source_sha256": "477461de718088c55bbdd05feeeb4827afe83bd5e91ba17c6ea1afb20893f400",
+      "placed_sha256": "477461de718088c55bbdd05feeeb4827afe83bd5e91ba17c6ea1afb20893f400",
+      "identical": true,
+      "pristine_sha256": "477461de718088c55bbdd05feeeb4827afe83bd5e91ba17c6ea1afb20893f400",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/path_test.go",
+      "source_sha256": "d6731a3a45b51f87eb0016f6448aca6a2fd611b08b13494f7f831e532515a044",
+      "placed_sha256": "d6731a3a45b51f87eb0016f6448aca6a2fd611b08b13494f7f831e532515a044",
+      "identical": true,
+      "pristine_sha256": "d6731a3a45b51f87eb0016f6448aca6a2fd611b08b13494f7f831e532515a044",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/repo.go",
+      "source_sha256": "9367eaf58ec3fb10a23ab5a6aa575f1e0d25f9ea9e8ed9339c346d7c681b9d49",
+      "placed_sha256": "9367eaf58ec3fb10a23ab5a6aa575f1e0d25f9ea9e8ed9339c346d7c681b9d49",
+      "identical": true,
+      "pristine_sha256": "9367eaf58ec3fb10a23ab5a6aa575f1e0d25f9ea9e8ed9339c346d7c681b9d49",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/repo_test.go",
+      "source_sha256": "1588036105d64a3c86b53481582a77ef6af047ce5f7bede971ad70d4ff534a6b",
+      "placed_sha256": "1588036105d64a3c86b53481582a77ef6af047ce5f7bede971ad70d4ff534a6b",
+      "identical": true,
+      "pristine_sha256": "1588036105d64a3c86b53481582a77ef6af047ce5f7bede971ad70d4ff534a6b",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/vcs_url.go",
+      "source_sha256": "24f2f3fde4868a4c773e56d5144cc17d1e05558ef1b85e0104e04e498c99bf40",
+      "placed_sha256": "24f2f3fde4868a4c773e56d5144cc17d1e05558ef1b85e0104e04e498c99bf40",
+      "identical": true,
+      "pristine_sha256": "24f2f3fde4868a4c773e56d5144cc17d1e05558ef1b85e0104e04e498c99bf40",
+      "pristine_identical": true
+    },
+    {
+      "path": "internal/pkg/vcs_url_test.go",
+      "source_sha256": "5765620472c121d11ccc5711325364577c6d6368f958e1a4e18527e058d82a64",
+      "placed_sha256": "5765620472c121d11ccc5711325364577c6d6368f958e1a4e18527e058d82a64",
+      "identical": true,
+      "pristine_sha256": "5765620472c121d11ccc5711325364577c6d6368f958e1a4e18527e058d82a64",
+      "pristine_identical": true
+    }
+  ],
+  "not_in_selected_tool_scope": [
+    {
+      "path": "README.en-US.md",
+      "source_sha256": "e5e992a883724997757caff7848455c3cb29a81124b8e4f25174c6c057f9a70a"
+    },
+    {
+      "path": "README.md",
+      "source_sha256": "5041ece2bc0215c74898fb4ba69996d83eb20aa69e03d8967ea5758209c489c3"
+    },
+    {
+      "path": "go.mod",
+      "source_sha256": "d04b3daa0752ddc913ddd88609f4cb0493d263e3df6f31418680e41f54ffa4ca"
+    },
+    {
+      "path": "go.sum",
+      "source_sha256": "9739b6cff50549a0266a7f613d466de937d2f73de45f312f49c1da951d1cccaa"
+    },
+    {
+      "path": "internal/extract/cmd.go",
+      "source_sha256": "9c32ba8a0f612d3220e259b33e90f8f39e0070e54cbd759869fb481b65701060"
+    },
+    {
+      "path": "internal/generate/cmd.go",
+      "source_sha256": "a6604e04729b0df265791a508e1cc069f0883f97d4f51e459aa9b5d2c448411c"
+    },
+    {
+      "path": "internal/migrate/migrate.go",
+      "source_sha256": "48e2eeaea75657fe350e69ef7105c28c79c6a4287d0ae39cbeeaf7567ea0cf58"
+    },
+    {
+      "path": "internal/migrate/migrate_test.go",
+      "source_sha256": "86f6d92d8b2ca7bc011c542f3fbf00303c9eee792157a851d18b5f4a7ed588e2"
+    },
+    {
+      "path": "internal/project/cmd.go",
+      "source_sha256": "32fc715aa1d2dccbbaf60dff99c3c008e9af59d8f2cf3ea256964e59d055165f"
+    },
+    {
+      "path": "internal/project/project.go",
+      "source_sha256": "0e8122c828367d528b1d5119f2f50615e6e5f3fbabb7e841deb2be390cfba516"
+    },
+    {
+      "path": "internal/project/utils.go",
+      "source_sha256": "70a118efc6446f485a81450fd1e9939ec0fb0824362d64ea3cdd490915695582"
+    },
+    {
+      "path": "internal/schemasource/dsn.go",
+      "source_sha256": "f9b52920ffc25fda4c7b5ccb357d4bda8ece2d9f734a20131ea41b1046d09784"
+    },
+    {
+      "path": "internal/schemasource/mux.go",
+      "source_sha256": "4e4861173bb282b3de63640f894cf9c81f3feb4d3519939f24eaeff499061e2d"
+    },
+    {
+      "path": "internal/schemasource/provider.go",
+      "source_sha256": "695593b30d577e2930dd102957e8ded7df5fa9e1614943737de6f1f89b1c03b3"
+    },
+    {
+      "path": "internal/schemasource/schemasource_test.go",
+      "source_sha256": "1ecb735fc3f7cea72d79286457256248d58f1341df213c6f2fceb5bfb97349af"
+    },
+    {
+      "path": "internal/schemasource/table.go",
+      "source_sha256": "2d0e1f432bed0cb2f2355098e50ccf39e127bffe6ea5d463f23fcd71a4bb439e"
+    },
+    {
+      "path": "internal/schemasource/text.go",
+      "source_sha256": "e19b8d08c34058f6d918914f0f1f19c0a624af75593f0d13a32a95567205d370"
+    },
+    {
+      "path": "internal/service/cmd.go",
+      "source_sha256": "3fb73ae4b91484fe14acca7d005a27e7af74cd5d9899d14250d5f77b8510be67"
+    },
+    {
+      "path": "internal/service/generator.go",
+      "source_sha256": "d0e600641e615b53060cebe64ed46103a834125598d0df5139dc7b5f43124270"
+    },
+    {
+      "path": "internal/service/generator_test.go",
+      "source_sha256": "2fbebcddc911d531d57e9b1a0b619981dfbd6daad666dc1a93fe29d5664f3e49"
+    },
+    {
+      "path": "internal/service/options.go",
+      "source_sha256": "91c374ed6119537e01ac79b45619239cff7d53b3a4fa828f82ff1d4f93fa04f2"
+    },
+    {
+      "path": "internal/service/utils.go",
+      "source_sha256": "91c374ed6119537e01ac79b45619239cff7d53b3a4fa828f82ff1d4f93fa04f2"
+    },
+    {
+      "path": "internal/wire/cmd.go",
+      "source_sha256": "d294cbb5287a2f11d248003d8cc370f0b5294dcadb0dee49a89913e157dd9a31"
+    },
+    {
+      "path": "pkg/extract/extract.go",
+      "source_sha256": "990b145ea12b7350a258b50e168c38bea92313842c02ec1751871641736ccbc7"
+    },
+    {
+      "path": "pkg/extract/extract_test.go",
+      "source_sha256": "38d782f8c96848ef7be5551b48692a39fc1dd2bce16d25e3758bec6fd58fb525"
+    },
+    {
+      "path": "pkg/extract/plan.go",
+      "source_sha256": "9d07725c4118daee89139acb9852494891425464a39e83749b9249e205b3dbc4"
+    },
+    {
+      "path": "pkg/extract/plan_test.go",
+      "source_sha256": "03b99b73aff86e2292cf2b54348f1ff6a123baf23fa1f868a293dc4dd8219724"
+    },
+    {
+      "path": "pkg/frontendgen/detect_modules.go",
+      "source_sha256": "f6550c1e061f66a64108a49d298d4f45bc83d7e7a15eef8b97717fbe9790bb7b"
+    },
+    {
+      "path": "pkg/frontendgen/element.go",
+      "source_sha256": "d27a63df9867a442cc5cc9da9de2806fb8e1bd3c49c58299960f03f6ba61a12f"
+    },
+    {
+      "path": "pkg/frontendgen/element_composable.go",
+      "source_sha256": "bc791615a0599902650fcbdfe380fa25cdfa1623c91a968eac57ddee2f82891b"
+    },
+    {
+      "path": "pkg/frontendgen/element_page.go",
+      "source_sha256": "3d1ab56dfad711a2f61e6fb1e837a78e683bb8e85e1977a92e02f2624285b2c5"
+    },
+    {
+      "path": "pkg/frontendgen/element_router.go",
+      "source_sha256": "49257a312dd212d51b9ce60fa188d5867c052b3609c858de51082b3cfe221b6b"
+    },
+    {
+      "path": "pkg/frontendgen/frontendgen_test.go",
+      "source_sha256": "b338168d191c1b667c7f404dc22aff9a9475cd09d086b5c66dd08dcb2005967b"
+    },
+    {
+      "path": "pkg/frontendgen/generator.go",
+      "source_sha256": "1df08e7f852c95c8ab9d22802e11a7c0936d5a05bfda5803c823b05ec15fafee"
+    },
+    {
+      "path": "pkg/frontendgen/naming.go",
+      "source_sha256": "399f4fae925c2537fc68388cf47ec4463c12c64446dd2ee4b97c86a086a2b562"
+    },
+    {
+      "path": "pkg/frontendgen/openapi.go",
+      "source_sha256": "063ea821f636cc49329f9945270fdac66a6696bc8b1361842ef8c80e5f6cbd37"
+    },
+    {
+      "path": "pkg/frontendgen/options.go",
+      "source_sha256": "04d48a7c809551dc70d9ee12cbf0d5f4ab88dd92d8a371283e95bcc03f424315"
+    },
+    {
+      "path": "pkg/frontendgen/orderedjson.go",
+      "source_sha256": "76d9b0f35b9a35b3424f27f342df50165fbfe123795709513d32c68cdcd66a4e"
+    },
+    {
+      "path": "pkg/frontendgen/react.go",
+      "source_sha256": "5792c080eb8bc4e8db4dcab3d2adf892a7bd70fb00c0cd779b5ca8af2e6d8c66"
+    },
+    {
+      "path": "pkg/frontendgen/react_hooks.go",
+      "source_sha256": "ff617557fcf67e540f39f711b5b73ad9bb2a5240a529fc5027210e159001a096"
+    },
+    {
+      "path": "pkg/frontendgen/react_page.go",
+      "source_sha256": "7a795aa3620e83330e503f20d2a71d045d85bd224f9041dace05e7220ec7549a"
+    },
+    {
+      "path": "pkg/frontendgen/react_router.go",
+      "source_sha256": "cf647891ea81670c553bfc09c6c164db34e94b35141807ececc6edeb00d0f0d2"
+    },
+    {
+      "path": "pkg/frontendgen/translator.go",
+      "source_sha256": "751a7daf03266617828fb0bf5726c90dbcb3864e8016110facdc8a9248873d5d"
+    },
+    {
+      "path": "pkg/frontendgen/vben.go",
+      "source_sha256": "1270b1e9337c8ad666328a61dfe618c08e88dcf31f7e97b7e74797d8f4aada6f"
+    },
+    {
+      "path": "pkg/frontendgen/vben_composable.go",
+      "source_sha256": "bb74f522d93417c1676ff97568f590252e2e2ce52f9e1be2c4cbe48d1941e4c5"
+    },
+    {
+      "path": "pkg/frontendgen/vben_locale.go",
+      "source_sha256": "b76117096667381475ac3fac94abbd9ebc642ca5e4de97cfe8fd426e537bcad9"
+    },
+    {
+      "path": "pkg/frontendgen/vben_page.go",
+      "source_sha256": "1661ac3645bd505bed7ae341a8e2a370650695405e8a7144361852ec59c1bfd1"
+    },
+    {
+      "path": "pkg/frontendgen/vben_router.go",
+      "source_sha256": "be7eaac05e55a8f817e1aa56c5d1ff200a7a6dc043fc51ca62f4dd6315a8aeb8"
+    },
+    {
+      "path": "pkg/frontendgen/writer.go",
+      "source_sha256": "dfd5761550b0113d8311fc30a3d1a3850624b53f7276245c78b8a9749766abf4"
+    },
+    {
+      "path": "pkg/generators/anchor.go",
+      "source_sha256": "72d79584171251403f12e85f649e540c1406c119b165c52cace2b7684541214c"
+    },
+    {
+      "path": "pkg/generators/anchor_test.go",
+      "source_sha256": "fc82aef721f37ac91154af548bc4dafedd241a8681b3f31032a101de237e21d2"
+    },
+    {
+      "path": "pkg/generators/consts.go",
+      "source_sha256": "d56e6185c3fbe585763f6d8cbc969744ff2ee465ee1ba8e108d55d0f3421add0"
+    },
+    {
+      "path": "pkg/generators/func_map.go",
+      "source_sha256": "5d2ab2109ee5ee3580edb057b2a66a0519699b4dfc320f00d498dd966c4e6a73"
+    },
+    {
+      "path": "pkg/generators/go_generator.go",
+      "source_sha256": "3af8ddd36a0504731c69ca2f209e738b907d61a9fb27f394fea9d86c92aa38d9"
+    },
+    {
+      "path": "pkg/generators/go_generator_providerset_test.go",
+      "source_sha256": "1962c862967df58619c043412391a8343e12b680ecde69d6a5d762f941efbaad"
+    },
+    {
+      "path": "pkg/generators/go_generator_test.go",
+      "source_sha256": "00cdf078284a74fd19d07f54571287c56a761f8b7c280dd42e388a5df4049754"
+    },
+    {
+      "path": "pkg/generators/makefile_generator.go",
+      "source_sha256": "b1fc139feb8c9688d532b79438f569b96d6e55cb688e10e074a981edce05debf"
+    },
+    {
+      "path": "pkg/generators/makefile_generator_test.go",
+      "source_sha256": "aa732bf320f6f2a3ef6c319fd57b062a1df7e4ccf6d1c2b0ecdf5fe616b76b69"
+    },
+    {
+      "path": "pkg/generators/proto_generator.go",
+      "source_sha256": "c4bb0c1efbe6e3f5a2570b7b830c2c8e5c749fc008ddf64fcb33b8af94b2fc3b"
+    },
+    {
+      "path": "pkg/generators/proto_generator_test.go",
+      "source_sha256": "28e8056c15ef656db4f7ded04d1a126a4fc9a637cb63265c4d1b188e29bc5c6d"
+    },
+    {
+      "path": "pkg/generators/templates/golang/assets.go",
+      "source_sha256": "c18e1d9adeb0e83f313730ba1310ac881bcc6a0530b05c2b5c89fdd2ccd79548"
+    },
+    {
+      "path": "pkg/generators/templates/makefile/assets.go",
+      "source_sha256": "a8bedbd28d27ce4cb8f9995861d333a7858dcf405418f41d760fde04a4d31556"
+    },
+    {
+      "path": "pkg/generators/templates/proto/assets.go",
+      "source_sha256": "f3b6c7e3cadabcd490042d86ae9067e21facf519c3d681fc7b1dfc723171305c"
+    },
+    {
+      "path": "pkg/generators/templates/yaml/assets.go",
+      "source_sha256": "00a12461badb92492383787fd5ecf1409f1bd97448e7c4af6d38831740e8afb5"
+    },
+    {
+      "path": "pkg/generators/types.go",
+      "source_sha256": "bc6436c98c386426e64dfa49f76792a26333453096d2e23615b0467d5acc6139"
+    },
+    {
+      "path": "pkg/generators/utils.go",
+      "source_sha256": "356422da65b1d0823daf1ff700cc8503b8e615e1fb0ec3581b4df1733dccf048"
+    },
+    {
+      "path": "pkg/generators/utils_test.go",
+      "source_sha256": "d10a4cb8cd90ce9d9644bd0ace4bcc6f6fc951a8d9b900b531080460265c6ce7"
+    },
+    {
+      "path": "pkg/generators/wiring.go",
+      "source_sha256": "b036406672066c192632d1f7ad43a3ebae879f5da35cf2f0319ca0dcd312cf19"
+    },
+    {
+      "path": "pkg/generators/wiring_test.go",
+      "source_sha256": "c74b796144f99eaf16de01cdddc6f5a276c81db42443eb897cb727e7e5d71edd"
+    },
+    {
+      "path": "pkg/generators/yaml_generator.go",
+      "source_sha256": "2907ff714bd3db74db0351b034b8f1ab31350d0471afbc5dc30b8450513177dd"
+    },
+    {
+      "path": "pkg/generators/yaml_generator_test.go",
+      "source_sha256": "7ed52b741ce4ecd67f1ab95fb9c5d7f662d34effd80496523cd99bb33345d5f6"
+    },
+    {
+      "path": "pkg/service/service.go",
+      "source_sha256": "b42039b90a6b3b52138b9eff5a34418b4c2984936c2c39fa70b9d1a321dd7c56"
+    },
+    {
+      "path": "pkg/service/service_test.go",
+      "source_sha256": "578b99335dfa4fd90e622f79bfca52a0c9ca16df524ce0f15e9ab4faeb09da73"
+    },
+    {
+      "path": "pkg/sqlkratos/generator.go",
+      "source_sha256": "fc6c927db2b095afc00e0d675092f2920ee0a96ef1c268782eaab8ddecb412e3"
+    },
+    {
+      "path": "pkg/sqlkratos/options.go",
+      "source_sha256": "401d0caed2586b81d07d7772ef0f5a7de7117bcc31c9a9ca74157800021182fe"
+    },
+    {
+      "path": "pkg/sqlkratos/render.go",
+      "source_sha256": "b8c44bf126d2c27f9b90ea8ee6174b9c51235d5ae11285539e8f506ae9530ad1"
+    },
+    {
+      "path": "pkg/sqlkratos/render_test.go",
+      "source_sha256": "babbff352b424166b81dbd981bb7441dea61a461eb59a103478722cbdeb7de95"
+    },
+    {
+      "path": "pkg/sqlkratos/wiring.go",
+      "source_sha256": "be059304fc76c65cd72f27082ce190d29608903d0c90ec766c11ec55ca0f0739"
+    },
+    {
+      "path": "pkg/sqlkratos/wiring_dispatch_test.go",
+      "source_sha256": "f7d3b266218ea661e59fcaaebb9772e764e05e09a67b44e1f5ca3bbe367026e2"
+    },
+    {
+      "path": "pkg/sqlorm/importer.go",
+      "source_sha256": "54331fb59bee037da292ebe68642a8204ad280ea066de23a96af83c25b59bd6f"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/entimport/import.go",
+      "source_sha256": "47e59717aa383ce627a5232391e294eff7a7e2bbbaf27e478d12b0da79d53023"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/entimport/import_test.go",
+      "source_sha256": "194ef5acaffc23f712d6753976824845e953eded9ce1e242c17d2b4d08704619"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/entimport/importer.go",
+      "source_sha256": "ff553444c144b9204d37320f7e474bb68c333ccd2754a8b1f861503ea5a89d58"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/entimport/mysql.go",
+      "source_sha256": "9951bf607bf655543b1818cd4392b041367dc968ef9105c3cad2c4854c6ce3d6"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/entimport/mysql_test.go",
+      "source_sha256": "6c91f00552756585d102e61ca85a0b0b4502498d36259c750897a6ca2ddd6c2f"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/entimport/options.go",
+      "source_sha256": "461fcd18572f9615e621084d4db4fded0b0584fad043a9828f7c99eebcadfeca"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/entimport/postgres.go",
+      "source_sha256": "ef742ed217042ed793e9fe73374f0bff40c5fedc9b5f432c29b57c1823788881"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/entimport/postgres_test.go",
+      "source_sha256": "977fe01ca6d83a656abd4451668747f1cb00d5a8f4d24ced29e32b5a30096dcc"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/entimport/text.go",
+      "source_sha256": "f4c4327475b2d10997a621e103a62f9e4bd05b8d54aebb294639d4d5989a700e"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/entimport/text_test.go",
+      "source_sha256": "8c0abf28097304879a3853f061fb0dcc876e1d6249928b3a8a4e074f297f5d4a"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/entimport/write_schema_test.go",
+      "source_sha256": "5a7803e21d85a159000b24575076dc984194d9feb480e05ef746d56e1dc6be07"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/integration/README.md",
+      "source_sha256": "9b9c51ad595bb482a305786773a182a07f3b5d22094ecc4b9cf8d30487621530"
+    },
+    {
+      "path": "pkg/sqlorm/internal/ent/integration/integration_test.go",
+      "source_sha256": "314b8db4e076dd4d0b055981c4ec13447db27b3b4d0fe03801e2244c9a9b8312"
+    },
+    {
+      "path": "pkg/sqlorm/internal/gorm/gorm_client.go",
+      "source_sha256": "0ba7e966549aef462ef870652e40dcc3283e071550ee3d8f102c0aae76d1638b"
+    },
+    {
+      "path": "pkg/sqlorm/internal/gorm/importer.go",
+      "source_sha256": "bd16df151874ed266c40811f2256a198ef37852fc194e8067b1b61ef58b77eda"
+    },
+    {
+      "path": "pkg/sqlorm/internal/gorm/importer_test.go",
+      "source_sha256": "f3ff2d87e420654c57715773d33b03f7a6cd6e997ea67ebbb8135cd158f25cd8"
+    },
+    {
+      "path": "pkg/sqlorm/internal/options.go",
+      "source_sha256": "27e0271aa25772a4dc8c0c3e5264ce1aac9f296c968477c6f7fde8c5b4e4c156"
+    },
+    {
+      "path": "pkg/sqlorm/options.go",
+      "source_sha256": "3c43d133fc07a8197172541eca7cf3d4791ec32bf1e86b653b80e61a7ac775d0"
+    },
+    {
+      "path": "pkg/sqlproto/converter.go",
+      "source_sha256": "8384e1de94e3a964be946b09d17c3e77393b736fe79ba5fd68787f1de7c1fc78"
+    },
+    {
+      "path": "pkg/sqlproto/converter_test.go",
+      "source_sha256": "790aa95f97708f3e9c8e3b7b1c2c7a079a841fa01445bec25e7e34e4be546ed3"
+    },
+    {
+      "path": "pkg/sqlproto/internal/convert.go",
+      "source_sha256": "76647f17cd22919e037b88511ce0bc23a354f96950966e58aec2661311368a94"
+    },
+    {
+      "path": "pkg/sqlproto/internal/convert_test.go",
+      "source_sha256": "219f0bff7066ef6d948c0860b613af21d681b2c20648a3144a4296c96f24a9fb"
+    },
+    {
+      "path": "pkg/sqlproto/internal/mysql.go",
+      "source_sha256": "1ad518f45074dab11d8e62332afb58c230128769ceff8f81de93f6f5ea2ed8f2"
+    },
+    {
+      "path": "pkg/sqlproto/internal/options.go",
+      "source_sha256": "1987d7eea38c165f7cf5268462d2924af6808760d9bbc6120a9fd632d288d20f"
+    },
+    {
+      "path": "pkg/sqlproto/internal/postgres.go",
+      "source_sha256": "9682e1d4a1287fd8f3e38e7b0b88e4bd5cb22bcbd7d1f8aefa92ab1d2d33900e"
+    },
+    {
+      "path": "pkg/sqlproto/internal/render/generator.go",
+      "source_sha256": "eb6c932a5377036e689ff2618f4a050588884079290386efb7e4c44fa7d98866"
+    },
+    {
+      "path": "pkg/sqlproto/internal/render/generator_test.go",
+      "source_sha256": "5f27e22f21ae0c428ab043e35cb92733afbefb4790ca091f67e568d21a60f46d"
+    },
+    {
+      "path": "pkg/sqlproto/internal/render/types.go",
+      "source_sha256": "580e6578c5b32bfca4e3c12b4fe2ef158f2dcc20ad333712fdcb9175745892e2"
+    },
+    {
+      "path": "pkg/sqlproto/internal/text.go",
+      "source_sha256": "437825e0c20fd03ff38644216fce8abe049421226fc1ca99e894afd09df25918"
+    },
+    {
+      "path": "pkg/sqlproto/internal/text_test.go",
+      "source_sha256": "12193a016810ac2452c5258925d702e7596d6784cf9c1ea06a84fef706d2f47f"
+    },
+    {
+      "path": "pkg/sqlproto/internal/types.go",
+      "source_sha256": "9ccd58d2670fa64a9a49a3808f64dce9a46d634d3c81743991d79ee8481fb6ff"
+    },
+    {
+      "path": "pkg/sqlproto/render.go",
+      "source_sha256": "736db0b528d2e54d7c0fcf3f2044cf2efac02cfe464ea4b7509afefba21296d9"
+    }
+  ]
+}

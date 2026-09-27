@@ -1,0 +1,26 @@
+{
+  "schema_version": "repo-copylocks-baseline/1",
+  "purpose": "record the pre-existing repo-wide copylocks vet findings by original SHA/file/location/diagnostic, per the T04 supplemental authorization section 五. This record neither disables repo-wide vet nor absorbs any new T04 diagnostic; it does not gate go test (copylocks is outside go test's default vet subset).",
+  "recorded_at_head": "7640c9230248db2893c6c58d6c63d2ca73c7d9c6",
+  "scope_checked_for_t04": [
+    "app/admin/service/internal/data",
+    "app/admin/service/internal/service",
+    "pkg/localdeps/go-utils/captcha",
+    "pkg/localdeps/go-utils/password"
+  ],
+  "findings": [
+    {
+      "package": "go-wind-admin/app/admin/service/internal/service",
+      "file": "app/admin/service/internal/service/accelerator_joint_http_test.go",
+      "location": "503:9",
+      "diagnostic": "assignment copies lock value to ref: github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1.GpuUsageRef contains google.golang.org/protobuf/runtime/protoimpl.MessageState contains sync.Mutex",
+      "origin": "pre-existing at HEAD, from the GPU-quota accelerator test, unrelated to T04; not introduced or masked by the T04 test-only patches"
+    }
+  ],
+  "clean_vet_packages": [
+    "go-wind-admin/app/admin/service/internal/data",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "go-wind-admin/pkg/localdeps/go-utils/password"
+  ],
+  "note": "only the two captcha/password packages require vet==0 under the authorization (both are 0). The single service-package copylocks is retained as an honest pre-existing record; the 6 renamed Examples introduce no new diagnostic."
+}

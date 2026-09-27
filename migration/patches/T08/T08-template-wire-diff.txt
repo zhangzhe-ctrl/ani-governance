@@ -1,0 +1,223 @@
+diff --git a/api/buf.accelerator.gen.yaml b/api/buf.accelerator.gen.yaml
+index 5ae0010..ab85814 100644
+--- a/api/buf.accelerator.gen.yaml
++++ b/api/buf.accelerator.gen.yaml
+@@ -5,7 +5,6 @@ managed:
+   disable:
+     - module: buf.build/googleapis/googleapis
+     - module: buf.build/gnostic/gnostic
+-    - module: buf.build/tx7do/pagination
+   override:
+     - file_option: go_package_prefix
+       value: go-wind-admin/api/gen/go
+@@ -18,6 +17,14 @@ managed:
+     - file_option: go_package
+       path: quota/service/v1
+       value: go-wind-admin/api/gen/go/quota/service/v1;quotapb
++
++    # 本地化分页 Proto（api/localdeps/pagination，源码与 go-crud/api@v0.0.7 逐字节一致）。
++    # managed 全局前缀 go-wind-admin/api/gen/go 对此 Proto 例外：生成到 pkg/localdeps 目标，
++    # Go 包名保持上游生成物的 v1（原 option go_package 的 ;pagination 别名在上游生成物中
++    # 已被 go_package_prefix 抹去，这里复刻既有行为，不改变协议）。
++    - file_option: go_package
++      path: pagination/v1
++      value: go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
+ inputs:
+   - directory: protos
+     paths:
+diff --git a/api/buf.admin.openapi.gen.yaml b/api/buf.admin.openapi.gen.yaml
+index dc25a0e..8ed6c51 100644
+--- a/api/buf.admin.openapi.gen.yaml
++++ b/api/buf.admin.openapi.gen.yaml
+@@ -11,13 +11,20 @@ managed:
+     - module: 'buf.build/kratos/apis'
+     - module: 'buf.build/gnostic/gnostic'
+     - module: 'buf.build/gogo/protobuf'
+-    - module: 'buf.build/tx7do/pagination'
+     - module: 'buf.build/go-wind/redact'
+ 
+   override:
+     - file_option: go_package_prefix
+       value: go-wind-admin/api/gen/go
+ 
++    # 本地化分页 Proto（api/localdeps/pagination，源码与 go-crud/api@v0.0.7 逐字节一致）。
++    # managed 全局前缀 go-wind-admin/api/gen/go 对此 Proto 例外：生成到 pkg/localdeps 目标，
++    # Go 包名保持上游生成物的 v1（原 option go_package 的 ;pagination 别名在上游生成物中
++    # 已被 go_package_prefix 抹去，这里复刻既有行为，不改变协议）。
++    - file_option: go_package
++      path: pagination/v1
++      value: go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
++
+ inputs:
+   - directory: protos
+     paths:
+diff --git a/api/buf.aksk.gen.yaml b/api/buf.aksk.gen.yaml
+index 70fd350..c2d57f0 100644
+--- a/api/buf.aksk.gen.yaml
++++ b/api/buf.aksk.gen.yaml
+@@ -5,7 +5,6 @@ managed:
+   disable:
+     - module: buf.build/googleapis/googleapis
+     - module: buf.build/gnostic/gnostic
+-    - module: buf.build/tx7do/pagination
+     - module: buf.build/envoyproxy/protoc-gen-validate
+     - module: buf.build/go-wind/redact
+     - module: buf.build/kratos/apis
+@@ -28,6 +27,14 @@ managed:
+     - file_option: go_package
+       path: identity/service/v1
+       value: go-wind-admin/api/gen/go/identity/service/v1;identitypb
++
++    # 本地化分页 Proto（api/localdeps/pagination，源码与 go-crud/api@v0.0.7 逐字节一致）。
++    # managed 全局前缀 go-wind-admin/api/gen/go 对此 Proto 例外：生成到 pkg/localdeps 目标，
++    # Go 包名保持上游生成物的 v1（原 option go_package 的 ;pagination 别名在上游生成物中
++    # 已被 go_package_prefix 抹去，这里复刻既有行为，不改变协议）。
++    - file_option: go_package
++      path: pagination/v1
++      value: go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
+ inputs:
+   - directory: protos
+     paths:
+diff --git a/api/buf.gen.yaml b/api/buf.gen.yaml
+index 9e98c90..194f7b3 100644
+--- a/api/buf.gen.yaml
++++ b/api/buf.gen.yaml
+@@ -11,7 +11,6 @@ managed:
+     - module: 'buf.build/kratos/apis'
+     - module: 'buf.build/gnostic/gnostic'
+     - module: 'buf.build/gogo/protobuf'
+-    - module: 'buf.build/tx7do/pagination'
+     - module: 'buf.build/go-wind/redact'
+ 
+   override:
+@@ -62,6 +61,20 @@ managed:
+       path: config/service/v1
+       value: go-wind-admin/api/gen/go/config/service/v1;configpb
+ 
++    # 本地化分页 Proto（api/localdeps/pagination，源码与 go-crud/api@v0.0.7 逐字节一致）。
++    # managed 全局前缀 go-wind-admin/api/gen/go 对此 Proto 例外：生成到 pkg/localdeps 目标，
++    # Go 包名保持上游生成物的 v1（原 option go_package 的 ;pagination 别名在上游生成物中
++    # 已被 go_package_prefix 抹去，这里复刻既有行为，不改变协议）。
++    - file_option: go_package
++      path: pagination/v1
++      value: go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
++
++
++inputs:
++  # 业务输入只选 protos：本地化分页 Proto 由 buf.pagination.gen.yaml 单独生成到
++  # pkg/localdeps 目标，避免分页生成两份。
++  - directory: protos
++
+ plugins:
+   # generate go code
+   #- plugin: buf.build/protocolbuffers/go
+diff --git a/api/buf.lock b/api/buf.lock
+index 30c8054..98af774 100644
+--- a/api/buf.lock
++++ b/api/buf.lock
+@@ -16,6 +16,3 @@ deps:
+   - name: buf.build/kratos/apis
+     commit: c2de25f14fa445a79a054214f31d17a8
+     digest: b5:3e4dac0d26ce9db17309aeb845f0efb38ec7db1af06ee3c6b8dce2f4f7f53f126d62233c4910410384ead7f0a0edb6448cb389e62d1e3da5e927c3a980828f0b
+-  - name: buf.build/tx7do/pagination
+-    commit: 7e34dd27013f4c67bb09025c73a73980
+-    digest: b5:f1affafbeb5564a0cb38bf25efe4af9af7c0da770fe7d860617dc2dfb6b8dd352de105cd3175c9ac86d9e7ea5c8f409ab94637431a9c6f48ca0fbfb32771b279
+diff --git a/api/buf.network.gen.yaml b/api/buf.network.gen.yaml
+index 37909d5..d88dbbb 100644
+--- a/api/buf.network.gen.yaml
++++ b/api/buf.network.gen.yaml
+@@ -14,6 +14,14 @@ managed:
+     - file_option: go_package
+       path: identity/service/v1
+       value: go-wind-admin/api/gen/go/identity/service/v1;identitypb
++
++    # 本地化分页 Proto（api/localdeps/pagination，源码与 go-crud/api@v0.0.7 逐字节一致）。
++    # managed 全局前缀 go-wind-admin/api/gen/go 对此 Proto 例外：生成到 pkg/localdeps 目标，
++    # Go 包名保持上游生成物的 v1（原 option go_package 的 ;pagination 别名在上游生成物中
++    # 已被 go_package_prefix 抹去，这里复刻既有行为，不改变协议）。
++    - file_option: go_package
++      path: pagination/v1
++      value: go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
+ inputs:
+   - directory: protos
+     paths:
+diff --git a/api/buf.quota-lab.gen.yaml b/api/buf.quota-lab.gen.yaml
+index ad51cb4..3ce3915 100644
+--- a/api/buf.quota-lab.gen.yaml
++++ b/api/buf.quota-lab.gen.yaml
+@@ -5,7 +5,6 @@ managed:
+   disable:
+     - module: buf.build/googleapis/googleapis
+     - module: buf.build/gnostic/gnostic
+-    - module: buf.build/tx7do/pagination
+     - module: buf.build/envoyproxy/protoc-gen-validate
+     - module: buf.build/go-wind/redact
+     - module: buf.build/kratos/apis
+@@ -16,6 +15,14 @@ managed:
+     - file_option: go_package
+       path: quota_lab/service/v1
+       value: go-wind-admin/api/gen/go/quota_lab/service/v1;quotalabpb
++
++    # 本地化分页 Proto（api/localdeps/pagination，源码与 go-crud/api@v0.0.7 逐字节一致）。
++    # managed 全局前缀 go-wind-admin/api/gen/go 对此 Proto 例外：生成到 pkg/localdeps 目标，
++    # Go 包名保持上游生成物的 v1（原 option go_package 的 ;pagination 别名在上游生成物中
++    # 已被 go_package_prefix 抹去，这里复刻既有行为，不改变协议）。
++    - file_option: go_package
++      path: pagination/v1
++      value: go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
+ inputs:
+   - directory: protos
+     paths:
+diff --git a/api/buf.quota.gen.yaml b/api/buf.quota.gen.yaml
+index f60d787..8e0d8c0 100644
+--- a/api/buf.quota.gen.yaml
++++ b/api/buf.quota.gen.yaml
+@@ -5,7 +5,6 @@ managed:
+   disable:
+     - module: buf.build/googleapis/googleapis
+     - module: buf.build/gnostic/gnostic
+-    - module: buf.build/tx7do/pagination
+     - module: buf.build/envoyproxy/protoc-gen-validate
+     - module: buf.build/go-wind/redact
+     - module: buf.build/kratos/apis
+@@ -22,6 +21,14 @@ managed:
+     - file_option: go_package
+       path: quota/service/v1
+       value: go-wind-admin/api/gen/go/quota/service/v1;quotapb
++
++    # 本地化分页 Proto（api/localdeps/pagination，源码与 go-crud/api@v0.0.7 逐字节一致）。
++    # managed 全局前缀 go-wind-admin/api/gen/go 对此 Proto 例外：生成到 pkg/localdeps 目标，
++    # Go 包名保持上游生成物的 v1（原 option go_package 的 ;pagination 别名在上游生成物中
++    # 已被 go_package_prefix 抹去，这里复刻既有行为，不改变协议）。
++    - file_option: go_package
++      path: pagination/v1
++      value: go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
+ inputs:
+   - directory: protos
+     paths:
+diff --git a/api/buf.yaml b/api/buf.yaml
+index aad8677..d2d1a5f 100644
+--- a/api/buf.yaml
++++ b/api/buf.yaml
+@@ -8,11 +8,20 @@ modules:
+     breaking:
+       use:
+         - FILE
++  # 本地化分页 Proto（go-crud/api@v0.0.7 源码接管，逐字节一致）。
++  # 逻辑 import 路径保持 pagination/v1/...，外部 buf.build/tx7do/pagination 已移除，
++  # 分页 Proto 在全仓只有这一份定义。
++  - path: localdeps/pagination
++    lint:
++      use:
++        - STANDARD
++    breaking:
++      use:
++        - FILE
+ deps:
+   - 'buf.build/googleapis/googleapis'
+   - 'buf.build/kratos/apis'
+   - 'buf.build/gnostic/gnostic'
+-  - 'buf.build/tx7do/pagination'
+   - 'buf.build/go-wind/redact'
+   - 'buf.build/envoyproxy/protoc-gen-validate'
+ 

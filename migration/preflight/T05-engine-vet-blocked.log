@@ -1,0 +1,8 @@
+# go-wind-admin/pkg/localdeps/kratos-authn/engine
+# [go-wind-admin/pkg/localdeps/kratos-authn/engine]
+pkg/localdeps/kratos-authn/engine/metadata.go:31:51: non-constant format string in call to google.golang.org/grpc/status.Errorf
+pkg/localdeps/kratos-authn/engine/metadata.go:40:51: non-constant format string in call to google.golang.org/grpc/status.Errorf
+FAIL	go-wind-admin/pkg/localdeps/kratos-authn/engine [build failed]
+FAIL
+engine_test_exit=1
+metadata.go BYTE-IDENTICAL to pristine v1.1.11

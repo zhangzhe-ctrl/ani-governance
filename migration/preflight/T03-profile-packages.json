@@ -1,0 +1,42 @@
+{
+ "tags": [
+  "quota_pg"
+ ],
+ "module": "go-wind-admin",
+ "package_patterns": [
+  "./app/admin/service/internal/data",
+  "./app/admin/service/internal/data/ent",
+  "./app/admin/service/internal/service",
+  "./pkg/jwt",
+  "./pkg/localdeps/go-crud/entgo",
+  "./pkg/localdeps/go-crud/entgo/field",
+  "./pkg/localdeps/go-crud/entgo/filter",
+  "./pkg/localdeps/go-crud/entgo/update",
+  "./pkg/localdeps/go-utils/copierutil",
+  "./pkg/localdeps/go-utils/fieldmaskutil",
+  "./pkg/localdeps/go-utils/mapper",
+  "./pkg/localdeps/go-utils/sliceutil",
+  "./pkg/localdeps/go-utils/stringcase",
+  "./pkg/utils",
+  "./pkg/utils/converter"
+ ],
+ "packages_with_tests": {
+  "go-wind-admin/app/admin/service/internal/data": 301,
+  "go-wind-admin/app/admin/service/internal/data/ent": 5,
+  "go-wind-admin/app/admin/service/internal/service": 176,
+  "go-wind-admin/pkg/jwt": 21,
+  "go-wind-admin/pkg/localdeps/go-crud/entgo": 5,
+  "go-wind-admin/pkg/localdeps/go-crud/entgo/field": 2,
+  "go-wind-admin/pkg/localdeps/go-crud/entgo/filter": 16,
+  "go-wind-admin/pkg/localdeps/go-crud/entgo/update": 5,
+  "go-wind-admin/pkg/localdeps/go-utils/copierutil": 6,
+  "go-wind-admin/pkg/localdeps/go-utils/fieldmaskutil": 1,
+  "go-wind-admin/pkg/localdeps/go-utils/mapper": 2,
+  "go-wind-admin/pkg/localdeps/go-utils/sliceutil": 28,
+  "go-wind-admin/pkg/localdeps/go-utils/stringcase": 11,
+  "go-wind-admin/pkg/utils": 10,
+  "go-wind-admin/pkg/utils/converter": 18
+ },
+ "packages_without_test_files": [],
+ "profile_cases": 599
+}

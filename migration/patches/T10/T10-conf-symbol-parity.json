@@ -1,0 +1,46 @@
+{
+ "archive": "$GOMODCACHE/github.com/tx7do/kratos-bootstrap/api@v0.0.45/gen/go/conf/v1",
+ "localized": "pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1",
+ "archive_files": 17,
+ "localized_files": 17,
+ "same_file_names": true,
+ "counts": {
+  "messages": {
+   "archive": 124,
+   "localized": 124
+  },
+  "fields": {
+   "archive": 883,
+   "localized": 883
+  },
+  "accessors": {
+   "archive": 1521,
+   "localized": 1521
+  },
+  "oneof_impls": {
+   "archive": 2,
+   "localized": 2
+  }
+ },
+ "drift": {
+  "messages": {
+   "only_in_archive": [],
+   "only_in_localized": []
+  },
+  "fields": {
+   "only_in_archive": [],
+   "only_in_localized": []
+  },
+  "accessors": {
+   "only_in_archive": [],
+   "only_in_localized": []
+  },
+  "oneof_impls": {
+   "only_in_archive": [],
+   "only_in_localized": []
+  }
+ },
+ "total_symbols_compared": 2530,
+ "identical": true,
+ "files_byte_differing_from_archive": 17
+}

@@ -1,0 +1,104 @@
+diff -ru pre/api/gen/go/admin/service/v1/i_user.pb.go post/api/gen/go/admin/service/v1/i_user.pb.go
+--- pre/api/gen/go/admin/service/v1/i_user.pb.go	2026-09-25 13:40:16.745738584 +0800
++++ post/api/gen/go/admin/service/v1/i_user.pb.go	2026-09-25 13:40:20.011814205 +0800
+@@ -7,9 +7,9 @@
+ package adminpb
+ 
+ import (
+-	_ "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	v11 "go-wind-admin/api/gen/go/identity/service/v1"
+ 	v1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
++	_ "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	_ "google.golang.org/genproto/googleapis/api/annotations"
+ 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+ 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+diff -ru pre/api/gen/go/admin/service/v1/i_user.pb.redact.go post/api/gen/go/admin/service/v1/i_user.pb.redact.go
+--- pre/api/gen/go/admin/service/v1/i_user.pb.redact.go	2026-09-25 13:40:16.745738584 +0800
++++ post/api/gen/go/admin/service/v1/i_user.pb.redact.go	2026-09-25 13:40:20.011814205 +0800
+@@ -5,9 +5,9 @@
+ 
+ import (
+ 	context "context"
+-	redact "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	identitypb "go-wind-admin/api/gen/go/identity/service/v1"
+ 	v1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
++	redact "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	grpc "google.golang.org/grpc"
+ 	codes "google.golang.org/grpc/codes"
+ 	status "google.golang.org/grpc/status"
+diff -ru pre/api/gen/go/authentication/service/v1/ani_auth.pb.go post/api/gen/go/authentication/service/v1/ani_auth.pb.go
+--- pre/api/gen/go/authentication/service/v1/ani_auth.pb.go	2026-09-25 13:40:16.747738631 +0800
++++ post/api/gen/go/authentication/service/v1/ani_auth.pb.go	2026-09-25 13:40:20.012814228 +0800
+@@ -9,7 +9,7 @@
+ import (
+ 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+ 	_ "github.com/google/gnostic/openapiv3"
+-	_ "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
++	_ "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	_ "google.golang.org/genproto/googleapis/api/annotations"
+ 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+ 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+diff -ru pre/api/gen/go/authentication/service/v1/ani_auth.pb.redact.go post/api/gen/go/authentication/service/v1/ani_auth.pb.redact.go
+--- pre/api/gen/go/authentication/service/v1/ani_auth.pb.redact.go	2026-09-25 13:40:16.747738631 +0800
++++ post/api/gen/go/authentication/service/v1/ani_auth.pb.redact.go	2026-09-25 13:40:20.012814228 +0800
+@@ -6,7 +6,7 @@
+ import (
+ 	context "context"
+ 	validate "github.com/envoyproxy/protoc-gen-validate/validate"
+-	redact "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
++	redact "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	annotations "google.golang.org/genproto/googleapis/api/annotations"
+ 	grpc "google.golang.org/grpc"
+ 	codes "google.golang.org/grpc/codes"
+diff -ru pre/api/gen/go/authentication/service/v1/authentication.pb.go post/api/gen/go/authentication/service/v1/authentication.pb.go
+--- pre/api/gen/go/authentication/service/v1/authentication.pb.go	2026-09-25 13:40:16.747738631 +0800
++++ post/api/gen/go/authentication/service/v1/authentication.pb.go	2026-09-25 13:40:20.012814228 +0800
+@@ -9,8 +9,8 @@
+ import (
+ 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+ 	_ "github.com/google/gnostic/openapiv3"
+-	_ "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	_ "go-wind-admin/api/gen/go/identity/service/v1"
++	_ "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	_ "google.golang.org/genproto/googleapis/api/annotations"
+ 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+ 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+diff -ru pre/api/gen/go/authentication/service/v1/authentication.pb.redact.go post/api/gen/go/authentication/service/v1/authentication.pb.redact.go
+--- pre/api/gen/go/authentication/service/v1/authentication.pb.redact.go	2026-09-25 13:40:16.747738631 +0800
++++ post/api/gen/go/authentication/service/v1/authentication.pb.redact.go	2026-09-25 13:40:20.012814228 +0800
+@@ -6,8 +6,8 @@
+ import (
+ 	context "context"
+ 	validate "github.com/envoyproxy/protoc-gen-validate/validate"
+-	redact "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	identitypb "go-wind-admin/api/gen/go/identity/service/v1"
++	redact "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	annotations "google.golang.org/genproto/googleapis/api/annotations"
+ 	grpc "google.golang.org/grpc"
+ 	codes "google.golang.org/grpc/codes"
+diff -ru pre/api/gen/go/identity/service/v1/user.pb.go post/api/gen/go/identity/service/v1/user.pb.go
+--- pre/api/gen/go/identity/service/v1/user.pb.go	2026-09-25 13:40:16.751738723 +0800
++++ post/api/gen/go/identity/service/v1/user.pb.go	2026-09-25 13:40:20.014814274 +0800
+@@ -9,8 +9,8 @@
+ import (
+ 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+ 	_ "github.com/google/gnostic/openapiv3"
+-	_ "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	v1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
++	_ "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	_ "google.golang.org/genproto/googleapis/api/annotations"
+ 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+ 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+diff -ru pre/api/gen/go/identity/service/v1/user.pb.redact.go post/api/gen/go/identity/service/v1/user.pb.redact.go
+--- pre/api/gen/go/identity/service/v1/user.pb.redact.go	2026-09-25 13:40:16.751738723 +0800
++++ post/api/gen/go/identity/service/v1/user.pb.redact.go	2026-09-25 13:40:20.014814274 +0800
+@@ -6,8 +6,8 @@
+ import (
+ 	context "context"
+ 	validate "github.com/envoyproxy/protoc-gen-validate/validate"
+-	redact "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	v1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
++	redact "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+ 	annotations "google.golang.org/genproto/googleapis/api/annotations"
+ 	grpc "google.golang.org/grpc"
+ 	codes "google.golang.org/grpc/codes"

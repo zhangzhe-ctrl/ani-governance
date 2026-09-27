@@ -1,0 +1,228 @@
+{
+ "consumer_differential": {
+  "method": "go test -json per-test status, pre-migration 8e5dbde vs T04 tree, identical flags, identical freshly provisioned lab, -p 1",
+  "migrated_tests": 602,
+  "only_in_migrated": [],
+  "only_in_reference": [],
+  "reference_tests": 602,
+  "status_diffs": [],
+  "verdict": "no T04 consumer regression"
+ },
+ "environment": "task-owned disposable PostgreSQL only (guard instance 127.0.0.1:55432 and its lab companion gov_acc_data/gov_acc_lab, re-provisioned by T04/lab-reset.sh before every quota gate) plus a task-owned throwaway redis container, because the upstream captcha tests hardcode 127.0.0.1:6379; no business database, no external captcha vendor; DSNs never enter the repository and run_checked.sh records argv only",
+ "executed_totals": {
+  "migrated_tree_only": {
+   "test_fail": 16,
+   "test_pass": 718,
+   "test_skip": 7
+  }
+ },
+ "required_gate": {
+  "bad_tests": [
+   {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestGenerate_ClickCaptcha",
+    "observed_nonpass": [
+     "fail"
+    ],
+    "status": "fail"
+   },
+   {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestGenerate_RotateCaptcha",
+    "observed_nonpass": [
+     "fail"
+    ],
+    "status": "fail"
+   },
+   {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestGenerate_SlideCaptcha",
+    "observed_nonpass": [
+     "fail"
+    ],
+    "status": "fail"
+   },
+   {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestSaveAndVerify_ClickCaptcha",
+    "observed_nonpass": [
+     "fail"
+    ],
+    "status": "fail"
+   },
+   {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestSaveAndVerify_RotateCaptcha",
+    "observed_nonpass": [
+     "fail"
+    ],
+    "status": "fail"
+   },
+   {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestSaveAndVerify_SlideCaptcha",
+    "observed_nonpass": [
+     "fail"
+    ],
+    "status": "fail"
+   },
+   {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestVerify_ClickCaptcha_WithTolerance",
+    "observed_nonpass": [
+     "fail"
+    ],
+    "status": "fail"
+   },
+   {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestVerify_RotateCaptcha_WithTolerance",
+    "observed_nonpass": [
+     "fail"
+    ],
+    "status": "fail"
+   },
+   {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "Test": "TestVerify_SlideCaptcha_WithTolerance",
+    "observed_nonpass": [
+     "fail"
+    ],
+    "status": "fail"
+   },
+   {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+    "Test": "TestECDHCrypto_EncryptAndVerify",
+    "observed_nonpass": [
+     "fail"
+    ],
+    "status": "fail"
+   }
+  ],
+  "command": "python3 tools/migration/require_tests.py --required T04/required-profile.json --log T04/tests-all.jsonl",
+  "exit": 1,
+  "failed_packages": [
+   "go-wind-admin/app/admin/service/internal/data",
+   "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "go-wind-admin/pkg/localdeps/go-utils/password"
+  ],
+  "note": "tests-all.jsonl is tests-main.jsonl + tests-captcha.jsonl concatenated; the gate counts skip/fail/missing/not_run as failure and no case was removed, renamed, skipped or edited to make it pass",
+  "pass": false,
+  "required": 590
+ },
+ "runs": {
+  "tests_captcha_separate": {
+   "command_file": "ev-tests-captcha.command",
+   "exit": 1,
+   "log": "T04/tests-captcha.jsonl",
+   "nonpass_tests": [
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::ExampleGetRemainingTime",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::ExampleNewCaptcha_ChineseCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::ExampleNewCaptcha_DigitCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::ExampleNewCaptcha_MathCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::ExampleNewCaptcha_OptionsPattern",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestGenerate_ClickCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestGenerate_RotateCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestGenerate_SlideCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestSaveAndVerify_ClickCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestSaveAndVerify_RotateCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestSaveAndVerify_SlideCaptcha",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestVerify_ClickCaptcha_WithTolerance",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestVerify_RotateCaptcha_WithTolerance",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha::TestVerify_SlideCaptcha_WithTolerance"
+   ],
+   "note": "captcha alone, -vet=off (upstream example_test.go fails go vet identically on the pristine module)",
+   "package_fail": 1,
+   "package_pass": 0,
+   "test_fail": 14,
+   "test_pass": 39,
+   "test_skip": 0
+  },
+  "tests_main_scope": {
+   "command_file": "ev-tests-main.command",
+   "exit": 1,
+   "log": "T04/tests-main.jsonl",
+   "nonpass_tests": [
+    "go-wind-admin/app/admin/service/internal/data::TestBootstrapPostgres",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuOldPopulatedUpgradeReplay",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuRestoredProjectionContinuation",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaProcessChild",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorFormalSessionRefresh",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorJointHTTP",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingAPIRegistration",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingConcurrentAcceptance",
+    "go-wind-admin/pkg/localdeps/go-utils/password::TestECDHCrypto_EncryptAndVerify"
+   ],
+   "note": "6 packages: aggregator, crypto, jwtutil, password + the three consumer packages (-p 1, default vet)",
+   "package_fail": 2,
+   "package_pass": 5,
+   "test_fail": 2,
+   "test_pass": 679,
+   "test_skip": 7
+  },
+  "tests_pristine_captcha": {
+   "command_file": "ev-pristine-captcha.command",
+   "exit": 1,
+   "log": "T04/tests-pristine-captcha.jsonl",
+   "nonpass_tests": [
+    "github.com/tx7do/go-utils/captcha::ExampleGetRemainingTime",
+    "github.com/tx7do/go-utils/captcha::ExampleNewCaptcha_ChineseCaptcha",
+    "github.com/tx7do/go-utils/captcha::ExampleNewCaptcha_DigitCaptcha",
+    "github.com/tx7do/go-utils/captcha::ExampleNewCaptcha_MathCaptcha",
+    "github.com/tx7do/go-utils/captcha::ExampleNewCaptcha_OptionsPattern",
+    "github.com/tx7do/go-utils/captcha::TestGenerate_ClickCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestGenerate_RotateCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestGenerate_SlideCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestSaveAndVerify_ClickCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestSaveAndVerify_RotateCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestSaveAndVerify_SlideCaptcha",
+    "github.com/tx7do/go-utils/captcha::TestVerify_ClickCaptcha_WithTolerance",
+    "github.com/tx7do/go-utils/captcha::TestVerify_RotateCaptcha_WithTolerance",
+    "github.com/tx7do/go-utils/captcha::TestVerify_SlideCaptcha_WithTolerance"
+   ],
+   "note": "unmodified locked upstream module copy (go-utils/captcha@v0.0.4), offline GOPROXY=off",
+   "package_fail": 1,
+   "package_pass": 0,
+   "test_fail": 14,
+   "test_pass": 39,
+   "test_skip": 0
+  },
+  "tests_pristine_password": {
+   "command_file": "ev-pristine-password.command",
+   "exit": 1,
+   "log": "T04/tests-pristine-password.jsonl",
+   "nonpass_tests": [
+    "github.com/tx7do/go-utils/password::TestECDHCrypto_EncryptAndVerify"
+   ],
+   "note": "unmodified locked upstream module copy (go-utils/password@v0.0.2), offline GOPROXY=off",
+   "package_fail": 1,
+   "package_pass": 0,
+   "test_fail": 1,
+   "test_pass": 10,
+   "test_skip": 0
+  },
+  "tests_reference_consumers": {
+   "command_file": "ev-ref-tests.command",
+   "exit": 1,
+   "log": "T04/tests-ref.jsonl",
+   "nonpass_tests": [
+    "go-wind-admin/app/admin/service/internal/data::TestBootstrapPostgres",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuOldPopulatedUpgradeReplay",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaGpuRestoredProjectionContinuation",
+    "go-wind-admin/app/admin/service/internal/data::TestQuotaProcessChild",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorFormalSessionRefresh",
+    "go-wind-admin/app/admin/service/internal/service::TestAcceleratorJointHTTP",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingAPIRegistration",
+    "go-wind-admin/app/admin/service/internal/service::TestOnboardingConcurrentAcceptance"
+   ],
+   "note": "pre-migration tree at accepted_head 8e5dbde, same three consumer packages, same flags, fresh lab",
+   "package_fail": 1,
+   "package_pass": 2,
+   "test_fail": 1,
+   "test_pass": 594,
+   "test_skip": 7
+  }
+ },
+ "task": "T04",
+ "toolchain": "go1.26.7 GOWORK=off GOTOOLCHAIN=local -mod=readonly -tags quota_pg -count=1 -p 1 -json -v"
+}

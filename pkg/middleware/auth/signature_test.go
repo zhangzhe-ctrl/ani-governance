@@ -5,7 +5,7 @@ import (
 	"errors"
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/tx7do/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 	"net/http"
 	"net/http/httptest"
 	"strconv"

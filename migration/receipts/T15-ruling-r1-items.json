@@ -1,0 +1,60 @@
+{
+  "schema_version": "t15-ruling-r1-items/1",
+  "task": "T15",
+  "granted_by": "user",
+  "granted_at": "2026-09-26T10:55+08:00",
+  "recorded_in": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md section 「### T15 补充授权二」",
+  "resume_state": {
+    "head_before": "030d9b531ec8bf11ece86fdd13ad35c324a1786c",
+    "accepted_head": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+    "branch": "task/tx7do-t15",
+    "relation": "030d9b5 is a descendant of 627783c; accepted_head being older is not a reason to roll back"
+  },
+  "count_reconciliation": {
+    "earlier_report": "12 modified + 8 untracked = 20 entries, described loosely as 21 files",
+    "authoritative_now": {
+      "modified_by_gow_api": 12,
+      "untracked_new_by_gow_api": 8,
+      "total_entries": 20,
+      "modified_by_make_api": 24,
+      "untracked_by_make_api": 8,
+      "total_entries_make_api": 32,
+      "note": "both entries produce the same 8 untracked validators; make api produces a larger set overall, so the 8 are not an artefact of gow api's template traversal"
+    }
+  },
+  "decisive_measurement": {
+    "command": "git reset the worktree, run only 'make api' (buf generate with api/buf.gen.yaml)",
+    "exit": 0,
+    "untracked_validators_after_make_api": [
+      "api/gen/go/admin/service/v1/i_accelerator.pb.validate.go",
+      "api/gen/go/admin/service/v1/i_quota.pb.validate.go",
+      "api/gen/go/catalog/service/v1/accelerator.pb.validate.go",
+      "api/gen/go/quota/service/v1/quota_catalog.pb.validate.go",
+      "api/gen/go/quota/service/v1/quota_release.pb.validate.go",
+      "api/gen/go/quota_lab/service/v1/gpu_simulator.pb.validate.go",
+      "api/gen/go/quota_lab/service/v1/i_quota_lab.pb.validate.go",
+      "api/gen/go/quota_lab/service/v1/quota_lab.pb.validate.go"
+    ],
+    "accepted_validator_count_in_HEAD": 103,
+    "consequence": "any faithful regeneration of the accepted tree creates these 8 files, so the ruling's 'restrict PGV targets to the accepted source set' cannot be met by choosing a different entry; it needs an explicit PGV input/output scope list, and neither generate-then-delete nor committing them is authorized"
+  },
+  "status_of_items": {
+    "admin_doc": "NOT yet accepted: the structured gnostic-document decode, the source-built descriptor, the full openapi.yaml comparison and the reflection-consumer check are not executed yet",
+    "plan_quota": "NOT yet accepted: the isolated old/new Validate/Quals parity run is not executed yet",
+    "eight_validators": "held: needs the PGV scope list decision recorded above",
+    "nine_comment_only": "accepted with evidence",
+    "ent_migrate": "accepted as additive template difference, no DDL executed"
+  },
+  "interrupted_at": "safe checkpoint before item 二/三 verification and before R2",
+  "next_actions_in_order": [
+    "item 二: build the descriptor decoder in a scratch module, compare committed vs candidate vs source-built FileDescriptorProto with the locked gnostic extension type, then compare the complete assets/openapi.yaml and inspect consumers",
+    "item 三: diff the patch, then run the old and new validator packages against one sample matrix of Validate/ValidateAll calls",
+    "item 四: produce the plugin+input+option+output scope list that keeps PGV to accepted sources, apply it, and re-run the whole chain",
+    "五/六: rebuild the final candidate tree, R2 two-pass whole-chain comparison, then R3..R7"
+  ],
+  "resume_files": [
+    "migration/patches/T15/T15-regen-ast-classification.json",
+    "migration/patches/T15/T15-regen-candidate.patch",
+    "migration/patches/T15/T15-tool-lock.json"
+  ]
+}

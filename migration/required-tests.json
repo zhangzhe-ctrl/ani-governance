@@ -1,0 +1,30 @@
+[
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/trans",
+    "Test": "TestPtr"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/trans",
+    "Test": "TestSliceOfPtrs"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/trans",
+    "Test": "Test_Trans"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-utils/trans",
+    "Test": "TestUUID"
+  },
+  {
+    "Package": "go-wind-admin/pkg/jwt",
+    "Test": "TestNewUserTokenPayload"
+  },
+  {
+    "Package": "go-wind-admin/pkg/jwt",
+    "Test": "TestNewUserTokenDataScopesRoundTrip"
+  },
+  {
+    "Package": "go-wind-admin/pkg/jwt",
+    "Test": "TestNewUserTokenPayloadWithClaimsLegacyDsFallback"
+  }
+]

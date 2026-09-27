@@ -1,0 +1,59 @@
+{
+ "meaning": "cases kept inside the named required set that the locked upstream module already fails; they are reported as failures, never as pass and never removed from the gate",
+ "cases": [
+  {
+   "Test": "TestECDHCrypto_EncryptAndVerify",
+   "proof": "go-utils/password v0.0.2: the test builds two independent ECDHCrypto instances and expects crypto2.Verify to accept crypto1's output, which cannot hold for separate keypairs. Deterministic (5/5 runs) on the pristine module cache copy /home/ubuntu/go/pkg/mod/github.com/tx7do/go-utils/password@v0.0.2. This repository never constructs ECDHCrypto (data.NewPasswordCrypto uses CreateCrypto(\"bcrypt\"))."
+  },
+  {
+   "Test": "TestGenerate_ClickCaptcha",
+   "proof": "go-utils/captcha v0.0.4: the image drivers need go-captcha resource images and a registered truetype font that the module never ships or sets up, so generation fails. Reproduced identically (same 9 tests + 5 Examples, same order) on a writable copy of the pristine module cache at /tmp/cap-base with the same isolated Redis; sha256 of the placed and upstream files differ only by the one rewritten self-import line."
+  },
+  {
+   "Test": "TestGenerate_RotateCaptcha",
+   "proof": "go-utils/captcha v0.0.4: the image drivers need go-captcha resource images and a registered truetype font that the module never ships or sets up, so generation fails. Reproduced identically (same 9 tests + 5 Examples, same order) on a writable copy of the pristine module cache at /tmp/cap-base with the same isolated Redis; sha256 of the placed and upstream files differ only by the one rewritten self-import line."
+  },
+  {
+   "Test": "TestGenerate_SlideCaptcha",
+   "proof": "go-utils/captcha v0.0.4: the image drivers need go-captcha resource images and a registered truetype font that the module never ships or sets up, so generation fails. Reproduced identically (same 9 tests + 5 Examples, same order) on a writable copy of the pristine module cache at /tmp/cap-base with the same isolated Redis; sha256 of the placed and upstream files differ only by the one rewritten self-import line."
+  },
+  {
+   "Test": "TestSaveAndVerify_ClickCaptcha",
+   "proof": "go-utils/captcha v0.0.4: the image drivers need go-captcha resource images and a registered truetype font that the module never ships or sets up, so generation fails. Reproduced identically (same 9 tests + 5 Examples, same order) on a writable copy of the pristine module cache at /tmp/cap-base with the same isolated Redis; sha256 of the placed and upstream files differ only by the one rewritten self-import line."
+  },
+  {
+   "Test": "TestSaveAndVerify_RotateCaptcha",
+   "proof": "go-utils/captcha v0.0.4: the image drivers need go-captcha resource images and a registered truetype font that the module never ships or sets up, so generation fails. Reproduced identically (same 9 tests + 5 Examples, same order) on a writable copy of the pristine module cache at /tmp/cap-base with the same isolated Redis; sha256 of the placed and upstream files differ only by the one rewritten self-import line."
+  },
+  {
+   "Test": "TestSaveAndVerify_SlideCaptcha",
+   "proof": "go-utils/captcha v0.0.4: the image drivers need go-captcha resource images and a registered truetype font that the module never ships or sets up, so generation fails. Reproduced identically (same 9 tests + 5 Examples, same order) on a writable copy of the pristine module cache at /tmp/cap-base with the same isolated Redis; sha256 of the placed and upstream files differ only by the one rewritten self-import line."
+  },
+  {
+   "Test": "TestVerify_ClickCaptcha_WithTolerance",
+   "proof": "go-utils/captcha v0.0.4: the image drivers need go-captcha resource images and a registered truetype font that the module never ships or sets up, so generation fails. Reproduced identically (same 9 tests + 5 Examples, same order) on a writable copy of the pristine module cache at /tmp/cap-base with the same isolated Redis; sha256 of the placed and upstream files differ only by the one rewritten self-import line."
+  },
+  {
+   "Test": "TestVerify_RotateCaptcha_WithTolerance",
+   "proof": "go-utils/captcha v0.0.4: the image drivers need go-captcha resource images and a registered truetype font that the module never ships or sets up, so generation fails. Reproduced identically (same 9 tests + 5 Examples, same order) on a writable copy of the pristine module cache at /tmp/cap-base with the same isolated Redis; sha256 of the placed and upstream files differ only by the one rewritten self-import line."
+  },
+  {
+   "Test": "TestVerify_SlideCaptcha_WithTolerance",
+   "proof": "go-utils/captcha v0.0.4: the image drivers need go-captcha resource images and a registered truetype font that the module never ships or sets up, so generation fails. Reproduced identically (same 9 tests + 5 Examples, same order) on a writable copy of the pristine module cache at /tmp/cap-base with the same isolated Redis; sha256 of the placed and upstream files differ only by the one rewritten self-import line."
+  }
+ ],
+ "package_level": [
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+   "problem": "go test's default vet pass rejects the shipped example_test.go (6 malformed example names), so the package cannot be tested without -vet=off",
+   "proof": "identical vet output on the pristine module cache directory /home/ubuntu/go/pkg/mod/github.com/tx7do/go-utils/captcha@v0.0.4"
+  }
+ ],
+ "examples_also_red": [
+  "ExampleNewCaptcha_OptionsPattern",
+  "ExampleNewCaptcha_DigitCaptcha",
+  "ExampleNewCaptcha_MathCaptcha",
+  "ExampleNewCaptcha_ChineseCaptcha",
+  "ExampleGetRemainingTime"
+ ]
+}

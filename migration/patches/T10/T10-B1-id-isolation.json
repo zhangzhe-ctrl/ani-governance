@@ -1,0 +1,59 @@
+{
+ "schema_version": "t10-b1-id-isolation/1",
+ "authorization": "T03-T15-master-goal.md 「### T10 补充授权」 五; migration/receipts/T10-authorization-classified-remediation.json",
+ "package": "go-wind-admin/pkg/localdeps/go-utils/id (locked github.com/tx7do/go-utils/id v0.0.6)",
+ "files_changed": [
+  "pkg/localdeps/go-utils/id/order_id_test.go  (the three isolated functions removed from the untagged file)",
+  "pkg/localdeps/go-utils/id/upstream_known_defects_test.go  (new, //go:build upstream_known_defects)",
+  "migration/required-known-defects.json  (three entries with mode=nondeterministic; the nine T04 captcha entries are untouched)",
+  "tools/migration/known_defects.py  (mode support, --package, --tally, race-frame rules); require_tests.py is unchanged"
+ ],
+ "patch": "migration/patches/T10/T10-B1-id-isolation.patch",
+ "production_code_untouched": "no file under pkg/localdeps/go-utils/id outside the two _test.go files changed; order_id.go still differs from the module-cache archive only by the localized trans import path, verified with cmp",
+ "implementation_limits_recorded": {
+  "GenerateOrderIdWithTenantId": "order_id.go:53-74: 14-digit timestamp at second granularity (the comment claiming milliseconds is wrong), tenant folded to five bytes by tenantPart[:5] or left-padded with '0' via %-5s, then rand.Int32N(10000) printed with %04d. Tenants '12345' and '123456789' therefore share a prefix, and the space per second per tenant is 10^4 while the test draws 1000 ids and demands zero collisions. Not fixable by lowering load or retrying: expected colliding pairs for 1000 draws is about 50.",
+  "idCounter.Increase": "order_id.go:15-20: cur := *c is a plain non-atomic read of shared state, then atomic.AddUint32, then CompareAndSwapUint32(c, 1000, 0) which resets only at exactly 1000, and the stale cur is returned. Concurrent callers can obtain the same index, and the counter only yields 1000 distinct values per second, so the thread test's 1000-distinct-ids-in-one-second assertion cannot be relied on.",
+  "GenerateOrderIdWithRandom": "order_id.go:36 prints the random part with %d rather than %04d, so any value below 1000 shortens the id while order_id_test.go asserts len(prefix)+14+4. Theory says this happens 10% of the time."
+ },
+ "reachability_proof_before_isolating": {
+  "method": "compiler backed, not grep: each of the three generators was renamed in a disposable worktree of HEAD and the whole module rebuilt",
+  "commands_and_results": [
+   {"command": "go build -mod=readonly ./...  (no tags)", "exit": 0},
+   {"command": "go build -mod=readonly -tags quota_lab ./...", "exit": 0},
+   {"command": "go build -mod=readonly -tags quota_pg ./...", "exit": 0},
+   {"command": "go build -mod=readonly -tags gpu_joint ./...", "exit": 0},
+   {"command": "go build -mod=readonly -tags 'quota_lab quota_pg gpu_joint' ./...", "exit": 0},
+   {"command": "go vet -mod=readonly ./... with the three renames in place", "exit": 1,
+    "diagnostics": "only go-wind-admin/pkg/localdeps/go-utils/id, at order_id_test.go:16 (undefined: GenerateOrderIdWithRandom); no other package reports anything, and the single pre-existing copylocks finding is unchanged"}
+  ],
+  "indirection_check": "no string literal of any of the three names, no //go:linkname anywhere in the module, and every reflect.MethodByName site belongs to the Ent query builders; the only function value exported by the package that other code takes is id.GenerateSonyflakeID, a different function",
+  "non_go_mentions": "migration/patches/T10/_pristine (evidence copies the go tool ignores) and _agent plan material",
+  "conclusion": "NOT REACHABLE from any supported business or tool path in any tag configuration, which is the precondition the authorization requires before isolation",
+  "why_the_functions_stay": "order_id_test.go still calls GenerateOrderIdWithIncreaseIndex and GenerateOrderIdWithTenantId from its remaining tests, so nothing was deleted; only the three failing cases moved"
+ },
+ "isolation_mechanics": {
+  "moved_names": ["TestGenerateOrderIdWithRandom", "TestGenerateOrderIdWithIndexThread", "TestGenerateOrderIdWithTenantIdCollision"],
+  "verbatim": "known_defects.py --moved-file/--locked-file reports identical_to_locked_source true for all three, with the sha256 of each block matching the module-cache copy",
+  "only_adjustment": "the tag-owned file needs its own import block; fmt is absent because the only fmt user stayed in the untagged file",
+  "no_package_wide_exclusion": "the other fourteen tests in the package remain untagged and run in every normal gate"
+ },
+ "fixed_run_counts_recorded_in_advance": {
+  "plan": "20 runs each side for the two 1000-draw cases, 200 runs each side for the 10%-probability case, plus 5 race runs each side; separate fresh processes so the package-level counter starts clean each time",
+  "binaries": "one test binary per side built from the same sources, so both sides ran identical code paths",
+  "candidate_plain": {"Collision": "0 pass / 20 fail", "IndexThread": "8 pass / 12 fail", "Random": "184 pass / 16 fail"},
+  "reference_plain": {"Collision": "0 pass / 20 fail", "IndexThread": "6 pass / 14 fail", "Random": "182 pass / 18 fail"},
+  "candidate_race": {"Collision": "0 pass / 5 fail", "IndexThread": "0 pass / 5 fail", "Random": "5 pass / 0 fail"},
+  "reference_race": {"Collision": "0 pass / 5 fail", "IndexThread": "0 pass / 5 fail", "Random": "5 pass / 0 fail"},
+  "no_pressure_reduction": "the loop counts, goroutine counts and payloads are the upstream source, unchanged",
+  "not_retried_to_green": "each tally is the first recorded run of the pre-set size; nothing was re-run until it passed"
+ },
+ "gate_results": {
+  "plain_tagged_pair": "migration/patches/T10/T10-B1-id-checker-report.json: verdict PASS, all three KNOWN_NONDETERMINISTIC_DEFECT, no blocking",
+  "race_pair": "migration/patches/T10/T10-B1-id-race-comparison.json: both sides report two DATA RACE blocks inside TestGenerateOrderIdWithIndexThread only, with frames at order_id.go:16 and order_id.go:47 and nothing else",
+  "shape_gate_still_bites": "a doctored log carrying an invented frame (SECURITY_REGRESSION.go:99) was fed through the same command and returned NONDETERMINISTIC_SHAPE_VIOLATION with verdict BLOCKED, so the allowlist does not swallow the rule",
+  "pass_is_not_a_fix": "the runner records KNOWN_NONDETERMINISTIC_DEFECT_NOT_OBSERVED_THIS_RUN when a sample passes, never a repair",
+  "untagged_package": "go test -count=1 ./pkg/localdeps/go-utils/id exit 0 on both sides, so the remaining tests still run and pass"
+ },
+ "runner_change_scope": "the must-fail path, including the nine captcha entries and their rules, is unchanged: an entry without a mode field behaves exactly as before, and require_tests.py was not touched",
+ "not_claimed": "this does not make the id generators correct. They remain reachable from any caller a future task adds, and the underlying uniqueness and counter races are still present in the locked source."
+}

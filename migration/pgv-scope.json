@@ -1,0 +1,940 @@
+{
+  "schema_version": 1,
+  "baseline_sha": "627783cf43d8c7a3c49aeaa46fcd68759a3a5eda",
+  "output_prefix": "api/gen/go",
+  "proto_roots": [
+    "api/protos"
+  ],
+  "validator_count": 103,
+  "source_proto_count": 103,
+  "note": "Inventory only. Buf paths must be relative to its actual invocation directory. Do not regenerate this approved scope automatically from candidate outputs.",
+  "entries": [
+    {
+      "validator": "api/gen/go/access_key/service/v1/access_key.pb.validate.go",
+      "validator_sha256": "4de383bbf5afbac1c1527a8098f170ff7685335f0c89991bf29abfe7b14a38a8",
+      "validator_git_blob": "0e97c2b8c48ab0ba1a3e91331e87f187b0c2c684",
+      "source_proto": "access_key/service/v1/access_key.proto",
+      "source_header_file": "api/gen/go/access_key/service/v1/access_key.pb.validate.go",
+      "source_repo_path": "api/protos/access_key/service/v1/access_key.proto",
+      "source_sha256": "b051e219050aa9b9175ec4e5bf4993ac40523b0e4bae18b0d724234b39e24112"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/admin_doc.pb.validate.go",
+      "validator_sha256": "58032d1f628a0cbc3db93f08f6c884c4188a7e9e21dce9954c159925541f0f92",
+      "validator_git_blob": "d391a0896caa76af8843b11d660f810134ab4134",
+      "source_proto": "admin/service/v1/admin_doc.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/admin_doc.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/admin_doc.proto",
+      "source_sha256": "03e26282703c5207a1f9983c77180df1995e4bd27789bcd0527e99a48fb437cd"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/admin_error.pb.validate.go",
+      "validator_sha256": "b5b7d895765f09dc8170e4ea040e8695e46bd7cd85bc42b3b14caf522d861f8b",
+      "validator_git_blob": "6becf6671adeee8e3cf45fbcf2f2fffc5ef7e4d9",
+      "source_proto": "admin/service/v1/admin_error.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/admin_error.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/admin_error.proto",
+      "source_sha256": "47f76bbf5d0a41f83b46e0154418018ccede4cdccb4accc4db997fb6c67799f7"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_access_key.pb.validate.go",
+      "validator_sha256": "ed5a0b7a804e30de3bad9aadee24d4295a1f7c4513336681adedbd2f3d958245",
+      "validator_git_blob": "dbee3a384847a584cf77afb457768985b75c516f",
+      "source_proto": "admin/service/v1/i_access_key.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_access_key.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_access_key.proto",
+      "source_sha256": "7207a1abe6586e45097c49f9c346b6401616f021df3d257bf7abba53f100035f"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_admin_portal.pb.validate.go",
+      "validator_sha256": "e57c78db841abe927173ffdcdd4ee181778fa5ec3771d604c2ccae936d6b475a",
+      "validator_git_blob": "18fadd2a259431b5d5966d41587a9d12d0a4a5d8",
+      "source_proto": "admin/service/v1/i_admin_portal.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_admin_portal.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_admin_portal.proto",
+      "source_sha256": "d0335490aa67ab6f703a27e3e1fef82e300ffd4879eb1e8487caec45d7eab676"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_api.pb.validate.go",
+      "validator_sha256": "70928ac48ecaef7919f2d0333c67d38ef1563b09f0ce9d84deed21c1438cdac8",
+      "validator_git_blob": "7618b9d0fc1f7141eded24e60dc74b7e7e31841b",
+      "source_proto": "admin/service/v1/i_api.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_api.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_api.proto",
+      "source_sha256": "e4d9ce21d6d7b91d894de58f64643afefc6674390c9e598cb7600c474066e944"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_api_audit_log.pb.validate.go",
+      "validator_sha256": "f9b7767caefe3c0c4e07a30c057baece016082020eb663ddc6373ff25ef449ea",
+      "validator_git_blob": "5b6ebe2a7f1f8a7d8e38ffc87144a87ca99bd1d7",
+      "source_proto": "admin/service/v1/i_api_audit_log.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_api_audit_log.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_api_audit_log.proto",
+      "source_sha256": "f6498065d47868758652d17cad788ffa6c84126c5ba8322ffdd3c1d39070100e"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_authentication.pb.validate.go",
+      "validator_sha256": "69e03f053ac03f5d555fb287d4403f97f7c94b55c55c92645fd14df552e3ce86",
+      "validator_git_blob": "16fcfc84c9e6d8cfbcd118f865befb154eacbc85",
+      "source_proto": "admin/service/v1/i_authentication.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_authentication.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_authentication.proto",
+      "source_sha256": "6f3358f997839466030e117309020274cb607eadd1897952b96a2c9c3efa54c1"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_config.pb.validate.go",
+      "validator_sha256": "b988e65917c28cde922c5ef61672e1ba17d3d6b9115d60e84d88f2dd9143ae8f",
+      "validator_git_blob": "324d6815b0c898e755cd4869828350fac04f85a4",
+      "source_proto": "admin/service/v1/i_config.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_config.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_config.proto",
+      "source_sha256": "916361d31bd99bb776f019a85028da7bbe621b0b0845843b6dd00c8e39a32c7b"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_dashboard.pb.validate.go",
+      "validator_sha256": "b7a0d7128ea13839e5055d9d9eb3111514dc7ce8ea16c942fa533626550d00b5",
+      "validator_git_blob": "f8a53fc360f2237cf7c7217b45ae6761bd4903fe",
+      "source_proto": "admin/service/v1/i_dashboard.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_dashboard.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_dashboard.proto",
+      "source_sha256": "4247955aa431101db3dc708432db45def455fa3ae271dceba2738ed48992e4b7"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_data_access_audit_log.pb.validate.go",
+      "validator_sha256": "c31eaca8ca7998e191558f20ee28a0c5b721b7af1ababdc59af30d8fb746c0dd",
+      "validator_git_blob": "f50c7a8c4f2a963f1ec53551acf6f6cc11527191",
+      "source_proto": "admin/service/v1/i_data_access_audit_log.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_data_access_audit_log.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_data_access_audit_log.proto",
+      "source_sha256": "3229d250d025a74b082767a55e58a6e297e6c5f7df605402ad646c1c06a5637d"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_dict_entry.pb.validate.go",
+      "validator_sha256": "5bd199d336500bd2f21dbfdc9f2c98f701c6be3b291529f47445fb63738151c3",
+      "validator_git_blob": "e75aa552ddc1d71dfb4f3ae68836854478b59890",
+      "source_proto": "admin/service/v1/i_dict_entry.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_dict_entry.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_dict_entry.proto",
+      "source_sha256": "f984931bc96c526d60cef895fb1c9862aef7dc367aa5536bd5d1db6ac6b5dadd"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_dict_type.pb.validate.go",
+      "validator_sha256": "eb3a97c030d39329e656102d0762f9e297dee07f1d37221c65b72f4984df27dc",
+      "validator_git_blob": "712eaa5268d16a3f09a79d2b2032c99a18779ce1",
+      "source_proto": "admin/service/v1/i_dict_type.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_dict_type.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_dict_type.proto",
+      "source_sha256": "0e06b1b029e40272547a14bdd6aaa75f987796227462dc51176ee81222019d88"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_internal_message.pb.validate.go",
+      "validator_sha256": "3e587ab1292a6f342946023e6c8aff36b9b22e2e81753e95296d1eba123692e2",
+      "validator_git_blob": "39ba21c088b20a166d505623faa4606ea4e71447",
+      "source_proto": "admin/service/v1/i_internal_message.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_internal_message.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_internal_message.proto",
+      "source_sha256": "433ce867b4555c5c28a7703a0d80f714af66cc88e97d6b1b75fe617ff893ede6"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_internal_message_category.pb.validate.go",
+      "validator_sha256": "fa7a0380d2efe3f6da872f0ebffefc8e37922e693924e4e1355416bf533da634",
+      "validator_git_blob": "f38f7b3a9f5ec13948fbed1943ae1e81f53dbfc2",
+      "source_proto": "admin/service/v1/i_internal_message_category.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_internal_message_category.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_internal_message_category.proto",
+      "source_sha256": "d0ea1d73039704c32c1df43a11e5be8fb5d096dcb5fe461b82b686af46481bf0"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_internal_message_recipient.pb.validate.go",
+      "validator_sha256": "7abdc53f9f6787fd5e48ac7911487a3b13b60371328c5568d3c2ca239072e7e7",
+      "validator_git_blob": "5486fe58ac385e239edc7580725fdafbddc44abe",
+      "source_proto": "admin/service/v1/i_internal_message_recipient.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_internal_message_recipient.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_internal_message_recipient.proto",
+      "source_sha256": "8880fe01c9d28b04852f8010a2e9edbe086389355e2308b52e48eaf9adbe3aaf"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_language.pb.validate.go",
+      "validator_sha256": "cc72aa3eb8dd39a13c919333556e0ea618e2a45ecb4d14035108406f0b773312",
+      "validator_git_blob": "4632689efc459c5502c87cd2df0b4677fdfcd28b",
+      "source_proto": "admin/service/v1/i_language.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_language.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_language.proto",
+      "source_sha256": "7de3de516b73c720e62f4f2445dabeef0bbf042ed2940f58a00d59d52c538897"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_login_audit_log.pb.validate.go",
+      "validator_sha256": "a97819e127fb987e4b2b9aa1cfe8cc3bbd440f4a08f325891f4e1fba16940e24",
+      "validator_git_blob": "1394717aff0d630db2e6fafbfe2b0ec000170f2b",
+      "source_proto": "admin/service/v1/i_login_audit_log.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_login_audit_log.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_login_audit_log.proto",
+      "source_sha256": "53adf2a057e0cc3463b6e97ba659f7cf0973154bdb03badf4edffc4595afc8d4"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_login_policy.pb.validate.go",
+      "validator_sha256": "bfebec6b20ec5c2dbfb54fa3219e8d3b36b9bd0f89ee59a11f6fb9c366908937",
+      "validator_git_blob": "e6ca75661377c14339615589ed3604fc35b94d17",
+      "source_proto": "admin/service/v1/i_login_policy.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_login_policy.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_login_policy.proto",
+      "source_sha256": "271dfd97f5fb8225f6073d817c534c55107e645c243a7fbb6f793fc75db1bd75"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_menu.pb.validate.go",
+      "validator_sha256": "86f343e1cf215c2dac5c26a0a660557512ac70a4df5cddae50b8e6eb834df2bb",
+      "validator_git_blob": "0aea7861e2163732b0f4a9be69134452220e9c0e",
+      "source_proto": "admin/service/v1/i_menu.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_menu.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_menu.proto",
+      "source_sha256": "e552ddb02b5200ef941d1ae2caff8630777c4779eedb0ed759512f3ac48e7903"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_mfa.pb.validate.go",
+      "validator_sha256": "5a4c98bb63d2eead6345014b74eb4afaa7ade52b0bd8caa296bf94da9f746db5",
+      "validator_git_blob": "3bcc28e4ef31048a57eea40a327f1136abb368d5",
+      "source_proto": "admin/service/v1/i_mfa.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_mfa.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_mfa.proto",
+      "source_sha256": "3f08bdef3b8362930c2eb4bd2f371db9a02b40b3a86fdaf294527b1a0e85fdb1"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_network.pb.validate.go",
+      "validator_sha256": "1665617dd253facf8535ede0fce7ff07986ca3fb6352d14262e83cea12f52e9f",
+      "validator_git_blob": "e9352abab0a59eb677279ca5ba17c30151a28530",
+      "source_proto": "admin/service/v1/i_network.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_network.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_network.proto",
+      "source_sha256": "fd4092548a31df6dd35d29c293cad9a0ebfd67ca7d5951da6442976788f151b6"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_notification_channel.pb.validate.go",
+      "validator_sha256": "992d5e6a644fc837a636265c63a5ff023d4093b0d58ba385754e55f9c762e995",
+      "validator_git_blob": "2dcd899e6864a54808ba4f4bd004717316c48770",
+      "source_proto": "admin/service/v1/i_notification_channel.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_notification_channel.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_notification_channel.proto",
+      "source_sha256": "cc05c22f110fdb5e804be9533adce9f06ee74d26d47bc24e0d9593243063a354"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_online_session.pb.validate.go",
+      "validator_sha256": "d64e3a13bb961dea2715c747973f597e4f380745fd281f4c6ba953813cb8d669",
+      "validator_git_blob": "eccfcd9cb81628fd118485ea12c5a5cf65542bcc",
+      "source_proto": "admin/service/v1/i_online_session.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_online_session.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_online_session.proto",
+      "source_sha256": "50a3bf692b514bdc8a22a9fe4cb9b126b5aea9f762da14ba2d09c2c0631fd64c"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_operation_audit_log.pb.validate.go",
+      "validator_sha256": "7cd44dd877ab03f4e6edc4585f748179d4d4febcf39fc82a96db2af150ab6c11",
+      "validator_git_blob": "94daf27fdeb9856726f386f5a8d6c4dd54891276",
+      "source_proto": "admin/service/v1/i_operation_audit_log.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_operation_audit_log.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_operation_audit_log.proto",
+      "source_sha256": "130d55a5400fd0742dd68d45dc41897d0e817019f56287b99c2673ca1c495347"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_org_unit.pb.validate.go",
+      "validator_sha256": "684c6af09c016382db44949e839a8a8a0a72c59d243902aa62a96c674cd7f992",
+      "validator_git_blob": "9fce1d9e803ec4a5296ac0dac808483a809b9279",
+      "source_proto": "admin/service/v1/i_org_unit.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_org_unit.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_org_unit.proto",
+      "source_sha256": "6193f4467df4d3dd58a814d0189ef071bf470fa33b57dbd6fc436ddcaf994ffc"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_permission.pb.validate.go",
+      "validator_sha256": "ce3c456d9170f1cf96873e721d0fb021528f4773e25da2ab169f275ae983e061",
+      "validator_git_blob": "ba9f52be04a5f65e0de7bc2cf8a60cd1905186a1",
+      "source_proto": "admin/service/v1/i_permission.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_permission.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_permission.proto",
+      "source_sha256": "cf8ee96f39e306c0f16250afbf3410799ca055b0b1e81a8e9788fda0679a1450"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_permission_audit_log.pb.validate.go",
+      "validator_sha256": "eb7c6a080c4011b9b87f6eadc266f79e32fded014e73aeeaccfc8cfcfac64682",
+      "validator_git_blob": "da49266a05af5164b4534386a0a17beac4e3ef55",
+      "source_proto": "admin/service/v1/i_permission_audit_log.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_permission_audit_log.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_permission_audit_log.proto",
+      "source_sha256": "54a4e51ff8cf327cf1f5f7feed86520b301042667b46aa7abbe505d91e4aa664"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_permission_group.pb.validate.go",
+      "validator_sha256": "48a1c39eebc54f2364b19362856f848e49a4a7259e05906a3e59fc699cfe9068",
+      "validator_git_blob": "e9d67c9c26b287eba2aa652e0ba0a9897588c50b",
+      "source_proto": "admin/service/v1/i_permission_group.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_permission_group.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_permission_group.proto",
+      "source_sha256": "3faf8d140cd9bf65a1a84ac0b340a63b2c69b4a5b6494c935d710f0e1fb54f6a"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_plan.pb.validate.go",
+      "validator_sha256": "72a8e9737197ea67d2a1e358588a780fa6b53497351c36d8df47fa11c0b5bfae",
+      "validator_git_blob": "21642b48385a221d78ed6fddf36ddcb4ca749425",
+      "source_proto": "admin/service/v1/i_plan.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_plan.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_plan.proto",
+      "source_sha256": "1d945121c271b9bdd07e721c5c380a8af122f4294ff4a286745e72ec54a2bd8e"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_plan_module.pb.validate.go",
+      "validator_sha256": "b12d03ef73de437991d4dddadfaa7f1ff439844f45a453be6228731324f39900",
+      "validator_git_blob": "c2f46c4617c4256658c1cd807d77d432e1f16cbc",
+      "source_proto": "admin/service/v1/i_plan_module.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_plan_module.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_plan_module.proto",
+      "source_sha256": "42538dd8fc5f0d87f0371131f9119d0ddf47e27cd59e22f7332b9070d225e7f2"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_plan_quota.pb.validate.go",
+      "validator_sha256": "038e419330016dcddacad56e5d7bc7b396c0b86ac47307e8835951ceca3d9f41",
+      "validator_git_blob": "21e0a1bba2cf97e4833a57d0ec74e621ab7e3807",
+      "source_proto": "admin/service/v1/i_plan_quota.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_plan_quota.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_plan_quota.proto",
+      "source_sha256": "8aec8a90acbd5b9a9ff10961b11933d3a28a9007bd05de6dd59bb3b04b8a1c4b"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_policy_evaluation_log.pb.validate.go",
+      "validator_sha256": "8bd542ea548ae8887770bd8c9602d1bfb1ad78c6bf80c243b7a5de272caf8bb8",
+      "validator_git_blob": "26f9d4eba843b3602406f0d71711cca090d28d69",
+      "source_proto": "admin/service/v1/i_policy_evaluation_log.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_policy_evaluation_log.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_policy_evaluation_log.proto",
+      "source_sha256": "c8416941a7f113bc5ce6696062b55d0579ead534f439a9065df112d1a547e4e9"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_position.pb.validate.go",
+      "validator_sha256": "b7401baf99a6992e4654e98f92d7ad17eec37319f9f9788298e19fde518d4071",
+      "validator_git_blob": "dd81998b16929f957582af97c8fe1342534f28b1",
+      "source_proto": "admin/service/v1/i_position.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_position.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_position.proto",
+      "source_sha256": "b5320167c4479410053605f87ec6e55b91bf13d299bd20ca049bbd431026a94f"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_redis_cache_monitor.pb.validate.go",
+      "validator_sha256": "5ddc4f7e68333651ea5e5022fc7025f815197b8a752154b25bb33bea4dba3528",
+      "validator_git_blob": "8c31463be236d7dbc6fe3f12947d079dbf07d44b",
+      "source_proto": "admin/service/v1/i_redis_cache_monitor.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_redis_cache_monitor.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_redis_cache_monitor.proto",
+      "source_sha256": "6f14080987205fa28e8e5f6d1b3de75b56e724cf16fbc248b579d1a462962b84"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_role.pb.validate.go",
+      "validator_sha256": "4dd3af7b34cea2c1d27a1abcc264714ffa735e0b850c9610c1ac13834aa8bd88",
+      "validator_git_blob": "988ce876e935c4d77a1c19347cd7f99e78dc21a3",
+      "source_proto": "admin/service/v1/i_role.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_role.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_role.proto",
+      "source_sha256": "f3bf1ab4b18f430fc3600252adb4efeb4da584588e20ad19574a479eeb0c22a7"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_server_monitor.pb.validate.go",
+      "validator_sha256": "6e7585711bdd5a36a1fd5f0a8ce637d8bce87b72344a945e26258a9a568f4c24",
+      "validator_git_blob": "ad8d46ae9e27247188cfbbb47d2c80de19369277",
+      "source_proto": "admin/service/v1/i_server_monitor.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_server_monitor.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_server_monitor.proto",
+      "source_sha256": "77f3fa5f6f2592b2ff0f55741278d8313e37e4f96876abcf8c4c20d13de60726"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_task.pb.validate.go",
+      "validator_sha256": "72bdea948a8faedcad2ff7bb04acd0c9f7af8adadd5ccf32c1035b5f5ce47c4b",
+      "validator_git_blob": "ccca809b1aa017aa2fa4238e59e685adfe3800ec",
+      "source_proto": "admin/service/v1/i_task.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_task.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_task.proto",
+      "source_sha256": "c3b7db451e370f8d129ea2abbbac53fceb23f077528e0aa879a9d49809f07b40"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_tenant.pb.validate.go",
+      "validator_sha256": "27b05a369fcf9455f34fbf2f51130d97046c05d6680ce37723e9e255c3f7f708",
+      "validator_git_blob": "fd2ac09d7a6d24901c1331a31e0dfa7a48eb98ed",
+      "source_proto": "admin/service/v1/i_tenant.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_tenant.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_tenant.proto",
+      "source_sha256": "64b37c81d18a9e49af1b1dcf220392f0f72c8d35917c780edfd35284522a9664"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_user.pb.validate.go",
+      "validator_sha256": "3344c93914e529b48aa3b8374f42d8d0aec593ae112b8125bdad79dce60a1f53",
+      "validator_git_blob": "e388ebdec722f7385ff645df0db83d729c1fade2",
+      "source_proto": "admin/service/v1/i_user.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_user.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_user.proto",
+      "source_sha256": "1a0e08f3034d844afd3d0a28470685b6fb30e23fb8ceda0aa04f75bdda5a83d9"
+    },
+    {
+      "validator": "api/gen/go/admin/service/v1/i_user_profile.pb.validate.go",
+      "validator_sha256": "6f719ca5909cc264058bdd1db55d57a7be6ab4b397bfb85991a8259afdf0cecb",
+      "validator_git_blob": "a6c90ae8a8b5bbd87b94cb916b9bfe5e23d24ce7",
+      "source_proto": "admin/service/v1/i_user_profile.proto",
+      "source_header_file": "api/gen/go/admin/service/v1/i_user_profile.pb.validate.go",
+      "source_repo_path": "api/protos/admin/service/v1/i_user_profile.proto",
+      "source_sha256": "8df3ca41c031345fa5ee214dd3cd156ee643efeda8b6e63b9b5f11fbd500e7c6"
+    },
+    {
+      "validator": "api/gen/go/audit/service/v1/api_audit_log.pb.validate.go",
+      "validator_sha256": "a5de7fd160bd1025b3361cc78300f2587dc961bc6028a49e8bfc2ed72907acf9",
+      "validator_git_blob": "e2e0dd48d5ccb4ec1bd41b30af15e78a0563c24c",
+      "source_proto": "audit/service/v1/api_audit_log.proto",
+      "source_header_file": "api/gen/go/audit/service/v1/api_audit_log.pb.validate.go",
+      "source_repo_path": "api/protos/audit/service/v1/api_audit_log.proto",
+      "source_sha256": "be7856107a4807f2d4586b59dbeb3b776bb605ef8bd2f8ea6c120f2518d39c11"
+    },
+    {
+      "validator": "api/gen/go/audit/service/v1/audit_error.pb.validate.go",
+      "validator_sha256": "2eee5fcd87bae4033aa411aefdd123ff5ac23b9e0156f2bb0cc2c2a54790d8ae",
+      "validator_git_blob": "e7f43427854d0323e1a92ecb2f293a3478fd39ed",
+      "source_proto": "audit/service/v1/audit_error.proto",
+      "source_header_file": "api/gen/go/audit/service/v1/audit_error.pb.validate.go",
+      "source_repo_path": "api/protos/audit/service/v1/audit_error.proto",
+      "source_sha256": "3c2cf17d1c117866b2a49fd8793544f16f86edc20b5a1f8856bf9814c3282819"
+    },
+    {
+      "validator": "api/gen/go/audit/service/v1/common.pb.validate.go",
+      "validator_sha256": "15855c6ad75284ecc26c7d2f6efdccc9cff323e4ddb9be43fb3e1f5c6dfc5432",
+      "validator_git_blob": "33a466dff5bca308d39730985eabad79d178b9cc",
+      "source_proto": "audit/service/v1/common.proto",
+      "source_header_file": "api/gen/go/audit/service/v1/common.pb.validate.go",
+      "source_repo_path": "api/protos/audit/service/v1/common.proto",
+      "source_sha256": "71da954675419b1f943afd3fae62825a3e43d1a3e794d1c2005c78a818f9eddc"
+    },
+    {
+      "validator": "api/gen/go/audit/service/v1/data_access_audit_log.pb.validate.go",
+      "validator_sha256": "70471fe4c354bee2a342b95e0231da6322e0df5b3b1aeec012c67ce9f1ca2b31",
+      "validator_git_blob": "d7093a5cad93ae04d1f5a2b1d44cc90c34611f1f",
+      "source_proto": "audit/service/v1/data_access_audit_log.proto",
+      "source_header_file": "api/gen/go/audit/service/v1/data_access_audit_log.pb.validate.go",
+      "source_repo_path": "api/protos/audit/service/v1/data_access_audit_log.proto",
+      "source_sha256": "4e1ae7d9154aea481df8902d0e5deee87b139f752971c3b303dca04c2fb40549"
+    },
+    {
+      "validator": "api/gen/go/audit/service/v1/device_info.pb.validate.go",
+      "validator_sha256": "58abf83a8c2c66fb432c854febf9d45fbdc9d7e89b52a3aa87a772784fcabf58",
+      "validator_git_blob": "9f596d37017b12b7d2e506ec3359f3bbe96bca44",
+      "source_proto": "audit/service/v1/device_info.proto",
+      "source_header_file": "api/gen/go/audit/service/v1/device_info.pb.validate.go",
+      "source_repo_path": "api/protos/audit/service/v1/device_info.proto",
+      "source_sha256": "3e6bc13fd3bd9662ea60a1bfc67a9c5f12704efcc9c5846406e31693bfd80cf3"
+    },
+    {
+      "validator": "api/gen/go/audit/service/v1/login_audit_log.pb.validate.go",
+      "validator_sha256": "0575d1ca27e8fca35b906cb3adac7ed93d9d1f000dc5a5386f93f4e5ce97b4d7",
+      "validator_git_blob": "32cee214a4b026f6662922f8b188d354d29fd109",
+      "source_proto": "audit/service/v1/login_audit_log.proto",
+      "source_header_file": "api/gen/go/audit/service/v1/login_audit_log.pb.validate.go",
+      "source_repo_path": "api/protos/audit/service/v1/login_audit_log.proto",
+      "source_sha256": "ab2c3038288b0cbe885d3c93bf24f6c334f1848461a917d82d708b815d27f277"
+    },
+    {
+      "validator": "api/gen/go/audit/service/v1/operation_audit_log.pb.validate.go",
+      "validator_sha256": "f76cedf4ce4d98c48631eb9f6bf6ec902893c802f2eca1872ee04026e61ea460",
+      "validator_git_blob": "5c177d377703845fbb1c7c523049234a98bb27da",
+      "source_proto": "audit/service/v1/operation_audit_log.proto",
+      "source_header_file": "api/gen/go/audit/service/v1/operation_audit_log.pb.validate.go",
+      "source_repo_path": "api/protos/audit/service/v1/operation_audit_log.proto",
+      "source_sha256": "19aea3502b2378fa75e90a725b4f5355e68c33f8afae97f59239f2ba43fd798b"
+    },
+    {
+      "validator": "api/gen/go/audit/service/v1/permission_audit_log.pb.validate.go",
+      "validator_sha256": "afbaa128d97c5680e55a2259cf1ff3fbd3cfa6e7b79dfa67966bc1719191f5bd",
+      "validator_git_blob": "966444e1f3c4918456f83e62afd6de1975ae3e69",
+      "source_proto": "audit/service/v1/permission_audit_log.proto",
+      "source_header_file": "api/gen/go/audit/service/v1/permission_audit_log.pb.validate.go",
+      "source_repo_path": "api/protos/audit/service/v1/permission_audit_log.proto",
+      "source_sha256": "780d00d41c6b13d3ab161a4aa26aeaef9279b2970c68f70746a82f99417caee2"
+    },
+    {
+      "validator": "api/gen/go/authentication/service/v1/ani_auth.pb.validate.go",
+      "validator_sha256": "e2c799290476356a1bd5c4a7263bb444eb715594570b9f368ecb19d6b489a67d",
+      "validator_git_blob": "8317468a36f07d3dfd406e234a7977605d6efb8a",
+      "source_proto": "authentication/service/v1/ani_auth.proto",
+      "source_header_file": "api/gen/go/authentication/service/v1/ani_auth.pb.validate.go",
+      "source_repo_path": "api/protos/authentication/service/v1/ani_auth.proto",
+      "source_sha256": "61fbfe6ea0f87f21a8e0e81dbbf75c8f43f6adadefc0fb552d733b75c16852f0"
+    },
+    {
+      "validator": "api/gen/go/authentication/service/v1/authentication.pb.validate.go",
+      "validator_sha256": "49310fa16bed4a478bd76f04f471d6a8965d5d0daabfaabfb375835d8df0fbc2",
+      "validator_git_blob": "0451b865eaef93223cee58eb80b37451d8702de4",
+      "source_proto": "authentication/service/v1/authentication.proto",
+      "source_header_file": "api/gen/go/authentication/service/v1/authentication.pb.validate.go",
+      "source_repo_path": "api/protos/authentication/service/v1/authentication.proto",
+      "source_sha256": "12987b442defb425440ae6f3897fd3db0bfe5fda44bb9e1adee6e9c9fdc5958b"
+    },
+    {
+      "validator": "api/gen/go/authentication/service/v1/authentication_error.pb.validate.go",
+      "validator_sha256": "a2c99479c91c1fb68b75f749660801858856884a0c2b2e8129f8641e7b52ae50",
+      "validator_git_blob": "175afcaf96e9fb6b60f2a828389f6b7430d25bb8",
+      "source_proto": "authentication/service/v1/authentication_error.proto",
+      "source_header_file": "api/gen/go/authentication/service/v1/authentication_error.pb.validate.go",
+      "source_repo_path": "api/protos/authentication/service/v1/authentication_error.proto",
+      "source_sha256": "048e0b241a27172ea63b861472ae17b767d8d333fede95e8a04a85e79c813571"
+    },
+    {
+      "validator": "api/gen/go/authentication/service/v1/login_policy.pb.validate.go",
+      "validator_sha256": "30b88e19f0766a67134257044fd45add1aa12ea83d9010ceb071b1b18478595b",
+      "validator_git_blob": "c31d4dd471d283e840a118d1d3aaebd3a0dcc179",
+      "source_proto": "authentication/service/v1/login_policy.proto",
+      "source_header_file": "api/gen/go/authentication/service/v1/login_policy.pb.validate.go",
+      "source_repo_path": "api/protos/authentication/service/v1/login_policy.proto",
+      "source_sha256": "9e515b4f4c6c04e19a589d3ca028ed21ddc6b0e333bed3acb8aff7dcba2091ca"
+    },
+    {
+      "validator": "api/gen/go/authentication/service/v1/mfa.pb.validate.go",
+      "validator_sha256": "a904e7bd5bc11ac2ac0820ae99e12a5ce1368065588bd0f476ccb20b40889944",
+      "validator_git_blob": "55ce940aecf125b5d1663e4835a1848970d53e87",
+      "source_proto": "authentication/service/v1/mfa.proto",
+      "source_header_file": "api/gen/go/authentication/service/v1/mfa.pb.validate.go",
+      "source_repo_path": "api/protos/authentication/service/v1/mfa.proto",
+      "source_sha256": "e652e4456fdf8babc1f963ea51129c4e16a70d91e3617a7482f240554983fbde"
+    },
+    {
+      "validator": "api/gen/go/authentication/service/v1/oauth.pb.validate.go",
+      "validator_sha256": "f5268376437fe34128ac3a7c64f4bc9bd7830a920d08eeccbee584163bb292f7",
+      "validator_git_blob": "bde0e6b76f53e6d86a78c6afa98928aee3a73a21",
+      "source_proto": "authentication/service/v1/oauth.proto",
+      "source_header_file": "api/gen/go/authentication/service/v1/oauth.pb.validate.go",
+      "source_repo_path": "api/protos/authentication/service/v1/oauth.proto",
+      "source_sha256": "92fb9e76d4eb80cd9fec0a14bfc6879b922930a49d7a3b65faea5d980d7e875b"
+    },
+    {
+      "validator": "api/gen/go/authentication/service/v1/operator.pb.validate.go",
+      "validator_sha256": "26fbf5c8a8f746444baa161455303992bcac94897d4356da7e3933f0372c2035",
+      "validator_git_blob": "043e3fecf728e9f2fb7f791c5cb7ec7b679b19ac",
+      "source_proto": "authentication/service/v1/operator.proto",
+      "source_header_file": "api/gen/go/authentication/service/v1/operator.pb.validate.go",
+      "source_repo_path": "api/protos/authentication/service/v1/operator.proto",
+      "source_sha256": "9a4af867d71acfbff6688a51886d84b77f363820200e4a8ec8a3449c89d59d7c"
+    },
+    {
+      "validator": "api/gen/go/authentication/service/v1/user_credential.pb.validate.go",
+      "validator_sha256": "f1611d797be2f37045e82e71f877292367072437bbabc2e3f5c56b9c83a57d84",
+      "validator_git_blob": "ccb3eb222633f6f2eeb1486c520212311018fc98",
+      "source_proto": "authentication/service/v1/user_credential.proto",
+      "source_header_file": "api/gen/go/authentication/service/v1/user_credential.pb.validate.go",
+      "source_repo_path": "api/protos/authentication/service/v1/user_credential.proto",
+      "source_sha256": "d7704cba1d7028ee50481595dd2ca09b6bb897a33ea2fd515738eeaf872f685e"
+    },
+    {
+      "validator": "api/gen/go/authentication/service/v1/user_token.pb.validate.go",
+      "validator_sha256": "1689b3afa9ad158cc1eecf2c47e1f818edb070ab94140d5c9a572dfe6090b196",
+      "validator_git_blob": "06b532d10106915181ff9a298225c8996ad48a88",
+      "source_proto": "authentication/service/v1/user_token.proto",
+      "source_header_file": "api/gen/go/authentication/service/v1/user_token.pb.validate.go",
+      "source_repo_path": "api/protos/authentication/service/v1/user_token.proto",
+      "source_sha256": "8aba9300171a85be3adcb95481062b3717a517ae80e3113feb2edf576a38be04"
+    },
+    {
+      "validator": "api/gen/go/catalog/service/v1/vpc.pb.validate.go",
+      "validator_sha256": "3e7eac72f3646ca7aaab6957942b196b806c12edd5acd89574e01e34491c47a9",
+      "validator_git_blob": "0c5dda144a24da812f87768cd2acb7e3645746a8",
+      "source_proto": "catalog/service/v1/vpc.proto",
+      "source_header_file": "api/gen/go/catalog/service/v1/vpc.pb.validate.go",
+      "source_repo_path": "api/protos/catalog/service/v1/vpc.proto",
+      "source_sha256": "6a0041556fa7ef1571a3d5510c34c1abde72802db75316d7150400b9639b2ae7"
+    },
+    {
+      "validator": "api/gen/go/config/service/v1/config.pb.validate.go",
+      "validator_sha256": "2d614c6f2028ee0a50b66220e15f8cbdb5d57dafefd753898b8816404d73502d",
+      "validator_git_blob": "f64d6ff4ec9fbc7514ab46863980525d080823a5",
+      "source_proto": "config/service/v1/config.proto",
+      "source_header_file": "api/gen/go/config/service/v1/config.pb.validate.go",
+      "source_repo_path": "api/protos/config/service/v1/config.proto",
+      "source_sha256": "e40f47cf8747f92891120061fd953a47b2a7eb9834bb62ce95fc0de10d9224ff"
+    },
+    {
+      "validator": "api/gen/go/dict/service/v1/dict_entry.pb.validate.go",
+      "validator_sha256": "512a503278b46a35fe695ec27fa595002a0911ea7c09014113eefbd2f0cb003f",
+      "validator_git_blob": "f9b1e27192cbe2541fe678b0bdf74a26b3de8b67",
+      "source_proto": "dict/service/v1/dict_entry.proto",
+      "source_header_file": "api/gen/go/dict/service/v1/dict_entry.pb.validate.go",
+      "source_repo_path": "api/protos/dict/service/v1/dict_entry.proto",
+      "source_sha256": "7782d6bcbe6e7ef928fe01580b7005ccc4cb805195f95d665801cbee77cc2bb0"
+    },
+    {
+      "validator": "api/gen/go/dict/service/v1/dict_error.pb.validate.go",
+      "validator_sha256": "e7d16e83931b487c6c2e754dfe739582ec86c8255246f0d00a34b5d704b0f8db",
+      "validator_git_blob": "d1e4c0657a6ee6d41f0f52807c9c81623ee4c0e8",
+      "source_proto": "dict/service/v1/dict_error.proto",
+      "source_header_file": "api/gen/go/dict/service/v1/dict_error.pb.validate.go",
+      "source_repo_path": "api/protos/dict/service/v1/dict_error.proto",
+      "source_sha256": "ed91e6e89eb2643fa6ea8f0b0e43bfe57bfa3c732594db2ef6e658fcc2228bf0"
+    },
+    {
+      "validator": "api/gen/go/dict/service/v1/dict_type.pb.validate.go",
+      "validator_sha256": "15a2268466db177c244078d384bc2ffd16342ff1ba24164e1ca6544a28ef38f2",
+      "validator_git_blob": "01ec8f3467e7681074360151bd04dc9f93807ee9",
+      "source_proto": "dict/service/v1/dict_type.proto",
+      "source_header_file": "api/gen/go/dict/service/v1/dict_type.pb.validate.go",
+      "source_repo_path": "api/protos/dict/service/v1/dict_type.proto",
+      "source_sha256": "12582e2e60f7e832453bff6a1fb97ff7f24af7edf4329015e28266e2e44ffe7e"
+    },
+    {
+      "validator": "api/gen/go/dict/service/v1/language.pb.validate.go",
+      "validator_sha256": "6d0403c6e7249a350ae8e8f61f0083941a08193961ffef1ab505b671205eb4af",
+      "validator_git_blob": "8990df346bee9a518777dabf3fc78129df673461",
+      "source_proto": "dict/service/v1/language.proto",
+      "source_header_file": "api/gen/go/dict/service/v1/language.pb.validate.go",
+      "source_repo_path": "api/protos/dict/service/v1/language.proto",
+      "source_sha256": "47c95cb4d291545c381281d671988203037ee81c578f36b9b8393b24a1ca0414"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/membership.pb.validate.go",
+      "validator_sha256": "b7aa101d38cae50cd2b43e568277c1e422b2b6b9d3f285ba9ac9cc7efe6eed5f",
+      "validator_git_blob": "b3641881b01d2949e6e5e3e4f14b632ef158dd4a",
+      "source_proto": "identity/service/v1/membership.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/membership.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/membership.proto",
+      "source_sha256": "849c0f85e43bef10dcbc9d235e2b5bfce365a9af3aa5b8ad759daa6cc9612823"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/membership_org_unit.pb.validate.go",
+      "validator_sha256": "d5d4f48b3586e79adc7e39896db8544166a23dd0aab08360c019763f12291352",
+      "validator_git_blob": "6d5aeabb3b3773c1428c34bd8a386e2a14dda7d4",
+      "source_proto": "identity/service/v1/membership_org_unit.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/membership_org_unit.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/membership_org_unit.proto",
+      "source_sha256": "3c0b12f8d2d630907b8679bf843073dcaddf1af9580aa4b3ba3353fbfd0aa2d1"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/membership_position.pb.validate.go",
+      "validator_sha256": "11ce09f1483ba116cc31ed1ac450e6a767fed5522799165d37461b82f328917c",
+      "validator_git_blob": "9d65b0cb5629984a180a8f658681398711df2117",
+      "source_proto": "identity/service/v1/membership_position.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/membership_position.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/membership_position.proto",
+      "source_sha256": "5e94fa784febfc2c138e97e476abd042e2f9c0343fd60335ad4945dd2699daba"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/module.pb.validate.go",
+      "validator_sha256": "bf4e02ca3b4806d163f4c99fe05ef323ded82b4258a76db14e2dc6057527dd2c",
+      "validator_git_blob": "a51d84e3234263c4bb5d35637a68e15e35f96c5b",
+      "source_proto": "identity/service/v1/module.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/module.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/module.proto",
+      "source_sha256": "69157242ab003df741be23b88cc4d0c2e80ddd640cd9a76977cd5fc61e450f5a"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/org_unit.pb.validate.go",
+      "validator_sha256": "34e1967116f8ee25af80cdd2e31ba1f311720ac63ba39ddac3a4aab622381fa7",
+      "validator_git_blob": "1b850b8814556fbc78a77472a5017b6e2fc29913",
+      "source_proto": "identity/service/v1/org_unit.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/org_unit.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/org_unit.proto",
+      "source_sha256": "d56d142deb35a67e7752036114d6898da4883f86a82552b29ea7ad2c95b76b74"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/plan.pb.validate.go",
+      "validator_sha256": "a00a5c110059b38d73b904a03071a108a91a45216b77419fd16c982d00610046",
+      "validator_git_blob": "db03981bf27e6b7bb57b1468957019f321bee091",
+      "source_proto": "identity/service/v1/plan.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/plan.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/plan.proto",
+      "source_sha256": "e417a560be648d7e6d2dcfa85e275689d101a1f6fd08b320fea97e4b2703c3ef"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/plan_module.pb.validate.go",
+      "validator_sha256": "3f584ec2d500695a64fa923642dcf4e5069624ce3b872d85deac52b8263bfddb",
+      "validator_git_blob": "68efa03f9d035bb8b972e44d334e2bf96ceb6d69",
+      "source_proto": "identity/service/v1/plan_module.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/plan_module.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/plan_module.proto",
+      "source_sha256": "fb3b561e409f02c551067aff03c1c22f1f144de4295ef79830b1b9a9eb608bd7"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/plan_quota.pb.validate.go",
+      "validator_sha256": "95124ea92db9bc21322a0a559152168d77ce3bb4b4d2befbf8234311c04c798f",
+      "validator_git_blob": "7e5b376ae6de9dbbb5735a77a3c3eb9111e639d0",
+      "source_proto": "identity/service/v1/plan_quota.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/plan_quota.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/plan_quota.proto",
+      "source_sha256": "40e8e812317b4e76b6c171fc79643edede50ba87c283bf71a960dda501d45039"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/position.pb.validate.go",
+      "validator_sha256": "07325ef5a7a6b0b80c24fb5179fdb711aa0f004dd5c68e993481301483e2186c",
+      "validator_git_blob": "f423bc48f1102fb4e1f93ff1c04d1c907e0e2d72",
+      "source_proto": "identity/service/v1/position.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/position.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/position.proto",
+      "source_sha256": "39eae432bfb89779789a496430c90dfc3d435e828c5f99ea828c4e6696d2bd2e"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/tenant.pb.validate.go",
+      "validator_sha256": "196534a5f17be9d6a42921cc6e386b19250def6aeb36f2beed499b336d833157",
+      "validator_git_blob": "77505623a097693fad121bb45a8a4ac4a872e082",
+      "source_proto": "identity/service/v1/tenant.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/tenant.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/tenant.proto",
+      "source_sha256": "73c538fc0a32b2a7b68563c5aa7cf8333be109fcf6a6b138878bed86b9b46caa"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/types.pb.validate.go",
+      "validator_sha256": "66e9002dac5056a31bd3353b4148f5e6d45e7d50b051cd8be3d703b78ef8b3bd",
+      "validator_git_blob": "7641ad0e85bfbb2de1e21702dc8c5e46a02f08bf",
+      "source_proto": "identity/service/v1/types.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/types.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/types.proto",
+      "source_sha256": "9405ea4e76748bd36ab417dd8bfbf3864c568f458952a7ffe6030423ee407c35"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/user.pb.validate.go",
+      "validator_sha256": "20680659d71933f5da95cf1d4889c5c091f8cc148a8ea56835f6894ae0305d7c",
+      "validator_git_blob": "3deb1c69d59dcc39ba9f125886e5ea73c9827039",
+      "source_proto": "identity/service/v1/user.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/user.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/user.proto",
+      "source_sha256": "5d919cfc8cf75041c04498fcb508eef980c486bd5e439c803061aa63dd8aed6d"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/user_error.pb.validate.go",
+      "validator_sha256": "eefe436f2d17b5bb860f5f69a72c4eae0688fe35a94876f9f9a2a0786831567f",
+      "validator_git_blob": "a1d60245ef4a80c3096d69415df568d2f0e4831b",
+      "source_proto": "identity/service/v1/user_error.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/user_error.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/user_error.proto",
+      "source_sha256": "8c4aac3deaf392fe4e9d9385814e26d9e4dcf95bce4bd68aa331eff0781a9a61"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/user_org_unit.pb.validate.go",
+      "validator_sha256": "4fbb0c226826afc69da118485ee3572fe8a6714f88de5afb177bf000ebdab59c",
+      "validator_git_blob": "1db839699692eb4efe92ba6d9e890e98ca845b6c",
+      "source_proto": "identity/service/v1/user_org_unit.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/user_org_unit.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/user_org_unit.proto",
+      "source_sha256": "91b36ab50fe201df5ba6ef86b96986fdda2250f972edc66c6ba956a4cd695f9a"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/user_position.pb.validate.go",
+      "validator_sha256": "b65f24787cb687c7b16f2f30ef6320792c412bfb38a480c776193aab340aad3f",
+      "validator_git_blob": "0be83c2438e100068d1f1ece1c4f035c2b8fcb38",
+      "source_proto": "identity/service/v1/user_position.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/user_position.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/user_position.proto",
+      "source_sha256": "fa824bee130c07e21addaa91108d2dba26b5b4afe95e0feead979190c12dbfc5"
+    },
+    {
+      "validator": "api/gen/go/identity/service/v1/user_profile.pb.validate.go",
+      "validator_sha256": "bd9af2841d81e9cd88f269284004e58d5e866bc48a4a3312d181df72d864aaf3",
+      "validator_git_blob": "6a0a39478362d334fdc4e4317f93458a34ef8c28",
+      "source_proto": "identity/service/v1/user_profile.proto",
+      "source_header_file": "api/gen/go/identity/service/v1/user_profile.pb.validate.go",
+      "source_repo_path": "api/protos/identity/service/v1/user_profile.proto",
+      "source_sha256": "c0a71be511465c7e9f40af56f9a787bfb91a43d07946e0ea9cd255e40601b959"
+    },
+    {
+      "validator": "api/gen/go/internal_message/service/v1/internal_message.pb.validate.go",
+      "validator_sha256": "a36a06125f7da8f680372ce70245b1223f75696404cfec98e1a8ab30eb02c32a",
+      "validator_git_blob": "245fa9544ad7742a9e1f80bcabef6a3d97b8be94",
+      "source_proto": "internal_message/service/v1/internal_message.proto",
+      "source_header_file": "api/gen/go/internal_message/service/v1/internal_message.pb.validate.go",
+      "source_repo_path": "api/protos/internal_message/service/v1/internal_message.proto",
+      "source_sha256": "2559c0236b68c1a898ef71408b089f5a11962dcfbfb170e5d0c9c2730290f49c"
+    },
+    {
+      "validator": "api/gen/go/internal_message/service/v1/internal_message_category.pb.validate.go",
+      "validator_sha256": "4a1b01e52c91bd62c81a9f9cd039baef2266abfc586e1e57fdab727612b6d7a5",
+      "validator_git_blob": "ef89d11dda8078053119881d3055a257e1b17504",
+      "source_proto": "internal_message/service/v1/internal_message_category.proto",
+      "source_header_file": "api/gen/go/internal_message/service/v1/internal_message_category.pb.validate.go",
+      "source_repo_path": "api/protos/internal_message/service/v1/internal_message_category.proto",
+      "source_sha256": "9f0d7d26f380df70af4d3835ec3af0d9f1bb3f97081b96e1b2ffd67cea8341be"
+    },
+    {
+      "validator": "api/gen/go/internal_message/service/v1/internal_message_error.pb.validate.go",
+      "validator_sha256": "3517c40b9dc8147d162d7021dbb13fbeb58b9262c105635e56b48ee51a688305",
+      "validator_git_blob": "eb05905e95d59f5a3193d60bb028ac5d6048fd15",
+      "source_proto": "internal_message/service/v1/internal_message_error.proto",
+      "source_header_file": "api/gen/go/internal_message/service/v1/internal_message_error.pb.validate.go",
+      "source_repo_path": "api/protos/internal_message/service/v1/internal_message_error.proto",
+      "source_sha256": "c36d25d416daf4280fbd33768a21dfc30ac485e3c97b552a2ee1c174f2f6d982"
+    },
+    {
+      "validator": "api/gen/go/internal_message/service/v1/internal_message_recipient.pb.validate.go",
+      "validator_sha256": "5eb830bb0a8f37ab6620a65f4ad87b31cf9f8a1fd7120802a04a06e7c312ee58",
+      "validator_git_blob": "5d7805833760e0bc848c16e850333749a0fa010e",
+      "source_proto": "internal_message/service/v1/internal_message_recipient.proto",
+      "source_header_file": "api/gen/go/internal_message/service/v1/internal_message_recipient.pb.validate.go",
+      "source_repo_path": "api/protos/internal_message/service/v1/internal_message_recipient.proto",
+      "source_sha256": "f3a1cf6d7fc849cdf9b7bb5169e118e43b9685ec29308a9e85d6053044119703"
+    },
+    {
+      "validator": "api/gen/go/notification_channel/service/v1/notification_channel.pb.validate.go",
+      "validator_sha256": "7623acad113b3c1d3815df57ba3c1a7839a7a1b9d623b4db5a6de77b31ece1f1",
+      "validator_git_blob": "e7b1706e19e559595c448ceba82b7e726756d80e",
+      "source_proto": "notification_channel/service/v1/notification_channel.proto",
+      "source_header_file": "api/gen/go/notification_channel/service/v1/notification_channel.pb.validate.go",
+      "source_repo_path": "api/protos/notification_channel/service/v1/notification_channel.proto",
+      "source_sha256": "846b97da48ee8e4d7ba47e30b40c628ef4e11dca2897feacdb31803e6af76052"
+    },
+    {
+      "validator": "api/gen/go/online_session/service/v1/online_session.pb.validate.go",
+      "validator_sha256": "c67c5436cf304f42cd9d163b3c088018fe7f9f94f87c9a1742eef875467a494c",
+      "validator_git_blob": "f8689a29aa8664a050bfb94addfea7b9bc1da1de",
+      "source_proto": "online_session/service/v1/online_session.proto",
+      "source_header_file": "api/gen/go/online_session/service/v1/online_session.pb.validate.go",
+      "source_repo_path": "api/protos/online_session/service/v1/online_session.proto",
+      "source_sha256": "5f2751a67484de782e821094b68b025530bc62132327befa1243d1a8e9346f09"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/api.pb.validate.go",
+      "validator_sha256": "2221b6ca71acc02ac328615ec9d9a8ed2108793b8d31c89503ef61912c1665cb",
+      "validator_git_blob": "37cac61c5fef1b165f5642f637cb08f4abb35624",
+      "source_proto": "permission/service/v1/api.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/api.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/api.proto",
+      "source_sha256": "f5e791b6595381c0648f6dba224372d99deb1f79995bf9365ece582ea8f22704"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/membership_role.pb.validate.go",
+      "validator_sha256": "a1452c9c69b96ddc8ec91b6f993772a87000bc08f471d5d57c46471aed67dda9",
+      "validator_git_blob": "199649cb40e18d97a8231b9258b7b1004cae57ea",
+      "source_proto": "permission/service/v1/membership_role.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/membership_role.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/membership_role.proto",
+      "source_sha256": "f8f6d0edda8004a6c5e25ea5dedf6285ba4395a38814a76537f073062cea5e73"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/menu.pb.validate.go",
+      "validator_sha256": "2592ccd525bb19eac89c902d34466f81791ac632dab662df4931fa3c3ac22df5",
+      "validator_git_blob": "0fc4a317bca5ee2e998f2b55ecaf9e071faf410b",
+      "source_proto": "permission/service/v1/menu.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/menu.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/menu.proto",
+      "source_sha256": "e8e6323f965bc641a07de215f3b7cab6fa0779426775281080b29791d2f85e84"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/permission.pb.validate.go",
+      "validator_sha256": "2785b8840918aea7799f862aeeb8dea07e03d58088e2916fd9461cfce002283b",
+      "validator_git_blob": "be285d4c054b1086a96a016e83ea6cebfadcb598",
+      "source_proto": "permission/service/v1/permission.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/permission.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/permission.proto",
+      "source_sha256": "d55fcbebd715d875e91176ee84685d1921d82767e864d9d3131bdcf42519a717"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/permission_api.pb.validate.go",
+      "validator_sha256": "693bd5b33f975f3c4d018d5592266b71338a4c4d046ba83c7c03748cec79acaa",
+      "validator_git_blob": "0a34621694f2e8eed1b1ea751a4f9c14af86085d",
+      "source_proto": "permission/service/v1/permission_api.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/permission_api.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/permission_api.proto",
+      "source_sha256": "8551d0716af34b037cf093ba6072457979896bcdc58db339809f36715a03e4a1"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/permission_error.pb.validate.go",
+      "validator_sha256": "4b30b9abbbf376753fa9a594724f9b9237c8ccbc13098e0fdbd9c3ca65a53750",
+      "validator_git_blob": "41a7f7c21d35edcaba5c3189ca5ed9af57d2a39f",
+      "source_proto": "permission/service/v1/permission_error.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/permission_error.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/permission_error.proto",
+      "source_sha256": "91fefe64932da5f3752ccea8f2f9a72f9db00276ab9f8051df5a9dcd0f5982ba"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/permission_group.pb.validate.go",
+      "validator_sha256": "63728e964a295c15b56c07044d6c2313a1954aab154497d682a406ab98276bf1",
+      "validator_git_blob": "6bcb95665037e8984b6bb5bd01399f4c3b5999c7",
+      "source_proto": "permission/service/v1/permission_group.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/permission_group.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/permission_group.proto",
+      "source_sha256": "e5b6a892a26dc073262ec94df439ca24747b72e0838f2df971072ad65e887795"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/permission_menu.pb.validate.go",
+      "validator_sha256": "7645fabbdc8b2094fd88172d551e06b06a1ca1d2675974887d8122301e26b1e3",
+      "validator_git_blob": "3c7fc28994ef83544babc2fa44cf4f31fe15e664",
+      "source_proto": "permission/service/v1/permission_menu.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/permission_menu.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/permission_menu.proto",
+      "source_sha256": "ff34af4ecb0dc4ee94fa58fd3d628eb39c1c5ee4d47852f209af98076e305b7f"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/permission_policy.pb.validate.go",
+      "validator_sha256": "220e48258c43ebc10dce2353decbaf979fe075f2ed3e1ba880a17cf1433803c0",
+      "validator_git_blob": "5d0251168cc6bde1abe3edff7ee76286db8925ab",
+      "source_proto": "permission/service/v1/permission_policy.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/permission_policy.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/permission_policy.proto",
+      "source_sha256": "529ccc477088ca5478b807c222da8da11a52a9ba0f38fc76b27b13adf0d4d555"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/policy_evaluation_log.pb.validate.go",
+      "validator_sha256": "946d776045d7e4d53344c75b8158ce24099564b4844a9b4fb9270b4d90796c47",
+      "validator_git_blob": "c1adb76902fbc9253836769329bb9b30a2054013",
+      "source_proto": "permission/service/v1/policy_evaluation_log.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/policy_evaluation_log.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/policy_evaluation_log.proto",
+      "source_sha256": "6d7680cd328a59223048095897233fffef3f0e07d13eee546328a3651a56dbd8"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/role.pb.validate.go",
+      "validator_sha256": "4f0ac8f35de71a693b84ca7c35e88f7029842ae2c7edf65ffe11f145efb66288",
+      "validator_git_blob": "4875d4da0c10afab5a94bbc632ba7c50e1c1125b",
+      "source_proto": "permission/service/v1/role.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/role.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/role.proto",
+      "source_sha256": "bf4c2151ffbcbf230b48b96942c9df3be20c69b4b2ef5e69e0999a4aa15f626a"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/role_permission.pb.validate.go",
+      "validator_sha256": "32e7dbcd4a9239ce39a07b060a7a0a0c9c737741292551ac268914b8f7e9290a",
+      "validator_git_blob": "1649a4039a54d21e9f81d75e607054d96ed190f6",
+      "source_proto": "permission/service/v1/role_permission.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/role_permission.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/role_permission.proto",
+      "source_sha256": "4fda8f73621aeefae957505f721d39d0729c3410d01945c867de399b08e6ccf1"
+    },
+    {
+      "validator": "api/gen/go/permission/service/v1/user_role.pb.validate.go",
+      "validator_sha256": "88c968f134cf9028c6f49f03a3cb470ba3abdcb0574154a1ce068205e28ed140",
+      "validator_git_blob": "dcc55238bd21311c21974ba302ab00ff022fb64b",
+      "source_proto": "permission/service/v1/user_role.proto",
+      "source_header_file": "api/gen/go/permission/service/v1/user_role.pb.validate.go",
+      "source_repo_path": "api/protos/permission/service/v1/user_role.proto",
+      "source_sha256": "143e74b78cdf8b4733712fb5757883de6a5f3253219043736a7cd5ad2bd680cd"
+    },
+    {
+      "validator": "api/gen/go/redis_cache/service/v1/redis_cache_monitor.pb.validate.go",
+      "validator_sha256": "bc22f8b147c635523621c14d6934ef580ba7f3298fd9887ed5cb919f7f68b193",
+      "validator_git_blob": "7eb3f07d77b7efed48c861a6b029267095ae1426",
+      "source_proto": "redis_cache/service/v1/redis_cache_monitor.proto",
+      "source_header_file": "api/gen/go/redis_cache/service/v1/redis_cache_monitor.pb.validate.go",
+      "source_repo_path": "api/protos/redis_cache/service/v1/redis_cache_monitor.proto",
+      "source_sha256": "d06dec13346e088ef4b507de6c8d325c4950b65220243b617a5c79e9733545d9"
+    },
+    {
+      "validator": "api/gen/go/server_monitor/service/v1/server_monitor.pb.validate.go",
+      "validator_sha256": "1111d5bee0a38c10c32053716c783f2e3255597d7f09dcdc65d891c4dc21409b",
+      "validator_git_blob": "686529036d32995c7436885127ff72ca2ff19246",
+      "source_proto": "server_monitor/service/v1/server_monitor.proto",
+      "source_header_file": "api/gen/go/server_monitor/service/v1/server_monitor.pb.validate.go",
+      "source_repo_path": "api/protos/server_monitor/service/v1/server_monitor.proto",
+      "source_sha256": "8989b5e49dc7d34694e00715ceb94c7568a575907f02f6738f729b68207f8ebe"
+    },
+    {
+      "validator": "api/gen/go/task/service/v1/task.pb.validate.go",
+      "validator_sha256": "0b921cfd7dee5ee09c871b94ad01b51dfc824249b2c502cc70222e728f42933f",
+      "validator_git_blob": "6095b929bf3e88ddd03115bea3859f909d9fe8ba",
+      "source_proto": "task/service/v1/task.proto",
+      "source_header_file": "api/gen/go/task/service/v1/task.pb.validate.go",
+      "source_repo_path": "api/protos/task/service/v1/task.proto",
+      "source_sha256": "e07deb5a846880d01a06890ab328f5ac89e9291bf7e2cba7cfdf903895faff1c"
+    },
+    {
+      "validator": "api/gen/go/task/service/v1/task_error.pb.validate.go",
+      "validator_sha256": "928c842ec1f3781f70316d0b5e78381b7de71b424d80f6be4afc4e358a01218c",
+      "validator_git_blob": "d90444f38c27ce94f66f82237d2961b16cdd0e76",
+      "source_proto": "task/service/v1/task_error.proto",
+      "source_header_file": "api/gen/go/task/service/v1/task_error.pb.validate.go",
+      "source_repo_path": "api/protos/task/service/v1/task_error.proto",
+      "source_sha256": "ad89caaa0a1a431515a6df23828e95bf79b728b2508302a693b9360dd7a825d4"
+    }
+  ]
+}

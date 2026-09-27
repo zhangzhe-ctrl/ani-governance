@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/tx7do/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	"google.golang.org/protobuf/proto"
 
 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"

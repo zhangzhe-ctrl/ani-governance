@@ -1,0 +1,186 @@
+{
+ "meaning": "isolated locked-upstream defects: each must actually run, must fail, and must fail the same way as the identically organised pristine copy in the same environment; a failure is never recorded as a pass",
+ "candidate_label": "ani-governance in-repo localized copy",
+ "reference_label": "pristine pinned upstream module",
+ "candidate_exit_code": "1",
+ "reference_exit_code": "1",
+ "candidate_package_action": "fail",
+ "reference_package_action": "fail",
+ "tag": "upstream_known_defects",
+ "known_defect_count": 2,
+ "status_counts": {
+  "REFERENCE_NOT_FAILING": 1,
+  "SIGNATURE_MISMATCH": 1
+ },
+ "tests": [
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+   "Test": "TestGenerateOrderIdWithIndexThread",
+   "candidate_action": "fail",
+   "reference_action": "pass",
+   "candidate_signature": {
+    "sites": [
+     "order_id_test.go:61"
+    ],
+    "transcript": [
+     "order_id_test.go:61:",
+     "Error Trace: order_id_test.go:61",
+     "Error: Not equal:",
+     "expected: 1000",
+     "actual : 985",
+     "Test: <TOKEN>",
+     "--- FAIL: <TOKEN> (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [],
+    "transcript": [
+     "--- PASS: <TOKEN> (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "55228ce74551e8aebda6766a74f6b925f575b2c1a46268fe7b177c0dbd2540f0",
+   "reference_output_sha256": "55467ae040ba4f84f64afeb0462b596d0524a3de7a1594b0ef184dfa9faee0fe",
+   "status": "REFERENCE_NOT_FAILING"
+  },
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+   "Test": "TestGenerateOrderIdWithTenantIdCollision",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "order_id_test.go:94",
+     "order_id_test.go:99"
+    ],
+    "transcript": [
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98769555",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98765098",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98763387",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98762191",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98765189",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98760389",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98765544",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98769257",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98765521",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98768118",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98768076",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98768264",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98768796",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98764443",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98765771",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98766990",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98769857",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98768982",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98765873",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98763321",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98766704",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98763020",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98763509",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98764265",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98769948",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98765544",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98761481",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98763350",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98763750",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98760365",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98766515",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98766882",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98761123",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98767439",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98761446",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98763852",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98763025",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98760416",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98767525",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98763920",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98769626",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162420M98761781",
+     "order_id_test.go:99: 生成了 1000 个订单号，没有发生碰撞",
+     "--- FAIL: <TOKEN> (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "order_id_test.go:94",
+     "order_id_test.go:99"
+    ],
+    "transcript": [
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98760367",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98766674",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98761181",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98765280",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98762226",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98769316",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98768803",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98763578",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98761147",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98765795",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98768187",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98765637",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98768434",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98768144",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98764052",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98761922",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98761665",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98768747",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98764753",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98761765",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98767437",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98768023",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98765015",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98762617",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98767824",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98767384",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98766666",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98769391",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98763152",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98762617",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98761670",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98767599",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98768811",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98765573",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98766774",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98761787",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98767586",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98766778",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98767379",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98767376",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98763036",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98765577",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98760962",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98767207",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98766615",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98761557",
+     "order_id_test.go:94: 碰撞的订单号: 20260925162431M98766132",
+     "order_id_test.go:99: 生成了 1000 个订单号，没有发生碰撞",
+     "--- FAIL: <TOKEN> (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "a74444d00e2f43c3743e6b31b66e3ae4cc25245fadb31f24c5fcdb25567d8846",
+   "reference_output_sha256": "7bc5afbf112a7bdd79646807f68a1cc2f6f4cba6250e8231130ee2e9dbfee6ad",
+   "status": "SIGNATURE_MISMATCH"
+  }
+ ],
+ "isolated_file": null,
+ "locked_source_copy": null,
+ "moved_tests_verbatim": [],
+ "allowed_failure_function_set": [
+  "TestGenerateOrderIdWithIndexThread",
+  "TestGenerateOrderIdWithTenantIdCollision"
+ ],
+ "normalisation_rules": [
+  "elapsed time",
+  "absolute prefix of the copy under test",
+  "uuid",
+  "long hex",
+  "base64-ish token",
+  "host:port"
+ ],
+ "error_content_compared": true,
+ "blocking": [
+  "REFERENCE_NOT_FAILING: TestGenerateOrderIdWithIndexThread",
+  "SIGNATURE_MISMATCH: TestGenerateOrderIdWithTenantIdCollision"
+ ],
+ "verdict": "BLOCKED",
+ "note": "the fully tagged run is NOT green by design: these 2 cases are recorded as KNOWN_BASELINE_FAILURE and the run's own non-zero exit code is preserved"
+}

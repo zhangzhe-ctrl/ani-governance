@@ -1,0 +1,174 @@
+[
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestTokenCodec_RoundTrip"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestTokenCodec_TamperedRejected"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestTokenCodec_WrongSecretRejected"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestTokenCodec_SignedRejectedWithoutSecret"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestTokenCodec_LegacyCompat"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestTokenCodec_LegacyRejectedWhenSecretSet"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestTokenCodec_EmptyRejected"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestTokenCodec_OversizedRejected"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestTokenSecret_RoundTripWithSecret"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestTokenSecret_TamperRejected"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestTokenSecret_SecretIsCopied"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestT08PaginationProtoIsRegisteredExactlyOnce"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestT08PagingRequestContractIsUnchanged"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/filter",
+    "Test": "TestConvertFilterByPagingRequest_WithFilterExpr"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/filter",
+    "Test": "TestConvertFilterByPagingRequest_WithQuery"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestAnyToString"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+    "Test": "TestRemoveExcludedConditions"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/filter",
+    "Test": "TestT08FilterResolvesTheLocalizedJSONCodec"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/filter",
+    "Test": "TestT08SearchOperatorIsKnownToTheLocalizedConverter"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/filter",
+    "Test": "TestConverterStringToOperator"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/filter",
+    "Test": "TestParseQuery_ObjectWithAndOr"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/filter",
+    "Test": "TestFilterStringConverter_Convert_AllOperators"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/filter",
+    "Test": "TestConvert_JsonFieldPath"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/paginator",
+    "Test": "TestClampLimit"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/paginator",
+    "Test": "TestPagePaginatorSizeCapped"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/paginator",
+    "Test": "TestOffsetPaginatorLimitCapped"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/paginator",
+    "Test": "TestTokenPaginatorSizeCapped"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/paginator",
+    "Test": "TestPaginatorsStillSatisfyInterface"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/sorting",
+    "Test": "TestOrderByStringConverter_Convert_JSON_SnakeCaseAndDirection"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination/sorting",
+    "Test": "TestOrderByStringConverter_Convert_AIPFormat"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/entgo/pagination",
+    "Test": "TestOffsetPaginator_ArgumentOrder"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/entgo/pagination",
+    "Test": "TestT08TokenPaginatorReadsTheSharedSecretInstance"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/entgo/pagination",
+    "Test": "TestT08TokenPaginatorFailsClosedOnTamperedOrForeignTokens"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-crud/entgo/pagination",
+    "Test": "TestT08TokenPaginatorKeepsUnsignedModeBackwardCompatible"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind-plugins/encoding",
+    "Test": "TestRegisterAndGetCodec"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind-plugins/encoding",
+    "Test": "TestGetCodec_CaseInsensitive"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind-plugins/encoding",
+    "Test": "TestRegisterCodec_Overwrite"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind-plugins/encoding/json",
+    "Test": "TestCodec_Registered"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind-plugins/encoding/json",
+    "Test": "TestCodec_RoundTrip"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind/log",
+    "Test": "TestSetLogger_NilRevertsToNop"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind/log",
+    "Test": "TestSetLogger_GetLogger_ConcurrentSafe"
+  },
+  {
+    "Package": "go-wind-admin/pkg/localdeps/go-wind/log",
+    "Test": "TestGlobalHelpers_LogAndEnabled"
+  },
+  {
+    "Package": "go-wind-admin/app/admin/service/internal/data",
+    "Test": "TestPlanQuotaPostgresListCompatibility"
+  }
+]

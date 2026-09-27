@@ -1,0 +1,109 @@
+{
+ "derivation": {
+  "base_commit": "474eee824c07b0d3da00f1f4d64f130bfdf246da",
+  "rule": "the T05 package set from migration/preflight/T05-profile-packages.json with the previously excluded engine package restored",
+  "test_tags": [
+   "-tags",
+   "quota_pg"
+  ],
+  "touched_packages": [
+   "app/admin/service/internal/data",
+   "app/admin/service/internal/service",
+   "pkg/jwt",
+   "pkg/localdeps/kratos-authn/engine",
+   "pkg/localdeps/kratos-authn/engine/jwt",
+   "pkg/middleware/auth",
+   "pkg/middleware/logging"
+  ],
+  "consumer_packages": [
+   "app/admin/service/internal/data",
+   "app/admin/service/internal/service",
+   "pkg/jwt",
+   "pkg/localdeps/kratos-authn/engine",
+   "pkg/localdeps/kratos-authn/engine/jwt",
+   "pkg/middleware/auth",
+   "pkg/middleware/logging"
+  ]
+ },
+ "packages": [
+  {
+   "package": "go-wind-admin/app/admin/service/internal/data",
+   "listed": 301,
+   "required": 297,
+   "gated_named": [
+    "TestBootstrapPostgres",
+    "TestQuotaGpuOldPopulatedUpgradeReplay",
+    "TestQuotaGpuRestoredProjectionContinuation",
+    "TestQuotaProcessChild"
+   ],
+   "touched_by_t06": false,
+   "consumer_of_authz": false
+  },
+  {
+   "package": "go-wind-admin/app/admin/service/internal/service",
+   "listed": 176,
+   "required": 172,
+   "gated_named": [
+    "TestAcceleratorFormalSessionRefresh",
+    "TestAcceleratorJointHTTP",
+    "TestOnboardingAPIRegistration",
+    "TestOnboardingConcurrentAcceptance"
+   ],
+   "touched_by_t06": false,
+   "consumer_of_authz": false
+  },
+  {
+   "package": "go-wind-admin/pkg/jwt",
+   "listed": 21,
+   "required": 21,
+   "gated_named": [],
+   "touched_by_t06": false,
+   "consumer_of_authz": false
+  },
+  {
+   "package": "go-wind-admin/pkg/localdeps/kratos-authn/engine",
+   "listed": 8,
+   "required": 8,
+   "gated_named": [],
+   "touched_by_t06": false,
+   "consumer_of_authz": false
+  },
+  {
+   "package": "go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt",
+   "listed": 7,
+   "required": 7,
+   "gated_named": [],
+   "touched_by_t06": false,
+   "consumer_of_authz": false
+  },
+  {
+   "package": "go-wind-admin/pkg/middleware/auth",
+   "listed": 21,
+   "required": 21,
+   "gated_named": [],
+   "touched_by_t06": false,
+   "consumer_of_authz": false
+  },
+  {
+   "package": "go-wind-admin/pkg/middleware/logging",
+   "listed": 78,
+   "required": 78,
+   "gated_named": [],
+   "touched_by_t06": false,
+   "consumer_of_authz": false
+  }
+ ],
+ "package_dirs": [
+  "./app/admin/service/internal/data",
+  "./app/admin/service/internal/service",
+  "./pkg/jwt",
+  "./pkg/localdeps/kratos-authn/engine",
+  "./pkg/localdeps/kratos-authn/engine/jwt",
+  "./pkg/middleware/auth",
+  "./pkg/middleware/logging"
+ ],
+ "no_test_file_packages_verified_empty": [],
+ "required_total": 604,
+ "gated_total": 8,
+ "errors": []
+}

@@ -1,0 +1,51 @@
+diff --git a/app/admin/service/internal/data/ent/tenant_guard_test.go b/app/admin/service/internal/data/ent/tenant_guard_test.go
+index d5d2f24..6d3890d 100644
+--- a/app/admin/service/internal/data/ent/tenant_guard_test.go
++++ b/app/admin/service/internal/data/ent/tenant_guard_test.go
+@@ -14,6 +14,7 @@
+ 	ent "go-wind-admin/app/admin/service/internal/data/ent"
+ 	"go-wind-admin/app/admin/service/internal/data/ent/accesskey"
+ 	"go-wind-admin/app/admin/service/internal/data/ent/dicttype"
++	"go-wind-admin/app/admin/service/internal/data/ent/role"
+ 	_ "go-wind-admin/app/admin/service/internal/data/ent/runtime"
+ )
+ 
+@@ -135,6 +136,22 @@ func dictTypeIDByCode(client *ent.Client, ctx context.Context, code string) uint
+ 	return row.ID
+ }
+ 
++// guardAKCipher 为占位密文：secret_ciphertext 是 NotEmpty+Sensitive 字段，本用例的断言
++// 只改 name、从不读写该列，因此不使用真实密钥。
++const guardAKCipher = "guard-test-placeholder-ciphertext"
++
++// seedGuardRole 在调用方的租户上下文内创建一个本用例专属角色并返回其主键。
++// AccessKey.role_id 要求正数且语义上指向同租户角色，所以不猜测 ID、不跨租户借用；
++// 前后各做一次定向清理，只针对本用例使用的 code（租户谓词由守卫策略注入，不越租户）。
++func seedGuardRole(t *testing.T, client *ent.Client, ctx context.Context, code string) uint32 {
++	t.Helper()
++	client.Role.Delete().Where(role.CodeEQ(code)).ExecX(ctx)
++	client.Role.Create().SetName("guard-ak-" + code).SetCode(code).ExecX(ctx)
++	id := client.Role.Query().Where(role.CodeEQ(code)).OnlyX(ctx).ID
++	t.Cleanup(func() { client.Role.Delete().Where(role.IDEQ(id)).ExecX(ctx) })
++	return id
++}
++
+ // TestTenantMutationGuardAccessKey 验证 access_key（AK/SK 凭证表）的跨租户
+ // Update/Delete 被租户写隔离防线拦截。该表 2026-09-12 前独缺仓内守卫层，
+ // 本用例钉住其防线不再回退（防线=库层 TenantPrivacy + 仓内守卫，同谓词叠加）。
+@@ -145,9 +162,13 @@ func TestTenantMutationGuardAccessKey(t *testing.T) {
+ 	// 种数据：分别属于租户 1 / 2（Create 强制覆盖 tenant_id 为写入者租户）
+ 	{
+ 		ctx1 := tenantCtx(ctx, 1)
+-		client.AccessKey.Create().SetAccessKey("GUARD_AK_T1").SetName("tenant1-ak").ExecX(ctx1)
++		role1 := seedGuardRole(t, client, ctx1, "GUARD_AK_ROLE_T1")
++		client.AccessKey.Create().SetAccessKey("GUARD_AK_T1").SetName("tenant1-ak").
++			SetSecretCiphertext(guardAKCipher).SetRoleID(role1).ExecX(ctx1)
+ 		ctx2 := tenantCtx(ctx, 2)
+-		client.AccessKey.Create().SetAccessKey("GUARD_AK_T2").SetName("tenant2-ak").ExecX(ctx2)
++		role2 := seedGuardRole(t, client, ctx2, "GUARD_AK_ROLE_T2")
++		client.AccessKey.Create().SetAccessKey("GUARD_AK_T2").SetName("tenant2-ak").
++			SetSecretCiphertext(guardAKCipher).SetRoleID(role2).ExecX(ctx2)
+ 	}
+ 
+ 	ctx1 := tenantCtx(ctx, 1)

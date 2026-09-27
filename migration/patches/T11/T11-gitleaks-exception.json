@@ -1,0 +1,69 @@
+{
+  "schema_version": "t11-gitleaks-exception/1",
+  "tool": "gitleaks v8.30.1 (the version pinned by scripts/verify-gpu-audit.sh), config .gitleaks.toml with [extend] useDefault = true",
+  "command": "gitleaks dir --no-banner --no-color --redact .",
+  "finding_before": {
+    "rule": "jwt",
+    "file": "pkg/localdeps/kratos-transport/transport/sse/index.html",
+    "line": 21,
+    "secret_sha256_prefix8": "c794fa6d",
+    "secret_length": 172,
+    "provenance": "placed byte-identically from kratos-transport/transport/sse@v1.3.8 in the T11 takeover (see migration/patches/T11/T11-placement.json)"
+  },
+  "verification_of_the_value": {
+    "decoded_header": {
+      "alg": "HS256",
+      "typ": "JWT"
+    },
+    "decoded_payload_claims": [
+      "sub",
+      "name",
+      "admin",
+      "iat"
+    ],
+    "decoded_payload_values": {
+      "sub": "1234567890",
+      "name": "John Doe",
+      "admin": true,
+      "iat": 1516239022
+    },
+    "conclusion": "the canonical jwt.io documentation sample, signed with the publicly published demo key; the placed file is a browser demo page that opens an EventSource against localhost:8800 and no service in this repository issues or accepts it",
+    "classification": "FALSE_POSITIVE"
+  },
+  "exception_added": {
+    "file": ".gitleaks.toml",
+    "rule_id": "jwt",
+    "condition": "AND",
+    "regex_target": "secret",
+    "path_regex": "^pkg/localdeps/kratos-transport/transport/sse/index\\.html$",
+    "value_regex": "^<the exact token>$",
+    "defaults_and_existing_custom_rules_kept": true
+  },
+  "negative_controls": [
+    {
+      "case": "approved value at an unapproved path (tmp copy /unapproved-path.html)",
+      "leaks_still_detected": 1,
+      "result": "still detected"
+    },
+    {
+      "case": "approved path, token differing in the last character only (sha256 prefix 0aa905cb)",
+      "leaks_still_detected": 1,
+      "result": "still detected -> the exception is value-precise and does not mute the rule for the file"
+    },
+    {
+      "case": "invented structurally-similar probe token at the approved path",
+      "leaks_still_detected": 0,
+      "result": "NOT detected: the default jwt rule never matched that synthetic string, so this particular probe proves nothing and is recorded as an invalid control rather than as evidence"
+    }
+  ],
+  "scan_after": {
+    "command": "gitleaks dir --no-banner --no-color --redact .",
+    "unhandled_findings": 0,
+    "verified_exceptions_now_in_config": {
+      "jwt": 2,
+      "generic-api-key": 7,
+      "private-key": 1
+    }
+  },
+  "note": "full secret values are deliberately not written into the ledger; only sha256 prefixes and the file itself carry them"
+}

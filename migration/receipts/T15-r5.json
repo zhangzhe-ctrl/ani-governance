@@ -1,0 +1,60 @@
+{
+  "schema_version": "t15-r5/1",
+  "task": "T15",
+  "item": "R5 - a real pre-takeover client calling the taken-over service, over the wire, in an isolated environment",
+  "status": "R5_VERIFIED_IN_REPOSITORY",
+  "candidate_under_test": "10f8577 (server binary sha256 5458e7ba63f0271a39baa730081123c85fd78ae0b152332232221d3af47acd9e)",
+  "goal_text_being_satisfied": "_agent/ani-governance-tx7do-plan/goals/T15.md: at least one legacy-client to new-service HTTP or gRPC contract and error comparison; this does not substitute a descriptor diff or a new-client self-test",
+
+  "environment": {
+    "service": "app/admin/service/cmd/server built from 10f8577, started as a separate process on 127.0.0.1:17788 (SSE 17789) with a task-private config directory copied from app/admin/service/configs and rewritten for the task: database name, redis address, ports",
+    "database": "task-named disposable database tx7do_t15_r5 inside the already authorized task container tx7do-t07-acc-lab-pg; schema applied by running the seven committed migrations/ files in filename order because Atlas is not installed on this host; the service itself ran with migrate: false, unchanged",
+    "seed": "one-time `admin init --username admin --password-file <task file>` against that database: 'PASS: initial seed and administrator committed', then `admin check`: 'PASS: platform administrator and required API grants are present' (1 user, 213 registered API rows)",
+    "redis": "container ani-governance-t11-redis started and stopped by scripts/verify-gpu-redis.sh for this round only",
+    "secret_material": "ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE pointed at a task-private 64-hex key file; the administrator password lives only in the task directory; nothing was written outside it",
+    "isolation": "no business DSN exists on this host and none was used; the gate's gov_acc_data / gov_acc_lab databases were left running and untouched, verified after teardown"
+  },
+
+  "legacy_client": {
+    "source_tree": "the frozen pre-takeover baseline d27847b99479553b1a56fc84bc4ee8f1a0992e1e, exported with git archive into /home/ubuntu/tx7do-pilot-run/T15/r5/legacy (no checkout, the working repository was not switched)",
+    "client_library": "api/gen/go at that commit, exactly as the takeover found it: go-wind-admin/api/gen/go/admin/service/v1 HTTP clients plus go-wind-admin/api/gen/go/identity/service/v1 messages",
+    "upstream_links_measured": "go version -m of the legacy probe binary reports dep github.com/tx7do/go-crud/api v0.0.7 and dep github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2",
+    "current_client": "the identical probe source compiled in a detached worktree of 10f8577, whose pagination messages come from go-wind-admin/pkg/localdeps/go-crud/...; go version -m of that binary reports zero github.com/tx7do modules",
+    "source_identity": "probe main.go is byte-identical between the two trees (cmp verified); only a six-line shim differs, because the pagination import path is the thing under test"
+  },
+
+  "cases_and_results": {
+    "count": 14,
+    "run_both": "each case executed twice, once per client binary, against the same live service; logs /home/ubuntu/tx7do-pilot-run/T15/r5/evidence/probe-{legacy,new}.txt",
+    "comparison": "/home/ubuntu/tx7do-pilot-run/T15/r5/evidence/r5-comparison.json",
+    "identical": "14 of 14 after normalizing exactly three run-specific values: the server's request_id in error metadata, the random username suffix the probe generates, and the database auto-increment id of the row it created. Raw error strings compare equal once only the request id is normalized.",
+    "contracts_exercised": {
+      "auth": "PlatformPasswordLogin returned a 791-character token, expires_in 5400, issued_at present",
+      "paging": "List through the pagination message of each tree: total 1, page/limit/order_by honoured, item fields parsed",
+      "read": "Get by id parsed id/username/nickname/email/mobile/tenant_id",
+      "partial_update_with_mask": "Update with update_mask=['nickname'] changed nickname and left email, mobile, username and tenant_id untouched (verified by reading back)",
+      "validation_error": "Update without the required relation returned 400 BAD_REQUEST 'role_ids is required'",
+      "permission_error": "the same List with no credential returned 401 UNAUTHORIZED 'missing bearer token'",
+      "not_found": "Get of an unused id returned code 500 with message 'ent: user not found' and an empty reason",
+      "tenant_scope": "UserExists by username without a tenant scope returned 400 'tenant scope required to check user exists by username'",
+      "redaction": "a created user with mobile 13800001234 read back as '138****1234' while email came back intact; the legacy client parsed the masked value and reported mobile_equal=false, email_equal=true, i.e. the masking is the server's and the old client reads it the same way the new one does",
+      "cleanup": "the created user was deleted through the client; sys_users then held 1 row, 1 live"
+    }
+  },
+
+  "findings_registered_not_changed": "docs/interface-integration-register.md carries the three interface observations from this run (not-found surfacing as 500 with an empty reason, username existence checks requiring tenant scope, mobile masked while email is not). None was repaired here: the task is takeover equivalence, the behaviour is identical on both sides of the takeover, and changing an error mapping would be a business change outside this plan.",
+
+  "not_covered_by_this_item": [
+    "gRPC was not compared: this service configuration exposes the HTTP REST server, the SSE server and the asynq queue, and no gRPC listener is configured, so there is no gRPC contract to call here",
+    "integration with a real external client application (a browser or third-party caller outside this repository) was not executed; that stays listed as not_verified and is not implied by these results",
+    "multi-service acceptance (Network, accelerator downstream) is unchanged from its earlier scope",
+    "tenant-cross isolation and quota enforcement semantics are covered by the quota gates, not by this probe"
+  ],
+
+  "resource_teardown": {
+    "done": "server process terminated (ports 17788/17789 show zero listeners), this round's redis container removed by the same script that created it, task database tx7do_t15_r5 dropped (present: 0), the two r5 worktrees removed, repository tree clean",
+    "mistake_recorded": "the first teardown pass reported success for later stages but had not stopped the service: it read a stale pid file, because the server had been restarted from a different shell after the pid was written, and DROP DATABASE then failed with 'being accessed by other users'. This was caught by re-checking the port and the database rather than trusting the script, and the corrected termination and drop are appended to /home/ubuntu/tx7do-pilot-run/T15/r5/evidence/drop-task-db.log.",
+    "left_alone_deliberately": "container tx7do-t04-captcha-redis is up but belongs to an earlier round and not to this script's container name (ani-governance-t11-redis), so it was identified and left for its owner rather than removed by this round",
+    "intact": "gov_acc_dev, gov_acc_joint_b, gov_acc_test_owner, gov_acc_data and gov_acc_lab all still present; guard and lab containers untouched"
+  }
+}

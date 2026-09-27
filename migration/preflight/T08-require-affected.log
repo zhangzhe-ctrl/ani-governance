@@ -1,0 +1,8 @@
+{
+  "pass": false,
+  "required": 43,
+  "bad_tests": [],
+  "failed_packages": [
+    "go-wind-admin/app/admin/service/internal/data"
+  ]
+}

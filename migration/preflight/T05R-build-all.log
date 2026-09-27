@@ -1,0 +1,4 @@
+cd /home/ubuntu/Workspace/ani-governance/app/admin/service/; make build_only; 
+make[1]: Entering directory '/home/ubuntu/Workspace/ani-governance/app/admin/service'
+go build  -ldflags "-s -w -X main.version=1.0.0" -o ./bin/ ./...
+make[1]: Leaving directory '/home/ubuntu/Workspace/ani-governance/app/admin/service'

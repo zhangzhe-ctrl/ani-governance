@@ -1,0 +1,57 @@
+{
+ "meaning": "per-package exit of the profile-restricted T05R run (the label 'T06 run' inside the generated 'meaning' string above is a copy artifact of the generator; the runs, package set and exits are T05R's)",
+ "single_global_run_flag": "go test accepts only one -run per invocation, so the profile is executed package-by-package",
+ "packages": {
+  "go-wind-admin/app/admin/service/internal/data": {
+   "exit": 0,
+   "required": 297,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/app/admin/service/internal/service": {
+   "exit": 0,
+   "required": 172,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/pkg/jwt": {
+   "exit": 0,
+   "required": 21,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/pkg/localdeps/kratos-authn/engine": {
+   "exit": 0,
+   "required": 8,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt": {
+   "exit": 0,
+   "required": 7,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/pkg/middleware/auth": {
+   "exit": 0,
+   "required": 21,
+   "stderr_tail": ""
+  },
+  "go-wind-admin/pkg/middleware/logging": {
+   "exit": 0,
+   "required": 78,
+   "stderr_tail": ""
+  }
+ },
+ "argv": [
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./app/admin/service/internal/data",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./app/admin/service/internal/service",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./pkg/jwt",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./pkg/localdeps/kratos-authn/engine",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./pkg/localdeps/kratos-authn/engine/jwt",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./pkg/middleware/auth",
+  "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run -run <profile-alternation> ./pkg/middleware/logging"
+ ],
+ "aggregate_exit": 0,
+ "corrigendum_after_run": {
+  "written": "2026-09-25, after the run and after reading the generator",
+  "argv_strings": "the recorded argv strings contain a duplicated `-run` token (`-run -run <profile-alternation>`). That is a redaction artifact of the human-readable summary line in the generator (the placeholder text itself carried `-run`), not the subprocess call: the generator passed the flags list `[... , \"-tags\", \"quota_pg\", \"-run\", \"^(<names joined by |>)$\", <package dir>]` to subprocess.run. The scratch generator has since been corrected.",
+  "proof_the_tests_actually_ran": "the concatenated JSON stream migration/preflight/T05R-required.log carries one run/pass event pair per required case for every package, and tools/migration/require_tests.py over that log reports pass true with required 604, bad_tests [] and failed_packages [] (exit 0).",
+  "unchanged": "no exit code, package set or case list was altered"
+ }
+}

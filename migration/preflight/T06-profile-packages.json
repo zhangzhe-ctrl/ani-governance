@@ -1,0 +1,164 @@
+{
+ "derivation": {
+  "base_commit": "474eee824c07b0d3da00f1f4d64f130bfdf246da",
+  "rule": "union of (packages whose files T06 created or rewrote) and (packages transitively importing go-wind-admin/pkg/localdeps/kratos-authz)",
+  "test_tags": [
+   "-tags",
+   "quota_pg"
+  ],
+  "touched_packages": [
+   "go-wind-admin/app/admin/service/internal/server",
+   "go-wind-admin/app/admin/service/internal/service",
+   "go-wind-admin/pkg/authorizer",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin/assets",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/noop",
+   "go-wind-admin/pkg/localdeps/kratos-authz/middleware",
+   "go-wind-admin/pkg/middleware/auth"
+  ],
+  "consumer_packages": [
+   "go-wind-admin/app/admin/service/cmd/server",
+   "go-wind-admin/app/admin/service/internal/data",
+   "go-wind-admin/app/admin/service/internal/server",
+   "go-wind-admin/app/admin/service/internal/service",
+   "go-wind-admin/pkg/authorizer",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin",
+   "go-wind-admin/pkg/localdeps/kratos-authz/engine/noop",
+   "go-wind-admin/pkg/localdeps/kratos-authz/middleware",
+   "go-wind-admin/pkg/middleware/auth",
+   "go-wind-admin/pkg/middleware/logging"
+  ]
+ },
+ "packages": [
+  {
+   "package": "go-wind-admin/app/admin/service/cmd/server",
+   "listed": 0,
+   "required": 0,
+   "gated_named": [],
+   "touched_by_t06": false,
+   "consumer_of_authz": true
+  },
+  {
+   "package": "go-wind-admin/app/admin/service/internal/data",
+   "listed": 301,
+   "required": 297,
+   "gated_named": [
+    "TestBootstrapPostgres",
+    "TestQuotaGpuOldPopulatedUpgradeReplay",
+    "TestQuotaGpuRestoredProjectionContinuation",
+    "TestQuotaProcessChild"
+   ],
+   "touched_by_t06": false,
+   "consumer_of_authz": true
+  },
+  {
+   "package": "go-wind-admin/app/admin/service/internal/server",
+   "listed": 11,
+   "required": 11,
+   "gated_named": [],
+   "touched_by_t06": true,
+   "consumer_of_authz": true
+  },
+  {
+   "package": "go-wind-admin/app/admin/service/internal/service",
+   "listed": 176,
+   "required": 172,
+   "gated_named": [
+    "TestAcceleratorFormalSessionRefresh",
+    "TestAcceleratorJointHTTP",
+    "TestOnboardingAPIRegistration",
+    "TestOnboardingConcurrentAcceptance"
+   ],
+   "touched_by_t06": true,
+   "consumer_of_authz": true
+  },
+  {
+   "package": "go-wind-admin/pkg/authorizer",
+   "listed": 16,
+   "required": 16,
+   "gated_named": [],
+   "touched_by_t06": true,
+   "consumer_of_authz": true
+  },
+  {
+   "package": "go-wind-admin/pkg/localdeps/kratos-authz/engine",
+   "listed": 0,
+   "required": 0,
+   "gated_named": [],
+   "touched_by_t06": true,
+   "consumer_of_authz": false
+  },
+  {
+   "package": "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin",
+   "listed": 3,
+   "required": 3,
+   "gated_named": [],
+   "touched_by_t06": true,
+   "consumer_of_authz": true
+  },
+  {
+   "package": "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin/assets",
+   "listed": 0,
+   "required": 0,
+   "gated_named": [],
+   "touched_by_t06": true,
+   "consumer_of_authz": false
+  },
+  {
+   "package": "go-wind-admin/pkg/localdeps/kratos-authz/engine/noop",
+   "listed": 0,
+   "required": 0,
+   "gated_named": [],
+   "touched_by_t06": true,
+   "consumer_of_authz": true
+  },
+  {
+   "package": "go-wind-admin/pkg/localdeps/kratos-authz/middleware",
+   "listed": 4,
+   "required": 4,
+   "gated_named": [],
+   "touched_by_t06": true,
+   "consumer_of_authz": true
+  },
+  {
+   "package": "go-wind-admin/pkg/middleware/auth",
+   "listed": 21,
+   "required": 21,
+   "gated_named": [],
+   "touched_by_t06": true,
+   "consumer_of_authz": true
+  },
+  {
+   "package": "go-wind-admin/pkg/middleware/logging",
+   "listed": 78,
+   "required": 78,
+   "gated_named": [],
+   "touched_by_t06": false,
+   "consumer_of_authz": true
+  }
+ ],
+ "package_dirs": [
+  "./app/admin/service/cmd/server",
+  "./app/admin/service/internal/data",
+  "./app/admin/service/internal/server",
+  "./app/admin/service/internal/service",
+  "./pkg/authorizer",
+  "./pkg/localdeps/kratos-authz/engine",
+  "./pkg/localdeps/kratos-authz/engine/casbin",
+  "./pkg/localdeps/kratos-authz/engine/casbin/assets",
+  "./pkg/localdeps/kratos-authz/engine/noop",
+  "./pkg/localdeps/kratos-authz/middleware",
+  "./pkg/middleware/auth",
+  "./pkg/middleware/logging"
+ ],
+ "no_test_file_packages_verified_empty": [
+  "go-wind-admin/app/admin/service/cmd/server",
+  "go-wind-admin/pkg/localdeps/kratos-authz/engine",
+  "go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin/assets",
+  "go-wind-admin/pkg/localdeps/kratos-authz/engine/noop"
+ ],
+ "required_total": 602,
+ "gated_total": 8,
+ "errors": []
+}

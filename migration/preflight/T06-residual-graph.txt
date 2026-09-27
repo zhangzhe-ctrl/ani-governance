@@ -1,0 +1,15 @@
+# residual dependency check, T06, at working-tree state
+# commands:
+#   go list -deps ./...        (exit 0)
+#   go list -deps -test ./...  (exit 0)
+github.com/tx7do/kratos-authz occurrences in build graph: 0
+github.com/tx7do/kratos-authz occurrences in test graph:  0
+packages in build graph: 1040 ; in test graph: 1161
+
+# go.mod still REQUIRES the three upstream modules until the phase-E 'go mod tidy'
+40:	github.com/tx7do/kratos-authz v1.1.8
+41:	github.com/tx7do/kratos-authz/engine/casbin v1.1.12
+42:	github.com/tx7do/kratos-authz/middleware v1.1.13
+
+# single-registry proof: the only definition of the authz engine registry in the tree
+/home/ubuntu/Workspace/ani-governance/pkg/localdeps/kratos-authz/engine/factory.go:26:func Register(typ Type, f FactoryFunc) error {

@@ -1,0 +1,36 @@
+# 本地化配置 Proto 的专用生成模板（T10）。
+#
+# 只生成 api/localdeps/bootstrap 这一个模块（conf/v1/*.proto，kratos-bootstrap/api@v0.0.45
+# protos/conf/v1 的逐字节副本，共 17 个文件），输出到 pkg/localdeps/kratos-bootstrap/api/gen/go，
+# 与业务模板（inputs 只选 protos）互不重叠：conf Proto 在全仓只生成这一份。
+# clean:false：禁止 clean 指向仓库根或手写代码目录，且该目录另有 LICENSE。
+# 逻辑 import 路径保持 conf/v1/...。
+#
+# go_package 的 value 不带 ";conf" 后缀，这是与锁定归档逐字节对齐的关键：
+# 上游 buf.gen.yaml 用 managed.go_package_prefix.default 生成，Go 包名取路径末段，
+# 归档产物因此是 "package v1"，描述符里的 go_package 也没有 ';' 段；Proto 文件内声明的
+# "…/conf/v1;conf" 被 managed 覆盖，从未进入归档描述符。若照抄 ';conf'，本地生成物会变成
+# "package conf"，所有调用方前缀与描述符同时漂移，属于协议层变化，不予采用。
+# java/objc/csharp/php/ruby 一组 file_option 保持 managed 默认注入：归档描述符里确实带着
+# com.conf / KratosConf*Proto / ZX / Conf 这些字段（首次生成时显式关闭它们，与基线的差异就
+# 从 1 处 go_package 膨胀到全部 17 个文件），因此这里不关闭，只覆盖 go_package。
+version: v2
+clean: false
+managed:
+  enabled: true
+  disable:
+    - module: buf.build/googleapis/googleapis
+  override:
+    - file_option: go_package_prefix
+      value: go-wind-admin/api/gen/go
+    # 本地化配置 Proto（api/localdeps/bootstrap/conf/v1，与 kratos-bootstrap/api@v0.0.45 逐字节一致）。
+    # 目标路径必须与 bootstrap/config/logger/registry/tracer/rpc/cache 各包改写后的 import 逐字符相等。
+    - file_option: go_package
+      path: conf/v1
+      value: go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1
+inputs:
+  - directory: localdeps/bootstrap
+plugins:
+  - local: [go, run, google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11]
+    out: ../pkg/localdeps/kratos-bootstrap/api/gen/go
+    opt: paths=source_relative

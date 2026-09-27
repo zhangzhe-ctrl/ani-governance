@@ -1,0 +1,62 @@
+{
+  "schema_version": "t15-redact-runtime-dependency/1",
+  "task": "T15",
+  "item": "prove the protoc-driven sample really links the repository's single taken-over redact runtime, by dependency closure rather than by scanning the main program",
+  "candidate": "c70c940, worktree /home/ubuntu/tx7do-pilot-run/T15/redact-deps",
+  "fix_retained": "1df0eb7 localized pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/redact.proto's go_package; the archive-identical protos under testdata/, examples/ and api/localdeps/redact were not touched and the original upstream archive is untouched",
+
+  "commands_actually_run_by_the_cases": {
+    "generate_go_and_grpc": "protoc --experimental_allow_proto3_optional --go_out=<pkg dir> --go_opt=paths=source_relative --go-grpc_out=<pkg dir> --go-grpc_opt=paths=source_relative -I . testdata/integration/test.proto",
+    "generate_redaction": "protoc --experimental_allow_proto3_optional --plugin=protoc-gen-redact=./protoc-gen-redact --redact_out=<pkg dir> --redact_opt=paths=source_relative -I . testdata/integration/test.proto",
+    "external_template_variant": "same, with --redact_opt=template_file=examples/custom-template.tmpl,paths=source_relative",
+    "source": "integration_test.go:41-51 and 79-88, external_template_test.go:44-51",
+    "binary_produced_by": "go build -o protoc-gen-redact . inside the package, i.e. the taken-over plugin itself"
+  },
+
+  "mapping_check": {
+    "M_flags_on_the_command_line": "none. The cases pass no -M/--go_opt=M... mapping at all, so every generated import path comes from the go_package option of the proto files themselves. Nothing can quietly re-point an import back to upstream from the CLI, and equally nothing was fixed by adding one.",
+    "only_mapping_in_the_repository": "api/buf.redact.gen.yaml managed override: file_option go_package path=redact/v1 value=go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1;redact",
+    "grep_for_tx7do_in_generation_config": "api/buf*.yaml and scripts/generate-redact.sh contain no tx7do mapping; the single hit is an explanatory comment in api/buf.yaml about the removed external buf.build/tx7do/pagination input",
+    "no_require_or_replace_or_download": "go.mod and go.sum were not modified, no require line was restored, no replace was added and nothing was fetched from the upstream module to make these cases pass"
+  },
+
+  "generated_imports_recorded": {
+    "test.pb.go": "_ \"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+    "test.pb.redact.go": "redact \"go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1\"",
+    "compile": "go build ./testdata/integration and go vet ./testdata/integration both exit 0 with the generated files present"
+  },
+
+  "dependency_closure": {
+    "package_scanned": "./pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/testdata/integration (the actually generated sample package, not the server binary and not a build-tag view of it)",
+    "go_list_deps_json": "313 packages, 7 modules",
+    "go_list_deps_test_json": "313 packages, 7 modules",
+    "tx7do_modules": "NONE in either form",
+    "main_module_packages": 2,
+    "redact_runtime_resolves_to": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1, i.e. the one runtime package in this repository, which is also the package the plugin binary and the server build link",
+    "note": "the sample directory is testdata, so go list ./pkg/... does not contain it at all (verified: 0 matches). That is why it is scanned explicitly here instead of inferred from the main program's closure."
+  },
+
+  "honest_remainder": {
+    "observed": "test.pb.go carries one upstream string: the serialized descriptor embeds the go_package of the sample's own file, github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact/testdata/integration;testdata",
+    "why": "testdata/integration/test.proto is deliberately still byte-identical to the locked archive, and protoc-gen-go bakes a file's own go_package into its descriptor",
+    "why_it_is_not_a_dependency": "it is a string inside the sample's self-description: not an import, not a module in the closure above, and the sample is not part of any build. The runtime package's own generated file redact/v1/redact.pb.go contains 0 occurrences of tx7do.",
+    "decision": "left as is rather than edited, because rewriting an archive-identical locked fixture to make a cosmetic string disappear is the wrong trade"
+  },
+
+  "buf_reentry_check": {
+    "command": "BUF=<pinned buf v1.60.0> bash scripts/generate-redact.sh in a clean worktree of c70c940",
+    "exit": 0,
+    "tracked_file_changes": "0 (git status shows no modified tracked file; the only untracked entries were the evidence files this run wrote into that directory)",
+    "redact.pb.go_sha256": "6d12807adef0b6f1e4d32508dcae2c4fcda5e16e1fb8d6631d090d8844befd39, identical to the committed file",
+    "meaning": "regenerating through the normal Buf entry changes nothing beyond the already approved local go_package difference: extension field numbers, types and redaction rules are untouched, since the raw descriptor inside the generated file is byte-identical",
+    "guard_also_satisfied": "the script itself refuses buf other than 1.60.0 and fails if a duplicate redact output appears under api/gen/go/redact"
+  },
+
+  "case_results_reused": {
+    "why_reuse_is_legitimate": "the five cases, their inputs, the plugin sources, the proto fixtures and the toolchain digests are unchanged since 1df0eb7, so migration/patches/T15/T15-r3a-tools-integration.json stays the record of the 5-pass result",
+    "what_was_re_run_here": "make tools-integration (exit 0) in the worktree, plus the two generation subtests alone so the generated files could be inspected before their normal cleanup",
+    "not_redone": "T13's pristine-binary comparison and the rest of T13's tooling evidence"
+  },
+
+  "observation_not_act_on": "scripts/generate-redact.sh line 8 sets GOFLAGS=-p=2, which replaces rather than appends to the caller's flags; the same clobbering was fixed in scripts/build-redact-plugin.sh under T13. It cannot rewrite go.mod here, because an explicitly set GOFLAGS suppresses the host go env value and the Go default is -mod=readonly, so the hazard that fix addressed is not live. It is recorded instead of changed, because touching a generation entry mid-round would invalidate the R4 evidence for no functional gain."
+}

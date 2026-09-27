@@ -1,0 +1,46 @@
+[
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleRepoSqlite_CreateAndMetadataCascade"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleOrgUnitRepoSqlite_AssignListReplaceClean"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleOrgUnitRepoSqlite_CrossTenantRejected"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipRoleRepoSqlite_RemoveRolesFromMembership"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipRoleRepoSqlite_AssignListAndClean"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaEntDatabaseTimestamps"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaEntMutationHookRollback"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaEntTransactionFailures"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaEntTransactionHooks"
+ }
+]

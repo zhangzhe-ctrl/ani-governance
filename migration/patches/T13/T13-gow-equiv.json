@@ -1,0 +1,47 @@
+[
+  {
+    "file": "cmd/gow/main.go",
+    "exit": 1,
+    "message": "non-import AST changed: /home/ubuntu/go/pkg/mod/github.com/tx7do/go-wind-toolkit/gowind@v1.0.3/cmd/gow/main.go"
+  },
+  {
+    "file": "cmd/gow/buf.go",
+    "exit": 0,
+    "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+    "file": "cmd/gow/ent.go",
+    "exit": 0,
+    "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+    "file": "internal/run/run.go",
+    "exit": 0,
+    "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+    "file": "internal/run/watch.go",
+    "exit": 0,
+    "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+    "file": "internal/build/cmd.go",
+    "exit": 0,
+    "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+    "file": "internal/ent/cmd.go",
+    "exit": 0,
+    "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+    "file": "internal/ent/ent.go",
+    "exit": 0,
+    "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+    "file": "internal/buf/cmd.go",
+    "exit": 0,
+    "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  }
+]

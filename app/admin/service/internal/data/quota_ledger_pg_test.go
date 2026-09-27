@@ -21,13 +21,13 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib" // database/sql pgx 驱动
 
 	"github.com/stretchr/testify/require"
-	"github.com/tx7do/go-utils/mapper"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	entsql "entgo.io/ent/dialect/sql"
-	entCrud "github.com/tx7do/go-crud/entgo"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"

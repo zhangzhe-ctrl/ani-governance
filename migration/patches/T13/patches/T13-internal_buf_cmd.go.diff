@@ -1,0 +1,158 @@
+--- /home/ubuntu/go/pkg/mod/github.com/tx7do/go-wind-toolkit/gowind@v1.0.3/internal/buf/cmd.go	2026-09-20 14:10:17.698002970 +0800
++++ tools/localdeps/gow/internal/buf/cmd.go	2026-09-26 07:02:46.980861823 +0800
+@@ -7,11 +7,12 @@
+ 	"os"
+ 	"os/exec"
+ 	"path/filepath"
++	"slices"
+ 	"strings"
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/tx7do/go-wind-toolkit/gowind/internal/pkg"
++	"go-wind-admin/tools/localdeps/gow/internal/pkg"
+ )
+ 
+ const (
+@@ -27,10 +28,8 @@
+ 		return err
+ 	}
+ 
+-	// 先在模块根目录运行 `go mod tidy`
+-	if err = pkg.GoModTidy(cmd.Context(), inspector.Root); err != nil {
+-		return err
+-	}
++	// 工具不再自动执行 `go mod tidy`（T13 授权的工作流变更）：
++	// 依赖维护改为显式人工 `go mod tidy` 或 T14 阶段处理。
+ 
+ 	apiPath := filepath.Join(inspector.Root, "api")
+ 	if !pkg.IsDirExists(apiPath) {
+@@ -60,11 +59,10 @@
+ 	}
+ 
+ 	if !isBufLockExists(apiPath) {
+-		fmt.Printf("buf.lock not found in api directory, running `buf dep update`...\n")
+-		if err := RunBufDepUpdate(ctx, apiPath); err != nil {
+-			_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err.Error())
+-			return err
+-		}
++		// 缺锁不再自动 `buf dep update`（T13 授权的工具副作用收敛）：锁文件属于已核验的生成前提，
++		// 自动更新会改动固定依赖。需要更新时由人工显式执行 `buf dep update`。
++		_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s does not exist in %s; run `buf dep update` explicitly instead of letting this tool do it\033[m\n", bufLockFile, apiPath)
++		return fmt.Errorf("buf.lock does not exist: %s", filepath.Join(apiPath, bufLockFile))
+ 	}
+ 
+ 	fmt.Printf("Generating proto code from YAML files in api directory...\n")
+@@ -75,6 +73,13 @@
+ 		return err
+ 	}
+ 
++	selected, err := selectActiveTemplates(apiPath, yamlFiles)
++	if err != nil {
++		_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err.Error())
++		return err
++	}
++	yamlFiles = selected
++
+ 	if len(yamlFiles) == 0 {
+ 		_, _ = fmt.Fprintf(os.Stderr, "\033[33mWARNING: no YAML files found in api directory: %s\033[m\n", apiPath)
+ 		return nil
+@@ -127,6 +132,68 @@
+ 	return nil
+ }
+ 
++// activeGenConfigs 是本仓已验收的活跃生成模板，顺序即执行顺序（与原有目录遍历顺序一致，
++// buf.gen.yaml 的 clean: true 仍排在其余模板之前，顺序与上游目录遍历逐字一致）。
++var activeGenConfigs = []string{
++	"buf.accelerator.gen.yaml",
++	"buf.admin.openapi.gen.yaml",
++	"buf.aksk.gen.yaml",
++	"buf.bootstrap.conf.gen.yaml",
++	"buf.gen.yaml",
++	"buf.network.gen.yaml",
++	"buf.pagination.gen.yaml",
++	"buf.quota-lab.gen.yaml",
++	"buf.quota.gen.yaml",
++	"buf.redact.gen.yaml",
++}
++
++// parkedGenConfigs 是已暂摘但保留作重接基线的模板；不执行、不删除。
++var parkedGenConfigs = map[string]string{
++	"buf.model.gen.yaml": "model 接入已暂摘（2026-09-21），重接前不可运行",
++}
++
++// selectActiveTemplates 把扫描到的模板分成三类：已批准活跃（按 activeGenConfigs 排序）、
++// 已登记暂摘（明确提示跳过）、以及未登记（直接报错，禁止悄悄漏生成或悄悄恢复暂摘入口）。
++func selectActiveTemplates(apiPath string, found []string) ([]string, error) {
++	byName := make(map[string]string, len(found))
++	for _, path := range found {
++		name := filepath.Base(path)
++		if _, dup := byName[name]; dup {
++			return nil, fmt.Errorf("duplicate template name %s under %s", name, apiPath)
++		}
++		byName[name] = path
++	}
++
++	for _, name := range activeGenConfigs {
++		if _, ok := byName[name]; !ok {
++			return nil, fmt.Errorf("approved template is missing: %s (expected under %s)", name, apiPath)
++		}
++	}
++
++	skipped := make([]string, 0, len(byName))
++	for name, path := range byName {
++		switch {
++		case slices.Contains(activeGenConfigs, name):
++			continue
++		case parkedGenConfigs[name] != "":
++			skipped = append(skipped, name)
++		default:
++			return nil, fmt.Errorf("unclassified template %s: add it to activeGenConfigs or park it explicitly", path)
++		}
++	}
++
++	slices.Sort(skipped)
++	for _, name := range skipped {
++		fmt.Printf("skipping parked template %s: %s\n", name, parkedGenConfigs[name])
++	}
++
++	ordered := make([]string, 0, len(activeGenConfigs))
++	for _, name := range activeGenConfigs {
++		ordered = append(ordered, byName[name])
++	}
++	return ordered, nil
++}
++
+ // scanYAMLFiles 仅扫描以 `.gen.yaml` 结尾的文件（忽略大小写），返回匹配的文件路径列表。
+ func scanYAMLFiles(root string) ([]string, error) {
+ 	var files []string
+@@ -160,22 +227,16 @@
+ 	return strings.TrimSpace(string(out)), nil
+ }
+ 
+-// ensureBufInstalled 检查 buf 是否已安装，若未安装则尝试通过 go install 安装，
+-// 并在安装后复检其确实可用。安装失败或安装后仍不可用均返回错误。
++// ensureBufInstalled 只做存在性检查：缺 buf 时明确失败并指向任务私有的固定版本工具，
++// 不再 go install @latest（T13 授权的工具副作用收敛；本仓固定 buf v1.60.0）。
+ func ensureBufInstalled(ctx context.Context) error {
+-	if _, err := checkBufInstalled(ctx); err == nil {
++	version, err := checkBufInstalled(ctx)
++	if err == nil {
++		fmt.Printf("using buf %s\n", version)
+ 		return nil
+ 	}
+-
+-	fmt.Println("Installing buf...")
+-
+-	if err := pkg.GoInstall(ctx, "github.com/bufbuild/buf/cmd/buf@latest"); err != nil {
+-		return fmt.Errorf("failed to install buf: %w", err)
+-	}
+-	if _, err := checkBufInstalled(ctx); err != nil {
+-		return fmt.Errorf("buf still unavailable after installation: %w", err)
+-	}
+-	return nil
++	return fmt.Errorf("buf is not available: run the task-pinned buf (v1.60.0) on PATH, "+
++		"for example BUF=<buf v1.60.0>; the tool never installs tools itself: %w", err)
+ }
+ 
+ // isBufLockExists 检查 apiPath 下是否存在 `buf.lock` 文件。

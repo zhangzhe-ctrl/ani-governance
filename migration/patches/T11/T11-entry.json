@@ -1,0 +1,49 @@
+{
+ "schema_version": "t11-entry/1",
+ "task": "T11",
+ "goal_file": "_agent/ani-governance-tx7do-plan/goals/T11.md",
+ "recorded_at": "2026-09-25T22:20+08:00",
+ "entry_checks": {
+  "head": "5a4904c456c1fdb940db85801f03fdcb6c37b34c",
+  "accepted_head": "162b28ed268732392547c2343dc9b4f2f575f30f",
+  "predecessor_closed_as": "T10 MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS (migration/receipts/T10-closure-classified-remediation.json)",
+  "working_tree": "clean apart from the never-committed _agent/ plan material",
+  "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "gates_already_green_at_entry": "scripts/verify-gpu-format.sh exit 0; gitleaks dir exit 0; make verify-gpu exit 0 at 162b28e"
+ },
+ "locked_versions_from_go_mod": {
+  "github.com/tx7do/kratos-transport/transport/asynq": "v1.3.14",
+  "github.com/tx7do/kratos-transport/transport/sse": "v1.3.8",
+  "github.com/tx7do/kratos-transport/broker": "v1.3.3",
+  "github.com/tx7do/kratos-transport/tracing": "v1.1.2",
+  "github.com/tx7do/kratos-transport/transport": "v1.3.4",
+  "github.com/tx7do/kratos-transport/transport/keepalive": "v1.3.5"
+ },
+ "residual_external_packages_at_entry": {
+  "in_T11_scope": [
+   "github.com/tx7do/kratos-transport/broker",
+   "github.com/tx7do/kratos-transport/tracing",
+   "github.com/tx7do/kratos-transport/transport",
+   "github.com/tx7do/kratos-transport/transport/asynq",
+   "github.com/tx7do/kratos-transport/transport/keepalive",
+   "github.com/tx7do/kratos-transport/transport/sse"
+  ],
+  "left_for_T12_T13": [
+   "github.com/tx7do/kratos-swagger-ui",
+   "github.com/tx7do/kratos-swagger-ui/internal/swagger"
+  ],
+  "measured_by": "go list -deps ./... and go list -tags quota_lab -deps ./... at the entry commit; both lists are identical, so no tag set hides a transport package"
+ },
+ "consumers_to_rewire": [
+  "app/admin/service/cmd/server/main.go (imports transport/asynq and transport/sse at lines 11-12)",
+  "app/admin/service/internal/server/asynq_server.go (asynqServer alias, line 7)",
+  "app/admin/service/internal/server/sse_server.go (sseServer alias, line 7)",
+  "app/admin/service/internal/service/internal_message_service.go (line 11)",
+  "app/admin/service/internal/service/internal_message_service_sqlite_test.go (line 20)",
+  "pkg/localdeps/kratos-bootstrap/transport/asynq/asynq_server.go (asynqTransport alias, line 10: the T10 wrapper that must stop pointing outside)",
+  "pkg/localdeps/kratos-bootstrap/transport/sse/sse_server.go (line 4: the T10 wrapper)"
+ ],
+ "measured_by_consumers": "grep -rn tx7do/kratos-transport --include=*.go app pkg, which produced exactly these seven files",
+ "not_a_consumer": "app/admin/service/internal/service/task_service.go imports github.com/hibiken/asynq directly, not the tx7do wrapper, so its import path is outside this rewrite; the goal still names its NewTask/NewPeriodicTask/convertTaskOption methods as protected behaviour",
+ "not_started": "no file has been placed, no import rewritten and nothing committed for T11 yet; this is entry measurement only"
+}

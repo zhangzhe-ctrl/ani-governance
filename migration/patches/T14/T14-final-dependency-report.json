@@ -1,0 +1,101 @@
+{
+  "schema_version": "t14-final-dependency-report/1",
+  "task": "T14",
+  "start_sha": "2f82b70",
+  "end_sha": "2f82b7045979451962d7d35b6b156bb4f222379c",
+  "toolchain": {
+    "go": "go version go1.26.7 linux/amd64",
+    "GOFLAGS": "-mod=readonly",
+    "GOWORK": "off",
+    "GOTOOLCHAIN": "local"
+  },
+  "pruning": {
+    "tx7do_require_lines_removed": 42,
+    "tx7do_modules_dropped_from_build_list": 42,
+    "command": "remove the 42 require lines, then go mod tidy (authorized by the T13 closure ruling for this stage)",
+    "build_list_before": 416,
+    "build_list_after": 372
+  },
+  "version_discipline": {
+    "surviving_modules_with_a_version_change": {},
+    "count": 0,
+    "modules_dropped_for_being_tx7do_only": [
+      "github.com/gobwas/glob",
+      "github.com/google/cel-go"
+    ],
+    "why_dropped": "attributed from go mod graph before tidy: both were pulled only by github.com/tx7do/go-utils@v1.1.40 and github.com/tx7do/kratos-bootstrap/rpc@v0.1.3",
+    "modules_added": [],
+    "go_get_u_or_at_latest_used": false
+  },
+  "graphs": {
+    "go_list_deps_test_tx7do_packages": {
+      "default": 0,
+      "quota_lab": 0,
+      "quota_pg": 0
+    },
+    "go_list_m_all_tx7do_entries": 0,
+    "go_mod_graph_tx7do_edges": 0,
+    "nested_go_mod_under_ordinary_dirs": [],
+    "binaries": {
+      "server": {
+        "sha256": "cb87e162ca50d948a15646338f3cc44ab9cc0f7e03cb81b7595b4942bcf14ebe",
+        "bytes": 153685172,
+        "tx7do_lines_in_buildinfo": 0,
+        "dependency_lines": 121
+      },
+      "admin": {
+        "sha256": "eb1be55d1ea83d4c74405b4c3dbfa1e8476fba24eff406b7181e83f5232c4b71",
+        "bytes": 35143752,
+        "tx7do_lines_in_buildinfo": 0,
+        "dependency_lines": 24
+      },
+      "register": {
+        "sha256": "978ae1a64e8527383530bea1b9fcf6b60848b6a897e97bdb487a52cecaeb6440",
+        "bytes": 2698651,
+        "tx7do_lines_in_buildinfo": 0,
+        "dependency_lines": 0
+      }
+    }
+  },
+  "active_source_sweep": {
+    "api_buf_lock": [
+      "no tx7do dependency"
+    ],
+    "api_buf_yaml": [
+      "only a comment recording that the external buf.build/tx7do/pagination input was removed"
+    ],
+    "go_generate_directives": [
+      "none referencing tx7do"
+    ],
+    "makefile_app_mk_docker_ci": [
+      "the only mention is the explanatory echo that gow is no longer installed from github.com/tx7do"
+    ],
+    "generator_templates": [
+      "api/*.gen.yaml contain no tx7do plugin or module path"
+    ],
+    "scripts": [
+      "scripts/backup-tx7do.py is the archiver of upstream sources, tools/migration/migrate_imports.go is the guard tool, and the two dev installers only say gow is no longer installed externally"
+    ]
+  },
+  "explained_residual_upstream_paths": [
+    {
+      "file": "pkg/localdeps/go-utils/id/machineid/id.go",
+      "line": "package machineid // import \"github.com/tx7do/go-utils/id/machineid\"",
+      "kind": "canonical import comment inherited verbatim from the locked source",
+      "provenance": "sha256 matches github.com/tx7do/go-utils/id@v0.0.6/machineid/id.go, so it is not an edited-in path",
+      "is_it_live": "imported by go-wind-admin/pkg/localdeps/go-utils/id/machine_id.go through the local path; no tx7do module is in the build list, and all three tag builds plus go build ./... pass, so the comment is not enforced here",
+      "action": "recorded rather than silently whitelisted; changing it would break byte-identity with the locked version and is left to the owner"
+    },
+    {
+      "file": "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/oneof_test.go and similar",
+      "kind": "string literals inside test fixtures describing the upstream import map",
+      "is_it_live": "data, not imports; the package graph resolves no tx7do path"
+    },
+    {
+      "file": "pkg/localdeps/*/README.md, examples/tests/message.proto, tools/localdeps/gow/internal/pkg/file_test.go",
+      "kind": "documentation, upstream sample proto and a rename test fixture",
+      "is_it_live": "not executable imports"
+    }
+  ],
+  "not_claimed": "behavioural acceptance is T15; this stage proves module and package resolution only"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "t14-entry/1",
+  "task": "T14",
+  "status": "OPEN",
+  "start_sha": "2f82b7045979451962d7d35b6b156bb4f222379c",
+  "accepted_head": "77898acec2ba5715ff4c93bb7f162c05b06a2aba",
+  "clean_apart_from_agent": true,
+  "pre_state": {
+    "go_mod_sha256": "9c4281f02e32a5b721d38d0f3a0f0a40eefc38b8d533d66cb873cf4e4a6ec9a7",
+    "go_sum_sha256": "acd05f05dabaff92f12acbde0eeb53104a75135809c5d3899fa144ac870790a2",
+    "build_list_entries": 417,
+    "tx7do_build_list_entries": 42,
+    "tx7do_requires_in_go_mod": 42,
+    "tx7do_packages_in_deps": 0
+  },
+  "baseline_archives": "/home/ubuntu/tx7do-pilot-run/T14/{buildlist,modgraph}-before.txt"
+}

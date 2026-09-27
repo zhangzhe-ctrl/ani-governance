@@ -1,0 +1,810 @@
+{
+  "checks": [
+    {
+      "artifacts_verified": true,
+      "go_embed_markers": [],
+      "go_mod_declares": "v0.0.7",
+      "go_mod_entry_count": 1,
+      "in_manifest": true,
+      "info": {
+        "actual_bytes": 214,
+        "actual_sha256": "18c1ebac4db7360529546f13c78d67f7fff676b5ceab762bb9fe22a5eefbb0a7",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 214,
+        "expected_sha256": "18c1ebac4db7360529546f13c78d67f7fff676b5ceab762bb9fe22a5eefbb0a7",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/viewer/@v/v0.0.7.info",
+        "sha256sums_match": true
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/viewer@v0.0.7/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ],
+      "license_verification": [
+        {
+          "actual_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "declared_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "entry": "github.com/tx7do/go-crud/viewer@v0.0.7/LICENSE",
+          "hash_match": true,
+          "present_in_zip": true
+        }
+      ],
+      "mod": {
+        "actual_bytes": 50,
+        "actual_sha256": "09a524f836ffd075a855dc64b250fbf83a76d9d664d790a461378aedc732d435",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 50,
+        "expected_sha256": "09a524f836ffd075a855dc64b250fbf83a76d9d664d790a461378aedc732d435",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/viewer/@v/v0.0.7.mod",
+        "sha256sums_match": true
+      },
+      "module": "github.com/tx7do/go-crud/viewer",
+      "origin": {
+        "Hash": "6da211be12b0469b9deec2607ac44944d064a099",
+        "Ref": "refs/tags/viewer/v0.0.7",
+        "Subdir": "viewer",
+        "URL": "https://github.com/tx7do/go-crud",
+        "VCS": "git"
+      },
+      "package_dirs": [],
+      "root_files": [
+        "LICENSE",
+        "README.md",
+        "context.go",
+        "data_scope.go",
+        "enforce.go",
+        "go.mod",
+        "noop.go"
+      ],
+      "safety_findings": {
+        "clean": true,
+        "directory_entries": [],
+        "duplicate_targets": [],
+        "entries": 7,
+        "outside_prefix": [],
+        "symlinks_or_devices": []
+      },
+      "sum": "h1:HF/1d85fv+fhZ8cNHtFCOOEQDEZUDQFUX3V0+RK5RJk=",
+      "verdict": "OK",
+      "version": "v0.0.7",
+      "version_matches_go_mod": true,
+      "zip": {
+        "actual_bytes": 15049,
+        "actual_sha256": "ae492a763ac491e5cb3567fdbb9486d4a199db9009400b282e05fd318014d49c",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 15049,
+        "expected_sha256": "ae492a763ac491e5cb3567fdbb9486d4a199db9009400b282e05fd318014d49c",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/viewer/@v/v0.0.7.zip",
+        "sha256sums_match": true
+      }
+    },
+    {
+      "artifacts_verified": true,
+      "go_embed_markers": [],
+      "go_mod_declares": "v0.0.55",
+      "go_mod_entry_count": 1,
+      "in_manifest": true,
+      "info": {
+        "actual_bytes": 214,
+        "actual_sha256": "e7d1aab0281f8458432aed07e3cb03ea832f74aa0794f3f4f1bfa0b8cb8ae13d",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 214,
+        "expected_sha256": "e7d1aab0281f8458432aed07e3cb03ea832f74aa0794f3f4f1bfa0b8cb8ae13d",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/entgo/@v/v0.0.55.info",
+        "sha256sums_match": true
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/entgo@v0.0.55/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ],
+      "license_verification": [
+        {
+          "actual_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "declared_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "entry": "github.com/tx7do/go-crud/entgo@v0.0.55/LICENSE",
+          "hash_match": true,
+          "present_in_zip": true
+        }
+      ],
+      "mod": {
+        "actual_bytes": 3297,
+        "actual_sha256": "ec2dcb88bbd1abee1856cb3dfdb1feff243cc8fa4a4d9cf7a19573a138a45e00",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 3297,
+        "expected_sha256": "ec2dcb88bbd1abee1856cb3dfdb1feff243cc8fa4a4d9cf7a19573a138a45e00",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/entgo/@v/v0.0.55.mod",
+        "sha256sums_match": true
+      },
+      "module": "github.com/tx7do/go-crud/entgo",
+      "origin": {
+        "Hash": "a66fd69dd30411bf14de28a6f0ea3d8af8efee78",
+        "Ref": "refs/tags/entgo/v0.0.55",
+        "Subdir": "entgo",
+        "URL": "https://github.com/tx7do/go-crud",
+        "VCS": "git"
+      },
+      "package_dirs": [
+        "ent",
+        "field",
+        "filter",
+        "interceptor",
+        "mixin",
+        "pagination",
+        "rule",
+        "sorting",
+        "update"
+      ],
+      "root_files": [
+        "LICENSE",
+        "README.md",
+        "client.go",
+        "client_test.go",
+        "ent_interface.go",
+        "go.mod",
+        "go.sum",
+        "repository.go",
+        "repository_cache.go",
+        "repository_cache_test.go",
+        "repository_test.go",
+        "tx.go",
+        "user.proto"
+      ],
+      "safety_findings": {
+        "clean": true,
+        "directory_entries": [],
+        "duplicate_targets": [],
+        "entries": 95,
+        "outside_prefix": [],
+        "symlinks_or_devices": []
+      },
+      "sum": "h1:fbxGhiTtAqIyHsS7c1i4U9xu42zpvivHPlSBFGNdFbk=",
+      "t07_subpackage_presence": {
+        "cachegenerics": false,
+        "cmd": false,
+        "dao": false,
+        "ent": true,
+        "field": true,
+        "filter": true,
+        "hooks": false,
+        "interceptor": true,
+        "mixin": true,
+        "pagination": true,
+        "queries": false,
+        "rule": true,
+        "sorting": true,
+        "sql": false,
+        "template": false,
+        "update": true,
+        "viewer": false
+      },
+      "verdict": "OK",
+      "version": "v0.0.55",
+      "version_matches_go_mod": true,
+      "zip": {
+        "actual_bytes": 165617,
+        "actual_sha256": "eaa695c9e46c3b83597fea880e7c6e141c16432887451ea6cfd739eb6b8973a2",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 165617,
+        "expected_sha256": "eaa695c9e46c3b83597fea880e7c6e141c16432887451ea6cfd739eb6b8973a2",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/entgo/@v/v0.0.55.zip",
+        "sha256sums_match": true
+      }
+    },
+    {
+      "artifacts_verified": true,
+      "go_embed_markers": [],
+      "go_mod_declares": "v0.0.3",
+      "go_mod_entry_count": 1,
+      "in_manifest": true,
+      "info": {
+        "actual_bytes": 212,
+        "actual_sha256": "0b223e876803b1fd5797bda1d5145e1b0b44dc0df09167cb38e88bede6167539",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 212,
+        "expected_sha256": "0b223e876803b1fd5797bda1d5145e1b0b44dc0df09167cb38e88bede6167539",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/audit/@v/v0.0.3.info",
+        "sha256sums_match": true
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/audit@v0.0.3/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ],
+      "license_verification": [
+        {
+          "actual_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "declared_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "entry": "github.com/tx7do/go-crud/audit@v0.0.3/LICENSE",
+          "hash_match": true,
+          "present_in_zip": true
+        }
+      ],
+      "mod": {
+        "actual_bytes": 49,
+        "actual_sha256": "b61f320611b2167f3702f8c8938626c3f985f7876ede2c3bad95875f14b1b14d",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 49,
+        "expected_sha256": "b61f320611b2167f3702f8c8938626c3f985f7876ede2c3bad95875f14b1b14d",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/audit/@v/v0.0.3.mod",
+        "sha256sums_match": true
+      },
+      "module": "github.com/tx7do/go-crud/audit",
+      "origin": {
+        "Hash": "6da211be12b0469b9deec2607ac44944d064a099",
+        "Ref": "refs/tags/audit/v0.0.3",
+        "Subdir": "audit",
+        "URL": "https://github.com/tx7do/go-crud",
+        "VCS": "git"
+      },
+      "package_dirs": [],
+      "root_files": [
+        "LICENSE",
+        "README.md",
+        "auditor.go",
+        "context.go",
+        "entry.go",
+        "go.mod",
+        "noop_auditor.go"
+      ],
+      "safety_findings": {
+        "clean": true,
+        "directory_entries": [],
+        "duplicate_targets": [],
+        "entries": 7,
+        "outside_prefix": [],
+        "symlinks_or_devices": []
+      },
+      "sum": "h1:RkWXjtN0yCSPNoa+87idGPXYVyz/uI+GEuoJkRPrrUI=",
+      "verdict": "OK",
+      "version": "v0.0.3",
+      "version_matches_go_mod": true,
+      "zip": {
+        "actual_bytes": 13340,
+        "actual_sha256": "1eb664bc228e0a6a202073bf607a9c8d2bf825edf5b7d8143a43297a4e03cb14",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 13340,
+        "expected_sha256": "1eb664bc228e0a6a202073bf607a9c8d2bf825edf5b7d8143a43297a4e03cb14",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/audit/@v/v0.0.3.zip",
+        "sha256sums_match": true
+      }
+    },
+    {
+      "artifacts_verified": true,
+      "go_embed_markers": [],
+      "go_mod_declares": "v0.0.2",
+      "go_mod_entry_count": 1,
+      "in_manifest": true,
+      "info": {
+        "actual_bytes": 212,
+        "actual_sha256": "8191043c58cb748c2812af2f24fe09e70e19a5aa49ddb5be11f7c0babc4e6c2d",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 212,
+        "expected_sha256": "8191043c58cb748c2812af2f24fe09e70e19a5aa49ddb5be11f7c0babc4e6c2d",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/cache/@v/v0.0.2.info",
+        "sha256sums_match": true
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/cache@v0.0.2/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ],
+      "license_verification": [
+        {
+          "actual_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "declared_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "entry": "github.com/tx7do/go-crud/cache@v0.0.2/LICENSE",
+          "hash_match": true,
+          "present_in_zip": true
+        }
+      ],
+      "mod": {
+        "actual_bytes": 685,
+        "actual_sha256": "3bbb41dbc987cf869ca0379b38a22508b0220546ec119b58aa9837918ce5ee33",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 685,
+        "expected_sha256": "3bbb41dbc987cf869ca0379b38a22508b0220546ec119b58aa9837918ce5ee33",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/cache/@v/v0.0.2.mod",
+        "sha256sums_match": true
+      },
+      "module": "github.com/tx7do/go-crud/cache",
+      "origin": {
+        "Hash": "6da211be12b0469b9deec2607ac44944d064a099",
+        "Ref": "refs/tags/cache/v0.0.2",
+        "Subdir": "cache",
+        "URL": "https://github.com/tx7do/go-crud",
+        "VCS": "git"
+      },
+      "package_dirs": [],
+      "root_files": [
+        "LICENSE",
+        "README.md",
+        "errors.go",
+        "flight_cache.go",
+        "flight_cache_test.go",
+        "go.mod",
+        "go.sum",
+        "metrics.go",
+        "options.go",
+        "redis_cache.go",
+        "redis_cache_test.go",
+        "support.go",
+        "support_test.go"
+      ],
+      "safety_findings": {
+        "clean": true,
+        "directory_entries": [],
+        "duplicate_targets": [],
+        "entries": 13,
+        "outside_prefix": [],
+        "symlinks_or_devices": []
+      },
+      "sum": "h1:Kcb6laFG3pjKiAHcZGb1+XkMoixjuRR1mLprnJTO1Rw=",
+      "verdict": "OK",
+      "version": "v0.0.2",
+      "version_matches_go_mod": true,
+      "zip": {
+        "actual_bytes": 17665,
+        "actual_sha256": "223112dd2c643049b9016fef3b54597983d2b76131da7fe1ed47fed5064b0f0d",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 17665,
+        "expected_sha256": "223112dd2c643049b9016fef3b54597983d2b76131da7fe1ed47fed5064b0f0d",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/cache/@v/v0.0.2.zip",
+        "sha256sums_match": true
+      }
+    },
+    {
+      "artifacts_verified": true,
+      "go_embed_markers": [],
+      "go_mod_declares": "v0.1.6",
+      "go_mod_entry_count": 1,
+      "in_manifest": true,
+      "info": {
+        "actual_bytes": 235,
+        "actual_sha256": "1d3568aa58f761e1de7f676c1c79505bd5fec8ffd135299100ab2e168e6009a2",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 235,
+        "expected_sha256": "1d3568aa58f761e1de7f676c1c79505bd5fec8ffd135299100ab2e168e6009a2",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/kratos-bootstrap/database/ent/@v/v0.1.6.info",
+        "sha256sums_match": true
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/database/ent@v0.1.6/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ],
+      "license_verification": [
+        {
+          "actual_sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+          "declared_sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+          "entry": "github.com/tx7do/kratos-bootstrap/database/ent@v0.1.6/LICENSE",
+          "hash_match": true,
+          "present_in_zip": true
+        }
+      ],
+      "mod": {
+        "actual_bytes": 2534,
+        "actual_sha256": "e1a42bc5592138d2bc5c52a141903aaa2eb4d95f8a5018a00b62e4fdbb0cae56",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 2534,
+        "expected_sha256": "e1a42bc5592138d2bc5c52a141903aaa2eb4d95f8a5018a00b62e4fdbb0cae56",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/kratos-bootstrap/database/ent/@v/v0.1.6.mod",
+        "sha256sums_match": true
+      },
+      "module": "github.com/tx7do/kratos-bootstrap/database/ent",
+      "origin": {
+        "Hash": "28be66c6172f15d08a1f5a50463a6fe2522ae7c8",
+        "Ref": "refs/tags/database/ent/v0.1.6",
+        "Subdir": "database/ent",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "VCS": "git"
+      },
+      "package_dirs": [],
+      "root_files": [
+        "LICENSE",
+        "client.go",
+        "go.mod",
+        "go.sum"
+      ],
+      "safety_findings": {
+        "clean": true,
+        "directory_entries": [],
+        "duplicate_targets": [],
+        "entries": 4,
+        "outside_prefix": [],
+        "symlinks_or_devices": []
+      },
+      "sum": "h1:KTEakqx2NHv5HfAJzqo39HfXRNZnUy8juLOp9eXHC4k=",
+      "verdict": "OK",
+      "version": "v0.1.6",
+      "version_matches_go_mod": true,
+      "zip": {
+        "actual_bytes": 10831,
+        "actual_sha256": "8392391ec001777eba043890f9a4f3ab55c640856064bc333f2efee1475352ee",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 10831,
+        "expected_sha256": "8392391ec001777eba043890f9a4f3ab55c640856064bc333f2efee1475352ee",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/kratos-bootstrap/database/ent/@v/v0.1.6.zip",
+        "sha256sums_match": true
+      }
+    },
+    {
+      "artifacts_verified": true,
+      "go_embed_markers": [],
+      "go_mod_declares": "v0.0.7",
+      "go_mod_entry_count": 1,
+      "in_manifest": true,
+      "info": {
+        "actual_bytes": 208,
+        "actual_sha256": "e1b65072ec3c78a88d591fdc8f6597b42b00495eaf0bb7d8cb8f53bfd82a60c9",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 208,
+        "expected_sha256": "e1b65072ec3c78a88d591fdc8f6597b42b00495eaf0bb7d8cb8f53bfd82a60c9",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/api/@v/v0.0.7.info",
+        "sha256sums_match": true
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/api@v0.0.7/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ],
+      "license_verification": [
+        {
+          "actual_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "declared_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "entry": "github.com/tx7do/go-crud/api@v0.0.7/LICENSE",
+          "hash_match": true,
+          "present_in_zip": true
+        }
+      ],
+      "mod": {
+        "actual_bytes": 438,
+        "actual_sha256": "a176566e1a69b9587a24c2b15448197ac46d8a3f8e0494f450f972216c37b862",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 438,
+        "expected_sha256": "a176566e1a69b9587a24c2b15448197ac46d8a3f8e0494f450f972216c37b862",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/api/@v/v0.0.7.mod",
+        "sha256sums_match": true
+      },
+      "module": "github.com/tx7do/go-crud/api",
+      "origin": {
+        "Hash": "d84f6345d20e7485c48cf4a716878a6ca418fad6",
+        "Ref": "refs/tags/api/v0.0.7",
+        "Subdir": "api",
+        "URL": "https://github.com/tx7do/go-crud",
+        "VCS": "git"
+      },
+      "package_dirs": [
+        "gen",
+        "protos"
+      ],
+      "root_files": [
+        "LICENSE",
+        "buf.gen.yaml",
+        "buf.lock",
+        "buf.yaml",
+        "go.mod",
+        "go.sum"
+      ],
+      "safety_findings": {
+        "clean": true,
+        "directory_entries": [],
+        "duplicate_targets": [],
+        "entries": 8,
+        "outside_prefix": [],
+        "symlinks_or_devices": []
+      },
+      "sum": "h1:SDMo1rkQ+Ey9T9vDljaO/Q6Ty3UFiDi3PFJXqKUpcxA=",
+      "verdict": "OK",
+      "version": "v0.0.7",
+      "version_matches_go_mod": true,
+      "zip": {
+        "actual_bytes": 19363,
+        "actual_sha256": "39043c6dda51d37f2cd1776bb267b83d0109b638d73b51dc794972b7a895d6ca",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 19363,
+        "expected_sha256": "39043c6dda51d37f2cd1776bb267b83d0109b638d73b51dc794972b7a895d6ca",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/api/@v/v0.0.7.zip",
+        "sha256sums_match": true
+      }
+    },
+    {
+      "artifacts_verified": true,
+      "go_embed_markers": [],
+      "go_mod_declares": "v0.0.16",
+      "go_mod_entry_count": 1,
+      "in_manifest": true,
+      "info": {
+        "actual_bytes": 224,
+        "actual_sha256": "8828b4a52d810f6cef907623060d10585c2cd2be361104f15986e2de1233ed8a",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 224,
+        "expected_sha256": "8828b4a52d810f6cef907623060d10585c2cd2be361104f15986e2de1233ed8a",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/pagination/@v/v0.0.16.info",
+        "sha256sums_match": true
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/go-crud/pagination@v0.0.16/LICENSE",
+          "sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead"
+        }
+      ],
+      "license_verification": [
+        {
+          "actual_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "declared_sha256": "f03d80c886eddc8571f63a7875f2bfb9d17a1b03e6705ac94949949330f25ead",
+          "entry": "github.com/tx7do/go-crud/pagination@v0.0.16/LICENSE",
+          "hash_match": true,
+          "present_in_zip": true
+        }
+      ],
+      "mod": {
+        "actual_bytes": 753,
+        "actual_sha256": "c84fc517493b191e6ba58999572de05571339369c3fb4689a62646a5828b0641",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 753,
+        "expected_sha256": "c84fc517493b191e6ba58999572de05571339369c3fb4689a62646a5828b0641",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/pagination/@v/v0.0.16.mod",
+        "sha256sums_match": true
+      },
+      "module": "github.com/tx7do/go-crud/pagination",
+      "origin": {
+        "Hash": "6da211be12b0469b9deec2607ac44944d064a099",
+        "Ref": "refs/tags/pagination/v0.0.16",
+        "Subdir": "pagination",
+        "URL": "https://github.com/tx7do/go-crud",
+        "VCS": "git"
+      },
+      "package_dirs": [
+        "filter",
+        "paginator",
+        "sorting"
+      ],
+      "root_files": [
+        "LICENSE",
+        "README.md",
+        "go.mod",
+        "go.sum",
+        "paginator.go",
+        "token_codec.go",
+        "token_codec_test.go",
+        "token_secret.go",
+        "token_secret_test.go",
+        "tree.go",
+        "tree_test.go",
+        "utils.go",
+        "utils_test.go"
+      ],
+      "safety_findings": {
+        "clean": true,
+        "directory_entries": [],
+        "duplicate_targets": [],
+        "entries": 29,
+        "outside_prefix": [],
+        "symlinks_or_devices": []
+      },
+      "sum": "h1:vzj50KnqeZTMjm+bf/hvpTy7X/0+1cQyqUIMKNkt4wo=",
+      "verdict": "OK",
+      "version": "v0.0.16",
+      "version_matches_go_mod": true,
+      "zip": {
+        "actual_bytes": 59869,
+        "actual_sha256": "800b627944b3260d2276bed01a404ce7d03e953fe3f403e0a1529e8ec0af12dd",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 59869,
+        "expected_sha256": "800b627944b3260d2276bed01a404ce7d03e953fe3f403e0a1529e8ec0af12dd",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/go-crud/pagination/@v/v0.0.16.zip",
+        "sha256sums_match": true
+      }
+    },
+    {
+      "artifacts_verified": true,
+      "go_embed_markers": [],
+      "go_mod_declares": "v0.1.17",
+      "go_mod_entry_count": 1,
+      "in_manifest": true,
+      "info": {
+        "actual_bytes": 231,
+        "actual_sha256": "6d83fad06ba90753de8f4dd5d53fb6793089976d3875092f46ac3b33931416a8",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 231,
+        "expected_sha256": "6d83fad06ba90753de8f4dd5d53fb6793089976d3875092f46ac3b33931416a8",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/kratos-bootstrap/bootstrap/@v/v0.1.17.info",
+        "sha256sums_match": true
+      },
+      "license_files": [
+        {
+          "path": "github.com/tx7do/kratos-bootstrap/bootstrap@v0.1.17/LICENSE",
+          "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9"
+        }
+      ],
+      "license_verification": [
+        {
+          "actual_sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+          "declared_sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+          "entry": "github.com/tx7do/kratos-bootstrap/bootstrap@v0.1.17/LICENSE",
+          "hash_match": true,
+          "present_in_zip": true
+        }
+      ],
+      "mod": {
+        "actual_bytes": 3508,
+        "actual_sha256": "8ddb098f0921703c37a7f2df6232748ebf68a6e43102cf358ce2330eae61ef0a",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 3508,
+        "expected_sha256": "8ddb098f0921703c37a7f2df6232748ebf68a6e43102cf358ce2330eae61ef0a",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/kratos-bootstrap/bootstrap/@v/v0.1.17.mod",
+        "sha256sums_match": true
+      },
+      "module": "github.com/tx7do/kratos-bootstrap/bootstrap",
+      "origin": {
+        "Hash": "f9a881a1e0b7d577aa7e998c481d133750d3145e",
+        "Ref": "refs/tags/bootstrap/v0.1.17",
+        "Subdir": "bootstrap",
+        "URL": "https://github.com/tx7do/kratos-bootstrap",
+        "VCS": "git"
+      },
+      "package_dirs": [],
+      "root_files": [
+        "LICENSE",
+        "README.md",
+        "app_info.go",
+        "bootstrap.go",
+        "bootstrap_test.go",
+        "cli.go",
+        "context.go",
+        "daemon.go",
+        "flag.go",
+        "go.mod",
+        "go.sum",
+        "options.go",
+        "process_unix.go",
+        "process_windows.go",
+        "types.go"
+      ],
+      "safety_findings": {
+        "clean": true,
+        "directory_entries": [],
+        "duplicate_targets": [],
+        "entries": 15,
+        "outside_prefix": [],
+        "symlinks_or_devices": []
+      },
+      "sum": "h1:OR6T5ik90XoJJ6uGuVrnl4glkkkmodeqQxyi6nUZOGE=",
+      "verdict": "OK",
+      "version": "v0.1.17",
+      "version_matches_go_mod": true,
+      "zip": {
+        "actual_bytes": 21168,
+        "actual_sha256": "600165e9883ff589575e1c6671f0c55fe91d5a48981a7dc899905c3e082bb81d",
+        "bytes_match": true,
+        "exists": true,
+        "expected_bytes": 21168,
+        "expected_sha256": "600165e9883ff589575e1c6671f0c55fe91d5a48981a7dc899905c3e082bb81d",
+        "hash_match": true,
+        "in_sha256sums": true,
+        "manifest_path": "proxy/github.com/tx7do/kratos-bootstrap/bootstrap/@v/v0.1.17.zip",
+        "sha256sums_match": true
+      }
+    }
+  ],
+  "go_mod_locked": {
+    "github.com/tx7do/go-crud/api": "v0.0.7",
+    "github.com/tx7do/go-crud/audit": "v0.0.3",
+    "github.com/tx7do/go-crud/cache": "v0.0.2",
+    "github.com/tx7do/go-crud/entgo": "v0.0.55",
+    "github.com/tx7do/go-crud/pagination": "v0.0.16",
+    "github.com/tx7do/go-crud/viewer": "v0.0.7",
+    "github.com/tx7do/go-utils": "v1.1.40",
+    "github.com/tx7do/go-utils/aggregator": "v0.0.5",
+    "github.com/tx7do/go-utils/captcha": "v0.0.4",
+    "github.com/tx7do/go-utils/copierutil": "v0.0.8",
+    "github.com/tx7do/go-utils/crypto": "v0.0.2",
+    "github.com/tx7do/go-utils/id": "v0.0.6",
+    "github.com/tx7do/go-utils/jwtutil": "v0.0.3",
+    "github.com/tx7do/go-utils/mapper": "v0.0.3",
+    "github.com/tx7do/go-utils/password": "v0.0.2",
+    "github.com/tx7do/go-wind": "v0.0.2",
+    "github.com/tx7do/go-wind-plugins/encoding": "v0.0.1",
+    "github.com/tx7do/go-wind-plugins/encoding/json": "v0.0.1",
+    "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact": "v0.0.0-20260831125122-5bb4931991b2",
+    "github.com/tx7do/kratos-authn": "v1.1.11",
+    "github.com/tx7do/kratos-authn/engine/jwt": "v1.1.11",
+    "github.com/tx7do/kratos-authz": "v1.1.8",
+    "github.com/tx7do/kratos-authz/engine/casbin": "v1.1.12",
+    "github.com/tx7do/kratos-authz/middleware": "v1.1.13",
+    "github.com/tx7do/kratos-bootstrap/api": "v0.0.45",
+    "github.com/tx7do/kratos-bootstrap/bootstrap": "v0.1.17",
+    "github.com/tx7do/kratos-bootstrap/cache/redis": "v0.1.2",
+    "github.com/tx7do/kratos-bootstrap/config": "v0.2.3",
+    "github.com/tx7do/kratos-bootstrap/database/ent": "v0.1.6",
+    "github.com/tx7do/kratos-bootstrap/logger": "v0.1.3",
+    "github.com/tx7do/kratos-bootstrap/registry": "v0.2.3",
+    "github.com/tx7do/kratos-bootstrap/rpc": "v0.1.3",
+    "github.com/tx7do/kratos-bootstrap/tracer": "v0.1.5",
+    "github.com/tx7do/kratos-bootstrap/transport/asynq": "v0.0.7",
+    "github.com/tx7do/kratos-bootstrap/transport/sse": "v0.0.5",
+    "github.com/tx7do/kratos-swagger-ui": "v0.0.1",
+    "github.com/tx7do/kratos-transport/broker": "v1.3.3",
+    "github.com/tx7do/kratos-transport/tracing": "v1.1.2",
+    "github.com/tx7do/kratos-transport/transport": "v1.3.4",
+    "github.com/tx7do/kratos-transport/transport/asynq": "v1.3.14",
+    "github.com/tx7do/kratos-transport/transport/keepalive": "v1.3.5",
+    "github.com/tx7do/kratos-transport/transport/sse": "v1.3.8"
+  }
+}

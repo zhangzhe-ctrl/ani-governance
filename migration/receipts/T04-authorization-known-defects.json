@@ -1,0 +1,98 @@
+{
+ "approved_test_only_changes_section_3": {
+  "A_examples": {
+   "keep_all": 6,
+   "output_rule": "assert the real result first, then print deterministic facts (non-empty, length, verify outcome, TTL range) with matching Output; never delete Output to make an example inert, never print a fixed true, never ignore Generate/Save/Verify errors",
+   "record": "old->new name map, all 6 in the mandatory list, original entries kept",
+   "redis_rule": "task-owned miniredis instance with cleanup, or the already authorized isolated Redis; never a default localhost instance plus FlushDB; genuinely Redis-specific behaviour is not replaced by a simulation",
+   "rename_map": {
+    "ExampleGetRemainingTime": "ExampleCaptcha_GetRemainingTime",
+    "ExampleNewCaptcha_ChineseCaptcha": "ExampleNewCaptcha_chineseCaptcha",
+    "ExampleNewCaptcha_DigitCaptcha": "ExampleNewCaptcha_digitCaptcha",
+    "ExampleNewCaptcha_MathCaptcha": "ExampleNewCaptcha_mathCaptcha",
+    "ExampleNewCaptcha_OptionsPattern": "ExampleNewCaptcha_optionsPattern",
+    "ExampleVerifyWithoutDelete": "ExampleCaptcha_VerifyWithoutDelete"
+   }
+  },
+  "B_ecdh": {
+   "added_negative_cases": "a one-byte-tampered secret must verify false; an illegal public key must error",
+   "both_trees": "the same test-only patch must pass on an isolated copy of the original locked package and in the local package; no production or module-cache edit",
+   "keep": "test name and the two independent instances",
+   "note": "this is a contract test of the current ECDH implementation and does not mean it can be used for arbitrary password hashing/verification",
+   "procedure": "Encrypt on each, strip the ecdh$ prefix as the current implementation requires, DeriveSharedSecret across the pair, assert both derivations are equal and non-empty, then Verify each side's public key with the derived raw bytes as string under the current Verify contract and require true"
+  },
+  "allowed_files": [
+   "pkg/localdeps/go-utils/captcha/example_test.go",
+   "pkg/localdeps/go-utils/password/ecdsa_ecdh_test.go",
+   "necessary test helpers in those two packages"
+  ],
+  "forbidden": [
+   "production implementation, schema, crypto algorithm, default driver, tolerance, external interface",
+   "adding or upgrading any non-tx7do module"
+  ]
+ },
+ "conclusion_conditions": [
+  "production code unchanged",
+  "consumers and default tests all pass",
+  "6 examples pass",
+  "both packages vet at 0",
+  "the 9 known-defect checks pass"
+ ],
+ "conclusion_label": "T04 MIGRATION_PASS_WITH_KNOWN_BASELINE_DEFECTS",
+ "conclusion_limits": "the 9 functional defects remain unfixed; no claim that all upstream tests pass; with this state T05 and the rest of the master goal continue automatically; every later checkpoint and T15 run both the ordinary required gate and this exact known-defect list, and if the debt is still carried the delivery must use the same qualified wording, never an unconditional all-green PASS",
+ "diagnosis_correction_section_2": {
+  "captcha_v0.0.4": "initSlideCaptcha sets background only, initClickCaptcha sets chars only, initRotateCaptcha sets no resource, so the default-generation failure must not be described as 'the test lacks images'; injecting a configured object into a private driver field and claiming the default NewCaptcha is fixed is forbidden",
+  "password_v0.0.2": "ECDHCrypto.Encrypt outputs the public key and Verify compares the derived sharedX byte hash with the passed content hash; two different instances can perform ECDH and the arbitrary string \"test message\" is not a shared secret, so collapsing to one instance or flipping true/false is forbidden",
+  "supersedes": "the wording in receipts/T04.json findings T04-F1 (and upstream-red.json) that called these 'missing resource images' and 'cannot hold for separate keypairs'"
+ },
+ "escalation_still_blocked": "new runtime or security defects, assertion changes, or unverifiable provenance stay BLOCKED under the original rules; the known-failure set may not be widened on my own",
+ "granted_at_head": "7b7572653474867e82a883872a9ac89c646a0bc7",
+ "granted_by": "user",
+ "granted_from_state": "T04 recorded BLOCKED at receipts/T04.json with group B paused; nothing was reverted, reset or pushed before this authorization was written",
+ "kind": "supplemental authorization (scope-of-acceptance amendment)",
+ "known_defect_isolation_section_4": {
+  "blocking": "missing, skip, timeout, compile/vet failure, unfinished test, an assertion site outside the allowed set, or any new failure; a panic that kills the process is preserved and reported, not generalised into a known fail; a test that suddenly passes is XPASS and must be reported and traced, never folded into the whitelist silently",
+  "checker": "a new small known-defects checker, independent of tools/migration/require_tests.py, whose missing/skip/fail rules are not modified",
+  "exactly": [
+   "TestGenerate_SlideCaptcha",
+   "TestGenerate_ClickCaptcha",
+   "TestGenerate_RotateCaptcha",
+   "TestSaveAndVerify_SlideCaptcha",
+   "TestSaveAndVerify_ClickCaptcha",
+   "TestSaveAndVerify_RotateCaptcha",
+   "TestVerify_SlideCaptcha_WithTolerance",
+   "TestVerify_ClickCaptcha_WithTolerance",
+   "TestVerify_RotateCaptcha_WithTolerance"
+  ],
+  "labelling": "logs keep their original non-zero exit codes; the 9 are KNOWN_BASELINE_FAILURE and never pass; the receipt must state plainly that the fully tagged run is not green",
+  "mechanism": "move verbatim, same names and bodies, into the same package file upstream_known_defects_test.go guarded by //go:build upstream_known_defects; shared helpers stay, no other test moves",
+  "must_be_green": "the default (untagged) test run",
+  "profile_change": "only these 9 leave the must-pass profile into required-known-defects.json; nothing else is removed; the 6 renamed Examples are added; no package-wide or all-upstream exclusion tag",
+  "tagged_run_rules": "run each of the 9 by name under the tag; every one must produce a real run and a terminal state and be compared item-by-item with an identically organised pristine copy in the same environment, recording the expected failure type and stable error signature; only confirmed path/time/random normalisation, never ignoring error content and never comparing only failure counts; source hashes and the allowed-failure function set must match"
+ },
+ "preconditions_section_1": {
+  "if_enabled": "stop and report the concrete call chain; the known-defect retention does not apply",
+  "kept_red": "the placed/pristine agreement is already reported but the original logs stay as evidence; an identical upstream failure is never counted as PASS",
+  "preserve": "current branch, code, T02-B1/T07 patches and all failure logs; no revert, no redo of passed stages, no push, no deploy",
+  "reachability_audit_required": "prove data.NewCaptcha still fixes DriverString and NewPasswordCrypto still fixes bcrypt, and audit every reachable mutation path (wiring, config, GenerateCaptcha entry, SetConfig/DriverType) so that no external request or configuration can enable slide/click/rotate or ECDHCrypto; a grep miss or the 602-case pass is not evidence",
+  "record": "HEAD, T04 input SHA, changed files and tested-source hashes"
+ },
+ "schema_version": "t04-authorization/1",
+ "task": "T04",
+ "text_location": {
+  "file": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md",
+  "note": "the plan directory stays untracked in git by the standing rule; the sha256 above is what binds this record to the text that was written",
+  "placed_after": "## \u5931\u8d25\u4e0e\u6062\u590d (including ### \u6d4b\u8bd5\u5939\u5177\u4fee\u590d\u7684\u6709\u9650\u6388\u6743)",
+  "section": "### T04 \u8865\u5145\u6388\u6743\uff1a\u4fee\u590d\u786e\u5b9a\u7684\u6d4b\u8bd5/\u793a\u4f8b\u7f3a\u9677\u5e76\u6709\u9650\u4fdd\u7559\u5df2\u77e5\u7f3a\u9677",
+  "section_sha256_of_whole_file": "502e384172a8fd68df9bf31152d104c90bd629f6c398acbd1d41e05f80dbbb33"
+ },
+ "verification_section_5": {
+  "cost": "reuse existing caches and the isolated environment; do not cold-run the whole old baseline again; the full G4 stays scheduled as before in A/C/E",
+  "mandatory_behaviour": "string captcha generate/store/correct-and-wrong answer/one-time consumption/expiry and bcrypt correct/wrong password stay required; the T04 consumer set is checked test by test, not by totals",
+  "patches": "save separate exact patches for examples, ECDH, image-test move/tag and test environment with original and changed hashes; compare against patched approved reference copies; production files keep the original equiv/guard; no directory-wide exemption",
+  "repo_vet_note": "the pre-existing copylocks finding is recorded by original SHA, file, location and diagnostic only; it neither disables repo-wide vet nor absorbs the 6 example diagnostics",
+  "vet": "default tests plus all 6 Examples run with default vet ON on both the patched pristine copy and the local package; -vet=off must not appear in any release command; standalone go vet of captcha and password must report 0"
+ },
+ "what_it_is_not": "It is not permission to close, disable or skip tests, and not permission to fix upstream functionality. Every other functional freeze, security rule, method rule and acceptance constraint in the master goal stays in force unchanged.",
+ "what_it_revises": "It takes precedence over the older requirement that every newly imported upstream test must be green: the confirmed test/example defects are repaired, and exactly the listed never-enabled image-driver defects may be kept as recorded known debt."
+}

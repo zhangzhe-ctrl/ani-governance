@@ -1,0 +1,281 @@
+{
+ "meaning": "isolated locked-upstream defects: each must actually run, must fail, and must fail the same way as the identically organised pristine copy in the same environment; a failure is never recorded as a pass",
+ "candidate_label": "candidate",
+ "reference_label": "pristine",
+ "candidate_exit_code": "exit=1",
+ "reference_exit_code": "exit=1",
+ "candidate_package_action": "fail",
+ "reference_package_action": "fail",
+ "tag": "upstream_known_defects",
+ "known_defect_count": 3,
+ "status_counts": {
+  "KNOWN_NONDETERMINISTIC_DEFECT": 3
+ },
+ "tests": [
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+   "Test": "TestGenerateOrderIdWithTenantIdCollision",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:65",
+     "upstream_known_defects_test.go:70"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98761688",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98764927",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98766201",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98763117",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98764665",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98761228",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98764123",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98760411",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98769588",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98761202",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98762165",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98761832",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98762974",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98764148",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98760610",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98763555",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98767431",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98766590",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98769691",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98768900",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98768464",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98762238",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98760831",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98769181",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98768280",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98768634",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98764527",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98768029",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98762394",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98767898",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98766434",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98768169",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98760142",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98761942",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98767355",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98762214",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98762720",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98769697",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98762057",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98766472",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98762314",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98763626",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98761246",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98760275",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204307M98766643",
+     "upstream_known_defects_test.go:70: 生成了 1000 个订单号，没有发生碰撞",
+     "--- FAIL: <TOKEN> (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:65",
+     "upstream_known_defects_test.go:70"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98764427",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98763850",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98762462",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98760726",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98765078",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98761022",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98763137",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98763604",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98767395",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98763913",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98767389",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98765867",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98768290",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98765584",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98762547",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98764837",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98760754",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98762547",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98765106",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98766729",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98764702",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98763320",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98767702",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98767318",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98762201",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98766335",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98762646",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98769541",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98767961",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98769827",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98766338",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98761387",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98762804",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98764070",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98761013",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98760027",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98767628",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98767389",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98765081",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98766895",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98768094",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98767928",
+     "upstream_known_defects_test.go:65: 碰撞的订单号: 20260925204321M98763158",
+     "upstream_known_defects_test.go:70: 生成了 1000 个订单号，没有发生碰撞",
+     "--- FAIL: <TOKEN> (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "4aab0606871c772101b5832d3bb6ec4e48a71042f5624aff6ba5ddcaaf6ea5c1",
+   "reference_output_sha256": "0301da67385720e1dd7ab8408b1f303f996dfd5ecb533d64840c24fabfc789dd",
+   "mode": "nondeterministic",
+   "race_observed": false,
+   "recorded_runs": {
+    "runs": 20,
+    "candidate": {
+     "pass": 0,
+     "fail": 20
+    },
+    "reference": {
+     "pass": 0,
+     "fail": 20
+    }
+   },
+   "mixed_results": false,
+   "violations": [],
+   "status": "KNOWN_NONDETERMINISTIC_DEFECT"
+  },
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+   "Test": "TestGenerateOrderIdWithIndexThread",
+   "candidate_action": "fail",
+   "reference_action": "pass",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:54"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:54:",
+     "Error Trace: upstream_known_defects_test.go:54",
+     "Error: Not equal:",
+     "expected: 1000",
+     "actual : 959",
+     "Test: <TOKEN>",
+     "--- FAIL: <TOKEN> (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [],
+    "transcript": [
+     "--- PASS: <TOKEN> (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "6401cac27bec73ee157218ddd3b03dec80abe1a3f5d1eec475613ffe403343da",
+   "reference_output_sha256": "55467ae040ba4f84f64afeb0462b596d0524a3de7a1594b0ef184dfa9faee0fe",
+   "mode": "nondeterministic",
+   "race_observed": false,
+   "recorded_runs": {
+    "runs": 20,
+    "candidate": {
+     "pass": 8,
+     "fail": 12
+    },
+    "reference": {
+     "pass": 6,
+     "fail": 14
+    }
+   },
+   "mixed_results": true,
+   "violations": [],
+   "status": "KNOWN_NONDETERMINISTIC_DEFECT"
+  },
+  {
+   "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+   "Test": "TestGenerateOrderIdWithRandom",
+   "candidate_action": "pass",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:26"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:26: <TOKEN>: PT202609252043074099",
+     "--- PASS: <TOKEN> (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "upstream_known_defects_test.go:26",
+     "upstream_known_defects_test.go:29"
+    ],
+    "transcript": [
+     "upstream_known_defects_test.go:26: <TOKEN>: PT20260925204321963",
+     "upstream_known_defects_test.go:29:",
+     "Error Trace: /home/ubuntu/tx7do-pilot-run/T10/B1-id/go-utils/id/upstream_known_defects_test.go:29",
+     "Error: Not equal:",
+     "expected: 20",
+     "actual : 19",
+     "Test: <TOKEN>",
+     "Messages: 订单号长度应为前缀+时间戳+随机数",
+     "--- FAIL: <TOKEN> (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "1344a94d8547a9864c22442bb24f78cd030a890db0fa74332071ab3c59f20d5c",
+   "reference_output_sha256": "e7fa850d8dc5aad8e0e5309776718619fd1f6dc13b6f3a973b1330d771fbcb5f",
+   "mode": "nondeterministic",
+   "race_observed": false,
+   "recorded_runs": {
+    "runs": 200,
+    "candidate": {
+     "pass": 184,
+     "fail": 16
+    },
+    "reference": {
+     "pass": 182,
+     "fail": 18
+    }
+   },
+   "mixed_results": true,
+   "violations": [],
+   "status": "KNOWN_NONDETERMINISTIC_DEFECT"
+  }
+ ],
+ "isolated_file": "pkg/localdeps/go-utils/id/upstream_known_defects_test.go",
+ "locked_source_copy": "/home/ubuntu/go/pkg/mod/github.com/tx7do/go-utils/id@v0.0.6/order_id_test.go",
+ "moved_tests_verbatim": [
+  {
+   "Test": "TestGenerateOrderIdWithTenantIdCollision",
+   "identical_to_locked_source": true,
+   "sha256_moved": "9b12f6bf26b6190e5253bd0c09320a37973214a7cb349d6ccd4476fb106770e5",
+   "sha256_locked_source": "9b12f6bf26b6190e5253bd0c09320a37973214a7cb349d6ccd4476fb106770e5"
+  },
+  {
+   "Test": "TestGenerateOrderIdWithIndexThread",
+   "identical_to_locked_source": true,
+   "sha256_moved": "5bc2c8a8d90ffe61c66243dcfb9a0b594333f594f5b0c99f98ad867faeeaf5d6",
+   "sha256_locked_source": "5bc2c8a8d90ffe61c66243dcfb9a0b594333f594f5b0c99f98ad867faeeaf5d6"
+  },
+  {
+   "Test": "TestGenerateOrderIdWithRandom",
+   "identical_to_locked_source": true,
+   "sha256_moved": "6214b26f38cfb4a7b7e4ae8319e5c0ed7b1cda7d8be9139e621843946beb8227",
+   "sha256_locked_source": "6214b26f38cfb4a7b7e4ae8319e5c0ed7b1cda7d8be9139e621843946beb8227"
+  }
+ ],
+ "allowed_failure_function_set": [
+  "TestGenerateOrderIdWithTenantIdCollision",
+  "TestGenerateOrderIdWithIndexThread",
+  "TestGenerateOrderIdWithRandom"
+ ],
+ "normalisation_rules": [
+  "elapsed time",
+  "absolute prefix of the copy under test",
+  "uuid",
+  "long hex",
+  "base64-ish token",
+  "host:port"
+ ],
+ "error_content_compared": true,
+ "blocking": [],
+ "verdict": "PASS",
+ "note": "the fully tagged run is NOT green by design: these 3 cases are recorded as KNOWN_BASELINE_FAILURE and the run's own non-zero exit code is preserved"
+}

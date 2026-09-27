@@ -1,0 +1,14 @@
+{
+ "decision": "user chose \u300cExclude engine self-tests from gate\u300d for T05 on 2026-09-25",
+ "packages": [
+  {
+   "pattern": "./pkg/localdeps/kratos-authn/engine",
+   "reason": "frozen upstream pkg/localdeps/kratos-authn/engine/metadata.go AuthFromMD lines 31 and 40 pass a concatenated string as the format argument of status.Errorf; go test's default vet printf analyzer rejects it, so this package's own test binary cannot build or even be listed. metadata.go is byte-identical to github.com/tx7do/kratos-authn@v1.1.11 (cmp clean) and `go build ./...` accepts it. User decision 2026-09-25: exclude the engine package's own upstream test IDs from the gate. Neither the upstream file was edited nor -vet=off used on a release command. The only test in the package is TestParseNumber (claims_test.go). This package is NOT dropped from the task: it is built, guard-checked, equiv-checked and consumed by engine/jwt and the repo auth code."
+  }
+ ],
+ "own_upstream_test_ids_enumerated_with_vet_off_for_inventory_only": [
+  "TestParseNumber"
+ ],
+ "gate_runs_do_not_use_vet_off": true,
+ "repo_wide_consequence": "go test ./... still reports FAIL go-wind-admin/pkg/localdeps/kratos-authn/engine [build failed] on the two vet printf diagnostics; this exclusion does not make the repository green, it only removes that package's own tests from the T05 named must-pass set."
+}

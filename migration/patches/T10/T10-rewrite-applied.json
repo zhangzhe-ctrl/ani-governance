@@ -1,0 +1,31 @@
+{
+  "changed_files": [
+    "pkg/localdeps/go-utils/id/machine_id.go",
+    "pkg/localdeps/go-utils/id/machineid/example_test.go",
+    "pkg/localdeps/go-utils/id/order_id.go",
+    "pkg/localdeps/go-utils/timeutil/trans.go",
+    "pkg/localdeps/go-utils/timeutil/trans_test.go",
+    "pkg/localdeps/kratos-bootstrap/bootstrap/app_info.go",
+    "pkg/localdeps/kratos-bootstrap/bootstrap/bootstrap.go",
+    "pkg/localdeps/kratos-bootstrap/bootstrap/bootstrap_test.go",
+    "pkg/localdeps/kratos-bootstrap/bootstrap/context.go",
+    "pkg/localdeps/kratos-bootstrap/cache/redis/redis.go",
+    "pkg/localdeps/kratos-bootstrap/config/bootstrap_config.go",
+    "pkg/localdeps/kratos-bootstrap/config/config.go",
+    "pkg/localdeps/kratos-bootstrap/config/factory.go",
+    "pkg/localdeps/kratos-bootstrap/logger/factory.go",
+    "pkg/localdeps/kratos-bootstrap/logger/factory_test.go",
+    "pkg/localdeps/kratos-bootstrap/logger/logger.go",
+    "pkg/localdeps/kratos-bootstrap/registry/discovery.go",
+    "pkg/localdeps/kratos-bootstrap/registry/registrar.go",
+    "pkg/localdeps/kratos-bootstrap/rpc/grpc.go",
+    "pkg/localdeps/kratos-bootstrap/rpc/rest.go",
+    "pkg/localdeps/kratos-bootstrap/rpc/utils.go",
+    "pkg/localdeps/kratos-bootstrap/tracer/factory.go",
+    "pkg/localdeps/kratos-bootstrap/tracer/tracer.go",
+    "pkg/localdeps/kratos-bootstrap/transport/asynq/asynq_server.go",
+    "pkg/localdeps/kratos-bootstrap/transport/sse/sse_server.go"
+  ],
+  "count": 25,
+  "dry_run": false
+}

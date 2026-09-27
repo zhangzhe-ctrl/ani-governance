@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"testing"
 
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"github.com/stretchr/testify/require"
-	"github.com/tx7do/go-utils/mapper"
-	"github.com/tx7do/go-utils/trans"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
 	entPosition "go-wind-admin/app/admin/service/internal/data/ent/position"
+	"go-wind-admin/app/admin/service/internal/data/enttest"
 )
 
 // 本文件用 PositionRepo 作为样例，演示 enttest helper 的用法：
@@ -202,7 +202,7 @@ func TestPositionRepoSqlite_Update(t *testing.T) {
 // queryEnumsAndBackfill 如实回填。
 //
 // 历史缺陷取证：proto 枚举名与 ent 枚举 DB 值此前在 LEADER↔LEAD 一处错位
-//（其余 5 值两侧全大写一致、往返正常），converter 按 proto 枚举名直转后
+// （其余 5 值两侧全大写一致、往返正常），converter 按 proto 枚举名直转后
 // LEADER 产出非法枚举值被列校验拒绝——显式指定领导岗位类型从未生效过。
 // 本测试对全部 6 值逐一断言如实落库。
 //

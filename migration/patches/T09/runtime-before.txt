@@ -1,0 +1,4 @@
+7d1ee6344a8d4cd688e5387f5ea3314d611c32242c75125fa25275e92ed265bf  pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/interface.go
+6d12807adef0b6f1e4d32508dcae2c4fcda5e16e1fb8d6631d090d8844befd39  pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/redact.pb.go
+4a8aae7531f859660e12e87fb0ef33d7cea515bffda7fc2c994ce61c6a6e430a  pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/stream.go
+6e520e919688be4506caabadf3c70d5eee41510e99dd2f9a7b13bbf5c48aa3f4  pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/t09_runtime_contract_test.go

@@ -11,16 +11,16 @@ import (
 	"strings"
 	"time"
 
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
-	"github.com/tx7do/go-utils/jwtutil"
-	"github.com/tx7do/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/go-utils/jwtutil"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
 
-	authnEngine "github.com/tx7do/kratos-authn/engine"
-	authnJwt "github.com/tx7do/kratos-authn/engine/jwt"
+	authnEngine "go-wind-admin/pkg/localdeps/kratos-authn/engine"
+	authnJwt "go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt"
 
-	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 

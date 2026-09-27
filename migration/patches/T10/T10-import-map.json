@@ -1,0 +1,23 @@
+{
+ "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1": "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1",
+ "github.com/tx7do/kratos-bootstrap/bootstrap": "go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap",
+ "github.com/tx7do/kratos-bootstrap/config": "go-wind-admin/pkg/localdeps/kratos-bootstrap/config",
+ "github.com/tx7do/kratos-bootstrap/logger": "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger",
+ "github.com/tx7do/kratos-bootstrap/registry": "go-wind-admin/pkg/localdeps/kratos-bootstrap/registry",
+ "github.com/tx7do/kratos-bootstrap/tracer": "go-wind-admin/pkg/localdeps/kratos-bootstrap/tracer",
+ "github.com/tx7do/kratos-bootstrap/cache/redis": "go-wind-admin/pkg/localdeps/kratos-bootstrap/cache/redis",
+ "github.com/tx7do/kratos-bootstrap/rpc/middleware/validate": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc/middleware/validate",
+ "github.com/tx7do/kratos-bootstrap/rpc/middleware/requestid": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc/middleware/requestid",
+ "github.com/tx7do/kratos-bootstrap/rpc": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc",
+ "github.com/tx7do/kratos-bootstrap/transport/asynq": "go-wind-admin/pkg/localdeps/kratos-bootstrap/transport/asynq",
+ "github.com/tx7do/kratos-bootstrap/transport/sse": "go-wind-admin/pkg/localdeps/kratos-bootstrap/transport/sse",
+ "github.com/tx7do/kratos-bootstrap/database/ent": "go-wind-admin/pkg/localdeps/kratos-bootstrap/database/ent",
+ "github.com/tx7do/go-utils/timeutil": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+ "github.com/tx7do/go-utils/id/machineid": "go-wind-admin/pkg/localdeps/go-utils/id/machineid",
+ "github.com/tx7do/go-utils/id": "go-wind-admin/pkg/localdeps/go-utils/id",
+ "github.com/tx7do/go-utils/tls": "go-wind-admin/pkg/localdeps/go-utils/tls",
+ "github.com/tx7do/go-utils/stringcase": "go-wind-admin/pkg/localdeps/go-utils/stringcase",
+ "github.com/tx7do/go-utils/trans": "go-wind-admin/pkg/localdeps/go-utils/trans",
+ "github.com/tx7do/go-crud/entgo/mixin": "go-wind-admin/pkg/localdeps/go-crud/entgo/mixin",
+ "github.com/tx7do/go-crud/entgo": "go-wind-admin/pkg/localdeps/go-crud/entgo"
+}

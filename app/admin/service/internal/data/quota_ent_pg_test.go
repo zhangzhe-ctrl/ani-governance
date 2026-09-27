@@ -13,11 +13,11 @@ import (
 
 	entgo "entgo.io/ent"
 	"github.com/stretchr/testify/require"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/quotaaccount"
 	"go-wind-admin/app/admin/service/internal/data/ent/quotaoperation"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 )
 
 // A mutation hook must see the real admission writes. Rejecting the second

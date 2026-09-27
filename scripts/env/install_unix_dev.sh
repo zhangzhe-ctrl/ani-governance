@@ -93,8 +93,14 @@ install_go_cli_tools() {
         "github.com/google/gnostic@latest" \
         "github.com/bufbuild/buf/cmd/buf@latest" \
         "entgo.io/ent/cmd/ent@latest" \
-        "github.com/golangci/golangci-lint/cmd/golangci-lint@latest" \
-        "github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3"
+        "github.com/golangci/golangci-lint/cmd/golangci-lint@latest"
+}
+
+# gow 不再从 github.com/tx7do 安装：本仓在用命令已接管到 tools/localdeps/gow，
+# 从主模块源码构建到 tools/bin/gow（api / ent / run / version）。
+build_local_gow() {
+    log "构建本地 gow..."
+    ( cd "$(dirname "$SCRIPT_DIR")" && make gow )
 }
 
 install_go_dev_tools() {
@@ -121,6 +127,7 @@ install_go_dev_tools() {
 
     # 4. 安装 CLI 脚手架工具（带检测）
     install_go_cli_tools
+    build_local_gow
 }
 
 install_dev_binaries() {

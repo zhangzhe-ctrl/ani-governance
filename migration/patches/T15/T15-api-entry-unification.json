@@ -1,0 +1,61 @@
+{
+  "schema_version": "t15-api-entry-unification/1",
+  "task": "T15",
+  "item": "make api delegates to the one accepted API chain, and no entry can damage artifacts on failure",
+  "status": "API_ENTRY_UNIFIED_AND_FAILSAFE",
+  "candidate_with_fix": "c520fc98717bcabc194a0f899b960d8ab0f1b875",
+  "decision_applied": "the owner chose delegation: make api now calls the existing local gow walk instead of a second narrower entry, and 'narrow entry plus a documentation warning' was explicitly rejected as the solution",
+
+  "changed": {
+    "Makefile": {
+      "api": "was 'redact-plugin; cd api && buf generate; $(MAKE) pgv' -> now depends on gow and redact-plugin, runs 'tools/bin/gow api', then '$(MAKE) openapi'. One active template list lives in the tool, so nothing can drift between two definitions, and the chain always ends with the existing OpenAPI post-processing so no intermediate document is left behind.",
+      "build": "depended on 'api openapi'; it now depends on api alone because api already includes the openapi stage, so one make build no longer runs the generation chain twice",
+      "pgv": "kept as an internal stage; the comment says plainly that the complete command is gow api / make api",
+      "recursion": "api calls the built binary and the openapi target, both of which invoke no make target that leads back to api; verified by the dependency listing (gow:62, api:117, redact-plugin:128, openapi:153) and by every run below terminating"
+    },
+    "tools/localdeps/gow/internal/buf/cmd.go": "RunGenerate now calls GenerateLocked: parse every active template, derive managed output roots, preflight, then generate in a staged copy",
+    "tools/localdeps/gow/internal/buf/template.go": "new narrow reader for v2 templates: clean flag, plugins (PATH name, command list, relative file, remote module), inputs (directories and per-file paths) and outputs; refuses templates it cannot fully read",
+    "tools/localdeps/gow/internal/buf/preflight.go": "new pre-write verification of buf version banner, template inputs, PATH plugins with their version, go run pinned plugins resolved against the module cache, and rebuilding the local redact plugin through scripts/build-redact-plugin.sh when it is absent",
+    "tools/localdeps/gow/internal/buf/staging.go": "new staging copy of go.mod, go.sum, api/, pkg/, every other managed root and the built plugin; generation runs there; results are compared and only then written back, with two hard refusals",
+    "scripts/post-generate-clean.sh": "retired to a refusal that changes nothing (it used to git checkout -- five drift files and delete two untracked validators)",
+    "docs/local-integration.md and scripts/README.md": "the claim that the chain cannot be reproduced byte for byte, and the instruction to run the cleaner afterwards, are replaced with the measured state"
+  },
+
+  "protected_invariants_kept": [
+    "no plugin version was raised or unified to erase the difference: the slices still pin protoc-gen-go-grpc v1.6.0 and protoc-gen-go-http v2.0.0-20251205160234-b9fab9a5a5ab, and the preflight now reports exactly which module satisfies each pin",
+    "the 103-file PGV scope is still the approved set; migration/pgv-scope.json and api/buf.validate.gen.yaml are compared against each other in a test so the two cannot drift",
+    "the parked buf.model.gen.yaml stays skipped and unmodified; selectActiveTemplates still errors on any unclassified template",
+    "Ent's five-feature contract, module files, schema, hand-written runtime files and the migration chain are unchanged by this commit",
+    "the redact proto fix from 1df0eb7 stands and the original archive copies are untouched"
+  ],
+
+  "acceptance_matrix": {
+    "isolation": "each case ran in its own detached worktree of c520fc9 with tools/bin deleted first, so no case could borrow a previously built tool",
+    "A_clean_checkout_make_api": {"exit": 0, "managed_digest_before": "96184d0165d5bfd1", "managed_digest_after": "96184d0165d5bfd1", "tracked_modified": 0, "tracked_deleted": 0, "result": "with tools/bin absent entirely, make api built gow and the redact plugin from this module and generated; the five managed roots are byte-identical to the committed candidate"},
+    "B_direct_gow_api_with_only_gow_built": {"exit": 0, "result": "preflight found protoc-gen-go-redact absent and rebuilt it from this module (binary present afterwards); the only write-back was app/admin/service/cmd/server/assets/openapi.yaml, which is the pre-finalize document, and make openapi then restored the digest to 96184d0165d5bfd1 with 0 deletions"},
+    "C_make_api_with_redact_source_broken": {"exit": 2, "result": "failed at the redact-plugin prerequisite with the real compiler syntax error, managed digest 08072e85c71c40b7 unchanged before and after, 0 deletions, and no tracked modification other than the fault injected for the test"},
+    "C2_direct_gow_api_with_redact_absent_and_unbuildable": {"exit": 1, "result": "preflight reported 'building protoc-gen-go-redact failed' and 'no generated file was touched'; digest 08072e85c71c40b7 unchanged, 0 deletions"},
+    "D_plugin_fails_mid_generation": {"exit": 1, "managed_digest_before": "96184d0165d5bfd1", "managed_digest_after": "96184d0165d5bfd1", "tracked_modified": 0, "tracked_deleted": 0, "result": "tools were built and present; a throwaway protoc-gen-go-grpc that always exits 3 was placed first on PATH inside the scratch worktree and never committed. The walk did start and did fail after buf.gen.yaml's clean: true had cleared the staged copy (11 plugin failure lines in the run log), yet the repository's managed roots stayed byte-identical, because nothing is written back until the whole chain succeeds"},
+    "E_two_make_api_passes_from_clean": {"exits": "0/0", "result": "digest after pass 1 = after pass 2 = 96184d0165d5bfd1, and equal to the repository working tree's digest; 0 status entries after the first pass"},
+    "counts_note": "the file counts are the union of five managed roots (api/gen/go 347, the embedded assets root 2, go-crud pagination 1, the redact takeover package 29, kratos-bootstrap 17) reported by the tool itself, not a sha256 -c over a pre-existing list: additions and deletions are detected because the staged tree is compared as a whole"
+  },
+
+  "measurement_mistakes_in_this_round": [
+    "the first run of case A executed make api in the main repository because the harness did not cd into the worktree, so its 'tools built: no' result described the wrong directory; the case was re-run in isolation and is the A row above",
+    "the first pass of case C counted one unexpected tracked write, which was the broken main.go the case itself had injected; the restated run excludes that path explicitly and shows zero other changes",
+    "the initial preflight checked the package path against the module cache, so it wrongly reported five pinned plugins as missing; protoc-gen-go lives in module google.golang.org/protobuf while protoc-gen-go-grpc is its own module, and the check now searches enclosing prefixes the way go run does. The test that caught it asserts every template pin resolves offline"
+  ],
+
+  "regression_tests_added": {
+    "file": "tools/localdeps/gow/internal/buf/locked_chain_test.go",
+    "cases": [
+      "TestParseGenTemplateMatchesTheAcceptedTemplates - clean flags, outputs, inputs, pinned go-run references per template, PATH plugin for the scoped PGV entry, redact as a file reference, and template paths equal to pgv-scope entries",
+      "TestDeriveManagedRootsStaysInsideTheRepository",
+      "TestPreflightFailsWithoutTouchingOutputs",
+      "TestSyncBackRefusesLossAndUnapprovedValidators",
+      "TestEscapeModulePathMatchesTheCacheEncoding",
+      "TestEveryTemplatePinResolvesOffline"
+    ],
+    "run": "go test -count=1 ./tools/localdeps/gow/... all packages ok, no skips in the new tests"
+  }
+}

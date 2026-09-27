@@ -1,0 +1,9 @@
+structural lines: upstream=542 local=542
+differing text lines: 4
+--- the only semantic difference allowed by the register ---
+< options.go_package=github.com/tx7do/go-crud/api/gen/go/pagination/v1
+> options.go_package=go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1
+--- re-marshal size delta (go_package string length) ---
+---- runtime re-marshal: 6550 bytes sha256=889f9d869cdbb93c09b22d4c51342fe20f27e16c983d19a3d8c23086501d106e ----
+---- runtime re-marshal: 6561 bytes sha256=b9452daf7852ccf1cec1e6ee2923fee40c8bbdde401bdb409181c77506961d7f ----
+OK: descriptor differs only in the registered options.go_package (plus its byte-length effect on the re-marshal line)

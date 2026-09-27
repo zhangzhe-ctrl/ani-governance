@@ -1,0 +1,48 @@
+{
+  "schema_version": "t15-r3r4-evidence-mapping/1",
+  "task": "T15",
+  "item": "map the R3 and R4 evidence precisely: which profile means what, what the cache rerun actually covers, and which counts must not be read as equivalents",
+  "candidate": "8668362",
+
+  "the_seven_named_tests": {
+    "profile": "migration/required-tests.json - the current round's named profile: 4 tests in pkg/localdeps/go-utils/trans and 3 in pkg/jwt",
+    "checker_run": "go test -count=1 -p 2 -json over exactly those two packages, then tools/migration/require_tests.py; result pass=true, required=7, bad_tests=[], failed_packages=[]",
+    "evidence": "/home/ubuntu/tx7do-pilot-run/T15/r3b-required-tests.{command,log,exit}",
+    "what_it_is_not": "it is not 'the whole repository's tests' and is never reported as such: it covers seven specific names that were the ones this round had to name explicitly"
+  },
+
+  "mandatory_items_already_inside_the_full_gate": {
+    "how_mapped": "one fresh go test -count=1 -json over the gate's own untagged package list (data, service, server, ./pkg/...), then each archived profile checked against that single log with require_tests.py",
+    "evidence": "/home/ubuntu/tx7do-pilot-run/T15/r4c-json2.{command,log,exit} (run exit 0)",
+    "results": {
+      "migration/required-tests.json": "pass=true, 7 required, 0 bad, 0 failed packages",
+      "migration/patches/T10/T10-required-profile.json": "761 required, 0 failed packages, 2 entries NOT_EXECUTED",
+      "migration/patches/T10/T10-required-profile-localdeps.json": "81 required, 0 failed packages, 3 entries NOT_EXECUTED"
+    },
+    "explanation_of_the_not_executed_entries": "every one of them is an id case that T10 itself moved behind the upstream_known_defects build tag (TestGenerateOrderIdWithTenantIdCollision, TestGenerateOrderIdWithIndexThread, TestGenerateOrderIdWithRandom), so by design they cannot appear in a default-tag run. The archived profiles predate that isolation and were never re-generated, which is inventory drift in the archived file, not a missing test. Those three names are verified where they belong: the tagged run in migration/patches/T15/T15-r3c-id-known-defects.json.",
+    "no_new_exclusion": "no profile was edited, trimmed or re-baselined to reach these results"
+  },
+
+  "cache_reconciliation": {
+    "method": "package-by-package set comparison of ok lines with their cached flag, not a comparison of line counts",
+    "gate_log": "r4c-verify-gpu.log: 74 ok lines, 70 distinct packages, 67 cached, 7 fresh; internal/data and internal/service each appear three times because they also run under -tags quota_pg and under -race",
+    "rerun": "r4c-nocache.log: 69 distinct packages, zero cached, exit 0",
+    "coverage_result": "cached packages not covered by the -count=1 rerun: NONE. Packages in the rerun that the gate did not have: NONE.",
+    "the_single_difference": "go-wind-admin/app/admin/service/internal/quotalab/simulator is in the gate but not in the rerun, and it was itself executed with -count=1 inside scripts/accelerator-acceptance/lab-regression.sh, so it was never a cached result",
+    "cache_not_purged": "the shared Go build and test cache was left intact; the fresh run used -count=1, not a cache clear"
+  },
+
+  "gitleaks_wording": {
+    "correct_statement": "0 unresolved findings, with two reviewed per-value exceptions in the tree: the T14 buildinfo dirhash pair recorded in migration/patches/T15/T15-gitleaks-exception.json and the earlier reviewed exceptions already in .gitleaks.toml",
+    "incorrect_statement_to_avoid": "it was never 'no leaks were ever found': run r4b reported leaks found: 2 and that log is kept",
+    "final_state": "gitleaks dir over 8668362 reports no leaks found, and scripts/gitleaks-buildinfo-exception.sh still proves the exception cannot spread"
+  },
+
+  "known_defect_wording": {
+    "captcha": "9 cases, each a real fail with assertion site and transcript matching the pristine locked copy: KNOWN_BASELINE_FAILURE, recorded in migration/patches/T15/T15-r3c-captcha-known-defects.json",
+    "id": "3 nondeterministic cases recorded separately in migration/patches/T15/T15-r3c-id-known-defects.json; one did not reproduce in that single run and is recorded as NOT_OBSERVED_THIS_RUN",
+    "not_a_place_to_park_ordinary_failures": "nothing else is classified here: an ordinary missing, skipped or failing test still fails its own gate. The one intermittent found later in this round was fixed as a defect (commit 8668362), not moved into a known-defect list."
+  },
+
+  "intermittent_failure_found_after_r4": "see disclosed_after_the_fact in migration/receipts/T15-r4-verify-gpu.json: root cause, measurements (10 isolated and 6 full-package repeats passing), the assertion fix, and the mutation that proves the new check detects a live scheduler"
+}

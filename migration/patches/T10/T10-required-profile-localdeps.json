@@ -1,0 +1,326 @@
+[
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestConcurrentNewSnowflakeIDCollisionRate"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestConcurrentNewSonyflakeIDCollisionRate"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestFormatMachineID"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestGenerateOrderIdWithIndex"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestGenerateOrderIdWithIndexThread"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestGenerateOrderIdWithPrefixSnowflake"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestGenerateOrderIdWithPrefixSnowflakeCollision"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestGenerateOrderIdWithPrefixSonyflake"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestGenerateOrderIdWithPrefixSonyflakeCollision"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestGenerateOrderIdWithRandom"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestGenerateOrderIdWithTenantId"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestGenerateOrderIdWithTenantIdCollision"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewGUIDv4"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewGUIDv4CollisionRate"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewGUIDv7"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewGUIDv7CollisionRate"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewKSUID"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewKSUIDCollisionRate"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewMongoObjectID"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewShortUUID"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewShortUUIDCollisionRate"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewSnowflakeID"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewSnowflakeIDCollisionRate"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewSonyflakeID"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewSonyflakeIDCollisionRate"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewXID"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestNewXIDCollisionRate"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
+  "Test": "TestUnifyMachineID"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id/machineid",
+  "Test": "TestID"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id/machineid",
+  "Test": "TestProtectedID"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id/machineid",
+  "Test": "Test_protect"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id/machineid",
+  "Test": "Test_run"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id/machineid",
+  "Test": "Test_run_unknown"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/id/machineid",
+  "Test": "Test_trim"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestDMYHM2ParseTime"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestDifferenceDays"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestDurationToDurationpb"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestDurationpb"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestDurationpbToDuration"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestDurationpbToSecond"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestDurationpbToString"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestFloat64ToDurationpb"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestFloatToDurationpb"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestFormats"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestGetCurrentRangeTime"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestGetCurrentTimeRangeDateString"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestGetCurrentTimeRangeTimeString"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestIsDTX"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestOffsetFormat"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestRangeStringDateToTime"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestRfc3339YMDTime"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestSecondToDurationpb"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestSecondsDifferenceDays"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestStringDateToTime"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestStringTimeToTime"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestStringToDurationpb"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestStringToTime"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestStringToUnixMilliInt64Ptr"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestTimeDifferenceDays"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestTimeToDateString"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestTimeToString"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestTimeToTimeString"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestTimeToTimestamppb"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestTimeToUnixMilliInt64Ptr"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestTimeToUnixSecondInt64Ptr"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestTimestampConversions"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestTimestamppbToTime"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestUnixMilliToStringPtr"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestUnixMilliToTimePtr"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/timeutil",
+  "Test": "TestUnixSecondToTimePtr"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap",
+  "Test": "TestBootstrapWithNameVersion"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap",
+  "Test": "TestNewInstanceId"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger",
+  "Test": "TestFactoryReturnsNilLogger"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger",
+  "Test": "TestNewLoggerProviderFallback"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger",
+  "Test": "TestRegisterAndNewLogger"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger",
+  "Test": "TestUnregisterAndUnsupported"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc",
+  "Test": "TestWhiteListBasic"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc",
+  "Test": "TestWhiteListConcurrent"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc",
+  "Test": "TestWhiteListNormalization"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc/middleware/requestid",
+  "Test": "TestRequestIDMiddleware_Generate"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/rpc/middleware/requestid",
+  "Test": "TestRequestIDMiddleware_Preserve"
+ }
+]

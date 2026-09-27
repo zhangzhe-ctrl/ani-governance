@@ -255,8 +255,7 @@ function Install-GoCliTools {
         'github.com/google/gnostic@latest',
         'github.com/bufbuild/buf/cmd/buf@latest',
         'entgo.io/ent/cmd/ent@latest',
-        'github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest',
-        'github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3'
+        'github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest'
     )
     
     if ($cliTools.Count -gt 0) {

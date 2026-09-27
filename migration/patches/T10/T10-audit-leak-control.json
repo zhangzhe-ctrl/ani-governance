@@ -1,0 +1,81 @@
+{
+ "schema_version": "t10-audit-leak-control/1",
+ "measured_at": "2026-09-25T17:47+08:00",
+ "command": "gitleaks v8.30.1 dir --no-banner --no-color over the whole work tree, once on the current tree and once on a disposable `git worktree add --detach <dir> HEAD` copy of the start commit",
+ "note": "no leak value is copied here; only the file, the rule and whether T10 touched that file",
+ "current_tree": {
+  "count": 4,
+  "findings": [
+   {
+    "file": "migration/handoff.json",
+    "rule": "generic-api-key",
+    "tracked_in_git": true
+   },
+   {
+    "file": "pkg/localdeps/go-crud/pagination/README.md",
+    "rule": "generic-api-key",
+    "tracked_in_git": true
+   },
+   {
+    "file": "pkg/localdeps/go-crud/pagination/README.md",
+    "rule": "generic-api-key",
+    "tracked_in_git": true
+   },
+   {
+    "file": "pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go",
+    "rule": "jwt",
+    "tracked_in_git": true
+   }
+  ]
+ },
+ "head_control": {
+  "count": 4,
+  "findings": [
+   {
+    "file": "migration/handoff.json",
+    "rule": "generic-api-key",
+    "tracked_in_git": true,
+    "modified_by_T10": true
+   },
+   {
+    "file": "pkg/localdeps/go-crud/pagination/README.md",
+    "rule": "generic-api-key",
+    "tracked_in_git": true,
+    "modified_by_T10": false
+   },
+   {
+    "file": "pkg/localdeps/go-crud/pagination/README.md",
+    "rule": "generic-api-key",
+    "tracked_in_git": true,
+    "modified_by_T10": false
+   },
+   {
+    "file": "pkg/localdeps/kratos-authn/engine/jwt/jwt_test.go",
+    "rule": "jwt",
+    "tracked_in_git": true,
+    "modified_by_T10": false
+   }
+  ]
+ },
+ "conclusion": {
+  "leaks_at_head": 4,
+  "leaks_now": 4,
+  "reading": "the audit step of make verify-gpu (scripts/verify-gpu-audit.sh, last line) is red at the start commit for the same 4 findings it reports now: 3 sit in files this task never touches (go-crud pagination README twice, kratos-authn jwt_test.go) and 1 in this migration's own tracked ledger, whose flagged hex string predates T10. No new finding comes from the takeover, so this gate condition is inherited, not caused."
+ },
+ "format_gate_control": {
+  "command": "bash scripts/verify-gpu-format.sh",
+  "head_exit": 1,
+  "head_files": 21,
+  "current_exit": 1,
+  "current_files": 32,
+  "cause_of_the_growth": "the gate lists every Go file differing from an old base, so a task touching an already-unformatted file surfaces it; see T10-format-gate.json"
+ },
+ "finding_identity_test": {
+  "method": "compare the (file, rule, matched string) triples between the two scans; the strings stay in the local report and are not copied into the repository",
+  "head_findings": 4,
+  "current_findings": 4,
+  "findings_present_in_both": 4,
+  "new_findings_introduced_by_T10": 0,
+  "handoff.json_note": "migration/handoff.json is a tracked ledger file this task appends to, which is why a 'did this task touch the file' probe answers yes. The flagged string predates T10: the HEAD worktree scan reports the identical triple. The T10 ledger entry adds more 64-hex SHA strings of the same shape, which is a property of the ledger format decided before this task."
+ }
+}

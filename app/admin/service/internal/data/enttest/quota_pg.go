@@ -12,8 +12,8 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/stretchr/testify/require"
-	entCrud "github.com/tx7do/go-crud/entgo"
 	"go-wind-admin/app/admin/service/internal/data/ent"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 )
 
 //go:embed testdata/quota_cleanup.sql

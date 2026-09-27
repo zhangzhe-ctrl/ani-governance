@@ -1,0 +1,7 @@
+module cache (read-only source): /home/ubuntu/go/pkg/mod
+upstream : ebef7621e7c7cb0120fc696a3b9f5c73505b270b2f94ef46847b184a60a77a32  /home/ubuntu/go/pkg/mod/github.com/tx7do/go-crud/api@v0.0.7/protos/pagination/v1/pagination.proto
+local    : ebef7621e7c7cb0120fc696a3b9f5c73505b270b2f94ef46847b184a60a77a32  api/localdeps/pagination/pagination/v1/pagination.proto
+cmp exit=0 (0 = byte-identical)
+lines: 518
+in-file option go_package kept verbatim (localization happens in the generator):
+5:option go_package = "github.com/tx7do/go-crud/api/gen/go/pagination/v1;pagination";

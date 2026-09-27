@@ -1,0 +1,19 @@
+T08 generation-batch entry tool verification (measured, not inferred)
+date: 2026-09-25
+host: linux x64
+go            go version go1.26.7 linux/amd64
+GOROOT        /home/ubuntu/sdk/go1.26.7
+buf           1.50.0
+gow           gow version v1.0.3 (commit: none, built: unknown)
+protoc        absent - buf drives the local plugins
+protoc-gen-go         protoc-gen-go v1.36.11
+protoc-gen-go-grpc    protoc-gen-go-grpc 1.6.2
+protoc-gen-go-http    protoc-gen-go-http v2.9.2
+protoc-gen-go-errors  protoc-gen-go-errors v2.9.2
+protoc-gen-validate   PATH binary, no --version flag; api/buf.aksk.gen.yaml pins github.com/envoyproxy/protoc-gen-validate@v1.3.3
+protoc-gen-go-redact  PATH binary, no --version flag; go.mod pins github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2
+protoc-gen-openapi    not on PATH; api/buf.admin.openapi.gen.yaml pins github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1
+
+pinned inside api/*.gen.yaml local plugin lines:
+
+pristine pagination.pb.go header declares: protoc-gen-go v1.36.11, protoc (unknown)

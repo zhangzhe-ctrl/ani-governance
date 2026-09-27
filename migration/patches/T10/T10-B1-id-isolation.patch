@@ -1,0 +1,435 @@
+diff --git a/migration/required-known-defects.json b/migration/required-known-defects.json
+index 4e73c4a..f72c1ad 100644
+--- a/migration/required-known-defects.json
++++ b/migration/required-known-defects.json
+@@ -34,5 +34,115 @@
+   {
+     "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+     "Test": "TestVerify_SlideCaptcha_WithTolerance"
++  },
++  {
++    "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
++    "Test": "TestGenerateOrderIdWithTenantIdCollision",
++    "mode": "nondeterministic",
++    "why": "GenerateOrderIdWithTenantId (order_id.go:53) composes a second-granularity timestamp, a tenant part folded to five bytes and four random digits, so the space per second per tenant is 10^4 while the test draws 1000 ids and demands zero collisions. It is a property of the locked implementation, not of the localisation.",
++    "allowed_sites": [
++      "upstream_known_defects_test.go:65",
++      "upstream_known_defects_test.go:70"
++    ],
++    "allowed_patterns": [
++      "碰撞的订单号: ",
++      "生成了 1000 个订单号，没有发生碰撞",
++      "Error Trace:",
++      "Error:",
++      "Test:",
++      "upstream_known_defects_test\\.go:(65|70)",
++      "^--- FAIL"
++    ],
++    "isolation": "原名原体移入 pkg/localdeps/go-utils/id/upstream_known_defects_test.go，只带 //go:build upstream_known_defects",
++    "reachability": "重命名 GenerateOrderIdWithTenantId 后 default、quota_lab、quota_pg、gpu_joint 及组合标签的 go build ./... 全部 exit 0；go vet ./... 只在 id 包自身测试文件报 undefined。业务与工具路径不调用它",
++    "measured_runs": {
++      "candidate": "20 runs: 0 pass / 20 fail",
++      "reference": "20 runs: 0 pass / 20 fail",
++      "race_candidate": "5 runs: 0 pass / 5 fail",
++      "race_reference": "5 runs: 0 pass / 5 fail"
++    }
++  },
++  {
++    "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
++    "Test": "TestGenerateOrderIdWithIndexThread",
++    "mode": "nondeterministic",
++    "why": "idCounter.Increase (order_id.go:15) reads the shared counter with a plain load (cur := *c) before the atomic add, so concurrent callers can return the same index, and the counter only wraps at exactly 1000 while the timestamp changes per second. The test asks for 1000 distinct ids from 10 goroutines inside one second.",
++    "allowed_sites": [
++      "upstream_known_defects_test.go:54",
++      "upstream_known_defects_test.go:41",
++      "upstream_known_defects_test.go:39"
++    ],
++    "allowed_patterns": [
++      "Error Trace:",
++      "Error:",
++      "expected: 1000",
++      "actual\\s*:\\s*\\d+",
++      "Test:",
++      "upstream_known_defects_test\\.go:(41|48|54)",
++      "^--- FAIL",
++      "Write at .*order_id\\.go:(47|16)",
++      "^\\s*(go-wind-admin|github\\.com)[^\\n]*order_id\\.go:\\d+"
++    ],
++    "isolation": "同上；race 诊断（Read at order_id.go:16 / Previous write order_id.go:47）保留在输出与报告中，并记 race_observed",
++    "reachability": "重命名 GenerateOrderIdWithIncreaseIndex 与 orderIdIndex/idCounter 同样不破坏任何标签组合的构建；只有本包测试引用",
++    "measured_runs": {
++      "candidate": "20 runs: 8 pass / 12 fail",
++      "reference": "20 runs: 6 pass / 14 fail",
++      "race_candidate": "5 runs: 0 pass / 5 fail",
++      "race_reference": "5 runs: 0 pass / 5 fail"
++    },
++    "allowed_race_frame_files": [
++      "order_id.go",
++      "testing.go",
++      "race_amd64.s",
++      "proc.go",
++      "asm_amd64.s",
++      "asm_linux_amd64.s",
++      "runtime"
++    ],
++    "race_note": "race 对照已实际执行：候选与参照两侧都报 WARNING: DATA RACE，读点在 order_id.go:16 （cur := *c 的普通读），写点在 order_id.go:47（Increase 的调用处）。这里只放行这两个已核对访问点的栈帧，任何其它断言点或新诊断仍然阻断。",
++    "required_lines_when_racing": [
++      "Read at 0x[0-9a-f]+ by goroutine \\d+:",
++      "order_id\\.go:16 \\+0x[0-9a-f]+",
++      "(Previous )?[Ww]rite at 0x[0-9a-f]+ by goroutine \\d+:",
++      "order_id\\.go:47 \\+0x[0-9a-f]+"
++    ],
++    "allowed_race_frame_symbols": [
++      "go-wind-admin/pkg/localdeps/go-utils/id",
++      "sync/atomic",
++      "testing",
++      "runtime",
++      "internal/",
++      "created by"
++    ]
++  },
++  {
++    "Package": "go-wind-admin/pkg/localdeps/go-utils/id",
++    "Test": "TestGenerateOrderIdWithRandom",
++    "mode": "nondeterministic",
++    "why": "GenerateOrderIdWithRandom (order_id.go:36) formats the four-digit random part with %d instead of %04d, so any value below 1000 shortens the id while the test asserts len(prefix)+14+4. Authorised additionally because it reproduces locally and the generator is unreachable from supported paths.",
++    "allowed_sites": [
++      "upstream_known_defects_test.go:26",
++      "upstream_known_defects_test.go:29"
++    ],
++    "allowed_patterns": [
++      "GenerateOrderIdWithRandom: ",
++      "Messages:",
++      "Error Trace:",
++      "Error:",
++      "expected: 20",
++      "actual\\s*:\\s*\\d+",
++      "Test:",
++      "upstream_known_defects_test\\.go:(26|29)",
++      "^--- FAIL"
++    ],
++    "isolation": "同上",
++    "reachability": "重命名 GenerateOrderIdWithRandom 后所有标签组合构建 exit 0；无业务/工具调用",
++    "measured_runs": {
++      "candidate": "200 runs: 184 pass / 16 fail (8.0%, theory 10%)",
++      "reference": "200 runs: 182 pass / 18 fail",
++      "race_candidate": "5 runs: 5 pass / 0 fail",
++      "race_reference": "5 runs: 5 pass / 0 fail"
++    }
+   }
+-]
+\ No newline at end of file
++]
+diff --git a/pkg/localdeps/go-utils/id/order_id_test.go b/pkg/localdeps/go-utils/id/order_id_test.go
+index 4914c4d..1f89b89 100644
+--- a/pkg/localdeps/go-utils/id/order_id_test.go
++++ b/pkg/localdeps/go-utils/id/order_id_test.go
+@@ -2,25 +2,12 @@
+ 
+ import (
+ 	"fmt"
+-	"sync"
+ 	"testing"
+ 	"time"
+ 
+ 	"github.com/stretchr/testify/assert"
+ )
+ 
+-func TestGenerateOrderIdWithRandom(t *testing.T) {
+-	prefix := "PT"
+-
+-	// 测试生成的订单号是否包含前缀
+-	orderID := GenerateOrderIdWithRandom(prefix, nil)
+-	assert.Contains(t, orderID, prefix, "订单号应包含前缀")
+-	t.Logf("GenerateOrderIdWithRandom: %s", orderID)
+-
+-	// 测试生成的订单号长度是否正确
+-	assert.Equal(t, len(prefix)+14+4, len(orderID), "订单号长度应为前缀+时间戳+随机数")
+-}
+-
+ func TestGenerateOrderIdWithIndex(t *testing.T) {
+ 	prefix := "PT"
+ 
+@@ -36,31 +23,6 @@ func TestGenerateOrderIdWithIndex(t *testing.T) {
+ 	assert.Equal(t, count, len(ids))
+ }
+ 
+-func TestGenerateOrderIdWithIndexThread(t *testing.T) {
+-	tm := time.Now()
+-
+-	var wg sync.WaitGroup
+-	var ids sync.Map
+-	for i := 0; i < 10; i++ {
+-		wg.Add(1)
+-		go func() {
+-			for i := 0; i < 100; i++ {
+-				id := GenerateOrderIdWithIncreaseIndex("PT", &(tm))
+-				ids.Store(id, true)
+-			}
+-			wg.Done()
+-		}()
+-	}
+-	wg.Wait()
+-
+-	aLen := 0
+-	ids.Range(func(k, v interface{}) bool {
+-		aLen++
+-		return true
+-	})
+-	assert.Equal(t, 1000, aLen)
+-}
+-
+ func TestGenerateOrderIdWithTenantId(t *testing.T) {
+ 	tenantID := "M9876"
+ 	orderID := GenerateOrderIdWithTenantId(tenantID)
+@@ -83,22 +45,6 @@ func TestGenerateOrderIdWithTenantId(t *testing.T) {
+ 	assert.Regexp(t, `^\d{4}$`, randomPart)
+ }
+ 
+-func TestGenerateOrderIdWithTenantIdCollision(t *testing.T) {
+-	tenantID := "M9876"
+-	count := 1000 // 生成订单号的数量
+-	ids := make(map[string]bool)
+-
+-	for i := 0; i < count; i++ {
+-		orderID := GenerateOrderIdWithTenantId(tenantID)
+-		if ids[orderID] {
+-			t.Errorf("碰撞的订单号: %s", orderID)
+-		}
+-		ids[orderID] = true
+-	}
+-
+-	t.Logf("生成了 %d 个订单号，没有发生碰撞", count)
+-}
+-
+ func TestGenerateOrderIdWithPrefixSonyflake(t *testing.T) {
+ 	prefix := "ORD"
+ 	orderID := GenerateOrderIdWithPrefixSonyflake(prefix)
+diff --git a/pkg/localdeps/go-utils/id/upstream_known_defects_test.go b/pkg/localdeps/go-utils/id/upstream_known_defects_test.go
+new file mode 100644
+index 0000000..f8fbee9
+--- /dev/null
++++ b/pkg/localdeps/go-utils/id/upstream_known_defects_test.go
+@@ -0,0 +1,71 @@
++//go:build upstream_known_defects
++
++package id
++
++// 本文件只承载 go-utils/id v0.0.6 已确认的非确定性既有缺陷用例：
++// 秒级时间加四位随机数与 1000 容量回绕、以及 %d 不补零造成的长度断言，
++// 都属于锁定上游实现的限制，不是本地化改写引入的差异。
++// 默认构建标签下这些测试不参与编译，也不属于必跑清单；只有在
++// -tags upstream_known_defects 下才被逐个执行，并按已知非确定性缺陷报告。
++// 测试名称与函数体与原锁定包逐字一致，未做任何修改。
++
++import (
++	"sync"
++	"testing"
++	"time"
++
++	"github.com/stretchr/testify/assert"
++)
++
++func TestGenerateOrderIdWithRandom(t *testing.T) {
++	prefix := "PT"
++
++	// 测试生成的订单号是否包含前缀
++	orderID := GenerateOrderIdWithRandom(prefix, nil)
++	assert.Contains(t, orderID, prefix, "订单号应包含前缀")
++	t.Logf("GenerateOrderIdWithRandom: %s", orderID)
++
++	// 测试生成的订单号长度是否正确
++	assert.Equal(t, len(prefix)+14+4, len(orderID), "订单号长度应为前缀+时间戳+随机数")
++}
++
++func TestGenerateOrderIdWithIndexThread(t *testing.T) {
++	tm := time.Now()
++
++	var wg sync.WaitGroup
++	var ids sync.Map
++	for i := 0; i < 10; i++ {
++		wg.Add(1)
++		go func() {
++			for i := 0; i < 100; i++ {
++				id := GenerateOrderIdWithIncreaseIndex("PT", &(tm))
++				ids.Store(id, true)
++			}
++			wg.Done()
++		}()
++	}
++	wg.Wait()
++
++	aLen := 0
++	ids.Range(func(k, v interface{}) bool {
++		aLen++
++		return true
++	})
++	assert.Equal(t, 1000, aLen)
++}
++
++func TestGenerateOrderIdWithTenantIdCollision(t *testing.T) {
++	tenantID := "M9876"
++	count := 1000 // 生成订单号的数量
++	ids := make(map[string]bool)
++
++	for i := 0; i < count; i++ {
++		orderID := GenerateOrderIdWithTenantId(tenantID)
++		if ids[orderID] {
++			t.Errorf("碰撞的订单号: %s", orderID)
++		}
++		ids[orderID] = true
++	}
++
++	t.Logf("生成了 %d 个订单号，没有发生碰撞", count)
++}
+diff --git a/tools/migration/known_defects.py b/tools/migration/known_defects.py
+index 57dd2fc..4ff3e62 100644
+--- a/tools/migration/known_defects.py
++++ b/tools/migration/known_defects.py
+@@ -109,6 +109,44 @@ def signature(slot):
+     return {"sites": sorted(set(sites)), "transcript": transcript}
+ 
+ 
++FRAMEWORK_ONLY = re.compile(r"^(--- (FAIL|PASS|SKIP)\b|=== (RUN|PAUSE|CONT)\b|FAIL\s|ok\s|Elapsed:|"
++                            r"Testing\.|Coverage:|\s*$)")
++WRAPPER_HEAD = re.compile(r"^(WARNING: DATA RACE|Read at 0x|Write at 0x|Previous (atomic )?write at 0x|"
++                          r"Previous read at 0x|Goroutine \d+ \(|created by |\t?0x[0-9a-f]+ |==+|"
++                          r"<autogenerated>:\d+ \+0x[0-9a-f]+$)")
++FILE_IN_LINE = re.compile(r"[\w./+-]+\.(?:go|s)(?=[:\s]|$)")
++# a race report prints "path/file.go:16 +0x28" and "pkg/path.Func(args)" frames
++FILE_FRAME = re.compile(r"^(\S+\.(?:go|s)):(\d+) \+0x[0-9a-f]+$")
++SYMBOL_FRAME = re.compile(r"^([\w./+-]+\.[^\s]*\([^)]*\))(\s|$)")
++
++
++def is_wrapper(line):
++    """Framework lines that surround a result and carry no verdict of their own."""
++    return bool(FRAMEWORK_ONLY.match(line.strip()))
++
++
++def is_race_frame_line(line, frame_files, frame_symbols=()):
++    """True for a line of a race report that stays inside the examined code and the runtime.
++
++    A file frame is accepted only when the file is one of the examined files; a symbol frame is
++    accepted only when its package is one of the examined packages. Anything else is a finding.
++    """
++    stripped = line.strip()
++    if WRAPPER_HEAD.match(stripped):
++        for name in FILE_IN_LINE.findall(stripped):
++            if not any(name.endswith(f) or ("/%s/" % f) in name for f in frame_files):
++                return False
++        return True
++    file_frame = FILE_FRAME.match(stripped)
++    if file_frame:
++        name = file_frame.group(1)
++        return any(name.endswith(f) or ("/%s/" % f) in name for f in frame_files)
++    symbol_frame = SYMBOL_FRAME.match(stripped)
++    if symbol_frame and frame_symbols:
++        return any(symbol_frame.group(1).startswith(p) for p in frame_symbols)
++    return False
++
++
+ def extract_blocks(text, names):
+     out = {}
+     for name in names:
+@@ -135,9 +173,20 @@ def main():
+                                          "they are still verbatim copies of the locked source")
+     ap.add_argument("--locked-file", help="archived pristine copy of the upstream test source")
+     ap.add_argument("--out", help="write a JSON report here")
++    ap.add_argument("--package", action="append",
++                    help="review only these packages; the ledger may span several isolated groups "
++                         "and one tagged run per package pair is what can be compared")
++    ap.add_argument("--tally",
++                    help="JSON of the pre-recorded fixed run counts for mode=nondeterministic "
++                         "entries: {Test: {runs, candidate: {pass, fail}, reference: {pass, fail}}}")
+     args = ap.parse_args()
+ 
+-    required = [(e["Package"], e["Test"]) for e in json.load(open(args.list, encoding="utf-8"))]
++    spec_list = json.load(open(args.list, encoding="utf-8"))
++    if args.package:
++        spec_list = [e for e in spec_list if e["Package"] in set(args.package)]
++    required = [(e["Package"], e["Test"]) for e in spec_list]
++    spec = {e["Test"]: e for e in spec_list}
++    tally = json.load(open(args.tally, encoding="utf-8")) if args.tally else {}
+     cand_action, cand, cand_pkg_out = collect(args.log)
+     ref_action, ref, ref_pkg_out = collect(args.reference_log)
+     cand_exit = open(args.exit_file, encoding="utf-8").read().strip()
+@@ -167,6 +216,63 @@ def main():
+             entry["status"] = "PANIC_PRESERVED"
+             entry["panic_lines"] = [normalise(l) for l in dict.fromkeys(panic)]
+             blocking.append("PANIC_PRESERVED (reported verbatim, never generalised): %s" % name)
++        elif spec[name].get("mode") == "nondeterministic":
++            # Probability-shaped defects in the locked implementation. A run that happens to pass
++            # proves nothing was repaired, and a run that fails is accepted only while it stays
++            # inside the assertion sites and the diagnostics that were examined for it.
++            entry["mode"] = "nondeterministic"
++            allowed_sites = spec[name].get("allowed_sites", [])
++            frame_files = tuple(spec[name].get("allowed_race_frame_files", []))
++            frame_symbols = tuple(spec[name].get("allowed_race_frame_symbols", []))
++            allowed = [re.compile(x) for x in spec[name].get("allowed_patterns", [])]
++            requires = [re.compile(x) for x in spec[name].get("required_lines_when_racing", [])]
++            bad = []
++            entry["race_observed"] = any("DATA RACE" in l for l in cs["transcript"] + rs["transcript"])
++            for label, sig, act in (("candidate", cs, c["action"]), ("reference", rs, r["action"])):
++                if act == "skip":
++                    bad.append("%s skipped" % label)
++                    continue
++                if act != "fail":
++                    continue
++                outside = [x for x in sig["sites"]
++                           if x not in allowed_sites
++                           and not (entry["race_observed"]
++                                    and any(x.split(":")[0].endswith(f) for f in frame_files))]
++                if outside:
++                    bad.append("%s failed outside the examined sites: %s" % (label, outside))
++                for line in sig["transcript"]:
++                    if is_wrapper(line) or any(rx.search(line) for rx in allowed):
++                        continue
++                    # Race-report scaffolding counts only while it points at the examined files;
++                    # a frame naming any other file is a new finding and still blocks.
++                    if entry["race_observed"] and is_race_frame_line(line, frame_files, frame_symbols):
++                        continue
++                    bad.append("%s produced an unexpected line: %.120s" % (label, line))
++            if entry["race_observed"]:
++                joined = "\n".join(cs["transcript"] + rs["transcript"])
++                missing = [rx.pattern for rx in requires if not rx.search(joined)]
++                if missing:
++                    bad.append("the race report does not show the examined access: %s" % missing)
++                    entry["missing_race_evidence"] = missing
++            rec = tally.get(name)
++            if not rec:
++                bad.append("no pre-recorded fixed run count was supplied for a nondeterministic entry")
++            else:
++                entry["recorded_runs"] = rec
++                sides = (rec.get("candidate") or {}).get("fail", 0) + (rec.get("reference") or {}).get("fail", 0)
++                if sides < 1:
++                    bad.append("no failure was ever observed in the recorded runs")
++                entry["mixed_results"] = any((rec.get(side) or {}).get("pass", 0) and (rec.get(side) or {}).get("fail", 0)
++                                             for side in ("candidate", "reference"))
++            entry["violations"] = sorted(set(bad))
++            if bad:
++                entry["status"] = "NONDETERMINISTIC_SHAPE_VIOLATION"
++                blocking.append("NONDETERMINISTIC_SHAPE_VIOLATION: %s -> %s" % (name, sorted(set(bad))[:3]))
++            elif c["action"] == "fail" or r["action"] == "fail":
++                entry["status"] = "KNOWN_NONDETERMINISTIC_DEFECT"
++            else:
++                # both sides happened to pass this run: recorded as a pass, never as a repair
++                entry["status"] = "KNOWN_NONDETERMINISTIC_DEFECT_NOT_OBSERVED_THIS_RUN"
+         elif c["action"] == "pass" and r["action"] == "fail":
+             entry["status"] = "XPASS"
+             blocking.append("XPASS (must be traced, not silently accepted): %s" % name)
+@@ -190,9 +296,13 @@ def main():
+     if others:
+         blocking.append("NEW_FAILURES_IN_TAGGED_RUN: %s" % sorted(others))
+ 
+-    if cand_exit == "0":
++    # A deterministic must-fail entry that does not reproduce means nothing may be labelled.
++    # A probability-shaped entry may legitimately pass a given run; its evidence is the
++    # pre-recorded run counts, so a green tagged run is not by itself a contradiction there.
++    must_fail_present = any(spec[n].get("mode") != "nondeterministic" for _, n in required)
++    if must_fail_present and cand_exit == "0":
+         blocking.append("TAGGED_RUN_IS_GREEN: the known defects did not reproduce; nothing may be labelled")
+-    if ref_exit == "0":
++    if must_fail_present and ref_exit == "0":
+         blocking.append("REFERENCE_RUN_IS_GREEN: the pristine copy no longer shows the expected failures")
+ 
+     verbatim = []

@@ -1,0 +1,211 @@
+{
+  "task": "T03",
+  "phase": "B (pure tool and mapping packages: mechanical batch takeover)",
+  "status": "PASS",
+  "conclusion": "PASS",
+  "status_note": "stringcase, sliceutil, fieldmaskutil, mapper and copierutil are activated as ordinary packages under pkg/localdeps and all 95 repository consumers are rewired. Production semantics changed by 0 lines. Tests deleted: 0. Tests skipped by this task: 0. Two pre-existing repo problems were surfaced and are disclosed rather than repaired (findings T03-F4 and T03-F5). Group B continues with T04.",
+  "schema_version": "t03-receipt/1",
+  "base_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "baseline_sha": "f26c92b832e8260ced941194bb440fef15d64514",
+  "start_sha": "f26c92b832e8260ced941194bb440fef15d64514",
+  "end_sha": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+  "result_sha": "8e5dbdeec677405a44d263e814c2938cefe8bf20",
+  "result_sha_note": "Code commit on the work branch, named by this receipt in a second ledger-only commit that changes no source (the T02/T07 convention). migration/accepted_head advances to 8e5dbde because T03 passes.",
+  "resume_head": "f26c92b832e8260ced941194bb440fef15d64514",
+  "branch": "task/tx7do-takeover",
+  "lineage_check": "git merge-base --is-ancestor a17cf5293b599a68e053e9fd1be4ebc8246cecd4 HEAD exit 0; migration/accepted_head read a17cf5293b599a68e053e9fd1be4ebc8246cecd4 at entry and the working tree was clean apart from untracked _agent/ plan material.",
+  "pushed_merged_deployed": false,
+
+  "source_package_versions": {
+    "note": "Verified read-only against third_party/tx7do/manifest.json and SHA256SUMS before activation (migration/preflight/T03-archives.json, verdict OK 3/3: .info/.mod/.zip sha256 + byte size match, cross-listed in SHA256SUMS, LICENSE present with declared hash, no symlinks/devices/traversal/duplicate entries, no go:embed resources). The archived checksum table was not overwritten and no hash was edited to obtain a pass.",
+    "activated": {
+      "github.com/tx7do/go-utils": "v1.1.40 (hosts the in-module packages stringcase, sliceutil, fieldmaskutil)",
+      "github.com/tx7do/go-utils/mapper": "v0.0.3 (separate module)",
+      "github.com/tx7do/go-utils/copierutil": "v0.0.8 (separate module)"
+    },
+    "already_active_from_T02": {
+      "github.com/tx7do/go-utils/trans": "unchanged; not re-copied. copierutil imports trans, and the local copierutil therefore resolves to the local trans that T02 already activated (git diff HEAD~1 -- pkg/localdeps/go-utils/trans is empty; the directory still holds exactly LICENSE, to.go, to_test.go, trans.go, trans_test.go)."
+    },
+    "verified_not_activated_this_round": {
+      "github.com/tx7do/go-utils/timeutil": "T03.md 暂留外部，待T10统一切换有状态全局时间配置；本轮没有复制第二份 timeutil（find pkg/localdeps -name 'timeutil*' 为空）"
+    }
+  },
+
+  "changed_files": [
+    {
+      "path": "pkg/localdeps/go-utils/{LICENSE,stringcase,sliceutil,fieldmaskutil,mapper,copierutil}",
+      "count": 26,
+      "kind": "added",
+      "reason": "12 source + 9 test + 3 LICENSE + 2 README. Every file is proven byte-identical to the archive entry and to the module-cache copy (three-way match, migration/preflight/T03-extraction.json: all_three_way_match true, all_byte_identical_to_archive true, hash_failures []). Ordinary in-module packages: no vendor/, no module-cache edit, no permanent replace, no nested go.mod. Each of the three modules brings its own LICENSE."
+    },
+    {
+      "path": "95 repository .go files under app/, api/, pkg/, tools/",
+      "count": 95,
+      "kind": "modified (import blocks only)",
+      "reason": "Rewire every consumer of the five activated packages (and of trans, which the staged copierutil needs) to the pkg/localdeps paths, keeping the original import aliases. The file list came from the T00 inventory through migrate_imports scan, not from a repository-wide sed (migration/preflight/T03-consumers.json). migrate_imports guard proves non-import AST and Go directives unchanged for all 95 (migration/preflight/T03-guard.json, checked_files 95, pass true)."
+    },
+    {
+      "path": "go.mod",
+      "count": 1,
+      "kind": "modified",
+      "reason": "One line: golang.org/x/exp moved from '// indirect' to direct because the newly local pkg/localdeps/go-utils/sliceutil/sliceutils.go imports golang.org/x/exp/constraints and no repository-owned file imported it before. Version unchanged (v0.0.0-20260824195058-e88cd73687aa), go.sum unchanged. Attributed by restoring go.mod to HEAD and re-running make build_only, which reproduced the byte-identical file. Upstream go-utils stays required on purpose: timeutil and other packages are still consumed externally (T03.md 不删上游go-utils模块直到所有仍在外部的传递使用消失)."
+    },
+    {
+      "path": "migration/preflight/T03-*.json",
+      "count": 12,
+      "kind": "added",
+      "reason": "Per-gate evidence: archives, extraction/provenance, import map, consumers, activation, equiv on the staged files, guard on the consumers, required profile and its package scope, the repo-gated case list, the test/vet/build summary and the residual dependency scan."
+    },
+    {
+      "path": "migration/receipts/T03.json",
+      "count": 1,
+      "kind": "added",
+      "reason": "This receipt."
+    }
+  ],
+
+  "unchanged_on_purpose": [
+    "Protected APIs, all confirmed present at their archived positions and equiv-clean: CopierMapper.ToDTO/ToEntity/AppendConverters (mapper/mapper.go:40/:27/:23), EnumTypeConverter.ToDTO/ToEntity/NewConverterPair (mapper/enum_converter.go:36/:22/:50), NewTimeStringConverterPair/NewTimeTimestamppbConverterPair (copierutil/converters.go:50/:60), FieldMask.FilterByFieldMask/NormalizeFieldMaskPaths/NilValuePaths (fieldmaskutil/fieldmaskutil.go:58/:122, fieldmaskutil/nested_mask.go:320).",
+    "Enumeration mapping, nil/empty handling, in-place mutation and converter order: no semantic difference beyond import paths (0 non-import AST differences).",
+    "No generated code algorithm was changed; the generated inputs that still need changes are recorded for their own batches (residual list below).",
+    "pkg/localdeps/go-utils/trans: untouched by this task.",
+    "go.sum: byte-identical to the start SHA; no new module hash entered the build.",
+    "No external protocol, database structure or identity/authorization/tenant behaviour was touched; no pgx/sqlc/OPA/GORM restored; no non-tx7do dependency upgraded.",
+    "No test was deleted, no skip was introduced, no gate was lowered and no expectation was changed."
+  ],
+
+  "non_import_changes": [
+    {
+      "item": "business and tool logic",
+      "detail": "Zero. migrate_imports equiv proves non-import AST and Go directives equivalent for 21/21 staged Go files against their archive sources, and guard proves the same for 95/95 rewired consumers against the start SHA. Equivalence of declarations is not a runtime proof, which is why the named test gate below was run."
+    },
+    {
+      "item": "gofmt",
+      "detail": "gofmt -l over every file this task added or modified reports 0 files."
+    },
+    {
+      "item": "go.mod classification",
+      "detail": "The single '// indirect' removal is a requirement-scope change made by the repository's own make build_only step, not a hand edit and not a version change."
+    }
+  ],
+
+  "commands": [
+    { "name": "preflight-archives", "command": "python3 /home/ubuntu/tx7do-pilot-run/t03_preflight.py", "exit": 0, "result": "verdict OK 3/3 archives" },
+    { "name": "extract-stage", "command": "python3 /home/ubuntu/tx7do-pilot-run/t03_extract.py", "exit": 0, "result": "26 staged (12 source / 9 test / 3 LICENSE / 2 README), three-way match true, hash_failures [], unresolved tx7do imports [], 0 go:embed" },
+    { "name": "consumer-inventory", "command": "python3 /home/ubuntu/tx7do-pilot-run/t03_importers.py", "exit": 0, "result": "1307 files scanned, 95 consumers (91 repo-own + 4 inside pkg/localdeps/go-crud/entgo), 0 generated, 0 aliases" },
+    { "name": "activate", "command": "python3 /home/ubuntu/tx7do-pilot-run/t03_activate.py", "exit": 0, "result": "26 placed with sha256 verification and no overwrite, 116 rewrite targets, 99 files changed, problems []" },
+    { "name": "guard", "command": "migrate_imports guard -root . -base f26c92b832e8260ced941194bb440fef15d64514 -files T03/consumers.txt -out T03/guard-out.json", "exit": 0, "result": "checked_files 95, pass true" },
+    { "name": "equiv-placed", "command": "migrate_imports equiv -root . -before T03/stage/<pkg>/<file> -after pkg/localdeps/<pkg>/<file> for each staged .go file, judged on exit code + stdout PASS prefix", "exit": 0, "result": "21 checked, 21 PASS, failures []" },
+    { "name": "build", "command": "make build_only", "exit": 0, "result": "go.mod x/exp reclassification produced by this step" },
+    { "name": "attrib-go-mod", "command": "restore go.mod from HEAD, then make build_only and diff against the T03 version", "exit": 0, "result": "byte-identical; the change is reproducible, not a hand edit" },
+    { "name": "tests-final", "command": "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg <15 scoped packages> with the task-owned guard/lab/bootstrap DSNs", "exit": 1, "result": "926 pass / 1 fail / 0 skip in the named set — the single failure is the pre-existing gated TestBootstrapPostgres; 7 further cases report their own repo preconditions" },
+    { "name": "tests-required", "command": "the same scoped run restricted to the 599 named profile cases", "exit": 0, "result": "926 pass / 0 fail / 0 skip, 15/15 packages pass" },
+    { "name": "require-tests", "command": "python3 tools/migration/require_tests.py --required T03/required-profile.json --log T03/tests-required.log", "exit": 0, "result": "pass true, required 599, bad_tests [], failed_packages []" },
+    { "name": "baseline-gated", "command": "pristine worktree at accepted_head a17cf52, same environment, -run over the 8 gated cases", "exit": 1, "result": "identical to the migrated tree: 7 skips + the TestBootstrapPostgres failure" },
+    { "name": "bootstrap-fresh-migrated / bootstrap-fresh-baseline", "command": "separately recreated *_bootstrap_test databases, then -run '^TestBootstrapPostgres$' in each tree", "exit": 1, "result": "both trees fail at app/admin/service/internal/data/bootstrap_postgres_test.go:58 with the same message — pre-existing, not a T03 regression" },
+    { "name": "vet", "command": "go vet -mod=readonly -tags quota_pg <scoped packages>", "exit": 1, "result": "exactly one diagnostic, in accelerator_joint_http_test.go:503, a file this task did not touch; go vet on the same package at accepted_head reports the identical line" },
+    { "name": "residual-scan", "command": "python3 /home/ubuntu/tx7do-pilot-run/t03_residual.py", "exit": 0, "result": "verdict PASS: 0 repository-owned files import an activated old path" }
+  ],
+
+  "required_tests": {
+    "verdict_rule": "require_tests.py counts skip/fail/missing/not_run as failure; the profile is generated from the packages this task touched (activated packages plus every rewired consumer package) rather than hand-picked, so a package cannot be quietly left out. 607 listed cases minus the 8 that the repository itself gates behind explicit preconditions = 599 named required cases.",
+    "profile_final": { "required": 599, "pass": 599, "fail": 0, "skip": 0, "missing": 0, "not_run": 0 },
+    "packages_in_profile": {
+      "app/admin/service/internal/data": 297, "app/admin/service/internal/service": 172,
+      "pkg/localdeps/go-utils/sliceutil": 28, "pkg/jwt": 21, "pkg/utils/converter": 18,
+      "pkg/localdeps/go-crud/entgo/filter": 16, "pkg/localdeps/go-utils/stringcase": 11,
+      "pkg/utils": 10, "pkg/localdeps/go-utils/copierutil": 6,
+      "app/admin/service/internal/data/ent": 5, "pkg/localdeps/go-crud/entgo": 5,
+      "pkg/localdeps/go-crud/entgo/update": 5, "pkg/localdeps/go-utils/mapper": 2,
+      "pkg/localdeps/go-crud/entgo/field": 2, "pkg/localdeps/go-utils/fieldmaskutil": 1
+    },
+    "listed_per_package_before_gating": {
+      "app/admin/service/internal/data": 301, "app/admin/service/internal/service": 176,
+      "gated_removed": {"app/admin/service/internal/data": 4, "app/admin/service/internal/service": 4}
+    },
+    "mandated_by_T03_md": [
+      { "set": "new packages' own tests that need no real service", "cases": "copierutil 6, fieldmaskutil 1, mapper 2, sliceutil 28, stringcase 11", "result": "48/48 pass, 0 skip" },
+      { "set": "affected converter tests", "cases": "pkg/utils/converter 18", "result": "18/18 pass" },
+      { "set": "affected JWT tests", "cases": "pkg/jwt 21", "result": "21/21 pass" },
+      { "set": "representative SQLite repository tests", "cases": "app/admin/service/internal/data 297 named of 301 listed (the 4 excluded ones are the repo-gated Postgres/restore cases above)", "result": "297/297 pass, 0 skip" },
+      { "set": "zero-value false/0, optional nil, out-of-mask fields, time and enum conversion", "cases": "exercised by the archived tests that already cover them (mapper TestCopierMapper/TestEnumTypeConverter, copierutil TestNewTimeStringConverterPair/TestNewTimeTimestamppbConverterPair, converter and repository suites)", "result": "all pass; no supplementary counter-example was needed, so none was invented (T03.md 缺失只补最小反例)" }
+    ],
+    "gated_not_run": {
+      "count": 8,
+      "recorded_as": "not_run with the repository's own reason, never as pass; none deleted, none edited, none skipped by this task",
+      "cases": [
+        "TestBootstrapPostgres (requires GOV_BOOTSTRAP_TEST_DSN; fails at bootstrap_postgres_test.go:58 on a freshly created database in both the baseline and the migrated tree — finding T03-F4)",
+        "TestQuotaGpuOldPopulatedUpgradeReplay (requires a separately upgraded populated old backup)",
+        "TestQuotaGpuRestoredProjectionContinuation (separate populated-restore gate)",
+        "TestQuotaProcessChild (OS subprocess helper)",
+        "TestAcceleratorJointHTTP (requires isolated joint B PostgreSQL, Redis and Accelerator helper)",
+        "TestAcceleratorFormalSessionRefresh (requires the explicit private formal process fixture)",
+        "TestOnboardingConcurrentAcceptance (requires disposable PostgreSQL)",
+        "TestOnboardingAPIRegistration (requires disposable PostgreSQL)"
+      ],
+      "baseline_proof": "T03/baseline-gated.log — the same 8 cases behave identically in a pristine worktree at accepted_head a17cf52 under the same environment"
+    },
+    "executed_totals": { "test_pass": 926, "test_fail": 0, "test_skip": 0, "packages_pass": 15, "packages_fail": 0 },
+    "not_run": [
+      { "gate": "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY", "result": "not_run", "reason": "carried over from T07: needs an external production-shaped dump and a restore window, outside T03's authorized scope" }
+    ]
+  },
+
+  "test_environment": {
+    "authorized_isolated_instances": [
+      { "container": "tx7do-t07-guard-pg", "purpose": "GUARD_TEST_PG_DSN for the ent guard suite, plus ani_t03_bootstrap_test and ani_t03base_bootstrap_test created by this task for the gated bootstrap comparison", "owned_by_this_task": true },
+      { "container": "tx7do-t07-acc-lab-pg", "purpose": "QUOTA_LAB_PG_DSN / QUOTA_LAB_REGRESSION_DSN / QUOTA_LAB_PG_ADMIN_DSN for the quota Postgres suites", "owned_by_this_task": true }
+    ],
+    "never_touched": "quota-gpu-local-01-pg (pre-existing, quota-restricted) and every business database",
+    "dsn_storage": "DSN files live outside the repository at mode 600; tools/migration/run_checked.sh records argv only, so no DSN reaches any log or the ledger",
+    "disposable_database_policy": "each *_bootstrap_test database is dropped and recreated before a run, because the repository test bootstraps into whatever database it is pointed at"
+  },
+
+  "closure_analysis": {
+    "method": "every import declaration of every staged file was resolved against the activation set plus the paths already active from T02/T07",
+    "unresolved_tx7do_imports": [],
+    "non_tx7do_external_dependencies_kept": "copier, protobuf, golang.org/x/exp and the rest of the archived packages' own external requirements were kept as module dependencies; nothing was vendored or rewritten"
+  },
+
+  "residual_dependencies_after_t03": {
+    "repo_own_files_still_importing_an_activated_old_path": 0,
+    "activated_paths_still_reachable_through_external_modules": {
+      "github.com/tx7do/go-utils/stringcase": "go-wind-admin/app/admin/service/cmd/server -> github.com/tx7do/kratos-bootstrap/bootstrap -> github.com/tx7do/go-utils/stringcase",
+      "github.com/tx7do/go-utils/trans": "go-wind-admin/app/admin/service/cmd/server -> github.com/tx7do/kratos-bootstrap/bootstrap -> github.com/tx7do/go-utils/trans"
+    },
+    "interpretation": "T03.md 不删上游go-utils模块直到所有仍在外部的传递使用消失；阶段go.mod仍有旧模块不是失败. These two old paths are reached only through modules this round keeps external (kratos-bootstrap/bootstrap in T10/T14, go-utils/timeutil in T10), never through a repository-owned import.",
+    "files_still_importing_tx7do_total": 401,
+    "largest_remaining_groups": [
+      { "package": "github.com/tx7do/go-crud/api/gen/go/pagination/v1", "files": 278, "batch": "T05/T06 (pagination Proto) and the generated-input register" },
+      { "package": "github.com/tx7do/kratos-bootstrap/logger", "files": 194, "batch": "T10" },
+      { "package": "github.com/tx7do/kratos-bootstrap/bootstrap", "files": 124, "batch": "T10" },
+      { "package": "github.com/tx7do/go-utils/timeutil", "files": 20, "batch": "T10 (stateful global time configuration)" },
+      { "package": "github.com/tx7do/go-utils/{password,crypto,aggregator,captcha,id}", "files": "7/7/7/3/3", "batch": "T04 and later groups" }
+    ]
+  },
+
+  "findings": [
+    { "id": "T03-F1", "severity": "info", "finding": "The upstream go-utils module is split: stringcase, sliceutil and fieldmaskutil live inside module github.com/tx7do/go-utils@v1.1.40, while mapper@v0.0.3 and copierutil@v0.0.8 are separate modules. Provenance and LICENSE handling must be per archive, which is why three LICENSE files travel with the 26 staged files." },
+    { "id": "T03-F2", "severity": "info", "finding": "4 of the 95 consumers live inside pkg/localdeps/go-crud/entgo (field/utils.go, filter/filter_processor.go, repository.go, update/update.go). They were rewired like any other consumer and are covered by the same guard check; activating a package therefore also removes the localdeps subtree's dependency on the old path." },
+    { "id": "T03-F3", "severity": "medium", "finding": "Activating sliceutil introduced the repository's first direct import of golang.org/x/exp/constraints. go.mod now classifies it as direct. This is a real requirement-scope change that a reviewer should see, and it is produced by make build_only rather than by hand." },
+    { "id": "T03-F4", "severity": "high", "finding": "TestBootstrapPostgres fails when its GOV_BOOTSTRAP_TEST_DSN precondition is satisfied: dbbootstrap.Initialize accepts a truncated catalog (catalog[1:]) where the test requires an error (app/admin/service/internal/data/bootstrap_postgres_test.go:58). It is skipped in normal runs, so the repository never sees this. Measured identical on freshly recreated databases at accepted_head a17cf52 and after T03, therefore a pre-existing defect unrelated to the takeover. Not repaired: the failing statement is a production-behaviour assertion, which the fixture-repair authorization explicitly excludes (conditions 2, 3 and 8). Reported for the owner." },
+    { "id": "T03-F5", "severity": "medium", "finding": "go vet reports 'assignment copies lock value to ref' at app/admin/service/internal/service/accelerator_joint_http_test.go:503 (a protobuf message containing sync.Mutex is copied by value). The file is untouched by T03 and the diagnostic is identical at accepted_head. Reported, not changed." },
+    { "id": "T03-F6", "severity": "info", "finding": "Seven further repository tests are gated behind fixtures this task was not authorized to create (populated-restore, upgraded-old-backup, OS subprocess helper, joint B PostgreSQL/Redis, private formal process fixture, two disposable-PostgreSQL onboarding cases). They are recorded as not_run with the repository's own reason and were verified to behave the same at accepted_head." },
+    { "id": "T03-F7", "severity": "info", "finding": "fieldmaskutil ships only Test_NestedMaskFromPaths plus a benchmark: FilterByFieldMask, NormalizeFieldMaskPaths and NilValuePaths have no upstream test at all. T03.md forbids changing their behaviour and allows only a minimal counter-example where coverage is missing; this round exercised them through the existing repository converter and Role/Language update suites, which do cover mask-out fields, nil values and zero values. Expanding direct unit coverage of these three functions is a candidate for the T09/T10 register, not a silent addition here." },
+    { "id": "T03-F8", "severity": "info", "finding": "migrate_imports scan counts 1307 Go files; 401 still declare at least one github.com/tx7do import. That is the measured backlog for T04-T15 and the reason the upstream modules stay in go.mod." }
+  ],
+
+  "next_allowed_task": "T04 (group B continues). Per the master goal the remaining group B batches run without a further confirmation prompt; each still needs its own receipt, checkpoint and gates.",
+
+  "self_assessment": {
+    "agreed_scope_met": true,
+    "reason": "All five packages T03.md names were activated with their complete necessary source and test files from hash-verified archives, trans was not copied twice, timeutil was left external without a second copy, every consumer import was rewired from an explicit inventory while keeping aliases, the protected APIs are unchanged and non-import equivalence is proven for 116 files, and the named test gate passes at 599/599 with 0 skip.",
+    "honest_gaps": [
+      "Runtime equivalence of the migrated mapping code is evidenced by tests, not by the AST tool (the tool itself says 'not a runtime equivalence proof').",
+      "fieldmaskutil's three protected functions have no direct unit test of their own (finding T03-F7); they are covered indirectly through the repository converter and update suites.",
+      "8 repository-gated cases remain not_run, including QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY carried over from T07.",
+      "Two pre-existing defects (T03-F4, T03-F5) are reported and left unfixed because repairing them is outside the authorization."
+    ],
+    "conclusion": "PASS"
+  }
+}

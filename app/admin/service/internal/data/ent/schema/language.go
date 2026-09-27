@@ -6,7 +6,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"github.com/tx7do/go-crud/entgo/mixin"
+	"go-wind-admin/pkg/localdeps/go-crud/entgo/mixin"
 )
 
 // Language holds the schema definition for the Language entity.

@@ -1,0 +1,61 @@
+{
+  "schema_version": "t15-gitleaks-exception/1",
+  "task": "T15 / R4",
+  "tool": "gitleaks v8.30.1 (the version pinned and re-checked by scripts/verify-gpu-audit.sh), config .gitleaks.toml with [extend] useDefault = true",
+  "command": "gitleaks dir --no-banner --no-color --redact .",
+  "how_it_was_reached": "make verify-gpu ran end to end over 8fca316: verify-quota-ent passed, verify-gpu-regressions passed, verify-gpu-audit failed at its last line with exit 2 (govulncheck reported 0 affected vulnerabilities, then 'leaks found: 2'). Evidence: /home/ubuntu/tx7do-pilot-run/T15/r4b-verify-gpu.{command,log,exit,started,finished}.",
+  "findings_before": [
+    {
+      "rule": "generic-api-key",
+      "file": "migration/patches/T14/buildinfo/admin.txt",
+      "line": 5,
+      "secret_length": 44,
+      "secret_sha256_prefix8": "73c2b96b",
+      "matched_form": "dep<TAB>github.com/getkin/kin-openapi<TAB>v0.149.0<TAB>h1:<value>",
+      "provenance": "committed by accepted_head 627783c as the zero-tx7do build-provenance dump of cmd/admin"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "migration/patches/T14/buildinfo/server.txt",
+      "line": 30,
+      "secret_length": 44,
+      "secret_sha256_prefix8": "73c2b96b",
+      "matched_form": "identical to the admin.txt row: same rule, same line shape, same value",
+      "provenance": "committed by accepted_head 627783c as the zero-tx7do build-provenance dump of cmd/server"
+    }
+  ],
+  "verification_of_the_value": {
+    "identity": "both matched values are byte-identical to go.sum line 140, which records the directory hash of the public module revision github.com/getkin/kin-openapi v0.149.0; the same h1 form appears on thousands of go.sum lines",
+    "meaning": "a Go dirhash of a published module archive - what go mod download and go mod verify recompute - so it is a integrity digest of public third-party content, carries no bearer value, and cannot authenticate anyone to anything",
+    "not_a_credential_check": "the value is reproducible by anyone from the public module proxy and is already stored in the repository's go.sum; it appears in no config, no header, no signing path, and no test asserts on it",
+    "scanner_behaviour_evidence": "gitleaks' own default configuration exempts this content class by file name: a copy of go.sum scans clean while the identical line written into other.txt in the same directory is reported. The buildinfo dumps are go version -m output, i.e. the same dependency-digest content under a different file name.",
+    "classification": "FALSE_POSITIVE",
+    "introduced_by": "T14 evidence files, not by this round's regeneration; the audit stage had simply never run since they were committed (migration/receipts/T14.json lists make verify-gpu under not_run with 'T15' as the reason)"
+  },
+  "exception_added": {
+    "file": ".gitleaks.toml",
+    "rule_id": "generic-api-key",
+    "condition": "AND",
+    "regex_target": "secret",
+    "path_regex": [
+      "^migration/patches/T14/buildinfo/admin\\.txt$",
+      "^migration/patches/T14/buildinfo/server\\.txt$"
+    ],
+    "value_regex": "^<the single 44-character dirhash recorded above>$",
+    "defaults_and_existing_custom_rules_kept": true,
+    "scope_statement": "no directory-wide or prefix exclusion, no rule disabled, no baseline accepted, no exit code forced; two exact paths times one exact value",
+    "sha256_prefix16_of_config": "e74eacc84d45514a"
+  },
+  "negative_controls": {
+    "runner": "scripts/gitleaks-buildinfo-exception.sh (sha256 prefix16 cf55eb322aa24aff), run with the locked gitleaks and the edited config",
+    "result": "exit 0",
+    "cases": [
+      "the same line written at another path is still reported, so the exception does not spread past its two anchored paths",
+      "a different h1 value appended inside migration/patches/T14/buildinfo/admin.txt is still reported, so the exception does not mute the file",
+      "a go.sum copy scans clean while the identical line in a sibling file is reported, which is the false-positive claim itself",
+      "the whole repository tree reports 0 leaks with the exception loaded"
+    ],
+    "scan_root_note": "the controls scan '.' inside each case directory because gitleaks matches allowlist paths against the walked path; an absolute scan root would silently test nothing"
+  },
+  "remaining": "make verify-gpu must be re-run end to end after this change so the reported gate corresponds to the final tree; the earlier failing run is kept unchanged."
+}

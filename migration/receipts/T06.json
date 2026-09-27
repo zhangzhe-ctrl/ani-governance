@@ -1,0 +1,382 @@
+{
+ "schema_version": "t06/1",
+ "task": "T06",
+ "phase": "B",
+ "goal_file": "_agent/ani-governance-tx7do-plan/goals/T06.md",
+ "status": "COMPLETE",
+ "conclusion": "PASS",
+ "start_sha": "474eee824c07b0d3da00f1f4d64f130bfdf246da",
+ "accepted_head_at_start": "1c8a5c0a20da231fe9e1b7b48c4af6ab2ad02b4d",
+ "branch": "task/tx7do-takeover",
+ "summary": "kratos-authz 公共 engine、engine/casbin(含 assets)、实际使用的 engine/noop 与 middleware 在同一轮迁入 pkg/localdeps/kratos-authz，作为主模块 go-wind-admin 的普通包：无 vendor、无模块缓存改动、无永久 replace、无嵌套 go.mod。11 个仓库自有消费者只改 import。嵌入模型路径、加载顺序、init 注册与注册表同一实例保持；冻结方法的实现逐字节等价（equiv 19/19）。",
+ "source_package_versions": {
+  "github.com/tx7do/kratos-authz": "v1.1.8",
+  "github.com/tx7do/kratos-authz/engine/casbin": "v1.1.12",
+  "github.com/tx7do/kratos-authz/middleware": "v1.1.13",
+  "github.com/casbin/casbin/v2": "v2.135.0 (unchanged; only its // indirect marker changed)",
+  "go.sum": "unchanged",
+  "module_map": "migration/preflight/T06-import-map.json"
+ },
+ "changed_files": {
+  "placed_localdeps_packages": [
+   "pkg/localdeps/kratos-authz/engine/LICENSE",
+   "pkg/localdeps/kratos-authz/engine/README.md",
+   "pkg/localdeps/kratos-authz/engine/casbin/LICENSE",
+   "pkg/localdeps/kratos-authz/engine/casbin/README.md",
+   "pkg/localdeps/kratos-authz/engine/casbin/adapter.go",
+   "pkg/localdeps/kratos-authz/engine/casbin/assets/abac.conf",
+   "pkg/localdeps/kratos-authz/engine/casbin/assets/acl.conf",
+   "pkg/localdeps/kratos-authz/engine/casbin/assets/assets.go",
+   "pkg/localdeps/kratos-authz/engine/casbin/assets/rbac.conf",
+   "pkg/localdeps/kratos-authz/engine/casbin/assets/rbac_with_domains.conf",
+   "pkg/localdeps/kratos-authz/engine/casbin/assets/restfull.conf",
+   "pkg/localdeps/kratos-authz/engine/casbin/assets/restfull_with_role.conf",
+   "pkg/localdeps/kratos-authz/engine/casbin/casbin.go",
+   "pkg/localdeps/kratos-authz/engine/casbin/casbin_test.go",
+   "pkg/localdeps/kratos-authz/engine/casbin/consts.go",
+   "pkg/localdeps/kratos-authz/engine/casbin/options.go",
+   "pkg/localdeps/kratos-authz/engine/casbin/rule.go",
+   "pkg/localdeps/kratos-authz/engine/claims.go",
+   "pkg/localdeps/kratos-authz/engine/consts.go",
+   "pkg/localdeps/kratos-authz/engine/engine.go",
+   "pkg/localdeps/kratos-authz/engine/errors.go",
+   "pkg/localdeps/kratos-authz/engine/factory.go",
+   "pkg/localdeps/kratos-authz/engine/noop/noop.go",
+   "pkg/localdeps/kratos-authz/engine/options.go",
+   "pkg/localdeps/kratos-authz/middleware/LICENSE",
+   "pkg/localdeps/kratos-authz/middleware/authz.go",
+   "pkg/localdeps/kratos-authz/middleware/authz_test.go",
+   "pkg/localdeps/kratos-authz/middleware/context.go",
+   "pkg/localdeps/kratos-authz/middleware/errors.go",
+   "pkg/localdeps/kratos-authz/middleware/options.go"
+  ],
+  "consumers_import_only": [
+   "app/admin/service/internal/server/policy_eval_logging_engine.go",
+   "app/admin/service/internal/server/policy_eval_logging_engine_guard_test.go",
+   "app/admin/service/internal/server/policy_eval_logging_engine_test.go",
+   "app/admin/service/internal/server/rest_server.go",
+   "app/admin/service/internal/service/accelerator_joint_http_test.go",
+   "pkg/authorizer/authorizer.go",
+   "pkg/authorizer/authorizer_test.go",
+   "pkg/middleware/auth/auth.go",
+   "pkg/middleware/auth/auth_test.go",
+   "pkg/middleware/auth/authorization_domain_test.go",
+   "pkg/middleware/auth/utils.go"
+  ],
+  "go.mod": [
+   "go.mod"
+  ],
+  "upstream_doc_files_absent_upstream": [
+   "github.com/tx7do/kratos-authz/middleware README.md (middleware ships no README; no file invented)"
+  ],
+  "tests_deleted_or_edited": 0,
+  "test_expectations_changed": 0
+ },
+ "non_import_changes": [
+  {
+   "file": "go.mod",
+   "change": "github.com/casbin/casbin/v2 v2.135.0 loses its // indirect marker because casbin is now imported by an in-module package",
+   "how_verified": "reproduced by the build itself; go.sum byte-unchanged",
+   "exit": 0
+  },
+  {
+   "scope": "all 30 placed files",
+   "change": "none beyond the import rebase",
+   "how_verified": "tools/migration/migrate_imports.go equiv: non-import AST + Go directives identical to the locked upstream source, 19/19 .go files exit 0; the 6 .conf assets + assets.go are byte-identical (sha256 pairs in migration/preflight/T06-assets-hash.json)",
+   "casbin_model_and_assets_byte_identical": true
+  },
+  {
+   "scope": "11 repo-own consumers",
+   "change": "import paths only",
+   "how_verified": "tools/migration/migrate_imports.go guard -base 474eee8: checked_files 11, pass true"
+  },
+  {
+   "scope": "noop usage",
+   "change": "none: noop remains the fallback for empty/unknown type only, casbin stays the only engine the startup gate accepts"
+  },
+  {
+   "scope": "OPA",
+   "change": "not restored. engine/consts.go keeps only the unused Opa Type constant as upstream does, and upstream's TestServer_OPA / TestServer_OPAWithDomain bodies are commented out and remain commented out"
+  },
+  {
+   "scope": "2 upstream README.md files",
+   "change": "stored blob line endings normalised CRLF to LF by .gitattributes",
+   "how_verified": "git show :<path> sha256 vs module-cache sha256; migration/preflight/T06-gitattributes-normalisation.json",
+   "effect": "documentation only; not compiled, not embedded, not part of the casbin model/asset hash gate"
+  }
+ ],
+ "commands": [
+  {
+   "name": "preflight-default-vet-probe",
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T06/t06_preflight_vet.sh",
+   "exit": 0,
+   "result": "upstream authz sources copied into an out-of-repo main module with exactly the T06 rebase: go test (default vet) exit 0 and go vet clean, so no T05-style printf blocker exists in this batch. All 7 upstream self-tests pass on the old side (migration/preflight/T06-preflight-upstream-selftests.log)"
+  },
+  {
+   "name": "activation",
+   "command": "python3 /home/ubuntu/tx7do-pilot-run/T06/t06_activate.py",
+   "exit": 0,
+   "result": "placed 30/30, problems 0; consumers to rewire 11; activation manifest migration/preflight/T06-activation.json"
+  },
+  {
+   "name": "equiv-placed",
+   "command": "tools/migration/migrate_imports.go equiv over placed files",
+   "exit": 0,
+   "result": "19/19 PASS (non-import AST and directives equivalent; not a runtime equivalence proof)"
+  },
+  {
+   "name": "rewrite-consumers",
+   "command": "tools/migration/migrate_imports.go rewrite over 11 consumers",
+   "exit": 0,
+   "result": "rewrite manifest migration/preflight/T06-rewrite.json"
+  },
+  {
+   "name": "guard",
+   "command": "tools/migration/migrate_imports.go guard -base 474eee824c07b0d3da00f1f4d64f130bfdf246da",
+   "exit": 0,
+   "result": "checked_files 11, pass true, scope non-import AST and Go directives only"
+  },
+  {
+   "name": "assets-hash",
+   "command": "sha256 compare localdeps assets vs module cache",
+   "exit": 0,
+   "result": "7/7 byte-identical (6 .conf models + assets.go), extra_local_files []"
+  },
+  {
+   "name": "build",
+   "command": "go build ./...",
+   "exit": 0,
+   "result": "also reproduced the single go.mod // indirect change; go.sum untouched"
+  },
+  {
+   "name": "tests-full-scoped",
+   "command": "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg <12 packages> with the task-owned isolated DSNs",
+   "exit": 1,
+   "result": "1012 pass / 1 fail / 7 skip test events (1020 total). The only failure is the inherited repo-precondition case TestBootstrapPostgres (pre-existing defect T03-F4) plus the package-level fail it causes in go-wind-admin/app/admin/service/internal/data. Log migration/preflight/T06-gate.log"
+  },
+  {
+   "name": "tests-required",
+   "command": "python3 /home/ubuntu/tx7do-pilot-run/T06/t06_run_required.py (per-package -run restricted to the 602 named profile cases; go test accepts only one global -run, hence package-by-package)",
+   "exit": 0,
+   "result": "8 packages with tests, aggregate exit 0, per-package exits in migration/preflight/T06-required-exits.json"
+  },
+  {
+   "name": "require-tests",
+   "command": "python3 tools/migration/require_tests.py --required T06-required-profile.json --log migration/preflight/T06-required.log",
+   "exit": 0,
+   "result": "pass true, required 602, bad_tests [], failed_packages []"
+  },
+  {
+   "name": "known-defects-replay",
+   "command": "python3 tools/migration/known_defects.py --list migration/required-known-defects.json --log <T04 candidate log> --exit <1> --reference-log <T04 pristine log> --reference-exit <1> --moved-file pkg/localdeps/go-utils/captcha/upstream_known_defects_test.go --locked-file migration/patches/T04/_orig/captcha-captcha_test.go",
+   "exit": 0,
+   "result": "verdict PASS, 9 KNOWN_BASELINE_FAILURE, candidate exit 1 and reference exit 1 preserved, blocking [] — the T04 debt is unchanged by T06"
+  },
+  {
+   "name": "casbin-startup-gate",
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T06/t06_gate.sh (build the server, run it with three authz configurations; every datasource rewritten to 127.0.0.1:1)",
+   "exit": 0,
+   "result": "type=noop refused exit 1 with 'ani-governance downstream catalog access requires tenant-domain casbin authorization'; authz.type absent refused exit 1 with the same error; type=casbin gets PAST the gate and only then fails at 'failed to open database: dial tcp 127.0.0.1:1'. Full transcript migration/preflight/T06-casbin-gate.txt"
+  },
+  {
+   "name": "decision-equivalence",
+   "command": "compare upstream pre-activation self-test verdicts with the activated packages' self-test verdicts",
+   "exit": 0,
+   "result": "31 verdict lines identical (TestFilterAuthorizedPairs, TestFilterAuthorizedProjects, TestProjectsAuthorized, TestServer_Casbin, TestServer_CasbinWithDomain plus subtests); migration/preflight/T06-decision-equivalence.json"
+  },
+  {
+   "name": "residual-graph",
+   "command": "go list -deps ./... ; go list -deps -test ./...",
+   "exit": 0,
+   "result": "0 occurrences of github.com/tx7do/kratos-authz in either graph (1040 build / 1161 test packages); the only authz engine registry definition in the tree is pkg/localdeps/kratos-authz/engine/factory.go:26. migration/preflight/T06-residual-graph.txt"
+  },
+  {
+   "name": "blob-vs-upstream-audit",
+   "command": "git show :<placed file> | sha256sum, compared with the module cache",
+   "exit": 0,
+   "result": "models, assets.go and LICENSEs byte-identical in the stored blob; 2 README.md LF-normalised by .gitattributes"
+  }
+ ],
+ "mandated_by_T06_md": [
+  {
+   "item": "同一轮迁入 engine、engine/casbin、实际使用 noop、middleware 及 casbin/assets",
+   "result": "done in one activation; 30 placed files, 0 problems"
+  },
+  {
+   "item": "保留嵌入模型路径、加载顺序、init 注册和注册表同一实例",
+   "result": "go:embed asset paths unchanged (byte-identical assets.go and 6 .conf); NewEngine→init(opts)→model→SyncedEnforcer order untouched (equiv PASS on casbin.go); engine.Register side effects of the casbin and noop init() preserved; exactly one registry package exists"
+  },
+  {
+   "item": "原方法冻结 newEngine/newEngineCasbin/newEngineNoop/ResetPolicies/generateCasbinPolicies/Engine, auth.processAuthz, newEvalLoggingEngine 与授权审计代理, NewRestMiddleware, initApp casbin 启动检查",
+   "result": "guard proves these repo-own files changed imports only; the authz packages themselves changed imports only (equiv); no signature, parameter adaptation or ordering change"
+  },
+  {
+   "item": "只对注册者和使用者一致改 import，不套新授权接口，不恢复 OPA，不扩大 noop 使用范围",
+   "result": "11 consumers import-path-only; no new interface layer introduced; OPA stays absent; noop still only the empty/unknown-type fallback"
+  },
+  {
+   "item": "执行 pkg/authorizer、pkg/middleware/auth、相关 server 策略审计测试",
+   "result": "pkg/authorizer 16/16, pkg/middleware/auth 21/21, app/admin/service/internal/server 11/11 pass in the required run"
+  },
+  {
+   "item": "TestAuthorizationTenantDomain 必跑，并验证同角色不同 tenant domain",
+   "result": "PASS; the case asserts role tenant:reader is allowed only for the token tenant 11 and refused for 12 and platform 0"
+  },
+  {
+   "item": "策略刷新",
+   "result": "5 ResetPolicies cases pass: noop nil, unknown engine error, provider error passthrough, casbin stub receives generated policies, real in-memory casbin engine loads them"
+  },
+  {
+   "item": "引擎失败",
+   "result": "error passthrough cases above plus TestNewEvalLoggingEngine_NilGuards and TestEvalLoggingEngine_Describe pass; no failure is swallowed"
+  },
+  {
+   "item": "启动 casbin 闸门",
+   "result": "verified behaviourally with the real server binary in three configurations (refused / refused / accepted-then-infra-fails); no test file was added and no gate weakened"
+  },
+  {
+   "item": "casbin 模型与 assets 逐字节 hash 不变",
+   "result": "7/7 sha256 pairs identical to the locked module cache, no extra local files"
+  },
+  {
+   "item": "验收：不出现新旧两份 authz registry",
+   "result": "upstream authz absent from build and test dependency graphs; single factory.go"
+  },
+  {
+   "item": "验收：策略样本 decision 与旧版一致",
+   "result": "31/31 verdict lines identical between the pre-activation upstream run and the activated run; cannot be satisfied by default-allow or by deleting policies (both would change those verdicts)"
+  }
+ ],
+ "required_tests": {
+  "profile": "migration/preflight/T06-required-profile.json",
+  "derivation": "union of packages T06 created/rewrote and packages transitively importing go-wind-admin/pkg/localdeps/kratos-authz; -tags quota_pg",
+  "packages": 12,
+  "packages_with_tests": 8,
+  "listed_total": 610,
+  "required": 602,
+  "pass": 602,
+  "fail": 0,
+  "skip": 0,
+  "missing": 0,
+  "not_run": 0,
+  "package_level_failures_in_required_run": [],
+  "repo_precondition_gated_not_run": {
+   "count": 8,
+   "cases": "migration/preflight/T06-gated-tests.json",
+   "inherited_from": "T05 verbatim",
+   "status": "not_run, never pass"
+  },
+  "vet": "default go test vet subset; -vet=off used on no gate or release command (used once, for enumeration of the excluded T05 engine package in an earlier task, never for a verdict)"
+ },
+ "test_environment": {
+  "isolated_only": true,
+  "dsn_source": "/home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh sourcing the authorised T07 guard and lab DSN env files",
+  "containers": "tx7do-t07-guard-pg (127.0.0.1:55432), tx7do-t07-acc-lab-pg (55433), tx7do-t04-captcha-redis",
+  "business_database_touched": false,
+  "startup_gate_probe": "every datasource in the three probe configs rewritten to 127.0.0.1:1; nothing outside the task-owned containers was reachable",
+  "no_deployment": true
+ },
+ "residual_target_dependencies": {
+  "go.mod_requires_still_present": [
+   "github.com/tx7do/kratos-authz v1.1.8",
+   "github.com/tx7do/kratos-authz/engine/casbin v1.1.12",
+   "github.com/tx7do/kratos-authz/middleware v1.1.13"
+  ],
+  "reason": "requires are removed only by the phase-E `go mod tidy`; deleting them now would edit go.mod beyond this task",
+  "import_occurrences_in_any_package_graph": 0
+ },
+ "remaining_debt_carried": [
+  "T05 exclusion still in force: pkg/localdeps/kratos-authn/engine's own upstream test (TestParseNumber) is outside the gate because default vet rejects frozen upstream AuthFromMD; a repository-wide `go test ./...` is therefore NOT green",
+  "9 captcha KNOWN_BASELINE_FAILURE cases (T04) unchanged, replayed PASS at this head",
+  "copylocks and the other full-vet findings surface only under `go vet ./...`, which is not the gate",
+  "QUOTA_UPGRADE_VERIFY and QUOTA_RESTORE_VERIFY still not_run"
+ ],
+ "not_verified": [
+  "two-process byte-for-byte wire differential of the T05 style was not built for authz; decision equivalence rests on the 31-line old/new self-test comparison plus byte-identical model assets",
+  "no production deployment, no real business database, no registry/config-center behaviour",
+  "TestServer_OPA / TestServer_OPAWithDomain prove nothing about OPA (bodies commented out upstream and here)"
+ ],
+ "group_B_status": "T03, T04, T05 and T06 complete; phase B closed. Next is phase C: T08 -> T09 -> T10.",
+ "pushed_merged_deployed": false,
+ "self_assessment": {
+  "accepted_head_advanced": true,
+  "planning_material_committed": false,
+  "tests_deleted_or_weakened": 0,
+  "expectations_rewritten": 0,
+  "hashes_updated_to_force_pass": 0,
+  "known_failure_set_expanded": 0,
+  "caveat": "PASS is scoped to the authorization takeover and the 602 named cases above. It is not a claim that the whole repository is green: the T05 engine exclusion and the T04 captcha debt are carried unchanged and are listed above."
+ },
+ "ledger_evidence": [
+  "T06-activation.json",
+  "T06-assets-hash.json",
+  "T06-casbin-gate.txt",
+  "T06-consumers.txt",
+  "T06-decision-equivalence.json",
+  "T06-equiv-placed.json",
+  "T06-gate-run.out",
+  "T06-gate.command",
+  "T06-gate.exit",
+  "T06-gate.finished",
+  "T06-gate.log",
+  "T06-gate.started",
+  "T06-gated-tests.json",
+  "T06-guard.json",
+  "T06-import-map.json",
+  "T06-known-defects-replay.command",
+  "T06-known-defects-replay.exit",
+  "T06-known-defects-replay.finished",
+  "T06-known-defects-replay.json",
+  "T06-known-defects-replay.log",
+  "T06-known-defects-replay.started",
+  "T06-new-selftests.log",
+  "T06-preflight-upstream-selftests.log",
+  "T06-preflight-vetprobe.log",
+  "T06-profile-packages.json",
+  "T06-require-tests.command",
+  "T06-require-tests.exit",
+  "T06-require-tests.finished",
+  "T06-require-tests.log",
+  "T06-require-tests.started",
+  "T06-required-exits.json",
+  "T06-required-profile.json",
+  "T06-required.command",
+  "T06-required.exit",
+  "T06-required.finished",
+  "T06-required.log",
+  "T06-required.started",
+  "T06-residual-graph.txt",
+  "T06-rewrite.json",
+  "T06-tests-summary.json"
+ ],
+ "verdict": "PASS",
+ "assets_disclosure": {
+  "claim": "which placed files are byte-identical to the locked upstream module cache, measured on the COMMITTED GIT BLOB and not only on the working tree",
+  "measured_at": "2026-09-25, before the T06 code commit",
+  "byte_identical_in_blob": {
+   "6 casbin model .conf files": "yes",
+   "engine/casbin/assets/assets.go": "yes",
+   "3 LICENSE files": "yes (identical to all three upstream LICENSEs)",
+   "19 .go files": "import rebase only; equivalence proved by migrate_imports equiv"
+  },
+  "normalised_by_gitattributes": [
+   {
+    "file": "pkg/localdeps/kratos-authz/engine/README.md",
+    "upstream": "github.com/tx7do/kratos-authz@v1.1.8/README.md",
+    "worktree_sha256": "a257934ef5a67c915fd92586fbb9d0036be19f3155e79b6ad7b081fd2c7f3542",
+    "blob_sha256": "9e2f3854e9de62ccc5ecb65b7f2b2979cdad04c7125c2a183bc31ba6ce86833f",
+    "why": "the upstream file uses CRLF; .gitattributes `* text=auto` plus `*.md text eol=lf` normalises the stored blob to LF"
+   },
+   {
+    "file": "pkg/localdeps/kratos-authz/engine/casbin/README.md",
+    "upstream": "github.com/tx7do/kratos-authz/engine/casbin@v1.1.12/README.md",
+    "worktree_sha256": "33590e38178a4598ebe1a1e7e3bf03dca512ae9a498ad8aef6ee1ec67373ac2a",
+    "blob_sha256": "f5c3828c3afc3b2b2170880e569f61306fc52677d6f71981f65a5611b583a315",
+    "why": "same CRLF to LF normalisation"
+   }
+  ],
+  "effect": "none on behaviour, the casbin model hash gate, the embedded assets or any test: README.md is not compiled, not embedded and not referenced by any hash requirement. Recorded because 'byte-identical' must not be read as claiming the stored blob equals upstream bytes for these two documents.",
+  "same_situation_in_earlier_tasks": "T05's pkg/localdeps/kratos-authn/engine/README.md and any other placed CRLF document are in the same position: working tree equals upstream, stored blob is LF-normalised. A corrigendum is recorded in migration/receipts/T05.json; no verdict, hash or test claim there is changed by it.",
+  "open_choice_for_the_user": "either accept this normalisation for inert documentation, or add a pkg/localdeps/** -text -eol rule to .gitattributes (mirroring the existing third_party/tx7do/** rule) so upstream snapshots are byte-exact in the repository object as well"
+ }
+}

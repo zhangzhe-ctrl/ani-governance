@@ -1,0 +1,118 @@
+{
+  "schema_version": "t15-review-F1-F5-gate/1",
+  "task": "T15",
+  "round": "independent-review F1-F5 remediation",
+  "review_baseline": "b48dc44d519c1d2813dabd33e5a85a50e7f8da9c",
+  "tested_code_sha": "d61a97938f77c66d9ef02e551aa7a73b7c5d1297",
+  "fix_commits_under_tested_sha": {
+    "F1": "1e19d2e47dc339f56dd29423a72c524770df1a18",
+    "F2_F3_F5": "f96e7f2338d9a7453a6ca61075e153e907bbfbad",
+    "F4": "c365479130082ec26705a1249156debbd5e52acc",
+    "docs": "7b6ea1121b68ae290cc6fcfda04bc3efaa7d6efd",
+    "ledger": "d61a97938f77c66d9ef02e551aa7a73b7c5d1297"
+  },
+  "delta_from_review_baseline": {
+    "commits": 5,
+    "files": 12,
+    "insertions": 1998,
+    "deletions": 144,
+    "code_files": [
+      "pkg/localdeps/go-utils/timeutil/trans_test.go",
+      "tools/localdeps/gow/internal/buf/staging.go",
+      "tools/localdeps/gow/internal/buf/preflight.go",
+      "tools/localdeps/gow/internal/buf/locked_chain_test.go",
+      "tools/localdeps/gow/internal/buf/writeback_test.go",
+      "tools/localdeps/gow/internal/buf/plugin_identity_test.go"
+    ],
+    "untouched_and_verified_so_far": "go.mod, go.sum, api/gen/go artifacts, Ent generated tree, migrations, schema, Proto sources, .gitleaks.toml, migration/required-tests.json, migration/required-known-defects.json, the 9 captcha and 3 ID rulings, and every business package"
+  },
+  "environment": {
+    "go": "go1.26.7 at /home/ubuntu/sdk/go1.26.7, GOROOT set to it, GOTOOLCHAIN=local, GOWORK=off, GOFLAGS=-mod=readonly",
+    "host_localtime": "/usr/share/zoneinfo/Asia/Shanghai (+08:00), which is why the F1 assertions never failed locally and failed on the UTC CI runner",
+    "tools": "buf v1.60.0, protoc-gen-go v1.36.11, protoc-gen-go-grpc v1.6.2, protoc-gen-go-http and protoc-gen-go-errors v2.0.0-20260404020628-f149714c1d54, protoc-gen-validate v1.3.3, task-private protoc 29.3, gitleaks v8.30.1, govulncheck v1.7.0; the same identity method the F4 change uses (go version -m) produced these values",
+    "databases": "task-owned isolated PostgreSQL at 127.0.0.1:55433 (gov_acc_data / gov_acc_lab) and the loopback-only non-persistent redis container started by scripts/verify-gpu-redis.sh; no localhost default, no business DSN",
+    "lab_certificates": "QUOTA_LAB_CERTS_DIR now points at /home/ubuntu/tx7do-pilot-run/T07/lab-r2/certs; the previous set at T07/lab/certs carried notAfter 2026-09-26T16:43:26Z and expired while gate attempt 2 was running. The old env file is preserved as T07/lab-dsn.env.before-cert-expiry and nothing in the repository changed because of it."
+  },
+  "complete_gate": {
+    "command": "make verify-gpu QUOTA_LAB_PG_DSN=<task lab DSN> under tools/migration/run_checked.sh, continuous single log, real exit code",
+    "attempt_1": {
+      "exit": 2,
+      "stage": "scripts/verify-gpu-format.sh",
+      "cause": "the extracted review package was sitting in the untracked _agent/ directory, and the repository's own format stage deliberately collects every untracked *.go file; the reviewer's probe sources are not gofmt-formatted",
+      "action": "the review material was moved outside the repository tree; the gate script, its file list and its strictness were not changed",
+      "log": "/home/ubuntu/tx7do-pilot-run/T15/review-fixes/f-final-gpu-attempt1-agent-in-tree.{command,log,exit}"
+    },
+    "attempt_2": {
+      "exit": 2,
+      "stage": "scripts/accelerator-acceptance/lab-regression.sh",
+      "cause": "five of the eight TestSimPG_ cases failed with \"Condition never satisfied\" at 16:44:02Z, one second after the task lab certificates expired (notAfter 2026-09-26T16:43:26Z); three cases that finished before the expiry passed in the same run",
+      "action": "fresh isolated lab certificates were generated with the repository's own scripts/accelerator-acceptance/prepare-lab-certs.sh into a new task directory, and the regression was re-run alone first: 8 of 8 pass, exit 0 (/home/ubuntu/tx7do-pilot-run/T15/review-fixes/lab-regression-recheck.{command,log,exit})",
+      "conclusion": "an environment credential lifetime, not a code regression; recorded with both logs rather than hidden by a retry",
+      "log": "/home/ubuntu/tx7do-pilot-run/T15/review-fixes/f-final-gpu-2.{command,log,exit}"
+    },
+    "attempt_3_result": {
+      "exit": 0,
+      "started": "2026-09-26T16:46:45Z",
+      "finished": "2026-09-26T17:11:14Z",
+      "wall": "24m29s",
+      "ok_lines": 74,
+      "failures_or_make_errors": 0,
+      "stages_seen_in_order": "Ent regenerate-and-diff (verify-quota-schema.sh + check-quota-ent.py: quota Ent boundary pass), format, three builds, redis-backed package suite, quota_pg targeted runs, race runs, lab regression, audit",
+      "audit": "govulncheck: \"Your code is affected by 0 vulnerabilities\" (1 imported and 8 required module findings not reachable from the code, reported as it says); gitleaks: \"no leaks found\" over ~40.21 MB",
+      "cache_disclosure": "67 of the 74 ok lines were Go cache results in this invocation; the fresh run below is what proves execution",
+      "log": "/home/ubuntu/tx7do-pilot-run/T15/review-fixes/f-final-gpu-3.{command,log,exit,started,finished}"
+    }
+  },
+  "fresh_non_cached_execution": {
+    "command": "bash scripts/verify-gpu-redis.sh run -- go test -count=1 -json ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/... ./tools/...",
+    "exit": 0,
+    "packages_passed": 74,
+    "cached": 0,
+    "failures": 0,
+    "required_profile": "python3 tools/migration/require_tests.py --required migration/required-tests.json -> pass true, required 7, bad_tests [], failed_packages [] (exit 0)",
+    "note": "./tools/... is inside this run and outside make verify-gpu, which is where the gate-uncovered tool regressions actually execute",
+    "log": "/home/ubuntu/tx7do-pilot-run/T15/review-fixes/f-final-fresh.{log,exit,command}"
+  },
+  "tool_entries_this_round": {
+    "make_tools_integration": "exit 0, protoc-driven redact package 3.010s with -count=1 (no cache), /home/ubuntu/tx7do-pilot-run/T15/review-fixes/f-tools-integration.{command,log,exit}",
+    "go_test_-race_over_tools": "exit 0 over all five packages under tools/localdeps/gow, no DATA RACE, /home/ubuntu/tx7do-pilot-run/T15/review-fixes/f-tools-race.{command,log,exit}",
+    "F1_mandatory_pair": "TZ=UTC exit 0 and TZ=Asia/Shanghai exit 0 as two separate processes over the whole timeutil package",
+    "generation_matrix": "make api and direct gow api in a clean detached worktree, missing tools/bin, uncommitted proto edit, hand-written edit preserved, generated edit refused, destination collision refused before any write, partial write rolled back, and the seven PGV scope cases: recorded in T15-f2f3f5-writeback-safety.json with the logs under /home/ubuntu/tx7do-pilot-run/T15/review-fixes/matrix/. CORRECTION carried out in the F5 closeout (migration/patches/T15/T15-f5-closeout.json): the matrix row for a repeated plain `gow api` was recorded as exit 0 although matrix/C-repeat.log shows it failing on a goproxy metadata EOF inside api/buf.network.gen.yaml; the failure stands as a failed attempt and the idempotency claim is restated from re-measured runs that each carry their own .exit record.",
+    "reproduction_of_the_acceptanced_contract": "managed digest 96184d0165d5bfd1 over 396 files in 5 roots, 0 files to write, go.mod and go.sum unchanged, 0 tracked modifications"
+  },
+  "evidence_package_defect_found_by_the_next_review": {
+    "what_was_wrong": "the 2026-09-26 package index table named f-final-gpu-3.log and f-final-fresh.log, but neither file was a tar member or a line in SHA256SUMS: the packaging list carried the attempt-1 and attempt-2 rows and the CI and matrix rows, and the two names were only ever added to the table generator",
+    "how_it_is_corrected": "both logs and their .command/.exit/.started/.finished companions are delivered in the closeout package as the originals they are, and the closeout generator asserts that every file the index names exists in the package before the tarball is written, so the table can no longer claim more than the archive contains",
+    "not_done": "no historical log was re-run to stand in for a missing one, and no old final2 log was substituted"
+  },
+  "closure_recheck": {
+    "tx7do_in_buildable_code": 0,
+    "tx7do_in_go_mod_or_go_sum": 0,
+    "tx7do_dependency_lines_in_binary_buildinfo": {"gow": 0, "protoc-gen-go-redact": 0},
+    "textual_mentions_outside_prose": "36 lines, every one of them inside migration/patches/T09/_integration_staging and migration/patches/T10/_pristine - archived predecessor snapshots under a leading underscore, which the Go toolchain ignores, kept as the equivalence baseline",
+    "surviving_module_versions": "no non-tx7do module version moved and none was added; the upgrade of dependencies is out of scope for this round and none was performed",
+    "scanner_exceptions": ".gitleaks.toml untouched; the exact T14 buildinfo exception and the 9 captcha plus 3 ID rulings are unchanged and were not re-adjudicated"
+  },
+  "ci": {
+    "run": "36258444247",
+    "url": "https://github.com/zhangzhe-ctrl/ani-governance/actions/runs/36258444247",
+    "head_sha": "dafbf4768a1e05d18a67c447696962945bcea54a",
+    "workflow": "GPU quota data gate, triggered by push; permissions are contents: read and the job only runs the gate and uploads an artifact, so pushing does not deploy, release or write any environment",
+    "status": "completed",
+    "conclusion": "success",
+    "verify_exit_in_artifact": 0,
+    "wall": "2026-09-26T17:16:33Z to 2026-09-26T17:29:15Z (12m42s)",
+    "runner_environment": "go1.26.7, PostgreSQL 16.10 service container, UTC local time - which is why the F1 package that passed locally on the Asia/Shanghai host had failed on the previous run",
+    "log_summary": "74 ok lines, 0 FAIL lines, quota Ent boundary pass, all TestSimPG_ cases pass, gitleaks no leaks, govulncheck 0 affected",
+    "the_specific_fix_proven_in_ci": "go-wind-admin/pkg/localdeps/go-utils/timeutil passes on the UTC runner; run 36249402114 on b48dc44 failed there with the eight-hour gap this round corrected",
+    "artifact": "/home/ubuntu/tx7do-pilot-run/T15/review-fixes/ci-run/quota-ent-dafbf4768a1e05d18a67c447696962945bcea54a-1/",
+    "artifact_verify_log_sha256": "ade622c84bd002d299c73671356764e640896b3a5634040dbaf4bcd6c3f803d6"
+  },
+  "not_verified_or_open": [
+    "the receipts-only commit that records this CI result is not itself gate-tested again; the code delta between it and the tested SHA is this file alone",
+    "R6: still BLOCKED_INPUT, waiting for the two historical dumps at /home/ubuntu/tx7do-pilot-run/T15/r6-inputs/",
+    "runtime, deployment and promotion acceptance: not performed in this round",
+    "TestTimeDifferenceDays under a DST-observing zone remains a recorded inherited production-semantics defect; it is not in the gate's UTC runner path and was deliberately not softened",
+    "the whole-repo go vet still reports the inherited T03-F5 copylocks finding in accelerator_joint_http_test.go:503, unchanged from before this round"
+  ]
+}

@@ -1,0 +1,26 @@
+--- a/pkg/localdeps/go-utils/trans/trans_test.go
++++ b/pkg/localdeps/go-utils/trans/trans_test.go
+@@ -163,10 +163,20 @@
+ 	assert.Nil(t, Uint64Slice(nil))
+ 	assert.Nil(t, Uint64ValueSlice(nil))
+ 
+-	tm := Time(time.Now())
++	// Upstream v1.1.40 compared two independent time.Now() readings here, which
++	// can never be equal at nanosecond precision. TimeValue(nil) returns
++	// time.Now(), so the only invariant is that it lands inside the surrounding
++	// clock window. Test-only correction; production behaviour is unchanged.
++	sample := time.Date(2020, time.January, 2, 3, 4, 5, 123456789, time.UTC)
++	tm := Time(sample)
+ 	tmVal := TimeValue(tm)
+-	assert.Equal(t, time.Now(), tmVal)
+-	assert.Equal(t, time.Now(), TimeValue(nil))
++	assert.Equal(t, sample, tmVal)
++
++	before := time.Now()
++	got := TimeValue(nil)
++	after := time.Now()
++	assert.False(t, got.Before(before))
++	assert.False(t, got.After(after))
+ }
+ 
+ func TestUUID(t *testing.T) {

@@ -1,0 +1,378 @@
+[
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestComplexFieldScenarios"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestComplexValidationScenarios"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestCrossPackageReferences"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestCustomRuleTypeMatching"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestCustomValueTypeCompatibility"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestEdgeCases"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestEmptyImportHandling"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestErrorContext"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestErrorMessageFormatting"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestErrorMessageQuality"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestFieldDataStructure"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestFieldTypeValidation"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestGRPCStatusCodeBoundaries"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestGRPCStatusCodeValidation"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestImportAliasGeneration"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestImportAliasValidCharacters"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestImportConflictResolution"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestImportDeduplication"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestImportOrderPreservation"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestImportPathHandling"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestImportPathNormalization"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestImportWithNestedPackages"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestIntegrationScenarios"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestMapFieldRedactionStrategies"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestMessageDataStructure"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestMessageDataWithOneofs"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestMessageOptionsValidation"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestMethodDataCompleteness"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestMethodDataStructure"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestModuleName"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestNestedMessageRedactionChaining"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofAllNumericVariants"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofBoolField"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofBytesField"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofCompleteScenario"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofCrossPackageMessage"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofDataStructure"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofEdgeCases"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofEnumField"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofEveryScalarType"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofFieldDataEmbedding"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofFloatDoubleFields"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofMessageAllVariants"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofMixedWithOptionalFields"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofRegularFieldsNotAffected"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofTemplateExecution"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofTemplateRendering"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofToNilMessageSkipsOneofs"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOneofWrapperTypeNaming"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOptionalFieldCompatibility"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOptionalFieldEdgeCases"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOptionalFieldHandling"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOptionalFieldPointerSemantics"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOptionalFieldsInComplexMessage"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOptionalFieldsWithDifferentRedactionStrategies"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOptionalMessageFields"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOptionalMessageWithRepeatedFields"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestOptionalPrimitiveFields"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestProtoFileDataStructure"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestProtoTypeToStringMapping"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestRedactionDefaults"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestRedactionValueFormatting"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestRepeatedFieldRuleValidation"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestRuleInformation"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestRuleInformationComplexCases"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestRuleValidationEdgeCases"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestServiceDataStructure"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestStandardImports"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestStandardReferences"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestStreamingMethodHandling"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestToCustomRule"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestValidateImportPath"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestValidatePackageName"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestValidateRules"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestValidateStatusCode"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestValidateTypeMatch"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestValidationError"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
+  "Test": "TestWellKnownTypeImports"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1",
+  "Test": "TestT09ApplyOnlyTouchesRedactors"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1",
+  "Test": "TestT09BypassDefaultsToFalseAndWrapperOverrides"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1",
+  "Test": "TestT09CustomRedactorRegistryIsSharedSingleton"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1",
+  "Test": "TestT09StreamRedactorsApplyBeforeForwarding"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1",
+  "Test": "TestT09StreamRedactorsTolerateNonRedactors"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/server",
+  "Test": "TestT09UserHTTPListRedactsEmailAndMobile"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/server",
+  "Test": "TestT09UserHTTPGetFieldPermissionClearsBeforeRedaction"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/server",
+  "Test": "TestT09UserHTTPFieldPermissionOnMobileKeepsRedactedEmail"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/server",
+  "Test": "TestT09UserHTTPRedactionIsNotBypassable"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/server",
+  "Test": "TestT09RedactOptionsSurviveOnBusinessDescriptors"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestFieldPermissionUser_ListAndGetReadMask"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestFieldPermissionUser_ListWithoutTokenNoTrim"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestFieldPermissionUser_WriteStrip"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestFieldPermissionUser_Passthrough"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+  "Test": "TestT08PaginationProtoIsRegisteredExactlyOnce"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-crud/pagination",
+  "Test": "TestT08PagingRequestContractIsUnchanged"
+ }
+]

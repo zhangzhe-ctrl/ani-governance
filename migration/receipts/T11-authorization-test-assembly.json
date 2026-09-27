@@ -1,0 +1,44 @@
+{
+  "schema_version": "t11-authorization-test-assembly/1",
+  "task": "T11 / blocker T11-B1 (15 upstream transport tests that cannot terminate or compare the wrong type)",
+  "kind": "supplemental authorization (test-assembly repair + named business acceptance; explicitly not a deletion/tagging/general-exemption licence)",
+  "granted_by": "user",
+  "granted_at": "2026-09-26T00:40+08:00",
+  "granted_via": "direct instruction in session, recorded as a supplement to the master goal",
+  "recorded_in": "_agent/ani-governance-tx7do-plan/T03-T15-master-goal.md, section 「### T11 补充授权：批准修复测试装配与明确的测试合同，不批准删除 15 项测试、全部打 tag 或新增 KNOWN_UNRUNNABLE_HARNESS」 (appended inside 失败与恢复, before 最终签收)",
+  "decision_verbatim": "请从当前T11现场继续。本指令作为总goal补充，写入其“失败与恢复”后并登记migration；不要只改文档后停止。批准修复测试装配及以下明确的测试合同，不批准删除15项测试、全部打tag或新增KNOWN_UNRUNNABLE_HARNESS。原功能冻结、已批准补丁和安全边界保留。不是只改文档后停止，须实际执行。",
+  "resume_state": {
+    "head": "b7d5ddb01439f45e52e7bcef1320b0589088642a",
+    "head_subject": "Take over the kratos-transport closure and park T11 on its upstream test files",
+    "accepted_head_before": "162b28ed268732392547c2343dc9b4f2f575f30f",
+    "t11_receipt_before": "BLOCKED",
+    "untracked_plan_material": "_agent/ (does not block execution, per the standing continuation instruction)",
+    "note": "the T11 test-assembly work is uncommitted in the working tree at the moment this authorization is recorded; the measured commit chain is ce28159 -> b7d5ddb"
+  },
+  "approved_scope": [
+    "3 transport Kind comparisons (asynq/sse/keepalive transport_test.go): replace reflect.DeepEqual with a direct constant/return-value comparison, remove the now-unused reflect import where applicable; production Kind() must not change its return type",
+    "10 waiting/lifecycle tests: asynq server tests (real Redis per test-owned instance, own queue per test, verifiable completion conditions with bounded deadlines instead of <-interrupt, Start in a goroutine with errors over a channel, cleanup registered before start), keepalive server test (WithAddress 127.0.0.1:0, real lis.Addr(), gRPC health readiness, single consumption of the Start return), sse server/http/client tests (dynamic listener, dial readiness, ordered cleanup, package-scoped goroutine convergence assertion)",
+    "2 SSE event-ID assertions: split into replay-off (caller ID preserved) and replay-on (32-hex UUIDv7 overwrite + eventLog.Replay equality) and rewrite the HTTP Last-Event-ID cursor from delivered IDs; EventLog.Add/Replay production code untouched",
+    "named business acceptance listed in section 六 of the supplement, plus a task-owned Redis entry point wired into the formal test entry"
+  ],
+  "explicitly_not_approved": [
+    "deleting or tagging away any of the 15 tests",
+    "a new general exemption channel such as KNOWN_UNRUNNABLE_HARNESS",
+    "changing production Kind(), EventLog.Add, EventLog.Replay, task names, payloads, queue Redis keys, retry/periodic semantics, or the SSE authentication/Isolation and non-blocking behaviour",
+    "process-wide SIGTERM or an outer timeout used to turn a hang into a pass",
+    "using the default localhost Redis or flushing a shared/business Redis",
+    "closing T11 with arithmetic such as 93-15=78, or claiming the full make verify-gpu chain (that belongs to T15)"
+  ],
+  "safety_boundaries_carried_forward": [
+    "-mod=readonly / GOWORK=off / GOTOOLCHAIN=local with the pinned /home/ubuntu/sdk/go1.26.7 tree on every go invocation (the host GOROOT=/usr/local/go is 1.26.4 and mixing them fails the compiler)",
+    "no push, no merge, no deploy, no business-database connection",
+    "the T10 approved patches, the six gitleaks exceptions and the classified known-defect ledger stay as accepted; gates are not narrowed"
+  ],
+  "artifacts_at_record_time": {
+    "master_goal_sha256": "5690eb72234a539c56b60e0ff72c073dca9a6702fefc404a40bb4eedafe14039",
+    "asynq_server_test_sha256": "c77dd255ee47ef16f0258a55377bcc43ec29a3cb7111ede814959150f0a43145",
+    "sse_server_test_sha256": "723d37b5eae13d66e7c2933de9f0393d4f43d669c6bf4cba0dc4b506a19fccda",
+    "keepalive_server_test_sha256": "981e53e9d6771c2fada7c02c0e11f4e0bc6d4f571bcdfc77fd601a5c84e3959e",
+    "redis_entry_point_sha256": "2bd75fe107f46398426a0bad01992e417775233e23d998529c6f6d3b76e97020"
+  }
+}

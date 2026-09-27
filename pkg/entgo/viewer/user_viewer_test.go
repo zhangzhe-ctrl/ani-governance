@@ -3,7 +3,7 @@ package viewer
 import (
 	"testing"
 
-	"github.com/tx7do/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 )

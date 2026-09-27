@@ -28,7 +28,8 @@ HTTP 客户端
 export PATH=/home/ubuntu/go/bin:/usr/local/go/bin:$PATH
 
 # 工具
-go1.26.7 install github.com/tx7do/go-wind-toolkit/gowind/cmd/gow@v1.0.3
+# gow 不再外部安装：本仓在用命令已接管到 tools/localdeps/gow，构建入口是 make gow（输出 tools/bin/gow）
+make gow && export PATH=$PWD/tools/bin:$PATH
 go1.26.7 install entgo.io/ent/cmd/ent@v0.14.6        # 与 go.mod 的 entgo 版本一致
 go1.26.7 install github.com/bufbuild/buf/cmd/buf@v1.60.0
 # 注意 buf 版本必须为 1.60.0：scripts/generate-network-slice.sh 会断言
@@ -79,11 +80,38 @@ go1.26.7 install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20
 > - 因此 `1.60.0` 这个约束的性质是**钉版纪律**（保证生成链可复现、可追责），
 >   而非 buf 本身的能力要求。不要因为"旧版也能跑"就绕过脚本的断言。
 
-> **本仓生成链并未真正锁定**：`api/gen/go/` 的产物继承自上游 fork，其原始
-> 工具链没有记录（见 `AGENTS.md` 关于"发布复现需记录工具版本"的说明）。
-> 上面这些版本只保证"装上去不会让产物大面积漂移"，**不等于**能逐字节复现既有产物。
-> 需要严格复现时，请用 `scripts/generate-*-slice.sh` 的方式，并同时执行
-> `scripts/post-generate-clean.sh` 抹平残余噪声。
+> **生成链已记录并可逐字节复现（2026-09-26 T15 实测更新）**：早期本文认为
+> `api/gen/go/` 继承自上游 fork、原始工具链未记录，因而"不保证逐字节复现"，并要求在
+> 全量生成后执行 `scripts/post-generate-clean.sh` 抹平噪声。该判断的前提是当时存在两套
+> 互相覆盖的入口（主模板用 PATH 插件与 managed `go_package`，切片模板钉旧插件版本并带显式
+> `go_package`）。T15 已把它收敛为单一已验收链：`make api` 先构建本仓 `tools/bin/gow` 与
+> `tools/bin/protoc-gen-go-redact`，再委托 `gow api`（校验插件/输入 → 隔离暂存副本生成 →
+> 按受管清单写回），并在暂存副本内先执行 `scripts/finalize-aksk-openapi.py` 这一既有后处理（与 `make openapi` 同一脚本、同一规则，因此无需再补命令）；插件与版本记录在
+> `migration/patches/T15/T15-tool-lock.json`，PGV 范围记录在 `migration/pgv-scope.json`。
+> 实测在干净检出上执行两遍，受管产物与已提交内容逐字节一致、`go.mod`/`go.sum` 不变。
+> 因此 `post-generate-clean.sh` 已退役（现拒绝执行且不改任何文件）：若再次生成出现漂移，
+> 按缺陷排查，不要在生成之后还原或删除产物。
+>
+> **写回与身份核对的实际含义（2026-09-26 独立复核 F2–F5 修正）**：
+> - 工具区分**三棵树**：生成开始时的快照、暂存副本输出、写回前的工作树。比较只针对快照；
+>   写回前再逐一核对目标当前内容与快照一致，不一致即为冲突——**保留用户内容并报错**，整批不写。
+>   生成期间被改动的**手写**文件（如脱敏接管包内的 `interface.go`）不属于写回集合，任何情况下都不会被覆盖。
+> - 写回集合只含本链能产出的文件类别（`*.pb.go`、`*.pb.validate.go`、`*.pb.redact.go`
+>   与 `app/admin/service/cmd/server/assets/openapi.yaml`）；输出目录内的其他文件一律视为手写，
+>   既不写回，也不因其未被重产而报"丢失"。
+> - 写入前检查全部目标的路径与类型冲突（目标存在但为目录或符号链接会被拒绝，且**尚未写任何文件**）；
+>   中途失败则恢复本次替换的文件、删除本次新增的文件。若回滚本身失败，会**单独报告**并保留备份目录，
+>   不宣称工作树未变；回滚不覆盖其后出现的用户修改。这只是一次写回的有限撤销，**不承诺**断电或
+>   kill 下的整目录原子性，也不是通用事务机制。
+> - 全链路运行会先把暂存副本里生成类别的文件全部清掉，因此"复现"必须真正重建：已批准清单中的产物
+>   缺失即失败；清单外 validator 无论新增还是已存在被改写都拒绝；`migration/pgv-scope.json`
+>   缺失、损坏或为空是硬失败（不再是"没有规则"）。部分切片只核对自己写回的部分，不要求产出 103 项。
+> - 插件仅"存在"已不足以通过：PATH 插件与 `buf` 都用 `go version -m` 读构建信息，对照
+>   `migration/patches/T15/T15-tool-lock.json` 的模块与版本；读不到就明确失败，`--version`
+>   输出不作为身份依据。本仓自有的 redact 插件每次生成都经 `scripts/build-redact-plugin.sh`
+>   从当前源码构建一次（Go 构建缓存承担重复成本；按插件计数，不按模板），并校验其 buildinfo 的
+>   模块与包路径属本仓且无 tx7do 依赖。各模板已批准的不同钉版保持原样：不统一、不安装 `@latest`、
+>   不改动用户全局工具。
 
 ### 1.1 私有模块校验和不匹配（已定位根因，2026-09-21）
 

@@ -1,0 +1,37 @@
+{
+ "meaning": "decision-equivalence for the authorization sample sets, upstream code vs the activated localdeps code",
+ "old_side": {
+  "source": "github.com/tx7do/kratos-authz@v1.1.8 + engine/casbin@v1.1.12 + middleware@v1.1.13, copied into an out-of-repo scratch module with exactly the T06 import rebase applied",
+  "log": "migration/preflight/T06-preflight-upstream-selftests.log",
+  "sha256": "0c5a86bec259847933e6466ff9d9e49006f0c48bbff3a35c60a5566a35f52c08",
+  "top_level_tests": [
+   "TestFilterAuthorizedPairs",
+   "TestFilterAuthorizedProjects",
+   "TestProjectsAuthorized",
+   "TestServer_Casbin",
+   "TestServer_CasbinWithDomain",
+   "TestServer_OPA",
+   "TestServer_OPAWithDomain"
+  ],
+  "verdict_lines_including_subtests": 31
+ },
+ "new_side": {
+  "source": "/home/ubuntu/Workspace/ani-governance pkg/localdeps/kratos-authz/engine/casbin + middleware, activated",
+  "log": "migration/preflight/T06-new-selftests.log",
+  "sha256": "0c5a86bec259847933e6466ff9d9e49006f0c48bbff3a35c60a5566a35f52c08",
+  "top_level_tests": [
+   "TestFilterAuthorizedPairs",
+   "TestFilterAuthorizedProjects",
+   "TestProjectsAuthorized",
+   "TestServer_Casbin",
+   "TestServer_CasbinWithDomain",
+   "TestServer_OPA",
+   "TestServer_OPAWithDomain"
+  ],
+  "verdict_lines_including_subtests": 31
+ },
+ "identical_verdict_sets": true,
+ "verdict_diff_empty": true,
+ "not_covered_by_this_check": "byte-for-byte differential of a two-process harness like T05's JWT wire test; the casbin model text and assets are separately proven byte-identical (T06-assets-hash.json); the engine registry has exactly one copy because no github.com/tx7do/kratos-authz package is in either dependency graph (T06-residual-graph.txt)",
+ "opa_disclosure": "TestServer_OPA and TestServer_OPAWithDomain pass on BOTH sides because their bodies are commented out upstream and remain commented out here; they are not OPA coverage and OPA is not restored by T06"
+}

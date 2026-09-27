@@ -1,0 +1,48 @@
+{
+ "schema_version": "t11-equiv-placed/1",
+ "note": "migrate_imports equiv compares non-import AST and Go directives, not runtime behaviour",
+ "results": [
+  {
+   "file": "pkg/localdeps/kratos-transport/broker/options.go",
+   "pristine_source": "kratos-transport/broker@v1.3.3/options.go",
+   "exit": 0,
+   "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+   "file": "pkg/localdeps/kratos-transport/transport/asynq/server.go",
+   "pristine_source": "kratos-transport/transport/asynq@v1.3.14/server.go",
+   "exit": 0,
+   "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+   "file": "pkg/localdeps/kratos-transport/transport/keepalive/server.go",
+   "pristine_source": "kratos-transport/transport/keepalive@v1.3.5/server.go",
+   "exit": 0,
+   "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+   "file": "pkg/localdeps/kratos-transport/transport/keepalive/utils.go",
+   "pristine_source": "kratos-transport/transport/keepalive@v1.3.5/utils.go",
+   "exit": 0,
+   "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+   "file": "pkg/localdeps/kratos-transport/transport/options.go",
+   "pristine_source": "kratos-transport/transport@v1.3.4/options.go",
+   "exit": 0,
+   "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+   "file": "pkg/localdeps/kratos-transport/transport/register.go",
+   "pristine_source": "kratos-transport/transport@v1.3.4/register.go",
+   "exit": 0,
+   "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  },
+  {
+   "file": "pkg/localdeps/kratos-transport/transport/sse/server.go",
+   "pristine_source": "kratos-transport/transport/sse@v1.3.8/server.go",
+   "exit": 0,
+   "message": "PASS: non-import AST and directives equivalent (not a runtime equivalence proof)"
+  }
+ ]
+}

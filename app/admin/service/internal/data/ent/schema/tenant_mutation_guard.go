@@ -6,7 +6,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"fmt"
 
-	"github.com/tx7do/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 )
 
 // TenantMutationGuardPolicy 仓内租户写隔离防线（独立于库层的第二道，纵深防御）。

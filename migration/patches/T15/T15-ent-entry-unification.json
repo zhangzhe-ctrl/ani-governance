@@ -1,0 +1,77 @@
+{
+  "schema_version": "t15-ent-entry-unification/1",
+  "task": "T15",
+  "item": "close the two conflicting Ent generation entries instead of accepting the R4 pass as cover for the difference",
+  "status": "ENT_DUAL_ENTRY_UNIFIED",
+  "commit": "72f0c49c82e132030f11790e1b832553738f3ab8 (code: tools/localdeps/gow/internal/ent/cmd.go + feature_gate_test.go)",
+  "ruling_applied": "the gate's five-feature command is the default generation contract, and the in-use gow slice follows it. scripts/verify-quota-schema.sh is untouched, so no gate was narrowed; no database, schema, Ent/Atlas library behaviour or business code is involved; no new CLI mode was added and startup migrations stay disabled.",
+
+  "before_state_measured_not_inferred": {
+    "question": "does the current local gow still regenerate Diff/NamedDiff, or was only the committed file restored?",
+    "method": "build the pre-change tool into a task-private directory, then run its ent admin in a detached worktree of 5ec79af",
+    "binary": "gow-before sha256 a9b8cd206c53ac7f2f1e3083764bef2858702c429ac4d0648475ee37b35a2f36, embedded mod go-wind-admin v0.0.0-20260926082906-5ec79afcf870",
+    "worktree": "/home/ubuntu/tx7do-pilot-run/T15/ent-unify/before at clean 5ec79af (0 dirty files before)",
+    "result": "exit 0; ent/migrate/migrate.go gained 32 lines (+32/-0) and it was the only modified file; 'func NamedDiff' count went from 0 to 1",
+    "log": "/home/ubuntu/tx7do-pilot-run/T15/ent-unify/before-gow.log",
+    "conclusion": "the conflict was live: any developer or script using the documented entry re-broke verify-quota-ent"
+  },
+
+  "consumer_check_before_removing_anything": {
+    "callers_of_generated_diff_or_nameddiff": "none. A whole-repository grep for Diff/NamedDiff/versioned outside the generated ent package returns only this tool's own argv line and unrelated go-cmp cmp.Diff assertions in pagination tests.",
+    "atlas_and_migrations": "scripts/atlas.sh, migrations/ and sql/ contain no reference to the versioned-migration API",
+    "the_command_it_served_is_absent": "the retained slice ships cmd/gow/{buf,ent,main,version}.go only; there is no migrate command and no internal/migrate package, so the flag's stated purpose cannot be reached in this repository",
+    "independent_confirmation": "the accepted tree without the block builds under default, quota_lab and quota_pg and passed the complete make verify-gpu, which no caller would survive"
+  },
+
+  "change": {
+    "file": "tools/localdeps/gow/internal/ent/cmd.go",
+    "removed": ["\"--feature\", \"sql/versioned-migration\"", "the comment claiming it is needed for gow migrate --versioned"],
+    "kept": ["--feature privacy", "--feature entql", "--feature sql/modifier", "--feature sql/upsert", "--feature sql/lock", "the schema target path", "RunGenerate's go-run-then-global-ent behaviour", "every other option and function"],
+    "shape": "the list became a named entGenerateFeatures slice purely so a test can assert it without executing code generation",
+    "hand_editing_generated_output": "none; migrate.go was already restored by tool execution in 8fca316 and this round changes only the tool"
+  },
+
+  "tests_added": {
+    "file": "tools/localdeps/gow/internal/ent/feature_gate_test.go",
+    "TestGenerateFeaturesMatchEntGate": "parses the --feature list straight out of scripts/verify-quota-schema.sh and requires it to equal the tool's list, failing outright if the gate script exposes no features",
+    "TestGenerateFeaturesExcludeVersionedMigration": "names the single feature that must not return, with the reason",
+    "result": "go vet ./tools/localdeps/gow/... clean; go test -count=1 ./tools/localdeps/gow/internal/ent/ → all four tests pass",
+    "negative_control": "in a throwaway worktree of HEAD the flag was added back and both new tests failed (package exit 1), so the lock has teeth rather than restating the source",
+    "control_log": "/home/ubuntu/tx7do-pilot-run/T15/ent-unify/negctl"
+  },
+
+  "binary_provenance": {
+    "private_build_tested": "gow-after sha256 e7ccdf75c1948a31d38ddf546deb45c6d487922619e29b98bc1e984351a03469, version string reports commit 72f0c49c82e1",
+    "official_target_agrees": "make gow (exit 0) writes tools/bin/gow with the identical sha256, so the ordering runs below used the same bytes the repository builds",
+    "differs_from_pre_change": "a9b8cd206c53ac7f... vs e7ccdf75c1948a31..., confirming the tested binary carries the change"
+  },
+
+  "two_order_consistency": {
+    "candidate": "72f0c49, compared against its own committed tree in a detached worktree",
+    "order_A_gow_then_gate": {
+      "step1_gow_ent_admin": "exit 0, 0 dirty files afterwards",
+      "step2_gate": "bash scripts/verify-quota-schema.sh exit 0 (its own full-tree and schema.sql diffs are silent), 0 dirty files afterwards",
+      "ent_tree_digest": "6f2af0dacc90c1d0",
+      "evidence": "/home/ubuntu/tx7do-pilot-run/T15/ent-unify/orderA-step{1,2}-*.{command,log,exit}"
+    },
+    "order_B_gate_then_gow": {
+      "step1_gate": "exit 0, 0 dirty files afterwards",
+      "step2_gow_ent_admin": "exit 0, 0 dirty files afterwards",
+      "ent_tree_digest": "6f2af0dacc90c1d0",
+      "evidence": "/home/ubuntu/tx7do-pilot-run/T15/ent-unify/orderB-step{1,2}-*.{command,log,exit}"
+    },
+    "comparison_scope": "git status --porcelain over the whole worktree, so all 442 tracked ent .go files, schema.sql, go.mod, go.sum and every other tracked file must match the candidate; 442 ent files in the committed tree and in both orders, so nothing was added or lost; 'func NamedDiff' count is 0 in both orders' migrate.go",
+    "other_digests_identical_across_both_orders": {
+      "app/admin/service/schema.sql": "be0e7e199344853d",
+      "go.mod": "5e33988887af338a",
+      "go.sum": "997d541cec2913e4"
+    },
+    "meaning": "the two entries now produce one result in either order, with no 32-line oscillation, so this is no longer a hand-restored file but a converged contract"
+  },
+
+  "relationship_to_earlier_evidence": {
+    "r2_kept": "migration/receipts/T15-pgv-scope-resolved.json keeps its full-chain two-pass rebuild of fc7804b; this file adds the final two-entry consistency evidence rather than renaming the old claim",
+    "r4_kept": "the exit-0 make verify-gpu stays bound to the tree it actually tested (77dea49). This commit changes a generation entry, so R4 is not claimed over it until the final candidate is zeroed in R7.",
+    "accepted_head": "627783c is not rolled back; the Ent tree in this candidate is byte-identical to accepted_head"
+  }
+}

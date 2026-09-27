@@ -1,0 +1,97 @@
+{
+ "meaning": "isolated locked-upstream defects: each must actually run, must fail, and must fail the same way as the identically organised pristine copy in the same environment; a failure is never recorded as a pass",
+ "candidate_label": "ani-governance in-repo localized copy",
+ "reference_label": "pristine pinned upstream module",
+ "candidate_exit_code": "1",
+ "reference_exit_code": "1",
+ "candidate_package_action": "fail",
+ "reference_package_action": "fail",
+ "tag": "upstream_known_defects",
+ "known_defect_count": 1,
+ "status_counts": {
+  "SIGNATURE_MISMATCH": 1
+ },
+ "tests": [
+  {
+   "Package": "go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap",
+   "Test": "TestBootstrapWithNameVersion",
+   "candidate_action": "fail",
+   "reference_action": "fail",
+   "candidate_signature": {
+    "sites": [
+     "bootstrap_test.go:30"
+    ],
+    "transcript": [
+     "[2026-09-25T16:24:17+08:00] Gowind Test (pid:465550@i-8yg2l7u8)",
+     "Version: v0.0.1",
+     "AppId: test",
+     "InstanceId: gowind-test-v0.0.1@i-8yg2l7u8@dar2vcfn44rhdalpneig",
+     "Error: stat ../../configs: no such file or directory",
+     "Usage:",
+     "server [flags]",
+     "Flags:",
+     "-s, --chost string config server host, eg: -chost <ADDR> (default \"<ADDR>\")",
+     "-c, --conf string config path, eg: -conf ../../configs (default \"../../configs\")",
+     "-t, --ctype string config server type, eg: -ctype consul (default \"consul\")",
+     "-d, --daemon run app as a daemon with -d or --daemon",
+     "-e, --env string runtime environment, eg: -env dev (default \"dev\")",
+     "-h, --help help for server",
+     "bootstrap_test.go:30:",
+     "Error Trace: /<TOKEN>-<TOKEN>-bootstrap/bootstrap/bootstrap_test.go:30",
+     "Error: Expected nil, but got: &fs.PathError{Op:\"stat\", Path:\"../../configs\", Err:0x2}",
+     "Test: <TOKEN>",
+     "--- FAIL: <TOKEN> (TIME)"
+    ]
+   },
+   "reference_signature": {
+    "sites": [
+     "bootstrap_test.go:30"
+    ],
+    "transcript": [
+     "[2026-09-25T16:24:30+08:00] Gowind Test (pid:466758@i-8yg2l7u8)",
+     "Version: v0.0.1",
+     "AppId: test",
+     "InstanceId: gowind-test-v0.0.1@i-8yg2l7u8@dar2vfnn44rh6ohmun10",
+     "Error: stat ../../configs: no such file or directory",
+     "Usage:",
+     "server [flags]",
+     "Flags:",
+     "-s, --chost string config server host, eg: -chost <ADDR> (default \"<ADDR>\")",
+     "-c, --conf string config path, eg: -conf ../../configs (default \"../../configs\")",
+     "-t, --ctype string config server type, eg: -ctype consul (default \"consul\")",
+     "-d, --daemon run app as a daemon with -d or --daemon",
+     "-e, --env string runtime environment, eg: -env dev (default \"dev\")",
+     "-h, --help help for server",
+     "bootstrap_test.go:30:",
+     "Error Trace: krbs/bootstrap/bootstrap_test.go:30",
+     "Error: Expected nil, but got: &fs.PathError{Op:\"stat\", Path:\"../../configs\", Err:0x2}",
+     "Test: <TOKEN>",
+     "--- FAIL: <TOKEN> (TIME)"
+    ]
+   },
+   "candidate_output_sha256": "27f830449e403f33fe9e9ab550d0341b135f3399d3153c4ab3cf5d99a7e0330f",
+   "reference_output_sha256": "5d47828b07c3da506872941818055d9a62aac0d37af0b29b8f5dfeb252b3122a",
+   "status": "SIGNATURE_MISMATCH"
+  }
+ ],
+ "isolated_file": null,
+ "locked_source_copy": null,
+ "moved_tests_verbatim": [],
+ "allowed_failure_function_set": [
+  "TestBootstrapWithNameVersion"
+ ],
+ "normalisation_rules": [
+  "elapsed time",
+  "absolute prefix of the copy under test",
+  "uuid",
+  "long hex",
+  "base64-ish token",
+  "host:port"
+ ],
+ "error_content_compared": true,
+ "blocking": [
+  "SIGNATURE_MISMATCH: TestBootstrapWithNameVersion"
+ ],
+ "verdict": "BLOCKED",
+ "note": "the fully tagged run is NOT green by design: these 1 cases are recorded as KNOWN_BASELINE_FAILURE and the run's own non-zero exit code is preserved"
+}

@@ -13,7 +13,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/tx7do/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 )
 
 // TestNewSystemViewer_ReturnsSystemViewer 验证 NewSystemViewer 返回的接口值

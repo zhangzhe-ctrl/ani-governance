@@ -1,0 +1,17 @@
+/tmp/t14_bin_register: go1.26.7
+	path	go-wind-admin/tools/register
+	mod	go-wind-admin	v0.0.0-20260925232651-2f82b7045979+dirty	
+	build	-buildmode=exe
+	build	-compiler=gc
+	build	CGO_ENABLED=1
+	build	CGO_CFLAGS=
+	build	CGO_CPPFLAGS=
+	build	CGO_CXXFLAGS=
+	build	CGO_LDFLAGS=
+	build	GOARCH=amd64
+	build	GOOS=linux
+	build	GOAMD64=v1
+	build	vcs=git
+	build	vcs.revision=2f82b7045979451962d7d35b6b156bb4f222379c
+	build	vcs.time=2026-09-25T23:26:51Z
+	build	vcs.modified=true

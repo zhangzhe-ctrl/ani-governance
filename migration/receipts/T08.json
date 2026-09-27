@@ -1,0 +1,602 @@
+{
+ "schema_version": "t08/1",
+ "task": "T08",
+ "phase": "C",
+ "goal_file": "_agent/ani-governance-tx7do-plan/goals/T08.md",
+ "status": "COMPLETE",
+ "conclusion": "PASS",
+ "scope_statement": "T08 only, quota/pagination slice. This is not a system-wide migration claim: T09 and T10 are still open in phase C, and 26 tx7do package paths plus 43 tx7do module requirements remain in the build graph.",
+ "frozen_baseline": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+ "start_sha": "b8e4093a392def8dec47bd16f3310beaa48bff4b",
+ "accepted_head_at_start": "8e83d260d311b0ea26050f720cecca02990b317d",
+ "end_sha": "53b3c0053ebf06435044b9b2928925ee528454de",
+ "branch": "task/tx7do-takeover",
+ "working_tree_at_entry": "clean except untracked _agent/ plan material, which is deliberately never committed",
+ "summary": "开启阶段 C：把分页 Proto、分页运行包、filter/paginator/sorting 转换器、codec 注册与 go-wind/log 在同一轮迁入 pkg/localdeps，成为主模块 go-wind-admin 的普通包。分页 Proto 全仓唯一来源（api/localdeps/pagination，源码与 go-crud/api@v0.0.7 逐字节一致），api/buf.yaml 加入本地模块并只移除对应的 buf.build/tx7do/pagination 外部依赖，其他 BSR 版本未升级。token secret、codec 注册表、日志实例与 descriptor 各只有一个实例，旧 descriptor 重复注册的可能不再是“被绕过的错误”，而是结构上不存在。280 个 Go 文件仅改 import（guard exit 0），2 个生成的 *.pb.redact.go 是 protoc-gen-go-redact 依 go_package 派生的 import 别名差异，并由本地化生成链逐字节复现。手写 PlanQuotaRepo.List/Get、planQuotaCondition/planQuotaListParams 与 Repository.ListWithPaging 正文未改；43/43 必跑通过，含隔离实验库上 32 例分页矩阵。无 vendor、无模块缓存改动、无永久 replace、无嵌套 go.mod；未部署、未合并、未 push。",
+ "source_package_versions": {
+  "github.com/tx7do/go-crud/api": "v0.0.7 (pagination/v1/pagination.proto and the reference pagination.pb.go)",
+  "github.com/tx7do/go-crud/pagination": "v0.0.16 (runtime, filter, paginator, sorting)",
+  "github.com/tx7do/go-wind": "v0.0.2 (log)",
+  "github.com/tx7do/go-wind-plugins/encoding": "v0.0.1",
+  "github.com/tx7do/go-wind-plugins/encoding/json": "v0.0.1",
+  "go.sum": "unchanged (git diff --stat -- go.sum is empty)",
+  "go.mod": "2 // indirect markers dropped, no version changed (see non_import_changes)",
+  "module_map": "migration/patches/T08/T08-takeover-map.json",
+  "provenance": "migration/patches/T08/T08-provenance.json (46 placed files, 28 byte-identical, 37 equiv pass, equiv_fail [])",
+  "toolchain_verified_before_the_generation_batch": [
+   "T08 generation-batch entry tool verification (measured, not inferred)",
+   "date: 2026-09-25",
+   "host: linux x64",
+   "go            go version go1.26.7 linux/amd64",
+   "GOROOT        /home/ubuntu/sdk/go1.26.7",
+   "buf           1.50.0",
+   "gow           gow version v1.0.3 (commit: none, built: unknown)",
+   "protoc        absent - buf drives the local plugins",
+   "protoc-gen-go         protoc-gen-go v1.36.11",
+   "protoc-gen-go-grpc    protoc-gen-go-grpc 1.6.2",
+   "protoc-gen-go-http    protoc-gen-go-http v2.9.2",
+   "protoc-gen-go-errors  protoc-gen-go-errors v2.9.2",
+   "protoc-gen-validate   PATH binary, no --version flag; api/buf.aksk.gen.yaml pins github.com/envoyproxy/protoc-gen-validate@v1.3.3",
+   "protoc-gen-go-redact  PATH binary, no --version flag; go.mod pins github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2",
+   "protoc-gen-openapi    not on PATH; api/buf.admin.openapi.gen.yaml pins github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1",
+   "",
+   "pinned inside api/*.gen.yaml local plugin lines:",
+   "",
+   "pristine pagination.pb.go header declares: protoc-gen-go v1.36.11, protoc (unknown)"
+  ],
+  "buf_used_for_the_localized_template": "v1.60.0 pinned by scripts/generate-pagination.sh (`test \"$($BUF --version)\" = 1.60.0`); host buf 1.50.0 produces a byte-identical pagination.pb.go"
+ },
+ "changed_files": {
+  "localized_proto_source": {
+   "api/localdeps/pagination/pagination/v1/pagination.proto": "byte-identical to go-crud/api@v0.0.7 protos/pagination/v1/pagination.proto (sha256 ebef7621e7c7cb01 both sides, T08-proto-source-identity exit 0, 518 lines). The in-file `option go_package = \"github.com/tx7do/go-crud/api/gen/go/pagination/v1;pagination\";` is kept verbatim; localization happens in the generator override, exactly as upstream's own build already did."
+  },
+  "generated_localized_output": {
+   "pkg/localdeps/go-crud/api/gen/go/pagination/v1/pagination.pb.go": "the only pagination Go generated copy in the repository; sha256 68556b2cc8f2eaa1; differs from the pristine upstream-generated file in 2 lines only (migration/patches/T08/T08-pagination-pb-vs-pristine.diff): the embedded descriptor's go_package string and its length prefix"
+  },
+  "placed_upstream_copies_count": 46,
+  "placed_upstream_copies": [
+   "api/localdeps/pagination/pagination/v1/pagination.proto",
+   "pkg/localdeps/go-crud/api/LICENSE",
+   "pkg/localdeps/go-crud/pagination/LICENSE",
+   "pkg/localdeps/go-crud/pagination/README.md",
+   "pkg/localdeps/go-crud/pagination/filter/README.md",
+   "pkg/localdeps/go-crud/pagination/filter/converter.go",
+   "pkg/localdeps/go-crud/pagination/filter/converter_test.go",
+   "pkg/localdeps/go-crud/pagination/filter/filter_string_converter.go",
+   "pkg/localdeps/go-crud/pagination/filter/filter_string_converter_test.go",
+   "pkg/localdeps/go-crud/pagination/filter/operator_converter.go",
+   "pkg/localdeps/go-crud/pagination/filter/operator_converter_test.go",
+   "pkg/localdeps/go-crud/pagination/filter/query_string_converter.go",
+   "pkg/localdeps/go-crud/pagination/filter/query_string_converter_test.go",
+   "pkg/localdeps/go-crud/pagination/paginator.go",
+   "pkg/localdeps/go-crud/pagination/paginator/limits.go",
+   "pkg/localdeps/go-crud/pagination/paginator/limits_test.go",
+   "pkg/localdeps/go-crud/pagination/paginator/offset_paginator.go",
+   "pkg/localdeps/go-crud/pagination/paginator/page_paginator.go",
+   "pkg/localdeps/go-crud/pagination/paginator/token_paginator.go",
+   "pkg/localdeps/go-crud/pagination/sorting/order_by_string_converter.go",
+   "pkg/localdeps/go-crud/pagination/sorting/order_by_string_converter_test.go",
+   "pkg/localdeps/go-crud/pagination/token_codec.go",
+   "pkg/localdeps/go-crud/pagination/token_codec_test.go",
+   "pkg/localdeps/go-crud/pagination/token_secret.go",
+   "pkg/localdeps/go-crud/pagination/token_secret_test.go",
+   "pkg/localdeps/go-crud/pagination/tree.go",
+   "pkg/localdeps/go-crud/pagination/tree_test.go",
+   "pkg/localdeps/go-crud/pagination/utils.go",
+   "pkg/localdeps/go-crud/pagination/utils_test.go",
+   "pkg/localdeps/go-wind-plugins/encoding/LICENSE",
+   "pkg/localdeps/go-wind-plugins/encoding/README.md",
+   "pkg/localdeps/go-wind-plugins/encoding/encoding.go",
+   "pkg/localdeps/go-wind-plugins/encoding/encoding_test.go",
+   "pkg/localdeps/go-wind-plugins/encoding/json/LICENSE",
+   "pkg/localdeps/go-wind-plugins/encoding/json/json.go",
+   "pkg/localdeps/go-wind-plugins/encoding/json/json_test.go",
+   "pkg/localdeps/go-wind/log/LICENSE",
+   "pkg/localdeps/go-wind/log/doc.go",
+   "pkg/localdeps/go-wind/log/example_test.go",
+   "pkg/localdeps/go-wind/log/global.go",
+   "pkg/localdeps/go-wind/log/global_helpers.go",
+   "pkg/localdeps/go-wind/log/global_helpers_test.go",
+   "pkg/localdeps/go-wind/log/level.go",
+   "pkg/localdeps/go-wind/log/log.go",
+   "pkg/localdeps/go-wind/log/log_test.go",
+   "pkg/localdeps/go-wind/log/nop_logger.go"
+  ],
+  "authored_by_T08": [
+   "api/buf.pagination.gen.yaml",
+   "scripts/generate-pagination.sh",
+   "pkg/localdeps/go-crud/pagination/t08_localization_test.go",
+   "pkg/localdeps/go-crud/pagination/filter/t08_codec_localization_test.go",
+   "pkg/localdeps/go-crud/entgo/pagination/token_paginator_t08_test.go"
+  ],
+  "consumers_import_only_count": 276,
+  "consumers_import_only_evidence": "migration/preflight/T08-guard-import-only.json",
+  "already_localdeps_files_import_only_count": 4,
+  "already_localdeps_files_import_only": [
+   "pkg/localdeps/go-crud/entgo/client.go",
+   "pkg/localdeps/go-crud/entgo/pagination/offset_paginator.go",
+   "pkg/localdeps/go-crud/entgo/pagination/page_paginator.go",
+   "pkg/localdeps/go-crud/entgo/pagination/token_paginator.go"
+  ],
+  "already_localdeps_note": "these 4 files were placed by the earlier viewer/entgo takeover, so they do not exist at the frozen baseline; they are guarded against start_sha instead (migration/preflight/T08-guard-unify.json)",
+  "generated_files_with_alias_delta": [
+   "api/gen/go/admin/service/v1/i_user.pb.redact.go",
+   "api/gen/go/identity/service/v1/user.pb.redact.go"
+  ],
+  "modified_existing_test_files": "56 *_test.go files changed by import rewrite only, all inside the guard set; no assertion, expectation, skip or build tag was touched",
+  "tests_deleted": 0,
+  "test_expectations_changed": 0,
+  "upstream_tests_excluded_or_tagged_out": 0,
+  "non_go_modified": [
+   "AGENTS.md",
+   "Makefile",
+   "api/buf.accelerator.gen.yaml",
+   "api/buf.admin.openapi.gen.yaml",
+   "api/buf.aksk.gen.yaml",
+   "api/buf.gen.yaml",
+   "api/buf.lock",
+   "api/buf.model.gen.yaml",
+   "api/buf.network.gen.yaml",
+   "api/buf.quota-lab.gen.yaml",
+   "api/buf.quota.gen.yaml",
+   "api/buf.yaml",
+   "go.mod"
+  ],
+  "non_go_reasons": {
+   "api/buf.yaml": "add module path localdeps/pagination (lint STANDARD / breaking FILE, same as the other modules) and remove exactly one dep line: buf.build/tx7do/pagination",
+   "api/buf.lock": "drop the matching locked dep entry; leaving it makes buf fail with 'file is contained in multiple modules'. No other module's commit or digest changed.",
+   "api/buf.gen.yaml": "remove tx7do/pagination from managed.disable, add the registered go_package exception for path pagination/v1, and restrict business input to `inputs: - directory: protos` so pagination is not generated a second time",
+   "api/buf.{accelerator,admin.openapi,aksk,model,network,quota,quota-lab}.gen.yaml": "same two edits per template (go_package exception for the local Proto; business input selects only protos). buf.model.gen.yaml keeps its 2026-09-21 suspended status and was not run",
+   "api/buf.pagination.gen.yaml": "new: the only template that writes pkg/localdeps/go-crud/api, clean:false, no post-generate hook",
+   "scripts/generate-pagination.sh": "new: pinned-buf driver for that template; refuses any buf version other than 1.60.0",
+   "Makefile": "new api-pagination target so the documented workflow can reproduce the generated copy",
+   "AGENTS.md": "one table row documenting 'make api-pagination' and its BUF pin",
+   "go.mod": "see non_import_changes[0]"
+  }
+ },
+ "non_import_changes": [
+  {
+   "file": "go.mod",
+   "change": "github.com/google/go-cmp v0.7.0 and go.einride.tech/aip v0.86.3 lose their '// indirect' markers. No version changed and go.sum is byte-unchanged.",
+   "cause": "packages placed this round import them: pkg/localdeps/go-crud/pagination/filter/{filter_string_converter.go,query_string_converter_test.go} and pkg/localdeps/go-crud/pagination/sorting/order_by_string_converter.go",
+   "how_verified": "grep of the importers plus `go build -mod=readonly ./...` reproducing exactly this delta (T08-build-all exit 0); it is what `go mod tidy` records anyway, deferred to phase E to keep this batch's diff reviewable",
+   "exit": 0
+  },
+  {
+   "files": [
+    "api/gen/go/admin/service/v1/i_user.pb.redact.go",
+    "api/gen/go/identity/service/v1/user.pb.redact.go"
+   ],
+   "change": "one import line each (path plus the generator-derived alias pagination -> v1) and 2 / 3 selector qualifiers (`_ pagination.Sorting`, `in *pagination.PagingRequest`)",
+   "why_not_import_only": "protoc-gen-go-redact names the import from the resolved go_package option. Upstream's BSR copy carries `;pagination` and gets alias `pagination`; the managed override here must emit the alias-free value so the generated Go package stays `v1`, identical to the pristine upstream pagination.pb.go. Dropping the alias therefore moves the qualifier spelling in redact output only.",
+   "how_verified": "T08-redact-alias-diff exit 0: the import-block delta is exactly that one line, every other changed line is explained by the qualifier substitution and nothing else, both files carry the '// Code generated by' marker at start_sha, and the clean post-change regeneration reproduces both byte-for-byte (T08-regen-control POST-CHANGE lists neither file as differing). No redact option, bypass check or method body moved.",
+   "type_identity": "the qualifier still denotes the same contract: TestT08PaginationProtoIsRegisteredExactlyOnce proves exactly one registered descriptor for pagination/v1 with package pagination, 12 messages and 3 enums, and TestT08PagingRequestContractIsUnchanged freezes every field number, kind, json_name, oneof and extension count",
+   "exit": 0
+  },
+  {
+   "scope": "all 276 consumer Go files + the 4 already-localdeps files",
+   "change": "none beyond import paths",
+   "how_verified": "tools/migration/migrate_imports.go guard: 276 files and 4 files, both pass true, scope 'non-import AST and Go directives, not runtime behaviour'",
+   "guard_base": "b8e4093 (the accepted head at entry), not the frozen baseline d27847b: the freeze is five accepted commits behind and the files placed by T03-T07 do not exist there, so start_sha is the state whose non-import content T08 must not have changed. Fidelity to the upstream sources for the 46 placed files is proven separately by equiv against the locked module cache (T08-provenance.json).",
+   "exit": 0
+  },
+  {
+   "scope": "state and instance unification",
+   "change": "no source body was edited to unify anything; the single-instance property comes from every site resolving the same package: pagination.SetTokenSecret/TokenSecret, encoding.RegisterCodec/GetCodec and go-wind/log's global logger",
+   "how_verified": "behaviour tests, not grep: TestT08TokenPaginatorReadsTheSharedSecretInstance shows the entgo token paginator's SQL uses the secret set through the shared package (WHERE `id` > ? plus LIMIT 20), TestT08TokenPaginatorFailsClosedOnTamperedOrForeignTokens covers signature-flipped, payload-extended, foreign-secret, legacy-unsigned and empty tokens, and TestT08FilterResolvesTheLocalizedJSONCodec shows the filter converter's codec is the json codec that encoding.GetCodec resolves process-wide",
+   "call_sites_now_on_one_package": [
+    "pkg/localdeps/go-crud/entgo/pagination/token_paginator.go",
+    "pkg/localdeps/go-crud/entgo/repository_cache.go:145",
+    "pkg/localdeps/go-crud/entgo/repository_cache.go:215",
+    "app/admin/service/internal/data/plan_quota_list.go:295"
+   ]
+  },
+  {
+   "scope": "24 pre-existing generated-output drift files",
+   "change": "none by this round",
+   "how_verified": "T08-regen-control: a control generation from the committed (pre-T08) api tree already differed in 169 files, and after the T08 wiring the differing set is 24, a subset (newly_introduced_by_T08=none). Cause is toolchain headers: the tree stores files generated by protoc-gen-go-grpc 1.6.0 and protoc-gen-go 1.36.12 while the verified local tools are 1.6.2 and 1.36.11.",
+   "decision": "left alone and disclosed; re-committing them would be an unrelated mass rewrite"
+  },
+  {
+   "scope": "gofmt",
+   "change": "11 files in the change set are not gofmt-clean",
+   "how_verified": "T08-gofmt-account exit 0: 8 were already unclean at the frozen baseline and 3 are placed copies whose locked upstream source is itself unclean (go-wind@v0.0.2/log/global_helpers{,_test}.go, go-crud/pagination@v0.0.16/filter/filter_string_converter_test.go). The 3 files authored by T08 are clean.",
+   "effect": "disclosure only: `make lint` runs golangci-lint, not gofmt"
+  }
+ ],
+ "mandated_by_T08_md": [
+  {
+   "item": "第7条 先确认生产/测试/保留SDK包图没有旧entgo等强制回引旧分页类型；解析失败停止，不关闭Proto冲突检查",
+   "result": "T08-residual-deps exit 0 over 4 scopes (3 entries, all app/pkg/tools packages, the same with -test plus the quota_pg tag, and the tag-gated GPU simulator): retired_hits [] in every scope, 1007-1176 packages listed per scope with no parse failure. No conflict check was disabled; duplicate registration is now structurally impossible because one copy exists."
+  },
+  {
+   "item": "第8条 锁定分页Proto入 api/localdeps/pagination，保留逻辑 import 路径与全名/字段/options，go_package 改为 pkg/localdeps 目标且原 Go 包名保留；buf.yaml 加本地模块并仅移除该外部 dep",
+   "result": "proto sha256 ebef7621e7c7cb01 equals go-crud/api@v0.0.7; package stays `pagination`, messages/enums/options untouched; generated Go package is `v1` as upstream's own copy; buf.yaml gains path localdeps/pagination and loses exactly buf.build/tx7do/pagination, buf.lock loses only that entry, every other BSR commit/digest is unchanged"
+  },
+  {
+   "item": "第9条 分页运行包与 filter/paginator/sorting、codec 注册（encoding/json）与 go-wind/log 同轮接管，所有 Secret 设置与读写方统一",
+   "result": "all four packages placed in this one commit; the 4 token-verification call sites now resolve pkg/localdeps/go-crud/pagination; token secret round-trip, tamper rejection, copy-on-set and the legacy-unsigned branches are covered by named tests in the required profile"
+  },
+  {
+   "item": "第10条 修改所有在用 buf.*gen 模板：业务输入只选 protos；本地 Proto 独立生成到 pkg/localdeps 目标；managed 全局前缀对本地 Proto 例外；分页只生成一份；禁止 clean:true 指向仓库根或手写目录；先临时目录核对再同步",
+   "result": "8 templates updated (7 in-use plus the suspended model template, kept consistent without running it); api/buf.pagination.gen.yaml is the sole writer of the localdeps target and uses clean:false; T08-regen-control ran generation in throwaway directories before anything was synced and asserts exactly 1 pagination.pb.go, api/gen/go/pagination absent, and 0 files in the post-change output mentioning an external pagination path"
+  },
+  {
+   "item": "第11条 手写 PlanQuotaRepo.List/Get、planQuotaCondition/planQuotaListParams、Repository.ListWithPaging 正文不改；测试含空白/数值/时间SEARCH、NULL、排序total、mask、token防篡改",
+   "result": "guard (import-only) covers app/admin/service/internal/data/plan_quota_list.go and pkg/localdeps/go-crud/entgo/repository.go; TestPlanQuotaPostgresListCompatibility passes 32 subtests on the authorized lab database, including blank-search, numeric-search, numeric-blank-search, timestamp-search, timestamp-blank-search, null/not-null, the sorting-page-offset total, the field/view mask branch and the corrupted-token error branch"
+  },
+  {
+   "item": "第12条 含 imports 的 descriptor 基线精确比较：仅允许已登记文件的 go_package 变化；go test 初始化烟测 + 三入口构建；旧分页包在运行/测试包图消失；干净再生成不回引 tx7do",
+   "result": "T08-descriptor-{upstream,local,diff} exit 0 using two separate binaries (protobuf-go refuses a double registration): 6550-line and 6561-line dumps whose full text differs in 4 lines, all inside options.go_package plus its re-marshal length; the whole descriptor including validation/HTTP/redaction options is compared, only SourceCodeInfo was stripped in the comparison copy. T08-init-smoke exit 0 (140 packages), T08-entries-build exit 0 for admin / server / schema. Regeneration back-reference check: 0 files."
+  },
+  {
+   "item": "第14条 回执要求",
+   "result": "this file, plus migration/patches/T08/ and migration/preflight/T08-*"
+  }
+ ],
+ "commands": [
+  {
+   "name": "tests-localdeps",
+   "command": "go test -mod=readonly -count=1 -json -v -p 2 ./pkg/localdeps/go-crud/pagination/... ./pkg/localdeps/go-crud/api/gen/go/pagination/... ./pkg/localdeps/go-crud/entgo/pagination/... ./pkg/localdeps/go-crud/entgo/filter/... ./pkg/localdeps/go-wind/... ./pkg/localdeps/go-wind-plugins/... ./pkg/localdeps/go-utils/stringcase/... ./pkg/localdeps/go-utils/trans/...",
+   "exit": 0,
+   "result": "371 test events pass / 0 fail / 0 skip across 12 packages"
+  },
+  {
+   "name": "require-localdeps",
+   "command": "python3 tools/migration/require_tests.py --required /home/ubuntu/tx7do-pilot-run/T08/required-profile-localdeps.json --log /home/ubuntu/Workspace/ani-governance/migration/preflight/T08-tests-localdeps.log",
+   "exit": 0,
+   "result": "{\"pass\": true, \"required\": 42, \"bad_tests\": [], \"failed_packages\": []}"
+  },
+  {
+   "name": "tests-quota-lab",
+   "command": "go test -mod=readonly -count=1 -json -v -p 1 -tags quota_pg -run TestPlanQuotaPostgresListCompatibility ./app/admin/service/internal/data/",
+   "exit": 0,
+   "result": "33 pass / 0 fail / 0 skip (TestPlanQuotaPostgresListCompatibility + 32 subtests) against QUOTA_LAB_PG_DSN on tx7do-t07-acc-lab-pg"
+  },
+  {
+   "name": "tests-merged",
+   "command": "concatenation of T08-tests-localdeps.log and T08-tests-quota-lab.log (verified: md5 of the concatenation equals the merged log); each input log has its own recorded exit code, both 0",
+   "exit": null,
+   "result": "158 named tests; this is the log the required gate below is run against"
+  },
+  {
+   "name": "require-all",
+   "command": "python3 tools/migration/require_tests.py --required /home/ubuntu/tx7do-pilot-run/T08/required-profile.json --log /home/ubuntu/Workspace/ani-governance/migration/preflight/T08-tests-merged.log",
+   "exit": 0,
+   "result": "{\"pass\": true, \"required\": 43, \"bad_tests\": [], \"failed_packages\": []}"
+  },
+  {
+   "name": "init-smoke",
+   "command": "go test -mod=readonly -count=1 -p 2 -run \\^\\$ ./app/... ./pkg/... ./tools/...",
+   "exit": 0,
+   "result": "go test over the whole module reaches executable init without a registration panic; 140 packages listed, exit 0"
+  },
+  {
+   "name": "entries-build",
+   "command": "go build -mod=readonly -p 2 -o /tmp/t08-bin/ ./app/admin/service/cmd/admin ./app/admin/service/cmd/server ./app/admin/service/cmd/schema",
+   "exit": 0,
+   "result": "admin, server and schema entry binaries build"
+  },
+  {
+   "name": "build-all",
+   "command": "go build -mod=readonly ./...",
+   "exit": 0,
+   "result": "go build -mod=readonly ./... clean; reproduces only the 2-line go.mod marker change"
+  },
+  {
+   "name": "vet-scoped",
+   "command": "go vet -mod=readonly -p 2 -tags quota_pg ./pkg/localdeps/go-crud/pagination/... ./pkg/localdeps/go-crud/api/gen/go/pagination/... ./pkg/localdeps/go-crud/entgo/pagination/... ./pkg/localdeps/go-crud/entgo/filter/... ./pkg/localdeps/go-wind/... ./pkg/localdeps/go-wind-plugins/...",
+   "exit": 0,
+   "result": "default vet on every package this round placed or touched"
+  },
+  {
+   "name": "vet-wide",
+   "command": "go vet -mod=readonly -p 2 -tags quota_pg ./app/... ./pkg/... ./api/... ./tools/...",
+   "exit": 1,
+   "result": "exit 1 on the single inherited finding app/admin/service/internal/service/accelerator_joint_http_test.go:503 (assignment copies lock value), identical at accepted_head and untouched by T08. No gate command runs with -vet=off."
+  },
+  {
+   "name": "regen-control",
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T08/t08_regen_gate.sh (pre- and post-change generation in throwaway dirs, then t08_classify_ctl.py)",
+   "exit": 0,
+   "result": "post-other=24 pre-other=169 newly_introduced_by_T08=none; 1 pagination.pb.go in the post tree, byte-identical to the committed one; api/gen/go/pagination absent; 0 files back-referencing tx7do pagination"
+  },
+  {
+   "name": "make-api-pagination",
+   "command": "bash -c BUF=/home/ubuntu/go/bin/buf\\ make\\ api-pagination",
+   "exit": 0,
+   "result": "BUF=buf v1.60.0; regenerated file keeps sha256 68556b2cc8f2eaa1 (unchanged)"
+  },
+  {
+   "name": "buf-wiring-scan",
+   "command": "bash -c rc=0\\;\\ for\\ f\\ in\\ api/buf.yaml\\ api/buf.lock\\ \\$\\(ls\\ api/buf.\\*.gen.yaml\\)\\;\\ do\\ if\\ grep\\ -n\\ \\\"tx7do/pagination\\\"\\ \\\"\\$f\\\"\\ \\|\\ grep\\ -v\\ \\\"\\^\\[0-9\\]\\*:\\[\\[:space:\\]\\]\\*#\\\"\\ \\|\\ grep\\ -q\\ .\\;\\ then\\ echo\\ \\\"FAIL:\\ live\\ tx7do/pagination\\ reference\\ in\\ \\$f\\\"\\;\\ grep\\ -n\\ \\\"tx7do/pagination\\\"\\ \\\"\\$f\\\"\\;\\ rc=1\\;\\ fi\\;\\ done\\;\\ echo\\ \\\"templates\\ scanned:\\ \\$\\(ls\\ api/buf.\\*.gen.yaml\\ \\|\\ wc\\ -l\\)\\\"\\;\\ echo\\ \\\"live\\ tx7do/pagination\\ references:\\ \\$\\(\\(\\ rc\\ \\?\\ 1\\ :\\ 0\\ \\)\\)\\\"\\;\\ exit\\ \\$rc",
+   "exit": 0,
+   "result": "8 templates scanned, 0 live buf.build/tx7do/pagination references"
+  },
+  {
+   "name": "guard-import-only",
+   "command": "go run ./tools/migration/migrate_imports.go guard -root . -base b8e4093 -files /home/ubuntu/tx7do-pilot-run/T08/T08-guard-files.txt -out /home/ubuntu/Workspace/ani-governance/migration/preflight/T08-guard-import-only.json",
+   "exit": 0,
+   "result": "{\"checked_files\": 276, \"pass\": true, \"scope\": \"non-import AST and Go directives, not runtime behavior\"} against -base b8e4093"
+  },
+  {
+   "name": "guard-unify",
+   "command": "go run ./tools/migration guard -root . -base b8e4093a392def8dec47bd16f3310beaa48bff4b -files /home/ubuntu/tx7do-pilot-run/T08/unify-files.txt -out migration/preflight/T08-guard-unify.json",
+   "exit": 0,
+   "result": "{\"checked_files\": 4, \"pass\": true, \"scope\": \"non-import AST and Go directives, not runtime behavior\"} against -base b8e4093 (these 4 files were placed by the earlier viewer/entgo takeover)"
+  },
+  {
+   "name": "redact-alias-diff",
+   "command": "python3 /home/ubuntu/tx7do-pilot-run/T08/t08_redact_alias.py",
+   "exit": 0,
+   "result": "both *.pb.redact.go deltas are the pagination alias and its 2 / 3 selector qualifiers, unexplained: none, clean regeneration byte-identical: True"
+  },
+  {
+   "name": "proof-coverage",
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T08/t08_proof_coverage.sh",
+   "exit": 0,
+   "result": "282 modified .go files == 276 guard + 4 unify + 2 redact proofs, both comm directions empty; 13 non-Go files named; 52 untracked files enumerated"
+  },
+  {
+   "name": "gofmt-account",
+   "command": "bash /home/ubuntu/tx7do-pilot-run/T08/t08_gofmt_account.sh",
+   "exit": 0,
+   "result": "325 Go files in the change set, 11 unclean: 8 pre-existing at the freeze, 3 inherited from the locked upstream source; the 3 T08-authored test files are clean"
+  },
+  {
+   "name": "descriptor-upstream / descriptor-local / descriptor-diff",
+   "command": "two throwaway binaries each registering one file descriptor, dumping protodesc.ToFileDescriptorProto text, then diff",
+   "exit": 0,
+   "result": "exit 0: only options.go_package differs (plus the re-marshal length line 6550 -> 6561); imports, services, methods, extensions, and every validation/HTTP/redact option identical"
+  },
+  {
+   "name": "proto-source-identity",
+   "command": "bash -c $'\\nset -u\\nMC=$(go env GOMODCACHE)\\necho \"module cache (read-only source): $MC\"\\nP=\"$MC/github.com/tx7do/go-crud/api@v0.0.7/protos/pagination/v1/pagination.proto\"\\n[ -f \"$P\" ] || { echo \"pristine proto not in the read-only module cache\"; exit 1; }\\necho \"upstream : $(sha256sum \"$P\")\"\\necho \"local    : $(sha256sum api/localdeps/pagination/pagination/v1/pagination.proto)\"\\ncmp \"$P\" api/localdeps/pagination/pagination/v1/pagination.proto\\necho \"cmp exit=$? (0 = byte-identical)\"\\necho \"lines: $(wc -l < api/localdeps/pagination/pagination/v1/pagination.proto)\"\\necho \"in-file option go_package kept verbatim (localization happens in the generator):\"\\ngrep -n \"option go_package\" api/localdeps/pagination/pagination/v1/pagination.proto\\n'",
+   "exit": 0,
+   "result": "upstream and local sha256 both ebef7621e7c7cb01, cmp exit 0, 518 lines"
+  },
+  {
+   "name": "residual-deps",
+   "command": "python3 /home/ubuntu/tx7do-pilot-run/T08/t08_residual.py",
+   "exit": 0,
+   "result": "retired_hits [] in 4 scopes; 26 tx7do paths still in the graph; 43 tx7do modules still required by go.mod"
+  },
+  {
+   "name": "tests-affected",
+   "command": "go test -mod=readonly -count=1 -json -v -p 2 -tags quota_pg ./pkg/localdeps/... ./app/admin/service/internal/data/...",
+   "exit": 1,
+   "result": "1049 pass / 1 fail / 3 skip test events over 33 packages. The single failure is the inherited repo-precondition case TestBootstrapPostgres (known defect T03-F4) and the package-level fail it causes; the 3 skips are env-gated helpers (TestQuotaGpuOldPopulatedUpgradeReplay, TestQuotaGpuRestoredProjectionContinuation, TestQuotaProcessChild)"
+  },
+  {
+   "name": "require-affected",
+   "command": "python3 tools/migration/require_tests.py --required /home/ubuntu/Workspace/ani-governance/migration/patches/T08/T08-required-profile.json --log /home/ubuntu/Workspace/ani-governance/migration/preflight/T08-tests-affected.log",
+   "exit": 1,
+   "result": "{\"pass\": false, \"required\": 43, \"bad_tests\": [], \"failed_packages\": [\"go-wind-admin/app/admin/service/internal/data\"]} - exit 1 is carried by TestBootstrapPostgres, which is not in this task's required profile; the required set itself has no bad test"
+  }
+ ],
+ "required_tests": {
+  "profile": "migration/patches/T08/T08-required-profile.json",
+  "required": 43,
+  "pass": 43,
+  "fail": 0,
+  "skip": 0,
+  "missing": 0,
+  "not_run": 0,
+  "gate": "python3 tools/migration/require_tests.py --required ... --log T08-tests-merged.log (exit 0)",
+  "by_package": {
+   "app/admin/service/internal/data": 1,
+   "pkg/localdeps/go-crud/entgo/pagination": 4,
+   "pkg/localdeps/go-crud/pagination": 15,
+   "pkg/localdeps/go-crud/pagination/filter": 8,
+   "pkg/localdeps/go-crud/pagination/paginator": 5,
+   "pkg/localdeps/go-crud/pagination/sorting": 2,
+   "pkg/localdeps/go-wind-plugins/encoding": 3,
+   "pkg/localdeps/go-wind-plugins/encoding/json": 2,
+   "pkg/localdeps/go-wind/log": 3
+  },
+  "authored_by_T08": [
+   "TestT08PaginationProtoIsRegisteredExactlyOnce",
+   "TestT08PagingRequestContractIsUnchanged",
+   "TestT08FilterResolvesTheLocalizedJSONCodec",
+   "TestT08SearchOperatorIsKnownToTheLocalizedConverter",
+   "TestT08TokenPaginatorReadsTheSharedSecretInstance",
+   "TestT08TokenPaginatorFailsClosedOnTamperedOrForeignTokens",
+   "TestT08TokenPaginatorKeepsUnsignedModeBackwardCompatible"
+  ],
+  "carrier_of_the_line_11_matrix": "TestPlanQuotaPostgresListCompatibility (32 subtests, quota_pg tag, authorized lab database)",
+  "not_in_profile_and_why": "the 3 env-gated skips and TestBootstrapPostgres are not required by T08: they are pre-existing conditions carried in remaining_debt_carried"
+ },
+ "test_environment": {
+  "isolated_lab_only": true,
+  "containers": [
+   "tx7do-t07-guard-pg (127.0.0.1:55432)",
+   "tx7do-t07-acc-lab-pg (127.0.0.1:55433)",
+   "tx7do-t04-captcha-redis"
+  ],
+  "helper": "bash /home/ubuntu/tx7do-pilot-run/T05/with_t05_env.sh <command> exports the pinned toolchain plus the task-owned DSNs; run_checked.sh records only the wrapper argv, never its environment",
+  "never_touched": "quota-gpu-local-01-pg and any business database",
+  "no_migration_or_startup_write": "nothing in this round ran a schema migration or started the service"
+ },
+ "residual_target_dependencies": {
+  "retired_pagination_paths_zero_in_graph": [
+   "github.com/tx7do/go-crud/pagination",
+   "github.com/tx7do/go-crud/api/gen/go/pagination",
+   "github.com/tx7do/go-wind-plugins/encoding",
+   "github.com/tx7do/go-wind/log"
+  ],
+  "still_reachable_watch_paths": {
+   "github.com/tx7do/go-utils/stringcase": [
+    "github.com/tx7do/kratos-bootstrap/bootstrap"
+   ],
+   "github.com/tx7do/go-utils/trans": [
+    "github.com/tx7do/go-utils/id",
+    "github.com/tx7do/go-utils/timeutil",
+    "github.com/tx7do/kratos-bootstrap/bootstrap"
+   ]
+  },
+  "watch_paths_meaning": "stringcase and trans are localdeps packages that are still externally reachable through kratos-bootstrap/bootstrap, go-utils/id and go-utils/timeutil; they are T10 / backlog work, not T08 scope",
+  "tx7do_package_paths_still_in_graph": 26,
+  "tx7do_modules_still_required_by_go_mod": 42,
+  "tx7do_modules_note": "go-crud/api and go-crud/pagination still appear in `go list -m all` because go.mod has not been tidied in this batch; that is phase E work (T14/T15), and no package from them is in any dependency graph any more",
+  "evidence": "migration/patches/T08/T08-residual-deps.json"
+ },
+ "remaining_debt_carried": [
+  "QUOTA_UPGRADE_VERIFY / QUOTA_RESTORE_VERIFY: still not_run, they need an externally produced populated backup/restore window that no batch so far is authorized to create",
+  "9 captcha cases registered as KNOWN_BASELINE_FAILURE (T04 authorization), unchanged by T08 and re-checked by tools/migration/known_defects.py in earlier batches",
+  "go vet copylocks at app/admin/service/internal/service/accelerator_joint_http_test.go:503 (T03-F5)",
+  "TestBootstrapPostgres failing on a freshly created disposable bootstrap database (T03-F4)",
+  "24 generated files whose content depends on protoc-gen-go / protoc-gen-go-grpc versions newer than what the tree was last committed with"
+ ],
+ "not_verified": [
+  "no real HTTP request path, service startup, deploy or production database was exercised",
+  "the second `make verify-gpu` required at the end of phase C has not been run yet (T09/T10 are open)",
+  "runtime behaviour of the GPU simulator beyond compilation and the -tags quota_lab dependency listing is not claimed"
+ ],
+ "pushed_merged_deployed": {
+  "pushed": false,
+  "merged": false,
+  "deployed": false,
+  "commits_created_locally": 2
+ },
+ "self_assessment": "T08 met every clause of goals/T08.md with a recorded gate. The two things that could have been hidden were not: the *.pb.redact.go alias delta is outside the import-only proof and is therefore stated and gated separately, and the 24-file generation drift and the inherited TestBootstrapPostgres failure stay visible in the wide runs instead of being narrowed out of the required profile.",
+ "ledger_evidence": {
+  "preflight": [
+   "T08-buf-wiring-scan.command",
+   "T08-buf-wiring-scan.exit",
+   "T08-buf-wiring-scan.finished",
+   "T08-buf-wiring-scan.log",
+   "T08-buf-wiring-scan.started",
+   "T08-build-all.command",
+   "T08-build-all.exit",
+   "T08-build-all.finished",
+   "T08-build-all.log",
+   "T08-build-all.started",
+   "T08-descriptor-diff.command",
+   "T08-descriptor-diff.exit",
+   "T08-descriptor-diff.finished",
+   "T08-descriptor-diff.log",
+   "T08-descriptor-diff.started",
+   "T08-descriptor-local.command",
+   "T08-descriptor-local.exit",
+   "T08-descriptor-local.finished",
+   "T08-descriptor-local.log",
+   "T08-descriptor-local.started",
+   "T08-descriptor-upstream.command",
+   "T08-descriptor-upstream.exit",
+   "T08-descriptor-upstream.finished",
+   "T08-descriptor-upstream.log",
+   "T08-descriptor-upstream.started",
+   "T08-entries-build.command",
+   "T08-entries-build.exit",
+   "T08-entries-build.finished",
+   "T08-entries-build.log",
+   "T08-entries-build.started",
+   "T08-gofmt-account.command",
+   "T08-gofmt-account.exit",
+   "T08-gofmt-account.finished",
+   "T08-gofmt-account.log",
+   "T08-gofmt-account.started",
+   "T08-guard-import-only.command",
+   "T08-guard-import-only.exit",
+   "T08-guard-import-only.finished",
+   "T08-guard-import-only.json",
+   "T08-guard-import-only.log",
+   "T08-guard-import-only.started",
+   "T08-guard-unify.command",
+   "T08-guard-unify.exit",
+   "T08-guard-unify.finished",
+   "T08-guard-unify.json",
+   "T08-guard-unify.log",
+   "T08-guard-unify.started",
+   "T08-init-smoke.command",
+   "T08-init-smoke.exit",
+   "T08-init-smoke.finished",
+   "T08-init-smoke.log",
+   "T08-init-smoke.started",
+   "T08-make-api-pagination.command",
+   "T08-make-api-pagination.exit",
+   "T08-make-api-pagination.finished",
+   "T08-make-api-pagination.log",
+   "T08-make-api-pagination.started",
+   "T08-proof-coverage.command",
+   "T08-proof-coverage.exit",
+   "T08-proof-coverage.finished",
+   "T08-proof-coverage.log",
+   "T08-proof-coverage.started",
+   "T08-proto-source-identity.command",
+   "T08-proto-source-identity.exit",
+   "T08-proto-source-identity.finished",
+   "T08-proto-source-identity.log",
+   "T08-proto-source-identity.started",
+   "T08-redact-alias-diff.command",
+   "T08-redact-alias-diff.exit",
+   "T08-redact-alias-diff.finished",
+   "T08-redact-alias-diff.log",
+   "T08-redact-alias-diff.started",
+   "T08-regen-control.command",
+   "T08-regen-control.exit",
+   "T08-regen-control.finished",
+   "T08-regen-control.log",
+   "T08-regen-control.started",
+   "T08-require-affected.command",
+   "T08-require-affected.exit",
+   "T08-require-affected.finished",
+   "T08-require-affected.log",
+   "T08-require-affected.started",
+   "T08-require-all.command",
+   "T08-require-all.exit",
+   "T08-require-all.finished",
+   "T08-require-all.log",
+   "T08-require-all.started",
+   "T08-require-localdeps.command",
+   "T08-require-localdeps.exit",
+   "T08-require-localdeps.finished",
+   "T08-require-localdeps.log",
+   "T08-require-localdeps.started",
+   "T08-residual-deps.command",
+   "T08-residual-deps.exit",
+   "T08-residual-deps.finished",
+   "T08-residual-deps.log",
+   "T08-residual-deps.started",
+   "T08-tests-affected.command",
+   "T08-tests-affected.exit",
+   "T08-tests-affected.finished",
+   "T08-tests-affected.log",
+   "T08-tests-affected.started",
+   "T08-tests-localdeps.command",
+   "T08-tests-localdeps.exit",
+   "T08-tests-localdeps.finished",
+   "T08-tests-localdeps.log",
+   "T08-tests-localdeps.started",
+   "T08-tests-merged.log",
+   "T08-tests-quota-lab.command",
+   "T08-tests-quota-lab.exit",
+   "T08-tests-quota-lab.finished",
+   "T08-tests-quota-lab.log",
+   "T08-tests-quota-lab.started",
+   "T08-vet-scoped.command",
+   "T08-vet-scoped.exit",
+   "T08-vet-scoped.finished",
+   "T08-vet-scoped.log",
+   "T08-vet-scoped.started",
+   "T08-vet-wide.command",
+   "T08-vet-wide.exit",
+   "T08-vet-wide.finished",
+   "T08-vet-wide.log",
+   "T08-vet-wide.started"
+  ],
+  "patches": [
+   "T08-pagination-pb-vs-pristine.diff",
+   "T08-provenance.json",
+   "T08-required-profile.json",
+   "T08-residual-deps.json",
+   "T08-takeover-map.json",
+   "T08-template-wire-diff.txt",
+   "T08-test-inventory.json",
+   "T08-toolchain-versions.txt"
+  ],
+  "test_inventory": "migration/patches/T08/T08-test-inventory.json",
+  "template_wire_diff": "migration/patches/T08/T08-template-wire-diff.txt"
+ },
+ "verdict": "PASS for T08 (quota/pagination slice). Phase C is not closed: T09 (protoc-gen-go-redact runtime) and T10 (kratos-bootstrap family + go-utils/id) are next, and the second make verify-gpu runs at the end of phase C."
+}

@@ -1,0 +1,163 @@
+{
+  "task": "T01",
+  "status": "PASS",
+  "baseline_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "base_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "result_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "start_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "end_sha": "d27847b99479553b1a56fc84bc4ee8f1a0992e1e",
+  "note": "T01 activates no import and commits nothing. Extracted source lives in the task temp dir until T02.",
+  "source_version_check": {
+    "go_mod_declared": "github.com/tx7do/go-utils v1.1.40",
+    "archive_extracted": "v1.1.40",
+    "matches": true,
+    "latest_upstream_used": false,
+    "submodule_check": "trans belongs to the parent module github.com/tx7do/go-utils, not to any of the separate go-utils/* submodules (aggregator, captcha, copierutil, crypto, id, jwtutil, mapper, password) locked at their own versions."
+  },
+  "archive_verification": {
+    "path": "third_party/tx7do/proxy/github.com/tx7do/go-utils/@v/v1.1.40.zip",
+    "manifest_expected_sha256": "90af2ce0742081bbee8fae0ab1ea99f42355977086f7406d60f7658792e9471e",
+    "actual_sha256": "90af2ce0742081bbee8fae0ab1ea99f42355977086f7406d60f7658792e9471e",
+    "match": true,
+    "expected_bytes": 76479,
+    "actual_bytes": 76479,
+    "info_sha256_match": true,
+    "mod_sha256_match": true,
+    "also_listed_in": "third_party/tx7do/SHA256SUMS (hash matched there as well; the 4 stale SHA256SUMS entries recorded in T00 are metadata files, not this ZIP)",
+    "archive_written": false,
+    "archive_read_only_respected": true
+  },
+  "safety_findings": {
+    "symlinks_or_devices": 0,
+    "absolute_or_traversal_paths": 0,
+    "entries_outside_module_prefix": 0,
+    "directory_entries": 0,
+    "duplicate_target_conflicts": 0,
+    "same_target_different_bytes": 0,
+    "verdict": "clean; extraction proceeded"
+  },
+  "extracted_files": [
+    {
+      "source_zip_entry": "github.com/tx7do/go-utils@v1.1.40/trans/to.go",
+      "sha256": "c5d72bd4ed943c87153148c2f91ffbf41314b7a172e0bff8bd6beb2880597990",
+      "bytes": 331,
+      "category": "source",
+      "byte_identical_to_archive": true,
+      "target_path": "pkg/localdeps/go-utils/trans/to.go",
+      "batch": "T02",
+      "contains": "Ptr, SliceOfPtrs (generic), //go:build go1.18 + // +build go1.18 directives"
+    },
+    {
+      "source_zip_entry": "github.com/tx7do/go-utils@v1.1.40/trans/to_test.go",
+      "sha256": "6af3c92129f4209eac0055eeac3e2426817ef1e8517712e29dd5e5e5a3acb975",
+      "bytes": 479,
+      "category": "test",
+      "byte_identical_to_archive": true,
+      "target_path": "pkg/localdeps/go-utils/trans/to_test.go",
+      "batch": "T02",
+      "contains": "TestPtr, TestSliceOfPtrs"
+    },
+    {
+      "source_zip_entry": "github.com/tx7do/go-utils@v1.1.40/trans/trans.go",
+      "sha256": "806c6161ea86c5f4a2995bfbe84572a03b5868d9a97942931cd6f0854b4270e5",
+      "bytes": 7938,
+      "category": "source",
+      "byte_identical_to_archive": true,
+      "target_path": "pkg/localdeps/go-utils/trans/trans.go",
+      "batch": "T02",
+      "contains": "value/pointer/slice conversions and UUID helpers; imports time and github.com/google/uuid"
+    },
+    {
+      "source_zip_entry": "github.com/tx7do/go-utils@v1.1.40/trans/trans_test.go",
+      "sha256": "d71c0cebafde6000a7479e8b4fff9473bdfa43df69cb51ce3e5a550b72ce807b",
+      "bytes": 6243,
+      "category": "test",
+      "byte_identical_to_archive": true,
+      "target_path": "pkg/localdeps/go-utils/trans/trans_test.go",
+      "batch": "T02",
+      "contains": "Test_Trans, TestUUID; imports github.com/stretchr/testify/assert"
+    },
+    {
+      "source_zip_entry": "github.com/tx7do/go-utils@v1.1.40/LICENSE",
+      "sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+      "bytes": 1061,
+      "category": "license",
+      "byte_identical_to_archive": true,
+      "manifest_declared_sha256": "f857d10bf55bbb970be4444a2471e49f87758aa7e675805aa8f5ba928261e6e9",
+      "manifest_hash_match": true,
+      "target_path": "pkg/localdeps/go-utils/trans/LICENSE",
+      "batch": "T02",
+      "note": "Copyright/license text preserved verbatim; no attribution removed and no compliance claim made."
+    }
+  ],
+  "package_completeness": {
+    "treated_as": "complete package directory, not function-level trimming",
+    "files_in_package_archive": 4,
+    "files_extracted_from_package": 4,
+    "unused_exported_methods_retained": true,
+    "testdata": "none in the archive",
+    "go_embed_resources": "none found in extracted bytes",
+    "non_trans_module_files_not_copied": 59,
+    "whole_go_utils_copied": false
+  },
+  "not_copied_into_active_package": [
+    "github.com/tx7do/go-utils@v1.1.40/go.mod",
+    "github.com/tx7do/go-utils@v1.1.40/go.sum"
+  ],
+  "intra_package_dependency_check": "trans references no other go-utils package, so no un-taken-over sibling needed an original import kept in place. Its only non-stdlib references are github.com/google/uuid and github.com/stretchr/testify/assert, both surviving non-tx7do dependencies resolved from the repository's own go.mod/go.sum, which were not modified.",
+  "business_diff_still_empty": {
+    "command": "git status --porcelain --untracked-files=no",
+    "exit": 0,
+    "output": "empty",
+    "go_mod_sha256_after": "f07eedc615890e510a89296c884bf515170d09ab13c1d94612df1740e6b76aba",
+    "go_sum_sha256_after": "c5af448918da03714ef5c38d5f1448e206fe5d05bd1c41165df1f6e8ac8b17da",
+    "unchanged_from_T00": true
+  },
+  "commands": [
+    {
+      "name": "t01-extract",
+      "command": "python3 /home/ubuntu/tx7do-pilot-run/t01_extract.py",
+      "exit": 0,
+      "evidence": "T01/extraction.json"
+    },
+    {
+      "name": "t01-manifest",
+      "command": "python3 /home/ubuntu/tx7do-pilot-run/t01_manifest.py",
+      "exit": 0,
+      "evidence": "migration/source-manifest.json"
+    },
+    {
+      "name": "business-diff-check",
+      "command": "git status --porcelain --untracked-files=no",
+      "exit": 0
+    }
+  ],
+  "required_tests": [
+    {
+      "note": "No test run is required in T01; extraction is validated by byte-identity against the archive. The go test gates belong to T00.8 and T02.5 and are recorded in their receipts."
+    }
+  ],
+  "changed_files": [
+    {
+      "path": "migration/source-manifest.json",
+      "reason": "T01.4 per-file provenance ledger: module/version, ZIP hash, source entry and hash, staged path, category, target path, T02 batch."
+    },
+    {
+      "path": "migration/required-tests.json",
+      "reason": "T00.6 required-test ledger completed once the taken-over package's real test names (TestPtr, TestSliceOfPtrs, Test_Trans, TestUUID) were known."
+    }
+  ],
+  "non_import_changes": [],
+  "directive_changes": [],
+  "remaining_tx_packages": [
+    "All 68 tx7do packages in the dependency closure remain planned except github.com/tx7do/go-utils/trans, which is staged for T02 activation.",
+    "59 non-trans files of the go-utils module were deliberately not extracted; no optional extension (geoip, other providers, OPA, script engines) was restored because an archive exists."
+  ],
+  "not_verified": [
+    "runtime behaviour of the extracted package (T02 runs its tests and the JWT call site)",
+    "upstream license compliance conclusion: only the verbatim LICENSE hash and preservation were verified",
+    "full offline build from third_party/tx7do (still not_verified from T00)"
+  ],
+  "blocking_findings": [],
+  "next_allowed_task": "T02"
+}

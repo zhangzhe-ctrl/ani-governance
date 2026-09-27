@@ -1,0 +1,91 @@
+{
+  "pass": false,
+  "required": 590,
+  "bad_tests": [
+    {
+      "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+      "Test": "TestGenerate_ClickCaptcha",
+      "status": "fail",
+      "observed_nonpass": [
+        "fail"
+      ]
+    },
+    {
+      "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+      "Test": "TestGenerate_RotateCaptcha",
+      "status": "fail",
+      "observed_nonpass": [
+        "fail"
+      ]
+    },
+    {
+      "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+      "Test": "TestGenerate_SlideCaptcha",
+      "status": "fail",
+      "observed_nonpass": [
+        "fail"
+      ]
+    },
+    {
+      "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+      "Test": "TestSaveAndVerify_ClickCaptcha",
+      "status": "fail",
+      "observed_nonpass": [
+        "fail"
+      ]
+    },
+    {
+      "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+      "Test": "TestSaveAndVerify_RotateCaptcha",
+      "status": "fail",
+      "observed_nonpass": [
+        "fail"
+      ]
+    },
+    {
+      "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+      "Test": "TestSaveAndVerify_SlideCaptcha",
+      "status": "fail",
+      "observed_nonpass": [
+        "fail"
+      ]
+    },
+    {
+      "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+      "Test": "TestVerify_ClickCaptcha_WithTolerance",
+      "status": "fail",
+      "observed_nonpass": [
+        "fail"
+      ]
+    },
+    {
+      "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+      "Test": "TestVerify_RotateCaptcha_WithTolerance",
+      "status": "fail",
+      "observed_nonpass": [
+        "fail"
+      ]
+    },
+    {
+      "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+      "Test": "TestVerify_SlideCaptcha_WithTolerance",
+      "status": "fail",
+      "observed_nonpass": [
+        "fail"
+      ]
+    },
+    {
+      "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+      "Test": "TestECDHCrypto_EncryptAndVerify",
+      "status": "fail",
+      "observed_nonpass": [
+        "fail"
+      ]
+    }
+  ],
+  "failed_packages": [
+    "go-wind-admin/app/admin/service/internal/data",
+    "go-wind-admin/pkg/localdeps/go-utils/captcha",
+    "go-wind-admin/pkg/localdeps/go-utils/password"
+  ]
+}

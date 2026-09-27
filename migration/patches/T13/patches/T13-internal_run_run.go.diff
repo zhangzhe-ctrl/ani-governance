@@ -1,0 +1,37 @@
+--- /home/ubuntu/go/pkg/mod/github.com/tx7do/go-wind-toolkit/gowind@v1.0.3/internal/run/run.go	2026-09-20 14:10:17.700003000 +0800
++++ tools/localdeps/gow/internal/run/run.go	2026-09-26 06:56:36.831316725 +0800
+@@ -17,8 +17,8 @@
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/tx7do/go-wind-toolkit/gowind/internal/build"
+-	"github.com/tx7do/go-wind-toolkit/gowind/internal/pkg"
++	"go-wind-admin/tools/localdeps/gow/internal/build"
++	"go-wind-admin/tools/localdeps/gow/internal/pkg"
+ )
+ 
+ // watchEnabled 对应 --watch 旗标:监听文件变更,重建并重启受影响的服务。
+@@ -38,8 +38,8 @@
+ source rebuilds and restarts only the affected services (all of them for
+ changes in shared module-level code). A failed rebuild keeps the old
+ process running.`,
+-	RunE:          Run,
+-	SilenceUsage:  true,
++	RunE:         Run,
++	SilenceUsage: true,
+ }
+ 
+ // Run service.
+@@ -51,10 +51,8 @@
+ 		return err
+ 	}
+ 
+-	// 先在模块根目录运行 `go mod tidy`
+-	if err = pkg.GoModTidy(cmd.Context(), inspector.Root); err != nil {
+-		return err
+-	}
++	// 工具不再自动执行 `go mod tidy`（T13 授权的工作流变更）：
++	// 依赖维护改为显式人工 `go mod tidy` 或 T14 阶段处理。
+ 
+ 	var serviceName string
+ 

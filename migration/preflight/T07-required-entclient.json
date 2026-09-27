@@ -1,0 +1,34 @@
+[
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestEntClientRejectsStartupMigration"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAuditDriver_CollectsQueryEvent"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAuditDriver_CollectsWriteEvent"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAuditDriver_SinkAndNoAccumulator"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAuditDriver_TxEvents"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestIsWriteStatement"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAffectedRows"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDigest"
+ }
+]

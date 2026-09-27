@@ -1,0 +1,79 @@
+--- a/pkg/localdeps/go-utils/captcha/captcha_test.go
++++ b/pkg/localdeps/go-utils/captcha/captcha_test.go
+@@ -2,40 +2,59 @@
+ 
+ import (
+ 	"context"
+-	"encoding/json"
+-	"fmt"
+ 	"testing"
+ 	"time"
+ 
++	"github.com/alicebob/miniredis/v2"
+ 	"github.com/redis/go-redis/v9"
+ 	"github.com/stretchr/testify/assert"
+ 	"github.com/stretchr/testify/require"
+ )
+ 
+-// setupTestRedis 创建测试用的 Redis 客户端
++// setupTestRedis 为当前测试启动一个专属的 miniredis 实例，并返回连接它的客户端。
+ func setupTestRedis(t *testing.T) *redis.Client {
+-	rdb := redis.NewClient(&redis.Options{
+-		Addr: "localhost:6379",
+-		DB:   1, // 使用数据库1，避免影响其他数据
++	mr := miniredis.NewMiniRedis()
++	if err := mr.Start(); err != nil {
++		t.Fatalf("start private test redis: %v", err)
++	}
++	t.Cleanup(mr.Close)
++
++	// miniredis 有自己的时钟，下面的协程让它跟随真实时间，
++	// 这样依赖 sleep 的过期与剩余时间断言仍然按 Redis 语义执行。
++	stopClock := make(chan struct{})
++	clockStopped := make(chan struct{})
++	go func() {
++		defer close(clockStopped)
++		ticker := time.NewTicker(20 * time.Millisecond)
++		defer ticker.Stop()
++		last := time.Now()
++		for {
++			select {
++			case <-stopClock:
++				return
++			case now := <-ticker.C:
++				mr.FastForward(now.Sub(last))
++				last = now
++			}
++		}
++	}()
++
++	rdb := redis.NewClient(&redis.Options{Addr: mr.Addr()})
++	t.Cleanup(func() {
++		_ = rdb.Close()
++		close(stopClock)
++		<-clockStopped
+ 	})
+ 
+-	// 测试连接
+-	ctx := context.Background()
+-	err := rdb.Ping(ctx).Err()
+-	if err != nil {
+-		t.Skip("Redis not available, skipping test")
++	if err := rdb.Ping(context.Background()).Err(); err != nil {
++		t.Fatalf("private test redis is not reachable: %v", err)
+ 	}
+ 
+-	// 清理测试数据
+-	_ = rdb.FlushDB(ctx).Err()
+-
+ 	return rdb
+ }
+ 
+-// teardownTestRedis 清理测试数据
++// teardownTestRedis 关闭测试客户端；实例本身由 t.Cleanup 销毁。
+ func teardownTestRedis(rdb *redis.Client) {
+-	ctx := context.Background()
+-	_ = rdb.FlushDB(ctx).Err()
+ 	_ = rdb.Close()
+ }
+ 

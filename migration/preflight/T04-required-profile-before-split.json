@@ -1,0 +1,2362 @@
+[
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAcceleratorDelegationRejectsInvalidTenantAndOwnerRPC"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAcceleratorMTLSIdentityAndDelegation"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAccessKeyRepoLifecycle"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAffectedRows"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestApiAuditLogRepoSqlite_CountAndIsExist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestApiAuditLogRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestApiAuditLogRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestApiAuditLogRepoSqlite_ListFilterAndPaging"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestApiRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestApiRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestApiRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestApiRepoSqlite_ListContainsFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestApiRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAuditDriver_CollectsQueryEvent"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAuditDriver_CollectsWriteEvent"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAuditDriver_SinkAndNoAccumulator"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAuditDriver_TxEvents"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAuditLogArchiveRepoSqlite_ArchiveExpiredAfterNow"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAuditLogArchiveRepoSqlite_ArchiveExpiredBeforeNow"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestAuthEnum"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestConfigRepoSqlite_AccessorCacheInvalidation"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestConfigRepoSqlite_AccessorMissingKey"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestConfigRepoSqlite_AccessorTypedReads"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestConfigRepoSqlite_BuiltInDeleteGuard"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestConfigRepoSqlite_DuplicateKeyRejected"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestConfigRepoSqlite_ValueTypeReadView"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestCopier"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDashboardRepoSqlite_CountEmptyTables"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDashboardRepoSqlite_CountTodayLoginsAndOperations"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDashboardRepoSqlite_CountUsersAndRoles"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDashboardRepoSqlite_LoginStatusDistribution"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDashboardRepoSqlite_LoginTrend"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDashboardRepoSqlite_LoginTrendNoData"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDashboardRepoSqlite_OperationActionDistribution"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDataAccessAuditLogRepoSqlite_AccessTypeEnumPairs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDataAccessAuditLogRepoSqlite_CountAndIsExist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDataAccessAuditLogRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDataAccessAuditLogRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDataAccessAuditLogRepoSqlite_ListFilterAndPaging"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDataAccessAuditLogRepoSqlite_SensitiveLevelEnumPairs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDecryptAES"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryI18nRepoSqlite_CleanByEntryIDTx"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryI18nRepoSqlite_CleanByEntryIDs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryI18nRepoSqlite_ListAndGet"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryI18nRepoSqlite_Truncate"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryI18nRepoSqlite_Upsert"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryRepoSqlite_ListByTypeCode"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryRepoSqlite_ListContainsFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictEntryRepoSqlite_UpdateI18nReplace"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictTypeRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictTypeRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictTypeRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictTypeRepoSqlite_ListContainsFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDictTypeRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestDigest"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestEntClientRejectsStartupMigration"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestFilterReuseMask"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestGetExpires_FallbackDefault"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestGetExpires_UsesConfig"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestInternalMessageRecipientRepoSqlite_EnumReadback"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestInternalMessageRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestInternalMessageRepoSqlite_EnumReadback"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestInvitationAcceptance"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestIsDigits"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestIsWriteStatement"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLanguageRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLanguageRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLanguageRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLanguageRepoSqlite_List"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLanguageRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLoginAuditLogRepoSqlite_CountAndIsExist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLoginAuditLogRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLoginAuditLogRepoSqlite_EnumPairs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLoginAuditLogRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLoginAuditLogRepoSqlite_ListFilterAndPaging"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLoginPolicyRepoSqlite_CountAndIsExist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLoginPolicyRepoSqlite_CreateAndGet"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLoginPolicyRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLoginPolicyRepoSqlite_List"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLoginPolicyRepoSqlite_ListForLoginTenantScope"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestLoginPolicyRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMatchLoginPolicyDevice"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMatchLoginPolicyIpBlacklist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMatchLoginPolicyIpWhitelist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMatchLoginPolicyTargetScope"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMatchLoginPolicyTimeWindow"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipOrgUnitRepoSqlite_AssignListAndClean"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipOrgUnitRepoSqlite_ExcludeExpired"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipOrgUnitRepoSqlite_RemoveAndCleanByOrgUnit"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipPositionRepoSqlite_AssignListAndClean"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipPositionRepoSqlite_ExcludeExpired"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipPositionRepoSqlite_RemoveAndCleanByPosition"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipRepoSqlite_AssignAndRelationPropagation"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipRepoSqlite_GetMembershipByUserTenantAndActive"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipRepoSqlite_SetUserFields"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipRepoSqlite_TenantScopeGuard"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipRepoSqlite_UpsertIdempotent"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipRoleRepoSqlite_AssignListAndClean"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipRoleRepoSqlite_ExcludeExpired"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMembershipRoleRepoSqlite_RemoveRolesFromMembership"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMenuMetaFieldMask"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMenuRepoSqlite_EnumReadViewBackfill"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMenuRepoSyncMenus_MergePreservesIDs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMenuRepoSyncMenus_RebuildReplace"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestMessageNil"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestModuleMapping"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNetworkClientIdentityAndCancellation"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNetworkClientKeyActor"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNetworkClientTransportOutage"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNewAdminAuthenticator_AsymmetricMissingKey"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNewAdminAuthenticator_HS256NoRegression"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNewAdminAuthenticator_RS256"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNewAdminAuthenticator_RS256PrivateKeyOnly"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNilValuePaths"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNotificationChannelRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNotificationChannelRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNotificationChannelRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNotificationChannelRepoSqlite_GetDecryptedSmtpAccount"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNotificationChannelRepoSqlite_GetFirstEnabledEmailChannel"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNotificationChannelRepoSqlite_GetFirstEnabledEmailChannel_None"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNotificationChannelRepoSqlite_IsExist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNotificationChannelRepoSqlite_List"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestNotificationChannelRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestOperationAuditLogRepoSqlite_CountAndIsExist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestOperationAuditLogRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestOperationAuditLogRepoSqlite_EnumPairs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestOperationAuditLogRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestOperationAuditLogRepoSqlite_ListFilterAndPaging"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestOrgUnitRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestOrgUnitRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestOrgUnitRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestOrgUnitRepoSqlite_List"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestOrgUnitRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestParseHHMM"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionApiRepoSqlite_AssignAndListAndDelete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionApiRepoSqlite_AssignApisReplaces"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionApiRepoSqlite_DeleteByPermissionIDs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionAuditLogRepoSqlite_ActionEnumPairs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionAuditLogRepoSqlite_CountAndIsExist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionAuditLogRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionAuditLogRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionAuditLogRepoSqlite_ListFilterAndPaging"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionGroupRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionGroupRepoSqlite_CreateTreePath"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionGroupRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionGroupRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionGroupRepoSqlite_ListByIDs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionGroupRepoSqlite_ListContainsFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionGroupRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionRepoSqlite_CodesAndIdsLookup"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionRepoSqlite_ListContainsFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPermissionRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanModuleRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanModuleRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanModuleRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanModuleRepoSqlite_ListFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanModuleRepoSqlite_ListModulesByPlanId"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanModuleRepoSqlite_ModuleReadView"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanModuleRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanQuotaPostgresListCompatibility"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanQuotaRepoPostgres_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanQuotaRepoPostgres_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanQuotaRepoPostgres_DuplicateCodeRejected"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanQuotaRepoPostgres_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanQuotaRepoPostgres_ListFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanQuotaRepoPostgres_QuotaCodeCompat"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanQuotaRepoPostgres_QuotaTypeReadView"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanQuotaRepoPostgres_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanRepoSqlite_CreateDuplicateName"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanRepoSqlite_EnumReadView"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanRepoSqlite_ListContainsFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPlanRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPolicyEvaluationLogRepoSqlite_CountAndIsExist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPolicyEvaluationLogRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPolicyEvaluationLogRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPolicyEvaluationLogRepoSqlite_ListFilterAndPaging"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPolicyEvaluationLogRepoSqlite_ResolvePermissionPolicyByRoute"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPositionRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPositionRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPositionRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPositionRepoSqlite_List"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPositionRepoSqlite_TypeAllValuesLand"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestPositionRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaCodeMap_Mappings"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaEntDatabaseTimestamps"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaEntMutationHookRollback"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaEntTransactionFailures"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaEntTransactionHooks"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaGpuAtomicCancelAndSameKey"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaGpuCatalogPagingLimits"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaGpuClaimRechecksDueAfterTenantLock"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaGpuDeleteInvalidBindingAndChargesAtomic"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaGpuDeleteReleaseAndProjectionRecovery"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaGpuPlanSwitchSerializesAdmissionAndDatabaseExpiry"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaGpuProductionEntComposition"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaGpuProjectionNullAndForeignRefConstraints"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaGpuReleaseNegativeVectorsAtomic"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaGpuRestrictedRoleAndExplicitIsolation"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaGpuSyncLeaseRetryAndBlock"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresCancelClaimRace"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresCancelUnsent"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresCompositeFK"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresConcurrentLimit"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresExpiredTenant"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresInvariants"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresLeaseGenerationGuard"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresMultiVector"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresOccupyBasics"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresPolicyChanges"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresReleaseAfterExpiry"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresReleaseBeforeAck"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresReleaseCumulative"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresStorageUnavailable"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresSyntheticItem"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresTenantDeleteProtection"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresTwoInstances"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaPostgresZeroLimit"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaProcessCommitRecovery"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestQuotaProcessDeleteClaimRace"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRedisCacheMonitorRepoSqlite_GetInfoFromMiniredis"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRedisCacheMonitorRepoSqlite_GetInfoNilRedis"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRedisCacheMonitorRepoSqlite_MapSlowLogEntries"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRedisCacheMonitorRepoSqlite_ParseInfoSections"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestResourceTenantUUIDPersistence"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleMetadataRepoSqlite_CreateGetExist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleMetadataRepoSqlite_TemplateVersionUpgrade"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleMetadataRepoSqlite_Upsert"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleOrgUnitRepoSqlite_AssignListReplaceClean"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleOrgUnitRepoSqlite_CrossTenantRejected"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRolePermissionRepoSqlite_EnumReadViewBackfill"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleRepoSqlite_CanAssignRole"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleRepoSqlite_CreateAndMetadataCascade"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleRepoSqlite_ListAndGet"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleRepoSqlite_ProtectedDeleteRejected"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleRepoSqlite_TemplateInstantiation"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestRoleRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestServerMonitorRepoSqlite_GetInfoWithDatabase"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestServerMonitorRepoSqlite_GetInfoWithoutDatabase"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestSqliteSchemaMigration"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTaskRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTaskRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTaskRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTaskRepoSqlite_ListContainsFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTaskRepoSqlite_TypeReadView"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTaskRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantAccessCheckerDecisionMatrix"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantRepoSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantRepoSqlite_List"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantRepoSqlite_PlanIDRoundTrip"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantRepoSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantUsageRepoSqlite_CleanupTenantData"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantUsageRepoSqlite_EnforceExpiryPolicies"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantUsageRepoSqlite_GetUsageEmptyTenant"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantUsageRepoSqlite_GetUsageTenantNotFound"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestTenantUsageRepoSqlite_GetUsageWithPlanAndData"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserCredentialRepoSqlite_CountAndIsExist"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserCredentialRepoSqlite_CreateAndGet"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserCredentialRepoSqlite_CredentialTypeEnumPairs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserCredentialRepoSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserCredentialRepoSqlite_IdentityTypeEnumPairs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserCredentialRepoSqlite_ListFilterAndPaging"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserCredentialRepoSqlite_PasswordLifecycle"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserCredentialRepoSqlite_StatusEnumPairs"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserCredentialRepoSqlite_UpdateMaskAndAllowMissing"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserFieldMask"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserMfaFactorRepoSqlite_CreateAndFindEnabledTotp"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserMfaFactorRepoSqlite_DeleteForUserAndByMethod"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserMfaFactorRepoSqlite_GetFindFirstAndUpdateLastUsed"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserMfaFactorRepoSqlite_ListByUserMapping"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserOrgUnitRepoSqlite_AssignListAndClean"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserOrgUnitRepoSqlite_ExcludeExpired"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserOrgUnitRepoSqlite_RemoveAndCleanByOrgUnit"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserPositionRepoSqlite_AssignListAndClean"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserPositionRepoSqlite_ExcludeExpired"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserPositionRepoSqlite_RemoveAndCleanByPosition"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserRepoSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserRepoSqlite_List"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserRoleRepoSqlite_AssignListAndClean"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserRoleRepoSqlite_ExcludeExpired"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserRoleRepoSqlite_RemoveRolesFromUser"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserRoleRepoSqlite_ReplaceSemantics"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserTokenCache_BasicOperations"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserTokenCache_RevokeTokenPreservesPartialFailure"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/data",
+  "Test": "TestUserTokenCache_VerifyAndRevokeTokenPair"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAcceleratorErrorMappingKeepsReasonAndDropsRawContent"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAcceleratorPrincipalRequiresExplicitScopeAndJWT"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAcceleratorPublicViewsAreStructurallyRedacted"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAccessKeyFieldMaskJSON"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAccessKeyServiceCRUD"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAccessKeyUpdateValidation"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAggregateDataScopes_AnyRoleAllShortCircuits"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAggregateDataScopes_Degenerate"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAggregateDataScopes_PlatformContextIsAll"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAggregateDataScopes_SelectedUnitsSecondFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAggregateDataScopes_SelfOnlyMirror"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAggregateDataScopes_SelfPlusUnitUnion"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAggregateDataScopes_UnitAndChildDescendants"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAggregateDataScopes_UnitOnlyTenantFiltered"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestApiServiceSqlite_CreateGetUpdateDelete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestApiServiceSqlite_GetWalkRouteData"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_AuthorizationDeniedBranches"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_ContainsPermission"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_CookieHelperGuards"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_DedupeStrings"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_DisabledTenantViaRefresh"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_FillAdminFlags"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_GenerateAndVerifyCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_HasPermission"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_HasPlatformRole"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_LoginCredentialFailures"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_LoginFullPlatformChain"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_LoginGrantDispatch"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_LoginMfaGate"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_LoginPolicyGate"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_LoginRateLimiterLockout"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_LoginTenantResolution"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_LoginWithoutCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_LogoutAndRevocation"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_NormalizeLoginVerifyError"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_PasswordLoginAdapter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_PlatformPasswordLoginGate"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_RefreshTokenFlow"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_TenantLoginChain"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_ValidateTokenBranches"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestAuthSvcSqlite_WhoAmI"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestConstructorsDoNotAccessDatabase"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestDictEntryServiceSqlite_Create_PersistsParentAssociation"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestDictEntryServiceSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestDictEntryServiceSqlite_List"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestDictEntryServiceSqlite_ListByTypeCode"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestDictEntryServiceSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestDictTypeServiceSqlite_CreateAndGet"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestDictTypeServiceSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestDictTypeServiceSqlite_List"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestDictTypeServiceSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestFieldPermissionUser_ListAndGetReadMask"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestFieldPermissionUser_ListWithoutTokenNoTrim"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestFieldPermissionUser_Passthrough"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestFieldPermissionUser_WriteStrip"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestGpuCanonicalDiffersFromDirectProtoJSONHash"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestGpuCanonicalRejectsFloatMessages"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestGpuCanonicalRejectsSemanticMutations"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestGpuCanonicalUnicodeNullInteger"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestGpuCapabilityRequiresSameOwnerActions"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestGpuChargesCompleteAndOrderIndependent"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestGpuFrozenCanonicalVectors"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestGpuProjectionOnlyGpuTerminal"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestInternalMessageServiceSqlite_GetMessageEnrichment"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestInternalMessageServiceSqlite_ListMessageEnrichment"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestInternalMessageServiceSqlite_RegisterSeams"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestLanguageServiceSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestLanguageServiceSqlite_Get_ByIdAndByCode"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestLanguageServiceSqlite_Update_OnlyMaskedFields"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestMenuListToQueryString"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestMenuServiceSqlite_CreateAndGet_ParentChild"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestMenuServiceSqlite_Delete_ParentRowOnlyUnderSqlite"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestMenuServiceSqlite_List_FlatWithContainsFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestMenuServiceSqlite_SyncMenus_MergeInsertsTree"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestMenuServiceSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestMfaBuildEnrolledProto"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestMfaIsASCII"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestMfaMethodToEntity"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestNetworkTrustedKeyPrincipal"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestNetworkTrustedScope"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestNotificationChannelServiceSqlite_CreateAndGet"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestNotificationChannelServiceSqlite_CreateAndGetValidation"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestNotificationChannelServiceSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestNotificationChannelServiceSqlite_ListHasPasswordFlag"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestNotificationChannelServiceSqlite_SendTestEmailBranches"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestNotificationChannelServiceSqlite_UpdateRename"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOnboardingInvitationGuards"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOnboardingModes"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOnboardingSendFailureRollsBack"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOnlineSessionServiceSqlite_ForceLogoutSession"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOnlineSessionServiceSqlite_ListKeywordFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOnlineSessionServiceSqlite_ListMySessionsCurrentFlag"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOnlineSessionServiceSqlite_ListSortsAndPaginates"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOnlineSessionServiceSqlite_RevokeMySession"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOpenAPI"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOrgUnitServiceSqlite_CreateAndDelete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOrgUnitServiceSqlite_GetEnrichment"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestOrgUnitServiceSqlite_ListTreeAssemblyAndEnrichment"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestParseFactorId"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPermissionGroupServiceSqlite_CreateAndGet"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPermissionGroupServiceSqlite_ListAssemblesTree"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPermissionGroupServiceSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPermissionService_CreateUpdateDelete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPermissionService_ListAndGetTenantScoping"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPermissionService_SyncPermissions_MenuAndApiDerived"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanModuleServiceSqlite_Create_AssociatesPlan"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanModuleServiceSqlite_Create_MissingOperatorRejected"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanModuleServiceSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanModuleServiceSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanModuleServiceSqlite_List_BackfillsPlanId"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanModuleServiceSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanQuotaServicePostgres_Create_AssociatesPlan"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanQuotaServicePostgres_Create_MissingOperatorRejected"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanQuotaServicePostgres_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanQuotaServicePostgres_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanQuotaServicePostgres_List_BackfillsPlanId"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanQuotaServicePostgres_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanServiceSqlite_Create"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanServiceSqlite_CreateGuards"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanServiceSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanServiceSqlite_Get"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanServiceSqlite_List"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPlanServiceSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPositionServiceSqlite_CreateListCountAndGet"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPositionServiceSqlite_Delete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPositionServiceSqlite_List_ContainsFilter"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestPositionServiceSqlite_Update"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestQuotaDurableAckFields"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestQuotaRetryBackoffBound"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestRecordSessionMeta_Guards"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestRoleServiceSqlite_CreateAndDelete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestRoleServiceSqlite_GetEnrichment"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestRoleServiceSqlite_ListEnrichment"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_AsyncTenantExpiryScan_EmptyDb"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_ControlTaskDispatch"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_ControlTaskGuards"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_ConvertTaskOption"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_CreateDisabledSkipsScheduler"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_CreateEnabledEntersScheduler"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_CreateValidation"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_DeleteRemovesSchedulerEntry"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_NoSchedulerGuards"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_RestartAllTask"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_StopAllTask"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_StopOneShotSemantics"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_UpdateDeleteMissingId"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_UpdateEnableToggleBackfillsTypeName"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTaskService_UpdateUnregisteredBackfillRejected"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTenantServiceSqlite_CreateAndDelete"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTenantServiceSqlite_GetEnrichment"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTenantServiceSqlite_ListEnrichment"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTenantServiceSqlite_TenantExists"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTotpGenerateAndValidate"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTotpQrDataUri"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestTotpSkewWindow"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserProfileServiceSqlite_ChangePassword_BadCredentials"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserProfileServiceSqlite_ChangePassword_HappyPath"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserProfileServiceSqlite_ChangePassword_HistoryReplayRejected"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserProfileServiceSqlite_ChangePassword_RejectsWeakNewPassword"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserProfileServiceSqlite_GetUser_EnrichesRoleCodes"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserProfileServiceSqlite_GetUser_NoRolesAndErrors"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserProfileServiceSqlite_UpdateUser_OperatorInjection"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserServiceSqlite_CountAndUserExists"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserServiceSqlite_CreateGuards"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserServiceSqlite_CreatePlatform"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserServiceSqlite_CreateTenant"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserServiceSqlite_DeleteGuards"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserServiceSqlite_EditUserPassword"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserServiceSqlite_GetEnrichment"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserServiceSqlite_ListEnrichment"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserServiceSqlite_UpdatePasswordReset"
+ },
+ {
+  "Package": "go-wind-admin/app/admin/service/internal/service",
+  "Test": "TestUserService_AccountSessionRevocation"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestExecuteParallel_ContextCanceled"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestExecuteParallel_ErrorCancelsOthers"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestExecuteParallel_Success"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestNewLoaderFromFetch_ErrorPropagatedToAllResults"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestNewLoaderFromFetch_SuccessAndMiss"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateMulti_SetsValuesForPointers"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateMulti_SkipsWhenDataMissing"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateOne_SetsValueForPointer"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateOne_SkipsWhenDataMissing"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateTreeMulti_SetsValuesRecursively"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateTreeMulti_SkipsWhenDataMissing"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateTreeWithLoader_NilThunkIsSkippedAndNilNodeIgnored"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateTreeWithLoader_Success"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateTreeWithLoader_ThunkErrorIsSkipped"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateTree_SetsValuesRecursively"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateTree_SkipsWhenDataMissing"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateWithLoader_NilThunkIsSkipped"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateWithLoader_Success"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulateWithLoader_ThunkErrorIsSkipped"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulate_SetsValuesForPointers"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestPopulate_SkipsWhenDataMissing"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestThunkGetterFromLoader_ErrorPropagated"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/aggregator",
+  "Test": "TestThunkGetterFromLoader_SuccessAndZeroKey"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestConcurrentAccess"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestDefaultConfigs"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestDelete"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestExists"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestGenerate_ChineseCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestGenerate_ClickCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestGenerate_DigitCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestGenerate_MathCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestGenerate_RotateCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestGenerate_SlideCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestGenerate_StringCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestGetConfig"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestGetRemainingTime"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestMultipleCaptchas"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestNewCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestNewCaptchaWithConfig"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestOptions_ChineseConfig"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestOptions_ClickConfig"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestOptions_DigitConfig"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestOptions_MathConfig"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestOptions_RotateConfig"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestOptions_SlideConfig"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestOptions_StringConfig"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestSaveAndVerify"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestSaveAndVerify_ClickCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestSaveAndVerify_RotateCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestSaveAndVerify_SlideCaptcha"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestSetConfig"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestSetConfig_Nil"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestVerifyExpired"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestVerifyWithoutDelete"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestVerify_ClickCaptcha_WithTolerance"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestVerify_RotateCaptcha_WithTolerance"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestVerify_SlideCaptcha_WithTolerance"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/captcha",
+  "Test": "TestVerify_WrongAnswer"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestAESCipher_EmptyPlaintext"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestAESCipher_EncryptDecrypt"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestAESCipher_InvalidKeyIV"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestAESGCMCipher_EmptyPlaintext"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestAESGCMCipher_EncryptDecrypt"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestAESGCMCipher_InvalidCiphertext"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestAESGCMCipher_InvalidKey"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestAesDecrypt_InvalidCases"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestDecryptAES"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestECDHCipher_InvalidPeerKey"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestECDHCipher_KeyExchange"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestECDSACipher_SignVerify"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestECDSACipher_SignVerify_Fail"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestGenerateAESKey_ValidLengths"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestHMAC_Consistency"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestHMAC_SetKey"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestHMAC_SumAndVerify"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestHMAC_VerifyFail"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestPKCS5Padding_InvalidCases"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestPKCS5Padding_Normal"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestPKCS5UnPadding_InvalidCases"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestRSACipher_EncryptDecrypt"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestRSACipher_ExportKey"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestRSACipher_NilKey"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestSM2Cipher_EncryptDecrypt"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestSM2Cipher_EncryptDecryptAsn1"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestSM2Cipher_NilKey"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestSM2Cipher_SignVerify"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestSM3Hasher_Empty"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestSM3Hasher_Sum"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestSM4Cipher_EmptyPlaintext"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestSM4Cipher_EncryptDecrypt"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/crypto",
+  "Test": "TestSM4Cipher_InvalidKey"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestExtractJWTFromRequest"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestGenerateGenericJWT"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestGenerateJWT"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestGenerateJWTWithHeader"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestGenerateShortLivedJWT"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestGetJWTClaims"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestGetJWTHeader"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestGetJWTIssuedAt"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestIsJWTExpired"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestNewJWTIdCollisionRate"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestNewJWTIdFormat"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestNewRefreshToken"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestParseJWTClaimsToStruct"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestParseJWTPayload"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestRefreshJWT"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestValidateJWTAlgorithm"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestValidateJWTAudience"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestValidateJWTIssuer"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/jwtutil",
+  "Test": "TestVerifyJWT"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+  "Test": "TestArgon2Crypto_EncryptAndVerify"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+  "Test": "TestBCryptCrypto_EncryptAndVerify"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+  "Test": "TestECDHCrypto_EncryptAndVerify"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+  "Test": "TestECDSACrypto_EncryptAndVerify"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+  "Test": "TestHMACCrypto_EncryptAndVerify"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+  "Test": "TestPBKDF2Crypto_EncryptAndVerify"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+  "Test": "TestPBKDF2WithSHA512_EncryptAndVerify"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+  "Test": "TestRSACrypto_EncryptAndDecrypt"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+  "Test": "TestRSACrypto_ExportKeys"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+  "Test": "TestSHACrypto_EncryptAndVerify_SHA256"
+ },
+ {
+  "Package": "go-wind-admin/pkg/localdeps/go-utils/password",
+  "Test": "TestSHACrypto_EncryptAndVerify_SHA512"
+ }
+]

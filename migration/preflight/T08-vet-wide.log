@@ -1,0 +1,1 @@
+app/admin/service/internal/service/accelerator_joint_http_test.go:503:9: assignment copies lock value to ref: github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1.GpuUsageRef contains google.golang.org/protobuf/runtime/protoimpl.MessageState contains sync.Mutex

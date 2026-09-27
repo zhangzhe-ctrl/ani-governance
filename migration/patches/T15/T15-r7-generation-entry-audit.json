@@ -1,0 +1,52 @@
+{
+  "schema_version": "t15-r7-generation-entry-audit/1",
+  "task": "T15",
+  "item": "generation-entry reproducibility audit that R7's sweep prompted, run against the final candidate",
+  "candidate": "b700522",
+  "conclusion": "the authoritative chain reproduces the committed tree exactly; make api alone does not, and that divergence is registered rather than silently changed",
+
+  "how_this_was_found": "R7's own rule is that a changed generation entry must be re-reproduced, so the Ent-style check was extended to the API chain in clean detached worktrees. The first probe used 'make api' and came back with 14 modified files, which looked like a broken build contract. It was not: it was the two entries disagreeing, and only measurement in fresh worktrees separated that.",
+
+  "clean_tree_experiments": {
+    "gow_api_then_make_openapi": {
+      "setup": "detached worktree of b700522, redact plugin built first with scripts/build-redact-plugin.sh",
+      "gow_api_exit": 0,
+      "then_make_openapi_exit": 0,
+      "result": "git status: 0 modified, 0 deleted, 0 new tracked files; openapi.yaml 468993 bytes, equal to the committed asset",
+      "meaning": "the full documented chain is a fixed point of the committed tree, and go.mod and go.sum are untouched by it"
+    },
+    "make_api_alone_from_clean": {
+      "exit": 0,
+      "modified": 13,
+      "files": ["api/gen/go/admin/service/v1/i_network_grpc.pb.go", "api/gen/go/admin/service/v1/i_quota_grpc.pb.go", "api/gen/go/identity/service/v1/plan_quota_grpc.pb.go", "api/gen/go/identity/service/v1/tenant_grpc.pb.go", "api/gen/go/quota/service/v1/quota_catalog.pb.go", "api/gen/go/quota/service/v1/quota_release.pb.go", "api/gen/go/quota/service/v1/quota_release_grpc.pb.go", "seven files under api/gen/go/quota_lab/service/v1/"],
+      "content_of_the_change": "not comment-only: the Go package clause moves from quotalabpb / quotapb to servicev1 and the embedded go_package string changes with it, plus protoc-gen-go-grpc v1.6.0 becomes v1.6.2 in the version stamp; go build ./... still succeeds afterwards, because every importer uses an explicit alias",
+      "why": "make api runs only buf generate with the main api/buf.gen.yaml plus the scoped pgv step. The main template uses buf managed mode with go_package_prefix and the PATH plugin, while the quota, quota-lab and network slice templates carry explicit go_package options and pin older plugins. gow api walks every active template, so the slices write last and their output is what is committed."
+    },
+    "make_openapi_alone_from_clean": {"exit": 0, "modified": 0, "meaning": "the OpenAPI asset and its finalize step are individually reproducible"},
+    "gow_api_without_the_plugin_built": {
+      "exit": 1,
+      "side_effect": "347 tracked files deleted",
+      "cause": "api/buf.gen.yaml sets clean: true, so buf clears gen/go before the plugins run, and the first plugin to fail is ../tools/bin/protoc-gen-go-redact, which is a gitignored developer build produced by make gow / make plugin / make api but not by gow api itself",
+      "severity": "a destructive sharp edge in a clean checkout, not a state of this repository: the committed tree is unaffected, and the worktree was discarded"
+    }
+  },
+
+  "plugin_versions_measured_across_entries": {
+    "tool_lock_and_makefile_pin": {"protoc-gen-go": "v1.36.11", "protoc-gen-go-grpc": "v1.6.2", "protoc-gen-go-http": "v2.0.0-20260404020628-f149714c1d54"},
+    "main_template": "local: protoc-gen-go-grpc and local: protoc-gen-go resolve from PATH, currently the installed 1.6.2 and 1.36.11 binaries",
+    "slice_templates": "buf.quota, buf.quota-lab, buf.network, buf.aksk, buf.accelerator and the parked buf.model each pin go run google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.0 and go run .../protoc-gen-go-http/v2@v2.0.0-20251205160234-b9fab9a5a5ab",
+    "reading": "two different protoc-gen-go-grpc and protoc-gen-go-http versions are legitimately referenced by the in-use configuration. The committed artifacts match the slices, so the chain is self-consistent today, but 'make api' is not a substitute for 'gow api' and the version pins are not all the tool-lock versions."
+  },
+
+  "go_sum_note": "one scratch worktree that had its outputs overwritten by make api and was then built ad hoc ended with 157 pruned go.sum lines; the documented entries measured above leave go.sum byte-identical, and the repository's own go.sum was re-verified against the pre-gate digest (5e33988887af338a go.mod, 997d541cec2913e4 go.sum) after every run. The cause of the scratch prune was not chased further, and that is stated rather than presented as resolved.",
+
+  "deliberately_not_changed": [
+    "no template, Makefile target or plugin pin was edited here: which entry owns which artifact is a generation-policy decision, and changing make api to walk the slices (or raising the slice pins to the tool-lock versions) would rewrite 13 committed files and alter a documented developer workflow",
+    "AGENTS.md already lists gow api as the Proto / Go API entry, which is the chain that reproduces the tree; make api and make build remain as narrower targets and their difference is now measured and written down",
+    "the 347-deletion worktree was discarded, never committed, and the repository's file plan is intact"
+  ],
+
+  "decision_requested": "choose one: (a) make api delegates to the same template walk as gow api so the two entries cannot disagree, or (b) keep make api as the main-template-only target and document that it must not be used as the API entry. Either is small; neither is mine to pick silently.",
+
+  "final_gate_relationship": "migration/receipts/T15-r7.json and the exit-0 make verify-gpu over b700522 (/home/ubuntu/tx7do-pilot-run/T15/r7-final-verify-gpu) remain valid: the gate regenerates Ent and schema.sql through verify-quota-ent and does not run make api, so none of the above invalidates it"
+}

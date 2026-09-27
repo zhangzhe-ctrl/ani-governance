@@ -1,0 +1,199 @@
+{
+ "schema_version": "t09-integration-staging/1",
+ "purpose": "non-active staging for the protoc-driven upstream tests deferred by the 2026-09-25 T09 authorization (option D)",
+ "source_module": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact",
+ "source_version": "v0.0.0-20260831125122-5bb4931991b2",
+ "source_archive": "/home/ubuntu/go/pkg/mod/github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20260831125122-5bb4931991b2",
+ "stage_directory": "migration/patches/T09/_integration_staging",
+ "why_outside_the_build": "the directory name starts with an underscore, which the go tool ignores, so these sources cannot compile, run, skip or fail in any repository command; they are kept verbatim rather than deleted, tagged with a permanent skip, or marked not_applicable",
+ "pristine_no_redact_import_fix_needed": "both files import what they use already; neither is affected by T09-B1",
+ "execution_deferred_to": "T13 tooling stage; no later than the T15 final sign-off",
+ "execution_requirements_for_that_round": [
+  "install or build protoc and the needed plugins in a task-private tool directory with recorded version, go version -m output and hash; never overwrite the user's GOBIN",
+  "run from a disposable work tree / temporary generation directory, because the cases write a plugin binary and generated .pb files into their own package directory",
+  "reuse the single local redact Proto and runtime plus the approved go_package override; never write into api/gen/go or pkg/localdeps, and never re-introduce an upstream same-named definition",
+  "test-harness changes only (tool paths, temp dirs, the approved local generation mapping); assertions and production code stay as archived, and pre/post must use the same tool set"
+ ],
+ "files": [
+  {
+   "path": "integration_test.go",
+   "bytes": 15651,
+   "sha256": "a3f11a0a39fbb5a8839ff3d5a002804df6526d5adff07be5d22336606df6d771",
+   "archive_sha256": "a3f11a0a39fbb5a8839ff3d5a002804df6526d5adff07be5d22336606df6d771",
+   "identical_to_archive": true
+  },
+  {
+   "path": "external_template_test.go",
+   "bytes": 6371,
+   "sha256": "74ae6fee16e87f2021fc8c2c07643c10057621fd54aa799fadc1190219f420a8",
+   "archive_sha256": "74ae6fee16e87f2021fc8c2c07643c10057621fd54aa799fadc1190219f420a8",
+   "identical_to_archive": true
+  },
+  {
+   "path": "examples/CUSTOM_TEMPLATE.md",
+   "bytes": 6515,
+   "sha256": "7ee7ecc69526aadff2159bca2856d67c11f169ff0b5cb8e7c5a93a638b582d7d",
+   "archive_sha256": "7ee7ecc69526aadff2159bca2856d67c11f169ff0b5cb8e7c5a93a638b582d7d",
+   "identical_to_archive": true
+  },
+  {
+   "path": "examples/custom-template.tmpl",
+   "bytes": 6049,
+   "sha256": "37d443d8c62ee1a3b6f01cd874ae67be2a8ba59174cdf541fff8374678904f38",
+   "archive_sha256": "37d443d8c62ee1a3b6f01cd874ae67be2a8ba59174cdf541fff8374678904f38",
+   "identical_to_archive": true
+  },
+  {
+   "path": "examples/tests/message.proto",
+   "bytes": 10705,
+   "sha256": "3492fc3109fb8f4d29e3704aefc316ab3a4fa02d8ec30ab3d19fb3298126d5d6",
+   "archive_sha256": "3492fc3109fb8f4d29e3704aefc316ab3a4fa02d8ec30ab3d19fb3298126d5d6",
+   "identical_to_archive": true
+  },
+  {
+   "path": "examples/tests/message.pb.go",
+   "bytes": 60974,
+   "sha256": "e25d8d7600bc3d5bc310bf075149acd2e9afd99a8734a2a112bde39325780954",
+   "archive_sha256": "e25d8d7600bc3d5bc310bf075149acd2e9afd99a8734a2a112bde39325780954",
+   "identical_to_archive": true
+  },
+  {
+   "path": "examples/tests/message.pb.redact.go",
+   "bytes": 15137,
+   "sha256": "342868f8b9f4cebae81e9a02747eb1aa83f53559637e6677b6548de42b1cac88",
+   "archive_sha256": "342868f8b9f4cebae81e9a02747eb1aa83f53559637e6677b6548de42b1cac88",
+   "identical_to_archive": true
+  },
+  {
+   "path": "testdata/integration/test.proto",
+   "bytes": 7441,
+   "sha256": "91d7ec7a62ff9723a0be192573ae34b0e85bd104203ce4a0f261bb7e3d1f2f8a",
+   "archive_sha256": "91d7ec7a62ff9723a0be192573ae34b0e85bd104203ce4a0f261bb7e3d1f2f8a",
+   "identical_to_archive": true
+  },
+  {
+   "path": "testdata/integration/test.pb.go",
+   "bytes": 49474,
+   "sha256": "25f47af7d0d525984d87a538b65347897317edb59454c0292472dd4fd634726e",
+   "archive_sha256": "25f47af7d0d525984d87a538b65347897317edb59454c0292472dd4fd634726e",
+   "identical_to_archive": true
+  },
+  {
+   "path": "testdata/integration/test.pb.redact.go",
+   "bytes": 13669,
+   "sha256": "fd3c8ada171bab57729e53ffd5a42ed2af5d78b46b679c027a9bc1868b24dc01",
+   "archive_sha256": "fd3c8ada171bab57729e53ffd5a42ed2af5d78b46b679c027a9bc1868b24dc01",
+   "identical_to_archive": true
+  },
+  {
+   "path": "testdata/integration/test_grpc.pb.go",
+   "bytes": 9877,
+   "sha256": "fa5febe822d7d1d61bdd2ae74545437272f93eeccab12e018505728349e6f472",
+   "archive_sha256": "fa5febe822d7d1d61bdd2ae74545437272f93eeccab12e018505728349e6f472",
+   "identical_to_archive": true
+  }
+ ],
+ "cases": [
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "TestIntegrationProtoCompilation",
+   "Kind": "test",
+   "File": "integration_test.go",
+   "Line": 19,
+   "needs": [
+    "protoc",
+    "protoc-gen-go (--go_out)",
+    "built plugin binary ./protoc-gen-redact",
+    "testdata/integration/test.proto",
+    "go build ./testdata/integration",
+    "go vet ./testdata/integration"
+   ],
+   "writes_into_source_tree": [
+    "protoc-gen-redact",
+    "testdata/integration/test.pb.go",
+    "testdata/integration/test.pb.redact.go",
+    "testdata/integration/test_grpc.pb.go"
+   ],
+   "honours_testing_short": true
+  },
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "TestGeneratedCodeQuality",
+   "Kind": "test",
+   "File": "integration_test.go",
+   "Line": 347,
+   "needs": [
+    "os.Stat on testdata/integration/test.proto"
+   ],
+   "writes_into_source_tree": [],
+   "honours_testing_short": true
+  },
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "TestOptionalFieldsInGeneratedCode",
+   "Kind": "test",
+   "File": "integration_test.go",
+   "Line": 380,
+   "needs": [
+    "protoc",
+    "protoc-gen-go (--go_out)",
+    "built plugin binary ./protoc-gen-redact",
+    "testdata/integration/test.proto"
+   ],
+   "writes_into_source_tree": [
+    "protoc-gen-redact",
+    "testdata/integration/test.pb.redact.go"
+   ],
+   "honours_testing_short": true
+  },
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "TestExternalTemplateLoading",
+   "Kind": "test",
+   "File": "external_template_test.go",
+   "Line": 16,
+   "needs": [
+    "protoc",
+    "protoc-gen-go (--go_out)",
+    "built plugin binary ./protoc-gen-redact",
+    "examples/custom-template.tmpl",
+    "redact --template handling"
+   ],
+   "writes_into_source_tree": [
+    "protoc-gen-redact",
+    "testdata/integration/test.pb.redact.go"
+   ],
+   "honours_testing_short": false
+  },
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "TestTemplateParameterValidation",
+   "Kind": "test",
+   "File": "external_template_test.go",
+   "Line": 171,
+   "needs": [
+    "nothing external: builds &Module{ModuleBase: &pgs.ModuleBase{}} and calls the production loadTemplateFromFile with an empty path and a directory (all 6 exec.Command sites in this file are inside TestExternalTemplateLoading)"
+   ],
+   "writes_into_source_tree": [],
+   "honours_testing_short": false,
+   "note": "the only staged case that is runnable on this host today; it stays DEFERRED because it lives in the same file as a protoc-driven case and the file cannot be activated without activating that one. No repository test executed here may be reported in its place."
+  },
+  {
+   "Package": "github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact (staged)",
+   "Test": "BenchmarkCodeGeneration",
+   "Kind": "benchmark",
+   "File": "integration_test.go",
+   "Line": 461,
+   "needs": [
+    "protoc",
+    "built plugin binary ./protoc-gen-redact",
+    "-bench"
+   ],
+   "writes_into_source_tree": [
+    "protoc-gen-redact"
+   ],
+   "honours_testing_short": true
+  }
+ ],
+ "was_in_the_original_T09_required_profile": false
+}

@@ -5,14 +5,14 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	bLogger "github.com/tx7do/kratos-bootstrap/logger"
-	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	entCrud "github.com/tx7do/go-crud/entgo"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 
-	"github.com/tx7do/go-utils/copierutil"
-	"github.com/tx7do/go-utils/mapper"
+	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
+	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/plan"
@@ -26,8 +26,8 @@ type PlanModuleRepo struct {
 	entClient *entCrud.EntClient[*ent.Client]
 	log       *bLogger.Helper
 
-	mapper        *mapper.CopierMapper[identityV1.PlanModule, ent.PlanModule]
-	moduleConv    *mapper.EnumTypeConverter[identityV1.Module, planmodule.Module]
+	mapper     *mapper.CopierMapper[identityV1.PlanModule, ent.PlanModule]
+	moduleConv *mapper.EnumTypeConverter[identityV1.Module, planmodule.Module]
 
 	repository *entCrud.Repository[
 		ent.PlanModuleQuery, ent.PlanModuleSelect,

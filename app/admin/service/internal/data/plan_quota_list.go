@@ -9,13 +9,13 @@ import (
 	"time"
 
 	entsql "entgo.io/ent/dialect/sql"
-	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
-	"github.com/tx7do/go-crud/pagination"
-	paginationFilter "github.com/tx7do/go-crud/pagination/filter"
-	"github.com/tx7do/go-crud/pagination/paginator"
-	paginationSorting "github.com/tx7do/go-crud/pagination/sorting"
 	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
+	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
+	"go-wind-admin/pkg/localdeps/go-crud/pagination"
+	paginationFilter "go-wind-admin/pkg/localdeps/go-crud/pagination/filter"
+	"go-wind-admin/pkg/localdeps/go-crud/pagination/paginator"
+	paginationSorting "go-wind-admin/pkg/localdeps/go-crud/pagination/sorting"
 )
 
 func planQuotaField(raw string) (string, bool) {

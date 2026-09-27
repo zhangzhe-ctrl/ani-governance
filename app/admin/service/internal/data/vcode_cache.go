@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	bLogger "github.com/tx7do/kratos-bootstrap/bootstrap"
-	"github.com/tx7do/kratos-bootstrap/logger"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	"go-wind-admin/pkg/serviceid"
 )

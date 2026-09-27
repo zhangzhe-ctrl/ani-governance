@@ -1,0 +1,112 @@
+{
+  "schema_version": "t15-sse-cancel-guard/1",
+  "task": "T15",
+  "round": "targeted repair of the PR #1 blocking SSE cancellation test; test-only plus one non-cache flag in the gate line",
+  "review_baseline": "b3ce1df8043372c460d68c2ca42d0e068f4844ba",
+  "pr": {
+    "number": 1,
+    "url": "https://github.com/zhangzhe-ctrl/ani-governance/pull/1",
+    "source_sha": "b3ce1df8043372c460d68c2ca42d0e068f4844ba",
+    "checked_out_sha": "598e61761b228b93a5836a1cff9df6e8fcaded96",
+    "checkout_note": "the pull_request job builds the merge of main d27847b and the source commit; its Git tree is identical to the source tree (both 115c5ab9e34f98e15ac2805c280d8f45420bdf74), so the runner executed exactly this code. Source SHA and checkout SHA are distinguished deliberately",
+    "note_this_round": "the CI outcomes recorded under verification earlier belong to the candidates they ran on; this round pushes a new commit and its own PR and push runs are reported separately, not back-labelled onto the old numbers"
+  },
+  "what_actually_failed": {
+    "runs": "run 36296142410 attempt 1 and attempt 2 (a re-run of the same gate, not a bypass), both failure, both at Makefile verify-gpu-regressions",
+    "package": "go-wind-admin/pkg/localdeps/kratos-transport/transport/sse, 33.25s and 33.89s",
+    "assertion": "TestSubscribeWithContextDone at client_test.go:424, require.Eventually over a process-wide goroutine count, 21.00s in attempt 2 (the full 20s window)",
+    "observed_values": "the failure messages read 15 with baseline 16, and 21 with baseline 16. Both numbers come from the argument evaluated when Eventually is called, not at the deadline, so they say the count differed from the baseline at the start of the window; the old logs contain no stack byte counts and no dump"
+  },
+  "attribution": {
+    "proven": [
+      "the same assertion failed twice on the runner; that is a repeat failure of one assertion, not a proof of determinism, and not a proof that a resource actually leaked",
+      "the baseline was polluted by construction: clientSubscriptionGoroutines() counted every goroutine in the process whose stack mentions sse.(*Client)., and the package's earlier cases leave such goroutines behind, so the sampled baseline was 16 while this case had contributed 20 more (10 subscriptions plus their 10 readLoop goroutines, as the rewritten logs measure); a baseline that moves during the window cannot be satisfied by any equality",
+      "the earlier 'ok ... (cached)' line in the push run meant that package never executed in that job, so 'the same tree passed on push' was not evidence of anything; that is why the gate line now carries -count=1",
+      "a truncated stack dump is a real hazard, just not this one's proven cause: the new collector measured 65750 bytes of stacks in this process, so a 64KiB buffer truncates and had to grow to 128KiB, while the old fixed 1MiB buffer was not truncated locally"
+    ],
+    "not_proven": [
+      "truncation is not established as the root cause of the runner failure, because the old buffer was 1MiB and the measured dump is ~65KiB",
+      "no claim is made that production leaks: after the repair, ten subscriptions on a live stream that were each proven to be receiving exited 90-175 microseconds after the cancellation with err=nil, requests seen 10, server-side streams still open 0, and no sse.(*Client). goroutine left in the isolated child"
+    ],
+    "production_path_examined_without_changing_it": "SubscribeWithContext wraps its operation in backoff.RetryNotify with a nil ReconnectStrategy, i.e. a fresh ExponentialBackOff whose MaxElapsedTime is about 15 minutes. readLoop turns io.EOF into a nil error, which ends the retry and returns; any other read or request error re-enters the retry loop instead of stopping. Cancelling before the request is established, or a transport that reports context cancellation rather than EOF on the body, therefore parks the subscription in reconnection backoff rather than returning it. Nothing was changed here: no forced StopBackOff, no reconnect strategy edit, no protocol, auth or buffering parameter touched. If a run ever shows a subscription that was ready with a normal handler still failing to return, that is a production finding to be filed with its stacks, not something this test may hide"
+  },
+  "repair": {
+    "files": [
+      "pkg/localdeps/kratos-transport/transport/sse/client_test.go",
+      "Makefile"
+    ],
+    "production_files_diff": "empty, verified by git diff --name-only filtered to everything except those two paths",
+    "kept_from_the_original_case": [
+      "the test name TestSubscribeWithContextDone",
+      "ten concurrent subscriptions",
+      "the real Client over a real HTTP event stream",
+      "the same context cancellation as the trigger",
+      "the same 20 second exit bound"
+    ],
+    "what_it_measures_now": [
+      "readiness: every one of the ten reports from inside its own handler after it has actually received an event, before the cancellation is issued; a sleep is no longer the gate",
+      "completion: ten distinct numbered returns inside the window; a duplicate, an out-of-range or a missing return fails, so fewer exits elsewhere cannot cancel out a leak",
+      "its own server-side resources: the fixture counts requests and streams still open at the deadline, which is how a readLoop that never noticed the cancellation shows up without borrowing another case's goroutines",
+      "residue only where ownership is unambiguous: the same scenario re-executes as a child process of this very test binary running nothing else, where any remaining sse.(*Client). stack must belong to it; -race is inherited because it is the same binary",
+      "the forced shutdown order is last: the verdict is taken before the publisher stops and before the httptest server closes its connections, so closing the server cannot make a non-exiting implementation look correct"
+    ],
+    "stack_collector": "starts at a requested size and doubles until the dump covers runtime.NumGoroutine() goroutines and has room left; an incomplete dump is reported as incomplete and is never parsed, and reaching the 16MiB ceiling fails rather than returning a comfortable empty set",
+    "controls_added": [
+      "withholding one completion fails the ten-of-ten wait, and the wait returns at its deadline instead of running on",
+      "one subscription reporting twice fails: ten distinct exits are required",
+      "a raw 64 byte snapshot is refused as incomplete while the growing collector reaches a complete dump with a larger buffer",
+      "the leak probe: an eleventh subscription on a context that is never cancelled makes the isolated child fail, and the failure names what outlived the cancellation; the probe is released only after the verdict"
+    ],
+    "makefile": "the plain package go test line in verify-gpu-regressions gained -count=1 only. Package list, build tags and assertions are unchanged; no cache wipe, no -vet=off, no exclusion added, no continue-on-error, and the workflow file was not touched",
+    "not_done": "no other SSE test was rewritten, no skip added, no known-defect entry touched, and the inherited cases keep their existing rules"
+  },
+  "verification": {
+    "fixed_matrices_all_with_GOMAXPROCS_2_and_cpu_2_on_pinned_go_1_26_7": {
+      "target_test_count_20": "20 RUN, 20 PASS, 0 FAIL, exit 0",
+      "target_test_race_count_3": "3 PASS, 0 FAIL, 0 DATA RACE, exit 0",
+      "whole_sse_package_count_3": "162 PASS, 0 FAIL, 0 SKIP, exit 0",
+      "logs": "/home/ubuntu/tx7do-pilot-run/T15/sse-pr-cancel/{target-count20,target-race-count3,package-count3}.{command,log,exit}"
+    },
+    "measured_values_from_the_repaired_case": "all ten ready about 12ms after start, cancelled at about 17ms, ten distinct returns 90-175us after the cancellation with err=nil, 10 requests seen, 0 server-side streams open, matching client goroutines 20 at the start sample and 0 at the end, dump 65750 bytes needing a 131072 byte buffer",
+    "gate_line_uncached_run": "the rewritten gate line alone (scripts/verify-gpu-redis.sh run -- go test -count=1 <same four package sets>) executed clean: exit 0, 69 ok lines, 0 cached, 0 failures, with kratos-transport/transport/sse at 14.667s and kratos-transport/transport/asynq at 33.778s. An earlier attempt of mine on this same line reported eight asynq connection-refused failures after the redis wrapper had printed its URI: two of my own runs overlapped on the script's fixed container name, so the second one was pointed at a broker that had just been removed. That is my harness mistake, recorded here rather than hidden, and the single clean run above is the result. The runner itself is unaffected by -count=1 for that package: the failed PR attempt-2 log already shows transport/asynq executing uncached and passing at 34.288s. Log: /home/ubuntu/tx7do-pilot-run/T15/sse-pr-cancel/gate-line-uncached.{command,log,exit}",
+    "pr_ci": "reported after this patch is pushed: the real status of the new run, and no merge while a required check is not green"
+  },
+  "boundaries": "R6 stays as the owner's scope ruling (unverified, not blocking). F1-F5 results stand untouched. No dependency, Proto, schema, tenant, quota or authorization change; accepted_head unchanged",
+  "round2_targeted_review_gaps": {
+    "reviewed_candidate": "daa9a73b3a0b15cec6db739126e9e1bf6612431b",
+    "gaps_closed": [
+      "the guard now rejects early returns instead of merely counting exits",
+      "the ten owned subscriptions share one Client again, as the case had it before the repair"
+    ],
+    "early_return_rejection": {
+      "defect_in_the_previous_patch": "watchReady counted readiness only, collectCompletions counted distinct indexes, and the judgement looked at ready count plus waitErr; subOutcome carried a timestamp that was never compared with the cancellation moment, so ten subscriptions that all returned before cancel() - and were then collected as ten distinct \"completions\" with zero residue - would have passed",
+      "mechanism": "watchReady selects on readiness and completions together and returns errEarlyReturn as soon as an owned index reports before the cancellation; report.cancelledAt is recorded exactly once, immediately before cancel(), and collectCompletions stamps each return with afterCancel = at.After(cancelledAt); acceptanceOwnSignals fails on any early set, on fewer than ten distinct owned indexes, and on any completion recorded without the cancellation having been issued",
+      "index_discipline": "readiness and completion both accept only the ten unique indexes 0..9 owned by the scenario; a duplicate adds nothing and an outside index - the leak probe is number 10 - cannot stand in for a missing one, so nine owned plus the probe plus a repeat is reported as nine and fails",
+      "error_contract": "no assertion is made about the returned error being nil or matching any text: what is verified is actual readiness, exit after the cancellation, and resource closure, so the production return contract stays untouched"
+    },
+    "shared_client": {
+      "restored": "NewClient is called once outside the start loop and all ten subscriptions share that instance and the same context, as the case at b3ce1df had it; the per-index once, readiness and completion signals stay",
+      "probe_client": "the deliberately-open eleventh subscription used by the negative control gets its own Client, so it can never substitute for the shared instance the ten share",
+      "race_evidence": "with the shared instance the target case passed -race -count=3 with 0 DATA RACE, so no production synchronisation or reconnect change was needed or made",
+      "stream_argument": "the original case subscribed to the stream named \"test\" and so does this one; the shared fixture now checks the incoming request actually carries stream=test, so the wire shape is verified rather than assumed, and the earlier version of the repair had quietly subscribed with an empty stream"
+    },
+    "controls": [
+      "one subscription completing before the cancellation fails, even with a full post-cancel set and clean resources behind it",
+      "all ten completing before the cancellation fails for the same reason, and the resource and residue halves are asserted clean in that same case so the rejection can only come from the early exits",
+      "nine owned readiness signals plus the probe index plus a duplicate are counted as nine and fail",
+      "a withheld or a duplicated completion fails the collection",
+      "a raw 64 byte snapshot is refused as incomplete and the growing collector has to reach a complete dump",
+      "the leak probe child must fail naming what outlived the cancellation, and the control also asserts it did not fail for readiness or for an early return, so it cannot pass for the wrong reason"
+    ],
+    "disclosure": "while iterating, one of the new controls deadlocked: it filled 9 values into a channel buffered for 4, which hung the test binary until its 600s timeout fired (recorded in the previous run under round2 sibling logs). The channels are now sized so a control cannot block on its own buffer. Nothing was hidden: that attempt failed before the fix.",
+    "verification": {
+      "environment": "Go 1.26.7 pinned, GOROOT set, GOTOOLCHAIN=local, GOWORK=off, -mod=readonly, GOMAXPROCS=2 and -cpu=2",
+      "controls_and_case": "exit 0",
+      "target_count_20": "20 RUN, 20 PASS, 0 FAIL, exit 0",
+      "target_race_count_3": "3 PASS, 0 FAIL, 0 DATA RACE, exit 0",
+      "whole_package_count_3": "162 PASS, 0 FAIL, 0 SKIP, exit 0",
+      "measured": "all ten ready about 12ms after start, cancelled at about 17ms, early=0, ten distinct post-cancel returns, 10 fixture requests, 0 streams open, start sample 63 blocks over 63 goroutines with 20 client stacks, end sample complete with 0 client stacks",
+      "logs": "/home/ubuntu/tx7do-pilot-run/T15/sse-pr-cancel/round2/ (previous round kept untouched)"
+    }
+  }
+}

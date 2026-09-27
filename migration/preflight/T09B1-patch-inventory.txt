@@ -1,0 +1,23 @@
+# T09-B1 patch inventory, measured 2026-09-25T15:27:22+08:00 at HEAD d9cf8e1900e11d4c62d6c66f805e2d5bdc5a497d
+# source: github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact v0.0.0-20260831125122-5bb4931991b2
+
+## redactor_test.go
+pristine  sha256 0a831280de4ce9e8995df9f8121ed958980f88759631e0f388ec7a2040afc649
+before    sha256 0a831280de4ce9e8995df9f8121ed958980f88759631e0f388ec7a2040afc649  blob 6e190c48f910bb8834fa2e8480736086cc6b28e9
+after     sha256 a909a45c97d0fcaebf04936c762322a0d8fa4fe77ff346e7aa459f339cd09594  blob e67fd6074f7ab40cd3be6f52bc551d4fc886bad9
+diff before->after: 1119 -> 1121 lines
+    8a9,10
+    > 
+    > 	redact "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+
+## validation_test.go
+pristine  sha256 aca9f3d145bb1633e4824374b53222fc1f4be6e9bf429129edf69659e5812563
+before    sha256 aca9f3d145bb1633e4824374b53222fc1f4be6e9bf429129edf69659e5812563  blob c1eea662b4f968cb77ad90fdfc68497e1374d352
+after     sha256 96e19122e7ebc3cc0967dad03c46fa32a2508043a557745632e3f4235e3603f7  blob d7dc47f6ec0d2419c0cd66474b8a4cabd1155a89
+diff before->after: 987 -> 989 lines
+    9a10,11
+    > 
+    > 	redact "go-wind-admin/pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1"
+
+## patch
+sha256 b279081d7554b059ac56986ab5b7d89977854e01167a5a53165080b2cc968606

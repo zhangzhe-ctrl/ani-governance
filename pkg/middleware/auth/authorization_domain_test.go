@@ -4,11 +4,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/tx7do/go-utils/trans"
-	engine "github.com/tx7do/kratos-authz/engine"
-	"github.com/tx7do/kratos-authz/engine/casbin"
-	authz "github.com/tx7do/kratos-authz/middleware"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
+	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	engine "go-wind-admin/pkg/localdeps/kratos-authz/engine"
+	"go-wind-admin/pkg/localdeps/kratos-authz/engine/casbin"
+	authz "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
 )
 
 // TestAuthorizationTenantDomain 校验 casbin 策略的租户域隔离：策略里 V3 是租户域，

@@ -12,7 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	_ "github.com/lib/pq"
 
-	"github.com/tx7do/go-crud/viewer"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 
 	ent "go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/orgunit"

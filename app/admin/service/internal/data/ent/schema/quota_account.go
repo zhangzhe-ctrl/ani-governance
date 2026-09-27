@@ -7,7 +7,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
-	"github.com/tx7do/go-crud/entgo/mixin"
+	"go-wind-admin/pkg/localdeps/go-crud/entgo/mixin"
 )
 
 // QuotaAccount holds the schema definition for the QuotaAccount entity.
@@ -24,7 +24,7 @@ func (QuotaAccount) Annotations() []schema.Annotation {
 			Charset:   "utf8mb4",
 			Collation: "utf8mb4_bin",
 			Checks: map[string]string{
-				"sys_quota_accounts_tenant_positive_ck":       `tenant_id > 0`,
+				"sys_quota_accounts_tenant_positive_ck":      `tenant_id > 0`,
 				"sys_quota_accounts_occupied_nonnegative_ck": `occupied_units >= 0`,
 			},
 		},

@@ -1,0 +1,8 @@
+go-wind-admin/app/admin/service/internal/data                  exit=0 required=297
+go-wind-admin/app/admin/service/internal/service               exit=0 required=172
+go-wind-admin/pkg/jwt                                          exit=0 required=21
+go-wind-admin/pkg/localdeps/kratos-authn/engine                exit=0 required=8
+go-wind-admin/pkg/localdeps/kratos-authn/engine/jwt            exit=0 required=7
+go-wind-admin/pkg/middleware/auth                              exit=0 required=21
+go-wind-admin/pkg/middleware/logging                           exit=0 required=78
+aggregate_exit=0
