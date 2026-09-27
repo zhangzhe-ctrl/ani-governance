@@ -48,6 +48,7 @@ def fixture(repo:Path, root:Path)->dict:
     (service/'Makefile').write_bytes((repo/'app/admin/service/Makefile').read_bytes())
     (service/'internal/data/ent/schema').mkdir(parents=True)
     (root/'api').mkdir();(root/'.env').write_text('PROJECT_NAME=ani\nSERVICE_APP_VERSION=1.0.0\n')
+    (root/'scripts').mkdir()
     (root/'scripts/build-redact-plugin.sh').write_text('#!/bin/sh\nexec redact-builder\n')
     bin=root/'fake-bin';bin.mkdir()
     for name in ['go','gow','ent','buf','python3','redact-builder','docker','sudo','curl','git','apt-get','dnf','brew']:

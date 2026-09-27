@@ -13,11 +13,11 @@ import (
 //   - gpu.count 没有旧枚举，读取时旧 enum 投影为 UNSPECIFIED/nil，绝不冒充旧值；
 //   - 旧字段 tag/类型/编号不变，仅标 deprecated；本批不删除旧字段。
 const (
-	QuotaCodeUserCount  = "user.count"
-	QuotaCodeStorage    = "storage.bytes"
-	QuotaCodeApiCalls   = "api.calls"
-	QuotaCodeGpuCount   = "gpu.count"
-	QuotaCodeUnitGpu    = "gpu"
+	QuotaCodeUserCount = "user.count"
+	QuotaCodeStorage   = "storage.bytes"
+	QuotaCodeApiCalls  = "api.calls"
+	QuotaCodeGpuCount  = "gpu.count"
+	QuotaCodeUnitGpu   = "gpu"
 )
 
 // codeToLegacyProto 将配额编码映射到旧 proto 枚举；第二返回值 false 表示无旧枚举。

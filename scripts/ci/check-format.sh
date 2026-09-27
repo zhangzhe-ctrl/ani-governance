@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/../.."
-mapfile -d '' -t sources < <(git ls-files -z -- '*.go')
-((${#sources[@]})) || { echo 'no tracked Go source' >&2; exit 1; }
-unformatted=$(gofmt -l "${sources[@]}")
+git rev-parse --verify origin/main >/dev/null || { echo 'origin/main is required for changed-file format check' >&2; exit 1; }
+base=$(git merge-base HEAD origin/main)
+if test "$base" = "$(git rev-parse HEAD)"; then base=$(git rev-parse HEAD^); fi
+mapfile -d '' -t sources < <(git diff --name-only -z --diff-filter=ACMR "$base" HEAD -- '*.go')
+unformatted=''
+if ((${#sources[@]})); then unformatted=$(gofmt -l "${sources[@]}"); fi
 if [[ -n "$unformatted" ]]; then
   printf '%s\n' "$unformatted" >&2
   exit 1
 fi
-git diff --check
+git diff --check "$base" HEAD

@@ -34,8 +34,8 @@ import (
 
 type testGovConfig struct {
 	Address, Address2, ReleaseAddress, ReleaseAddress2, OwnerAddress, CA, Cert, Key string
-	Accelerator                                          data.AcceleratorClientConfig
-	StartStopped                                         bool
+	Accelerator                                                                     data.AcceleratorClientConfig
+	StartStopped                                                                    bool
 }
 
 func jointLedger(t *testing.T) (*data.QuotaLedgerRepo, *entCrud.EntClient[*ent.Client]) {

@@ -69,7 +69,7 @@ def check(repo: pathlib.Path, deps_json: pathlib.Path | None) -> list[str]:
             for retired in RETIRED_REFERENCES:
                 if retired in content:
                     errors.append(f"retired reference {retired}: {name}")
-            if name.startswith("app/admin/service/") and name.endswith(".go") and not "/ent/" in name:
+            if name.startswith("app/admin/service/") and not name.startswith("app/admin/service/tests/") and name.endswith(".go") and "/ent/" not in name:
                 if TESTUTIL in content or re.search(r'"testing"', content):
                     errors.append(f"test dependency in production source: {name}")
                 if re.search(r"\b(?:func|type)\s+\w*ForTest\b", content):

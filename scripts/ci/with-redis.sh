@@ -61,18 +61,20 @@ case "${1:-}" in
     mkdir -p "$root"
     state="$root/ani-redis-$(head -c 8 /dev/urandom | od -An -tx1 | tr -d ' \n')"
     export ANI_TEST_REDIS_URI
-    if ! ANI_TEST_REDIS_URI=$(start); then
-      if owned; then stop || true; fi
-      exit 1
-    fi
-    set +e
+    cleanup_run() {
+      local command_rc=$?
+      trap - EXIT INT TERM
+      local cleanup_rc=0
+      if owned; then stop || cleanup_rc=$?; fi
+      if test "$cleanup_rc" -ne 0; then echo 'with-redis: owned container cleanup failed' >&2; fi
+      if test "$command_rc" -ne 0; then exit "$command_rc"; fi
+      exit "$cleanup_rc"
+    }
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+    trap cleanup_run EXIT
+    ANI_TEST_REDIS_URI=$(start)
     "$@"
-    command_rc=$?
-    stop
-    cleanup_rc=$?
-    set -e
-    if test "$command_rc" -ne 0; then exit "$command_rc"; fi
-    exit "$cleanup_rc"
     ;;
   *) die 'expected start, stop, uri, or run -- COMMAND' ;;
 esac
