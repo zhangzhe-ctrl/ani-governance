@@ -87,5 +87,36 @@
     ],
     "delivery": "/home/ubuntu/tx7do-pilot-run/T15/r6-inputs/ (outside the repository, never committed, dumps never pasted into logs)",
     "scope_of_search": "only the authorized task paths and the repository asset records were consulted; no other account, host or unauthorised backup was scanned"
+  },
+  "owner_scope_ruling_2026_09_27": {
+    "recorded_at": "2026-09-27T11:05+08:00",
+    "authority": "project owner, adjusting this round's acceptance scope; not a test pass and not a new upstream-defect exemption",
+    "review_candidate": "bedd7715a887c60482a36ddea2a53bc2df6ab880",
+    "decision": [
+      "the original R6 acceptance - restoring old-populated.dump and new-populated.dump - is moved out of the pre-merge acceptance scope for the tx7do source takeover and dependency exit",
+      "its execution result stays unverified: it is not recorded as PASS anywhere, and no claim is made that every T15 item executed",
+      "historical restore compatibility therefore remains unverified for this repository"
+    ],
+    "owner_background": [
+      "the feature has no real consumer yet",
+      "the two dumps were material from earlier experimental acceptance rounds and may already have been deleted during that clean-up",
+      "this round never required migrating real consumer history data that must be preserved"
+    ],
+    "still_true_and_unchanged": {
+      "status_field": "the status above stays BLOCKED_INPUT: the input is still absent. Nothing in this ruling turns a missing input into a result",
+      "inputs_absent": "old-populated.dump and new-populated.dump are still not on this host and were not reconstructed from their recorded sha256",
+      "the_two_tests": "TestQuotaGpuOldPopulatedUpgradeReplay and TestQuotaGpuRestoredProjectionContinuation remain in the tree, still switch-gated, still never run without their switches, and a skip is still never counted as a pass",
+      "history_and_hashes_kept": "docs/evidence/gov-quota-ent-review-20260924/historical-inputs.sha256, history.sh, the SQL under migrations/ and sql/, the delivery point /home/ubuntu/tx7do-pilot-run/T15/r6-inputs/ and every earlier failing or not-executed record stay exactly as they were",
+      "earlier_receipts": "the rounds that wrote BLOCKED_INPUT are not rewritten; this entry only adds the owner's current scope decision on top of them"
+    },
+    "search_is_stopped": [
+      "no further scanning of the host, other accounts or other backup locations",
+      "no restore database is created for this item",
+      "no empty or freshly migrated database, and no data filled in to satisfy an assertion, stands in for the original dumps",
+      "no attempt to recover the original files from their digests",
+      "nothing is deleted to make the item look finished"
+    ],
+    "what_could_still_be_said_about_coverage": "the quota behaviour that is covered is covered by its own acceptance and reported separately in migration/receipts/T15-r4-verify-gpu.json; it is a different acceptance from a historical restore and is never presented as R6",
+    "if_it_is_ever_needed": "when historical upgrade or restore assurance is actually required, it should be established again from a backup with a stated provenance, or from an independently reproducible fixture built for that purpose, and then run through the two switch-gated tests as recorded in what_would_complete_it above - not by reopening this round"
   }
 }
