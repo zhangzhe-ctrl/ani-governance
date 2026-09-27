@@ -329,12 +329,13 @@ func syncBack(root, stage string, roots []managedRoot, snap map[string]map[strin
 		// approved artifact it did not produce, and any validator nobody approved, are scope changes
 		// and never something to write back quietly. A partial slice is held to its own output only,
 		// so it is not required to produce the full list.
+		//
+		// The list says what this run must generate, not what had to exist before it: an approved
+		// validator that is missing from the tree is exactly the artifact this run is expected to
+		// rebuild, so it is restored rather than refused.
 		for _, v := range sortedKeys(scope.approved) {
 			if !stagedValidators[v] {
 				problems = append(problems, fmt.Sprintf("%s: approved in %s but not produced by this chain", v, scope.file))
-			}
-			if !treeValidators[v] {
-				problems = append(problems, fmt.Sprintf("%s: approved in %s but absent from the tree", v, scope.file))
 			}
 		}
 		for _, v := range sortedKeys(treeValidators) {

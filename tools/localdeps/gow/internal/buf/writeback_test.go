@@ -477,6 +477,43 @@ func TestWriteBackScopeRules(t *testing.T) {
 		if got := slice.content(second); got != "b\n" {
 			t.Errorf("a slice must not touch an artifact it did not generate: %q", got)
 		}
+		// The list says what the run must generate, not what had to exist before it. A missing
+		// approved artifact is what this run is for, so it comes back rather than being refused.
+		t.Run("one approved artifact missing before the run is rebuilt", func(t *testing.T) {
+			f := newWriteBackFixture(t, []string{approved, second}, managed)
+			f.write(approved, "a\n")
+			f.begin(true)
+			f.generate(approved, "a\n")
+			f.generate(second, "rebuilt\n")
+			if err := f.sync(true); err != nil {
+				t.Fatalf("a full chain that rebuilds the one artifact the tree lacked must pass: %v", err)
+			}
+			if got := f.content(second); got != "rebuilt\n" {
+				t.Errorf("the rebuilt validator was not written back: %q", got)
+			}
+			if got := f.content(approved); got != "a\n" {
+				t.Errorf("an artifact generation did not change must be left alone: %q", got)
+			}
+		})
+
+		t.Run("every approved artifact missing before the run is rebuilt", func(t *testing.T) {
+			third := managed + "/third.pb.validate.go"
+			f := newWriteBackFixture(t, []string{approved, second, third}, managed)
+			f.write(managed+"/types.pb.go", "hand of the chain\n")
+			f.begin(true)
+			f.generate(managed+"/types.pb.go", "hand of the chain\n")
+			f.generate(approved, "A\n")
+			f.generate(second, "B\n")
+			f.generate(third, "C\n")
+			if err := f.sync(true); err != nil {
+				t.Fatalf("an empty validator tree is the state a rebuild must recover from: %v", err)
+			}
+			for rel, want := range map[string]string{approved: "A\n", second: "B\n", third: "C\n"} {
+				if got := f.content(rel); got != want {
+					t.Errorf("%s was not restored: %q", rel, got)
+				}
+			}
+		})
 	})
 
 	t.Run("a missing scope file is a hard failure", func(t *testing.T) {
