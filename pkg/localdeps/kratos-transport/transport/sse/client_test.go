@@ -417,6 +417,9 @@ const (
 	ownedSubscriptions = 10
 	exitWindow         = 20 * time.Second
 	readyWindow        = 15 * time.Second
+
+	// streamName is the stream the original case subscribed to and is still subscribed to here.
+	streamName = "test"
 )
 
 // TestSubscribeWithContextDone keeps its name, its ten concurrent subscriptions, the real client over a
@@ -723,6 +726,12 @@ func runCancelScenario(t *testing.T, holdOne bool) scenarioReport {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
 		requests.Add(1)
+		// The original case subscribed to the stream named "test"; the fixture checks the request
+		// really carries it, so the wire shape is verified rather than assumed.
+		if got := r.URL.Query().Get("stream"); got != streamName {
+			t.Errorf("the client asked for stream %q, expected %q", got, streamName)
+			return
+		}
 		flusher, ok := w.(http.Flusher)
 		if !ok {
 			t.Errorf("the test transport cannot flush")
@@ -771,7 +780,7 @@ func runCancelScenario(t *testing.T, holdOne bool) scenarioReport {
 	start := func(index int, c *Client, runCtx context.Context, sink chan subOutcome) {
 		var once sync.Once
 		go func() {
-			err := c.SubscribeWithContext(runCtx, "", func(msg *Event) {
+			err := c.SubscribeWithContext(runCtx, streamName, func(msg *Event) {
 				once.Do(func() { ready <- index })
 			})
 			sink <- subOutcome{index: index, err: err, at: time.Now()}

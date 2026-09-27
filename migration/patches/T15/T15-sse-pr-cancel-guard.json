@@ -87,7 +87,8 @@
     "shared_client": {
       "restored": "NewClient is called once outside the start loop and all ten subscriptions share that instance and the same context, as the case at b3ce1df had it; the per-index once, readiness and completion signals stay",
       "probe_client": "the deliberately-open eleventh subscription used by the negative control gets its own Client, so it can never substitute for the shared instance the ten share",
-      "race_evidence": "with the shared instance the target case passed -race -count=3 with 0 DATA RACE, so no production synchronisation or reconnect change was needed or made"
+      "race_evidence": "with the shared instance the target case passed -race -count=3 with 0 DATA RACE, so no production synchronisation or reconnect change was needed or made",
+      "stream_argument": "the original case subscribed to the stream named \"test\" and so does this one; the shared fixture now checks the incoming request actually carries stream=test, so the wire shape is verified rather than assumed, and the earlier version of the repair had quietly subscribed with an empty stream"
     },
     "controls": [
       "one subscription completing before the cancellation fails, even with a full post-cancel set and clean resources behind it",
