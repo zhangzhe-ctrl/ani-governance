@@ -11,7 +11,7 @@ import (
 
 // The F4 rule: a tool that is merely present is not a tool that has been verified. Existence and a
 // self-reported version banner are both things an impostor can arrange, so the check is the build info
-// inside the binary, compared against migration/patches/T15/T15-tool-lock.json.
+// inside the binary, compared against tools/config/tool-lock.json.
 
 func newVerifierForTest(t *testing.T, lock map[string]lockedTool) *pluginVerifier {
 	t.Helper()

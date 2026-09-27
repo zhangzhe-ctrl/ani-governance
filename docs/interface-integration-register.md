@@ -25,7 +25,7 @@
 
 ## 风格改动批次
 
-本批 **AKSK-VPC-20260922** 已由用户明确指定，覆盖 AK-01～07、AK-ISSUE-01～05、NET-01/NET-ISSUE-01：实现、远端定向测试、空库真实链路及必要负向验收均 PASS。证据见 [运行记录](evidence/aksk-vpc-20260922/README.md)。单个批次完成不代表整体登记结束，其他功能风格仍待指定。
+本批 **AKSK-VPC-20260922** 已由用户明确指定，覆盖 AK-01～07、AK-ISSUE-01～05、NET-01/NET-ISSUE-01：实现、远端定向测试、空库真实链路及必要负向验收均 PASS。证据见 [运行记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/aksk-vpc-20260922/README.md)。单个批次完成不代表整体登记结束，其他功能风格仍待指定。
 
 本批 **GOV-RESOURCE-20260922**（进行中）：把 governance ↔ 下游资源服务（ani-resource-service，原 ani-network-service 改名）对接从单一 VPC 只读扩为**租户面读+写**。新增 BFF 路由（NET-02～NET-11）：`GET/POST /api/v1/networks/vpcs`、`DELETE /api/v1/networks/vpcs/{vpc_id}`、`GET /api/v1/networks/operations/{operation_id}`、`GET/POST /api/v1/networks/eips`、`DELETE /api/v1/networks/eips/{eip_id}`、`GET /api/v1/networks/vpcs/{vpc_id}/snat`、`POST /api/v1/networks/vpcs/{vpc_id}/snat/bindings`。权限码族 `network:vpc:list|create|delete`、`network:operation:get`、`network:eip:get|list|create|delete`、`network:snat:get|bind`（`bootstrap-network-access.sql` 已扩展）。下游统一走新的 `ANI_NETWORK_MODE=governance` 组合入口（mTLS、SAN、三头、actor 合同与 vpc-read 一致；resource 侧白名单按域分组，平台面与流式全部拒绝）。本批全链路验收未执行，状态以 [计划](../../ani-resource-service/docs/plans/governance-integration.md) 勾选为准。
 
@@ -567,7 +567,7 @@ Key 绑定同租户启用 TENANT 角色，复用套餐和 Casbin。主密钥文�
 | AK-ISSUE-04 | 已解决本批首次部署：空库种子权限 + 显式专用套餐与角色配置；租户管理员创建 Key PASS |
 | AK-ISSUE-05 | 已解决 NET-01：共用 Principal 与下游 actor；Key 对用户专用/Key 管理接口仍 403，PASS |
 
-证据及复现命令见 [本批记录](evidence/aksk-vpc-20260922/README.md)。本次仅持久化 VPC 查询，不证明网络数据面，也不开放其他业务 API。
+证据及复现命令见 [本批记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/aksk-vpc-20260922/README.md)。本次仅持久化 VPC 查询，不证明网络数据面，也不开放其他业务 API。
 
 ### 实施前历史排查（以下记录截至源码 5a2a2e8，已由上述交付替代）
 
@@ -671,7 +671,7 @@ Key 绑定同租户启用 TENANT 角色，复用套餐和 Casbin。主密钥文�
 
 Network 在 66f787b 上仅整合 9e56e1c 必要 vpc-read 改动，保留主线 BaseConnectivity 映射和租户过滤，加入 Key actor；没有整支合并平台工作或改名。真实 NodePort → Governance → mTLS → Network → PostgreSQL 已 PASS；跨租户/不存在同样 404（仅 request_id 不同），伪造公网身份无效，缺/错误证书与 RPC/header 租户不一致拒绝，用户 JWT 查询与登出回归 PASS。NET-ISSUE-01 本批已解决，full 模式及其他 RPC 仍不在开放范围。
 
-本次运行证据见 [本批记录](evidence/aksk-vpc-20260922/README.md)，以下保留实施前的分支核对和范围形成记录。
+本次运行证据见 [本批记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/aksk-vpc-20260922/README.md)，以下保留实施前的分支核对和范围形成记录。
 
 ### 实施前历史评估
 
@@ -817,9 +817,9 @@ x-ani-authz:
 
 ## 功能组：通用配额与 GPU 本地模拟
 
-2026-09-22 用户要求制定详细、强约束的执行计划；本轮只写计划，不实施功能。执行入口为 [本地执行计划](quota-gpu-local-execution-plan.md)，批次 QUOTA-GPU-LOCAL-01。**这批次所有的工作都可以在本地完成**，真实 GPU 服务尚未准备好，使用独立进程、真实 PostgreSQL 和持久 GPU 模拟器验收；不能将模拟结果标成真实 GPU 接入成功。
+2026-09-22 用户要求制定详细、强约束的执行计划；当时只写计划，批次 QUOTA-GPU-LOCAL-01。原计划见 `git show 63849fc4cde38b879184a8fea4a6f539e60063e1:docs/quota-gpu-local-execution-plan.md`。当时使用独立进程、真实 PostgreSQL 和持久 GPU 模拟器验收；不能将模拟结果标成真实 GPU 接入成功。
 
-2026-09-22（同日第二批）：QUOTA-GPU-LOCAL-01 已按计划 P0～P8 本地执行完成：目录/账本/单次占额/累计退额/持久化转发与恢复/内部 mTLS 退额/本地 GPU 模拟闭环实现并通过指定验收（见 [验收证据](evidence/quota-gpu-local-01/README.md)）；QUOTA-01/02/03、QUOTA-LAB-01～04 标记为已实现（lab 路由仅 quota_lab 构建）。真实 GPU 服务接入与真实硬件分配仍为 not_verified，未标成接入成功。
+2026-09-22（同日第二批）：QUOTA-GPU-LOCAL-01 已按计划 P0～P8 本地执行完成：目录/账本/单次占额/累计退额/持久化转发与恢复/内部 mTLS 退额/本地 GPU 模拟闭环实现并通过指定验收（见 [验收证据](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/quota-gpu-local-01/README.md)）；QUOTA-01/02/03、QUOTA-LAB-01～04 标记为已实现（lab 路由仅 quota_lab 构建）。真实 GPU 服务接入与真实硬件分配仍为 not_verified，未标成接入成功。
 
 用户确定：Governance 是统一入口，在转发前一次占额；成功不再实扣。资源服务只上报可退额事实，Governance 配额模块不维护资源运行状态。请求超时/操作失败本身不导致退额；只有确定创建已封闭且没有对应资源，或资源实际释放，才归还。计划采用累计 released_total 防重复/乱序多退。
 
@@ -838,6 +838,8 @@ x-ani-authz:
 | QUOTA-LAB-04 | GET /api/v1/quota-lab/operations/{operation_id} | 投递状态与账本标识，不维护资源 Running 状态 | 同上，限本租户与操作主体；已实现（本地验收通过） |
 | 复用 PLAN-11～14 | 现有套餐配额 CRUD | 拟增加 quotaCode、唯一/必填/数值范围约束；旧枚举本批 deprecated 兼容 | 沿用平台套餐管理权限；未改现有接口 |
 | 复用 TENANT-04/08 | 现有租户绑定与 usage | 绑定/到期复用；旧 QuotaUsage 仅补 code，旧统计能力不扩大 | 未改现有接口 |
+
+2026-09-27 H03：QUOTA-LAB-01～04 是历史实验登记，模拟器、专属 Proto、路由和构建标签已退役，当前不可调用。真实配额账本、转发 worker、usage sync 与内部 mTLS 退额继续保留；本登记仍未整体结项。
 
 ### 已登记边界与执行约束
 
@@ -962,7 +964,7 @@ HTTP 不接受 tenant/actor/context 作为身份来源；服务从已验证 Prin
 与修复后复跑分别保留，不修改历史批次结论。
 
 本批隔离软件联调的 20 HTTP BFF、当前权限撤销、真实下游 mTLS、ENDED 后非空绑定脱敏及
-非 GPU 回归已通过，详见 [BFF 验收证据](evidence/gov-acc-v12-01/bff/README.md)。这些结果不表示
+非 GPU 回归已通过，详见 [BFF 验收证据](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/bff/README.md)。这些结果不表示
 真实 GPU 调度或生产 owner 已启用；原始失败日志与修复边界一并保留。
 
 
@@ -973,11 +975,11 @@ HTTP 不接受 tenant/actor/context 作为身份来源；服务从已验证 Prin
 完整配额账本、套餐配额、投递、DELETE/释放和 GPU usage sync 改为 Ent 查询及单个 Ent 事务；
 删除 Conn.Raw/pgx 事务桥接、Governance sqlc 生成代码与强制门禁，保留显式 tenant 条件、
 行锁/租约代次校验、既有数据库约束及版本迁移。历史验收不自动计入本次回归，
-当前验证见 [Ent 修复记录](evidence/gov-quota-ent-20260924/README.md)。整体接口登记仍未结项。
+当前验证见 [Ent 修复记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-quota-ent-20260924/README.md)。整体接口登记仍未结项。
 
 ### 2026-09-24：Governance Ent 审核整改
 
-套餐配额列表恢复已接受的 SEARCH 空白、数值和时间字段语义；字段白名单、参数绑定、原分页/过滤、鉴权入口和报文不变。配额及 usage sync 的持久化时间恢复同一 PostgreSQL 事务时间。补充事务异常回滚与生产 SQL 审计断言，修复完整 checkout 格式门禁、Ent race 选择及 CI 证据 artifact。具体修改与执行证据见 [审核整改记录](evidence/gov-quota-ent-review-20260924/README.md)。本批不新增接口、权限、数据库迁移或生产启用事实。
+套餐配额列表恢复已接受的 SEARCH 空白、数值和时间字段语义；字段白名单、参数绑定、原分页/过滤、鉴权入口和报文不变。配额及 usage sync 的持久化时间恢复同一 PostgreSQL 事务时间。补充事务异常回滚与生产 SQL 审计断言，修复完整 checkout 格式门禁、Ent race 选择及 CI 证据 artifact。具体修改与执行证据见 [审核整改记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-quota-ent-review-20260924/README.md)。本批不新增接口、权限、数据库迁移或生产启用事实。
 
 ## 2026-09-26 排查：T15 R5 旧客户端 → 新服务 HTTP 合同对照
 

@@ -29,7 +29,7 @@
 ## 1. 骨架生成（可选）
 
 ```bash
-scripts/new-service-scaffold.sh \
+scripts/dev/new-service-scaffold.sh \
   -n Network -d catalog -m NETWORK \
   -r github.com/zhangzhe-ctrl/ani-network-service/api/network/v1 \
   -p '/api/v1/networks/vpcs/{vpc_id}' -s ani-network-service
@@ -113,7 +113,7 @@ gow api
 ## 8. 模块与权限登记
 
 1. **[module_mapping.go](../pkg/constants/module_mapping.go)**：`"<Name>Service": identityV1.Module_<MODULE>`。漏登记会导致 `business_module` 为 UNSPECIFIED，租户白名单直接拒绝。若模块枚举已定义但服务暂摘（如当前的 `MODULE_MODEL`），需在 [module_mapping_test.go](../pkg/constants/module_mapping_test.go) 的 `modulesWithoutService` 显式豁免。
-2. **Api 表登记**：新增接口明确登记 `(path, method)`、权限和套餐关系，参照 [bootstrap-network-access.sql](../scripts/bootstrap-network-access.sql) 写专项脚本；已在部署的实例上 `SyncApis` 是**清空后全量重建**，不是无损增量——需保留已有 ID 与关联并验证升级授权链。
+2. **Api 表登记**：新增接口明确登记 `(path, method)`、权限和套餐关系，参照 [bootstrap-network-access.sql](../scripts/ops/sql/bootstrap-network-access.sql) 写专项脚本；已在部署的实例上 `SyncApis` 是**清空后全量重建**，不是无损增量——需保留已有 ID 与关联并验证升级授权链。
 3. 套餐：目标租户的 Plan 必须包含该 Module，否则闸门 403。
 
 ## 9. 身份 Header 契约（治理中心 → 下游）

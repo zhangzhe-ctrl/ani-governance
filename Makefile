@@ -20,7 +20,7 @@ env:
 	echo "ROOT_DIR: $(ROOT_DIR)"
 	echo "SRCS_MK: $(SRCS_MK)"
 
-# 固定开发工具版本（migration/patches/T15/T15-tool-lock.json）：
+# 固定开发工具版本（tools/config/tool-lock.json）：
 # 版本来自本机二进制的 go version -m 构建信息，不用 @latest，不改应用依赖选择，不进生产镜像。
 PROTOC_GEN_GO_VER ?= v1.36.11
 PROTOC_GEN_GO_GRPC_VER ?= v1.6.2
@@ -49,7 +49,7 @@ plugin:
 
 # install cli tools
 cli:
-	@echo 'kratos CLI 未钉版本：本机无该二进制可核验，见 migration/patches/T15/T15-tool-lock.json 的 unresolved_entries（本仓在用命令不需要它）'
+	@echo 'kratos CLI 未钉版本：本机无该二进制可核验，见 tools/config/tool-lock.json 的 unresolved_entries（本仓在用命令不需要它）'
 	go install github.com/google/gnostic@$(PROTOC_GEN_OPENAPI_VER)   # 同一模块，与 protoc-gen-openapi 一起钉版
 	go install github.com/bufbuild/buf/cmd/buf@$(BUF_VER)
 	go install entgo.io/ent/cmd/ent@$(ENT_VER)
@@ -239,36 +239,25 @@ help:
 build_admin:
 	go build -trimpath -ldflags "-s -w" -o bin/admin ./app/admin/service/cmd/admin
 
-# GPU quota slice: source generation and software-only gates. Run on the task's
-# authorized Fedora host with its private caches and explicitly migrated PG DSN.
-.PHONY: verify-quota-ent verify-gpu verify-gpu-regressions verify-gpu-audit
+# CI entrypoints delegate to scripts/ci; GitHub jobs call the same scripts.
+.PHONY: verify-ci test-unit test-integration check-generated verify-gpu verify-quota-ent verify-gpu-regressions verify-gpu-audit
+verify-ci: test-unit test-integration check-generated
+
+test-unit:
+	bash scripts/ci/checks.sh
+
+test-integration:
+	bash scripts/ci/integration.sh
+
+check-generated:
+	bash scripts/ci/check-generated.sh
+	$(MAKE) tools-integration
+
+# Transitional aliases for existing operator commands; remove after consumers migrate.
+verify-gpu: verify-ci
 verify-quota-ent:
-	bash scripts/verify-quota-schema.sh
-	python3 scripts/check-quota-ent.py
-
-verify-gpu: verify-quota-ent verify-gpu-regressions verify-gpu-audit
-
-verify-gpu-regressions:
-	@test -n "$(QUOTA_LAB_PG_DSN)" || (echo 'QUOTA_LAB_PG_DSN required'; exit 1)
-	go version
-	go list -m github.com/zhangzhe-ctrl/ani-accelerator-service
-	bash scripts/verify-gpu-format.sh
-	go build -o /dev/null ./app/admin/service/cmd/server
-	go build -o /dev/null ./app/admin/service/cmd/admin
-	# The taken-over transport tests need a queue broker: scripts/verify-gpu-redis.sh
-	# starts a loopback-only, non-persistent container for this recipe and exports
-	# ANI_TEST_REDIS_URI. Those tests fail rather than skip when it is absent, so the
-	# variable must come from here and not from a developer shell.
-	# -count=1 on the plain package run: without it Go can answer from its build cache, and a gate
-	# whose SSE line reads "(cached)" has not executed the tests it is being credited for. The package
-	# list, tags and assertions are unchanged.
-	bash scripts/verify-gpu-redis.sh run -- go test -count=1 ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
-	go test -tags quota_pg ./app/admin/service/internal/data -run 'TestQuota|TestPlanQuota' -count=1 -timeout=15m
-	go test -tags quota_pg ./app/admin/service/internal/service -run 'TestPlanQuota' -count=1 -timeout=10m
-	go test -race -tags quota_pg ./app/admin/service/internal/data -run 'TestQuotaEnt|TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard|TestQuotaPostgresPolicyChanges|TestQuotaGpu|TestQuotaProcess' -count=1 -timeout=20m
-	go test -race ./app/admin/service/internal/service -run 'TestGpu|TestQuotaDurable|TestAccelerator' -count=1 -timeout=10m
-	go test -tags quota_pg ./app/admin/service/internal/server -run 'TestQuotaInternalMTLSAndCumulativeRelease' -count=1 -timeout=10m
-	go test -tags quota_pg ./app/admin/service/internal/service -run 'TestQuotaDispatchRetryAfterLostAck' -count=1 -timeout=10m
-
+	python3 scripts/ci/check_quota_storage.py --repo .
+	bash scripts/ci/check-ent-generated.sh
+verify-gpu-regressions: test-integration
 verify-gpu-audit:
-	bash scripts/verify-gpu-audit.sh
+	bash scripts/ci/audit.sh

@@ -1,7 +1,7 @@
 # 独立 PGV（protoc-gen-validate）模板：T15 显式固定本轮校验生成范围。
 #
 # 插件、参数、managed 配置与输出映射逐字取自 api/buf.gen.yaml 中原有的 validate 段，
-# 唯一新增的是文件级 paths 范围（清单由 migration/patches/T15/T15-pgv-scope.json 固定，
+# 唯一新增的是文件级 paths 范围（清单由 tools/config/pgv-scope.json 固定，
 # 来源是已验收提交 627783c 里 103 个 .pb.validate.go 的 // source: 头）。
 # paths 相对 Buf 模块根（与 api/buf.admin.openapi.gen.yaml 的写法一致）。
 # 因此：普通 Go/gRPC/HTTP/OpenAPI/redact/conf 生成范围不变，只有校验生成被限制在

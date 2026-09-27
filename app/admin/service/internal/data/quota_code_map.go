@@ -18,9 +18,6 @@ const (
 	QuotaCodeApiCalls   = "api.calls"
 	QuotaCodeGpuCount   = "gpu.count"
 	QuotaCodeUnitGpu    = "gpu"
-	QuotaCodeOwnerLab   = "ani-gpu-simulator"
-	QuotaCodeActionCreate = "LAB_GPU_CREATE"
-	QuotaCodeActionDelete = "LAB_GPU_DELETE"
 )
 
 // codeToLegacyProto 将配额编码映射到旧 proto 枚举；第二返回值 false 表示无旧枚举。

@@ -33,7 +33,7 @@ import (
 )
 
 type testGovConfig struct {
-	Address, ReleaseAddress, OwnerAddress, CA, Cert, Key string
+	Address, Address2, ReleaseAddress, ReleaseAddress2, OwnerAddress, CA, Cert, Key string
 	Accelerator                                          data.AcceleratorClientConfig
 	StartStopped                                         bool
 }
@@ -67,8 +67,8 @@ func TestJointGovernanceProcess(t *testing.T) {
 		t.Fatal(e)
 	}
 	if mode == "governance2" || mode == "governance-nosync2" {
-		cfg.Address = "127.0.0.1:25564"
-		cfg.ReleaseAddress = "127.0.0.1:25565"
+		cfg.Address = cfg.Address2
+		cfg.ReleaseAddress = cfg.ReleaseAddress2
 	}
 	token, e := secretFile("control-token")
 	if e != nil || token == "" {

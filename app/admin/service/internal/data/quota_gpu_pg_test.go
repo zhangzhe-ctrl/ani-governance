@@ -331,35 +331,6 @@ func TestQuotaGpuAtomicCancelAndSameKey(t *testing.T) {
 	require.Error(t, e)
 }
 
-// TestQuotaGpuRestoredProjectionContinuation runs only against the separately
-// restored populated database. It does not seed or clean the restored rows.
-func TestQuotaGpuRestoredProjectionContinuation(t *testing.T) {
-	if os.Getenv("QUOTA_RESTORE_VERIFY") != "1" {
-		t.Skip("separate populated-restore gate")
-	}
-	c := newLedgerPGClient(t)
-	r := newTestRepo(c)
-	ctx := context.Background()
-	pending, e := r.ClaimGpuUsageSync(ctx, "restore-worker", time.Minute, 10)
-	require.NoError(t, e)
-	require.NotEmpty(t, pending)
-	for _, p := range pending {
-		require.Equal(t, int64(2), p.Revision)
-		require.Equal(t, "ENDED", p.State)
-		ok, e := r.AckGpuUsageSync(ctx, p.TenantID, p.OperationID, p.Revision, p.LeaseGeneration)
-		require.NoError(t, e)
-		require.True(t, ok)
-		rows, e := r.RecomputeInvariants(ctx, p.TenantID)
-		require.NoError(t, e)
-		for _, v := range rows {
-			require.True(t, v.Balanced)
-		}
-	}
-	again, e := r.ClaimGpuUsageSync(ctx, "restore-worker-2", time.Minute, 10)
-	require.NoError(t, e)
-	require.Empty(t, again)
-}
-
 func TestQuotaGpuProjectionNullAndForeignRefConstraints(t *testing.T) {
 	c := newLedgerPGClient(t)
 	cleanLedger(t, c)

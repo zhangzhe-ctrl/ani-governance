@@ -25,6 +25,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const QuotaCodeOwnerLab = "ani-gpu-simulator"
+
 // newLedgerPGClient 连接任务隔离 PostgreSQL（已迁移）。
 func newLedgerPGClient(t *testing.T) *entCrud.EntClient[*ent.Client] {
 	t.Helper()

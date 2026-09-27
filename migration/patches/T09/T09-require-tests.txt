@@ -1,7 +1,0 @@
-{
-  "pass": true,
-  "required": 16,
-  "bad_tests": [],
-  "failed_packages": []
-}
-require_tests exit=0

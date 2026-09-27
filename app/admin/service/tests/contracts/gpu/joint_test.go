@@ -208,7 +208,7 @@ func TestJointSoftwareContract(t *testing.T) {
 			defer wg.Done()
 			address := cfg.Address
 			if index%2 == 1 {
-				address = "127.0.0.1:25564"
+				address = cfg.Address2
 			}
 			var r data.QuotaOccupyResult
 			_, e := jointHTTPAt(ctx, address, "/create", map[string]any{"Key": key, "Name": "joint-concurrent", "Gpu": seed.Request}, &r)

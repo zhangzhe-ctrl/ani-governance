@@ -1,0 +1,14 @@
+[
+  {"Package":"go-wind-admin/app/admin/service/internal/data/ent","Test":"TestTenantMutationGuard"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data/ent","Test":"TestTenantMutationGuardAccessKey"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data/ent","Test":"TestPositionDataScopeGuard"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data/ent","Test":"TestOrgUnitPathExpansionTenantBounded"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data/ent","Test":"TestTenantGuardDeleteOneCreate"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestConfigRepoSubscriptionCloseAndBroadcast"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaPostgresConcurrentLimit"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaPostgresReleaseCumulative"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaPostgresReleaseBeforeAck"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaGpuRestrictedRoleAndExplicitIsolation"},
+  {"Package":"go-wind-admin/app/admin/service/internal/server","Test":"TestQuotaInternalMTLSAndCumulativeRelease"},
+  {"Package":"go-wind-admin/app/admin/service/internal/service","Test":"TestQuotaDispatchRetryAfterLostAck"}
+]

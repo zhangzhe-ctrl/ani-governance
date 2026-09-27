@@ -1,3 +1,0 @@
-auto
--mod=mod
-https://goproxy.cn,direct

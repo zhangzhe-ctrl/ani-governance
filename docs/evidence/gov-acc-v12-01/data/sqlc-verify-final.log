@@ -1,1 +1,0 @@
-scripts/verify-quota-sqlc.sh: 行 4: SQLC: set SQLC to the pinned sqlc v1.30.0 executable

@@ -1,0 +1,89 @@
+name: ANI Governance CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GOWORK: 'off'
+      GOFLAGS: '-mod=readonly -p=2'
+      GOBIN: ${{ runner.temp }}/ani-bin
+      TMPDIR: ${{ runner.temp }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Install pinned scanners
+        run: |
+          echo "$GOBIN" >> "$GITHUB_PATH"
+          bash scripts/ci/install-tools.sh scanners
+      - name: Source and security checks
+        run: bash scripts/ci/checks.sh
+
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      postgres:
+        image: postgres:16.10
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      GOWORK: 'off'
+      GOFLAGS: '-mod=readonly -p=2'
+      TMPDIR: ${{ runner.temp }}
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      QUOTA_LAB_PG_DSN: postgres://gov_acc_runtime@127.0.0.1:5432/gov_acc_data?sslmode=disable
+      GUARD_TEST_PG_DSN: postgres://gov_acc_runtime@127.0.0.1:5432/gov_acc_guard?sslmode=disable
+      QUOTA_PG_EXCLUSIVE: '1'
+      GUARD_TEST_PG_EXCLUSIVE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Migrate isolated PostgreSQL and grant runtime role
+        run: bash scripts/ci/setup-postgres.sh
+      - name: Real PostgreSQL Redis and mTLS regression
+        run: bash scripts/ci/integration.sh
+
+  generation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GOWORK: 'off'
+      GOFLAGS: '-mod=readonly -p=2'
+      GOBIN: ${{ runner.temp }}/ani-bin
+      TMPDIR: ${{ runner.temp }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Install pinned generation tools
+        run: |
+          echo "$GOBIN" >> "$GITHUB_PATH"
+          bash scripts/ci/install-tools.sh generation
+      - name: Compare two API and Ent generations
+        run: bash scripts/ci/check-generated.sh
+      - name: Verify localized generator integration
+        run: make tools-integration

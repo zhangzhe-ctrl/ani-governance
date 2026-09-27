@@ -233,7 +233,7 @@ func loadToolLock(root string) (map[string]lockedTool, error) {
 }
 
 // toolLockRel is the repository's own record of which version each fixed tool must have.
-const toolLockRel = "migration/patches/T15/T15-tool-lock.json"
+const toolLockRel = "tools/config/tool-lock.json"
 
 // buildID is what go version -m reports for one binary. PackagePath is the main package the binary
 // was built from, which is what the tool lock records as its module: the go install line names a

@@ -1,6 +1,6 @@
 # GOV-ACC-V12-01 运行、迁移与恢复手册
 
-本手册描述本批交付实现的操作边界，配套[逐项验收结果](../evidence/gov-acc-v12-01/acceptance-results.md)、[数据层证据](../evidence/gov-acc-v12-01/data-layer.md)、[owner 接入指南](../contracts/gpu-owner-integration-guide.md)及[接口登记](../interface-integration-register.md)。操作步骤不等于已经执行；实际版本、CI例外和已执行的清理见[收尾记录](../evidence/gov-acc-v12-01/release/closeout.md)。本批没有生产部署或真实 GPU 验收。
+本手册描述本批交付实现的操作边界，配套[逐项验收结果](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/acceptance-results.md)、[数据层证据](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/data-layer.md)、[owner 接入指南](../contracts/gpu-owner-integration-guide.md)及[接口登记](../interface-integration-register.md)。操作步骤不等于已经执行；实际版本、CI例外和已执行的清理见[收尾记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/release/closeout.md)。本批没有生产部署或真实 GPU 验收。
 
 ## 1. 版本与当前运行边界
 
@@ -155,16 +155,16 @@ sha256sum "$GOV_BACKUP_FILE" > "$GOV_BACKUP_FILE.sha256"
 
 ## 8. 验证入口和历史暂停
 
-Gov `make verify-gpu` 包含Ent/结构生成无漂移、配额 Ent 执行边界扫描、格式、正式/lab/admin构建、受影响单元/真实PG/race、lab及固定漏洞/secret审计。运行方式见[数据层复跑说明](../evidence/gov-acc-v12-01/data-layer.md)。普通 data suite 会清理它自己的测试账本，**只能使用其独立 data 库**；不能把 joint-B、owner或恢复业务库DSN传给它。
+Gov `make verify-gpu` 包含Ent/结构生成无漂移、配额 Ent 执行边界扫描、格式、正式/lab/admin构建、受影响单元/真实PG/race、lab及固定漏洞/secret审计。运行方式见[数据层复跑说明](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/data-layer.md)。普通 data suite 会清理它自己的测试账本，**只能使用其独立 data 库**；不能把 joint-B、owner或恢复业务库DSN传给它。
 
-跨仓真实软件联调仍须另跑 `scripts/accelerator-acceptance/run-joint-contract.sh`、BFF和正式A边界脚本，使用明确不同 A/B DSN/CA/config。Acc 使用其固定版本的 `make verify`。所有结果落入[95项验收结果表](../evidence/gov-acc-v12-01/acceptance-results.md)，记录精确版本、source manifest、命令/退出码、原始失败与复跑，不用 component PASS 代替整项。
+跨仓真实软件联调仍须另跑 `scripts/accelerator-acceptance/run-joint-contract.sh`、BFF和正式A边界脚本，使用明确不同 A/B DSN/CA/config。Acc 使用其固定版本的 `make verify`。所有结果落入[95项验收结果表](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/acceptance-results.md)，记录精确版本、source manifest、命令/退出码、原始失败与复跑，不用 component PASS 代替整项。
 
 历史暂停记录保留原样：
 
-- [数据安全暂停](../evidence/gov-acc-v12-01/data-pause.md)：当时未完成的列表兼容/门禁失败、数据库和备份位置。
-- [BFF 安全暂停](../evidence/gov-acc-v12-01/bff/paused-handoff.md)：当时尚无A→A/FULL/UNKNOWN全链、Redis与证书恢复输入。
-- [协调暂停快照](../evidence/gov-acc-v12-01/pause-check.txt)：该时刻事务与资源状态，不当作当前PID/状态。
-- [恢复后的BFF证据](../evidence/gov-acc-v12-01/bff/resume/README.md)、[data-layer](../evidence/gov-acc-v12-01/data-layer.md)、[进程故障](../evidence/gov-acc-v12-01/process/README.md)：追加的新事实，不倒改旧暂停结论。
+- [数据安全暂停](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/data-pause.md)：当时未完成的列表兼容/门禁失败、数据库和备份位置。
+- [BFF 安全暂停](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/bff/paused-handoff.md)：当时尚无A→A/FULL/UNKNOWN全链、Redis与证书恢复输入。
+- [协调暂停快照](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/pause-check.txt)：该时刻事务与资源状态，不当作当前PID/状态。
+- [恢复后的BFF证据](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/bff/resume/README.md)、[data-layer](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/data-layer.md)、[进程故障](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/process/README.md)：追加的新事实，不倒改旧暂停结论。
 
 任务恢复前先检查实际容器/进程/端口、备份 hash、DSN权限与版本，不按旧 PID 盲目 kill/start，不重建或重播种已有 joint-B。
 
@@ -172,11 +172,11 @@ Acc 已发布版本中的 `docs/runbooks/accelerator-runtime.md` 仍保留旧批
 
 Acc运维也必须按新结构显式执行完整链：空库先 `bash scripts/migrate 0001` 再 `bash scripts/migrate 0002`；已确认v1的旧库先备份，再仅执行 `0002`。这两个入口都只使用受保护libpq环境，由迁移owner运行，不是服务启动行为；版本或结构不确定时先在恢复副本核对，不猜测重跑。应用角色仍须非owner、非superuser、无BYPASSRLS/DDL/TEMP，以新迁移与真实catalog审计为准；不能沿用旧手册中未完整列出的权限要求来豁免新门禁。
 
-本次最终模块 `1d32dd9a9173` 下，Gov [verify-gpu-05](../evidence/gov-acc-v12-01/data/resume/verify-gpu-05.meta) 已exit0；独立联合[普通六项](../evidence/gov-acc-v12-01/joint-resume/20260924T031542Z/test.log)140.884s及[race六项](../evidence/gov-acc-v12-01/joint-resume/20260924T031813Z/test.log)161.297s均PASS，包含FULL/UNKNOWN真实BFF、持久测试owner、退款和投影恢复。[最终模块普通A→A](../evidence/gov-acc-v12-01/bff/final-1d32dd9/README.md)也已复验。它们是软件运行证据；最终完整提交树、Gov发布/精确SHA CI和任务清理仍依验收表逐项登记，不由这些命令通过推定。
+本次最终模块 `1d32dd9a9173` 下，Gov [verify-gpu-05](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/data/resume/verify-gpu-05.meta) 已exit0；独立联合[普通六项](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/joint-resume/20260924T031542Z/test.log)140.884s及[race六项](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/joint-resume/20260924T031813Z/test.log)161.297s均PASS，包含FULL/UNKNOWN真实BFF、持久测试owner、退款和投影恢复。[最终模块普通A→A](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/bff/final-1d32dd9/README.md)也已复验。它们是软件运行证据；最终完整提交树、Gov发布/精确SHA CI和任务清理仍依验收表逐项登记，不由这些命令通过推定。
 
 ## 9. 清理与后续门禁
 
-本批任务资源已按用户接受不等待CI的明确指示完成清理，见[实际检查回执](../evidence/gov-acc-v12-01/release/cleanup-result.json)及[日志](../evidence/gov-acc-v12-01/release/cleanup.log)。以下要求同样适用于未来隔离复跑的收尾；每次 cleanup manifest 应记录：精确进程PID/命令/退出码、任务容器ID/标签、库/角色、临时凭据/cache/锁、实际动作与时间，以及保留备份/证据/恢复材料的路径和hash。先核对归属，确认无消费者后停止任务进程；只清任务资源，不清共享服务、共享数据库或他人cache。
+本批任务资源已按用户接受不等待CI的明确指示完成清理，见[实际检查回执](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/release/cleanup-result.json)及[日志](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/release/cleanup.log)。以下要求同样适用于未来隔离复跑的收尾；每次 cleanup manifest 应记录：精确进程PID/命令/退出码、任务容器ID/标签、库/角色、临时凭据/cache/锁、实际动作与时间，以及保留备份/证据/恢复材料的路径和hash。先核对归属，确认无消费者后停止任务进程；只清任务资源，不清共享服务、共享数据库或他人cache。
 
 历史 task 数据库/CA/helper是否保留，应逐项记录目的和恢复入口，不能笼统写“全部完成清理”。在备份恢复所需密钥/证书尚未有替代保存方式前，不删除唯一恢复输入。复测用例自己的临时库 cleanup 不代表整个 Goal 已清理。
 
