@@ -16,7 +16,7 @@ import (
 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entPermissionAuditLog "go-wind-admin/app/admin/service/internal/data/ent/permissionauditlog"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newPermissionAuditLogRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的
@@ -25,7 +25,7 @@ import (
 func newPermissionAuditLogRepoSqlite(t *testing.T) *PermissionAuditLogRepo {
 	t.Helper()
 	repo := &PermissionAuditLogRepo{
-		entClient: enttest.NewEntClientForTest(t),
+		entClient: testutil.NewEntClientForTest(t),
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		mapper:    mapper.NewCopierMapper[auditV1.PermissionAuditLog, ent.PermissionAuditLog](),
 		actionTypeConverter: mapper.NewEnumTypeConverter[auditV1.PermissionAuditLog_ActionType, entPermissionAuditLog.Action](
@@ -40,7 +40,7 @@ func newPermissionAuditLogRepoSqlite(t *testing.T) *PermissionAuditLogRepo {
 // 权限变更审计日志，ent client 直查断言各字段按请求落库。
 func TestPermissionAuditLogRepoSqlite_Create(t *testing.T) {
 	repo := newPermissionAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &auditV1.CreatePermissionAuditLogRequest{
 		Data: &auditV1.PermissionAuditLog{
@@ -87,7 +87,7 @@ func TestPermissionAuditLogRepoSqlite_Create(t *testing.T) {
 // 取值逐一建行，断言 proto → ent 与 ent → proto（List 路径）的双向映射逐对成立。
 func TestPermissionAuditLogRepoSqlite_ActionEnumPairs(t *testing.T) {
 	repo := newPermissionAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	expectedEnt := map[string]int{}
 	expectedProto := map[int32]int{}
@@ -131,7 +131,7 @@ func TestPermissionAuditLogRepoSqlite_ActionEnumPairs(t *testing.T) {
 // operator_name 列 contains 模糊搜索、id 列等值过滤与分页语义。
 func TestPermissionAuditLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 	repo := newPermissionAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	for i, marker := range []string{"MARKERIOTA", "MARKERKAPPA"} {
 		require.NoError(t, repo.Create(ctx, &auditV1.CreatePermissionAuditLogRequest{
@@ -213,7 +213,7 @@ func TestPermissionAuditLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 // TestPermissionAuditLogRepoSqlite_Get 验证 Get 按主键的命中与未命中。
 func TestPermissionAuditLogRepoSqlite_Get(t *testing.T) {
 	repo := newPermissionAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &auditV1.CreatePermissionAuditLogRequest{
 		Data: &auditV1.PermissionAuditLog{
@@ -245,7 +245,7 @@ func TestPermissionAuditLogRepoSqlite_Get(t *testing.T) {
 // 与 IsExist 的命中/未命中。
 func TestPermissionAuditLogRepoSqlite_CountAndIsExist(t *testing.T) {
 	repo := newPermissionAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &auditV1.CreatePermissionAuditLogRequest{
 		Data: &auditV1.PermissionAuditLog{

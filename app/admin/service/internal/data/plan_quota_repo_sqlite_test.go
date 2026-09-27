@@ -20,7 +20,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/plan"
 	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newPlanQuotaRepoPostgres 在给定 enttest client 上白盒构造 PlanQuotaRepo，
@@ -43,9 +43,9 @@ func newPlanQuotaRepoPostgres(t *testing.T, entClient *entCrud.EntClient[*ent.Cl
 // 直查断言：行落库、(plan_quota → plan) 外键真实落库到请求指定的父行。
 // 历史上这里条件写反导致 plan_id 落库为 NULL，本用例为其回归测试。
 func TestPlanQuotaRepoPostgres_Create(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pq_create_plan")).
@@ -80,9 +80,9 @@ func TestPlanQuotaRepoPostgres_Create(t *testing.T) {
 // TestPlanQuotaRepoPostgres_ListFilter 验证 List 的等值过滤（quota_type 列）与
 // 列表路径上 PlanId 从父套餐边正确回填。
 func TestPlanQuotaRepoPostgres_ListFilter(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pq_list_plan")).
@@ -141,9 +141,9 @@ func TestPlanQuotaRepoPostgres_ListFilter(t *testing.T) {
 
 // TestPlanQuotaRepoPostgres_Get 验证 Get 命中/未命中。
 func TestPlanQuotaRepoPostgres_Get(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pq_get_plan")).
@@ -185,9 +185,9 @@ func TestPlanQuotaRepoPostgres_Get(t *testing.T) {
 // 注：PLAN_QUOTA_TYPE_UNSPECIFIED 为 ent schema 未声明的值，直传会触发
 // ValueType 系校验失败（写路径无零值守卫），故只覆盖 3 个合法值。
 func TestPlanQuotaRepoPostgres_QuotaTypeReadView(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	cases := []struct {
 		protoQuotaType identityV1.PlanQuota_QuotaType
@@ -245,9 +245,9 @@ func TestPlanQuotaRepoPostgres_QuotaTypeReadView(t *testing.T) {
 // TestPlanQuotaRepoPostgres_Update 验证 Update 掩码内字段（quota_value）更新、
 // quota_type 与父套餐外键不受影响。
 func TestPlanQuotaRepoPostgres_Update(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pq_update_plan")).
@@ -291,9 +291,9 @@ func TestPlanQuotaRepoPostgres_Update(t *testing.T) {
 
 // TestPlanQuotaRepoPostgres_Delete 验证 Delete 后行数归零。
 func TestPlanQuotaRepoPostgres_Delete(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pq_del_plan")).

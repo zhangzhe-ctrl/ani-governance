@@ -16,7 +16,7 @@ import (
 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entApiAuditLog "go-wind-admin/app/admin/service/internal/data/ent/apiauditlog"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newApiAuditLogRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的 ApiAuditLogRepo，
@@ -24,7 +24,7 @@ import (
 func newApiAuditLogRepoSqlite(t *testing.T) *ApiAuditLogRepo {
 	t.Helper()
 	repo := &ApiAuditLogRepo{
-		entClient: enttest.NewEntClientForTest(t),
+		entClient: testutil.NewEntClientForTest(t),
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		mapper:    mapper.NewCopierMapper[auditV1.ApiAuditLog, ent.ApiAuditLog](),
 	}
@@ -36,7 +36,7 @@ func newApiAuditLogRepoSqlite(t *testing.T) *ApiAuditLogRepo {
 // API 审计日志，ent client 直查断言各字段按请求落库。
 func TestApiAuditLogRepoSqlite_Create(t *testing.T) {
 	repo := newApiAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &auditV1.CreateApiAuditLogRequest{
 		Data: &auditV1.ApiAuditLog{
@@ -101,7 +101,7 @@ func TestApiAuditLogRepoSqlite_Create(t *testing.T) {
 // id 列等值过滤与 page/page_size 分页语义。
 func TestApiAuditLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 	repo := newApiAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	for i, marker := range []string{"MARKERALPHA", "MARKERBETA"} {
 		require.NoError(t, repo.Create(ctx, &auditV1.CreateApiAuditLogRequest{
@@ -229,7 +229,7 @@ func TestApiAuditLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 // TestApiAuditLogRepoSqlite_Get 验证 Get 按主键的命中与未命中。
 func TestApiAuditLogRepoSqlite_Get(t *testing.T) {
 	repo := newApiAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &auditV1.CreateApiAuditLogRequest{
 		Data: &auditV1.ApiAuditLog{
@@ -265,7 +265,7 @@ func TestApiAuditLogRepoSqlite_Get(t *testing.T) {
 // 与 IsExist 的命中/未命中。
 func TestApiAuditLogRepoSqlite_CountAndIsExist(t *testing.T) {
 	repo := newApiAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &auditV1.CreateApiAuditLogRequest{
 		Data: &auditV1.ApiAuditLog{

@@ -15,7 +15,7 @@ import (
 	internalMessageV1 "go-wind-admin/api/gen/go/internal_message/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entInternalMessage "go-wind-admin/app/admin/service/internal/data/ent/internalmessage"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newInternalMessageRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的
@@ -24,7 +24,7 @@ import (
 func newInternalMessageRepoSqlite(t *testing.T) *InternalMessageRepo {
 	t.Helper()
 	repo := &InternalMessageRepo{
-		entClient: enttest.NewEntClientForTest(t),
+		entClient: testutil.NewEntClientForTest(t),
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		mapper:    mapper.NewCopierMapper[internalMessageV1.InternalMessage, ent.InternalMessage](),
 		statusConverter: mapper.NewEnumTypeConverter[internalMessageV1.InternalMessage_Status, entInternalMessage.Status](
@@ -43,7 +43,7 @@ func newInternalMessageRepoSqlite(t *testing.T) *InternalMessageRepo {
 // 并断言 Create 返回的 DTO 读视图对 status/type 如实呈现。
 func TestInternalMessageRepoSqlite_Create(t *testing.T) {
 	repo := newInternalMessageRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	created, err := repo.Create(ctx, &internalMessageV1.CreateInternalMessageRequest{
 		Data: &internalMessageV1.InternalMessage{
@@ -95,7 +95,7 @@ func TestInternalMessageRepoSqlite_Create(t *testing.T) {
 // 零值——岗位仓 type 的历史缺陷形态），读视图的退化将被本测试捕获。
 func TestInternalMessageRepoSqlite_EnumReadback(t *testing.T) {
 	repo := newInternalMessageRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 每行携带完整期望：显式指定的枚举按指定值断言；未指定的枚举按列默认断言。
 	type enumCase struct {

@@ -12,7 +12,7 @@ import (
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entRoleMetadata "go-wind-admin/app/admin/service/internal/data/ent/rolemetadata"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newRoleMetadataRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的 RoleMetadataRepo。
@@ -20,7 +20,7 @@ import (
 // 仅将 log 换为 NopLogger、entClient 换为 SQLite 内存库测试 client。
 func newRoleMetadataRepoSqlite(t *testing.T) *RoleMetadataRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := &RoleMetadataRepo{
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		entClient: entClient,
@@ -44,7 +44,7 @@ func newRoleMetadataRepoSqlite(t *testing.T) *RoleMetadataRepo {
 // Create（落库）→ ent client 直查确认 → Get（命中）→ IsExistByRoleID/IsTemplateRole。
 func TestRoleMetadataRepoSqlite_CreateGetExist(t *testing.T) {
 	repo := newRoleMetadataRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const roleID = uint32(16001)
 
@@ -102,7 +102,7 @@ func TestRoleMetadataRepoSqlite_CreateGetExist(t *testing.T) {
 // 仅对模板记录生效并递增版本号；非模板记录调用后无变化。
 func TestRoleMetadataRepoSqlite_TemplateVersionUpgrade(t *testing.T) {
 	repo := newRoleMetadataRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		templateRoleID = uint32(16002)
@@ -163,7 +163,7 @@ func TestRoleMetadataRepoSqlite_TemplateVersionUpgrade(t *testing.T) {
 // tenant_id 为可空列，显式给非空值才能确定性命中索引（NULL 在唯一索引中互异）。
 func TestRoleMetadataRepoSqlite_Upsert(t *testing.T) {
 	repo := newRoleMetadataRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const roleID = uint32(16004)
 

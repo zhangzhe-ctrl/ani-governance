@@ -1,3 +1,5 @@
+//go:build integration
+
 package ent_test
 
 import (

@@ -18,7 +18,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/plan"
 	"go-wind-admin/app/admin/service/internal/data/ent/planmodule"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newPlanModuleRepoSqlite 在给定 enttest client 上白盒构造 PlanModuleRepo，
@@ -41,9 +41,9 @@ func newPlanModuleRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.Cli
 // 直查断言：行落库、(plan_module → plan) 外键真实落库到请求指定的父行。
 // 历史上这里守卫倒置导致 plan_id 永远写空，本用例为其回归测试。
 func TestPlanModuleRepoSqlite_Create(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanModuleRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pm_create_plan")).
@@ -75,9 +75,9 @@ func TestPlanModuleRepoSqlite_Create(t *testing.T) {
 // TestPlanModuleRepoSqlite_ListFilter 验证 List 的等值过滤（module 列）与
 // 列表路径上 PlanId 从父套餐边正确回填。
 func TestPlanModuleRepoSqlite_ListFilter(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanModuleRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pm_list_plan")).
@@ -135,9 +135,9 @@ func TestPlanModuleRepoSqlite_ListFilter(t *testing.T) {
 // TestPlanModuleRepoSqlite_ListModulesByPlanId 验证按套餐列出的模块白名单：
 // 只返回该套餐的模块集合；0 与未知 ID 返回空。
 func TestPlanModuleRepoSqlite_ListModulesByPlanId(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanModuleRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	planA, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pm_lmbpi_a")).
@@ -174,9 +174,9 @@ func TestPlanModuleRepoSqlite_ListModulesByPlanId(t *testing.T) {
 
 // TestPlanModuleRepoSqlite_Get 验证 Get 命中/未命中。
 func TestPlanModuleRepoSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanModuleRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pm_get_plan")).
@@ -213,9 +213,9 @@ func TestPlanModuleRepoSqlite_Get(t *testing.T) {
 // 枚举列（如 position.type、notification_channel.type）读侧被丢弃的情形不同。
 // 本测试将该读视图行为钉死。
 func TestPlanModuleRepoSqlite_ModuleReadView(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanModuleRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	cases := []struct {
 		protoModule identityV1.Module
@@ -302,9 +302,9 @@ func TestPlanModuleRepoSqlite_ModuleReadView(t *testing.T) {
 // TestPlanModuleRepoSqlite_Update 验证 Update 掩码内字段（module）更新、
 // 父套餐外键不受影响。
 func TestPlanModuleRepoSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanModuleRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pm_update_plan")).
@@ -343,9 +343,9 @@ func TestPlanModuleRepoSqlite_Update(t *testing.T) {
 
 // TestPlanModuleRepoSqlite_Delete 验证 Delete 后行数归零。
 func TestPlanModuleRepoSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanModuleRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pm_del_plan")).

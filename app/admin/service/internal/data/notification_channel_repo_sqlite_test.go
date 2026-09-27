@@ -16,7 +16,7 @@ import (
 	notificationChannelV1 "go-wind-admin/api/gen/go/notification_channel/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/notificationchannel"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newNotificationChannelRepoSqlite 白盒构造 NotificationChannelRepo：
@@ -46,9 +46,9 @@ func newNotificationChannelRepoSqlite(t *testing.T, entClient *entCrud.EntClient
 // enabled 布尔派生 status（true→ON / 未传→OFF）、operatorID 落 created_by、
 // 请求级 password 经 EncryptIfNeeded 透传落 smtp_password；未携带密码时该列为空。
 func TestNotificationChannelRepoSqlite_Create(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newNotificationChannelRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	id, err := repo.Create(ctx, &notificationChannelV1.CreateNotificationChannelRequest{
 		Data: &notificationChannelV1.NotificationChannel{
@@ -150,9 +150,9 @@ func TestNotificationChannelRepoSqlite_Create(t *testing.T) {
 // 名称/SMTP 字段/枚举经 converter 回映射；HasPassword 按库里密码列有无回填；
 // 不存在的 ID 返回 NotFound。
 func TestNotificationChannelRepoSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newNotificationChannelRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	idWithPwd, err := repo.Create(ctx, &notificationChannelV1.CreateNotificationChannelRequest{
 		Data: &notificationChannelV1.NotificationChannel{
@@ -206,9 +206,9 @@ func TestNotificationChannelRepoSqlite_Get(t *testing.T) {
 // queryHasPasswordByIDs 对 HasPassword 标识的填充（有密码/无密码两种）；
 // 以及 name 的 contains 过滤与 nil 请求的 BadRequest。
 func TestNotificationChannelRepoSqlite_List(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newNotificationChannelRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	idWithPwd, err := repo.Create(ctx, &notificationChannelV1.CreateNotificationChannelRequest{
 		Data: &notificationChannelV1.NotificationChannel{
@@ -257,9 +257,9 @@ func TestNotificationChannelRepoSqlite_List(t *testing.T) {
 
 // TestNotificationChannelRepoSqlite_IsExist 验证 IsExist 的命中/未命中。
 func TestNotificationChannelRepoSqlite_IsExist(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newNotificationChannelRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	id, err := repo.Create(ctx, &notificationChannelV1.CreateNotificationChannelRequest{
 		Data: &notificationChannelV1.NotificationChannel{
@@ -283,9 +283,9 @@ func TestNotificationChannelRepoSqlite_IsExist(t *testing.T) {
 // 请求级 password 非空时更新 smtp_password、为空时保持；
 // operatorID 落 updated_by；不存在 ID 的更新无效果且不报错。
 func TestNotificationChannelRepoSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newNotificationChannelRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	id, err := repo.Create(ctx, &notificationChannelV1.CreateNotificationChannelRequest{
 		Data: &notificationChannelV1.NotificationChannel{
@@ -385,9 +385,9 @@ func TestNotificationChannelRepoSqlite_Update(t *testing.T) {
 // TestNotificationChannelRepoSqlite_Delete 验证 Delete 删除指定行、
 // id=0 的 BadRequest、不存在 ID 返回错误。
 func TestNotificationChannelRepoSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newNotificationChannelRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	idA, err := repo.Create(ctx, &notificationChannelV1.CreateNotificationChannelRequest{
 		Data: &notificationChannelV1.NotificationChannel{
@@ -426,9 +426,9 @@ func TestNotificationChannelRepoSqlite_Delete(t *testing.T) {
 // 非 EMAIL 或未启用的行被跳过；首条被删除后轮到下一条；
 // SMTP 配置（含密码透传解密）逐字段回读。
 func TestNotificationChannelRepoSqlite_GetFirstEnabledEmailChannel(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newNotificationChannelRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 干扰行：WEBHOOK 启用（类型不符）、EMAIL 未启用（状态不符）
 	_, err := repo.Create(ctx, &notificationChannelV1.CreateNotificationChannelRequest{
@@ -501,9 +501,9 @@ func TestNotificationChannelRepoSqlite_GetFirstEnabledEmailChannel(t *testing.T)
 // TestNotificationChannelRepoSqlite_GetFirstEnabledEmailChannel_None
 // 验证无启用 EMAIL 渠道时返回 NotFound。
 func TestNotificationChannelRepoSqlite_GetFirstEnabledEmailChannel_None(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newNotificationChannelRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := repo.Create(ctx, &notificationChannelV1.CreateNotificationChannelRequest{
 		Data: &notificationChannelV1.NotificationChannel{
@@ -522,9 +522,9 @@ func TestNotificationChannelRepoSqlite_GetFirstEnabledEmailChannel_None(t *testi
 // 解密 SMTP 配置：字段逐一回读、Enabled 按 status 映射、密码透传解密；
 // 不存在 ID 返回 NotFound。
 func TestNotificationChannelRepoSqlite_GetDecryptedSmtpAccount(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newNotificationChannelRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	idOn, err := repo.Create(ctx, &notificationChannelV1.CreateNotificationChannelRequest{
 		Data: &notificationChannelV1.NotificationChannel{

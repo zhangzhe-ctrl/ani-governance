@@ -16,7 +16,7 @@ import (
 	taskV1 "go-wind-admin/api/gen/go/task/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/task"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newTaskRepoSqlite 在给定 enttest client 上白盒构造 TaskRepo，
@@ -36,9 +36,9 @@ func newTaskRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.Client]) 
 // TestTaskRepoSqlite_Create 通过 repo.Create 写入后直查 SQLite 断言落库
 // （含 type 枚举经 converter 的落库值）。
 func TestTaskRepoSqlite_Create(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newTaskRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := repo.Create(ctx, &taskV1.CreateTaskRequest{
 		Data: &taskV1.Task{
@@ -65,9 +65,9 @@ func TestTaskRepoSqlite_Create(t *testing.T) {
 
 // TestTaskRepoSqlite_ListContainsFilter 验证 List 的 contains 模糊搜索语义。
 func TestTaskRepoSqlite_ListContainsFilter(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newTaskRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, createErr := repo.Create(ctx, &taskV1.CreateTaskRequest{
 		Data: &taskV1.Task{
@@ -128,9 +128,9 @@ func TestTaskRepoSqlite_ListContainsFilter(t *testing.T) {
 // TestTaskRepoSqlite_Get 验证按 ID 命中/未命中，
 // 以及平台上下文按 type_name 查询被拒绝的分支。
 func TestTaskRepoSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newTaskRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, createErr := repo.Create(ctx, &taskV1.CreateTaskRequest{
 		Data: &taskV1.Task{TypeName: trans.Ptr("sqlite_task_get_name")},
@@ -164,9 +164,9 @@ func TestTaskRepoSqlite_Get(t *testing.T) {
 // TestTaskRepoSqlite_Update 验证 Update 只更新掩码内字段（remark），
 // 掩码外字段（type_name/cron_spec）保持原值。
 func TestTaskRepoSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newTaskRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, createErr := repo.Create(ctx, &taskV1.CreateTaskRequest{
 		Data: &taskV1.Task{
@@ -209,9 +209,9 @@ func TestTaskRepoSqlite_Update(t *testing.T) {
 // 丢弃的情形不同。type_name 为普通字符串列、无枚举转换参与，不在本测试
 // 范围。本测试将该读视图行为钉死。
 func TestTaskRepoSqlite_TypeReadView(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newTaskRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	cases := []struct {
 		protoType taskV1.Task_Type
@@ -292,9 +292,9 @@ func TestTaskRepoSqlite_TypeReadView(t *testing.T) {
 
 // TestTaskRepoSqlite_Delete 验证 Delete 后行数归零。
 func TestTaskRepoSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newTaskRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, createErr := repo.Create(ctx, &taskV1.CreateTaskRequest{
 		Data: &taskV1.Task{TypeName: trans.Ptr("sqlite_task_delete_name")},

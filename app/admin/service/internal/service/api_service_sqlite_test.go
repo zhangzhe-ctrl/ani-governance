@@ -22,7 +22,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entApi "go-wind-admin/app/admin/service/internal/data/ent/api"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/authorizer"
 	"go-wind-admin/pkg/middleware/auth"
 )
@@ -65,7 +65,7 @@ func newApiServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.Client
 	)
 	return &ApiService{
 		log:         bLogger.NewHelper(bLogger.NopLogger()),
-		repo:        data.NewApiRepoForTest(entClient),
+		repo:        data.NewApiRepo(newRepoContext(), entClient),
 		authorizer:  authz,
 		routeWalker: nil,
 	}
@@ -75,9 +75,9 @@ func newApiServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.Client
 // 遍历到的路由组装成列表（Total 与条目一一对应，状态统一置 ON）；
 // 未注册 walker 时应返回错误。
 func TestApiServiceSqlite_GetWalkRouteData(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newApiServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := svc.GetWalkRouteData(ctx, &emptypb.Empty{})
 	require.Error(t, err, "未注册 RouteWalker 时应返回错误")
@@ -104,9 +104,9 @@ func TestApiServiceSqlite_GetWalkRouteData(t *testing.T) {
 // 创建（含 scope/business_module 枚举转换与操作人盖章）、按主键查询的命中/未命中、
 // 单字段掩码更新、删除归零。
 func TestApiServiceSqlite_CreateGetUpdateDelete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newApiServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &permissionV1.CreateApiRequest{

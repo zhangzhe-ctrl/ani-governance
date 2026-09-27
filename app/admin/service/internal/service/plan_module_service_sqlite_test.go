@@ -17,7 +17,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entPlan "go-wind-admin/app/admin/service/internal/data/ent/plan"
 	entPlanModule "go-wind-admin/app/admin/service/internal/data/ent/planmodule"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -27,7 +27,7 @@ func newPlanModuleServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent
 	t.Helper()
 	return &PlanModuleService{
 		log:            bLogger.NewHelper(bLogger.NopLogger()),
-		planModuleRepo: data.NewPlanModuleRepoForTest(entClient),
+		planModuleRepo: data.NewPlanModuleRepo(newRepoContext(), entClient),
 	}
 }
 
@@ -35,9 +35,9 @@ func newPlanModuleServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent
 // 请求携带的 planId 真实落库为指向父套餐的外键（历史上该条件曾写反导致关联永不落库），
 // 且 List 路径应从 plan 边回填 PlanId。
 func TestPlanModuleServiceSqlite_Create_AssociatesPlan(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanModuleServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parent, err := entClient.Client().Plan.Create().
@@ -73,9 +73,9 @@ func TestPlanModuleServiceSqlite_Create_AssociatesPlan(t *testing.T) {
 // TestPlanModuleServiceSqlite_List_BackfillsPlanId 验证服务层 List 从 plan 边
 // 回填 PlanId（边加载路径）。
 func TestPlanModuleServiceSqlite_List_BackfillsPlanId(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanModuleServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parent, err := entClient.Client().Plan.Create().
@@ -103,9 +103,9 @@ func TestPlanModuleServiceSqlite_List_BackfillsPlanId(t *testing.T) {
 // TestPlanModuleServiceSqlite_Create_MissingOperatorRejected 缺少操作人声明时
 // 服务层 Create 应直接拒绝，且不落库。
 func TestPlanModuleServiceSqlite_Create_MissingOperatorRejected(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanModuleServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := svc.Create(ctx, &identityV1.CreatePlanModuleRequest{
 		Data: &identityV1.PlanModule{Module: identityV1.Module_LOG.Enum()},
@@ -119,9 +119,9 @@ func TestPlanModuleServiceSqlite_Create_MissingOperatorRejected(t *testing.T) {
 
 // TestPlanModuleServiceSqlite_Get 验证服务层 Get 按主键查询的命中与未命中。
 func TestPlanModuleServiceSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanModuleServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parent, err := entClient.Client().Plan.Create().
@@ -157,9 +157,9 @@ func TestPlanModuleServiceSqlite_Get(t *testing.T) {
 // TestPlanModuleServiceSqlite_Update 验证服务层 Update 在单字段掩码下
 // 只更新掩码内字段（module），其余保持原值。
 func TestPlanModuleServiceSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanModuleServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parent, err := entClient.Client().Plan.Create().
@@ -203,9 +203,9 @@ func TestPlanModuleServiceSqlite_Update(t *testing.T) {
 
 // TestPlanModuleServiceSqlite_Delete 验证服务层 Delete 后表内计数归零。
 func TestPlanModuleServiceSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanModuleServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &identityV1.CreatePlanModuleRequest{

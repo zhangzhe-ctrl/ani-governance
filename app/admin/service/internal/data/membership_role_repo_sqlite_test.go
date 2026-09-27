@@ -13,14 +13,14 @@ import (
 
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	entMembershipRole "go-wind-admin/app/admin/service/internal/data/ent/membershiprole"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newMembershipRoleRepoSqlite 用 enttest helper 构造一个可直接做关联 CRUD 的 MembershipRoleRepo。
 // 白盒构造逐字段复刻 NewMembershipRoleRepo 的初始化（仅 log 换 NopLogger、entClient 换测试 client）。
 func newMembershipRoleRepoSqlite(t *testing.T) *MembershipRoleRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	return &MembershipRoleRepo{
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		entClient: entClient,
@@ -36,7 +36,7 @@ func newMembershipRoleRepoSqlite(t *testing.T) *MembershipRoleRepo {
 // ListRoleIDs/ListMembershipIDs（正反向查询）→ CleanRelationsByMembershipID（清理）→ 计数归零。
 func TestMembershipRoleRepoSqlite_AssignListAndClean(t *testing.T) {
 	repo := newMembershipRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testMembershipID = uint32(8101)
@@ -101,7 +101,7 @@ func TestMembershipRoleRepoSqlite_AssignListAndClean(t *testing.T) {
 // 的单向解除语义与按角色清理路径。
 func TestMembershipRoleRepoSqlite_RemoveRolesFromMembership(t *testing.T) {
 	repo := newMembershipRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testMembershipID = uint32(8102)
@@ -141,7 +141,7 @@ func TestMembershipRoleRepoSqlite_RemoveRolesFromMembership(t *testing.T) {
 // excludeExpired 语义：过期（end_at 早于当前时刻）的关联在过滤后被排除。
 func TestMembershipRoleRepoSqlite_ExcludeExpired(t *testing.T) {
 	repo := newMembershipRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testMembershipID = uint32(8103)

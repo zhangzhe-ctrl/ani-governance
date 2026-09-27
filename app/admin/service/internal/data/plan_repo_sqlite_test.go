@@ -16,7 +16,7 @@ import (
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/plan"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newPlanRepoSqlite 在给定 enttest client 上白盒构造 PlanRepo，
@@ -41,9 +41,9 @@ func newPlanRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.Client]) 
 // TestPlanRepoSqlite_Create 通过 repo.Create 写入后直查 SQLite 断言落库
 // （含枚举字段经 converter 的落库值）。
 func TestPlanRepoSqlite_Create(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &identityV1.CreatePlanRequest{
 		Data: &identityV1.Plan{
@@ -68,9 +68,9 @@ func TestPlanRepoSqlite_Create(t *testing.T) {
 // TestPlanRepoSqlite_CreateDuplicateName 验证套餐名唯一索引：
 // 重名创建返回 400（BadRequest）而非 500。
 func TestPlanRepoSqlite_CreateDuplicateName(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreatePlanRequest{
 		Data: &identityV1.Plan{Name: trans.Ptr("sqlite套餐-重名")},
@@ -83,9 +83,9 @@ func TestPlanRepoSqlite_CreateDuplicateName(t *testing.T) {
 
 // TestPlanRepoSqlite_ListContainsFilter 验证 List 的 contains 模糊搜索语义。
 func TestPlanRepoSqlite_ListContainsFilter(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreatePlanRequest{
 		Data: &identityV1.Plan{Name: trans.Ptr("套餐-markerpoi-甲")},
@@ -139,9 +139,9 @@ func TestPlanRepoSqlite_ListContainsFilter(t *testing.T) {
 
 // TestPlanRepoSqlite_Get 验证 Get 命中/未命中。
 func TestPlanRepoSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreatePlanRequest{
 		Data: &identityV1.Plan{Name: trans.Ptr("sqlite套餐-Get")},
@@ -166,9 +166,9 @@ func TestPlanRepoSqlite_Get(t *testing.T) {
 // TestPlanRepoSqlite_Update 验证 Update 只更新掩码内字段（description），
 // 掩码外字段（name）保持原值。
 func TestPlanRepoSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreatePlanRequest{
 		Data: &identityV1.Plan{
@@ -209,9 +209,9 @@ func TestPlanRepoSqlite_Update(t *testing.T) {
 // 本测试将该读视图行为钉死：若日后注册形态或 copier 匹配语义变化导致
 // 读丢弃，此处会立即翻红。
 func TestPlanRepoSqlite_EnumReadView(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	cases := []struct {
 		protoVersion   identityV1.Plan_Version
@@ -280,9 +280,9 @@ func TestPlanRepoSqlite_EnumReadView(t *testing.T) {
 
 // TestPlanRepoSqlite_Delete 验证 Delete 后行数归零。
 func TestPlanRepoSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPlanRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreatePlanRequest{
 		Data: &identityV1.Plan{Name: trans.Ptr("sqlite套餐-待删除")},

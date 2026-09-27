@@ -12,14 +12,14 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/user"
 	"go-wind-admin/app/admin/service/internal/data/ent/usercredential"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 func TestInvitationAcceptance(t *testing.T) {
 	for _, scenario := range []string{"success", "expired", "weak-password", "email-changed", "disabled-user", "tenant-changed", "credential-conflict"} {
 		t.Run(scenario, func(t *testing.T) {
 			r := newUserCredentialRepoSqlite(t)
-			ctx := enttest.NewSystemViewerCtx(context.Background())
+			ctx := testutil.NewSystemViewerCtx(context.Background())
 			client := r.entClient.Client()
 			userTenant := uint32(7)
 			if scenario == "tenant-changed" {

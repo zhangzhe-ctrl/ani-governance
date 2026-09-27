@@ -15,15 +15,15 @@ import (
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent/planquota"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // TestPlanQuotaRepoPostgres_QuotaCodeCompat 覆盖 §5.2 请求兼容行为：
 // 只传 code / 只传旧枚举 / 冲突拒绝 / gpu.count 读取旧枚举为 nil。
 func TestPlanQuotaRepoPostgres_QuotaCodeCompat(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pq_compat_plan")).
@@ -117,9 +117,9 @@ func TestPlanQuotaRepoPostgres_QuotaCodeCompat(t *testing.T) {
 
 // TestPlanQuotaRepoPostgres_DuplicateCodeRejected 同套餐同 code 唯一约束（CFG-04 的 repo 侧）。
 func TestPlanQuotaRepoPostgres_DuplicateCodeRejected(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().Plan.Create().
 		SetNillableName(trans.Ptr("sqlite_pq_dup_plan")).

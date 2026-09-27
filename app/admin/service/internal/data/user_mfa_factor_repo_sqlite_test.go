@@ -10,7 +10,7 @@ import (
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	entUserMfaFactor "go-wind-admin/app/admin/service/internal/data/ent/usermfafactor"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newUserMfaFactorRepoSqlite 用 enttest helper 构造 UserMfaFactorRepo，
@@ -18,7 +18,7 @@ import (
 func newUserMfaFactorRepoSqlite(t *testing.T) *UserMfaFactorRepo {
 	t.Helper()
 	return &UserMfaFactorRepo{
-		entClient: enttest.NewEntClientForTest(t),
+		entClient: testutil.NewEntClientForTest(t),
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 	}
 }
@@ -28,7 +28,7 @@ func newUserMfaFactorRepoSqlite(t *testing.T) *UserMfaFactorRepo {
 // HasEnabledTotp / FindEnabledTotpForUser 的归属校验与 secret 还原。
 func TestUserMfaFactorRepoSqlite_CreateAndFindEnabledTotp(t *testing.T) {
 	repo := newUserMfaFactorRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	factorID, err := repo.CreateTotpFactor(ctx, 1, 10, "SECRET123", "认证器A")
 	require.NoError(t, err, "CreateTotpFactor 应成功")
@@ -84,7 +84,7 @@ func TestUserMfaFactorRepoSqlite_CreateAndFindEnabledTotp(t *testing.T) {
 func TestUserMfaFactorRepoSqlite_ListByUserMapping(t *testing.T) {
 	repo := newUserMfaFactorRepoSqlite(t)
 	client := repo.entClient.Client()
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 为 (1,10) 每种 method 各建一行。(tenant_id,user_id,method) 有唯一约束，
 	// TOTP 行用 DISABLED（同时覆盖 Enabled=false 映射分支），其余三种 method 用 ENABLED
@@ -163,7 +163,7 @@ func TestUserMfaFactorRepoSqlite_ListByUserMapping(t *testing.T) {
 func TestUserMfaFactorRepoSqlite_DeleteForUserAndByMethod(t *testing.T) {
 	repo := newUserMfaFactorRepoSqlite(t)
 	client := repo.entClient.Client()
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	totpOwn, err := client.UserMfaFactor.Create().
 		SetTenantID(1).SetUserID(10).SetMethod(entUserMfaFactor.MethodTotp).
@@ -216,7 +216,7 @@ func TestUserMfaFactorRepoSqlite_DeleteForUserAndByMethod(t *testing.T) {
 func TestUserMfaFactorRepoSqlite_GetFindFirstAndUpdateLastUsed(t *testing.T) {
 	repo := newUserMfaFactorRepoSqlite(t)
 	client := repo.entClient.Client()
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	rowA, err := client.UserMfaFactor.Create().
 		SetTenantID(3).SetUserID(30).SetMethod(entUserMfaFactor.MethodEmail).

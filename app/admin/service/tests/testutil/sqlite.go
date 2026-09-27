@@ -7,9 +7,9 @@
 // 用法：
 //
 //	func TestFooRepo(t *testing.T) {
-//	    entClient := enttest.NewEntClientForTest(t)
+//	    entClient := testutil.NewEntClientForTest(t)
 //	    repo := NewFooRepo(testCtx(), entClient) // 复用生产构造函数
-//	    ctx := enttest.NewSystemViewerCtx(context.Background())
+//	    ctx := testutil.NewSystemViewerCtx(context.Background())
 //	    // ... 对 repo 做 CRUD 断言 ...
 //	}
 //
@@ -18,7 +18,7 @@
 //     t.Cleanup 负责关闭，无需手动清理。
 //   - NewSystemViewerCtx 注入平台级 SystemViewer（tenant_id=0），
 //     与生产中系统后台任务的身份一致，满足 ent mixin 的多租户隐私规则。
-package enttest
+package testutil
 
 import (
 	"context"
@@ -54,13 +54,11 @@ func NewEntClientForTest(t *testing.T) *entCrud.EntClient[*ent.Client] {
 	// _pragma=foreign_keys(1) 开启外键（ent 要求）。
 	db, err := sql.Open("sqlite", fmt.Sprintf("file:enttest_%d?mode=memory&cache=shared&_pragma=foreign_keys(1)", time.Now().UnixNano()))
 	require.NoError(t, err)
-	t.Cleanup(func() { db.Close() })
 
 	drv := entsql.OpenDB(dialect.SQLite, db)
-	t.Cleanup(func() { drv.Close() })
 
 	client := ent.NewClient(ent.Driver(drv))
-	t.Cleanup(func() { client.Close() })
+	t.Cleanup(func() { _ = client.Close() })
 	require.NoError(t, CreateUnrelatedSQLiteSchema(context.Background(), client), "SQLite schema 迁移失败")
 	return entCrud.NewEntClient[*ent.Client](client, drv)
 }

@@ -39,7 +39,7 @@ func TestUserTokenCache_RevokeTokenPreservesPartialFailure(t *testing.T) {
 	mr := miniredis.RunT(t)
 	rdb := redis.NewClient(&redis.Options{Addr: mr.Addr(), MaxRetries: -1})
 	t.Cleanup(func() { _ = rdb.Close() })
-	cache := NewUserTokenCacheForTest(rdb)
+	cache := NewUserTokenCache(bootstrap.NewContextWithParam(context.Background(), nil, nil, bLogger.NopLogger()), rdb)
 	ctx := context.Background()
 	ct := authenticationV1.ClientType_admin
 	assert.NoError(t, cache.AddTokenPair(ctx, ct, 7, "session", "access", "refresh", time.Hour, time.Hour))

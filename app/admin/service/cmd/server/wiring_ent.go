@@ -94,6 +94,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	membershipRepo := data.NewMembershipRepo(ctx, entClient, membershipRoleRepo, membershipPositionRepo, membershipOrgUnitRepo)
 	userRepo := data.NewUserRepo(ctx, entClient, userRoleRepo, userOrgUnitRepo, userPositionRepo, membershipRepo)
 	configRepo := data.NewConfigRepo(ctx, entClient, redisClient)
+	cleanups = append(cleanups, configRepo.Close)
 	userCredentialRepo := data.NewUserCredentialRepo(ctx, entClient, passwordCrypto, configRepo)
 	userMfaFactorRepo := data.NewUserMfaFactorRepo(ctx, entClient)
 	loginPolicyRepo := data.NewLoginPolicyRepo(ctx, entClient)

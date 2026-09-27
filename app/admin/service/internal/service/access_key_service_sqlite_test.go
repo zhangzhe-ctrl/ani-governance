@@ -8,9 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 	accesskeyV1 "go-wind-admin/api/gen/go/access_key/service/v1"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
-	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent/role"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
@@ -18,13 +17,13 @@ import (
 )
 
 func TestAccessKeyServiceCRUD(t *testing.T) {
-	client := enttest.NewEntClientForTest(t)
-	system := enttest.NewSystemViewerCtx(context.Background())
+	client := testutil.NewEntClientForTest(t)
+	system := testutil.NewSystemViewerCtx(context.Background())
 	r, err := client.Client().Role.Create().SetTenantID(7).SetName("reader").SetCode("tenant:reader").SetType(role.TypeTenant).SetStatus(role.StatusOn).Save(system)
 	require.NoError(t, err)
 	ctx := viewer.WithContext(context.Background(), appViewer.NewUserViewer(10, 7, 0, "", []viewer.DataScope{{ScopeType: viewer.ScopeTypeAll}}))
 	ctx = auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 10, TenantId: trans.Ptr(uint32(7))})
-	svc := NewAccessKeyService(nil, data.NewAccessKeyRepoForTest(client))
+	svc := NewAccessKeyService(nil, newAccessKeyRepo(t, client))
 	created, err := svc.Create(ctx, &accesskeyV1.CreateAccessKeyRequest{Data: &accesskeyV1.AccessKey{Name: trans.Ptr("reader"), RoleId: trans.Ptr(r.ID)}})
 	require.NoError(t, err)
 	require.True(t, strings.HasPrefix(created.SecretKey, "sk-"))

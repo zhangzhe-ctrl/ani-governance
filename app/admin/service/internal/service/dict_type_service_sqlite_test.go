@@ -16,7 +16,7 @@ import (
 	dictV1 "go-wind-admin/api/gen/go/dict/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -26,16 +26,16 @@ func newDictTypeServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.C
 	t.Helper()
 	return &DictTypeService{
 		log:          bLogger.NewHelper(bLogger.NopLogger()),
-		dictTypeRepo: data.NewDictTypeRepoForTest(entClient),
+		dictTypeRepo: data.NewDictTypeRepo(newRepoContext(), entClient),
 	}
 }
 
 // TestDictTypeServiceSqlite_CreateAndGet 验证服务层创建字典类型后按主键查询命中，
 // 且操作人 ID 被盖入 created_by；不存在主键查询应报错。
 func TestDictTypeServiceSqlite_CreateAndGet(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newDictTypeServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &dictV1.CreateDictTypeRequest{
@@ -69,9 +69,9 @@ func TestDictTypeServiceSqlite_CreateAndGet(t *testing.T) {
 // TestDictTypeServiceSqlite_List 验证服务层 List 的全量返回与
 // contains 模糊搜索语义（仓规：搜索条件一律 contains）。
 func TestDictTypeServiceSqlite_List(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newDictTypeServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	for _, tc := range []struct{ code, name string }{
@@ -112,9 +112,9 @@ func TestDictTypeServiceSqlite_List(t *testing.T) {
 // TestDictTypeServiceSqlite_Update 验证服务层 Update 在单字段掩码下
 // 只更新掩码内字段（type_name），掩码外字段（type_code）保持原值。
 func TestDictTypeServiceSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newDictTypeServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &dictV1.CreateDictTypeRequest{
@@ -145,9 +145,9 @@ func TestDictTypeServiceSqlite_Update(t *testing.T) {
 
 // TestDictTypeServiceSqlite_Delete 验证服务层 Delete（按 ID 列表批量删除）后表内计数归零。
 func TestDictTypeServiceSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newDictTypeServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	for _, code := range []string{"svc-dt-del-code-a", "svc-dt-del-code-b"} {

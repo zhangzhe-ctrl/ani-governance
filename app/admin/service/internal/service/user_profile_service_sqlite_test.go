@@ -42,7 +42,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/usercredential"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -92,31 +92,30 @@ type userProfileServiceTestEnv struct {
 // 置 nil，见文件头跳过说明。
 func newUserProfileServiceForTest(t *testing.T) userProfileServiceTestEnv {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 
 	mr := miniredis.RunT(t)
 	rdb := redis.NewClient(&redis.Options{Addr: mr.Addr()})
 	t.Cleanup(func() { _ = rdb.Close() })
 
-	tokenCache := data.NewUserTokenCacheForTest(rdb)
-	authenticator, err := data.NewAuthenticatorForTest(&conf.Authentication_Jwt{
+	tokenCache := data.NewUserTokenCache(newRepoContext(), rdb)
+	authenticator := newAuthenticator(t, &conf.Authentication_Jwt{
 		Method: "HS256",
 		Key:    "user-profile-svc-test-hs256-key",
 	}, tokenCache)
-	require.NoError(t, err, "构造测试 Authenticator 应成功")
 
-	configRepo := data.NewConfigRepoForTest(entClient, rdb)
+	configRepo := newConfigRepo(t, entClient, rdb)
 	passwordCrypto := data.NewPasswordCrypto()
-	userCredentialRepo := data.NewUserCredentialRepoForTest(entClient, passwordCrypto, configRepo)
+	userCredentialRepo := data.NewUserCredentialRepo(newRepoContext(), entClient, passwordCrypto, configRepo)
 
 	stub := &userProfileUserRepoStub{}
 	svc := &UserProfileService{
 		log:                bLogger.NewHelper(bLogger.NopLogger()),
 		userRepo:           stub,
-		roleRepo:           data.NewRoleRepoForTest(entClient),
+		roleRepo:           newRoleRepo(entClient),
 		userCredentialRepo: userCredentialRepo,
 		authenticator:      authenticator,
-		notificationRepo:   data.NewNotificationChannelRepoForTest(entClient),
+		notificationRepo:   data.NewNotificationChannelRepo(newRepoContext(), entClient),
 		vcodeCache:         nil,
 	}
 	return userProfileServiceTestEnv{svc: svc, stub: stub, entClient: entClient, tokenCache: tokenCache}
@@ -163,7 +162,7 @@ func profileRowCredentialHash(t *testing.T, entClient *entCrud.EntClient[*ent.Cl
 // 查询 ID 必为操作人本人。
 func TestUserProfileServiceSqlite_GetUser_EnrichesRoleCodes(t *testing.T) {
 	env := newUserProfileServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 经真实 RoleRepo.Create 落库一枚角色（testkit 装配含其关联子 repo）。
 	require.NoError(t, env.svc.roleRepo.Create(ctx, &permissionV1.CreateRoleRequest{
@@ -198,7 +197,7 @@ func TestUserProfileServiceSqlite_GetUser_EnrichesRoleCodes(t *testing.T) {
 // 角色列表为空；用户查询失败与缺操作人声明均报错。
 func TestUserProfileServiceSqlite_GetUser_NoRolesAndErrors(t *testing.T) {
 	env := newUserProfileServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	env.stub.getUserResult = &identityV1.User{Id: trans.Ptr(uint32(4242))}
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 4242})
@@ -221,7 +220,7 @@ func TestUserProfileServiceSqlite_GetUser_NoRolesAndErrors(t *testing.T) {
 // 缺操作人声明报错且不触达仓储层。
 func TestUserProfileServiceSqlite_UpdateUser_OperatorInjection(t *testing.T) {
 	env := newUserProfileServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 4242})
 
 	_, err := env.svc.UpdateUser(opCtx, &identityV1.UpdateUserRequest{
@@ -246,7 +245,7 @@ func TestUserProfileServiceSqlite_UpdateUser_OperatorInjection(t *testing.T) {
 // 访问令牌经 miniredis 清空（改密强制下线）。
 func TestUserProfileServiceSqlite_ChangePassword_HappyPath(t *testing.T) {
 	env := newUserProfileServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const uid = 4242
 	seedProfileUserCredential(t, env.entClient, ctx, uid, "profile-user-a", "OldPass@1234")
@@ -291,7 +290,7 @@ func TestUserProfileServiceSqlite_ChangePassword_HappyPath(t *testing.T) {
 // 且不改写已存凭证。
 func TestUserProfileServiceSqlite_ChangePassword_RejectsWeakNewPassword(t *testing.T) {
 	env := newUserProfileServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const uid = 4243
 	seedProfileUserCredential(t, env.entClient, ctx, uid, "profile-user-b", "OldPass@1234")
@@ -330,7 +329,7 @@ func TestUserProfileServiceSqlite_ChangePassword_RejectsWeakNewPassword(t *testi
 // 非法、旧口令错误、凭证不存在与缺操作人声明的拒绝分支；凭证均不被改写。
 func TestUserProfileServiceSqlite_ChangePassword_BadCredentials(t *testing.T) {
 	env := newUserProfileServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const uid = 4244
 	seedProfileUserCredential(t, env.entClient, ctx, uid, "profile-user-c", "OldPass@1234")
@@ -396,7 +395,7 @@ func TestUserProfileServiceSqlite_ChangePassword_BadCredentials(t *testing.T) {
 // 等保历史口令策略：改密成功后再改回近期用过的口令被拒，凭证保持新城。
 func TestUserProfileServiceSqlite_ChangePassword_HistoryReplayRejected(t *testing.T) {
 	env := newUserProfileServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const uid = 4245
 	seedProfileUserCredential(t, env.entClient, ctx, uid, "profile-user-d", "OldPass@1234")

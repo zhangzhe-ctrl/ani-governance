@@ -1,6 +1,6 @@
 //go:build quota_pg
 
-package enttest
+package testutil
 
 import (
 	"context"
@@ -30,10 +30,13 @@ func NewQuotaPGClient(t *testing.T) *entCrud.EntClient[*ent.Client] {
 	}
 	db, e := sql.Open("pgx", dsn)
 	require.NoError(t, e)
-	t.Cleanup(func() { db.Close() })
 	_, e = db.ExecContext(context.Background(), quotaCleanup)
-	require.NoError(t, e)
+	if e != nil {
+		_ = db.Close()
+		t.Fatalf("reset isolated quota fixture: %v", e)
+	}
 	drv := entsql.OpenDB("postgres", db)
 	client := ent.NewClient(ent.Driver(drv))
+	t.Cleanup(func() { _ = client.Close() })
 	return entCrud.NewEntClient(client, drv)
 }

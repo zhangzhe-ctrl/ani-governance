@@ -23,7 +23,7 @@ import (
 	"go-wind-admin/pkg/localdeps/kratos-transport/transport/sse"
 
 	"go-wind-admin/app/admin/service/internal/data"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	internalMessageV1 "go-wind-admin/api/gen/go/internal_message/service/v1"
@@ -41,12 +41,12 @@ type internalMessageServiceUserRepoStub struct {
 // 默认 publisher 为 noop、taskEnqueuer 为 nil（与生产构造器一致，供注册缝测试断言）。
 func newInternalMessageServiceForTest(t *testing.T) *InternalMessageService {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	return &InternalMessageService{
 		log:                          bLogger.NewHelper(bLogger.NopLogger()),
-		internalMessageRepo:          data.NewInternalMessageRepoForTest(entClient),
-		internalMessageCategoryRepo:  data.NewInternalMessageCategoryRepoForTest(entClient),
-		internalMessageRecipientRepo: data.NewInternalMessageRecipientRepoForTest(entClient),
+		internalMessageRepo:          data.NewInternalMessageRepo(newRepoContext(), entClient),
+		internalMessageCategoryRepo:  data.NewInternalMessageCategoryRepo(newRepoContext(), entClient),
+		internalMessageRecipientRepo: data.NewInternalMessageRecipientRepo(newRepoContext(), entClient),
 		userRepo:                     &internalMessageServiceUserRepoStub{},
 		authenticator:                nil,
 		clientType:                   authenticationV1.ClientType_admin,
@@ -59,7 +59,7 @@ func newInternalMessageServiceForTest(t *testing.T) *InternalMessageService {
 // CategoryName 回填：挂了分类的消息回填分类名，未挂分类的保持空。
 func TestInternalMessageServiceSqlite_ListMessageEnrichment(t *testing.T) {
 	svc := newInternalMessageServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := svc.internalMessageCategoryRepo.Create(ctx, &internalMessageV1.CreateInternalMessageCategoryRequest{
 		Data: &internalMessageV1.InternalMessageCategory{
@@ -130,7 +130,7 @@ func TestInternalMessageServiceSqlite_ListMessageEnrichment(t *testing.T) {
 // CategoryName 回填。
 func TestInternalMessageServiceSqlite_GetMessageEnrichment(t *testing.T) {
 	svc := newInternalMessageServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := svc.internalMessageCategoryRepo.Create(ctx, &internalMessageV1.CreateInternalMessageCategoryRequest{
 		Data: &internalMessageV1.InternalMessageCategory{

@@ -23,7 +23,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entSysConfig "go-wind-admin/app/admin/service/internal/data/ent/sysconfig"
 	entUserCredential "go-wind-admin/app/admin/service/internal/data/ent/usercredential"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newUserCredentialRepoSqlite 用 enttest helper 构造 UserCredentialRepo，
@@ -33,7 +33,7 @@ import (
 // 密码哈希/复杂度/历史口令链路可在无外部依赖下走通。
 func newUserCredentialRepoSqlite(t *testing.T) *UserCredentialRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	// 局部构造 ConfigRepo（不启动生产构造器里的失效广播 goroutine）：
 	// 逐字段复刻 NewConfigRepo 初始化，log 换 NopLogger，rdb 为 nil（有守卫）。
 	configRepo := &ConfigRepo{
@@ -65,7 +65,7 @@ func newUserCredentialRepoSqlite(t *testing.T) *UserCredentialRepo {
 // 明文落库与 Get / GetByIdentifier 的命中、未命中，含枚举映射回读。
 func TestUserCredentialRepoSqlite_CreateAndGet(t *testing.T) {
 	repo := newUserCredentialRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &authenticationV1.CreateUserCredentialRequest{
 		Data: &authenticationV1.UserCredential{
@@ -156,7 +156,7 @@ func TestUserCredentialRepoSqlite_CreateAndGet(t *testing.T) {
 // 写入被 ent 校验器拒绝（预期失败、不落行）。
 func TestUserCredentialRepoSqlite_IdentityTypeEnumPairs(t *testing.T) {
 	repo := newUserCredentialRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	expectedEnt := map[string]int{}
 	expectedProto := map[int32]int{}
@@ -218,7 +218,7 @@ func TestUserCredentialRepoSqlite_IdentityTypeEnumPairs(t *testing.T) {
 // 断言双向映射逐对成立（该枚举无 UNSPECIFIED，DISABLED 为合法值）。
 func TestUserCredentialRepoSqlite_StatusEnumPairs(t *testing.T) {
 	repo := newUserCredentialRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	expectedEnt := map[string]int{}
 	expectedProto := map[int32]int{}
@@ -263,7 +263,7 @@ func TestUserCredentialRepoSqlite_StatusEnumPairs(t *testing.T) {
 // 其余类型明文落库；断言双向映射逐对成立。
 func TestUserCredentialRepoSqlite_CredentialTypeEnumPairs(t *testing.T) {
 	repo := newUserCredentialRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	expectedEnt := map[string]int{}
 	expectedProto := map[int32]int{}
@@ -342,7 +342,7 @@ func TestUserCredentialRepoSqlite_CredentialTypeEnumPairs(t *testing.T) {
 // identifier 列 contains 模糊搜索、id 列等值过滤与分页语义。
 func TestUserCredentialRepoSqlite_ListFilterAndPaging(t *testing.T) {
 	repo := newUserCredentialRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	for i, marker := range []string{"MARKERRHO", "MARKERSIGMA"} {
 		require.NoError(t, repo.Create(ctx, &authenticationV1.CreateUserCredentialRequest{
@@ -429,7 +429,7 @@ func TestUserCredentialRepoSqlite_ListFilterAndPaging(t *testing.T) {
 // 与 IsExist 的命中/未命中。
 func TestUserCredentialRepoSqlite_CountAndIsExist(t *testing.T) {
 	repo := newUserCredentialRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &authenticationV1.CreateUserCredentialRequest{
 		Data: &authenticationV1.UserCredential{
@@ -483,7 +483,7 @@ func TestUserCredentialRepoSqlite_CountAndIsExist(t *testing.T) {
 // 历史口令检查（轮换进 extra_info、重复口令拒绝）、ResetCredential 轮换。
 func TestUserCredentialRepoSqlite_PasswordLifecycle(t *testing.T) {
 	repo := newUserCredentialRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		pw0 = "Str0ng!Passw0rd#42"
@@ -715,7 +715,7 @@ func TestUserCredentialRepoSqlite_PasswordLifecycle(t *testing.T) {
 // 与 AllowMissing 对不存在 ID 的创建路径。
 func TestUserCredentialRepoSqlite_UpdateMaskAndAllowMissing(t *testing.T) {
 	repo := newUserCredentialRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	require.NoError(t, repo.Create(ctx, &authenticationV1.CreateUserCredentialRequest{
 		Data: &authenticationV1.UserCredential{
 			UserId:         trans.Ptr(uint32(88)),
@@ -788,7 +788,7 @@ func TestUserCredentialRepoSqlite_UpdateMaskAndAllowMissing(t *testing.T) {
 // DeleteByIdentifier 的删除与未命中报错。
 func TestUserCredentialRepoSqlite_Delete(t *testing.T) {
 	repo := newUserCredentialRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &authenticationV1.CreateUserCredentialRequest{
 		Data: &authenticationV1.UserCredential{

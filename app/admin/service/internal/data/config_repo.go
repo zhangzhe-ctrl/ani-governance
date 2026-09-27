@@ -62,6 +62,10 @@ type ConfigRepo struct {
 	// 依赖“全部写路径都经本 repo、单进程持有写权”的假设；多实例部署需改造为共享缓存。
 	cacheMu sync.RWMutex
 	cache   map[string]sysConfigCacheEntry
+
+	subscriptionCancel context.CancelFunc
+	subscriptionDone   chan struct{}
+	closeOnce          sync.Once
 }
 
 func NewConfigRepo(ctx *bootstrap.Context, entClient *entCrud.EntClient[*ent.Client], rdb *redis.Client) *ConfigRepo {
@@ -79,10 +83,29 @@ func NewConfigRepo(ctx *bootstrap.Context, entClient *entCrud.EntClient[*ent.Cli
 
 	repo.init()
 
-	// 多实例失效广播订阅：收到其他实例的写失效通知后清除本进程缓存条目
-	go repo.subscribeInvalidations(context.Background())
+	// The repository owns the subscription and waits for it before Redis closes.
+	subscriptionCtx, cancel := context.WithCancel(ctx.Context())
+	repo.subscriptionCancel = cancel
+	repo.subscriptionDone = make(chan struct{})
+	go func() {
+		defer close(repo.subscriptionDone)
+		repo.subscribeInvalidations(subscriptionCtx)
+	}()
 
 	return repo
+}
+
+// Close stops the invalidation subscriber and waits until it has released its
+// PubSub connection. It is safe to call more than once.
+func (r *ConfigRepo) Close() {
+	r.closeOnce.Do(func() {
+		if r.subscriptionCancel != nil {
+			r.subscriptionCancel()
+		}
+	})
+	if r.subscriptionDone != nil {
+		<-r.subscriptionDone
+	}
 }
 
 func (r *ConfigRepo) init() {
@@ -375,7 +398,7 @@ func (r *ConfigRepo) invalidateCacheKey(ctx context.Context, key string) {
 }
 
 // subscribeInvalidations 订阅失效广播，清除本进程内对应缓存条目。
-// 连接断开由 go-redis 自动重连；进程退出时随连接一起消亡。
+// 连接断开由 go-redis 自动重连；Close 会取消订阅并等待退出。
 func (r *ConfigRepo) subscribeInvalidations(ctx context.Context) {
 	if r.rdb == nil {
 		return
@@ -383,10 +406,18 @@ func (r *ConfigRepo) subscribeInvalidations(ctx context.Context) {
 	sub := r.rdb.Subscribe(ctx, configInvalidateChannel)
 	defer sub.Close()
 
-	for msg := range sub.Channel() {
-		r.cacheMu.Lock()
-		delete(r.cache, msg.Payload)
-		r.cacheMu.Unlock()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case msg, ok := <-sub.Channel():
+			if !ok {
+				return
+			}
+			r.cacheMu.Lock()
+			delete(r.cache, msg.Payload)
+			r.cacheMu.Unlock()
+		}
 	}
 }
 

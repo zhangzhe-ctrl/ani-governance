@@ -17,7 +17,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/userorgunit"
 	"go-wind-admin/app/admin/service/internal/data/ent/userposition"
 	"go-wind-admin/app/admin/service/internal/data/ent/userrole"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newUserRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的 userRepo。
@@ -29,7 +29,7 @@ import (
 // membershipRepo 在该模式下不被触及、保持 nil。
 func newUserRepoSqlite(t *testing.T) *userRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	userRoleRepo := &UserRoleRepo{
 		log:             bLogger.NewHelper(bLogger.NopLogger()),
 		entClient:       entClient,
@@ -65,7 +65,7 @@ func newUserRepoSqlite(t *testing.T) *userRepo {
 // 读路径经 queryEnumsAndBackfill 统一回填后如实呈现写入值。
 func TestUserRepoSqlite_Get(t *testing.T) {
 	repo := newUserRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := repo.Create(ctx, &identityV1.CreateUserRequest{
 		Data: &identityV1.User{
@@ -112,7 +112,7 @@ func TestUserRepoSqlite_Get(t *testing.T) {
 // 各行携带不同显式枚举值，读视图按行内实际存储值各自如实回填。
 func TestUserRepoSqlite_List(t *testing.T) {
 	repo := newUserRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 两条带可区分标记、各自携带不同显式枚举值的记录
 	_, err := repo.Create(ctx, &identityV1.CreateUserRequest{

@@ -18,7 +18,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entPosition "go-wind-admin/app/admin/service/internal/data/ent/position"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -30,7 +30,7 @@ func newPositionServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.C
 	t.Helper()
 	return &PositionService{
 		log:          bLogger.NewHelper(bLogger.NopLogger()),
-		positionRepo: data.NewPositionRepoForTest(entClient),
+		positionRepo: data.NewPositionRepo(newRepoContext(), entClient),
 		orgUnitRepo:  nil,
 	}
 }
@@ -39,9 +39,9 @@ func newPositionServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.C
 // 枚举字段经转换器落库、操作人 ID 盖入 created_by；List 全量返回且无组织单元关联时
 // enrichRelations 为空回填（OrgUnitName 为空）；Count 与 Get 按主键的命中/未命中。
 func TestPositionServiceSqlite_CreateListCountAndGet(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPositionServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	for i, name := range []string{"服务层职位甲", "服务层职位乙"} {
@@ -93,9 +93,9 @@ func TestPositionServiceSqlite_CreateListCountAndGet(t *testing.T) {
 // TestPositionServiceSqlite_List_ContainsFilter 验证服务层 List 的
 // contains 模糊搜索语义（仓规：搜索条件一律 contains）。
 func TestPositionServiceSqlite_List_ContainsFilter(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPositionServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	for i, name := range []string{"MARKERPOSALPHA 职位", "无关职位乙"} {
@@ -132,9 +132,9 @@ func TestPositionServiceSqlite_List_ContainsFilter(t *testing.T) {
 // TestPositionServiceSqlite_Update 验证服务层 Update 在单字段掩码下
 // 只更新掩码内字段（name），掩码外字段（code）保持原值。
 func TestPositionServiceSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPositionServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &identityV1.CreatePositionRequest{
@@ -166,9 +166,9 @@ func TestPositionServiceSqlite_Update(t *testing.T) {
 
 // TestPositionServiceSqlite_Delete 验证服务层 Delete 后表内计数归零。
 func TestPositionServiceSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPositionServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &identityV1.CreatePositionRequest{

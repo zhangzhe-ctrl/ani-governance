@@ -11,7 +11,7 @@ import (
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // TestMenuRepoSqlite_EnumReadViewBackfill 验证菜单的 status/type/module 三个
@@ -26,7 +26,7 @@ import (
 // newMenuRepoSqlite。
 func TestMenuRepoSqlite_EnumReadViewBackfill(t *testing.T) {
 	repo := newMenuRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 行 A：status/type/module 全部显式指定
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreateMenuRequest{

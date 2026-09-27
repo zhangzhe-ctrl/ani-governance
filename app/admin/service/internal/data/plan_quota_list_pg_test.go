@@ -10,16 +10,16 @@ import (
 
 	"github.com/stretchr/testify/require"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/go-crud/pagination"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 func TestPlanQuotaPostgresListCompatibility(t *testing.T) {
-	c := enttest.NewQuotaPGClient(t)
+	c := testutil.NewQuotaPGClient(t)
 	r := newPlanQuotaRepoPostgres(t, c)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	p, e := c.Client().Plan.Create().SetName("paging-fixture").Save(ctx)
 	require.NoError(t, e)
 	for i, code := range []string{"user.count", "storage.bytes", "gpu.count", "gpu.shared_memory_mib"} {

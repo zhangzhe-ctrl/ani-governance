@@ -24,7 +24,7 @@ import (
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	"go-wind-admin/app/admin/service/internal/data"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
@@ -54,10 +54,10 @@ func (s *orgUnitServiceUserRepoStub) ListUsersByIds(_ context.Context, ids []uin
 // log 换 NopLogger，orgUnitRepo 用 testkit 构造器，userRepo 用本文件桩。
 func newOrgUnitServiceForTest(t *testing.T) *OrgUnitService {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	return &OrgUnitService{
 		log:         bLogger.NewHelper(bLogger.NopLogger()),
-		orgUnitRepo: data.NewOrgUnitRepoForTest(entClient),
+		orgUnitRepo: newOrgUnitRepo(entClient),
 		userRepo:    &orgUnitServiceUserRepoStub{},
 	}
 }
@@ -66,7 +66,7 @@ func newOrgUnitServiceForTest(t *testing.T) *OrgUnitService {
 // 物化路径与 LeaderName 回填。
 func TestOrgUnitServiceSqlite_ListTreeAssemblyAndEnrichment(t *testing.T) {
 	svc := newOrgUnitServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 根节点：带 LeaderId（enrichment 命中）；子节点：无负责人（不回填）。
 	require.NoError(t, svc.orgUnitRepo.Create(ctx, &identityV1.CreateOrgUnitRequest{
@@ -122,7 +122,7 @@ func TestOrgUnitServiceSqlite_ListTreeAssemblyAndEnrichment(t *testing.T) {
 // LeaderName / ContactUserName 回填。
 func TestOrgUnitServiceSqlite_GetEnrichment(t *testing.T) {
 	svc := newOrgUnitServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, svc.orgUnitRepo.Create(ctx, &identityV1.CreateOrgUnitRequest{
 		Data: &identityV1.OrgUnit{
@@ -155,7 +155,7 @@ func TestOrgUnitServiceSqlite_GetEnrichment(t *testing.T) {
 // BuildTree 跳过——见文件头已知方言限制）。
 func TestOrgUnitServiceSqlite_CreateAndDelete(t *testing.T) {
 	svc := newOrgUnitServiceForTest(t)
-	baseCtx := enttest.NewSystemViewerCtx(context.Background())
+	baseCtx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(baseCtx, &authenticationV1.UserTokenPayload{UserId: 4242})
 
 	// Create：操作人注入 CreatedBy。

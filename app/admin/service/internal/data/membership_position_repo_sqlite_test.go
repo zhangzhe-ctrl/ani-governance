@@ -13,14 +13,14 @@ import (
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	entMembershipPosition "go-wind-admin/app/admin/service/internal/data/ent/membershipposition"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newMembershipPositionRepoSqlite 用 enttest helper 构造一个可直接做关联 CRUD 的 MembershipPositionRepo。
 // 白盒构造逐字段复刻 NewMembershipPositionRepo 的初始化（仅 log 换 NopLogger、entClient 换测试 client）。
 func newMembershipPositionRepoSqlite(t *testing.T) *MembershipPositionRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	return &MembershipPositionRepo{
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		entClient: entClient,
@@ -36,7 +36,7 @@ func newMembershipPositionRepoSqlite(t *testing.T) *MembershipPositionRepo {
 // ListPositionIDs/ListMembershipIDs（正反向查询）→ CleanRelationsByMembershipID（清理）→ 计数归零。
 func TestMembershipPositionRepoSqlite_AssignListAndClean(t *testing.T) {
 	repo := newMembershipPositionRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testMembershipID = uint32(8301)
@@ -101,7 +101,7 @@ func TestMembershipPositionRepoSqlite_AssignListAndClean(t *testing.T) {
 // RemovePositionsFromMembership 的单向解除语义与按岗位清理路径。
 func TestMembershipPositionRepoSqlite_RemoveAndCleanByPosition(t *testing.T) {
 	repo := newMembershipPositionRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testMembershipID = uint32(8302)
@@ -141,7 +141,7 @@ func TestMembershipPositionRepoSqlite_RemoveAndCleanByPosition(t *testing.T) {
 // excludeExpired 语义：过期（end_at 早于当前时刻）的关联在过滤后被排除。
 func TestMembershipPositionRepoSqlite_ExcludeExpired(t *testing.T) {
 	repo := newMembershipPositionRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testMembershipID = uint32(8303)

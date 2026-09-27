@@ -24,7 +24,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	taskV1 "go-wind-admin/api/gen/go/task/service/v1"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	asynqServer "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq"
 	"go-wind-admin/pkg/task"
@@ -133,7 +133,7 @@ func seedAcceptedTaskRow(t *testing.T, svc *TaskService, ctx context.Context, te
 func TestTaskService_RealAsynqSchedulerLifecycle(t *testing.T) {
 	uri := taskRedisURI(t)
 	ctx := context.Background()
-	sysCtx := enttest.NewSystemViewerCtx(ctx)
+	sysCtx := testutil.NewSystemViewerCtx(ctx)
 
 	const (
 		periodicType = "t11_service_real_periodic"

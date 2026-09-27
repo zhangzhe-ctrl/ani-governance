@@ -14,7 +14,7 @@ import (
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/rolepermission"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newRolePermissionRepoSqlite 在给定 enttest client 上白盒构造
@@ -48,9 +48,9 @@ func newRolePermissionRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent
 // （值↔值）无法赋入指针字段而直接丢弃，读视图恒呈零值——行内实际存储的
 // 生效方式对读方完全不可见；仓内现经 backfillEnumsFrom 统一回填。
 func TestRolePermissionRepoSqlite_EnumReadViewBackfill(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newRolePermissionRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const roleID uint32 = 7001
 

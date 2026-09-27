@@ -30,7 +30,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entOrgUnit "go-wind-admin/app/admin/service/internal/data/ent/orgunit"
 	entRole "go-wind-admin/app/admin/service/internal/data/ent/role"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // dataScopeUserRepoStub 是 data.UserRepo 的本地桩：
@@ -51,13 +51,13 @@ func (s *dataScopeUserRepoStub) ListOrgUnitIDsByUserID(_ context.Context, _ uint
 // NopLogger 的 bootstrap 上下文构造（与生产构造器逐字段一致，唯一差异是日志）。
 func newDataScopeAuthServiceForTest(t *testing.T, ownUnits []uint32) (*AuthenticationService, *ent.Client) {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	bootstrapCtx := bootstrap.NewContextWithParam(context.Background(), nil, nil, bLogger.NopLogger())
 	svc := &AuthenticationService{
 		log:             bLogger.NewHelper(bLogger.NopLogger()),
 		userRepo:        &dataScopeUserRepoStub{ownUnits: ownUnits},
-		roleRepo:        data.NewRoleRepoForTest(entClient),
-		orgUnitRepo:     data.NewOrgUnitRepoForTest(entClient),
+		roleRepo:        newRoleRepo(entClient),
+		orgUnitRepo:     newOrgUnitRepo(entClient),
 		roleOrgUnitRepo: data.NewRoleOrgUnitRepo(bootstrapCtx, entClient),
 	}
 	return svc, entClient.Client()
@@ -105,7 +105,7 @@ func seedOrgUnit(t *testing.T, client *ent.Client, ctx context.Context, svc *Aut
 // TestAggregateDataScopes_PlatformContextIsAll 平台上下文：整体 [ALL] 且单值镜像 ALL。
 func TestAggregateDataScopes_PlatformContextIsAll(t *testing.T) {
 	svc, _ := newDataScopeAuthServiceForTest(t, nil)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	payload := &authenticationV1.UserTokenPayload{}
 
 	svc.aggregateDataScopes(ctx, 0, 1, nil, payload)
@@ -120,7 +120,7 @@ func TestAggregateDataScopes_PlatformContextIsAll(t *testing.T) {
 // 其余角色不再扫描。
 func TestAggregateDataScopes_AnyRoleAllShortCircuits(t *testing.T) {
 	svc, client := newDataScopeAuthServiceForTest(t, nil)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	allID := seedScopedRole(t, client, ctx, svc, "DS_ALL_ROLE", identityV1.DataScope_ALL)
 	selfID := seedScopedRole(t, client, ctx, svc, "DS_SELF_ROLE", identityV1.DataScope_SELF)
 	payload := &authenticationV1.UserTokenPayload{}
@@ -136,7 +136,7 @@ func TestAggregateDataScopes_AnyRoleAllShortCircuits(t *testing.T) {
 // TestAggregateDataScopes_SelfOnlyMirror 仅 SELF → [SELF] + 镜像 SELF。
 func TestAggregateDataScopes_SelfOnlyMirror(t *testing.T) {
 	svc, client := newDataScopeAuthServiceForTest(t, nil)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	selfID := seedScopedRole(t, client, ctx, svc, "DS_SELF_ONLY_ROLE", identityV1.DataScope_SELF)
 	payload := &authenticationV1.UserTokenPayload{}
 
@@ -152,7 +152,7 @@ func TestAggregateDataScopes_SelfOnlyMirror(t *testing.T) {
 // 退化 [UNSPECIFIED]，无镜像、无单元目标集。
 func TestAggregateDataScopes_Degenerate(t *testing.T) {
 	svc, _ := newDataScopeAuthServiceForTest(t, nil)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	for _, roleIDs := range [][]uint32{nil, {777777}} {
 		payload := &authenticationV1.UserTokenPayload{}
@@ -170,7 +170,7 @@ func TestAggregateDataScopes_Degenerate(t *testing.T) {
 // 自身单元集（含跨租户单元）经租户过滤后仅剩本租户单元。
 func TestAggregateDataScopes_UnitOnlyTenantFiltered(t *testing.T) {
 	svc, client := newDataScopeAuthServiceForTest(t, []uint32{1, 2}) // 占位，稍后以真实 ID 重设
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	inTenant := seedOrgUnit(t, client, ctx, svc, 42, "数据范围本租户单元", "DS_ORG_INTENANT", 0)
 	outTenant := seedOrgUnit(t, client, ctx, svc, 999, "数据范围他租户单元", "DS_ORG_OUTTENANT", 0)
 	svc.userRepo.(*dataScopeUserRepoStub).ownUnits = []uint32{inTenant, outTenant}
@@ -192,7 +192,7 @@ func TestAggregateDataScopes_UnitOnlyTenantFiltered(t *testing.T) {
 // 后代展开（物化路径前缀）把本租户子单元纳入目标集。
 func TestAggregateDataScopes_UnitAndChildDescendants(t *testing.T) {
 	svc, client := newDataScopeAuthServiceForTest(t, nil)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	root := seedOrgUnit(t, client, ctx, svc, 42, "数据范围根单元", "DS_ORG_ROOT", 0)
 	child := seedOrgUnit(t, client, ctx, svc, 42, "数据范围子单元", "DS_ORG_CHILD", root)
 	svc.userRepo.(*dataScopeUserRepoStub).ownUnits = []uint32{root}
@@ -214,7 +214,7 @@ func TestAggregateDataScopes_UnitAndChildDescendants(t *testing.T) {
 // 角色配置的单元集（含跨租户单元）经二次租户过滤（纵深防御）。
 func TestAggregateDataScopes_SelectedUnitsSecondFilter(t *testing.T) {
 	svc, client := newDataScopeAuthServiceForTest(t, nil)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	inTenant := seedOrgUnit(t, client, ctx, svc, 42, "选定单元本租户", "DS_ORG_SEL_INTENANT", 0)
 	outTenant := seedOrgUnit(t, client, ctx, svc, 999, "选定单元他租户", "DS_ORG_SEL_OUTTENANT", 0)
 	selRoleID := seedScopedRole(t, client, ctx, svc, "DS_SELECTED_ROLE", identityV1.DataScope_SELECTED_UNITS)
@@ -247,7 +247,7 @@ func TestAggregateDataScopes_SelectedUnitsSecondFilter(t *testing.T) {
 // 活动类型取并集，无单值镜像。
 func TestAggregateDataScopes_SelfPlusUnitUnion(t *testing.T) {
 	svc, client := newDataScopeAuthServiceForTest(t, nil)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	inTenant := seedOrgUnit(t, client, ctx, svc, 42, "并集测试本租户单元", "DS_ORG_UNION_INTENANT", 0)
 	svc.userRepo.(*dataScopeUserRepoStub).ownUnits = []uint32{inTenant}
 

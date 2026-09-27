@@ -14,7 +14,7 @@ import (
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newAuditLogArchiveRepoSqlite 用 enttest helper 构造一个可直接做归档的
@@ -22,7 +22,7 @@ import (
 // client 取测试 client 的底层 ent client；该 repo 无 init()）。
 func newAuditLogArchiveRepoSqlite(t *testing.T) *AuditLogArchiveRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	return &AuditLogArchiveRepo{
 		log:    bLogger.NewHelper(bLogger.NopLogger()),
 		client: entClient.Client(),
@@ -93,7 +93,7 @@ func auditTableCounts(t *testing.T, client *ent.Client, ctx context.Context) map
 func TestAuditLogArchiveRepoSqlite_ArchiveExpiredBeforeNow(t *testing.T) {
 	repo := newAuditLogArchiveRepoSqlite(t)
 	client := repo.client
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	seedOneRowPerAuditTable(t, client, ctx, "future")
 	require.Equal(t, map[string]int{
@@ -168,7 +168,7 @@ func TestAuditLogArchiveRepoSqlite_ArchiveExpiredBeforeNow(t *testing.T) {
 func TestAuditLogArchiveRepoSqlite_ArchiveExpiredAfterNow(t *testing.T) {
 	repo := newAuditLogArchiveRepoSqlite(t)
 	client := repo.client
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	seedOneRowPerAuditTable(t, client, ctx, "past")
 

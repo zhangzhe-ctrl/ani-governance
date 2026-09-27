@@ -13,14 +13,14 @@ import (
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	entMembershipOrgUnit "go-wind-admin/app/admin/service/internal/data/ent/membershiporgunit"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newMembershipOrgUnitRepoSqlite 用 enttest helper 构造一个可直接做关联 CRUD 的 MembershipOrgUnitRepo。
 // 白盒构造逐字段复刻 NewMembershipOrgUnitRepo 的初始化（仅 log 换 NopLogger、entClient 换测试 client）。
 func newMembershipOrgUnitRepoSqlite(t *testing.T) *MembershipOrgUnitRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	return &MembershipOrgUnitRepo{
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		entClient: entClient,
@@ -36,7 +36,7 @@ func newMembershipOrgUnitRepoSqlite(t *testing.T) *MembershipOrgUnitRepo {
 // ListOrgUnitIDs/ListMembershipIDs（正反向查询）→ CleanRelationsByMembershipID（清理）→ 计数归零。
 func TestMembershipOrgUnitRepoSqlite_AssignListAndClean(t *testing.T) {
 	repo := newMembershipOrgUnitRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testMembershipID = uint32(8201)
@@ -103,7 +103,7 @@ func TestMembershipOrgUnitRepoSqlite_AssignListAndClean(t *testing.T) {
 // RemoveOrgUnitsFromMembership 的单向解除语义与按单元清理路径。
 func TestMembershipOrgUnitRepoSqlite_RemoveAndCleanByOrgUnit(t *testing.T) {
 	repo := newMembershipOrgUnitRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testMembershipID = uint32(8202)
@@ -145,7 +145,7 @@ func TestMembershipOrgUnitRepoSqlite_RemoveAndCleanByOrgUnit(t *testing.T) {
 // excludeExpired 语义：过期（end_at 早于当前时刻）的关联在过滤后被排除。
 func TestMembershipOrgUnitRepoSqlite_ExcludeExpired(t *testing.T) {
 	repo := newMembershipOrgUnitRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testMembershipID = uint32(8203)

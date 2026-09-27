@@ -97,7 +97,7 @@ func TestAcceleratorJointHTTP(t *testing.T) {
 	authenticator := data.NewAuthenticator(bctx, cache)
 	checker := data.NewTokenChecker(bctx, authenticator, authv1.ClientType_admin)
 	tenantChecker := data.NewTenantAccessCheckerImpl(bctx, ec)
-	roles := data.NewRoleRepoForTest(ec)
+	roles := newRoleRepo(ec)
 	apis := data.NewApiRepo(bctx, ec)
 	policy := authorizer.NewAuthorizer(bctx, data.NewAuthorizerProvider(bctx, roles, apis))
 	catalog, e := dbbootstrap.Catalog(assets.OpenApiData)
