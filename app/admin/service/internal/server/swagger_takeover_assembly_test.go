@@ -18,8 +18,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go-wind-admin/app/admin/service/internal/data"
-	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/app/admin/service/internal/service"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	bConf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"

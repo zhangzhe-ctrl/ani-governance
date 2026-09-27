@@ -29,7 +29,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/plan"
 	"go-wind-admin/app/admin/service/internal/data/ent/planmodule"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
-	enttest "go-wind-admin/app/admin/service/tests/testutil"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newCheckerSqlite 白盒构造被测闸门（字段与生产构造器一致，仅 log 换 Nop）。
