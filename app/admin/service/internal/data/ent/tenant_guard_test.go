@@ -138,7 +138,10 @@ func seedGuardRole(t *testing.T, client *ent.Client, ctx context.Context, code s
 	client.Role.Delete().Where(role.CodeEQ(code)).ExecX(ctx)
 	client.Role.Create().SetName("guard-ak-" + code).SetCode(code).ExecX(ctx)
 	id := client.Role.Query().Where(role.CodeEQ(code)).OnlyX(ctx).ID
-	t.Cleanup(func() { client.Role.Delete().Where(role.IDEQ(id)).ExecX(ctx) })
+	t.Cleanup(func() {
+		client.AccessKey.Delete().Where(accesskey.RoleIDEQ(id)).ExecX(ctx)
+		client.Role.Delete().Where(role.IDEQ(id)).ExecX(ctx)
+	})
 	return id
 }
 
