@@ -24,7 +24,7 @@ start() {
   printf '%s\n' "$owner" > "$state/owner"
   printf '%s\n' "$name" > "$state/name"
   id=$($engine run -d --name "$name" --label "ani-governance-run=$owner" \
-    -p 127.0.0.1:0:6379 "$image" --save '' --appendonly no --shutdown-timeout 5) || die 'container start failed'
+    -p 127.0.0.1::6379 "$image" --save '' --appendonly no --shutdown-timeout 5) || die 'container start failed'
   printf '%s\n' "$id" > "$state/id"
   owned || die 'new container ownership mismatch'
   address=$($engine port "$id" 6379/tcp | head -1)
@@ -65,7 +65,12 @@ case "${1:-}" in
       local command_rc=$?
       trap - EXIT INT TERM
       local cleanup_rc=0
-      if owned; then stop || cleanup_rc=$?; fi
+      if owned; then
+        stop || cleanup_rc=$?
+      elif test -d "$state" && test ! -e "$state/id"; then
+        rm -f "$state/owner" "$state/name" "$state/uri"
+        rmdir "$state" || cleanup_rc=$?
+      fi
       if test "$cleanup_rc" -ne 0; then echo 'with-redis: owned container cleanup failed' >&2; fi
       if test "$command_rc" -ne 0; then exit "$command_rc"; fi
       exit "$cleanup_rc"

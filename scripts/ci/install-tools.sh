@@ -15,15 +15,21 @@ case "${1:-}" in
     GOWORK=off go install github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1
     GOWORK=off go install github.com/envoyproxy/protoc-gen-validate@v1.3.3
     GOWORK=off go install github.com/bufbuild/buf/cmd/buf@v1.60.0
+    # Parked templates retain these exact older module identities in preflight.
+    # Cache them without replacing the active generator binaries.
+    GOWORK=off go mod download google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.0
+    GOWORK=off go mod download github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@v2.0.0-20251205160234-b9fab9a5a5ab
     work=$(mktemp -d "${TMPDIR:-/tmp}/ani-protoc.XXXXXXXX")
     trap 'rm -rf "$work"' EXIT
     curl --http1.1 --fail --location --silent --show-error \
       'https://github.com/protocolbuffers/protobuf/releases/download/v29.3/protoc-29.3-linux-x86_64.zip' \
       -o "$work/protoc.zip"
     printf '%s  %s\n' '3e866620c5be27664f3d2fa2d656b5f3e09b5152b42f1bedbf427b333e90021a' "$work/protoc.zip" | sha256sum -c -
-    unzip -q "$work/protoc.zip" 'bin/protoc' -d "$work"
+    unzip -q "$work/protoc.zip" 'bin/protoc' 'include/google/protobuf/*' -d "$work"
     printf '%s  %s\n' '5ae94ad986e83f0b52bd8139e036cbf94ddbba3ad348be8e4baf44447d7e19a4' "$work/bin/protoc" | sha256sum -c -
     install -m 0755 "$work/bin/protoc" "$GOBIN/protoc"
+    mkdir -p "$GOBIN/../include/google/protobuf"
+    install -m 0644 "$work"/include/google/protobuf/* "$GOBIN/../include/google/protobuf/"
     ;;
   *) echo 'usage: install-tools.sh scanners|generation' >&2; exit 2 ;;
 esac
