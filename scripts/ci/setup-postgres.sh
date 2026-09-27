@@ -10,5 +10,7 @@ for source in migrations/20260921134442_initial.sql migrations/20260922190000_qu
 done
 PGUSER=gov_acc_migrate psql -X -v ON_ERROR_STOP=1 -d gov_acc_data -v migrate_role=gov_acc_migrate -v runtime_role=gov_acc_runtime -f sql/gpu/ops/runtime_grants.sql
 PGUSER=gov_acc_runtime psql -X -v ON_ERROR_STOP=1 -d gov_acc_data -f sql/gpu/ops/rls_audit.sql
-createdb -O gov_acc_migrate -T gov_acc_data gov_acc_guard
-psql -X -v ON_ERROR_STOP=1 -d postgres -v database_name=gov_acc_guard -v runtime_role=gov_acc_runtime -f sql/gpu/ops/restrict_database.sql
+for database_name in gov_acc_guard gov_acc_race_data gov_acc_race_service; do
+  createdb -O gov_acc_migrate -T gov_acc_data "$database_name"
+  psql -X -v ON_ERROR_STOP=1 -d postgres -v database_name="$database_name" -v runtime_role=gov_acc_runtime -f sql/gpu/ops/restrict_database.sql
+done
