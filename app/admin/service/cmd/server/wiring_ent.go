@@ -156,7 +156,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 	// 配额账本与持久化转发（QUOTA-GPU-LOCAL-01）
 	quotaLedgerRepo := data.NewQuotaLedgerRepo(ctx, entClient)
-	quotaRegistry, quotaRegistryCleanup := newQuotaAdapterRegistry(ctx)
+	quotaRegistry := service.NewQuotaAdapterRegistry()
 	quotaAdminRepo.SetExecutionCapabilities(quotaRegistry)
 	quotaWorker := service.NewQuotaDispatchWorker(ctx, quotaLedgerRepo, quotaRegistry)
 
@@ -263,7 +263,8 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 	// 内部退额 mTLS listener（QUOTA-03）：默认 disabled；enabled 缺凭据启动失败。
 	quotaInternalCfg := server.QuotaInternalConfigFromEnv()
-	quotaInternalCfg.CertOwnerMap = quotaInternalOwnerMap()
+	// Owner identities are registered only by explicit production integration.
+	quotaInternalCfg.CertOwnerMap = nil
 	quotaInternalServer, err := server.NewQuotaInternalServer(quotaInternalCfg, quotaLedgerRepo)
 	if err != nil {
 		rollback()
@@ -275,13 +276,6 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 	restMiddlewares := server.NewRestMiddleware(ctx, accessTokenChecker, accessKeyRepo, tenantAccessChecker, authz,
 		apiAuditLogRepo, loginAuditLogRepo, operationAuditLogRepo, permissionAuditLogRepo, dataAccessAuditLogRepo, policyEvaluationLogRepo)
-
-	quotaControl, quotaControlCleanup := newGovernanceControl(ctx, quotaWorker, quotaLedgerRepo)
-	if quotaControl != nil {
-		cleanups = append(cleanups, quotaControlCleanup)
-	}
-
-	quotaLabRoutes := quotaLabRouteRegistrar(ctx, quotaLedgerRepo, quotaRegistry, quotaWorker, tenantRepo)
 
 	restServer, err := server.NewRestServer(ctx, restMiddlewares, authz,
 		authenticationService, mfaService, loginPolicyService,
@@ -300,7 +294,6 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		configService,
 		networkService,
 		acceleratorService,
-		quotaLabRoutes,
 	)
 	if err != nil {
 		rollback()
@@ -314,8 +307,6 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 
 	sseServer := server.NewSseServer(ctx, internalMessageService)
-
-	cleanups = append(cleanups, quotaRegistryCleanup)
 
 	// disabled 时 quotaInternalServer 为 nil：typed-nil 不能进入 transport.Server
 	// 接口切片，否则 Start 空指针崩溃。

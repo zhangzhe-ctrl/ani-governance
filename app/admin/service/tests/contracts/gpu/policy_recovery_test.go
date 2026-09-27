@@ -179,7 +179,7 @@ func TestJointPolicyRevocationRecovery(t *testing.T) {
 		}
 	})
 	pausedCfg := cfg
-	pausedCfg.StartPaused = true
+	pausedCfg.StartStopped = true
 	raw, err := json.Marshal(pausedCfg)
 	if err != nil {
 		t.Fatal(err)

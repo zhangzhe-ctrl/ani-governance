@@ -17,7 +17,7 @@ go version > "$run_dir/go-version"
 go list -m -json github.com/zhangzhe-ctrl/ani-accelerator-service > "$run_dir/accelerator-module.json"
 git ls-files --cached --others --exclude-standard -z -- '*.go' '*.proto' '*.sql' '*.yaml' '*.mod' '*.sum' 'scripts/*' | sort -zu | xargs -0 sha256sum > "$run_dir/runtime-source.sha256"
 python3 scripts/accelerator-acceptance/prepare-joint-config.py "$GOV_ACC_JOINT_DIR"
-command=(go test -tags gpu_joint ./app/admin/service/tests/gpucontract -run '^TestJoint(SoftwareContract|MixedCharges|SyncFailureRecovery|DispatchFailuresAndStop|ResolvedSnapshotRace|PolicyRevocationRecovery)$' -count=1 -v -timeout=12m)
+command=(go test -tags gpu_joint ./app/admin/service/tests/contracts/gpu -run '^TestJoint(SoftwareContract|MixedCharges|SyncFailureRecovery|DispatchFailuresAndStop|ResolvedSnapshotRace|PolicyRevocationRecovery)$' -count=1 -v -timeout=12m)
 if test "${GOV_ACC_JOINT_RACE:-0}" = 1; then
     command=(go test -race "${command[@]:2}")
 fi

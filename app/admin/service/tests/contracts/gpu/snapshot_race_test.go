@@ -161,7 +161,7 @@ func TestJointResolvedSnapshotRace(t *testing.T) {
 	addresses := []string{cfg.Address, "127.0.0.1:25564"}
 	for i, mode := range []string{"governance-nosync", "governance-nosync2"} {
 		proxyConfig := cfg
-		proxyConfig.StartPaused = true
+		proxyConfig.StartStopped = true
 		proxyConfig.Accelerator.Address = proxyAddresses[i]
 		proxyConfig.Accelerator.ServerName = "ani-governance"
 		proxyConfig.Accelerator.Timeout = 10 * time.Second

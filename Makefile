@@ -254,7 +254,6 @@ verify-gpu-regressions:
 	go list -m github.com/zhangzhe-ctrl/ani-accelerator-service
 	bash scripts/verify-gpu-format.sh
 	go build -o /dev/null ./app/admin/service/cmd/server
-	go build -tags quota_lab -o /dev/null ./app/admin/service/cmd/server
 	go build -o /dev/null ./app/admin/service/cmd/admin
 	# The taken-over transport tests need a queue broker: scripts/verify-gpu-redis.sh
 	# starts a loopback-only, non-persistent container for this recipe and exports
@@ -268,7 +267,8 @@ verify-gpu-regressions:
 	go test -tags quota_pg ./app/admin/service/internal/service -run 'TestPlanQuota' -count=1 -timeout=10m
 	go test -race -tags quota_pg ./app/admin/service/internal/data -run 'TestQuotaEnt|TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard|TestQuotaPostgresPolicyChanges|TestQuotaGpu|TestQuotaProcess' -count=1 -timeout=20m
 	go test -race ./app/admin/service/internal/service -run 'TestGpu|TestQuotaDurable|TestAccelerator' -count=1 -timeout=10m
-	QUOTA_LAB_PG_DSN="$${QUOTA_LAB_REGRESSION_DSN:-$$QUOTA_LAB_PG_DSN}" bash scripts/accelerator-acceptance/lab-regression.sh
+	go test -tags quota_pg ./app/admin/service/internal/server -run 'TestQuotaInternalMTLSAndCumulativeRelease' -count=1 -timeout=10m
+	go test -tags quota_pg ./app/admin/service/internal/service -run 'TestQuotaDispatchRetryAfterLostAck' -count=1 -timeout=10m
 
 verify-gpu-audit:
 	bash scripts/verify-gpu-audit.sh

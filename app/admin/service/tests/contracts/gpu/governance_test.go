@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 	"testing"
 	"time"
@@ -23,6 +24,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/server"
 	"go-wind-admin/app/admin/service/internal/service"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
@@ -33,7 +35,7 @@ import (
 type testGovConfig struct {
 	Address, ReleaseAddress, OwnerAddress, CA, Cert, Key string
 	Accelerator                                          data.AcceleratorClientConfig
-	StartPaused                                          bool
+	StartStopped                                         bool
 }
 
 func jointLedger(t *testing.T) (*data.QuotaLedgerRepo, *entCrud.EntClient[*ent.Client]) {
@@ -50,7 +52,7 @@ func jointLedger(t *testing.T) (*data.QuotaLedgerRepo, *entCrud.EntClient[*ent.C
 	drv := entsql.OpenDB("postgres", db)
 	c := ent.NewClient(ent.Driver(drv))
 	client := entCrud.NewEntClient(c, drv)
-	return data.NewQuotaLedgerRepoForTest(client, bLogger.NewHelper(bLogger.NopLogger())), client
+	return data.NewQuotaLedgerRepo(testutil.NewBootstrapContext(nil), client), client
 }
 
 // TestJointGovernanceProcess hosts real production acceptance/dispatch/sync and
@@ -92,7 +94,6 @@ func TestJointGovernanceProcess(t *testing.T) {
 		t.Fatal(e)
 	}
 	worker := service.NewQuotaDispatchWorker(bctx, ledger, registry)
-	worker.SetPaused(cfg.StartPaused)
 	acceptance, e := service.NewGpuAcceptance(ledger, registry, tenantRepo, accClient.Catalog, adapter, worker)
 	if e != nil {
 		t.Fatal(e)
@@ -110,10 +111,15 @@ func TestJointGovernanceProcess(t *testing.T) {
 		t.Fatal(e)
 	}
 	defer release.Stop(context.Background())
-	if e = worker.Start(ctx); e != nil {
-		t.Fatal(e)
+	workerRunning := false
+	var workerMu sync.Mutex
+	if !cfg.StartStopped {
+		if e = worker.Start(ctx); e != nil {
+			t.Fatal(e)
+		}
+		workerRunning = true
 	}
-	defer worker.Stop(context.Background())
+	defer func() { _ = worker.Stop(context.Background()) }()
 	if mode != "governance-nosync" && mode != "governance-nosync2" {
 		if e = syncWorker.Start(ctx); e != nil {
 			t.Fatal(e)
@@ -184,13 +190,28 @@ func TestJointGovernanceProcess(t *testing.T) {
 		respond(w, result, e)
 	})
 	mux.HandleFunc("/pause", func(w http.ResponseWriter, r *http.Request) {
+		workerMu.Lock()
+		defer workerMu.Unlock()
 		var req struct{ Paused bool }
 		if e := json.NewDecoder(r.Body).Decode(&req); e != nil {
 			http.Error(w, "bad request", 400)
 			return
 		}
-		worker.SetPaused(req.Paused)
-		respond(w, map[string]bool{"paused": worker.Paused()}, nil)
+		if req.Paused && workerRunning {
+			if e := worker.Stop(r.Context()); e != nil {
+				respond(w, nil, e)
+				return
+			}
+			workerRunning = false
+		} else if !req.Paused && !workerRunning {
+			worker = service.NewQuotaDispatchWorker(bctx, ledger, registry)
+			if e := worker.Start(ctx); e != nil {
+				respond(w, nil, e)
+				return
+			}
+			workerRunning = true
+		}
+		respond(w, map[string]bool{"paused": !workerRunning}, nil)
 	})
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) { respond(w, map[string]bool{"test_helper": true}, nil) })
 	lis, e := net.Listen("tcp", cfg.Address)

@@ -2,7 +2,7 @@
 
 本文面向 Inference 和后续 GPU 业务服务，描述 GOV-ACC-V12-01 已实现的 Governance 公共能力，以及真实 owner 必须完成的接缝。**当前正式构建没有 GPU owner adapter，两个正式 GPU 配额目录为 `NOT_ENABLED`。** 管理和只读 BFF 可独立使用；本文不是可直接调用的 Inference 创建 API，也不是生产启用说明。
 
-独立持久化测试 owner 只存在于 `app/admin/service/tests/gpucontract/*_test.go`。它运行真实 PostgreSQL 命令、墓碑和通知事务，但不创建 Kubernetes 工作负载，不实现 Inference，不证明物理 GPU 清理。软件、真实 owner、硬件和生产部署的结论必须分别记录。
+独立持久化测试 owner 只存在于 `app/admin/service/tests/contracts/gpu/*_test.go`。它运行真实 PostgreSQL 命令、墓碑和通知事务，但不创建 Kubernetes 工作负载，不实现 Inference，不证明物理 GPU 清理。软件、真实 owner、硬件和生产部署的结论必须分别记录。
 
 ## 1. 版本与可复用范围
 
@@ -26,7 +26,7 @@
 | 原子占额、取消、DELETE、累计释放 | [quota_ledger_repo.go](../../app/admin/service/internal/data/quota_ledger_repo.go) |
 | 独立投影扫描、租约、重试与 CAS | [gpu_usage_sync_worker.go](../../app/admin/service/internal/service/gpu_usage_sync_worker.go)、[quota_gpu_sync_repo.go](../../app/admin/service/internal/data/quota_gpu_sync_repo.go) |
 | owner 退款身份及稳定协议 | [quota_internal_server.go](../../app/admin/service/internal/server/quota_internal_server.go)、[quota_release.proto](../../api/protos/quota/service/v1/quota_release.proto) |
-| 正式构建默认关闭 | [wiring_quota_default.go](../../app/admin/service/cmd/server/wiring_quota_default.go) |
+| 正式构建默认关闭 | [wiring_ent.go](../../app/admin/service/cmd/server/wiring_ent.go) |
 | 已登记的公网接口和权限 | [接口集成登记](../interface-integration-register.md)、[BFF Proto](../../api/protos/admin/service/v1/i_accelerator.proto) |
 
 ## 2. 权威和职责
@@ -231,7 +231,7 @@ Gov usage worker 周期分页重扫原 CREATE 和完整 charges，派生同一 r
 | 验收范围 | 最少场景与现有入口 |
 |---|---|
 | 摘要、计量、附件、ACK | `TestGpuFrozenCanonicalVectors`、`TestGpuCanonicalRejectsSemanticMutations`、`TestGpuCanonicalUnicodeNullInteger`、`TestGpuChargesCompleteAndOrderIndependent`、`TestQuotaDurableAckFields`；需拒绝重新算对 hash 的非法 shape 和不完整非 GPU 向量 |
-| 公共软件闭环 | [tests/gpucontract](../../app/admin/service/tests/gpucontract)：真实 PG/独立进程/mTLS，同键 12 并发、持久 ACK 丢失、DELETE 先到、outbox 响应丢失、旧操作同步重建、混合 charge 恢复、非空 live binding；测试业务控制入口不能进入正式 API |
+| 公共软件闭环 | [tests/contracts/gpu](../../app/admin/service/tests/contracts/gpu)：真实 PG/独立进程/mTLS，同键 12 并发、持久 ACK 丢失、DELETE 先到、outbox 响应丢失、旧操作同步重建、混合 charge 恢复、非空 live binding；测试业务控制入口不能进入正式 API |
 | 受限数据库与进程故障 | [quota_process_pg_test.go](../../app/admin/service/internal/data/quota_process_pg_test.go)、[quota_gpu_pg_test.go](../../app/admin/service/internal/data/quota_gpu_pg_test.go)：各原子边界提交前 kill/提交后丢响应、双领取/取消、跨租户、迁移/还原、无双扣双退 |
 | 身份/BFF | 20 委托 RPC 缺 grant、错 URI/CA、租户/actor/scope 游标负向；退款同 owner 多 SAN 与不同 owner 多 SAN；真实 JWT/权限/套餐模块及非空 DTO 脱敏 |
 | A 正式边界 | 普通 Gov/Acc 二进制和合法受控 provider 来源；无消费证明时 Publish 必须真实失败且不落 profile/不变 VERIFIED；正式目录 NOT_ENABLED，新占额在 Resolve 前关闭 |

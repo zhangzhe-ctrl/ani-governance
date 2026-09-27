@@ -28,7 +28,6 @@ jobs:
       PGPORT: "5432"
       PGUSER: postgres
       QUOTA_LAB_PG_DSN: postgres://gov_acc_runtime@127.0.0.1:5432/gov_acc_data?sslmode=disable
-      QUOTA_LAB_REGRESSION_DSN: postgres://gov_acc_runtime@127.0.0.1:5432/gov_acc_lab?sslmode=disable
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,11 +42,6 @@ jobs:
           go install github.com/zricethezav/gitleaks/v8@v8.30.1
       - name: Explicit migration and restricted runtime role
         run: bash scripts/ci-quota-pg.sh
-      - name: Explicit isolated legacy lab certificates
-        run: |
-          bash scripts/accelerator-acceptance/prepare-lab-certs.sh "$RUNNER_TEMP/quota-lab"
-          echo "QUOTA_LAB_CERTS_DIR=$RUNNER_TEMP/quota-lab/certs" >> "$GITHUB_ENV"
-          echo 'QUOTA_LAB_PG_ADMIN_DSN=postgres://postgres@127.0.0.1:5432/postgres?sslmode=disable' >> "$GITHUB_ENV"
       - name: Ent generation, source, PG, tenancy, and race gates
         run: |
           mkdir -p "$RUNNER_TEMP/quota-evidence"

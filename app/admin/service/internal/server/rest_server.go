@@ -179,8 +179,6 @@ func NewRestServer(
 	configService *service.ConfigService,
 	networkService *service.NetworkService,
 	acceleratorService *service.AcceleratorService,
-	// extraRouteRegistrar 仅 lab 构建传入（实验路由注册钩子）；正式构建为 nil。
-	extraRouteRegistrar func(*http.Server),
 ) (*http.Server, error) {
 	cfg := ctx.GetConfig()
 
@@ -261,11 +259,6 @@ func NewRestServer(
 			swaggerUI.WithTitle("GoWind Admin"),
 			swaggerUI.WithMemoryData(assets.OpenApiData, "yaml"),
 		)
-	}
-
-	// 仅 lab 构建注册实验路由；正式构建 registrar 为 nil（BOUND-01）。
-	if extraRouteRegistrar != nil {
-		extraRouteRegistrar(srv)
 	}
 
 	if authorizer != nil {
