@@ -28,8 +28,8 @@ case "${1:-}" in
     unzip -q "$work/protoc.zip" 'bin/protoc' 'include/google/protobuf/*' -d "$work"
     printf '%s  %s\n' '5ae94ad986e83f0b52bd8139e036cbf94ddbba3ad348be8e4baf44447d7e19a4' "$work/bin/protoc" | sha256sum -c -
     install -m 0755 "$work/bin/protoc" "$GOBIN/protoc"
-    mkdir -p "$GOBIN/../include/google/protobuf"
-    install -m 0644 "$work"/include/google/protobuf/* "$GOBIN/../include/google/protobuf/"
+    mkdir -p "$GOBIN/../include"
+    cp -a "$work/include/." "$GOBIN/../include/"
     ;;
   *) echo 'usage: install-tools.sh scanners|generation' >&2; exit 2 ;;
 esac
