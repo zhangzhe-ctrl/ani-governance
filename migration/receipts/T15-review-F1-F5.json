@@ -77,8 +77,13 @@
     "make_tools_integration": "exit 0, protoc-driven redact package 3.010s with -count=1 (no cache), /home/ubuntu/tx7do-pilot-run/T15/review-fixes/f-tools-integration.{command,log,exit}",
     "go_test_-race_over_tools": "exit 0 over all five packages under tools/localdeps/gow, no DATA RACE, /home/ubuntu/tx7do-pilot-run/T15/review-fixes/f-tools-race.{command,log,exit}",
     "F1_mandatory_pair": "TZ=UTC exit 0 and TZ=Asia/Shanghai exit 0 as two separate processes over the whole timeutil package",
-    "generation_matrix": "make api and direct gow api in a clean detached worktree, repeat run, missing tools/bin, uncommitted proto edit, hand-written edit preserved, generated edit refused, destination collision refused before any write, partial write rolled back, and the seven PGV scope cases: all recorded with exit codes in T15-f2f3f5-writeback-safety.json and the logs under /home/ubuntu/tx7do-pilot-run/T15/review-fixes/matrix/",
+    "generation_matrix": "make api and direct gow api in a clean detached worktree, missing tools/bin, uncommitted proto edit, hand-written edit preserved, generated edit refused, destination collision refused before any write, partial write rolled back, and the seven PGV scope cases: recorded in T15-f2f3f5-writeback-safety.json with the logs under /home/ubuntu/tx7do-pilot-run/T15/review-fixes/matrix/. CORRECTION carried out in the F5 closeout (migration/patches/T15/T15-f5-closeout.json): the matrix row for a repeated plain `gow api` was recorded as exit 0 although matrix/C-repeat.log shows it failing on a goproxy metadata EOF inside api/buf.network.gen.yaml; the failure stands as a failed attempt and the idempotency claim is restated from re-measured runs that each carry their own .exit record.",
     "reproduction_of_the_acceptanced_contract": "managed digest 96184d0165d5bfd1 over 396 files in 5 roots, 0 files to write, go.mod and go.sum unchanged, 0 tracked modifications"
+  },
+  "evidence_package_defect_found_by_the_next_review": {
+    "what_was_wrong": "the 2026-09-26 package index table named f-final-gpu-3.log and f-final-fresh.log, but neither file was a tar member or a line in SHA256SUMS: the packaging list carried the attempt-1 and attempt-2 rows and the CI and matrix rows, and the two names were only ever added to the table generator",
+    "how_it_is_corrected": "both logs and their .command/.exit/.started/.finished companions are delivered in the closeout package as the originals they are, and the closeout generator asserts that every file the index names exists in the package before the tarball is written, so the table can no longer claim more than the archive contains",
+    "not_done": "no historical log was re-run to stand in for a missing one, and no old final2 log was substituted"
   },
   "closure_recheck": {
     "tx7do_in_buildable_code": 0,

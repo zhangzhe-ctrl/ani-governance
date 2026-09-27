@@ -1,0 +1,91 @@
+{
+  "schema_version": "t15-f5-closeout/1",
+  "task": "T15",
+  "round": "targeted F5 correction and evidence closeout",
+  "review_baseline": "73d8fb2a0b9765f4ae722d6013053546846f16b4",
+  "scope_ruling": "no re-migration, F1-F4 closed work untouched, PGV source question and the approved captcha/ID rulings not reopened, no new task zip",
+  "fix_commit": "3455096ed5dda9d67efa9c2738cdd005de095506",
+  "f5": {
+    "problem": "syncBack's full-chain branch demanded that every approved validator already exist in the start snapshot, so a run that generated the complete approved set was still refused with \"approved ... but absent from the tree\" - which is precisely the state a rebuild is meant to recover from",
+    "change": "that one prerequisite and its error branch were removed (three lines in staging.go). The approved list now says what the run must generate, not what had to exist before it",
+    "protections_kept_verbatim": [
+      "a full chain that does not produce an approved artifact still fails",
+      "a missing, unreadable, corrupt, empty, duplicated or self-inconsistent migration/pgv-scope.json still fails",
+      "a validator outside the list is refused whether the chain adds it new or rewrites one already in the tree",
+      "a user edit or deletion of a write target during the window is still a conflict that keeps their content and writes nothing",
+      "hand-written files under an output root are still never write-back targets",
+      "the pre-checked targets, backups and bounded undo of a partial write are unchanged",
+      "plugin and tool identity verification is unchanged"
+    ],
+    "not_done": "no new framework, no regeneration of the approved list from candidate output, no widening of the 103 entries, no filtering of a plugin response, no post-generation deletion, no dependency change"
+  },
+  "unit_regressions": {
+    "file": "tools/localdeps/gow/internal/buf/writeback_test.go",
+    "added_positive": [
+      "TestWriteBackScopeRules/full_chain_must_produce_every_approved_artifact/one_approved_artifact_missing_before_the_run_is_rebuilt",
+      "TestWriteBackScopeRules/full_chain_must_produce_every_approved_artifact/every_approved_artifact_missing_before_the_run_is_rebuilt"
+    ],
+    "kept_negative": [
+      "new out-of-scope validator is refused and nothing is written",
+      "existing out-of-scope validator is refused even when generation rewrites it",
+      "the legitimate set writes back",
+      "a full chain that drops an approved artifact fails, while the same output from a partial slice is accepted",
+      "a missing scope file is a hard failure",
+      "TestReadPGVScopeRejectsADamagedInventory over nine damaged inventories plus the real 103-entry file",
+      "the F2/F3 conflict, collision, partial-write rollback and preservation cases"
+    ],
+    "mutation_control": "re-adding the removed branch to the working tree makes both new positive cases fail with exactly \"approved in migration/pgv-scope.json but absent from the tree\", proving they exercise the ruling rather than passing vacuously; staging.go was then restored and the whole suite re-ran clean (working hash 86d3bfdbfcb94f16)",
+    "result": "go test -mod=readonly -count=1 ./internal/buf/ exit 0; go vet clean; gofmt clean"
+  },
+  "end_to_end_rebuild": {
+    "where": "detached worktree at 3455096 under /home/ubuntu/tx7do-pilot-run/T15/f5-rebuild/wt, pinned Go 1.26.7, GOWORK=off, -mod=readonly, task-pinned buf and plugins",
+    "deletion_set": "exactly the validator paths listed by migration/pgv-scope.json, so source protos, the hand-written runtime, the owned redact proto and the plugin build prerequisite all stay untouched",
+    "proof_method": "an empty git diff against HEAD after each recovery run is the evidence that the chain reconstructed the accepted content itself; nothing was copied back out of git to fill a file",
+    "runs": {
+      "makeapi-1-pristine": "exit 0, 0 to write, digest 96184d0165d5bfd1, 396 files",
+      "makeapi-2-pristine-again": "exit 0, 0 to write, identical digest and count (second pass through the same entry)",
+      "makeapi-3-rebuild-one": "one approved validator removed first (digest c76fb4e6bfdc5473, 346 files under api/gen/go), run wrote 1, digest back to 96184d0165d5bfd1 and the file byte-identical to the contract",
+      "makeapi-4-rebuild-all": "all 103 removed first (digest bb3d1962258c8c3b, 293 files), run wrote 103, digest back to 96184d0165d5bfd1, git diff over api and pkg empty",
+      "gowapi-1-pristine": "exit 0, 0 to write, baseline digest",
+      "gowapi-2-pristine-again": "exit 0, second pass identical",
+      "gowapi-3-rebuild-one": "exit 0, 1 written, byte-identical",
+      "gowapi-4-rebuild-all": "exit 0, 103 written, byte-identical",
+      "after_everything": "go.mod and go.sum unchanged, managed roots unchanged, no tracked modification left"
+    }
+  },
+  "end_to_end_negatives_on_this_candidate": {
+    "N1-missing-scope-fails": "exit 1, digest unchanged",
+    "N2-corrupt-scope-fails": "exit 1, \"unexpected end of JSON input\"",
+    "N3-empty-scope-fails": "exit 1, \"lists no validators\"",
+    "N4-duplicated-entry-fails": "exit 1",
+    "N5-count-mismatch-fails": "exit 1",
+    "N6-new-out-of-scope-validator-fails": "exit 1, refusal names api/gen/go/reviewprobe/service/v1/probe.pb.validate.go, digest unchanged",
+    "N7-existing-out-of-scope-validator-fails": "exit 1 on both counts, planted file byte-identical afterwards",
+    "N8-approved-artifact-not-produced-fails": "exit 1, \"approved in migration/pgv-scope.json but not produced by this chain\"",
+    "P1-legitimate-set-passes": "exit 0, baseline digest, zero tracked modifications",
+    "harness": "/home/ubuntu/tx7do-pilot-run/T15/f5-negatives.sh, logs neg-*.log with neg-*.exit beside them"
+  },
+  "tenant_guard_proof": {
+    "question": "five named security guards in ./app/admin/service/internal/data/ent: TestTenantMutationGuard, TestTenantMutationGuardAccessKey, TestTenantGuardDeleteOneCreate, TestPositionDataScopeGuard, TestOrgUnitPathExpansionTenantBounded",
+    "reuse_check_first": "migration/preflight/T07-require-postfix.json is only the summary {\"pass\": true, \"required\": 76, \"bad_tests\": [], \"failed_packages\": []}. Its underlying log /home/ubuntu/tx7do-pilot-run/T07/tests-postfix.log does exist and is genuine go test -json output from 2026-09-25T02:07 with run/pass records for all five names, taken at tested_code_sha 28b6c954f4d399399720892dab8453b53482c4e7. Reuse required the implementation, generated code and configuration to be unchanged since; they are not: git diff 28b6c95..3455096 touches all three guard test files, 55 files under the Ent schema directory, 58 files in the ent package and 162 under api/gen/go. So the old log stays as history and the five were executed again on this candidate",
+    "isolated_database": "created for this run on the already authorized task-owned disposable instance tx7do-t07-guard-pg at 127.0.0.1:55432: role gwa_f5c_guard and database gwa_f5c_guard_t15 owned by it. Not the business database, not the shared lab instance, not the quota runtime database, and not the test file's built-in host default on port 5432. No server-wide privilege or pg_hba change was made",
+    "dsn_handling": "GUARD_TEST_PG_DSN was exported from a 0600 task-private env file and the password is in no log, ledger entry or delivered file",
+    "command": "go test -mod=readonly -count=1 -timeout=10m -json -v -run '^(TestTenantMutationGuard|TestTenantMutationGuardAccessKey|TestTenantGuardDeleteOneCreate|TestPositionDataScopeGuard|TestOrgUnitPathExpansionTenantBounded)$' ./app/admin/service/internal/data/ent under tools/migration/run_checked.sh",
+    "result": "exit 0; each of the five shows Action=run, a \"--- PASS\" line and Action=pass with elapsed times 0.20s, 0.20s, 0.20s, 1.15s and 0.22s; package line ok go-wind-admin/app/admin/service/internal/data/ent 1.974s",
+    "no_silent_skip": "the package skips these tests when the DSN is unreachable, so a skip would have appeared as Action=skip with no pass record; tools/migration/require_tests.py over the JSON log reports pass true with required 5, bad_tests [] and failed_packages [] at exit 0",
+    "cleanup": "DROP DATABASE and DROP ROLE ran against the task instance; a follow-up query shows zero gwa_f5c% databases left. Nothing else on that instance was touched",
+    "log": "/home/ubuntu/tx7do-pilot-run/T15/guard-run/"
+  },
+  "evidence_closeout": {
+    "package": "/home/ubuntu/tx7do-pilot-run/T15/review-evidence-F5-closeout.tar.gz",
+    "previous_package_defect_1": "the 2026-09-26 index table named f-final-gpu-3.log and f-final-fresh.log, but neither was a tar member or a SHA256SUMS line. Both are delivered here as the original files with their own .command/.exit/.started/.finished, for the tested SHA d61a97938f77c66d9ef02e551aa7a73b7c5d1297 (gate attempt 3 exit 0 in 24m29s; fresh -count=1 -json run exit 0 with 74 packages and 0 cached). They are not re-run reproductions and no old final2 log was substituted",
+    "previous_package_defect_2": "the matrix row C_repeat_generation was recorded as exit 0 while matrix/C-repeat.log shows the run failing inside api/buf.network.gen.yaml on a goproxy.cn metadata EOF for google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.0. The failed log is shipped as the failed attempt it is, the row in T15-f2f3f5-writeback-safety.json is corrected in place, and the idempotency claim now rests on this round's four second-pass runs, each with its own recorded exit file. No dependency was upgraded and no offline tool platform was built over a transient proxy error",
+    "self_check": "the closeout generator asserts that every file named by its own index exists in the package, and the tarball is then extracted to a fresh directory and re-verified with sha256sum -c before delivery"
+  },
+  "boundaries": {
+    "dst_defect": "TestTimeDifferenceDays under a DST-observing zone stays as recorded; the production day-difference algorithm was not touched and is not claimed fixed",
+    "known_defects": "the 9 captcha and 3 ID rulings are unchanged and were not re-adjudicated",
+    "r6": "still BLOCKED_INPUT for the two historical dumps at /home/ubuntu/tx7do-pilot-run/T15/r6-inputs/; it does not gate the guard proof above and nothing was substituted for it",
+    "unchanged": "business implementation, identity and authorization, tenant rules, Proto sources, schema, migration history, dependency versions, .gitleaks.toml and every existing exception"
+  }
+}
