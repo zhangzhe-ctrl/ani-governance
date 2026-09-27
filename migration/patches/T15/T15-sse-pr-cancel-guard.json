@@ -8,7 +8,8 @@
     "url": "https://github.com/zhangzhe-ctrl/ani-governance/pull/1",
     "source_sha": "b3ce1df8043372c460d68c2ca42d0e068f4844ba",
     "checked_out_sha": "598e61761b228b93a5836a1cff9df6e8fcaded96",
-    "checkout_note": "the pull_request job builds the merge of main d27847b and the source commit; its Git tree is identical to the source tree (both 115c5ab9e34f98e15ac2805c280d8f45420bdf74), so the runner executed exactly this code. Source SHA and checkout SHA are distinguished deliberately"
+    "checkout_note": "the pull_request job builds the merge of main d27847b and the source commit; its Git tree is identical to the source tree (both 115c5ab9e34f98e15ac2805c280d8f45420bdf74), so the runner executed exactly this code. Source SHA and checkout SHA are distinguished deliberately",
+    "note_this_round": "the CI outcomes recorded under verification earlier belong to the candidates they ran on; this round pushes a new commit and its own PR and push runs are reported separately, not back-labelled onto the old numbers"
   },
   "what_actually_failed": {
     "runs": "run 36296142410 attempt 1 and attempt 2 (a re-run of the same gate, not a bypass), both failure, both at Makefile verify-gpu-regressions",
@@ -70,5 +71,41 @@
     "gate_line_uncached_run": "the rewritten gate line alone (scripts/verify-gpu-redis.sh run -- go test -count=1 <same four package sets>) executed clean: exit 0, 69 ok lines, 0 cached, 0 failures, with kratos-transport/transport/sse at 14.667s and kratos-transport/transport/asynq at 33.778s. An earlier attempt of mine on this same line reported eight asynq connection-refused failures after the redis wrapper had printed its URI: two of my own runs overlapped on the script's fixed container name, so the second one was pointed at a broker that had just been removed. That is my harness mistake, recorded here rather than hidden, and the single clean run above is the result. The runner itself is unaffected by -count=1 for that package: the failed PR attempt-2 log already shows transport/asynq executing uncached and passing at 34.288s. Log: /home/ubuntu/tx7do-pilot-run/T15/sse-pr-cancel/gate-line-uncached.{command,log,exit}",
     "pr_ci": "reported after this patch is pushed: the real status of the new run, and no merge while a required check is not green"
   },
-  "boundaries": "R6 stays as the owner's scope ruling (unverified, not blocking). F1-F5 results stand untouched. No dependency, Proto, schema, tenant, quota or authorization change; accepted_head unchanged"
+  "boundaries": "R6 stays as the owner's scope ruling (unverified, not blocking). F1-F5 results stand untouched. No dependency, Proto, schema, tenant, quota or authorization change; accepted_head unchanged",
+  "round2_targeted_review_gaps": {
+    "reviewed_candidate": "daa9a73b3a0b15cec6db739126e9e1bf6612431b",
+    "gaps_closed": [
+      "the guard now rejects early returns instead of merely counting exits",
+      "the ten owned subscriptions share one Client again, as the case had it before the repair"
+    ],
+    "early_return_rejection": {
+      "defect_in_the_previous_patch": "watchReady counted readiness only, collectCompletions counted distinct indexes, and the judgement looked at ready count plus waitErr; subOutcome carried a timestamp that was never compared with the cancellation moment, so ten subscriptions that all returned before cancel() - and were then collected as ten distinct \"completions\" with zero residue - would have passed",
+      "mechanism": "watchReady selects on readiness and completions together and returns errEarlyReturn as soon as an owned index reports before the cancellation; report.cancelledAt is recorded exactly once, immediately before cancel(), and collectCompletions stamps each return with afterCancel = at.After(cancelledAt); acceptanceOwnSignals fails on any early set, on fewer than ten distinct owned indexes, and on any completion recorded without the cancellation having been issued",
+      "index_discipline": "readiness and completion both accept only the ten unique indexes 0..9 owned by the scenario; a duplicate adds nothing and an outside index - the leak probe is number 10 - cannot stand in for a missing one, so nine owned plus the probe plus a repeat is reported as nine and fails",
+      "error_contract": "no assertion is made about the returned error being nil or matching any text: what is verified is actual readiness, exit after the cancellation, and resource closure, so the production return contract stays untouched"
+    },
+    "shared_client": {
+      "restored": "NewClient is called once outside the start loop and all ten subscriptions share that instance and the same context, as the case at b3ce1df had it; the per-index once, readiness and completion signals stay",
+      "probe_client": "the deliberately-open eleventh subscription used by the negative control gets its own Client, so it can never substitute for the shared instance the ten share",
+      "race_evidence": "with the shared instance the target case passed -race -count=3 with 0 DATA RACE, so no production synchronisation or reconnect change was needed or made"
+    },
+    "controls": [
+      "one subscription completing before the cancellation fails, even with a full post-cancel set and clean resources behind it",
+      "all ten completing before the cancellation fails for the same reason, and the resource and residue halves are asserted clean in that same case so the rejection can only come from the early exits",
+      "nine owned readiness signals plus the probe index plus a duplicate are counted as nine and fail",
+      "a withheld or a duplicated completion fails the collection",
+      "a raw 64 byte snapshot is refused as incomplete and the growing collector has to reach a complete dump",
+      "the leak probe child must fail naming what outlived the cancellation, and the control also asserts it did not fail for readiness or for an early return, so it cannot pass for the wrong reason"
+    ],
+    "disclosure": "while iterating, one of the new controls deadlocked: it filled 9 values into a channel buffered for 4, which hung the test binary until its 600s timeout fired (recorded in the previous run under round2 sibling logs). The channels are now sized so a control cannot block on its own buffer. Nothing was hidden: that attempt failed before the fix.",
+    "verification": {
+      "environment": "Go 1.26.7 pinned, GOROOT set, GOTOOLCHAIN=local, GOWORK=off, -mod=readonly, GOMAXPROCS=2 and -cpu=2",
+      "controls_and_case": "exit 0",
+      "target_count_20": "20 RUN, 20 PASS, 0 FAIL, exit 0",
+      "target_race_count_3": "3 PASS, 0 FAIL, 0 DATA RACE, exit 0",
+      "whole_package_count_3": "162 PASS, 0 FAIL, 0 SKIP, exit 0",
+      "measured": "all ten ready about 12ms after start, cancelled at about 17ms, early=0, ten distinct post-cancel returns, 10 fixture requests, 0 streams open, start sample 63 blocks over 63 goroutines with 20 client stacks, end sample complete with 0 client stacks",
+      "logs": "/home/ubuntu/tx7do-pilot-run/T15/sse-pr-cancel/round2/ (previous round kept untouched)"
+    }
+  }
 }

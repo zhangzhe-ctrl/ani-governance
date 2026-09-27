@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -409,8 +410,9 @@ const childEnv = "ANI_SSE_CANCEL_CHILD"
 // probeEnv tells that child to keep one subscription open, which must make the acceptance fail.
 const probeEnv = "ANI_SSE_LEAK_PROBE"
 
-// ownedSubscriptions is the ten concurrent subscriptions the original case started, and exitWindow is
-// the bound it always allowed for them to finish after the cancellation.
+// ownedSubscriptions is the ten concurrent subscriptions the original case started, exitWindow is the
+// bound it always allowed for them to finish after the cancellation, and readyWindow bounds the wait for
+// all ten to be receiving first.
 const (
 	ownedSubscriptions = 10
 	exitWindow         = 20 * time.Second
@@ -418,13 +420,15 @@ const (
 )
 
 // TestSubscribeWithContextDone keeps its name, its ten concurrent subscriptions, the real client over a
-// real HTTP event stream, the same context cancellation and the same 20 second exit bound. What changed
-// is what is measured. The old case compared one process-wide count against a baseline sampled from the
-// same global count, and that count included the Client goroutines every earlier case in the binary had
-// left behind: it moved during the run, so the equality was not a property of this scenario at all. Now
-// each of the ten subscriptions reports its own readiness from inside its own handler and its own return
-// by number, and the strict "no client goroutine is left" statement is made only in a child process that
-// runs nothing else - where the whole-process sample is exactly this test.
+// real HTTP event stream, the shared Client instance the original case used, the same context
+// cancellation and the same 20 second exit bound.
+//
+// What it now measures is the cancellation rather than a count. The first version of this guard compared
+// one process-wide goroutine count against a baseline taken from that same count, which had already been
+// moved by the Client goroutines earlier cases leave behind. The rewritten version measures readiness per
+// subscription, refuses any subscription that returned before the cancellation was issued, and refuses
+// one that only looks exited because it returned quickly: a completion is accepted as a cancellation
+// result only when it carries the fact that the cancellation had already happened.
 func TestSubscribeWithContextDone(t *testing.T) {
 	if os.Getenv(childEnv) != "" {
 		report := runCancelScenario(t, os.Getenv(probeEnv) == "1")
@@ -435,8 +439,9 @@ func TestSubscribeWithContextDone(t *testing.T) {
 		return
 	}
 
-	// In this process other cases may still hold Client goroutines, so the inline run judges only what
-	// it owns: ten readiness signals, ten distinct returns, and its own server-side streams closed.
+	// In this process other cases may still hold Client goroutines, so the inline run judges what it
+	// owns: ten readiness signals, no early return, ten distinct post-cancellation returns, and its own
+	// server-side streams closed.
 	online := runCancelScenario(t, false)
 	online.log(t)
 	for _, fail := range []string{online.acceptanceOwnSignals(), online.acceptanceServerSideStreams()} {
@@ -455,38 +460,101 @@ func TestSubscribeWithContextDone(t *testing.T) {
 	}
 }
 
-// TestSubscribeWithContextDoneControls keeps the rewritten acceptance honest rather than merely
-// satisfiable: a withheld or duplicated completion must fail the wait, the stack collector must prove it
-// notices an incomplete dump instead of parsing one, and a subscription that is deliberately left open
-// must make the isolated acceptance fail.
+// TestSubscribeWithContextDoneControls is the part that keeps the guard from being merely satisfiable.
+// Each case drives the real test-side functions - the readiness watcher, the completion collector and
+// the judgement - rather than a re-statement of them.
 func TestSubscribeWithContextDoneControls(t *testing.T) {
-	t.Run("a withheld completion fails the wait", func(t *testing.T) {
-		done := make(chan subOutcome, 10)
-		for i := 0; i < 9; i++ {
-			done <- subOutcome{index: i, at: time.Now()}
-		}
+	t.Run("one early return fails even with a full set afterwards", func(t *testing.T) {
+		ready, done := make(chan int, 16), make(chan subOutcome, 16)
+		go func() {
+			for i := 0; i < ownedSubscriptions; i++ {
+				ready <- i
+			}
+		}()
+		done <- subOutcome{index: 3, at: time.Now()} // before anyone cancelled
 		close(done)
-		started := time.Now()
-		outcomes, err := collectCompletions(done, ownedSubscriptions, 500*time.Millisecond)
-		require.Error(t, err, "nine of ten completions must not satisfy a ten of ten wait")
-		require.Len(t, outcomes, 9)
-		require.Less(t, time.Since(started), 5*time.Second, "the wait must return when its deadline passes")
+
+		_, early, err := watchReadiness(ready, done, ownedSubscriptions, 2*time.Second)
+		require.ErrorIs(t, err, errEarlyReturn, "a subscription that returned before the cancellation is not a cancellation")
+		require.Len(t, early, 1)
+		require.Equal(t, 3, early[0].index)
+
+		// Even a perfect picture afterwards must not rescue it.
+		report := fullReadyReport()
+		report.early = early
+		require.NotEmpty(t, report.acceptanceOwnSignals(), "the judgement must reject the early return")
 	})
 
-	t.Run("a duplicated completion fails the wait", func(t *testing.T) {
-		done := make(chan subOutcome, 10)
-		for i := 0; i < 9; i++ {
-			done <- subOutcome{index: i, at: time.Now()}
+	t.Run("all ten returning early fails even when ten are collected later", func(t *testing.T) {
+		ready, done := make(chan int, 16), make(chan subOutcome, 32)
+		go func() {
+			for i := 0; i < ownedSubscriptions; i++ {
+				ready <- i
+			}
+		}()
+		var early []subOutcome
+		for i := 0; i < ownedSubscriptions; i++ {
+			o := subOutcome{index: i, at: time.Now()}
+			done <- o
+			early = append(early, o)
 		}
-		done <- subOutcome{index: 0, at: time.Now()}
 		close(done)
-		_, err := collectCompletions(done, ownedSubscriptions, 500*time.Millisecond)
-		require.Error(t, err, "one subscription reporting twice must not pass for ten distinct exits")
+
+		_, early, err := watchReadiness(ready, done, ownedSubscriptions, 2*time.Second)
+		require.ErrorIs(t, err, errEarlyReturn)
+		require.NotEmpty(t, early)
+
+		report := fullReadyReport()
+		report.early = early
+		report.cancelledAt = time.Now()
+		report.returned = outcomesAfter(report.cancelledAt) // ten distinct, post-cancellation
+		report.streamsOpen, report.requests = 0, int64(ownedSubscriptions)
+		report.end = stackSample{complete: true, matching: 0}
+		require.NotEmpty(t, report.acceptanceOwnSignals(), "collecting ten later must not hide that all ten were already gone")
+		require.Empty(t, report.acceptanceServerSideStreams(), "the resource half stays satisfied, so the rejection above is only about the early exits")
+		require.Empty(t, report.acceptanceResidue(), "and the stack sample is clean too")
+	})
+
+	t.Run("a readiness signal from a foreign index cannot complete the set", func(t *testing.T) {
+		// The channels are wide enough that the fills below cannot block: a control that deadlocks on
+		// its own buffer would hang the package instead of proving anything.
+		ready, done := make(chan int, 32), make(chan subOutcome, 32)
+		for i := 0; i < ownedSubscriptions-1; i++ {
+			ready <- i
+		}
+		ready <- ownedSubscriptions // the leak probe's index, not one of the ten
+		ready <- 0                  // a duplicate of an index already counted
+		got, _, err := watchReadiness(ready, done, ownedSubscriptions, 300*time.Millisecond)
+		require.Error(t, err, "nine owned subscriptions must not be satisfied by an eleventh one plus a repeat")
+		require.Equal(t, ownedSubscriptions-1, got)
+	})
+
+	t.Run("a withheld or duplicated completion fails the wait", func(t *testing.T) {
+		for name, fill := range map[string]func(chan<- subOutcome){
+			"withheld": func(ch chan<- subOutcome) {
+				for i := 0; i < ownedSubscriptions-1; i++ {
+					ch <- subOutcome{index: i, at: time.Now()}
+				}
+			},
+			"duplicated": func(ch chan<- subOutcome) {
+				for i := 0; i < ownedSubscriptions-2; i++ {
+					ch <- subOutcome{index: i, at: time.Now()}
+				}
+				ch <- subOutcome{index: 0, at: time.Now()}
+				ch <- subOutcome{index: 1, at: time.Now()}
+			},
+		} {
+			t.Run(name, func(t *testing.T) {
+				done := make(chan subOutcome, ownedSubscriptions)
+				fill(done)
+				close(done)
+				_, err := collectCompletions(done, ownedSubscriptions, time.Now(), 500*time.Millisecond)
+				require.Error(t, err)
+			})
+		}
 	})
 
 	t.Run("the collector notices an incomplete dump and grows past it", func(t *testing.T) {
-		// One raw 64 byte sample cannot cover this process, and must say so instead of handing back a
-		// partial set that looks like a count.
 		raw := stackSnapshot(64)
 		require.False(t, raw.complete,
 			"64 bytes held %d of %d goroutine stacks and was reported as complete", len(raw.blocks), raw.goroutines)
@@ -499,26 +567,56 @@ func TestSubscribeWithContextDoneControls(t *testing.T) {
 		require.Less(t, grown.used, grown.bufferSize)
 	})
 
-	t.Run("an open subscription fails the isolated acceptance", func(t *testing.T) {
+	t.Run("an open subscription fails the isolated acceptance for the right reason", func(t *testing.T) {
 		out, err := runChild(t, true)
 		require.Error(t, err, "a subscription that never returned must not pass the exit check:\n%s", out)
 		require.Contains(t, string(out), "outlived the cancel", "the failure has to name what stayed open")
+		// The probe must be rejected by the residue check, not by some unrelated readiness hiccup that
+		// would make this control pass by accident.
+		require.NotContains(t, string(out), "entered event receiving within", "the probe scenario did reach readiness: %s", out)
+		require.NotContains(t, string(out), "before the cancellation", "the probe scenario had no early return: %s", out)
 	})
 }
 
-// subOutcome is one subscription's return, identified by the index that started it.
-type subOutcome struct {
-	index int
-	err   error
-	at    time.Time
+// fullReadyReport is a scenario report that satisfies every part of the judgement except the fields a
+// control is about to spoil.
+func fullReadyReport() scenarioReport {
+	cancelled := time.Now()
+	return scenarioReport{
+		ready:       ownedSubscriptions,
+		cancelledAt: cancelled,
+		returned:    outcomesAfter(cancelled),
+	}
 }
 
-// scenarioReport carries everything the acceptance judges, plus the raw numbers behind each claim.
+func outcomesAfter(cancelled time.Time) []subOutcome {
+	out := make([]subOutcome, 0, ownedSubscriptions)
+	for i := 0; i < ownedSubscriptions; i++ {
+		out = append(out, subOutcome{index: i, at: cancelled.Add(time.Millisecond), afterCancel: true})
+	}
+	return out
+}
+
+// subOutcome is one subscription's return, identified by the index that started it and carrying whether
+// the cancellation had already been issued when it came back.
+type subOutcome struct {
+	index       int
+	err         error
+	at          time.Time
+	afterCancel bool
+}
+
+func (o subOutcome) String() string {
+	return fmt.Sprintf("subscription %d returned at %s (after cancellation: %t, err=%v)", o.index, o.at.Format("15:04:05.000000"), o.afterCancel, o.err)
+}
+
+// scenarioReport carries everything the acceptance judges, with the raw numbers behind each claim.
 type scenarioReport struct {
 	begun       time.Time
 	readyAt     time.Time
 	cancelledAt time.Time
 	ready       int
+	early       []subOutcome
 	returned    []subOutcome
 	waitErr     error
 	requests    int64
@@ -528,20 +626,35 @@ type scenarioReport struct {
 	end         stackSample
 }
 
-// acceptanceOwnSignals is the part that needs no process-wide view: all ten really started receiving,
-// and all ten really came back.
+// errEarlyReturn distinguishes the one failure mode that must never be confused with a leak: the
+// subscription was already gone before the cancellation happened.
+var errEarlyReturn = errors.New("returned before the cancellation was issued")
+
+// acceptanceOwnSignals is the part that needs no process-wide view.
 func (r scenarioReport) acceptanceOwnSignals() string {
 	if r.ready != ownedSubscriptions {
 		return fmt.Sprintf("only %d of %d subscriptions entered event receiving within %s", r.ready, ownedSubscriptions, readyWindow)
 	}
+	if len(r.early) > 0 {
+		return fmt.Sprintf("%d subscription(s) %v before the cancellation at %s, so their exit is not a cancellation result: %v",
+			len(r.early), errEarlyReturn, r.cancelledAt.Format("15:04:05.000000"), r.early)
+	}
 	if r.waitErr != nil {
 		return fmt.Sprintf("%v", r.waitErr)
+	}
+	var tooSoon int
+	for _, o := range r.returned {
+		if !o.afterCancel {
+			tooSoon++
+		}
+	}
+	if tooSoon > 0 {
+		return fmt.Sprintf("%d of %d completions were recorded without the cancellation having been issued", tooSoon, len(r.returned))
 	}
 	return ""
 }
 
-// acceptanceServerSideStreams checks the resources this test's own fixture handed out: every HTTP
-// stream it opened has to be gone, which is how a readLoop that never noticed the cancellation shows up.
+// acceptanceServerSideStreams checks the resources this test's own fixture handed out.
 func (r scenarioReport) acceptanceServerSideStreams() string {
 	if r.streamsOpen != 0 {
 		return fmt.Sprintf("%d server-side streams outlived the cancellation (%d requests seen)", r.streamsOpen, r.requests)
@@ -549,14 +662,8 @@ func (r scenarioReport) acceptanceServerSideStreams() string {
 	return ""
 }
 
-// acceptance is the full judgement, including the process-wide residue that only the child may claim.
-func (r scenarioReport) acceptance() string {
-	if fail := r.acceptanceOwnSignals(); fail != "" {
-		return fail
-	}
-	if fail := r.acceptanceServerSideStreams(); fail != "" {
-		return fail
-	}
+// acceptanceResidue is the process-wide claim, which only the child is entitled to make.
+func (r scenarioReport) acceptanceResidue() string {
 	if !r.end.complete {
 		return fmt.Sprintf("the stack sample was never complete (buffer %d bytes, %d of %d goroutines)",
 			r.end.bufferSize, len(r.end.blocks), r.end.goroutines)
@@ -567,12 +674,24 @@ func (r scenarioReport) acceptance() string {
 	return ""
 }
 
+func (r scenarioReport) acceptance() string {
+	for _, fail := range []string{r.acceptanceOwnSignals(), r.acceptanceServerSideStreams(), r.acceptanceResidue()} {
+		if fail != "" {
+			return fail
+		}
+	}
+	return ""
+}
+
 func (r scenarioReport) log(t *testing.T) {
-	t.Logf("began %s; all %d ready +%s; cancelled +%s; completions=%d waitErr=%v",
+	t.Logf("began %s; all %d ready +%s; cancelled +%s; early=%d completions=%d waitErr=%v",
 		r.begun.Format(time.RFC3339Nano), ownedSubscriptions, r.readyAt.Sub(r.begun), r.cancelledAt.Sub(r.begun),
-		len(r.returned), r.waitErr)
+		len(r.early), len(r.returned), r.waitErr)
+	for _, o := range r.early {
+		t.Logf("  EARLY %s", o)
+	}
 	for _, o := range r.returned {
-		t.Logf("  subscription %2d returned %s after cancel, err=%v", o.index, o.at.Sub(r.cancelledAt).Round(time.Microsecond), o.err)
+		t.Logf("  %s, %s after cancel", o, o.at.Sub(r.cancelledAt).Round(time.Microsecond))
 	}
 	if r.probeErr != nil {
 		t.Logf("  probe subscription: %v", r.probeErr)
@@ -584,11 +703,12 @@ func (r scenarioReport) log(t *testing.T) {
 		r.end.bufferSize, r.end.used, r.end.goroutines, len(r.end.blocks), r.end.complete, r.end.matching)
 }
 
-// runCancelScenario drives the real thing: ten subscriptions on one live SSE fixture, readiness proven
-// from inside each handler, cancellation only after all ten are receiving, then the bounded wait for ten
-// distinct returns. With holdOne it also keeps an eleventh subscription on a context that is never
-// cancelled - the leak the controls must catch - and releases it only after the verdict, so the fixture
-// cannot deadlock waiting for a stream this test deliberately left open.
+// runCancelScenario drives the real thing: ten subscriptions sharing one Client over one live SSE
+// fixture - as the original case had them - each reporting readiness from inside its own handler, the
+// cancellation issued only once all ten are receiving, and then the bounded wait for ten distinct
+// returns that happened after that cancellation. With holdOne it also keeps an eleventh subscription on
+// its own never-cancelled context, which is the leak the controls must catch; it is released only after
+// the verdict so the fixture cannot deadlock waiting on a stream this test left open on purpose.
 func runCancelScenario(t *testing.T, holdOne bool) scenarioReport {
 	t.Helper()
 
@@ -615,8 +735,8 @@ func runCancelScenario(t *testing.T, holdOne bool) scenarioReport {
 		open.Add(1)
 		defer open.Add(-1)
 
-		// The handler must never block on the client, and it stops with the request or the fixture, so
-		// no publisher of this test outlives the case.
+		// The handler never blocks on the client, and its publisher dies with the request or the
+		// fixture, so nothing this case started outlives it by construction.
 		tick := time.NewTicker(10 * time.Millisecond)
 		defer tick.Stop()
 		for {
@@ -640,14 +760,15 @@ func runCancelScenario(t *testing.T, holdOne bool) scenarioReport {
 	defer cancel()
 
 	var (
-		ready  = make(chan int, ownedSubscriptions+1)
-		done   = make(chan subOutcome, ownedSubscriptions+1)
-		probe  = make(chan subOutcome, 1)
-		extra  context.Context
-		stopIt context.CancelFunc
+		ready = make(chan int, ownedSubscriptions+1)
+		done  = make(chan subOutcome, ownedSubscriptions+1)
+		probe = make(chan subOutcome, 1)
 	)
-	start := func(index int, runCtx context.Context, sink chan subOutcome) {
-		c := NewClient(url)
+
+	// One shared Client for the ten subscriptions, exactly as the case this replaced used it, so the
+	// concurrency covers the package's own per-client state as well as the transport.
+	shared := NewClient(url)
+	start := func(index int, c *Client, runCtx context.Context, sink chan subOutcome) {
 		var once sync.Once
 		go func() {
 			err := c.SubscribeWithContext(runCtx, "", func(msg *Event) {
@@ -659,38 +780,44 @@ func runCancelScenario(t *testing.T, holdOne bool) scenarioReport {
 
 	report.begun = time.Now()
 	for i := 0; i < ownedSubscriptions; i++ {
-		start(i, ctx, done)
+		start(i, shared, ctx, done)
 	}
+	var stopProbe context.CancelFunc
 	if holdOne {
-		extra, stopIt = context.WithCancel(context.Background())
-		defer stopIt()
-		start(ownedSubscriptions, extra, probe)
+		var probeCtx context.Context
+		probeCtx, stopProbe = context.WithCancel(context.Background())
+		defer stopProbe()
+		start(ownedSubscriptions, NewClient(url), probeCtx, probe)
 	}
 
-	report.ready = waitReady(ready, ownedSubscriptions, readyWindow)
-	if report.ready == ownedSubscriptions {
+	var early []subOutcome
+	report.ready, early, report.waitErr = watchReady(ready, done, ownedSubscriptions, readyWindow)
+	report.early = early
+	if report.ready == ownedSubscriptions && report.waitErr == nil {
 		report.readyAt = time.Now()
 		report.start = collectClientStacks(1 << 10)
-		report.cancelledAt = time.Now()
+		report.cancelledAt = time.Now() // recorded exactly once, immediately before the cancellation
 		cancel()
-		report.returned, report.waitErr = collectCompletions(done, ownedSubscriptions, exitWindow)
+		report.returned, report.waitErr = collectCompletions(done, ownedSubscriptions, report.cancelledAt, exitWindow)
+	} else {
+		cancel()
 	}
 
-	// The judgement happens before anything is force-closed: a server that is shut down first could hide
+	// The judgement happens before anything is force-closed: shutting the server down first could hide
 	// an implementation that only exits because its stream was cut.
-	settleDeadline := time.Now().Add(2 * time.Second)
-	for time.Now().Before(settleDeadline) && open.Load() > 0 {
+	settle := time.Now().Add(2 * time.Second)
+	for time.Now().Before(settle) && open.Load() > 0 {
 		time.Sleep(20 * time.Millisecond)
 	}
 	report.requests = requests.Load()
 	report.streamsOpen = open.Load()
 	report.end = collectClientStacks(1 << 10)
 
-	if holdOne {
-		// Only now release the probe, and record what it reported: the acceptance above already saw it.
-		stopIt()
+	if stopProbe != nil {
+		stopProbe()
 		select {
 		case o := <-probe:
+			o.afterCancel = true
 			report.probeErr = o.err
 		case <-time.After(2 * time.Second):
 			report.probeErr = fmt.Errorf("the probe subscription never returned")
@@ -702,23 +829,46 @@ func runCancelScenario(t *testing.T, holdOne bool) scenarioReport {
 	return report
 }
 
-// waitReady counts distinct readiness signals, returning how many arrived before the deadline.
-func waitReady(ready chan int, want int, timeout time.Duration) int {
-	seen := map[int]bool{}
-	deadline := time.After(timeout)
+// watchReady waits for the owned subscriptions to report readiness while paying attention to anything
+// that has already come back. Returning only when a readiness count is reached would let a scenario in
+// which the subscriptions finished before the cancellation look like a clean exit.
+func watchReady(ready chan int, done <-chan subOutcome, want int, timeout time.Duration) (int, []subOutcome, error) {
+	var (
+		seen     = map[int]bool{}
+		early    []subOutcome
+		deadline = time.After(timeout)
+	)
 	for len(seen) < want {
 		select {
 		case index := <-ready:
-			seen[index] = true
+			if index >= 0 && index < want {
+				seen[index] = true // a duplicate adds nothing, and an outside index cannot stand in
+			}
+		case o, ok := <-done:
+			if !ok {
+				done = nil
+				continue
+			}
+			if o.index >= 0 && o.index < want {
+				early = append(early, o)
+				return len(seen), early, fmt.Errorf("%w: %v", errEarlyReturn, early)
+			}
+			early = append(early, o)
 		case <-deadline:
-			return len(seen)
+			return len(seen), early, fmt.Errorf("only %d of %d subscriptions entered event receiving within %s", len(seen), want, timeout)
 		}
 	}
-	return len(seen)
+	return len(seen), early, nil
 }
 
-// collectCompletions waits for want distinct subscriptions to return and says which ones did not.
-func collectCompletions(done <-chan subOutcome, want int, timeout time.Duration) ([]subOutcome, error) {
+// watchReadiness is the control-facing name for the same watcher, so the negative controls drive the
+// real loop rather than a copy of its logic.
+func watchReadiness(ready chan int, done chan subOutcome, want int, timeout time.Duration) (int, []subOutcome, error) {
+	return watchReady(ready, (<-chan subOutcome)(done), want, timeout)
+}
+
+// collectCompletions waits for want distinct owned subscriptions to come back after cancelledAt.
+func collectCompletions(done <-chan subOutcome, want int, cancelledAt time.Time, timeout time.Duration) ([]subOutcome, error) {
 	var (
 		outcomes []subOutcome
 		seen     = map[int]bool{}
@@ -736,6 +886,7 @@ func collectCompletions(done <-chan subOutcome, want int, timeout time.Duration)
 			if seen[o.index] {
 				return outcomes, fmt.Errorf("subscription %d reported twice; %d distinct exits are required", o.index, want)
 			}
+			o.afterCancel = o.at.After(cancelledAt)
 			seen[o.index] = true
 			outcomes = append(outcomes, o)
 		case <-deadline:
@@ -760,7 +911,7 @@ func missingIndexes(seen map[int]bool, want int) []int {
 // what SubscribeWithContext starts.
 const clientStackMarker = "sse.(*Client)."
 
-// stackSample is one collector answer together with the evidence about whether the dump was whole.
+// stackSample is one collector answer plus the evidence about whether the dump was whole.
 type stackSample struct {
 	bufferSize int
 	used       int
@@ -788,9 +939,9 @@ func (s stackSample) topFrames() string {
 	return strings.Join(out, " | ")
 }
 
-// collectClientStacks starts at first bytes and doubles until the dump actually covers every goroutine of
-// this process. Comparing the parsed blocks against runtime.NumGoroutine is the completeness test: a
-// fixed buffer that merely fills up is not, and the earlier version silently parsed whatever it got.
+// collectClientStacks starts at first bytes and doubles until the dump really covers every goroutine of
+// this process. Comparing the parsed blocks against runtime.NumGoroutine is the completeness test; a
+// fixed buffer that merely fills up is not, and the earlier version parsed whatever it happened to get.
 func collectClientStacks(first int) stackSample {
 	if first <= 0 {
 		first = 1 << 10
@@ -805,7 +956,7 @@ func collectClientStacks(first int) stackSample {
 }
 
 // stackSnapshot takes one raw sample of every goroutine stack in this process and records whether it
-// actually covered them all. A truncated dump is left marked incomplete rather than parsed.
+// covered them all.
 func stackSnapshot(size int) stackSample {
 	buf := make([]byte, size)
 	n := runtime.Stack(buf, true)
@@ -832,12 +983,14 @@ func countBlocks(blocks []string, marker string) int {
 }
 
 // runChild re-executes this test binary for the scenario alone. probe leaves one subscription open so
-// the controls can prove the acceptance actually rejects a leak.
+// the controls can prove the acceptance really rejects a leak.
 func runChild(t *testing.T, probe bool) (string, error) {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
 	defer cancel()
 
+	// The child is this same test binary, so it carries the same production code and, when the parent
+	// was built with -race, the same instrumentation.
 	cmd := exec.CommandContext(ctx, os.Args[0],
 		"-test.run=^TestSubscribeWithContextDone$", "-test.v", "-test.count=1", "-test.timeout=60s")
 	cmd.Env = append(os.Environ(), childEnv+"=1")
