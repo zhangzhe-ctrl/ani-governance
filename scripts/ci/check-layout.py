@@ -17,6 +17,15 @@ RETIRED_PREFIXES = (
     "app/admin/service/internal/quotalab/",
     "scripts/model-lab/", "scripts/network-lab/",
 )
+TEMP_PREFIXES = ("_agent/", ".artifacts/", ".scratch/")
+RUN_ARTIFACT = re.compile(
+    r"(?i)(?:\.log(?:\.\d+)?|\.jsonl|\.dump(?:\.(?:gz|zst))?|"
+    r"\.backup|\.pgdump|\.sql\.(?:gz|zst)|"
+    r"(?:^|[-_])(?:test[-_]?results?|run[-_]?log|database[-_]?dump)\.json)$"
+)
+SMALL_TESTDATA_SUFFIXES = (".json", ".jsonl", ".sql", ".log")
+SMALL_TESTDATA_MAX_BYTES = 64 * 1024
+ENTTEST_PREFIX = "app/admin/service/internal/data/ent/enttest/"
 RETIRED_REFERENCES = (
     "cmd/quota-gpu-simulator", "internal/quotalab", "scripts/model-lab/",
     "scripts/network-lab/", "migration/pgv-scope.json",
@@ -54,6 +63,15 @@ def check(repo: pathlib.Path, deps_json: pathlib.Path | None) -> list[str]:
     for name in tracked:
         if name.startswith(RETIRED_PREFIXES):
             errors.append(f"retired path tracked: {name}")
+        if name.startswith(TEMP_PREFIXES):
+            errors.append(f"temporary path tracked: {name}")
+        if RUN_ARTIFACT.search(pathlib.PurePosixPath(name).name):
+            path = repo / name
+            small_fixture = ("testdata" in pathlib.PurePosixPath(name).parts
+                             and name.endswith(SMALL_TESTDATA_SUFFIXES)
+                             and path.is_file() and path.stat().st_size <= SMALL_TESTDATA_MAX_BYTES)
+            if not small_fixture:
+                errors.append(f"runtime log or dump tracked: {name}")
         if name.endswith("export_test.go"):
             errors.append(f"cross-package test export: {name}")
         if re.search(r"(?:repo_testkit|_testkit)\.go$", name):
@@ -69,10 +87,12 @@ def check(repo: pathlib.Path, deps_json: pathlib.Path | None) -> list[str]:
             for retired in RETIRED_REFERENCES:
                 if retired in content:
                     errors.append(f"retired reference {retired}: {name}")
-            if name.startswith("app/admin/service/") and not name.startswith("app/admin/service/tests/") and name.endswith(".go") and "/ent/" not in name:
+            if (name.startswith("app/admin/service/")
+                    and not name.startswith(("app/admin/service/tests/", ENTTEST_PREFIX))
+                    and name.endswith(".go")):
                 if TESTUTIL in content or re.search(r'"testing"', content):
                     errors.append(f"test dependency in production source: {name}")
-                if re.search(r"\b(?:func|type)\s+\w*ForTest\b", content):
+                if re.search(r"\b(?:func\s+(?:\([^)]*\)\s*)?|type\s+)\w*ForTest\b", content):
                     errors.append(f"test export in production source: {name}")
     try:
         raw = deps_json.read_text() if deps_json else run(

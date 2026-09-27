@@ -17,6 +17,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--required", required=True)
     parser.add_argument("--log", required=True)
+    parser.add_argument("--summary", help="also save the named critical-test result as JSON")
     args = parser.parse_args()
     try:
         profile: Any = json.loads(Path(args.required).read_text(encoding="utf-8"))
@@ -57,9 +58,12 @@ def main() -> int:
                 bad.append({"Package": pair[0], "Test": pair[1], "status": state,
                             "observed_nonpass": sorted(nonpasses.get(pair, set()))})
         passed = not bad and not package_failures
-        print(json.dumps({"pass": passed, "required": len(required),
-                          "bad_tests": bad, "failed_packages": sorted(package_failures)},
-                         ensure_ascii=False, indent=2))
+        summary = json.dumps({"pass": passed, "required": len(required),
+                              "bad_tests": bad, "failed_packages": sorted(package_failures)},
+                             ensure_ascii=False, indent=2) + "\n"
+        if args.summary:
+            Path(args.summary).write_text(summary, encoding="utf-8")
+        print(summary, end="")
         return 0 if passed else 1
     except (OSError, ValueError, TypeError) as exc:
         print(f"invalid test evidence: {exc}", file=sys.stderr)

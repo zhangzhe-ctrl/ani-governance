@@ -11,6 +11,194 @@ REPO = Path(__file__).resolve().parents[2]
 
 
 class CIScriptTests(unittest.TestCase):
+    def test_evidence_wrapper_preserves_status_and_redacts_public_copy(self):
+        script = REPO / 'scripts/ci/run-with-evidence.sh'
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            env = dict(os.environ, ANI_CI_EVIDENCE_ROOT=str(root / 'public'),
+                       ANI_CI_RAW_EVIDENCE_ROOT=str(root / 'raw'))
+            secret = 'postgres://user:example-secret@localhost/fixture'
+            passed = subprocess.run(['bash', str(script), 'pass-case', '--', 'python3', '-c',
+                                     f'print({secret!r})'], env=env, capture_output=True)
+            self.assertEqual(passed.returncode, 0, passed.stderr)
+            raw = (root / 'raw/pass-case/stdout.log').read_text()
+            public = (root / 'public/pass-case/stdout.log').read_text()
+            self.assertIn(secret, raw)
+            self.assertNotIn(secret, public)
+            self.assertIn('[REDACTED-DSN]', public)
+            self.assertNotIn(secret, (root / 'public/pass-case/command.txt').read_text())
+            self.assertEqual((root / 'public/pass-case/command.rc').read_text().strip(), '0')
+            self.assertEqual((root / 'public/pass-case/source.sha').read_text().strip(),
+                             subprocess.check_output(['git', '-C', str(REPO), 'rev-parse', 'HEAD'], text=True).strip())
+            self.assertTrue((root / 'public/pass-case/raw-sha256.txt').read_text())
+            failed = subprocess.run(['bash', str(script), 'fail-case', '--', 'python3', '-c',
+                                     'import sys; print("fixture failure"); sys.exit(37)'],
+                                    env=env, capture_output=True)
+            self.assertEqual(failed.returncode, 37)
+            self.assertEqual((root / 'public/fail-case/command.rc').read_text().strip(), '37')
+            self.assertIn('fixture failure', (root / 'public/fail-case/stdout.log').read_text())
+
+    def test_quota_pg_packages_run_serially_and_propagate_failure(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            ci = root / 'scripts/ci'
+            ci.mkdir(parents=True)
+            shutil.copyfile(REPO / 'scripts/ci/integration.sh', ci / 'integration.sh')
+            (ci / 'with-redis.sh').write_text('#!/bin/sh\nshift\ntest "$1" != -- || shift\nexec "$@"\n')
+            (ci / 'assert-test-results.py').write_text('print("critical fixture pass")\n')
+            binary = root / 'bin/go'
+            binary.parent.mkdir()
+            binary.write_text('''#!/usr/bin/env python3
+import json, os, sys
+args=sys.argv[1:]
+kind=('quota-server' if '-tags' in args and 'quota_pg' in args and './app/admin/service/internal/server' in args
+      else 'quota-service' if '-tags' in args and 'quota_pg' in args and './app/admin/service/internal/service' in args
+      else 'other')
+with open(os.environ['EVENTS'], 'a') as out: out.write(kind + '\\n')
+print(json.dumps({'Action':'pass','Package':'fixture','Test':kind}))
+if os.environ.get('FAIL_KIND') == kind: sys.exit(43 if kind == 'quota-server' else 44)
+''')
+            binary.chmod(0o755)
+            env = dict(os.environ, PATH=str(binary.parent) + os.pathsep + os.environ['PATH'],
+                       EVENTS=str(root / 'events'), ANI_CI_EVIDENCE_DIR=str(root / 'evidence'),
+                       QUOTA_LAB_PG_DSN='postgres://fixture/data', GUARD_TEST_PG_DSN='postgres://fixture/guard',
+                       QUOTA_RACE_DATA_PG_DSN='postgres://fixture/race-data',
+                       QUOTA_RACE_SERVICE_PG_DSN='postgres://fixture/race-service',
+                       QUOTA_PG_EXCLUSIVE='1', GUARD_TEST_PG_EXCLUSIVE='1')
+            def run(fail=None):
+                (root / 'events').write_text('')
+                env['FAIL_KIND'] = fail or ''
+                result = subprocess.run(['bash', str(ci / 'integration.sh')], env=env, capture_output=True)
+                return result, (root / 'events').read_text().splitlines()
+            passed, events = run()
+            self.assertEqual(passed.returncode, 0, passed.stderr)
+            self.assertEqual(events.count('quota-server'), 1)
+            self.assertEqual(events.count('quota-service'), 1)
+            self.assertLess(events.index('quota-server'), events.index('quota-service'))
+            failed_server, events = run('quota-server')
+            self.assertEqual(failed_server.returncode, 43)
+            self.assertNotIn('quota-service', events)
+            failed_service, events = run('quota-service')
+            self.assertEqual(failed_service.returncode, 44)
+            self.assertLess(events.index('quota-server'), events.index('quota-service'))
+
+    def test_generation_comparator_covers_outputs_outside_api(self):
+        script = REPO / 'scripts/ci/compare-generated.py'
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            active = root / 'tools/localdeps/gow/internal/buf/cmd.go'
+            active.parent.mkdir(parents=True)
+            active.write_text('var activeGenConfigs = []string{\n'
+                              '"buf.gen.yaml",\n"buf.pagination.gen.yaml",\n'
+                              '"buf.redact.gen.yaml",\n"buf.bootstrap.conf.gen.yaml",\n'
+                              '"buf.admin.openapi.gen.yaml",\n}\n')
+            templates = {
+                'buf.gen.yaml': 'gen/go',
+                'buf.pagination.gen.yaml': '../pkg/localdeps/go-crud/api/gen/go',
+                'buf.redact.gen.yaml': '../pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact',
+                'buf.bootstrap.conf.gen.yaml': '../pkg/localdeps/kratos-bootstrap/api/gen/go',
+                'buf.admin.openapi.gen.yaml': '../app/admin/service/cmd/server/assets',
+            }
+            for name, output in templates.items():
+                target = root / 'api' / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(f'plugins:\n  - local: protoc\n    out: {output}\n')
+            outputs = [
+                'api/gen/go/example.pb.go',
+                'pkg/localdeps/go-crud/api/gen/go/pagination.pb.go',
+                'pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact.pb.go',
+                'pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/README.md',
+                'pkg/localdeps/kratos-bootstrap/api/gen/go/bootstrap.pb.go',
+                'app/admin/service/cmd/server/assets/openapi.yaml',
+                'app/admin/service/cmd/server/assets/assets.go',
+                'app/admin/service/internal/data/ent/schema.sql',
+                'app/admin/service/internal/data/ent/schema/entity.go',
+                'app/admin/service/schema.sql',
+            ]
+            for name in outputs + [
+                'go.mod', 'go.sum', 'scripts/build-redact-plugin.sh',
+                'scripts/finalize-aksk-openapi.py', 'tools/config/pgv-scope.json',
+                'tools/config/tool-lock.json', 'api/example.proto',
+            ]:
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text('original\n')
+            baseline, first, second = (root / f'{phase}.json' for phase in ('baseline', 'first', 'second'))
+            def snap(output):
+                return subprocess.run(['python3', str(script), 'snapshot', '--repo', str(root),
+                                       '--sha', 'fixed-sha', '--output', str(output)], capture_output=True)
+            def compare():
+                return subprocess.run(['python3', str(script), 'compare', '--baseline', str(baseline),
+                                       '--first', str(first), '--second', str(second)], capture_output=True)
+            self.assertEqual(snap(baseline).returncode, 0)
+            self.assertEqual(snap(first).returncode, 0)
+            self.assertEqual(snap(second).returncode, 0)
+            self.assertEqual(compare().returncode, 0)
+            target = root / 'pkg/localdeps/go-crud/api/gen/go/pagination.pb.go'
+            target.write_text('changed\n')
+            self.assertEqual(snap(second).returncode, 0)
+            self.assertIn(b'pkg/localdeps/go-crud/api/gen/go/pagination.pb.go', compare().stderr)
+            target.unlink()
+            self.assertEqual(snap(second).returncode, 0)
+            self.assertIn(b'outputs missing: pkg/localdeps/go-crud/api/gen/go/pagination.pb.go', compare().stderr)
+            target.write_text('original\n')
+            extra = root / 'pkg/localdeps/go-crud/api/gen/go/unexpected.pb.go'
+            extra.write_text('new\n')
+            self.assertEqual(snap(second).returncode, 0)
+            self.assertIn(b'outputs extra: pkg/localdeps/go-crud/api/gen/go/unexpected.pb.go', compare().stderr)
+            extra.unlink()
+            handwritten = root / 'pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/README.md'
+            handwritten.write_text('rewritten\n')
+            self.assertEqual(snap(second).returncode, 0)
+            self.assertIn(b'pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/README.md', compare().stderr)
+
+    def test_layout_tracked_artifacts_and_receiver_exports(self):
+        script = REPO / 'scripts/ci/check-layout.py'
+        good_deps = [
+            {'ImportPath': 'go-wind-admin/app/admin/service/cmd/server'},
+            {'ImportPath': 'go-wind-admin/app/admin/service/cmd/admin'},
+        ]
+        cases = {
+            '_agent/input.txt': 'private input',
+            '.artifacts/result.txt': 'run output',
+            '.scratch/note.txt': 'temporary note',
+            'app/admin/service/run.log': 'runtime log',
+            'app/admin/service/backup.dump': 'full dump',
+            'app/admin/service/internal/data/testdata/backup.dump': 'database dump',
+            'app/admin/service/internal/data/fixture.go': 'package data\nfunc (r *Repo) OpenForTest() {}\n',
+        }
+        for bad_path, contents in cases.items():
+            with self.subTest(path=bad_path), tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                subprocess.run(['git', 'init', '-q', str(root)], check=True)
+                good = {
+                    'app/admin/service/cmd/server/main.go': 'package main\n',
+                    'app/admin/service/internal/data/repo_test.go': 'package data\nfunc TestRepoForTest() {}\n',
+                    'app/admin/service/tests/testutil/client.go': 'package testutil\nimport "testing"\n',
+                    'app/admin/service/internal/data/ent/enttest/enttest.go': 'package enttest\nimport "testing"\n',
+                    'app/admin/service/internal/data/testdata/fixture.log': 'small fixture\n',
+                    'app/admin/service/internal/data/testdata/fixture.json': '{}\n',
+                    'app/admin/service/internal/data/testdata/fixture.sql': 'SELECT 1;\n',
+                }
+                for path, text in good.items():
+                    target = root / path
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_text(text)
+                subprocess.run(['git', '-C', str(root), 'add', '-f', '.'], check=True)
+                deps = root / 'deps.json'
+                deps.write_text(''.join(json.dumps(item) + '\n' for item in good_deps))
+                def check():
+                    return subprocess.run(['python3', str(script), '--repo', str(root), '--deps-json', str(deps)], capture_output=True)
+                accepted = check()
+                self.assertEqual(accepted.returncode, 0, accepted.stderr)
+                target = root / bad_path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(contents)
+                subprocess.run(['git', '-C', str(root), 'add', '-f', bad_path], check=True)
+                rejected = check()
+                self.assertNotEqual(rejected.returncode, 0)
+                self.assertIn(bad_path.encode(), rejected.stderr)
+
     def test_layout_rejects_retired_path_and_formal_test_dependency(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

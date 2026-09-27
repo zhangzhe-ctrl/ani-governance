@@ -5,6 +5,11 @@ engine=${ANI_CONTAINER_CLI:-docker}
 image=${ANI_TEST_REDIS_IMAGE:-redis:7.4.6}
 state=${ANI_TEST_REDIS_STATE_DIR:-}
 die() { echo "with-redis: $*" >&2; exit 1; }
+record_resource() {
+  if test -n "${ANI_CI_RESOURCE_LOG:-}"; then
+    printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$ANI_CI_RESOURCE_LOG"
+  fi
+}
 
 owned() {
   test -n "$state" && test -f "$state/id" && test -f "$state/owner" || return 1
@@ -27,6 +32,7 @@ start() {
     -p 127.0.0.1::6379 "$image" --save '' --appendonly no --shutdown-timeout 5) || die 'container start failed'
   printf '%s\n' "$id" > "$state/id"
   owned || die 'new container ownership mismatch'
+  record_resource "redis start id=$id label=ani-governance-run=$owner image=$image"
   address=$($engine port "$id" 6379/tcp | head -1)
   case "$address" in 127.0.0.1:*) ;; *) die "non-loopback mapping: $address";; esac
   printf 'redis://%s/0\n' "$address" > "$state/uri"
@@ -39,11 +45,17 @@ start() {
 
 stop() {
   owned || die 'refusing to remove container without matching run label'
-  local id
+  local id owner
   id=$(cat "$state/id")
-  $engine rm -f "$id" >/dev/null || die 'container cleanup failed'
+  owner=$(cat "$state/owner")
+  record_resource "redis cleanup_requested id=$id label=ani-governance-run=$owner"
+  if ! $engine rm -f "$id" >/dev/null; then
+    record_resource "redis cleanup_rc=1 id=$id label=ani-governance-run=$owner"
+    die 'container cleanup failed'
+  fi
   rm "$state/id" "$state/owner" "$state/name" "$state/uri"
   rmdir "$state"
+  record_resource "redis cleanup_rc=0 id=$id label=ani-governance-run=$owner"
 }
 
 uri() { owned || die 'missing or foreign run container'; cat "$state/uri"; }
@@ -70,6 +82,7 @@ case "${1:-}" in
       elif test -d "$state" && test ! -e "$state/id"; then
         rm -f "$state/owner" "$state/name" "$state/uri"
         rmdir "$state" || cleanup_rc=$?
+        record_resource "redis empty_state_cleanup_rc=$cleanup_rc state=$state"
       fi
       if test "$cleanup_rc" -ne 0; then echo 'with-redis: owned container cleanup failed' >&2; fi
       if test "$command_rc" -ne 0; then exit "$command_rc"; fi
