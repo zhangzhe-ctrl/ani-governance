@@ -32,7 +32,6 @@ type QuotaDispatchWorker struct {
 	done   chan struct{}
 	stopMu sync.Mutex
 	cancel context.CancelFunc
-
 }
 
 // 固定退避 1/2/4/8/16/30 秒（§8.2）。
