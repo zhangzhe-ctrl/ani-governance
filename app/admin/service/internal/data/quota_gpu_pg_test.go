@@ -59,7 +59,7 @@ func TestQuotaGpuProductionEntComposition(t *testing.T) {
 			tid, _ := seedTenantPlan(t, client, "ent-production", 10)
 			events := make([]audit.AuditEvent, 0)
 			accCtx := context.WithValue(context.Background(), audit.AccumulatorKey(), &events)
-			accepted, e := r.Occupy(accCtx, occupyInput(tid, "actor", uuid.NewString(), 2))
+			accepted, e := r.Occupy(accCtx, occupyInput(client, tid, "actor", uuid.NewString(), 2))
 			require.NoError(t, e)
 			require.NotEmpty(t, events)
 			reads, writes := 0, 0
@@ -118,7 +118,7 @@ func gpuLedgerInput(t *testing.T, c *ent.Client, tid, pid uint32) *QuotaOccupyIn
 	for _, code := range []string{"gpu.physical.count", "storage.bytes"} {
 		require.NoError(t, c.PlanQuota.Create().SetPlanID(pid).SetQuotaCode(code).SetQuotaValue(100).Exec(ctx))
 	}
-	in := occupyInput(tid, "actor", uuid.NewString(), 2)
+	in := occupyInputForResourceTenant(tid, c.Tenant.GetX(ctx, tid).ResourceTenantID, "actor", uuid.NewString(), 2)
 	in.OwnerService = "ani-inference"
 	in.Action = "GPU_CREATE"
 	in.Items = []QuotaOccupyItem{{"gpu.physical.count", 2}, {"storage.bytes", 10}}

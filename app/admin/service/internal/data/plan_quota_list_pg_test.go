@@ -18,6 +18,7 @@ import (
 
 func TestPlanQuotaPostgresListCompatibility(t *testing.T) {
 	c := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, c)
 	r := newPlanQuotaRepoPostgres(t, c)
 	ctx := testutil.NewSystemViewerCtx(context.Background())
 	p, e := c.Client().Plan.Create().SetName("paging-fixture").Save(ctx)

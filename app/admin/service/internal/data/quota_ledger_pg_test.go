@@ -21,7 +21,6 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib" // database/sql pgx 驱动
 
 	"github.com/stretchr/testify/require"
-	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -38,6 +37,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/quotadefinition"
 	"go-wind-admin/app/admin/service/internal/data/ent/quotaoperation"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 )
 
@@ -82,8 +82,6 @@ func cleanLedger(t *testing.T, c *entCrud.EntClient[*ent.Client]) {
 }
 
 // seedTenantPlan 创建租户与套餐并设置 gpu.count 政策，返回 (tenantID, planID)。
-var quotaTestTenantMappings sync.Map
-
 func seedTenantPlan(t *testing.T, c *entCrud.EntClient[*ent.Client], name string, gpuLimit uint64) (uint32, uint32) {
 	t.Helper()
 	ctx := appViewer.NewSystemViewerContext(context.Background())
@@ -100,30 +98,11 @@ func seedTenantPlan(t *testing.T, c *entCrud.EntClient[*ent.Client], name string
 		SetQuotaCode(QuotaCodeGpuCount).
 		SetQuotaValue(gpuLimit).
 		Exec(ctx))
-	quotaTestTenantMappings.Store(tn.ID, tn.ResourceTenantID)
 	return tn.ID, plan.ID
 }
 
 func newTenantRepoForLedgerTest(c *entCrud.EntClient[*ent.Client]) *TenantRepo {
-	repo := &TenantRepo{
-		entClient: c,
-		log:       bLogger.NewHelper(bLogger.NopLogger()),
-		mapper:    mapper.NewCopierMapper[identityV1.Tenant, ent.Tenant](),
-		statusConverter: mapper.NewEnumTypeConverter[identityV1.Tenant_Status, tenant.Status](
-			identityV1.Tenant_Status_name,
-			identityV1.Tenant_Status_value,
-		),
-		typeConverter: mapper.NewEnumTypeConverter[identityV1.Tenant_Type, tenant.Type](
-			identityV1.Tenant_Type_name,
-			identityV1.Tenant_Type_value,
-		),
-		auditStatusConverter: mapper.NewEnumTypeConverter[identityV1.Tenant_AuditStatus, tenant.AuditStatus](
-			identityV1.Tenant_AuditStatus_name,
-			identityV1.Tenant_AuditStatus_value,
-		),
-	}
-	repo.init()
-	return repo
+	return NewTenantRepo(testutil.NewBootstrapContext(nil), c)
 }
 
 func testLogger() *bLogger.Helper {
@@ -144,18 +123,15 @@ func deleteTenantReq(tenantId uint32) *identityV1.DeleteTenantRequest {
 	}
 }
 
-func testResourceTenantID(id uint32) string {
-	v, _ := quotaTestTenantMappings.Load(id)
-	if v == nil {
-		return "11111111-1111-4111-8111-111111111111"
-	}
-	return v.(string)
+func occupyInput(c *entCrud.EntClient[*ent.Client], tenantId uint32, actor string, key string, units int64) *QuotaOccupyInput {
+	resourceTenantID := c.Client().Tenant.GetX(appViewer.NewSystemViewerContext(context.Background()), tenantId).ResourceTenantID
+	return occupyInputForResourceTenant(tenantId, resourceTenantID, actor, key, units)
 }
 
-func occupyInput(tenantId uint32, actor string, key string, units int64) *QuotaOccupyInput {
+func occupyInputForResourceTenant(tenantId uint32, resourceTenantID, actor, key string, units int64) *QuotaOccupyInput {
 	return &QuotaOccupyInput{
 		TenantID:         tenantId,
-		ResourceTenantID: testResourceTenantID(tenantId),
+		ResourceTenantID: resourceTenantID,
 		ResourceID:       "22222222-2222-4222-8222-" + fmt.Sprintf("%012d", time.Now().UnixNano()%1_000_000_000_000)[:12],
 		ActorType:        "user",
 		ActorID:          actor,
@@ -169,7 +145,7 @@ func occupyInput(tenantId uint32, actor string, key string, units int64) *QuotaO
 }
 
 func newTestRepo(c *entCrud.EntClient[*ent.Client]) *QuotaLedgerRepo {
-	return &QuotaLedgerRepo{entClient: c, log: testLogger()}
+	return NewQuotaLedgerRepo(testutil.NewBootstrapContext(nil), c)
 }
 
 // tenantIDEQ / planquota 直接引用生成的谓词，避免多余封装。
@@ -214,33 +190,33 @@ func TestQuotaPostgresOccupyBasics(t *testing.T) {
 	repo := newTestRepo(c)
 	tenantId, _ := seedTenantPlan(t, c, "pg_occupy_basics", 8)
 
-	res, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7", "10000000-0000-4000-8000-000000000001", 2))
+	res, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "10000000-0000-4000-8000-000000000001", 2))
 	require.NoError(t, err)
 	require.False(t, res.Replayed)
 	require.Len(t, res.ChargeIDs, 1)
 	require.Equal(t, int64(2), accountOccupied(t, c, tenantId, QuotaCodeGpuCount))
 
 	// 同 key 同内容：重放，不重复扣额。
-	replay, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7", "10000000-0000-4000-8000-000000000001", 2))
+	replay, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "10000000-0000-4000-8000-000000000001", 2))
 	require.NoError(t, err)
 	require.True(t, replay.Replayed)
 	require.Equal(t, res.OperationID, replay.OperationID)
 	require.Equal(t, int64(2), accountOccupied(t, c, tenantId, QuotaCodeGpuCount))
 
 	// 同 key 不同内容（规范请求哈希不同）：409 IDEMPOTENCY_CONFLICT。
-	conflict := occupyInput(tenantId, "7", "10000000-0000-4000-8000-000000000001", 3)
+	conflict := occupyInput(c, tenantId, "7", "10000000-0000-4000-8000-000000000001", 3)
 	conflict.RequestHash = "hash-other-content"
 	_, err = repo.Occupy(context.Background(), conflict)
 	require.Error(t, err)
 	require.Equal(t, "IDEMPOTENCY_CONFLICT", codeOf(t, err))
 
 	// 额度不足：409。
-	_, err = repo.Occupy(context.Background(), occupyInput(tenantId, "7", "10000000-0000-4000-8000-000000000002", 7))
+	_, err = repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "10000000-0000-4000-8000-000000000002", 7))
 	require.Error(t, err)
 	require.Equal(t, "QUOTA_EXCEEDED", codeOf(t, err))
 
 	// 政策缺失：403 QUOTA_NOT_CONFIGURED（另一租户未配 quota）。
-	other := occupyInput(tenantId, "7", "10000000-0000-4000-8000-000000000003", 1)
+	other := occupyInput(c, tenantId, "7", "10000000-0000-4000-8000-000000000003", 1)
 	other.Items[0].QuotaCode = "storage.bytes"
 	_, err = repo.Occupy(context.Background(), other)
 	require.Error(t, err)
@@ -263,7 +239,7 @@ func TestQuotaPostgresConcurrentLimit(t *testing.T) {
 		go func(n int) {
 			defer wg.Done()
 			key := fmt.Sprintf("30000000-0000-4000-8000-%012d", n)
-			in := occupyInput(tenantId, fmt.Sprintf("%d", 100+n), key, 1)
+			in := occupyInput(c, tenantId, fmt.Sprintf("%d", 100+n), key, 1)
 			in.ResourceID = fmt.Sprintf("40000000-0000-4000-8000-%012d", n)
 			_, err := repo.Occupy(context.Background(), in)
 			mu.Lock()
@@ -291,7 +267,7 @@ func TestQuotaPostgresReleaseCumulative(t *testing.T) {
 	repo := newTestRepo(c)
 	tenantId, _ := seedTenantPlan(t, c, "pg_release", 8)
 
-	res, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7", "50000000-0000-4000-8000-000000000001", 2))
+	res, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "50000000-0000-4000-8000-000000000001", 2))
 	require.NoError(t, err)
 	charge := chargeOf(t, c, res.OperationID)
 
@@ -338,7 +314,7 @@ func TestQuotaPostgresCancelUnsent(t *testing.T) {
 	repo := newTestRepo(c)
 	tenantId, _ := seedTenantPlan(t, c, "pg_cancel", 8)
 
-	res, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7", "70000000-0000-4000-8000-000000000001", 2))
+	res, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "70000000-0000-4000-8000-000000000001", 2))
 	require.NoError(t, err)
 	require.Equal(t, int64(2), accountOccupied(t, c, tenantId, QuotaCodeGpuCount))
 
@@ -351,7 +327,7 @@ func TestQuotaPostgresCancelUnsent(t *testing.T) {
 	require.Equal(t, quotaoperation.DispatchStateCanceledUnsent, op.DispatchState)
 
 	// 已尝试发送（DISPATCHING + attempt=1）后：撤销拒绝。
-	res2, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7", "70000000-0000-4000-8000-000000000002", 1))
+	res2, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "70000000-0000-4000-8000-000000000002", 1))
 	require.NoError(t, err)
 	_, err = c.Client().QuotaOperation.Update().Where(quotaoperation.OperationIDEQ(res2.OperationID)).
 		SetDispatchState(quotaoperation.DispatchStateDispatching).
@@ -370,7 +346,7 @@ func TestQuotaPostgresCompositeFK(t *testing.T) {
 	tenantA, _ := seedTenantPlan(t, c, "pg_fk_a", 8)
 	tenantB, _ := seedTenantPlan(t, c, "pg_fk_b", 8)
 
-	resA, err := repo.Occupy(context.Background(), occupyInput(tenantA, "7", "80000000-0000-4000-8000-000000000001", 1))
+	resA, err := repo.Occupy(context.Background(), occupyInput(c, tenantA, "7", "80000000-0000-4000-8000-000000000001", 1))
 	require.NoError(t, err)
 
 	// 用 tenant B 的身份插入指向 A 操作的 charge：复合 FK (tenant_id, operation_id) 拒绝。
@@ -394,7 +370,7 @@ func TestQuotaPostgresTenantDeleteProtection(t *testing.T) {
 	repo := newTestRepo(c)
 	tenantId, _ := seedTenantPlan(t, c, "pg_del_protect", 8)
 
-	_, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7", "90000000-0000-4000-8000-000000000001", 1))
+	_, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "90000000-0000-4000-8000-000000000001", 1))
 	require.NoError(t, err)
 
 	tenantRepo := newTenantRepoForLedgerTest(c)
@@ -413,7 +389,7 @@ func TestQuotaPostgresInvariants(t *testing.T) {
 	repo := newTestRepo(c)
 	tenantId, _ := seedTenantPlan(t, c, "pg_invariant", 8)
 
-	res, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7", "a0000000-0000-4000-8000-000000000001", 3))
+	res, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "a0000000-0000-4000-8000-000000000001", 3))
 	require.NoError(t, err)
 	charge := chargeOf(t, c, res.OperationID)
 	_, err = repo.Release(context.Background(), releaseInput(res.OperationID, charge.ChargeID, "b0000000-0000-4000-8000-000000000001", QuotaCodeOwnerLab, 1))
@@ -439,7 +415,7 @@ func TestQuotaPostgresExpiredTenant(t *testing.T) {
 	_, err := c.Client().Tenant.Update().Where(tenant.IDEQ(tenantId)).SetNillableExpiredAt(&past).Save(ctx)
 	require.NoError(t, err)
 
-	_, err = repo.Occupy(context.Background(), occupyInput(tenantId, "7", "c0000000-0000-4000-8000-000000000001", 1))
+	_, err = repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "c0000000-0000-4000-8000-000000000001", 1))
 	require.Error(t, err)
 	require.Equal(t, "QUOTA_ADMISSION_DENIED", codeOf(t, err))
 }
@@ -479,7 +455,7 @@ func TestQuotaPostgresMultiVector(t *testing.T) {
 	require.NoError(t, c.Client().PlanQuota.Create().SetPlanID(planId).
 		SetQuotaCode(QuotaCodeStorage).SetQuotaValue(1).Exec(ctx))
 
-	in := occupyInput(tenantId, "7", "d1000000-0000-4000-8000-000000000001", 1)
+	in := occupyInput(c, tenantId, "7", "d1000000-0000-4000-8000-000000000001", 1)
 	in.Items = append(in.Items, QuotaOccupyItem{QuotaCode: QuotaCodeStorage, Units: 5})
 	_, err := repo.Occupy(context.Background(), in)
 	require.Error(t, err)
@@ -513,7 +489,7 @@ func TestQuotaPostgresTwoInstances(t *testing.T) {
 		wg.Add(1)
 		go func(n int) {
 			defer wg.Done()
-			in := occupyInput(tenantId, fmt.Sprintf("%d", 200+n), fmt.Sprintf("e1000000-0000-4000-8000-%012d", n), 1)
+			in := occupyInput(c, tenantId, fmt.Sprintf("%d", 200+n), fmt.Sprintf("e1000000-0000-4000-8000-%012d", n), 1)
 			in.ResourceID = fmt.Sprintf("f1000000-0000-4000-8000-%012d", n)
 			var r *QuotaOccupyResult
 			var err error
@@ -543,7 +519,7 @@ func TestQuotaPostgresReleaseBeforeAck(t *testing.T) {
 	repo := newTestRepo(c)
 	tenantId, _ := seedTenantPlan(t, c, "pg_release_before_ack", 8)
 
-	res, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7", "d2000000-0000-4000-8000-000000000001", 2))
+	res, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "d2000000-0000-4000-8000-000000000001", 2))
 	require.NoError(t, err)
 	charge := chargeOf(t, c, res.OperationID)
 
@@ -576,7 +552,7 @@ func TestQuotaPostgresCancelClaimRace(t *testing.T) {
 	tenantId, _ := seedTenantPlan(t, c, "pg_cancel_claim_race", 8)
 
 	for i := 0; i < 10; i++ {
-		res, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7",
+		res, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7",
 			fmt.Sprintf("d4%08d-0000-4000-8000-000000000001", i), 1))
 		require.NoError(t, err)
 
@@ -630,7 +606,7 @@ func TestQuotaPostgresLeaseGenerationGuard(t *testing.T) {
 	repo := newTestRepo(c)
 	tenantId, _ := seedTenantPlan(t, c, "pg_lease_gen", 8)
 
-	res, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7", "d5000000-0000-4000-8000-000000000001", 1))
+	res, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "d5000000-0000-4000-8000-000000000001", 1))
 	require.NoError(t, err)
 
 	// worker A 领取（generation 1）。
@@ -681,14 +657,13 @@ func TestQuotaPostgresStorageUnavailable(t *testing.T) {
 	deadDSN := "postgres://postgres@127.0.0.1:1/dead?sslmode=disable&connect_timeout=1"
 	db, err := sql.Open("pgx", deadDSN)
 	require.NoError(t, err)
-	defer func() { _ = db.Close() }()
 	drv := entsql.OpenDB("postgres", db)
-	defer func() { drv.Close() }()
 	client := ent.NewClient(ent.Driver(drv))
+	t.Cleanup(func() { _ = client.Close() })
 	ec := entCrud.NewEntClient(client, drv)
-	repo := &QuotaLedgerRepo{entClient: ec, log: testLogger()}
+	repo := NewQuotaLedgerRepo(testutil.NewBootstrapContext(nil), ec)
 
-	_, err = repo.Occupy(context.Background(), occupyInput(1, "7", "d6000000-0000-4000-8000-000000000001", 1))
+	_, err = repo.Occupy(context.Background(), occupyInputForResourceTenant(1, "11111111-1111-4111-8111-111111111111", "7", "d6000000-0000-4000-8000-000000000001", 1))
 	require.Error(t, err)
 	require.Equal(t, "QUOTA_STORAGE_UNAVAILABLE", codeOf(t, err))
 }
@@ -714,7 +689,7 @@ func TestQuotaPostgresSyntheticItem(t *testing.T) {
 	require.NoError(t, c.Client().PlanQuota.Create().SetPlanID(planId).
 		SetQuotaCode("test.synthetic").SetQuotaValue(2).Exec(ctx))
 
-	in := occupyInput(tenantId, "7", "d7000000-0000-4000-8000-000000000001", 1)
+	in := occupyInput(c, tenantId, "7", "d7000000-0000-4000-8000-000000000001", 1)
 	in.Items = []QuotaOccupyItem{
 		{QuotaCode: QuotaCodeGpuCount, Units: 1},
 		{QuotaCode: "test.synthetic", Units: 2},
@@ -747,7 +722,7 @@ func TestQuotaPostgresPolicyChanges(t *testing.T) {
 
 	// 占 6。
 	for i := 0; i < 6; i++ {
-		in := occupyInput(tenantId, "7", fmt.Sprintf("d9%08d-0000-4000-8000-000000000001", i), 1)
+		in := occupyInput(c, tenantId, "7", fmt.Sprintf("d9%08d-0000-4000-8000-000000000001", i), 1)
 		in.ResourceID = fmt.Sprintf("da%08d-0000-4000-8000-000000000001", i)
 		_, err := repo.Occupy(context.Background(), in)
 		require.NoError(t, err)
@@ -764,7 +739,7 @@ func TestQuotaPostgresPolicyChanges(t *testing.T) {
 	}
 	err = setLimit(4)
 	require.NoError(t, err)
-	_, err = repo.Occupy(context.Background(), occupyInput(tenantId, "7",
+	_, err = repo.Occupy(context.Background(), occupyInput(c, tenantId, "7",
 		"db000000-0000-4000-8000-000000000001", 1))
 	require.Error(t, err)
 	require.Equal(t, "QUOTA_EXCEEDED", codeOf(t, err))
@@ -799,7 +774,7 @@ func TestQuotaPostgresPolicyChanges(t *testing.T) {
 		wg.Add(1)
 		go func(n int) {
 			defer wg.Done()
-			in := occupyInput(tenantId, fmt.Sprintf("%d", 300+n), fmt.Sprintf("dc%08d-0000-4000-8000-000000000001", n), 1)
+			in := occupyInput(c, tenantId, fmt.Sprintf("%d", 300+n), fmt.Sprintf("dc%08d-0000-4000-8000-000000000001", n), 1)
 			in.ResourceID = fmt.Sprintf("dd%08d-0000-4000-8000-000000000001", n)
 			_, _ = repo.Occupy(context.Background(), in)
 		}(i)
@@ -823,7 +798,7 @@ func TestQuotaPostgresPolicyChanges(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, occ, accountOccupied(t, c, tenantId, QuotaCodeGpuCount), "switch plan must not clear balance")
 	// occupied 6 > 新限 2：拒绝新增（over-limit 状态下 available=0）。
-	_, err = repo.Occupy(context.Background(), occupyInput(tenantId, "7",
+	_, err = repo.Occupy(context.Background(), occupyInput(c, tenantId, "7",
 		"de000000-0000-4000-8000-000000000001", 1))
 	require.Error(t, err)
 	require.Equal(t, "QUOTA_EXCEEDED", codeOf(t, err))
@@ -832,7 +807,7 @@ func TestQuotaPostgresPolicyChanges(t *testing.T) {
 	_, err = c.Client().PlanQuota.Delete().Where(
 		planquota.HasPlanWith(plan.IDEQ(newPlan.ID)), planquota.QuotaCodeEQ(QuotaCodeGpuCount)).Exec(ctx)
 	require.NoError(t, err)
-	_, err = repo.Occupy(context.Background(), occupyInput(tenantId, "7",
+	_, err = repo.Occupy(context.Background(), occupyInput(c, tenantId, "7",
 		"df000000-0000-4000-8000-000000000001", 1))
 	require.Error(t, err)
 	require.Equal(t, "QUOTA_NOT_CONFIGURED", codeOf(t, err))
@@ -845,7 +820,7 @@ func TestQuotaPostgresReleaseAfterExpiry(t *testing.T) {
 	repo := newTestRepo(c)
 	tenantId, _ := seedTenantPlan(t, c, "pg_release_expired", 8)
 
-	res, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7", "e0000000-0000-4000-8000-000000000001", 2))
+	res, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "e0000000-0000-4000-8000-000000000001", 2))
 	require.NoError(t, err)
 	charge := chargeOf(t, c, res.OperationID)
 
@@ -856,7 +831,7 @@ func TestQuotaPostgresReleaseAfterExpiry(t *testing.T) {
 	require.NoError(t, err)
 
 	// 新占额被拒（到期）。
-	_, err = repo.Occupy(context.Background(), occupyInput(tenantId, "7", "e1000000-0000-4000-8000-000000000001", 1))
+	_, err = repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "e1000000-0000-4000-8000-000000000001", 1))
 	require.Equal(t, "QUOTA_ADMISSION_DENIED", codeOf(t, err))
 
 	// 但内部退额不受到期阻断。
@@ -873,7 +848,7 @@ func TestQuotaPostgresZeroLimit(t *testing.T) {
 	repo := newTestRepo(c)
 	tenantId, planId := seedTenantPlan(t, c, "pg_zero_limit", 0)
 
-	_, err := repo.Occupy(context.Background(), occupyInput(tenantId, "7", "e3000000-0000-4000-8000-000000000001", 1))
+	_, err := repo.Occupy(context.Background(), occupyInput(c, tenantId, "7", "e3000000-0000-4000-8000-000000000001", 1))
 	require.Error(t, err)
 	require.Equal(t, "QUOTA_EXCEEDED", codeOf(t, err))
 	_ = planId

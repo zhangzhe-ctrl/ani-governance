@@ -19,24 +19,33 @@ import (
 //go:embed testdata/quota_cleanup.sql
 var quotaCleanup string
 
-// NewQuotaPGClient requires an explicitly migrated, task-isolated PostgreSQL
-// database. The caller must serialize suites that share that database. This
-// helper never creates schema or uses elevated connection credentials.
+// NewQuotaPGClient connects to an explicitly migrated, task-isolated PostgreSQL
+// database. It never mutates data or schema. The caller owns fixture reset.
 func NewQuotaPGClient(t *testing.T) *entCrud.EntClient[*ent.Client] {
 	t.Helper()
 	dsn := os.Getenv("QUOTA_LAB_PG_DSN")
 	if dsn == "" {
 		t.Fatal("QUOTA_LAB_PG_DSN is required")
 	}
+	if os.Getenv("QUOTA_PG_EXCLUSIVE") != "1" {
+		t.Fatal("QUOTA_PG_EXCLUSIVE=1 is required for selected quota_pg tests")
+	}
 	db, e := sql.Open("pgx", dsn)
 	require.NoError(t, e)
-	_, e = db.ExecContext(context.Background(), quotaCleanup)
-	if e != nil {
-		_ = db.Close()
-		t.Fatalf("reset isolated quota fixture: %v", e)
-	}
 	drv := entsql.OpenDB("postgres", db)
 	client := ent.NewClient(ent.Driver(drv))
 	t.Cleanup(func() { _ = client.Close() })
+	require.NoError(t, db.PingContext(context.Background()))
 	return entCrud.NewEntClient(client, drv)
+}
+
+// ResetQuotaFixture clears only a database whose exclusive ownership has been
+// asserted by the test runner. Callers choose when to reset their fixture.
+func ResetQuotaFixture(t *testing.T, client *entCrud.EntClient[*ent.Client]) {
+	t.Helper()
+	if os.Getenv("QUOTA_PG_EXCLUSIVE") != "1" {
+		t.Fatal("quota fixture reset requires QUOTA_PG_EXCLUSIVE=1")
+	}
+	_, err := client.DB().ExecContext(context.Background(), quotaCleanup)
+	require.NoError(t, err)
 }

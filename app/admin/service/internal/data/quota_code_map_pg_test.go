@@ -22,6 +22,7 @@ import (
 // 只传 code / 只传旧枚举 / 冲突拒绝 / gpu.count 读取旧枚举为 nil。
 func TestPlanQuotaRepoPostgres_QuotaCodeCompat(t *testing.T) {
 	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := testutil.NewSystemViewerCtx(context.Background())
 
@@ -118,6 +119,7 @@ func TestPlanQuotaRepoPostgres_QuotaCodeCompat(t *testing.T) {
 // TestPlanQuotaRepoPostgres_DuplicateCodeRejected 同套餐同 code 唯一约束（CFG-04 的 repo 侧）。
 func TestPlanQuotaRepoPostgres_DuplicateCodeRejected(t *testing.T) {
 	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := testutil.NewSystemViewerCtx(context.Background())
 

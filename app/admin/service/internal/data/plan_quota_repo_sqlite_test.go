@@ -44,6 +44,7 @@ func newPlanQuotaRepoPostgres(t *testing.T, entClient *entCrud.EntClient[*ent.Cl
 // 历史上这里条件写反导致 plan_id 落库为 NULL，本用例为其回归测试。
 func TestPlanQuotaRepoPostgres_Create(t *testing.T) {
 	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := testutil.NewSystemViewerCtx(context.Background())
 
@@ -81,6 +82,7 @@ func TestPlanQuotaRepoPostgres_Create(t *testing.T) {
 // 列表路径上 PlanId 从父套餐边正确回填。
 func TestPlanQuotaRepoPostgres_ListFilter(t *testing.T) {
 	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := testutil.NewSystemViewerCtx(context.Background())
 
@@ -142,6 +144,7 @@ func TestPlanQuotaRepoPostgres_ListFilter(t *testing.T) {
 // TestPlanQuotaRepoPostgres_Get 验证 Get 命中/未命中。
 func TestPlanQuotaRepoPostgres_Get(t *testing.T) {
 	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := testutil.NewSystemViewerCtx(context.Background())
 
@@ -186,6 +189,7 @@ func TestPlanQuotaRepoPostgres_Get(t *testing.T) {
 // ValueType 系校验失败（写路径无零值守卫），故只覆盖 3 个合法值。
 func TestPlanQuotaRepoPostgres_QuotaTypeReadView(t *testing.T) {
 	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := testutil.NewSystemViewerCtx(context.Background())
 
@@ -246,6 +250,7 @@ func TestPlanQuotaRepoPostgres_QuotaTypeReadView(t *testing.T) {
 // quota_type 与父套餐外键不受影响。
 func TestPlanQuotaRepoPostgres_Update(t *testing.T) {
 	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := testutil.NewSystemViewerCtx(context.Background())
 
@@ -292,6 +297,7 @@ func TestPlanQuotaRepoPostgres_Update(t *testing.T) {
 // TestPlanQuotaRepoPostgres_Delete 验证 Delete 后行数归零。
 func TestPlanQuotaRepoPostgres_Delete(t *testing.T) {
 	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	repo := newPlanQuotaRepoPostgres(t, entClient)
 	ctx := testutil.NewSystemViewerCtx(context.Background())
 
