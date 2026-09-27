@@ -1,0 +1,257 @@
+# ANI Governance 本仓开发指南
+
+本指南描述“仓库入口整理”PR 的目标实现。工具和业务基线为 `main@9ba13ad933b66e8f675f7eb9519123abcdb12e8f`；命令接线与文档在同一 PR 中更新，实际执行证明见该 PR，不因文档写了命令就视为全部环境均已验证。
+
+## 1. 仓库身份与工作范围
+
+ANI Governance 是 ANI 的治理后端。当前仓库只包含后端；业务服务、仓储、传输装配与开发工具都在同一个根 Go 模块下维护。
+
+- 仓库显示名称与服务身份使用 ANI Governance／`ani-governance`。
+- **Go 模块名暂时仍为 `go-wind-admin`**，所有现行本仓 import、`go_package`、生成映射及工具身份预期保持一致。最终迁出域名确定后，模块路径重命名单独提 PR。
+- 源码接管后的日常维护对象是本仓实现，不从原项目更新说明推导当前功能，也不直接安装上游 gow／redact 来替换本仓工具。
+- 来源与许可集中见 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)。源码归档、原许可、历史日志不属于品牌清理目标。
+- 代码存在、构建成功、单项测试通过、服务部署成功是不同结论。没有执行的环节不能记为通过。
+
+本仓已记录 Model 接入暂摘。保留的 Model Proto 模板、lab 或 SQL 不因此变成当前可运行功能；接入状态以真实装配与当前专项记录为准，不只依赖旧教程。
+
+## 2. 从哪里开始阅读
+
+| 位置 | 职责／修改规则 |
+|---|---|
+| `api/protos/` | 手写业务与 admin BFF Proto；消息、RPC 和 HTTP 合同的输入 |
+| `api/localdeps/` | 已接管分页、脱敏、bootstrap 等 Proto 的输入 |
+| `api/gen/go/` | API 生成输出，不手改实现 |
+| `app/admin/service/cmd/server/` | 服务入口与手写装配，重点读 `wiring_ent.go` |
+| `app/admin/service/cmd/admin/` | 显式初始化、检查与 API 目录同步 CLI |
+| `app/admin/service/internal/server/` | HTTP、Asynq、SSE 等传输装配 |
+| `app/admin/service/internal/service/` | 业务服务／治理侧入站处理 |
+| `app/admin/service/internal/data/` | 仓储、下游客户端与数据访问 |
+| `app/admin/service/internal/data/ent/schema/` | 可编辑的 Ent schema 输入 |
+| `app/admin/service/internal/data/ent/` | 同时含生成代码与手写守卫、测试，不能整目录覆盖或当成纯生成目录删除 |
+| `app/admin/service/configs/` | 配置结构样例，不是生产参数与凭据交付物 |
+| `pkg/` | 本仓公共实现；`pkg/localdeps/` 是已接管运行库及 redact 源码 |
+| `tools/localdeps/gow/` | 本仓支持的开发命令源码 |
+| `tools/register/` | 标准 CRUD 装配登记工具 |
+| `migrations/` | 数据库结构迁移及 `atlas.sum`；注意有复数 `s` |
+| `sql/bootstrap/` | 显式首次初始化的数据来源 |
+| `scripts/` | 生成、验证、部署及运维入口；先读脚本范围 |
+| `migration/` | 源码接管记录、测试清单和部分仍活跃的工具配置；不是数据库迁移 |
+| `third_party/tx7do/` | 锁定来源归档和校验资料，不是运行库，也不是全项目离线包 |
+| `docs/contracts/` | 业务合同；具体专题同时查现有部署、接入和接口登记文档 |
+
+阅读业务链时沿用现有单向装配：基础设施 → Repository → 认证授权 → Service → Server。`wiring_ent.go` 负责构造和传参，不放业务规则。资源创建成功后登记 cleanup，失败与退出逆序释放。
+
+## 3. 工具与环境准备
+
+### 3.1 当前基线
+
+Go 版本由根 `go.mod` 定义，当前为 **1.26.7**。API 工具版本由根 Makefile、各活跃 Buf 模板和 `migration/patches/T15/T15-tool-lock.json` 共同限定；不同切片存在已批准的不同插件版本，不要自行“统一到最新版”。
+
+`gow` 的来源版本为 `gowind@v1.0.3`，但当前工具包含本仓适配，**这不是安装上游 v1.0.3 二进制的指令**。必须使用当前 checkout 构建的 `tools/bin/gow`。
+
+常规开发需要 Go、Git、Make、Bash、Python 3；API 生成需要锁定的 Buf／插件。`make tools-integration` 另需原生 `protoc`，已记录基准为 29.3。PostgreSQL 与 Redis 按运行或测试场景准备；当前 CI 使用 PostgreSQL 16.10。Atlas 是显式数据库迁移工具，不内置于服务运行镜像。
+
+### 3.2 本仓工具准备
+
+以下命令从仓库根目录执行。它们会下载并构建开发工具，不会初始化业务库；受控环境仍需事先具备网络和安装授权。
+
+```bash
+# 以下仅修改当前 shell，不写全局 go env。
+export GOWORK=off
+export GOBIN="$PWD/tools/bin"
+export PATH="$GOBIN:$PATH"
+# 已有 GOFLAGS 时，保留需要的参数并将模块写入模式明确改为 -mod=readonly。
+export GOFLAGS="${GOFLAGS:-} -mod=readonly"
+
+go version
+make plugin cli gow
+```
+
+`make plugin` 安装 Makefile 固定版本的外部生成器，并从本仓构建 redact；`make cli` 安装其已明确版本的工具，未钉版的 kratos CLI 和 golangci-lint 仅输出说明，不保证 `make lint` 已可运行。原生 protoc 需要按锁定记录另行准备，不能因为有 Buf 就假定它已安装。
+
+本地 gow 的主要命令为 `api`、`ent`、`run`、`version`。不要照上游教程执行未接管的 `gow wire`、`project/new`、顶层 `generate`、`migrate` 等命令。
+
+**旧安装入口已退役：**`make install-dev`、`scripts/env/install_unix_dev.sh`、`scripts/env/install_windows_dev.ps1` 在副作用前明确失败；共享 PowerShell 库中的 `Install-GoPlugins` 和 `Install-GoCliTools` 也只返回退役错误。原脚本仍可从 Git 历史读取，不再复制为可执行的现行教程。生产/运维共享函数不属于本次退役范围，也不因此获得执行授权。
+
+需要配置依赖代理时只在当前环境设置，保留校验机制。旧文档针对某些领域模块记录过代理不可取的问题；不要把当时某个模块名或网络状态当成当前依赖清单，先读本次 `go.mod` 与实际解析结果。
+
+## 4. 日常修改、生成与构建
+
+### 4.1 只改普通 Go 代码
+
+先构建受影响包，再跑对应测试；不为普通业务改动自动执行全部生成器或 `go mod tidy`。
+
+```bash
+make build_only
+make build_admin
+# 示例：确实修改了 JWT 包时使用。
+go test -mod=readonly -count=1 ./pkg/jwt
+```
+
+根 `make build_only` 委托服务目录编译已有源码；`make build_admin` 构建根 `bin/admin`。不要假定两类构建产物落在同一个目录。
+
+### 4.2 修改 Proto／API
+
+```bash
+make api
+# 等效完整 API 入口；先用 make gow 构建当前源码版本。
+tools/bin/gow api
+```
+
+完整链校验工具身份和输入，在暂存副本生成并执行 OpenAPI 后处理，成功后才写回受管生成文件。工作区在生成期间被编辑时，冲突应保留用户内容并报告，而不是用 Git 恢复掉用户改动。
+
+`make pgv`、单模板 Buf 命令和切片脚本不是整仓完整链的替代品。不要在共享正式输出上随意运行裸 `buf generate`；旧 `scripts/post-generate-clean.sh` 已退役，不能再用“生成后回退或删文件”修正输出。
+
+独立更新 OpenAPI 的入口是 `make openapi`：它先重新生成原始文档，再执行后处理。完整 `make api`／`gow api` 已包含后处理，不再直接对最终 YAML 手动执行 `finalize-aksk-openapi.py` 第二次。
+
+### 4.3 修改 Ent schema
+
+```bash
+make gow
+tools/bin/gow ent admin
+(
+  cd app/admin/service
+  go run -mod=readonly ./cmd/schema > schema.sql
+)
+```
+
+当前 `gow ent admin` 生成 Ent；上面的 SQL 导出是独立步骤，不将“已生成 Ent”写成“已生成或应用数据库迁移”。五项 Ent feature 为 `privacy`、`entql`、`sql/modifier`、`sql/upsert`、`sql/lock`，与现有 schema 门禁保持一致。
+
+不得为品牌清理增加 `sql/versioned-migration`、恢复已移除框架，或把 schema 来源改成另一套实现。数据库结构变更仍走已审查的 Atlas 迁移流程。
+
+### 4.4 聚合 Make 入口的明确职责
+
+| 根目录命令 | 顺序与结果 |
+|---|---|
+| `make api` | 本地工具准备 → `gow api` 完整链，包含 OpenAPI 后处理 |
+| `make build_only` | 只委托每个服务的 `build_only`，不生成 |
+| `make build` | 完整 API 一次 → 每个服务只编译，不再进入服务旧生成前置 |
+| `make ent` | 服务 Ent 生成 → 当前 admin 的 `schema.sql` 导出，不应用数据库迁移 |
+| `make gen` | `make ent` 完成后再 `make api`，显式串行 |
+| `make all` | `make gen` 完成后再只编译 |
+| `make check-repo-entrypoints` | 安全临时命令桩验证委托、次数、错误传播和退役边界；不是实际生成 |
+
+服务目录仍可用 `make -C app/admin/service api`、`build`、`build_only`、`run`、`gen`、`app`。其中 API 和独立 OpenAPI 委托根入口；服务 `gen` 为该服务 Ent 后完整 API，不额外导出 SQL；服务 `app` 在此基础上编译；服务 `run` 生成后按原参数启动。需要数据库迁移源时按 §4.3 显式导出 SQL，或用根 `make ent`。
+
+这些聚合目标的内部顺序通过显式子 Make 调用固定。不要在一个工作树并发启动两条独立生成命令，也不要使用 `make -j api openapi` 让两个顶层目标同时写共享产物。运行命令实际会启动服务，不能拿“验证委托”当作启动授权。
+
+服务与 admin CLI 的镜像可从根使用 Dockerfile 指定 target，或显式运行 `make -C app/admin/service docker_server` / `docker_admin`；不要把服务 Make 目标误称根 Make 已直接暴露的目标。
+
+## 5. 首次本地启动与显式初始化
+
+已有数据库、共享实验环境和业务环境不能默认视为空库。首次运行使用明确归属的环境，并遵循：
+
+**结构迁移 → 显式初始化 → 检查 → 启动 → 登录/API 检查。**
+
+具体命令和角色分工见 [部署与初始化](deployment.md)，本指南不重复复制一套 SQL 顺序或提供默认密码。
+
+必须核对的配置包括 PostgreSQL、Redis 与 Asynq 的 Redis 地址、认证及加密材料，以及启用的下游服务。服务装配要求 `authz.type: casbin`，不能为了启动成功改成 noop；数据库 `migrate` 必须为 false。启动会做必要状态检查，但不得自动建表、播种或恢复默认密码。
+
+```bash
+# 已由授权环境注入迁移身份的 ANI_DATABASE_DSN。
+# migrate apply 会修改指定数据库；先核对目标和 dry-run。
+./scripts/atlas.sh migrate status
+./scripts/atlas.sh migrate apply --dry-run
+./scripts/atlas.sh migrate apply
+
+make build_admin
+# 密码文件由环境提供，不创建可复用的明文默认密码。
+./bin/admin init --username admin --password-file /run/secrets/governance-admin-password
+./bin/admin check
+
+# 运行前切换到相应受限身份和配置，不将迁移管理员给服务使用。
+tools/bin/gow run admin
+```
+
+AccessKey 加密主密钥按当前配置要求由 `ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE` 提供，不将真实内容写入文档、Git 或日志。配置默认 HTTP 端口为 7788，可选 SSE 为 7789；以实际配置为准。
+
+API 目录同步也是显式动作：先执行 `admin sync-apis --dry-run`，核对后再执行同步。新增 Proto 不会自动赋予权限；同步目录也不等于自动授权。细节以 [API 权限运维](api-role-permission-ops.md) 和 [部署文档](deployment.md) 为准。
+
+## 6. 新增或修改业务功能
+
+### 6.1 沿用真实目录，不另造一套架构
+
+先定位已有同类 Service、Repository、Proto 和装配。领域 Proto 与 admin BFF 保持现有分工；治理侧不接管下游领域服务的数据写入职责。下游协议、身份映射和错误处理按现有 [业务服务接入指南](service-integration.md) 与具体客户端源码核对。
+
+新标准 CRUD 可以按需要使用 `make register ENTITY=<实体名>`，但该工具不能替代带额外依赖、配置和 cleanup 的手工装配；不运行 Wire。
+
+典型修改顺序：
+
+1. 明确请求响应、可信身份、租户边界、权限和套餐条件，按现有要求登记到 `interface-integration-register.md`。
+2. 修改必要 Proto／schema，使用正式入口生成；只改展示文案时不触碰这些输入。
+3. 在 Repository 和 Service 各自层次实现，更新 `wiring_ent.go` 与传输注册。
+4. 通过显式 API 目录同步与授权流程完成登记，不默认放通新路由。
+5. 添加与风险对应的正常及拒绝路径测试，保存实际执行结果。
+
+### 6.2 不变的关键合同
+
+- 可信租户和操作人来自已有认证上下文，不直接相信入站请求中的身份字段。
+- `tenant_id` 列并不自动等于隔离；读取、更新、删除、关联、缓存、异步和下游元数据都检查租户边界。
+- 部分更新遵循 `update_mask`，区分未请求修改与显式清空；主表与关联更新保留事务边界。复杂关联参考当前 `RoleRepo.Update`，不是全量字段覆盖。
+- 分页、过滤、排序和搜索按当前 PagingRequest／Repository 合同，不在清理仓库时改变语义。
+- 用户字段权限与脱敏保持既有处理顺序，不能为了“统一命名”改 JWT claim、Cookie、请求头、Redis key 或 topic。
+- 下游身份元数据按既有客户端重建，不透传未验证的公网身份信息。保持 mTLS 和稳定错误映射，不为接入方便降级。
+- 不吞错误；错误日志不泄露密码、令牌、密钥或跨租户私有内容。
+
+规则与具体函数优先查现有 AGENTS、Service／Repository 和专项合同，不从历史上游教程复制行为。
+
+## 7. 验证层次与实际前置
+
+| 验证 | 入口／边界 |
+|---|---|
+| 受影响普通包 | `go test -mod=readonly -count=1 <包>`，需要时加 `-race` |
+| 本地 gow 工具 | 定向测试 `./tools/localdeps/gow/internal/...`，遵循测试需要的工具与工作区条件 |
+| redact 生成集成 | `make tools-integration`；需要固定 protoc 与本仓构建的插件，不因缺工具 skip |
+| Ent 生成／配额静态边界 | `make verify-quota-ent`；会运行生成检查，先保存用户未提交改动 |
+| GPU 配额正式门禁 | `make verify-gpu`；先具备任务独占 PG、运行角色、必要 lab 证书和 Docker／Redis 包装入口 |
+| 租户／数据范围 Ent 守卫 | 包是 `./app/admin/service/internal/data/ent`，不能以父包 `internal/data` 通过代替；helper 可能建表和 TRUNCATE，仅用独占测试库 |
+| 广泛测试 | `make test` 是 `go test ./...`，不负责准备所有外部资源，也不保证所有环境门控用例实际执行 |
+| lint | `make lint` 需要使用方明确准备合适版本的 golangci-lint；现有锁记录仍有未解析项，不承诺开箱即用 |
+
+当前 CI 位于 `.github/workflows/gpu-quota.yml`：准备 PostgreSQL 16.10、显式迁移和受限角色、任务证书，然后运行 `make verify-gpu`。其文件明确限定覆盖边界，不代表部署或全部跨仓联调已完成。
+
+`QUOTA_LAB_PG_DSN`、`QUOTA_LAB_REGRESSION_DSN`、`GUARD_TEST_PG_DSN` 等必须指向本次授权的测试资源；不要复制历史命令中的主机、库名和密码。任务包装器已经有固定 Redis 容器名的使用约束，同一机器避免重叠运行互相清理的测试。
+
+成功需要命令真实退出码和所要求的具名测试结果；包级 `ok`、缓存命中、skip 和环境未启动的 not_verified 分开记录。保存管道命令结果时不使用最后一个 `tee`／`echo` 的退出码冒充测试结果。
+
+## 8. 本地接管依赖的维护
+
+`pkg/localdeps/` 与 `tools/localdeps/` 已是本仓维护的实际源码。因目录名称仍含 go-wind／tx7do 来源标识就移动包，会同时改变 Go 包路径；这不属于本轮品牌整理。
+
+维护接管源码时记录最小修改原因和针对性测试，保留对应来源与许可。不要把历史“逐字节等价”结论套到后续已修改源码；也不要每改一个本仓包都重跑 T00～T15。
+
+`migration/` 中至少以下文件仍与开发工具或校验直接关联：
+
+- `migration/pgv-scope.json`：批准的 validator 范围；缺失或损坏会阻止严格生成。
+- `migration/patches/T15/T15-tool-lock.json`：工具身份与版本依据。
+- 当前仍调用的 required-tests／known-defects 清单。
+
+因此，不要整体移动、删除或清空 `migration/`。历史来源哈希、旧日志和报告保持过去的内容，不替换成当前名字。将来确需新增 validator 时，按新功能范围更新来源和相应清单并评审；103 是这次基线，不是永久禁止增加功能。
+
+第三方源码归档不是完整离线依赖环境。下载路径、构建闭包和许可来源是不同概念，不能只搜索仓库里的字符串就声称依赖清零或无风险。
+
+## 9. 已知范围与生产边界
+
+本轮源码接管已合入主线；历史 R6 两份样本恢复按所有者裁决移出本轮合并前范围，仍未验证。原测试、迁移 SQL 和来源记录保留，不恢复寻找已清理样本的任务，也不将普通运行成功算作 R6 通过。
+
+既有 captcha／ID 裁决、DST 日差及 copylocks 记录保持原有性质。真正出现新失败时按证据定位，不扩大例外、删除测试或使用全局关闭检查使其消失。
+
+运行时、部署与完整跨仓联调独立验收。服务镜像、admin CLI 镜像由根 Dockerfile 的 `runtime-server`、`runtime-admin` target 构建；结构迁移使用独立 Atlas 工具／镜像，不放入每个服务副本启动动作。
+
+本轮不修改部署环境的服务标识、证书身份、密钥或现有密码，不自动创建发布、推送镜像或操作业务库。
+
+## 10. 提交与文档维护
+
+从当前主线新建任务分支，先检查实际 HEAD 和用户工作区。品牌与文档整理不夹带模块路径重命名、依赖升级、业务合同调整或 GitLab 迁移。
+
+PR 应简要说明范围、实际命令与结果、未执行部分。文档调整只做相应链接／路径／命令核对；改 Make 委托或工具安装入口时增加针对性验证；按现有 CI 获取正常结果，不每写一个说明文件就重复整场迁移。
+
+README 是项目入口，本文是开发步骤，AGENTS 保留代理工作规则；CLAUDE 等入口只引用权威规则，避免多份大段相同指南互相漂移。部署、服务接入、接口登记与业务合同保留独立权威来源。
+
+## 11. 文档依据与适用边界
+
+当前命令应对照根 [Makefile](../Makefile)、服务公共 [app.mk](../app.mk) 和 [服务 Makefile](../app/admin/service/Makefile)。版本对照 [工具锁](../migration/patches/T15/T15-tool-lock.json)、Go 模块声明及活跃模板，不复制第二份可编辑版本真相表。
+
+基础部署与业务接入细则分别以 [部署文档](deployment.md)、[接入指南](service-integration.md) 和真实装配代码核对。本页不改写原专题中的历史证据、原机地址或当前计划状态；发现具体偏差应提出定向文档修订，不擅自修改安全合同或复制历史凭据。
+
+旧混合更新日志见 [历史说明](history/README.md)。本仓规则与操作步骤分离，但不是移除来源、测试或安全约束。Linux 命令桩与真实构建、PowerShell 语法检查与真实 Windows 运行应分别记录，不互相冒充。

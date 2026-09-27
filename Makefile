@@ -11,8 +11,8 @@ ROOT_DIR	:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
 SRCS_MK		:= $(foreach dir, app, $(wildcard $(dir)/*/*/Makefile))
 
-.PHONY: help gen ent build api openapi pgv init all vendor dep test cover vet lint docker \
-		register install-dev install-prod pm2-deploy
+.PHONY: help gen ent build build_only api openapi pgv init all vendor dep test cover vet lint docker \
+		register install-dev install-prod pm2-deploy check-repo-entrypoints
 
 # show environment variables
 env:
@@ -94,14 +94,15 @@ lint:
 
 # generate ent code
 ent:
-	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
-      cd $(dir);\
-      make ent;\
-    )
+	@set -eu; for dir in $(dir $(realpath $(SRCS_MK))); do \
+		$(MAKE) -C "$$dir" ent; \
+	done
 	cd app/admin/service && go run ./cmd/schema > schema.sql
 
 # generate code
-gen: ent api openapi
+gen:
+	$(MAKE) ent
+	$(MAKE) api
 
 # register a new CRUD module into the hand-written wiring (usage: make register ENTITY=product)
 register:
@@ -158,17 +159,15 @@ openapi:
 # build all service applications. `make api` 已在暂存链内完成 OpenAPI 后处理（同一 finalize 脚本），
 # 因此这里不再重复列 openapi，避免同一生成链在一次构建里跑两遍。
 build: api
-	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
-      cd $(dir);\
-      make build;\
-    )
+	@set -eu; for dir in $(dir $(realpath $(SRCS_MK))); do \
+		$(MAKE) -C "$$dir" build_only; \
+	done
 
 # only build all service applications without generating api and openapi
 build_only:
-	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
-      cd $(dir);\
-      make build_only;\
-    )
+	@set -eu; for dir in $(dir $(realpath $(SRCS_MK))); do \
+		$(MAKE) -C "$$dir" build_only; \
+	done
 
 # export configuration to etcd
 export:
@@ -179,10 +178,8 @@ export:
 
 # generate & build all service applications
 all:
-	$(foreach dir, $(dir $(realpath $(SRCS_MK))),\
-      cd $(dir);\
-      make app;\
-    )
+	$(MAKE) gen
+	$(MAKE) build_only
 
 # build docker image
 docker:
@@ -195,10 +192,13 @@ docker:
 # Script Commands - 脚本命令
 # ============================================================================
 
-# install development environment (Unix/Linux/macOS)
+# retired automatic development-environment installer (no installation is performed)
 install-dev:
-	echo "Installing development environment..."
-	bash scripts/env/install_unix_dev.sh
+	@printf '%s\n' 'Retired: read docs/development.md; prepare pinned tools explicitly. No environment was changed.' >&2; exit 2
+
+# check Make delegation and retired entrypoints without installing tools or starting services
+check-repo-entrypoints:
+	python3 scripts/tests/check-repo-entrypoints.py --repo "$(CURDIR)"
 
 # install production environment (Unix/Linux/macOS)
 install-prod:

@@ -1,44 +1,42 @@
 # ANI Governance
 
-ANI 独立维护的 Go 后端，基于 [go-wind-admin](https://github.com/tx7do/go-wind-admin) fork 演进。后续开发和发布由本仓库维护，不再跟随 go-wind-admin 主线。
+ANI Governance 是 ANI 平台独立维护的治理后端。本仓包含后端服务、API 定义、开发工具和必要的验证脚本，不包含产品前端。当前代码覆盖身份认证与授权、租户与套餐、配额、审计、任务及 SSE 等；代码存在不等于全部业务域已通过部署和跨仓验收。
 
-仓库仅保留后端，Go 模块位于根目录。模块路径保持 `go-wind-admin`，运行服务名为 `ani-governance`。现有实现包括 admin 服务、认证授权、租户与套餐、审计、任务/SSE，以及 Network 接入（Model 接入已于 2026-09-21 暂摘，待重接）。现有代码不等于全部功能或 ANI 域迁移已经验收。
+**开始开发：[本仓开发指南](docs/development.md)。** 文档导航见 [docs/README.md](docs/README.md)，AI 执行规则见 [AGENTS.md](AGENTS.md)。
 
-## 开发
+## 仓库身份
 
-Go 基准 **1.26.7**，gow 固定 **v1.0.3**。主路径使用 Kratos、Ent、PostgreSQL 和 Redis；其他依赖按启用模块配置。
+- 展示名称为 **ANI Governance**，既有服务身份为 `ani-governance`。
+- Go 模块路径暂为 **`go-wind-admin`**。全部技术导入、Proto Go 映射和工具身份保持一致；最终托管域名确定后另开模块重命名 PR。
+- 当前运行库与开发工具的本地接管源码分别位于 `pkg/localdeps/`、`tools/localdeps/`。不要用上游二进制覆盖本仓工具。
+- 项目来源、版权与许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)；来源归档与历史记录不是当前使用教程。
 
-固定版本的领域 API 模块（如 `ani-network-service`）直接依赖上游 GitHub 固定版本；`GOPROXY` 需把 `proxy.golang.org` 放在前面或走 `direct`（`goproxy.cn` 对这些模块可能返回 `not found`），不要自建 file-GOPROXY 交付。`third_party/tx7do/` 仅覆盖其清单所列依赖，不是全项目离线依赖包。
+## 开发入口
 
-先读 [AGENTS.md](AGENTS.md)。以下命令均从仓库根目录执行，并遵守任务指定的本地/远程执行边界：
-
-首次部署先按 [部署与初始化流程](docs/deployment.md) 完成 Atlas 迁移和显式初始化，再启动服务。与业务服务（Network 等）的历史联调记录见 [docs/local-integration.md](docs/local-integration.md)。
+下面的命令都从仓库根目录执行；工具、配置和资源前置先按开发指南准备。
 
 ```bash
-make gow            # 从 tools/localdeps/gow 构建本仓在用的 gow（api/ent/run/version）
-export PATH=$PWD/tools/bin:$PATH   # 之后可直接用 gow；也可写成 tools/bin/gow
-gow run admin
-gow api
-gow ent admin
-make tools-integration   # protoc 驱动的 redact 集成用例（需固定 protoc）
-make openapi
-make build_only
+make gow                         # 从当前源码构建 tools/bin/gow
+make build_only                  # 只编译已有源码，不生成、不连接业务库
+make build_admin                 # 构建显式运维 CLI：bin/admin
+make api                         # 完整活跃 API 链，含暂存 OpenAPI 后处理
+make check-repo-entrypoints       # 安全命令桩检查，不代替真实构建
 ```
 
-`make build_only` 仅编译已有源码，`make build` 还会生成 API/OpenAPI。修改 Proto、schema 后重新生成；`wiring_ent.go` 手写维护，不使用 Wire。
+`tools/bin/gow api` 与根 `make api` 使用同一生成链。`make build` 为 API 生成后编译；`make gen` 为 Ent 生成/SQL 导出后 API 生成；`make all` 再加编译。只改普通 Go 实现时不自动运行生成器或依赖整理。
 
-各功能对接涉及的接口统一维护在 [功能对接与接口风格改动登记](docs/interface-integration-register.md)，每次对接新功能先追加接口排查结果，待用户指定批次后统一调整风格，由用户确认何时结项。
+旧 `make install-dev`、Unix/Windows 自动开发安装入口已经退役：它们在副作用之前明确失败。安装固定工具的方法见开发指南；不是重新引入一套主机安装器。
 
-## 配置与部署
+## 运行、部署与业务接入
 
-配置样例在 `app/admin/service/configs/`；HTTP 默认 `7788`，可选 SSE `7789`。运行前配置数据库、Redis、密钥和领域服务地址，开发样例不作为生产参数。
+[部署与初始化流程](docs/deployment.md) 规定：**Atlas 结构迁移 → 显式 admin init → check → 启动 → 登录/API 验证**。启动不迁移、不播种、不同步 API、不恢复默认密码；主装配要求 Casbin。配置目录为 `app/admin/service/configs/`，样例不能直接当作生产参数。
 
-镜像构建入口是根 `Dockerfile`。运行所需的数据库、Redis 等依赖由目标环境提供；部署配置由对应环境维护。可选 PM2/SSE 代理在 `scripts/deploy/`，数据库备份脚本在 `scripts/backup/`，使用前核对目标环境和脚本范围。现有脚本见 [脚本指南](scripts/README.md)。
+业务服务接入见 [service-integration.md](docs/service-integration.md)，接口排查与已接受的调整持续记入 [接口登记](docs/interface-integration-register.md)。历史 Model 接入暂摘及重接材料不作为当前启用功能；下游启用状态以当前装配与配置为准。
 
-服务启动不迁移、不播种、不同步 API。结构由 `migrations/` + Atlas 管理；数据通过 `make build_admin` 构建的 `bin/admin init` 显式初始化，种子 SQL 在 `sql/bootstrap/001_initial.sql`。`admin sync-apis --dry-run` 预览目录差异，显式同步保留 API ID 和权限关联。完整命令、首管理员、基础套餐及登录验收见 [部署与初始化流程](docs/deployment.md)。构建、测试、部署、恢复和生产切换分别提供证据，未执行的验收为 `not_verified`。
+镜像构建使用根 `Dockerfile` 的服务与 admin CLI target；Atlas 迁移单独执行。备份、部署和实验脚本先查 [脚本指南](scripts/README.md)，不可默认操作共享或业务数据库。
 
-## 依赖与来源
+## 维护与验证范围
 
-依赖由 `go.mod` / `go.sum` 管理。`third_party/tx7do/` 用于依赖源码备份，覆盖范围和校验信息以实际清单为准；备份不自动改变 Go 的依赖消费方式。
+[CHANGELOG.md](CHANGELOG.md) 记录有依据的本仓变化；旧混合日志原样保存在 [历史目录](docs/history/README.md)。
 
-原项目版权与 MIT 许可全文保留在 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。依赖源码中的许可声明也应随备份保留。
+源码接管已合入主线，历史 R6 样本恢复经所有者调整范围后延期、仍未验证。既有测试缺陷和运行/部署/跨仓未验证边界继续保留，不以仓库整理改成通过。当前配额 CI 并非完整生产验收，具体入口与覆盖见开发指南。
