@@ -260,7 +260,10 @@ verify-gpu-regressions:
 	# starts a loopback-only, non-persistent container for this recipe and exports
 	# ANI_TEST_REDIS_URI. Those tests fail rather than skip when it is absent, so the
 	# variable must come from here and not from a developer shell.
-	bash scripts/verify-gpu-redis.sh run -- go test ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
+	# -count=1 on the plain package run: without it Go can answer from its build cache, and a gate
+	# whose SSE line reads "(cached)" has not executed the tests it is being credited for. The package
+	# list, tags and assertions are unchanged.
+	bash scripts/verify-gpu-redis.sh run -- go test -count=1 ./app/admin/service/internal/data ./app/admin/service/internal/service ./app/admin/service/internal/server ./pkg/...
 	go test -tags quota_pg ./app/admin/service/internal/data -run 'TestQuota|TestPlanQuota' -count=1 -timeout=15m
 	go test -tags quota_pg ./app/admin/service/internal/service -run 'TestPlanQuota' -count=1 -timeout=10m
 	go test -race -tags quota_pg ./app/admin/service/internal/data -run 'TestQuotaEnt|TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard|TestQuotaPostgresPolicyChanges|TestQuotaGpu|TestQuotaProcess' -count=1 -timeout=20m
