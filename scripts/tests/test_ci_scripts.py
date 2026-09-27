@@ -51,8 +51,8 @@ class CIScriptTests(unittest.TestCase):
             binary.write_text('''#!/usr/bin/env python3
 import json, os, sys
 args=sys.argv[1:]
-kind=('quota-server' if '-tags' in args and 'quota_pg' in args and './app/admin/service/internal/server' in args
-      else 'quota-service' if '-tags' in args and 'quota_pg' in args and './app/admin/service/internal/service' in args
+kind=('quota-server' if '-race' not in args and '-tags' in args and 'quota_pg' in args and './app/admin/service/internal/server' in args
+      else 'quota-service' if '-race' not in args and '-tags' in args and 'quota_pg' in args and './app/admin/service/internal/service' in args
       else 'other')
 with open(os.environ['EVENTS'], 'a') as out: out.write(kind + '\\n')
 print(json.dumps({'Action':'pass','Package':'fixture','Test':kind}))

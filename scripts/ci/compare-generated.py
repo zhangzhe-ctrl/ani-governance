@@ -33,7 +33,7 @@ def managed_roots(repo: pathlib.Path) -> list[str]:
     block = re.search(r"var activeGenConfigs = \[\]string\{(.*?)\n\}", source, re.S)
     if not block:
         raise ValueError("activeGenConfigs not found")
-    templates = re.findall(r'"(buf\.[^"/]+\.gen\.yaml)"', block.group(1))
+    templates = re.findall(r'"(buf(?:\.[^"/]+)?\.gen\.yaml)"', block.group(1))
     if not templates or len(templates) != len(set(templates)):
         raise ValueError("active template list is empty or duplicated")
     roots = {ENT_ROOT}
