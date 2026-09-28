@@ -2,7 +2,7 @@ syntax = "proto3";
 package admin.service.v1;
 import "google/api/annotations.proto";
 import "catalog/service/v1/accelerator.proto";
-import "admin/service/v1/i_quota.proto";
+import "admin/service/v1/quota_types.proto";
 import "google/protobuf/empty.proto";
 
 // JWT platform user, current role permission and downstream exact actor/action/

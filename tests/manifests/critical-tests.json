@@ -6,9 +6,19 @@
   {"Package":"go-wind-admin/app/admin/service/internal/data/ent","Test":"TestTenantGuardDeleteOneCreate"},
   {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestConfigRepoSubscriptionCloseAndBroadcast"},
   {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaPostgresConcurrentLimit"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaPostgresCancelClaimRace"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaPostgresLeaseGenerationGuard"},
   {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaPostgresReleaseCumulative"},
   {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaPostgresReleaseBeforeAck"},
   {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaGpuRestrictedRoleAndExplicitIsolation"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaPublicErrorContract"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestPlanQuotaPostgresListCompatibility"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestPlanQuotaReadProjectionAndFinalMask"},
+  {"Package":"go-wind-admin/app/admin/service/internal/data","Test":"TestQuotaCatalogQueriesPageAndExistInDatabase"},
   {"Package":"go-wind-admin/app/admin/service/internal/server","Test":"TestQuotaInternalMTLSAndCumulativeRelease"},
-  {"Package":"go-wind-admin/app/admin/service/internal/service","Test":"TestQuotaDispatchRetryAfterLostAck"}
+  {"Package":"go-wind-admin/app/admin/service/internal/server","Test":"TestQuotaInternalServeErrorReachesKratosApp"},
+  {"Package":"go-wind-admin/app/admin/service/internal/server","Test":"TestQuotaInternalStartBlocksAndConcurrentStop"},
+  {"Package":"go-wind-admin/app/admin/service/internal/service","Test":"TestQuotaDispatchRetryAfterLostAck"},
+  {"Package":"go-wind-admin/app/admin/service/internal/service","Test":"TestQuotaAdminAndSelfDomainViews"},
+  {"Package":"go-wind-admin/app/admin/service/internal/service","Test":"TestQuotaAdminEnvelopeWireContract"}
 ]

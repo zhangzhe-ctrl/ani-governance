@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -18,6 +19,7 @@ def main() -> int:
     parser.add_argument("--required", required=True)
     parser.add_argument("--log", required=True)
     parser.add_argument("--summary", help="also save the named critical-test result as JSON")
+    parser.add_argument("--test-regex", help="check only required tests matching this full-name regex")
     args = parser.parse_args()
     try:
         profile: Any = json.loads(Path(args.required).read_text(encoding="utf-8"))
@@ -31,6 +33,11 @@ def main() -> int:
             if not isinstance(pkg, str) or not pkg or not isinstance(test, str) or not test:
                 raise ValueError("every row needs nonempty Package and Test strings")
             required.add((pkg, test))
+        if args.test_regex:
+            pattern = re.compile(args.test_regex)
+            required = {pair for pair in required if pattern.fullmatch(pair[1])}
+            if not required:
+                raise ValueError("test regex matched no required tests")
         log_path = Path(args.log)
         states: dict[tuple[str, str], str] = {}
         nonpasses: dict[tuple[str, str], set[str]] = {}
@@ -65,7 +72,7 @@ def main() -> int:
             Path(args.summary).write_text(summary, encoding="utf-8")
         print(summary, end="")
         return 0 if passed else 1
-    except (OSError, ValueError, TypeError) as exc:
+    except (OSError, ValueError, TypeError, re.error) as exc:
         print(f"invalid test evidence: {exc}", file=sys.stderr)
         return 2
 

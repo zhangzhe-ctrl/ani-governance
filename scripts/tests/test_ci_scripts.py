@@ -82,6 +82,102 @@ if os.environ.get('FAIL_KIND') == kind: sys.exit(43 if kind == 'quota-server' el
             self.assertEqual(failed_service.returncode, 44)
             self.assertLess(events.index('quota-server'), events.index('quota-service'))
 
+    def test_generation_overlay_preserves_dirty_worktree_without_task_artifacts(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source, staged = root / 'source', root / 'staged'
+            source.mkdir()
+            staged.mkdir()
+            subprocess.run(['git', 'init', '-q', str(source)], check=True)
+            subprocess.run(['git', '-C', str(source), 'config', 'user.name', 'Fixture'], check=True)
+            subprocess.run(['git', '-C', str(source), 'config', 'user.email', 'fixture@example.invalid'], check=True)
+            (source / 'api/protos').mkdir(parents=True)
+            (source / 'api/protos/changed.proto').write_text('old\n')
+            (source / 'api/protos/deleted.proto').write_text('old\n')
+            subprocess.run(['git', '-C', str(source), 'add', '.'], check=True)
+            subprocess.run(['git', '-C', str(source), 'commit', '-qm', 'fixture'], check=True)
+            archive = subprocess.run(['git', '-C', str(source), 'archive', '--format=tar', 'HEAD'],
+                                     capture_output=True, check=True).stdout
+            subprocess.run(['tar', '-x', '-C', str(staged)], input=archive, check=True)
+            (source / 'api/protos/changed.proto').write_text('new\n')
+            subprocess.run(['git', '-C', str(source), 'add', 'api/protos/changed.proto'], check=True)
+            (source / 'api/protos/changed.proto').write_text('newer\n')
+            (source / 'api/protos/deleted.proto').unlink()
+            (source / 'api/protos/new.proto').write_text('new input\n')
+            (source / 'api/protos/private.env').write_text('private fixture')
+            (source / 'notes.txt').write_text('unrelated fixture')
+            (source / '_agent').mkdir()
+            (source / '_agent/do-not-copy.zip').write_bytes(b'private fixture')
+            script = REPO / 'scripts/ci/compare-generated.py'
+            result = subprocess.run(['python3', str(script), 'overlay', '--repo', str(source),
+                                     '--target', str(staged)], capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual((staged / 'api/protos/changed.proto').read_text(), 'newer\n')
+            self.assertFalse((staged / 'api/protos/deleted.proto').exists())
+            self.assertEqual((staged / 'api/protos/new.proto').read_text(), 'new input\n')
+            self.assertFalse((staged / 'api/protos/private.env').exists())
+            self.assertFalse((staged / 'notes.txt').exists())
+            self.assertFalse((staged / '_agent').exists())
+            self.assertEqual((source / 'api/protos/changed.proto').read_text(), 'newer\n')
+            self.assertIn('MM api/protos/changed.proto', subprocess.check_output(
+                ['git', '-C', str(source), 'status', '--short'], text=True))
+
+    def test_generation_overlay_rejects_symlink_without_copying_external_content(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source, staged = root / 'source', root / 'staged'
+            source.mkdir()
+            staged.mkdir()
+            subprocess.run(['git', 'init', '-q', str(source)], check=True)
+            subprocess.run(['git', '-C', str(source), 'config', 'user.name', 'Fixture'], check=True)
+            subprocess.run(['git', '-C', str(source), 'config', 'user.email', 'fixture@example.invalid'], check=True)
+            (source / 'api/protos').mkdir(parents=True)
+            (source / 'api/protos/original.proto').write_text('baseline fixture\n')
+            subprocess.run(['git', '-C', str(source), 'add', '.'], check=True)
+            subprocess.run(['git', '-C', str(source), 'commit', '-qm', 'fixture'], check=True)
+            archive = subprocess.run(['git', '-C', str(source), 'archive', '--format=tar', 'HEAD'],
+                                     capture_output=True, check=True).stdout
+            subprocess.run(['tar', '-x', '-C', str(staged)], input=archive, check=True)
+            (source / 'api/protos/plain.proto').write_text('ordinary fixture\n')
+            command = ['python3', str(REPO / 'scripts/ci/compare-generated.py'),
+                       'overlay', '--repo', str(source), '--target', str(staged)]
+            positive = subprocess.run(command, capture_output=True)
+            self.assertEqual(positive.returncode, 0, positive.stderr)
+            self.assertEqual((staged / 'api/protos/plain.proto').read_text(), 'ordinary fixture\n')
+            (source / 'api/protos/link.proto').symlink_to(root / 'external.proto')
+            (root / 'external.proto').write_text('external fixture\n')
+            result = subprocess.run(command, capture_output=True)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn(b'unsupported untracked generation input: api/protos/link.proto', result.stderr)
+            self.assertFalse((staged / 'api/protos/link.proto').exists())
+            self.assertNotIn(b'overlaid worktree:', result.stdout)
+
+    def test_generation_overlay_rejects_tracked_symlink_and_missing_target(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source, staged = root / 'source', root / 'staged'
+            source.mkdir()
+            staged.mkdir()
+            subprocess.run(['git', 'init', '-q', str(source)], check=True)
+            subprocess.run(['git', '-C', str(source), 'config', 'user.name', 'Fixture'], check=True)
+            subprocess.run(['git', '-C', str(source), 'config', 'user.email', 'fixture@example.invalid'], check=True)
+            (source / 'api/protos').mkdir(parents=True)
+            (source / 'api/protos/original.proto').write_text('old\n')
+            subprocess.run(['git', '-C', str(source), 'add', '.'], check=True)
+            subprocess.run(['git', '-C', str(source), 'commit', '-qm', 'fixture'], check=True)
+            (source / 'api/protos/link.proto').symlink_to(root / 'private.proto')
+            (root / 'private.proto').write_text('external fixture')
+            subprocess.run(['git', '-C', str(source), 'add', 'api/protos/link.proto'], check=True)
+            result = subprocess.run(['python3', str(REPO / 'scripts/ci/compare-generated.py'),
+                                     'overlay', '--repo', str(source), '--target', str(staged)],
+                                    capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertNotIn(b'overlaid worktree:', result.stdout)
+            missing = subprocess.run(['python3', str(REPO / 'scripts/ci/compare-generated.py'),
+                                      'overlay', '--repo', str(source), '--target', str(root / 'absent')],
+                                     capture_output=True)
+            self.assertNotEqual(missing.returncode, 0)
+
     def test_generation_comparator_covers_outputs_outside_api(self):
         script = REPO / 'scripts/ci/compare-generated.py'
         with tempfile.TemporaryDirectory() as td:
@@ -253,6 +349,32 @@ if os.environ.get('FAIL_KIND') == kind: sys.exit(43 if kind == 'quota-server' el
             self.assertNotEqual(check([]), 0)
             self.assertNotEqual(check([{'Package': 'p', 'Test': 'TestCritical', 'Action': 'skip'}]), 0)
             self.assertNotEqual(check([{'Package': 'p', 'Action': 'fail'}]), 0)
+
+    def test_race_evidence_requires_its_own_named_passes(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            profile = root / 'required.json'
+            race_log = root / 'race.jsonl'
+            normal_log = root / 'normal.jsonl'
+            profile.write_text(json.dumps([
+                {'Package': 'data', 'Test': 'TestRaceA'},
+                {'Package': 'data', 'Test': 'TestRaceB'},
+                {'Package': 'service', 'Test': 'TestRaceService'},
+            ]))
+            normal_log.write_text(json.dumps({'Package': 'data', 'Test': 'TestRaceA', 'Action': 'pass'}) + '\n')
+            script = REPO / 'scripts/ci/assert-test-results.py'
+            def check(events, pattern):
+                race_log.write_text(''.join(json.dumps(e) + '\n' for e in events))
+                return subprocess.run(['python3', str(script), '--required', str(profile),
+                                       '--test-regex', pattern, '--log', str(race_log)],
+                                      capture_output=True).returncode
+            both = '^TestRace(A|B)$'
+            self.assertNotEqual(check([], both), 0, 'normal log passes cannot replace absent race events')
+            self.assertNotEqual(check([{'Package': 'data', 'Test': 'TestRaceA', 'Action': 'skip'}], both), 0)
+            self.assertNotEqual(check([{'Package': 'data', 'Test': 'TestRaceA', 'Action': 'pass'}], both), 0)
+            self.assertNotEqual(check([], '^TestDoesNotExist$'), 0)
+            self.assertEqual(check([{'Package': 'data', 'Test': 'TestRaceA', 'Action': 'pass'},
+                                    {'Package': 'data', 'Test': 'TestRaceB', 'Action': 'pass'}], both), 0)
 
     def test_redis_stop_rejects_foreign_container(self):
         with tempfile.TemporaryDirectory() as td:

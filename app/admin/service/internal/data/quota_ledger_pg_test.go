@@ -433,7 +433,7 @@ func TestQuotaPostgresCancelClaimRace(t *testing.T) {
 		close(raceErr)
 		for err := range raceErr {
 			if err != nil {
-				// CancelUnsent 在已领取后返回 QuotaErrInvalid：合法结果之一。
+				// CancelUnsent 在已领取后返回 INVALID_QUOTA_REQUEST：合法结果之一。
 				require.Equal(t, "INVALID_QUOTA_REQUEST", codeOf(t, err))
 			}
 		}
@@ -605,7 +605,7 @@ func TestQuotaPostgresPolicyChanges(t *testing.T) {
 	views, err := adminRepo.ListTenantAccounts(context.Background(), tenantId)
 	require.NoError(t, err)
 	found := false
-	for _, v := range views.Items {
+	for _, v := range views {
 		if v.QuotaCode == QuotaCodeGpuCount {
 			found = true
 			require.Equal(t, "4", v.Limit)

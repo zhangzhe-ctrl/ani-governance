@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
+	"go-wind-admin/pkg/quotaerrors"
 	"sort"
 	"time"
 
@@ -119,7 +121,7 @@ func validateFrozenCharges(canonical string, charges []*ent.QuotaCharge) error {
 		QuotaItems    []QuotaOccupyItem `json:"quota_items"`
 	}
 	if err := json.Unmarshal([]byte(canonical), &frozen); err != nil {
-		return QuotaErrInvalid("invalid immutable GPU request")
+		return quotapb.ErrorInvalidQuotaRequest("%s", "invalid immutable GPU request")
 	}
 	for _, item := range frozen.QuotaItems {
 		gpu = gpu || isGPUCode(item.QuotaCode)
@@ -128,18 +130,18 @@ func validateFrozenCharges(canonical string, charges []*ent.QuotaCharge) error {
 		return nil
 	}
 	if len(frozen.QuotaItems) != len(charges) || len(charges) == 0 {
-		return QuotaErrInvalid("incomplete immutable charge vector")
+		return quotapb.ErrorInvalidQuotaRequest("%s", "incomplete immutable charge vector")
 	}
 	expected := map[string]int64{}
 	for _, it := range frozen.QuotaItems {
 		if it.Units <= 0 || expected[it.QuotaCode] != 0 {
-			return QuotaErrInvalid("invalid immutable charge vector")
+			return quotapb.ErrorInvalidQuotaRequest("%s", "invalid immutable charge vector")
 		}
 		expected[it.QuotaCode] = it.Units
 	}
 	for _, c := range charges {
 		if expected[c.QuotaCode] != c.OriginalUnits {
-			return QuotaErrInvalid("immutable charge vector mismatch")
+			return quotapb.ErrorInvalidQuotaRequest("%s", "immutable charge vector mismatch")
 		}
 	}
 	return nil
@@ -147,13 +149,13 @@ func validateFrozenCharges(canonical string, charges []*ent.QuotaCharge) error {
 
 func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out *QuotaOccupyResult, err error) {
 	if in == nil || in.TenantID == 0 || len(in.Items) == 0 || in.IdempotencyKey == "" || in.RequestHash == "" || in.CanonicalRequest == "" || in.ResourceTenantID == "" || in.ResourceID == "" || in.OwnerService == "" || in.Action == "" || in.ActorType == "" || in.ActorID == "" {
-		return nil, QuotaErrInvalid("incomplete quota input")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "incomplete quota input")
 	}
 	items := append([]QuotaOccupyItem(nil), in.Items...)
 	sort.Slice(items, func(i, j int) bool { return items[i].QuotaCode < items[j].QuotaCode })
 	for i, it := range items {
 		if it.Units <= 0 || it.QuotaCode == "" || (i > 0 && items[i-1].QuotaCode == it.QuotaCode) {
-			return nil, QuotaErrInvalid("invalid or duplicate quota item")
+			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid or duplicate quota item")
 		}
 	}
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
@@ -164,7 +166,7 @@ func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out
 		ctx := appViewer.NewSystemViewerContext(ctx)
 		tenant, err := lockQuotaTenant(ctx, tx, in.TenantID)
 		if ent.IsNotFound(err) {
-			return QuotaErrAdmissionDenied("tenant not found")
+			return quotapb.ErrorQuotaAdmissionDenied("%s", "tenant not found")
 		}
 		if err != nil {
 			return err
@@ -173,7 +175,7 @@ func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out
 		op, err := tx.QuotaOperation.Query().Where(quotaoperation.TenantIDEQ(in.TenantID), quotaoperation.ActorTypeEQ(in.ActorType), quotaoperation.ActorIDEQ(in.ActorID), quotaoperation.ActionEQ(in.Action), quotaoperation.IdempotencyKeyEQ(in.IdempotencyKey)).Only(ctx)
 		if err == nil {
 			if op.RequestHash != in.RequestHash || op.OwnerService != in.OwnerService {
-				return QuotaErrIdempotencyConflict("idempotency payload mismatch")
+				return quotapb.ErrorIdempotencyConflict("%s", "idempotency payload mismatch")
 			}
 			charges, e := tx.QuotaCharge.Query().Where(quotacharge.TenantIDEQ(in.TenantID), quotacharge.OperationIDEQ(op.OperationID)).Order(ent.Asc(quotacharge.FieldQuotaCode), ent.Asc(quotacharge.FieldChargeID)).All(ctx)
 			if e != nil {
@@ -189,13 +191,13 @@ func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out
 			return err
 		}
 		if tenant.ResourceTenantID != in.ResourceTenantID {
-			return QuotaErrAdmissionDenied("resource tenant mapping mismatch")
+			return quotapb.ErrorQuotaAdmissionDenied("%s", "resource tenant mapping mismatch")
 		}
 		if tenant.Status == nil || *tenant.Status != "ON" || (tenant.ExpiredAt != nil && !tenant.ExpiredAt.After(tenant.DatabaseNow)) {
-			return QuotaErrAdmissionDenied("tenant is inactive or expired")
+			return quotapb.ErrorQuotaAdmissionDenied("%s", "tenant is inactive or expired")
 		}
 		if tenant.PlanID == nil || *tenant.PlanID == 0 {
-			return QuotaErrNotConfigured("tenant has no plan")
+			return quotapb.ErrorQuotaNotConfigured("%s", "tenant has no plan")
 		}
 		if _, err = tx.Plan.Query().Where(plan.IDEQ(*tenant.PlanID)).ForShare().Only(ctx); err != nil {
 			return err
@@ -211,7 +213,7 @@ func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out
 		for _, it := range items {
 			limit, ok := limits[it.QuotaCode]
 			if !ok {
-				return QuotaErrNotConfigured("quota not configured: " + it.QuotaCode)
+				return quotapb.ErrorQuotaNotConfigured("%s", "quota not configured: "+it.QuotaCode)
 			}
 			if err = tx.QuotaAccount.Create().SetCreatedAt(databaseNow).SetUpdatedAt(databaseNow).SetTenantID(in.TenantID).SetQuotaCode(it.QuotaCode).OnConflictColumns(quotaaccount.FieldTenantID, quotaaccount.FieldQuotaCode).Ignore().Exec(ctx); err != nil {
 				return err
@@ -221,7 +223,7 @@ func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out
 				return e
 			}
 			if it.Units > limit || acc.OccupiedUnits > limit-it.Units {
-				return QuotaErrExceeded("quota exceeded: " + it.QuotaCode)
+				return quotapb.ErrorQuotaExceeded("%s", "quota exceeded: "+it.QuotaCode)
 			}
 		}
 		op, err = tx.QuotaOperation.Create().SetCreatedAt(databaseNow).SetUpdatedAt(databaseNow).SetOperationID(generateUUID()).SetTenantID(in.TenantID).SetResourceTenantID(in.ResourceTenantID).SetResourceID(in.ResourceID).SetActorType(in.ActorType).SetActorID(in.ActorID).SetOwnerService(in.OwnerService).SetAction(in.Action).SetIdempotencyKey(in.IdempotencyKey).SetRequestHash(in.RequestHash).SetCanonicalRequest(in.CanonicalRequest).SetDispatchState(quotaoperation.DispatchState("QUEUED")).Save(ctx)
@@ -278,12 +280,12 @@ func (r *QuotaLedgerRepo) storageError(ctx context.Context, err error) error {
 		return err
 	}
 	r.log.Errorf(ctx, "quota transaction: %v", err)
-	return QuotaErrStorageUnavailable("quota transaction failed")
+	return quotapb.ErrorQuotaStorageUnavailable("%s", "quota transaction failed")
 }
 
 func (r *QuotaLedgerRepo) Release(ctx context.Context, in *QuotaReleaseInput) (out []QuotaReleaseResult, err error) {
 	if in == nil || len(in.Items) == 0 || in.OwnerService == "" || in.OperationID == "" || in.ReleaseEventID == "" || in.PayloadHash == "" {
-		return nil, releaseErrInvalid("incomplete release")
+		return nil, quotaerrors.ReleaseInvalid("incomplete release")
 	}
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
 		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
@@ -295,7 +297,7 @@ func (r *QuotaLedgerRepo) Release(ctx context.Context, in *QuotaReleaseInput) (o
 		// explicit tenant locking. Caller-provided tenant never authorizes a refund.
 		tid, e := locateQuotaReleaseTenant(ctx, tx, in.OperationID, in.OwnerService)
 		if ent.IsNotFound(e) {
-			return releaseErrPermissionDenied("release owner or operation mismatch")
+			return quotaerrors.ReleasePermissionDenied("release owner or operation mismatch")
 		}
 		if e != nil {
 			return e
@@ -312,7 +314,7 @@ func (r *QuotaLedgerRepo) Release(ctx context.Context, in *QuotaReleaseInput) (o
 			return e
 		}
 		if e = validateFrozenCharges(op.CanonicalRequest, charges); e != nil {
-			return releaseErrConflict("invalid original charge vector")
+			return quotaerrors.ReleaseConflict("invalid original charge vector")
 		}
 		byID := map[string]*ent.QuotaCharge{}
 		for _, c := range charges {
@@ -323,13 +325,13 @@ func (r *QuotaLedgerRepo) Release(ctx context.Context, in *QuotaReleaseInput) (o
 		for _, it := range in.Items {
 			c, ok := byID[it.ChargeID]
 			if !ok {
-				return releaseErrNotFound("unknown charge")
+				return quotaerrors.ReleaseNotFound("unknown charge")
 			}
 			if _, duplicate := incoming[it.ChargeID]; duplicate {
-				return releaseErrInvalid("duplicate charge")
+				return quotaerrors.ReleaseInvalid("duplicate charge")
 			}
 			if c.QuotaCode != it.QuotaCode || it.ReleasedTotal < 0 || it.ReleasedTotal > c.OriginalUnits {
-				return releaseErrConflict("invalid charge total or code")
+				return quotaerrors.ReleaseConflict("invalid charge total or code")
 			}
 			incoming[it.ChargeID] = it
 			gpu = gpu || isGPUCode(it.QuotaCode)
@@ -339,7 +341,7 @@ func (r *QuotaLedgerRepo) Release(ctx context.Context, in *QuotaReleaseInput) (o
 				if isGPUCode(c.QuotaCode) {
 					it, ok := incoming[c.ChargeID]
 					if !ok || it.ReleasedTotal != c.OriginalUnits {
-						return releaseErrConflict("GPU release requires complete original GPU vector and full cumulative totals")
+						return quotaerrors.ReleaseConflict("GPU release requires complete original GPU vector and full cumulative totals")
 					}
 				}
 			}
@@ -348,16 +350,16 @@ func (r *QuotaLedgerRepo) Release(ctx context.Context, in *QuotaReleaseInput) (o
 				return e
 			}
 			if !has {
-				return releaseErrConflict("GPU release requires persisted DELETE intent")
+				return quotaerrors.ReleaseConflict("GPU release requires persisted DELETE intent")
 			}
 			if in.Reason != "RESOURCE_RELEASED" && in.Reason != "ABORTED_CLEANED" {
-				return releaseErrConflict("invalid GPU release reason")
+				return quotaerrors.ReleaseConflict("invalid GPU release reason")
 			}
 		}
 		receipt, e := tx.QuotaReleaseReceipt.Query().Where(quotareleasereceipt.TenantIDEQ(tid), quotareleasereceipt.OwnerServiceEQ(in.OwnerService), quotareleasereceipt.ReleaseEventIDEQ(in.ReleaseEventID)).Only(ctx)
 		replayed := e == nil
 		if replayed && receipt.PayloadHash != in.PayloadHash {
-			return releaseErrConflict("event payload mismatch")
+			return quotaerrors.ReleaseConflict("event payload mismatch")
 		}
 		if e != nil && !ent.IsNotFound(e) {
 			return e
@@ -400,23 +402,23 @@ func cancelLocked(ctx context.Context, tx *ent.Tx, op *ent.QuotaOperation, charg
 	}
 	if op.DispatchState == "CANCELED_UNSENT" {
 		if op.AttemptCount != 0 || len(charges) == 0 {
-			return QuotaErrInvalid("inconsistent local cancellation")
+			return quotapb.ErrorInvalidQuotaRequest("%s", "inconsistent local cancellation")
 		}
 		if e := validateFrozenCharges(op.CanonicalRequest, charges); e != nil {
 			return e
 		}
 		for _, charge := range charges {
 			if charge.ReleasedUnits != charge.OriginalUnits {
-				return QuotaErrInvalid("local cancellation has incomplete refunds")
+				return quotapb.ErrorInvalidQuotaRequest("%s", "local cancellation has incomplete refunds")
 			}
 		}
 		return nil
 	}
 	if op.DispatchState != "QUEUED" || op.AttemptCount != 0 {
-		return QuotaErrInvalid("owner closure required after a send attempt")
+		return quotapb.ErrorInvalidQuotaRequest("%s", "owner closure required after a send attempt")
 	}
 	if len(charges) == 0 {
-		return QuotaErrInvalid("missing original charges")
+		return quotapb.ErrorInvalidQuotaRequest("%s", "missing original charges")
 	}
 	if e := validateFrozenCharges(op.CanonicalRequest, charges); e != nil {
 		return e
@@ -441,7 +443,7 @@ func cancelLocked(ctx context.Context, tx *ent.Tx, op *ent.QuotaOperation, charg
 		return e
 	}
 	if n != 1 {
-		return QuotaErrInvalid("operation concurrently claimed")
+		return quotapb.ErrorInvalidQuotaRequest("%s", "operation concurrently claimed")
 	}
 	return nil
 }
@@ -464,7 +466,7 @@ func (r *QuotaLedgerRepo) CancelUnsent(ctx context.Context, tid uint32, id strin
 }
 func (r *QuotaLedgerRepo) CreateDeleteOperation(ctx context.Context, in *QuotaDeleteInput) (out *QuotaDeleteResult, err error) {
 	if in == nil || in.TenantID == 0 || in.IdempotencyKey == "" || in.RequestHash == "" || in.ResourceID == "" || in.OwnerService == "" || in.ActorType == "" || in.ActorID == "" || in.Action == "" || in.CanonicalRequest == "" {
-		return nil, QuotaErrInvalid("incomplete delete input")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "incomplete delete input")
 	}
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
 		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
@@ -479,14 +481,14 @@ func (r *QuotaLedgerRepo) CreateDeleteOperation(ctx context.Context, in *QuotaDe
 		existing, e := tx.QuotaOperation.Query().Where(quotaoperation.TenantIDEQ(tid), quotaoperation.ActorTypeEQ(in.ActorType), quotaoperation.ActorIDEQ(in.ActorID), quotaoperation.ActionEQ(in.Action), quotaoperation.IdempotencyKeyEQ(in.IdempotencyKey)).Only(ctx)
 		replay := e == nil
 		if replay && (existing.RequestHash != in.RequestHash || existing.OwnerService != in.OwnerService || existing.ResourceID != in.ResourceID) {
-			return QuotaErrIdempotencyConflict("delete idempotency mismatch")
+			return quotapb.ErrorIdempotencyConflict("%s", "delete idempotency mismatch")
 		}
 		if e != nil && !ent.IsNotFound(e) {
 			return e
 		}
 		original, e := tx.QuotaOperation.Query().Where(quotaoperation.TenantIDEQ(tid), quotaoperation.OwnerServiceEQ(in.OwnerService), quotaoperation.ResourceIDEQ(in.ResourceID), quotaoperation.CreateOperationIDIsNil()).Only(ctx)
 		if ent.IsNotFound(e) {
-			return QuotaErrNotFound("resource not found")
+			return quotapb.ErrorQuotaNotFound("%s", "resource not found")
 		}
 		if e != nil {
 			return e
@@ -500,7 +502,7 @@ func (r *QuotaLedgerRepo) CreateDeleteOperation(ctx context.Context, in *QuotaDe
 			return e
 		}
 		if len(charges) == 0 {
-			return QuotaErrInvalid("missing original charge vector")
+			return quotapb.ErrorInvalidQuotaRequest("%s", "missing original charge vector")
 		}
 		if e = validateFrozenCharges(original.CanonicalRequest, charges); e != nil {
 			return e
@@ -511,7 +513,7 @@ func (r *QuotaLedgerRepo) CreateDeleteOperation(ctx context.Context, in *QuotaDe
 		}
 		if replay {
 			if existing.CreateOperationID == nil || *existing.CreateOperationID != original.OperationID {
-				return QuotaErrIdempotencyConflict("delete origin mismatch")
+				return quotapb.ErrorIdempotencyConflict("%s", "delete origin mismatch")
 			}
 			if gpu {
 				accepted, e := tx.GpuDeleteAcceptance.Query().Where(gpudeleteacceptance.TenantIDEQ(tid), gpudeleteacceptance.DeleteOperationIDEQ(existing.OperationID)).Only(ctx)
@@ -519,7 +521,7 @@ func (r *QuotaLedgerRepo) CreateDeleteOperation(ctx context.Context, in *QuotaDe
 					return e
 				}
 				if accepted.CreateOperationID != original.OperationID || accepted.RequestHash != in.RequestHash {
-					return QuotaErrIdempotencyConflict("GPU delete acceptance mismatch")
+					return quotapb.ErrorIdempotencyConflict("%s", "GPU delete acceptance mismatch")
 				}
 			}
 			out = deleteResult(existing, charges, true)
@@ -621,7 +623,7 @@ func (r *QuotaLedgerRepo) GetChargeForOperation(ctx context.Context, tid uint32,
 		return nil, e
 	}
 	if len(cs) != 1 {
-		return nil, QuotaErrInvalid("single-charge interface cannot represent the complete operation")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "single-charge interface cannot represent the complete operation")
 	}
 	return cs[0], nil
 }
@@ -635,7 +637,7 @@ func (r *QuotaLedgerRepo) FindCreateOperationByResource(ctx context.Context, tid
 }
 func (r *QuotaLedgerRepo) RecomputeInvariants(ctx context.Context, tid uint32) (out []InvariantRow, err error) {
 	if tid == 0 {
-		return nil, QuotaErrInvalid("tenant is required")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "tenant is required")
 	}
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
 		ctx := appViewer.NewSystemViewerContext(ctx)
@@ -673,7 +675,7 @@ func (r *QuotaLedgerRepo) RecomputeInvariants(ctx context.Context, tid uint32) (
 // after that scan is explicitly tenant scoped.
 func (r *QuotaLedgerRepo) ClaimDispatchable(ctx context.Context, worker string, lease time.Duration, limit int) (out []ClaimedOperation, err error) {
 	if limit < 1 || limit > 100 || worker == "" || lease <= 0 {
-		return nil, QuotaErrInvalid("invalid worker claim")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid worker claim")
 	}
 	var candidates []*ent.QuotaOperation
 	if err = r.transaction(ctx, func(tx *ent.Tx) error {
@@ -721,7 +723,7 @@ func (r *QuotaLedgerRepo) ClaimDispatchable(ctx context.Context, worker string, 
 					return e
 				}
 				if n != 1 {
-					return QuotaErrInvalid("failed to retain invalid original charge claim")
+					return quotapb.ErrorInvalidQuotaRequest("%s", "failed to retain invalid original charge claim")
 				}
 				return nil
 			}
@@ -787,7 +789,7 @@ func (r *QuotaLedgerRepo) ResumeDispatch(ctx context.Context, tid uint32, id str
 			return e
 		}
 		if n != 1 {
-			return QuotaErrNotFound("blocked operation not found")
+			return quotapb.ErrorQuotaNotFound("%s", "blocked operation not found")
 		}
 		return nil
 	})

@@ -5,7 +5,7 @@ package admin.service.v1;
 import "google/api/annotations.proto";
 
 import "pagination/v1/pagination.proto";
-import "quota/service/v1/quota_catalog.proto";
+import public "admin/service/v1/quota_types.proto";
 
 // 配额目录与租户账户读取服务（QUOTA-01/02）。
 // 仅平台管理权限；读取沿用现有分页与成功 JSON 风格，不加全局 code/data envelope。
@@ -23,19 +23,4 @@ service QuotaAdminService {
       get: "/admin/v1/tenants/{id}/quota-accounts"
     };
   }
-}
-
-message ListQuotaDefinitionsResponse {
-  repeated quota.service.v1.QuotaDefinition items = 1;
-  uint64 total = 2;
-}
-
-message GetTenantQuotaAccountsRequest {
-  // 路径参数；平台管理读取。租户身份不能通过修改 path id 查询他人账户。
-  uint32 id = 1 [json_name = "id"];
-}
-
-message ListTenantQuotaAccountsResponse {
-  uint32 tenant_id = 1 [json_name = "tenantId"];
-  repeated quota.service.v1.QuotaAccountView items = 2;
 }

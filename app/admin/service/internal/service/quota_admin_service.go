@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
@@ -41,7 +42,7 @@ func requirePlatformUser(ctx context.Context) error {
 		return err
 	}
 	if p.Type != auth.SubjectUser || p.TenantID != 0 {
-		return data.QuotaErrNotFound("tenant not found")
+		return quotapb.ErrorQuotaNotFound("%s", "tenant not found")
 	}
 	return nil
 }
@@ -50,15 +51,23 @@ func (s *QuotaAdminService) ListQuotaDefinitions(ctx context.Context, req *pagin
 	if err := requirePlatformUser(ctx); err != nil {
 		return nil, err
 	}
-	return s.quotaAdminRepo.ListDefinitions(ctx, req)
+	result, err := s.quotaAdminRepo.ListDefinitions(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &adminV1.ListQuotaDefinitionsResponse{Items: result.Items, Total: result.Total}, nil
 }
 
 func (s *QuotaAdminService) ListTenantQuotaAccounts(ctx context.Context, req *adminV1.GetTenantQuotaAccountsRequest) (*adminV1.ListTenantQuotaAccountsResponse, error) {
 	if req == nil || req.GetId() == 0 {
-		return nil, data.QuotaErrInvalid("tenant id is required")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "tenant id is required")
 	}
 	if err := requirePlatformUser(ctx); err != nil {
 		return nil, err
 	}
-	return s.quotaAdminRepo.ListTenantAccounts(ctx, req.GetId())
+	items, err := s.quotaAdminRepo.ListTenantAccounts(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	return &adminV1.ListTenantQuotaAccountsResponse{TenantId: req.GetId(), Items: items}, nil
 }

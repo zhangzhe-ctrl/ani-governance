@@ -6,19 +6,20 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/hex"
+	"errors"
 	"fmt"
+	"go-wind-admin/pkg/quotaerrors"
 	"net"
 	"os"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/peer"
-	"google.golang.org/grpc/status"
 
 	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 
@@ -76,6 +77,12 @@ type QuotaInternalServer struct {
 	listener   net.Listener
 	ledger     *data.QuotaLedgerRepo
 	owners     map[string]string // 精确 SAN -> owner_service
+
+	lifecycleMu sync.Mutex
+	started     bool
+	stopping    bool
+	serveDone   chan struct{}
+	stopDone    chan struct{}
 }
 
 // NewQuotaInternalServer 构造；disabled 返回 (nil, nil)。
@@ -130,11 +137,11 @@ func NewQuotaInternalServer(cfg QuotaInternalServerConfig, ledger *data.QuotaLed
 func (s *QuotaInternalServer) authInterceptor(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	p, ok := peer.FromContext(ctx)
 	if !ok || p == nil {
-		return nil, status.Error(codes.Unauthenticated, "QUOTA_RELEASE_DENIED: missing peer")
+		return nil, quotaerrors.ReleaseUnauthenticated("missing peer")
 	}
 	tlsInfo, ok := p.AuthInfo.(credentials.TLSInfo)
 	if !ok || len(tlsInfo.State.VerifiedChains) == 0 {
-		return nil, status.Error(codes.Unauthenticated, "QUOTA_RELEASE_DENIED: client certificate required")
+		return nil, quotaerrors.ReleaseUnauthenticated("client certificate required")
 	}
 	leaf := tlsInfo.State.VerifiedChains[0][0]
 	// 同一 SAN 集内必须恰好命中一个已注册 owner；同 CA 的另一服务不能退他人额度。
@@ -142,13 +149,13 @@ func (s *QuotaInternalServer) authInterceptor(ctx context.Context, req interface
 	for _, name := range leaf.DNSNames {
 		if mapped, registered := s.owners[name]; registered {
 			if ownerService != "" && ownerService != mapped {
-				return nil, status.Error(codes.Unauthenticated, "QUOTA_RELEASE_DENIED: ambiguous certificate identity")
+				return nil, quotaerrors.ReleaseUnauthenticated("ambiguous certificate identity")
 			}
 			ownerService = mapped
 		}
 	}
 	if ownerService == "" {
-		return nil, status.Error(codes.Unauthenticated, "QUOTA_RELEASE_DENIED: unknown client identity")
+		return nil, quotaerrors.ReleaseUnauthenticated("unknown client identity")
 	}
 	return handler(withQuotaOwner(ctx, ownerService), req)
 }
@@ -162,7 +169,7 @@ func withQuotaOwner(ctx context.Context, owner string) context.Context {
 func quotaOwnerFromContext(ctx context.Context) (string, error) {
 	owner, ok := ctx.Value(quotaOwnerKey{}).(string)
 	if !ok || owner == "" {
-		return "", status.Error(codes.Unauthenticated, "QUOTA_RELEASE_DENIED: missing verified owner")
+		return "", quotaerrors.ReleaseUnauthenticated("missing verified owner")
 	}
 	return owner, nil
 }
@@ -175,28 +182,28 @@ func (s *QuotaInternalServer) ReportQuotaRelease(ctx context.Context, req *quota
 		return nil, err
 	}
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "INVALID_QUOTA_REQUEST: empty request")
+		return nil, quotaerrors.ReleaseInvalid("empty request")
 	}
 	if _, perr := uuid.Parse(req.GetReleaseEventId()); perr != nil {
-		return nil, status.Error(codes.InvalidArgument, "INVALID_QUOTA_REQUEST: release_event_id must be a UUID")
+		return nil, quotaerrors.ReleaseInvalid("release_event_id must be a UUID")
 	}
 	if _, perr := uuid.Parse(req.GetOperationId()); perr != nil {
-		return nil, status.Error(codes.InvalidArgument, "INVALID_QUOTA_REQUEST: operation_id must be a UUID")
+		return nil, quotaerrors.ReleaseInvalid("operation_id must be a UUID")
 	}
 	items := req.GetItems()
 	if len(items) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "INVALID_QUOTA_REQUEST: items must not be empty")
+		return nil, quotaerrors.ReleaseInvalid("items must not be empty")
 	}
 	if len(items) > 16 {
-		return nil, status.Error(codes.InvalidArgument, "INVALID_QUOTA_REQUEST: at most 16 items")
+		return nil, quotaerrors.ReleaseInvalid("at most 16 items")
 	}
 	switch req.GetReason() {
 	case quotapb.ReleaseReason_ABORTED_CLEANED, quotapb.ReleaseReason_RESOURCE_RELEASED:
 	default:
-		return nil, status.Error(codes.InvalidArgument, "INVALID_QUOTA_REQUEST: reason must be ABORTED_CLEANED or RESOURCE_RELEASED")
+		return nil, quotaerrors.ReleaseInvalid("reason must be ABORTED_CLEANED or RESOURCE_RELEASED")
 	}
 	if len(req.GetResourceRefs()) > 64 {
-		return nil, status.Error(codes.InvalidArgument, "INVALID_QUOTA_REQUEST: at most 64 resource_refs")
+		return nil, quotaerrors.ReleaseInvalid("at most 64 resource_refs")
 	}
 
 	// 同 charge 重复 item 拒绝；协议内部数量用整数。
@@ -204,13 +211,13 @@ func (s *QuotaInternalServer) ReportQuotaRelease(ctx context.Context, req *quota
 	releaseItems := make([]data.QuotaReleaseItemInput, 0, len(items))
 	for _, it := range items {
 		if _, perr := uuid.Parse(it.GetChargeId()); perr != nil {
-			return nil, status.Error(codes.InvalidArgument, "INVALID_QUOTA_REQUEST: charge_id must be a UUID")
+			return nil, quotaerrors.ReleaseInvalid("charge_id must be a UUID")
 		}
 		if it.GetQuotaCode() == "" {
-			return nil, status.Error(codes.InvalidArgument, "INVALID_QUOTA_REQUEST: quota_code is required")
+			return nil, quotaerrors.ReleaseInvalid("quota_code is required")
 		}
 		if _, dup := seen[it.GetChargeId()]; dup {
-			return nil, status.Error(codes.InvalidArgument, "INVALID_QUOTA_REQUEST: duplicate charge item")
+			return nil, quotaerrors.ReleaseInvalid("duplicate charge item")
 		}
 		seen[it.GetChargeId()] = struct{}{}
 		releaseItems = append(releaseItems, data.QuotaReleaseItemInput{
@@ -307,27 +314,74 @@ func quotaReleasePayloadJSON(req *quotapb.ReportQuotaReleaseRequest, owner strin
 	return b.String()
 }
 
-// Start 实现 transport.Server 生命周期。
+// Start 实现 transport.Server 生命周期。Kratos 自己并发启动各个 Server；
+// 此处阻塞到 Serve 退出，才能把异常交还给 App.Run。
 func (s *QuotaInternalServer) Start(_ context.Context) error {
-	go func() {
-		if err := s.grpcServer.Serve(s.listener); err != nil {
-			_ = err // Stop 时正常返回错误；记录交给调用方日志
-		}
-	}()
-	return nil
+	s.lifecycleMu.Lock()
+	if s.started || s.stopping {
+		s.lifecycleMu.Unlock()
+		return fmt.Errorf("quota internal server already started or stopped")
+	}
+	s.started = true
+	s.serveDone = make(chan struct{})
+	s.lifecycleMu.Unlock()
+
+	defer close(s.serveDone)
+	err := s.grpcServer.Serve(s.listener)
+	if err == nil {
+		return nil
+	}
+	s.lifecycleMu.Lock()
+	stopping := s.stopping
+	s.lifecycleMu.Unlock()
+	if stopping && errors.Is(err, grpc.ErrServerStopped) {
+		return nil
+	}
+	return fmt.Errorf("serve quota internal gRPC: %w", err)
 }
 
-// Stop 优雅停止。
-func (s *QuotaInternalServer) Stop(_ context.Context) error {
-	stopped := make(chan struct{})
+// Stop 优雅停止，以调用者期限和三秒上限中较早者为准。
+// 构造期 listener 尚未交给 gRPC Serve 时也必须由本对象关闭。
+func (s *QuotaInternalServer) Stop(ctx context.Context) error {
+	s.lifecycleMu.Lock()
+	if s.stopping {
+		done := s.stopDone
+		s.lifecycleMu.Unlock()
+		select {
+		case <-done:
+			return nil
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+	s.stopping = true
+	started := s.started
+	serveDone := s.serveDone
+	done := make(chan struct{})
+	s.stopDone = done
+	s.lifecycleMu.Unlock()
+
+	if !started {
+		_ = s.listener.Close()
+	}
 	go func() {
 		s.grpcServer.GracefulStop()
-		close(stopped)
+		_ = s.listener.Close()
+		if started {
+			<-serveDone
+		}
+		close(done)
 	}()
+	timer := time.NewTimer(3 * time.Second)
+	defer timer.Stop()
 	select {
-	case <-stopped:
-	case <-time.After(3 * time.Second):
+	case <-done:
+		return nil
+	case <-ctx.Done():
 		s.grpcServer.Stop()
+		return ctx.Err()
+	case <-timer.C:
+		s.grpcServer.Stop()
+		return fmt.Errorf("quota internal graceful stop timed out: %w", context.DeadlineExceeded)
 	}
-	return nil
 }

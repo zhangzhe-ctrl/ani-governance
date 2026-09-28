@@ -17,6 +17,12 @@ bash scripts/ci/with-redis.sh run -- go test -json -tags quota_pg -count=1 -time
 bash scripts/ci/with-redis.sh run -- go test -json -tags quota_pg -count=1 -timeout=10m ./app/admin/service/internal/service >> "$log"
 python3 scripts/ci/assert-test-results.py --required tests/manifests/critical-tests.json --log "$log" --summary "$evidence/critical-results.json"
 echo 'race: data (three selected tests)' >&2
-ANI_TEST_DATABASE_DSN="$ANI_TEST_RACE_DATA_DSN" go test -json -race -tags quota_pg -count=1 -timeout=20m -run '^(TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard)$' ./app/admin/service/internal/data >> "$log"
+data_race_tests='^(TestQuotaPostgresConcurrentLimit|TestQuotaPostgresCancelClaimRace|TestQuotaPostgresLeaseGenerationGuard)$'
+data_race_log="$evidence/race-data-tests.jsonl"
+ANI_TEST_DATABASE_DSN="$ANI_TEST_RACE_DATA_DSN" go test -json -race -tags quota_pg -count=1 -timeout=20m -run "$data_race_tests" ./app/admin/service/internal/data > "$data_race_log"
+python3 scripts/ci/assert-test-results.py --required tests/manifests/critical-tests.json --test-regex "$data_race_tests" --log "$data_race_log" --summary "$evidence/race-data-results.json"
 echo 'race: service (one selected test)' >&2
-ANI_TEST_DATABASE_DSN="$ANI_TEST_RACE_SERVICE_DSN" go test -json -race -tags quota_pg -count=1 -timeout=20m -run '^TestQuotaDispatchRetryAfterLostAck$' ./app/admin/service/internal/service >> "$log"
+service_race_tests='^TestQuotaDispatchRetryAfterLostAck$'
+service_race_log="$evidence/race-service-tests.jsonl"
+ANI_TEST_DATABASE_DSN="$ANI_TEST_RACE_SERVICE_DSN" go test -json -race -tags quota_pg -count=1 -timeout=20m -run "$service_race_tests" ./app/admin/service/internal/service > "$service_race_log"
+python3 scripts/ci/assert-test-results.py --required tests/manifests/critical-tests.json --test-regex "$service_race_tests" --log "$service_race_log" --summary "$evidence/race-service-results.json"

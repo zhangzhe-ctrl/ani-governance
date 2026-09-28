@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"strconv"
 
 	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
@@ -26,24 +27,24 @@ func (s *GpuBffLedgerBridge) ResolveGpuUsageRef(ctx context.Context, tenant uint
 
 func (s *GpuBffLedgerBridge) GPUPreviewQuota(ctx context.Context, tenant uint32, items []*catalogv1.GpuPreviewQuotaItem) ([]*catalogv1.GpuPreviewQuotaCheck, error) {
 	if tenant == 0 {
-		return nil, data.QuotaErrNotFound("tenant not found")
+		return nil, quotapb.ErrorQuotaNotFound("%s", "tenant not found")
 	}
 	accounts, err := s.accounts.ListTenantAccounts(ctx, tenant)
 	if err != nil {
 		return nil, err
 	}
 	available := map[string]int64{}
-	for _, a := range accounts.Items {
+	for _, a := range accounts {
 		v, e := strconv.ParseInt(a.Available, 10, 64)
 		if e != nil || v < 0 {
-			return nil, data.QuotaErrInternal("invalid quota account amount")
+			return nil, quotapb.ErrorQuotaInternal("%s", "invalid quota account amount")
 		}
 		available[a.QuotaCode] = v
 	}
 	out := make([]*catalogv1.GpuPreviewQuotaCheck, 0, len(items))
 	for _, q := range items {
 		if q == nil || q.Units <= 0 || (q.QuotaCode != GpuPhysicalQuotaCode && q.QuotaCode != GpuSharedQuotaCode) {
-			return nil, data.QuotaErrInvalid("invalid GPU quota preview")
+			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid GPU quota preview")
 		}
 		v, found := available[q.QuotaCode]
 		state := "INSUFFICIENT"

@@ -27,7 +27,7 @@ var File_admin_service_v1_i_accelerator_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_accelerator_proto_rawDesc = "" +
 	"\n" +
-	"$admin/service/v1/i_accelerator.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$catalog/service/v1/accelerator.proto\x1a\x1eadmin/service/v1/i_quota.proto\x1a\x1bgoogle/protobuf/empty.proto2\xb0\x0e\n" +
+	"$admin/service/v1/i_accelerator.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$catalog/service/v1/accelerator.proto\x1a\"admin/service/v1/quota_types.proto\x1a\x1bgoogle/protobuf/empty.proto2\xb0\x0e\n" +
 	"\x17AcceleratorAdminService\x12\x8b\x01\n" +
 	"\fListClusters\x12*.catalog.service.v1.AcceleratorPageRequest\x1a'.catalog.service.v1.AcceleratorClusters\"&\x82\xd3\xe4\x93\x02 \x12\x1e/admin/v1/accelerator/clusters\x12\x9b\x01\n" +
 	"\x0fRegisterCluster\x125.catalog.service.v1.RegisterAcceleratorClusterRequest\x1a&.catalog.service.v1.AcceleratorCluster\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/admin/v1/accelerator/clusters\x12\x82\x01\n" +
@@ -138,7 +138,7 @@ func file_admin_service_v1_i_accelerator_proto_init() {
 	if File_admin_service_v1_i_accelerator_proto != nil {
 		return
 	}
-	file_admin_service_v1_i_quota_proto_init()
+	file_admin_service_v1_quota_types_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

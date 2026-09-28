@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package quota.service.v1;
+
+import "errors/errors.proto";
+
+// Governance 配额公开错误 reason。内部退额 gRPC 状态另按其独立合同映射。
+enum QuotaErrorReason {
+  option (errors.default_code) = 500;
+
+  INVALID_QUOTA_REQUEST = 0 [(errors.code) = 400];
+  IDEMPOTENCY_CONFLICT = 1 [(errors.code) = 409];
+  QUOTA_EXCEEDED = 2 [(errors.code) = 409];
+  QUOTA_NOT_CONFIGURED = 3 [(errors.code) = 403];
+  QUOTA_ADAPTER_UNAVAILABLE = 4 [(errors.code) = 503];
+  QUOTA_ADMISSION_DENIED = 5 [(errors.code) = 403];
+  QUOTA_STORAGE_UNAVAILABLE = 6 [(errors.code) = 503];
+  QUOTA_HISTORY_PRESENT = 7 [(errors.code) = 409];
+  QUOTA_NOT_FOUND = 8 [(errors.code) = 404];
+  QUOTA_INTERNAL = 9 [(errors.code) = 500];
+}
