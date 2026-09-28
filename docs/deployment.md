@@ -3,7 +3,7 @@
 固定顺序：**Atlas 迁移结构 → 显式初始化数据 → 检查 → 启动服务 → 登录/API 验收**。
 服务启动不建表、不播种、不同步 API、不恢复默认密码。配置 `data.database.migrate` 必须为 `false`；旧配置为 `true` 时明确报错。
 
-初始化复验应使用全新、可丢弃且以 `_bootstrap_test` 结尾的独占库，设置 `GOV_BOOTSTRAP_TEST_DSN` 后运行 `go test -count=1 -run 'Test(BootstrapPostgres|EntClientRejectsStartupMigration)$' ./app/admin/service/internal/data`。另可运行 `go test -count=1 -run 'Test(ConstructorsDoNotAccessDatabase|CatalogValidation|ServiceTagToBusinessModuleExactMapping)$' ./sql/bootstrap ./app/admin/service/internal/service ./pkg/constants`。测试的 `Schema.Create` 仅用于临时测试库；实际部署仍按 Atlas 与显式 admin CLI 流程执行。历史部署结果只对应其当时源码与环境，不能代替当前复验。
+初始化复验应使用全新、可丢弃且以 `_bootstrap_test` 结尾的独占库，设置 `GOV_BOOTSTRAP_TEST_DSN` 后运行 `go test -tags=quota_pg -count=1 -run 'Test(BootstrapPostgres|EntClientRejectsStartupMigration)$' ./app/admin/service/internal/data`。该标签使测试包注册 pgx 驱动；只用 `-run` 不会注册它。另可运行 `go test -count=1 -run 'Test(ConstructorsDoNotAccessDatabase|CatalogValidation|ServiceTagToBusinessModuleExactMapping)$' ./sql/bootstrap ./app/admin/service/internal/service ./pkg/constants`。测试的 `Schema.Create` 仅用于临时测试库；实际部署仍按 Atlas 与显式 admin CLI 流程执行。历史部署结果只对应其当时源码与环境，不能代替当前复验。
 
 ## 1. 准备配置和制品
 

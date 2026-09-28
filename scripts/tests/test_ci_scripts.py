@@ -279,14 +279,18 @@ if os.environ.get('FAIL_KIND') == kind: sys.exit(43 if kind == 'quota-server' el
             program = ('import os,pathlib,sys; d=pathlib.Path(os.environ["ANI_CI_EVIDENCE_DIR"]); '
                        '(d/"generation-baseline.json").write_text("{}\\n"); '
                        '(d/"gow-tests.jsonl").write_text("{\\"Action\\":\\"fail\\"}\\n"); '
-                       '(d/"tools-integration.log").write_text("fixture failure\\n"); sys.exit(37)')
+                       '(d/"gow-tests.rc").write_text("0\\n"); '
+                       '(d/"tools-integration.log").write_text("fixture failure\\n"); '
+                       '(d/"tools-integration.rc").write_text("37\\n"); sys.exit(37)')
             result = subprocess.run(['bash', str(REPO / 'scripts/ci/run-with-evidence.sh'),
                                      'generation', '--', 'python3', '-c', program],
                                     env=env, capture_output=True)
             self.assertEqual(result.returncode, 37, result.stderr)
             public = root / 'public/generation'
-            for name in ('generation-baseline.json', 'gow-tests.jsonl', 'tools-integration.log'):
+            for name in ('generation-baseline.json', 'gow-tests.jsonl', 'gow-tests.rc',
+                         'tools-integration.log', 'tools-integration.rc'):
                 self.assertTrue((public / name).is_file(), name)
+            self.assertEqual((public / 'tools-integration.rc').read_text().strip(), '37')
             self.assertEqual((root / 'public/job-status.txt').read_text().strip(), 'fail')
 
 

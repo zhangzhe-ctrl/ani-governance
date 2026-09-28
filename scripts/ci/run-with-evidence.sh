@@ -46,7 +46,7 @@ cp "$raw/ended-at.txt" "$public/ended-at.txt"
 evidence_rc=0
 for name in stdout.log stderr.log go-tests.jsonl critical-results.json \
             generation-baseline.json generation-first.json generation-second.json \
-            gow-tests.jsonl tools-integration.log resources.log; do
+            gow-tests.jsonl gow-tests.rc tools-integration.log tools-integration.rc resources.log; do
   if test -f "$raw/$name"; then
     python3 scripts/ci/redact-evidence.py "$raw/$name" "$public/$name" || evidence_rc=$?
   fi

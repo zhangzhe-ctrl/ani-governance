@@ -44,6 +44,18 @@ python3 "$compare" compare \
 log_dir=${ANI_CI_EVIDENCE_DIR:-$work/manifests}
 mkdir -p "$log_dir"
 echo 'generation: localized gow tests'
-GOWORK=off go test -json -count=1 ./tools/... > "$log_dir/gow-tests.jsonl"
+if GOWORK=off go test -json -count=1 ./tools/... > "$log_dir/gow-tests.jsonl"; then
+  printf '0\n' > "$log_dir/gow-tests.rc"
+else
+  rc=$?
+  printf '%s\n' "$rc" > "$log_dir/gow-tests.rc"
+  exit "$rc"
+fi
 echo 'generation: redact plugin integration'
-GOWORK=off make tools-integration > "$log_dir/tools-integration.log" 2>&1
+if GOWORK=off make tools-integration > "$log_dir/tools-integration.log" 2>&1; then
+  printf '0\n' > "$log_dir/tools-integration.rc"
+else
+  rc=$?
+  printf '%s\n' "$rc" > "$log_dir/tools-integration.rc"
+  exit "$rc"
+fi

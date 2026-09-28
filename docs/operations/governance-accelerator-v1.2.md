@@ -145,7 +145,7 @@ sha256sum "$GOV_BACKUP_FILE" > "$GOV_BACKUP_FILE.sha256"
 恢复顺序：
 
 1. 保持新受理与所有相关 worker 停止；记录原库仍保留、备份 hash 和目标库唯一身份。
-2. 恢复完整 dump（包括序列/版本记录），比较逐表行数与规范摘要，参照 [table_digests.sql](../../scripts/ops/sql/compare-table-content.sql)。先确认恢复版本，再显式迁移缺少的批准版本。
+2. 恢复完整 dump（包括序列/版本记录），比较逐表行数与规范摘要，参照 [compare-table-content.sql](../../scripts/ops/sql/compare-table-content.sql)。先确认恢复版本，再显式迁移缺少的批准版本。
 3. 用 runtime 检查 no-RLS/policy、非 owner/noDDL/TEMP、tenant/ref/FK/JSON约束；核对原 charge/released/account 不变量和 DELETE/receipt 唯一性。
 4. 分别恢复 owner 原命令、墓碑和通知 outbox；查清 Gov 与 owner 备份时间差可能导致的在途命令/退款。不得仅恢复较旧 Gov 账本就认为 owner 不存在晚执行。
 5. 在独立恢复环境先恢复原 dispatch、outbox 和 sync，验证原 ID 幂等、重复累计 delta=0、晚 ACK/CAS 拒绝和投影重建；不重seed、不清恢复数据后重新跑一条“干净闭环”。
