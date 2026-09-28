@@ -55,7 +55,7 @@ unset ANI_DATABASE_DSN
 
 [scripts/atlas.sh](../../scripts/atlas.sh) 进入 `app/admin/service` 并使用 [atlas.hcl](../../app/admin/service/atlas.hcl) 的 `governance` 环境。`ANI_ATLAS_DEV_DSN` 只用于开发期 diff 的独立可清空库，不能指向目标业务库；本次部署只 apply 已审查迁移。
 
-升级已有库不执行 `admin init`。首次空库初始化另按[通用部署说明](../deployment.md)独立完成；服务启动始终 `data.database.migrate: false`，true 会报错，不能作为自动升级开关。升级后明确执行 API 目录 dry-run、增量同步及 [Accelerator 权限补丁](../../sql/patches/20260923_accelerator_permissions.sql)，不自动给租户角色授权：
+升级已有库不执行 `admin init`。首次空库初始化另按[通用部署说明](../deployment.md)独立完成；服务启动始终 `data.database.migrate: false`，true 会报错，不能作为自动升级开关。升级后明确执行 API 目录 dry-run、增量同步及 [Accelerator 权限补丁](../../scripts/ops/sql/register-accelerator-permissions.sql)，不自动给租户角色授权：
 
 ```sh
 # 同版本 admin 制品；由受控运维身份连接已迁移的目标库。
@@ -65,9 +65,9 @@ unset ANI_DATABASE_DSN
 
 权限补丁显式登记 `(method,path)` 关联；套餐 ACCELERATOR 模块、精确角色权限、运行实例策略刷新和 Acc 下游 grant 是独立步骤。目录存在或 HTTP 200 健康检查不证明业务授权完整。
 
-runtime 必须是非表 owner、非 superuser、无 BYPASSRLS、无 schema/database CREATE、无 TEMP，且无可继承的 owner/DDL 权限。运行账号只拥有所需表 DML、序列及 schema USAGE。参考[运行授权 SQL](../../sql/gpu/ops/runtime_grants.sql)、[数据库权限收紧 SQL](../../sql/gpu/ops/restrict_database.sql)；它们含 psql 变量且会收紧 PUBLIC 权限，执行前审查实际数据库和所有合法使用者，不能对共享未知库照搬。
+runtime 必须是非表 owner、非 superuser、无 BYPASSRLS、无 schema/database CREATE、无 TEMP，且无可继承的 owner/DDL 权限。运行账号只拥有所需表 DML、序列及 schema USAGE。参考[运行授权 SQL](../../scripts/ops/sql/grant-runtime-role.sql)、[数据库权限收紧 SQL](../../scripts/ops/sql/restrict-database.sql)；它们含 psql 变量且会收紧 PUBLIC 权限，执行前审查实际数据库和所有合法使用者，不能对共享未知库照搬。
 
-用**实际 runtime 连接**执行[角色/RLS 审计 SQL](../../sql/gpu/ops/rls_audit.sql)，确认 flags、owner、policy、tenant nullable 和权限；再通过受限角色测试确认 DDL/TEMP 被拒绝。所有租户读取/写入/幂等/分页/后台 CAS 显式保留 tenant；禁用 tenant GUC、SET ROLE、SET row_security 或提升成 BYPASSRLS 来绕过错误。全局目录不是 tenant=0 业务数据。
+用**实际 runtime 连接**执行[角色/RLS 审计 SQL](../../scripts/ops/sql/audit-runtime-privileges.sql)，确认 flags、owner、policy、tenant nullable 和权限；再通过受限角色测试确认 DDL/TEMP 被拒绝。所有租户读取/写入/幂等/分页/后台 CAS 显式保留 tenant；禁用 tenant GUC、SET ROLE、SET row_security 或提升成 BYPASSRLS 来绕过错误。全局目录不是 tenant=0 业务数据。
 
 ## 4. 受控配置与启动/停机顺序
 
@@ -103,7 +103,7 @@ usage worker 每秒触发有界扫描，按原 CREATE 分页，每轮结束回�
 
 sync 每次在 RPC 前单独领取，15 秒 lease、3 秒调用超时；网络在事务外。回写核对原 tenant/operation/revision/generation/实际领取状态，旧 ACK 不确认新 revision。传输故障按 1/2/4/8/16/30 秒上限退避重发原 payload；同步不得修改业务 dispatch attempt、charges 或余额。
 
-发现缺行时先确认原事实完整并恢复正常 worker，**不要先删全表或重置所有 ACK**。测试 SQL [restore_pending_projection.sql](../../sql/gpu/ops/restore_pending_projection.sql) 是隔离故障夹具，会批量改派生进度，不是生产恢复命令；同目录 `failure_fixture`、`formal_fixture_clear_ledger`、`old_version_fixture`、`joint_b_fixture` 也不能在运行库执行。
+发现缺行时先确认原事实完整并恢复正常 worker，**不要先删全表或重置所有 ACK**。旧 `restore_pending_projection.sql`、`failure_fixture`、`formal_fixture_clear_ledger`、`old_version_fixture` 故障夹具已退出 HEAD，不能从历史提交取出后在运行库执行。跨仓合同的 `governance-seed.sql` 只用于独占测试库的显式准备，见 [实验入口](../../scripts/experiments/gpu-contract/README.md)。
 
 ## 6. 错误、永久阻断与原 charge 损坏
 
@@ -145,7 +145,7 @@ sha256sum "$GOV_BACKUP_FILE" > "$GOV_BACKUP_FILE.sha256"
 恢复顺序：
 
 1. 保持新受理与所有相关 worker 停止；记录原库仍保留、备份 hash 和目标库唯一身份。
-2. 恢复完整 dump（包括序列/版本记录），比较逐表行数与规范摘要，参照 [table_digests.sql](../../sql/gpu/ops/table_digests.sql)。先确认恢复版本，再显式迁移缺少的批准版本。
+2. 恢复完整 dump（包括序列/版本记录），比较逐表行数与规范摘要，参照 [table_digests.sql](../../scripts/ops/sql/compare-table-content.sql)。先确认恢复版本，再显式迁移缺少的批准版本。
 3. 用 runtime 检查 no-RLS/policy、非 owner/noDDL/TEMP、tenant/ref/FK/JSON约束；核对原 charge/released/account 不变量和 DELETE/receipt 唯一性。
 4. 分别恢复 owner 原命令、墓碑和通知 outbox；查清 Gov 与 owner 备份时间差可能导致的在途命令/退款。不得仅恢复较旧 Gov 账本就认为 owner 不存在晚执行。
 5. 在独立恢复环境先恢复原 dispatch、outbox 和 sync，验证原 ID 幂等、重复累计 delta=0、晚 ACK/CAS 拒绝和投影重建；不重seed、不清恢复数据后重新跑一条“干净闭环”。
@@ -155,7 +155,7 @@ sha256sum "$GOV_BACKUP_FILE" > "$GOV_BACKUP_FILE.sha256"
 
 ## 8. 验证入口和历史暂停
 
-Gov `make verify-gpu` 包含Ent/结构生成无漂移、配额 Ent 执行边界扫描、格式、正式/lab/admin构建、受影响单元/真实PG/race、lab及固定漏洞/secret审计。运行方式见[数据层复跑说明](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/data-layer.md)。普通 data suite 会清理它自己的测试账本，**只能使用其独立 data 库**；不能把 joint-B、owner或恢复业务库DSN传给它。
+当前 Gov `make verify-ci` 串行运行 `check`、`test-integration`、`check-generated`；它覆盖格式、配额 Ent 执行边界扫描、受影响测试与真实 PG/race、完整生成和固定漏洞/secret 审计。旧 `verify-gpu` 的运行记录见[数据层历史复跑说明](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/data-layer.md)，只对应旧 SHA。普通 data suite 会清理它自己的测试账本，**只能使用其独立 data 库**；不能把 joint-B、owner 或恢复业务库 DSN 传给它。
 
 跨仓真实软件联调仍须另跑 `scripts/accelerator-acceptance/run-joint-contract.sh`、BFF和正式A边界脚本，使用明确不同 A/B DSN/CA/config。Acc 使用其固定版本的 `make verify`。所有结果落入[95项验收结果表](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/acceptance-results.md)，记录精确版本、source manifest、命令/退出码、原始失败与复跑，不用 component PASS 代替整项。
 

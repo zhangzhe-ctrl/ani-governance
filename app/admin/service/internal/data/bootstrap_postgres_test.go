@@ -73,7 +73,7 @@ func TestBootstrapPostgres(t *testing.T) {
 	var logoutGrants int
 	require.NoError(t, db.QueryRowContext(ctx, logoutGrant).Scan(&logoutGrants))
 	require.Equal(t, 1, logoutGrants)
-	patch, err := os.ReadFile("../../../../../sql/patches/20260921_tenant_logout.sql")
+	patch, err := os.ReadFile("../../../../../scripts/ops/sql/repair-tenant-logout.sql")
 	require.NoError(t, err)
 	// Reproduce the old seed omission; the patch may only add this one binding.
 	_, err = db.ExecContext(ctx, `DELETE FROM sys_permission_apis WHERE permission_id IN

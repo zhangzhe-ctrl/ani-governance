@@ -12,5 +12,7 @@
 | [GPU owner 合同](contracts/gpu-owner-integration-guide.md) | 账本、释放、测试 owner 与真实接入界限 |
 | [Governance/Accelerator 运维](operations/governance-accelerator-v1.2.md) | 运行操作和恢复边界 |
 | [脚本导航](../scripts/README.md) | CI、运维和可选隔离实验 |
+| [版本数据步骤](../sql/data/README.md) | quota expand、数据回填、constraints 的显式顺序 |
+| [运维 SQL](../scripts/ops/sql/README.md) | 只读诊断与显式写入脚本的权限和目标边界 |
 
 [历史索引](history/README.md) 给出退出 HEAD 的迁移回执、原始证据、第三方来源和旧实验的固定提交。当前工具配置在 `tools/config/`；数据库结构迁移在 `migrations/`。历史结果只适用于当时记录的源码和环境，不能代替当前验证。
