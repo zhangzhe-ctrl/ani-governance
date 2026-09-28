@@ -173,6 +173,8 @@ API 目录同步也是显式动作：先执行 `admin sync-apis --dry-run`，核
 
 先定位已有同类 Service、Repository、Proto 和装配。领域 Proto 与 admin BFF 保持现有分工；治理侧不接管下游领域服务的数据写入职责。下游协议、身份映射和错误处理按现有 [业务服务接入指南](service-integration.md) 与具体客户端源码核对。
 
+配额公开错误 reason 定义在 `api/protos/quota/service/v1/error_reason.proto`，由完整 `make api` 生成；内部退额 gRPC 状态使用显式 code/message/details 映射。三个既有 admin 配额消息集中在同包 `quota_types.proto`，完整消息名及有效 JSON 名保持原值；这只是现有 BFF 外壳的兼容归位，不表示所有消息均由 quota 领域包拥有。套餐配额读取复用 mapper、字段白名单、通用分页器及最终 FieldMask；PostgreSQL SEARCH、签名 token 校验和父套餐写锁仍是具名领域适配。
+
 新标准 CRUD 可以按需要使用 `make register ENTITY=<实体名>`，但该工具不能替代带额外依赖、配置和 cleanup 的手工装配；不运行 Wire。
 
 典型修改顺序：

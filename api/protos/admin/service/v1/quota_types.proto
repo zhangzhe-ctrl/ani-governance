@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "quota/service/v1/quota_catalog.proto";
+
+// 既有 admin BFF 外壳保留完整消息名；领域目录项仍由 quota 包定义。
+message ListQuotaDefinitionsResponse {
+  repeated quota.service.v1.QuotaDefinition items = 1;
+  uint64 total = 2; // 有效 JSON 名 total，protobuf JSON 为十进制字符串。
+}
+
+message GetTenantQuotaAccountsRequest {
+  // 路径参数；平台管理读取。租户身份不能通过修改 path id 查询他人账户。
+  uint32 id = 1 [json_name = "id"];
+}
+
+message ListTenantQuotaAccountsResponse {
+  uint32 tenant_id = 1 [json_name = "tenantId"];
+  repeated quota.service.v1.QuotaAccountView items = 2;
+}

@@ -981,6 +981,10 @@ HTTP 不接受 tenant/actor/context 作为身份来源；服务从已验证 Prin
 
 套餐配额列表恢复已接受的 SEARCH 空白、数值和时间字段语义；字段白名单、参数绑定、原分页/过滤、鉴权入口和报文不变。配额及 usage sync 的持久化时间恢复同一 PostgreSQL 事务时间。补充事务异常回滚与生产 SQL 审计断言，修复完整 checkout 格式门禁、Ent race 选择及 CI 证据 artifact。具体修改与执行证据见 [审核整改记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-quota-ent-review-20260924/README.md)。本批不新增接口、权限、数据库迁移或生产启用事实。
 
+### 配额合同兼容归位（本次工作树）
+
+QUOTA-01～04 与 ACC 既有路由、字段和鉴权保持原合同。`ListQuotaDefinitionsResponse`、`GetTenantQuotaAccountsRequest`、`ListTenantQuotaAccountsResponse` 仍属于 `admin.service.v1`，仅移至同包 `quota_types.proto`；`i_quota.proto` 公开导入，`i_accelerator.proto` 直接导入。该裁决只覆盖这三个旧外壳，不声称全部 admin 消息已经迁入 quota 领域。Repo 返回领域项和分页结果，Service 组装 BFF 外壳。公开 quota reason 由 quota 源 Proto 生成，内部退额状态保留独立 gRPC code/message/details。套餐配额保留 PostgreSQL SEARCH、签名 token 与父套餐写锁适配；目录查询在数据库执行分页和存在性判断。本段是源码合同记录，不代表部署或真实 GPU 验收。
+
 ## 2026-09-26 排查：T15 R5 旧客户端 → 新服务 HTTP 合同对照
 
 用冻结基线 d27847b 的 `api/gen/go` 生成物（buildinfo 仍含 `github.com/tx7do/go-crud/api v0.0.7`

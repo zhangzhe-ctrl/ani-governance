@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -387,7 +388,7 @@ func (r *TenantRepo) checkQuotaHistory(ctx context.Context, tenantId uint32) err
 			return identityV1.ErrorInternalServerError("check quota history failed")
 		}
 		if cnt > 0 {
-			return QuotaErrHistoryPresent("tenant has " + check.name + " records")
+			return quotapb.ErrorQuotaHistoryPresent("%s", "tenant has "+check.name+" records")
 		}
 	}
 	return nil

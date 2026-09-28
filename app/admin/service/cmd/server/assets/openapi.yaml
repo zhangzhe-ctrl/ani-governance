@@ -8988,6 +8988,7 @@ components:
                         $ref: '#/components/schemas/QuotaDefinition'
                 total:
                     type: string
+            description: 既有 admin BFF 外壳保留完整消息名；领域目录项仍由 quota 包定义。
         ListRoleResponse:
             type: object
             properties:

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"math"
 	"sort"
 	"strconv"
@@ -179,7 +180,7 @@ func GpuProjectionDigest(p *acc.GpuUsageProjection) (string, error) {
 // Capacity is deliberately absent: zero/unknown capacity is not a reservation.
 func GpuPlanQuota(p *acc.ResolvedGpuPlan) (data.QuotaOccupyItem, error) {
 	bad := func() (data.QuotaOccupyItem, error) {
-		return data.QuotaOccupyItem{}, data.QuotaErrInvalid("invalid frozen GPU plan")
+		return data.QuotaOccupyItem{}, quotapb.ErrorInvalidQuotaRequest("%s", "invalid frozen GPU plan")
 	}
 	if p == nil || p.SchemaVersion != 1 || p.Request == nil || p.Profile == nil || p.Profile.Spec == nil || p.Encoding == nil || p.Totals == nil || p.Runtime == nil {
 		return bad()
@@ -265,7 +266,7 @@ func isGpuCanonical(raw []byte) bool {
 func DecodeGpuCanonical(raw []byte) (*GpuCanonical, error) {
 	var c GpuCanonical
 	if json.Unmarshal(raw, &c) != nil || c.SchemaVersion != 2 || c.MeteringVersion != GpuMeteringVersion || c.GpuRequest == nil || c.GpuPlan == nil || !proto.Equal(c.GpuRequest, c.GpuPlan.Request) || len(c.QuotaItems) == 0 {
-		return nil, data.QuotaErrInvalid("invalid GPU canonical")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid GPU canonical")
 	}
 	item, err := GpuPlanQuota(c.GpuPlan)
 	if err != nil {
@@ -275,29 +276,29 @@ func DecodeGpuCanonical(raw []byte) (*GpuCanonical, error) {
 	found := false
 	for _, q := range c.QuotaItems {
 		if q.QuotaCode == "" || q.Units <= 0 || seen[q.QuotaCode] {
-			return nil, data.QuotaErrInvalid("invalid frozen charge vector")
+			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid frozen charge vector")
 		}
 		seen[q.QuotaCode] = true
 		if q.QuotaCode == GpuPhysicalQuotaCode || q.QuotaCode == GpuSharedQuotaCode {
 			if q.QuotaCode != item.QuotaCode || q.Units != item.Units {
-				return nil, data.QuotaErrInvalid("GPU metering mismatch")
+				return nil, quotapb.ErrorInvalidQuotaRequest("%s", "GPU metering mismatch")
 			}
 			found = true
 		}
 	}
 	if !found {
-		return nil, data.QuotaErrInvalid("missing GPU metering")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "missing GPU metering")
 	}
 	sum := sha256.Sum256(c.BusinessPayload)
 	if hex.EncodeToString(sum[:]) != c.BusinessPayloadDigest {
-		return nil, data.QuotaErrInvalid("business payload digest mismatch")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "business payload digest mismatch")
 	}
 	return &c, nil
 }
 
 func GpuChargeSubset(c *GpuCanonical, charges []QuotaChargeRef) ([]*attachment.GpuChargeRef, error) {
 	if c == nil || len(charges) != len(c.QuotaItems) {
-		return nil, data.QuotaErrInvalid("incomplete original charges")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "incomplete original charges")
 	}
 	want := map[string]int64{}
 	for _, q := range c.QuotaItems {
@@ -307,7 +308,7 @@ func GpuChargeSubset(c *GpuCanonical, charges []QuotaChargeRef) ([]*attachment.G
 	var gpu []*attachment.GpuChargeRef
 	for _, q := range charges {
 		if q.ChargeID == "" || seenID[q.ChargeID] || seenCode[q.QuotaCode] || q.ChargedUnits <= 0 || want[q.QuotaCode] != q.ChargedUnits {
-			return nil, data.QuotaErrInvalid("original charges mismatch")
+			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "original charges mismatch")
 		}
 		seenID[q.ChargeID], seenCode[q.QuotaCode] = true, true
 		if q.QuotaCode == GpuPhysicalQuotaCode || q.QuotaCode == GpuSharedQuotaCode {
@@ -315,7 +316,7 @@ func GpuChargeSubset(c *GpuCanonical, charges []QuotaChargeRef) ([]*attachment.G
 		}
 	}
 	if len(gpu) != 1 {
-		return nil, data.QuotaErrInvalid("invalid GPU charge subset")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid GPU charge subset")
 	}
 	return gpu, nil
 }
@@ -324,7 +325,7 @@ func GpuChargeSubset(c *GpuCanonical, charges []QuotaChargeRef) ([]*attachment.G
 // It cannot select an RPC or owner supplied by a public caller.
 func BuildGpuOwnerAttachments(owner string, cmd *QuotaDispatchCommand) (*attachment.GpuOwnerCreateAttachment, *attachment.GpuOwnerDeleteAttachment, error) {
 	if cmd == nil || owner != "ani-inference" || cmd.Actor.Type == "" || cmd.Actor.ID == "" {
-		return nil, nil, data.QuotaErrInvalid("invalid owner command")
+		return nil, nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid owner command")
 	}
 	c, err := DecodeGpuCanonical(cmd.CanonicalRequest)
 	if err != nil {

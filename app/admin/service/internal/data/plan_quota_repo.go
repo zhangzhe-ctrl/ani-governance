@@ -2,17 +2,16 @@ package data
 
 import (
 	"context"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"math"
-	"strings"
 
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 	"go-wind-admin/pkg/localdeps/go-utils/copierutil"
+	"go-wind-admin/pkg/localdeps/go-utils/fieldmaskutil"
 	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
-	"google.golang.org/protobuf/reflect/protoreflect"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
@@ -47,71 +46,47 @@ func (r *PlanQuotaRepo) init() {
 func (r *PlanQuotaRepo) transaction(ctx context.Context, fn func(*ent.Tx) error) error {
 	err := quotaTransaction(ctx, r.entClient.Client(), fn)
 	if ent.IsConstraintError(err) {
-		return QuotaErrIdempotencyConflict("plan already has this quota code")
+		return quotapb.ErrorIdempotencyConflict("%s", "plan already has this quota code")
 	}
 	if ent.IsNotFound(err) {
 		return identityV1.ErrorNotFound("plan quota not found")
 	}
 	return err
 }
-func planQuotaDTO(v *ent.PlanQuota) *identityV1.PlanQuota {
-	out := &identityV1.PlanQuota{Id: ptr(uint32(v.ID)), PlanId: ptr(v.Edges.Plan.ID), QuotaCode: ptr(v.QuotaCode), QuotaType: ProjectLegacyTypeForRead(v.QuotaCode), QuotaValue: v.QuotaValue}
-	if v.CreatedAt != nil {
-		out.CreatedAt = timestamppb.New(*v.CreatedAt)
-	}
-	if v.UpdatedAt != nil {
-		out.UpdatedAt = timestamppb.New(*v.UpdatedAt)
-	}
-	if v.DeletedAt != nil {
-		out.DeletedAt = timestamppb.New(*v.DeletedAt)
-	}
-	if v.CreatedBy != nil {
-		out.CreatedBy = ptr(uint32(*v.CreatedBy))
-	}
-	if v.UpdatedBy != nil {
-		out.UpdatedBy = ptr(uint32(*v.UpdatedBy))
-	}
-	if v.DeletedBy != nil {
-		out.DeletedBy = ptr(uint32(*v.DeletedBy))
-	}
+func (r *PlanQuotaRepo) toDTO(v *ent.PlanQuota) *identityV1.PlanQuota {
+	out := r.mapper.ToDTO(v)
+	// The plan foreign key is an Ent edge, not a scalar PlanQuota field.
+	out.PlanId = ptr(v.Edges.Plan.ID)
+	projectQuotaCompatFields(out, v)
 	return out
 }
 func projectQuotaCompatFields(dto *identityV1.PlanQuota, entity *ent.PlanQuota) {
 	dto.QuotaCode = ptr(entity.QuotaCode)
 	dto.QuotaType = ProjectLegacyTypeForRead(entity.QuotaCode)
 }
-func planQuotaReadMask(paths []string) (map[string]bool, error) {
+func planQuotaReadMask(paths []string) ([]string, error) {
 	if len(paths) == 0 {
 		return nil, nil
 	}
-	selected := map[string]bool{}
+	selected := make([]string, 0, len(paths))
 	for _, p := range paths {
 		if p == "*" {
 			return nil, nil
 		}
 		field, ok := planQuotaField(p)
 		if !ok {
-			return nil, QuotaErrInvalid("invalid plan quota read mask")
+			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid plan quota read mask")
 		}
-		selected[field] = true
+		selected = append(selected, field)
 	}
 	return selected, nil
 }
-func applyPlanQuotaReadMask(dto *identityV1.PlanQuota, mask map[string]bool) {
-	if mask == nil {
-		return
-	}
-	m := dto.ProtoReflect()
-	m.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
-		if !mask[string(f.Name())] {
-			m.Clear(f)
-		}
-		return true
-	})
+func applyPlanQuotaReadMask(dto *identityV1.PlanQuota, mask []string) {
+	fieldmaskutil.Filter(dto, mask)
 }
 func (r *PlanQuotaRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (out *identityV1.ListPlanQuotaResponse, err error) {
 	if req == nil {
-		return nil, QuotaErrInvalid("paging request required")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "paging request required")
 	}
 	params, e := planQuotaListParams(req)
 	if e != nil {
@@ -141,7 +116,7 @@ func (r *PlanQuotaRepo) List(ctx context.Context, req *paginationV1.PagingReques
 		}
 		out = &identityV1.ListPlanQuotaResponse{Total: uint64(total), Items: make([]*identityV1.PlanQuota, 0, len(rows))}
 		for _, v := range rows {
-			dto := planQuotaDTO(v)
+			dto := r.toDTO(v)
 			applyPlanQuotaReadMask(dto, mask)
 			out.Items = append(out.Items, dto)
 		}
@@ -151,7 +126,7 @@ func (r *PlanQuotaRepo) List(ctx context.Context, req *paginationV1.PagingReques
 }
 func (r *PlanQuotaRepo) Get(ctx context.Context, req *identityV1.GetPlanQuotaRequest) (out *identityV1.PlanQuota, err error) {
 	if req == nil || req.GetId() == 0 {
-		return nil, QuotaErrInvalid("id required")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "id required")
 	}
 	mask, e := planQuotaReadMask(req.GetViewMask().GetPaths())
 	if e != nil {
@@ -161,7 +136,7 @@ func (r *PlanQuotaRepo) Get(ctx context.Context, req *identityV1.GetPlanQuotaReq
 		ctx := appViewer.NewSystemViewerContext(ctx)
 		v, e := tx.PlanQuota.Query().Where(planquota.IDEQ(req.GetId())).WithPlan().Only(ctx)
 		if e == nil {
-			out = planQuotaDTO(v)
+			out = r.toDTO(v)
 			applyPlanQuotaReadMask(out, mask)
 		}
 		return e
@@ -195,12 +170,12 @@ func lockQuotaPlan(ctx context.Context, tx *ent.Tx, id uint32, lock bool) (*ent.
 }
 func (r *PlanQuotaRepo) Create(ctx context.Context, req *identityV1.CreatePlanQuotaRequest) error {
 	if req == nil || req.Data == nil {
-		return QuotaErrInvalid("invalid parameter")
+		return quotapb.ErrorInvalidQuotaRequest("%s", "invalid parameter")
 	}
 	d := req.Data
 	code, ok := ResolveQuotaCodeForWrite(d.QuotaCode, d.QuotaType)
 	if !ok || d.GetPlanId() == 0 || d.QuotaValue == nil || d.GetQuotaValue() > math.MaxInt64 {
-		return QuotaErrInvalid("valid plan/code/value required")
+		return quotapb.ErrorInvalidQuotaRequest("%s", "valid plan/code/value required")
 	}
 	return r.transaction(ctx, func(tx *ent.Tx) error {
 		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
@@ -216,18 +191,22 @@ func (r *PlanQuotaRepo) Create(ctx context.Context, req *identityV1.CreatePlanQu
 }
 func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQuotaRequest) error {
 	if req == nil || req.Data == nil || req.GetId() == 0 || req.GetAllowMissing() || len(req.GetUpdateMask().GetPaths()) == 0 {
-		return QuotaErrInvalid("id and nonempty update mask required; allow_missing forbidden")
+		return quotapb.ErrorInvalidQuotaRequest("%s", "id and nonempty update mask required; allow_missing forbidden")
 	}
 	setCode, setValue := false, false
 	for _, field := range req.GetUpdateMask().GetPaths() {
-		switch strings.ReplaceAll(strings.ToLower(field), "_", "") {
-		case "quotacode", "quotatype":
+		canonical, ok := planQuotaField(field)
+		if !ok {
+			return quotapb.ErrorInvalidQuotaRequest("%s", "immutable or unsupported plan quota field")
+		}
+		switch canonical {
+		case "quota_code", "quota_type":
 			setCode = true
-		case "quotavalue":
+		case "quota_value":
 			setValue = true
-		case "updatedby":
+		case "updated_by":
 		default:
-			return QuotaErrInvalid("immutable or unsupported plan quota field")
+			return quotapb.ErrorInvalidQuotaRequest("%s", "immutable or unsupported plan quota field")
 		}
 	}
 	code := ""
@@ -235,11 +214,11 @@ func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQu
 		var ok bool
 		code, ok = ResolveQuotaCodeForWrite(req.Data.QuotaCode, req.Data.QuotaType)
 		if !ok {
-			return QuotaErrInvalid("invalid quota code/type")
+			return quotapb.ErrorInvalidQuotaRequest("%s", "invalid quota code/type")
 		}
 	}
 	if setValue && (req.Data.QuotaValue == nil || req.Data.GetQuotaValue() > math.MaxInt64) {
-		return QuotaErrInvalid("valid quota value required")
+		return quotapb.ErrorInvalidQuotaRequest("%s", "valid quota value required")
 	}
 	return r.transaction(ctx, func(tx *ent.Tx) error {
 		databaseNow, clockErr := quotaDatabaseNow(ctx, tx)
@@ -283,7 +262,7 @@ func (r *PlanQuotaRepo) Update(ctx context.Context, req *identityV1.UpdatePlanQu
 }
 func (r *PlanQuotaRepo) Delete(ctx context.Context, id uint32) error {
 	if id == 0 {
-		return QuotaErrInvalid("id required")
+		return quotapb.ErrorInvalidQuotaRequest("%s", "id required")
 	}
 	return r.transaction(ctx, func(tx *ent.Tx) error {
 		ctx := appViewer.NewSystemViewerContext(ctx)

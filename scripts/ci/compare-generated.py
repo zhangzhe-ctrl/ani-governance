@@ -9,6 +9,8 @@ import json
 import pathlib
 import posixpath
 import re
+import shutil
+import subprocess
 import sys
 
 
@@ -26,6 +28,59 @@ INPUT_FILES = (
     "scripts/finalize-aksk-openapi.py", "tools/config/pgv-scope.json",
     "tools/config/tool-lock.json",
 )
+TEMP_PREFIXES = ("_agent/", ".artifacts/", ".scratch/")
+
+
+def generation_source(name: str) -> bool:
+    """Only copy new source and managed output paths into the generation checkout."""
+    path = pathlib.PurePosixPath(name)
+    if name.startswith(TEMP_PREFIXES) or path.name.startswith("."):
+        return False
+    if name.startswith("api/protos/") or name.startswith("api/localdeps/"):
+        return path.suffix == ".proto"
+    if name.startswith("api/gen/go/"):
+        return path.suffix == ".go"
+    if name.startswith("app/admin/service/"):
+        return path.suffix == ".go" or name == "app/admin/service/cmd/server/assets/openapi.yaml"
+    if name.startswith("pkg/") or name.startswith("tools/localdeps/"):
+        return path.suffix in (".go", ".proto", ".tmpl")
+    if name.startswith("scripts/ci/") or name.startswith("scripts/tests/"):
+        return path.suffix in (".sh", ".py")
+    return name.startswith("api/buf") and name.endswith(".gen.yaml")
+
+
+def overlay_worktree(repo: pathlib.Path, target: pathlib.Path) -> tuple[int, int]:
+    """Overlay an archived HEAD with tracked edits and relevant untracked files."""
+    if not target.is_dir():
+        raise ValueError(f"generation target missing: {target}")
+    patch = subprocess.run(["git", "-C", str(repo), "diff", "--binary", "HEAD", "--"],
+                           check=True, capture_output=True).stdout
+    if patch:
+        subprocess.run(["git", "apply", "--binary", "-"], cwd=target,
+                       input=patch, check=True, capture_output=True)
+    raw = subprocess.run(["git", "-C", str(repo), "ls-files", "--others",
+                          "--exclude-standard", "-z"], check=True, capture_output=True).stdout
+    copied = 0
+    for encoded in raw.split(b"\0"):
+        if not encoded:
+            continue
+        name = encoded.decode("utf-8", errors="surrogateescape")
+        relative = pathlib.PurePosixPath(name)
+        if relative.is_absolute() or ".." in relative.parts:
+            raise ValueError(f"unsafe untracked path: {name}")
+        if not generation_source(name):
+            continue
+        source = repo / name
+        if source.is_symlink() or not source.is_file():
+            raise ValueError(f"unsupported untracked generation input: {name}")
+        dest = target / name
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, dest)
+        copied += 1
+    for path in target.rglob("*"):
+        if path.is_symlink():
+            raise ValueError(f"symlink in generation checkout: {path.relative_to(target)}")
+    return len(patch), copied
 
 
 def managed_roots(repo: pathlib.Path) -> list[str]:
@@ -129,8 +184,15 @@ def main() -> int:
     check = sub.add_parser("compare")
     for phase in ("baseline", "first", "second"):
         check.add_argument(f"--{phase}", type=pathlib.Path, required=True)
+    overlay = sub.add_parser("overlay")
+    overlay.add_argument("--repo", type=pathlib.Path, required=True)
+    overlay.add_argument("--target", type=pathlib.Path, required=True)
     args = parser.parse_args()
     try:
+        if args.command == "overlay":
+            patch_bytes, copied = overlay_worktree(args.repo.resolve(), args.target.resolve())
+            print(f"overlaid worktree: {patch_bytes} patch bytes, {copied} untracked files")
+            return 0
         if args.command == "snapshot":
             result = snapshot(args.repo.resolve(), args.sha)
             args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
@@ -149,7 +211,8 @@ def main() -> int:
         print(f"generation comparison passed: {len(baseline['outputs'])} managed files, "
               f"{len(baseline['inputs'])} inputs, {len(baseline['managed_roots'])} roots")
         return 0
-    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError,
+            subprocess.CalledProcessError) as exc:
         print(f"generation comparison unavailable: {exc}", file=sys.stderr)
         return 2
 

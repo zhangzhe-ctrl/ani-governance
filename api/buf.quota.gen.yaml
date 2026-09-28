@@ -41,7 +41,9 @@ inputs:
     paths:
       - protos/quota/service/v1/quota_catalog.proto
       - protos/quota/service/v1/quota_release.proto
+      - protos/quota/service/v1/error_reason.proto
       - protos/admin/service/v1/i_quota.proto
+      - protos/admin/service/v1/quota_types.proto
       - protos/identity/service/v1/plan_quota.proto
       - protos/identity/service/v1/tenant.proto
 plugins:
@@ -52,5 +54,8 @@ plugins:
     out: gen/go
     opt: paths=source_relative
   - local: [go, run, github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@v2.0.0-20251205160234-b9fab9a5a5ab]
+    out: gen/go
+    opt: paths=source_relative
+  - local: [go, run, github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@v2.0.0-20260404020628-f149714c1d54]
     out: gen/go
     opt: paths=source_relative

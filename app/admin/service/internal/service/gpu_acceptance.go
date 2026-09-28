@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"sort"
 	"strconv"
 
@@ -45,7 +46,7 @@ type GpuAcceptance struct {
 
 func NewGpuAcceptance(ledger *data.QuotaLedgerRepo, registry *QuotaAdapterRegistry, resolver ResourceTenantResolver, plans GpuPlanResolver, binding GpuBusinessBinding, worker *QuotaDispatchWorker) (*GpuAcceptance, error) {
 	if ledger == nil || registry == nil || resolver == nil || binding == nil || binding.OwnerService() != "ani-inference" || binding.CreateAction() == "" || binding.DeleteAction() == "" || binding.CreateAction() == binding.DeleteAction() {
-		return nil, data.QuotaErrInvalid("invalid GPU business assembly")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid GPU business assembly")
 	}
 	return &GpuAcceptance{ledger: ledger, registry: registry, resolver: resolver, plans: plans, binding: binding, worker: worker}, nil
 }
@@ -98,7 +99,7 @@ func gpuPrincipal(ctx context.Context) (*auth.Principal, error) {
 		return nil, err
 	}
 	if p == nil || p.Type != auth.SubjectUser || p.ID == 0 || p.TenantID == 0 {
-		return nil, data.QuotaErrNotFound("resource not found")
+		return nil, quotapb.ErrorQuotaNotFound("%s", "resource not found")
 	}
 	return p, nil
 }
@@ -112,19 +113,19 @@ func (s *GpuAcceptance) AcceptGpuCreate(ctx context.Context, key string, gpu *ac
 		return nil, err
 	}
 	if _, err = uuid.Parse(key); err != nil || gpu == nil || business == nil || !business.ProtoReflect().IsValid() {
-		return nil, data.QuotaErrInvalid("invalid create request")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid create request")
 	}
 	tenant, err := s.resolver.ResourceTenantID(ctx, p.TenantID)
 	if err != nil {
 		return nil, err
 	}
 	if _, err = uuid.Parse(tenant); err != nil {
-		return nil, data.QuotaErrInvalid("invalid resource tenant mapping")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid resource tenant mapping")
 	}
 	actorID := strconv.FormatUint(uint64(p.ID), 10)
 	businessObject, err := gpuCanonicalMessage(business.ProtoReflect())
 	if err != nil {
-		return nil, data.QuotaErrInvalid("invalid business payload")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid business payload")
 	}
 	businessBytes, err := gpuCanonicalJSON(businessObject)
 	if err != nil {
@@ -132,7 +133,7 @@ func (s *GpuAcceptance) AcceptGpuCreate(ctx context.Context, key string, gpu *ac
 	}
 	gpuObject, err := gpuCanonicalMessage(gpu.ProtoReflect())
 	if err != nil {
-		return nil, data.QuotaErrInvalid("invalid GPU request")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid GPU request")
 	}
 	requestHash, err := gpuHash(map[string]any{"schema": "gov-gpu-create-v1", "tenant_id": tenant, "actor_type": string(p.Type), "actor_id": actorID, "owner": s.binding.OwnerService(), "action": s.binding.CreateAction(), "gpu_request": gpuObject, "business_type": string(business.ProtoReflect().Descriptor().FullName()), "business": businessObject})
 	if err != nil {
@@ -144,7 +145,7 @@ func (s *GpuAcceptance) AcceptGpuCreate(ctx context.Context, key string, gpu *ac
 	}
 	if old != nil {
 		if old.OwnerService != s.binding.OwnerService() || old.ResourceTenantID != tenant || old.RequestHash != requestHash {
-			return nil, data.QuotaErrIdempotencyConflict("request differs from original acceptance")
+			return nil, quotapb.ErrorIdempotencyConflict("%s", "request differs from original acceptance")
 		}
 		charges, e := s.ledger.GetChargesForOperation(ctx, p.TenantID, old.OperationID)
 		if e != nil {
@@ -166,7 +167,7 @@ func (s *GpuAcceptance) AcceptGpuCreate(ctx context.Context, key string, gpu *ac
 		return &data.QuotaOccupyResult{OperationID: old.OperationID, ResourceID: old.ResourceID, ChargeIDs: ids, Replayed: true}, nil
 	}
 	if !s.registry.GPUExecutionEnabled(s.binding.OwnerService()) || s.registry.Lookup(s.binding.OwnerService(), s.binding.CreateAction()) == nil || s.plans == nil {
-		return nil, data.QuotaErrAdapterUnavailable("GPU business owner is not enabled")
+		return nil, quotapb.ErrorQuotaAdapterUnavailable("%s", "GPU business owner is not enabled")
 	}
 	extra, err := s.binding.ValidateGpuBusiness(ctx, business)
 	if err != nil {
@@ -187,10 +188,10 @@ func (s *GpuAcceptance) AcceptGpuCreate(ctx context.Context, key string, gpu *ac
 		}
 	}
 	if !supported {
-		return nil, data.QuotaErrAdapterUnavailable("GPU metering mode is not enabled for this owner action")
+		return nil, quotapb.ErrorQuotaAdapterUnavailable("%s", "GPU metering mode is not enabled for this owner action")
 	}
 	if !proto.Equal(gpu, plan.Request) {
-		return nil, data.QuotaErrInvalid("resolved request mismatch")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "resolved request mismatch")
 	}
 	items := append([]data.QuotaOccupyItem{item}, extra...)
 	sort.Slice(items, func(i, j int) bool { return items[i].QuotaCode < items[j].QuotaCode })
@@ -222,15 +223,15 @@ func (s *GpuAcceptance) AcceptGpuDelete(ctx context.Context, key, resource strin
 		return nil, err
 	}
 	if _, err = uuid.Parse(key); err != nil {
-		return nil, data.QuotaErrInvalid("invalid delete key")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid delete key")
 	}
 	if _, err = uuid.Parse(resource); err != nil {
-		return nil, data.QuotaErrInvalid("invalid resource")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid resource")
 	}
 	old, err := s.ledger.GetCreateOperationByResource(ctx, p.TenantID, s.binding.OwnerService(), resource)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, data.QuotaErrNotFound("resource not found")
+			return nil, quotapb.ErrorQuotaNotFound("%s", "resource not found")
 		}
 		return nil, err
 	}
@@ -275,12 +276,12 @@ func (s *GpuAcceptance) ResolveGpuUsageRef(ctx context.Context, tenant uint32, o
 }
 func resolveGpuUsageRef(ctx context.Context, ledger *data.QuotaLedgerRepo, tenant uint32, owner, resource string) (*acc.GpuUsageRef, error) {
 	if tenant == 0 || owner != "ani-inference" {
-		return nil, data.QuotaErrNotFound("resource not found")
+		return nil, quotapb.ErrorQuotaNotFound("%s", "resource not found")
 	}
 	op, err := ledger.GetCreateOperationByResource(ctx, tenant, owner, resource)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, data.QuotaErrNotFound("resource not found")
+			return nil, quotapb.ErrorQuotaNotFound("%s", "resource not found")
 		}
 		return nil, err
 	}

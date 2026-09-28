@@ -500,7 +500,7 @@ func TestAcceleratorJointHTTP(t *testing.T) {
 		Ref acc.GpuUsageRef `json:"ref"`
 	}
 	require.NoError(t, json.Unmarshal(refBytes, &fixture))
-	ref := fixture.Ref
+	ref := &fixture.Ref
 	require.NotEmpty(t, ref.CreateOperationId)
 	usagePath := fmt.Sprintf("/api/v1/accelerator/usages/%s/%s", ref.OwnerService, ref.ResourceId)
 	usage := request("GET", usagePath, tenantToken, nil, 200)

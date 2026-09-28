@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"time"
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
@@ -27,7 +28,7 @@ type GpuUsageSyncRecord struct {
 
 func (r *QuotaLedgerRepo) ScanGpuCreatePage(ctx context.Context, afterID int64, limit int) (out []GpuCreateCandidate, err error) {
 	if afterID < 0 || limit < 1 || limit > 1000 {
-		return nil, QuotaErrInvalid("invalid scan cursor or limit")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid scan cursor or limit")
 	}
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
 		ctx := appViewer.NewSystemViewerContext(ctx)
@@ -44,7 +45,7 @@ func (r *QuotaLedgerRepo) ScanGpuCreatePage(ctx context.Context, afterID int64, 
 }
 func (r *QuotaLedgerRepo) UpsertGpuUsageProjection(ctx context.Context, tid uint32, id string, revision int64, state, payload, hash string) error {
 	if tid == 0 || id == "" || revision < 1 || payload == "" || hash == "" || (state != "DECLARED" && state != "ENDED") {
-		return QuotaErrInvalid("invalid usage projection")
+		return quotapb.ErrorInvalidQuotaRequest("%s", "invalid usage projection")
 	}
 	return r.transaction(ctx, func(tx *ent.Tx) error {
 		ctx := appViewer.NewSystemViewerContext(ctx)
@@ -56,12 +57,12 @@ func (r *QuotaLedgerRepo) UpsertGpuUsageProjection(ctx context.Context, tid uint
 			return e
 		}
 		if op.CreateOperationID != nil {
-			return QuotaErrInvalid("projection requires CREATE")
+			return quotapb.ErrorInvalidQuotaRequest("%s", "projection requires CREATE")
 		}
 		old, e := tx.GpuUsageSync.Query().Where(gpuusagesync.TenantIDEQ(tid), gpuusagesync.OperationIDEQ(id)).Only(ctx)
 		if e == nil && old.Revision == revision {
 			if old.PayloadHash != hash || old.PayloadJSON != payload || old.State != state {
-				return QuotaErrIdempotencyConflict("same projection revision changed payload")
+				return quotapb.ErrorIdempotencyConflict("%s", "same projection revision changed payload")
 			}
 			return nil
 		}
@@ -74,7 +75,7 @@ func (r *QuotaLedgerRepo) UpsertGpuUsageProjection(ctx context.Context, tid uint
 }
 func (r *QuotaLedgerRepo) ClaimGpuUsageSync(ctx context.Context, worker string, lease time.Duration, limit int) (out []GpuUsageSyncRecord, err error) {
 	if worker == "" || lease <= 0 || limit < 1 || limit > 100 {
-		return nil, QuotaErrInvalid("invalid projection claim")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid projection claim")
 	}
 	var candidates []*ent.GpuUsageSync
 	if err = r.transaction(ctx, func(tx *ent.Tx) error {
@@ -143,7 +144,7 @@ func (r *QuotaLedgerRepo) LoadGpuProjectionSource(ctx context.Context, tid uint3
 			return e
 		}
 		if v.CreateOperationID != nil {
-			return QuotaErrInvalid("projection source must be CREATE")
+			return quotapb.ErrorInvalidQuotaRequest("%s", "projection source must be CREATE")
 		}
 		rows, e := tx.QuotaCharge.Query().Where(quotacharge.TenantIDEQ(tid), quotacharge.OperationIDEQ(id)).Order(ent.Asc(quotacharge.FieldQuotaCode), ent.Asc(quotacharge.FieldChargeID)).All(ctx)
 		if e != nil {

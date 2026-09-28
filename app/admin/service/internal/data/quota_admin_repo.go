@@ -9,7 +9,6 @@ import (
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
-	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/plan"
@@ -41,36 +40,46 @@ func (r *QuotaAdminRepo) enforcement(code string) quotapb.Enforcement {
 func NewQuotaAdminRepo(ctx *bootstrap.Context, c *entCrud.EntClient[*ent.Client]) *QuotaAdminRepo {
 	return &QuotaAdminRepo{entClient: c, log: ctx.NewLoggerHelper("quota-admin/repo/admin-service")}
 }
-func (r *QuotaAdminRepo) ListDefinitions(ctx context.Context, req *paginationV1.PagingRequest) (out *adminV1.ListQuotaDefinitionsResponse, err error) {
+func (r *QuotaAdminRepo) ListDefinitions(ctx context.Context, req *paginationV1.PagingRequest) (out *entCrud.PagingResult[quotapb.QuotaDefinition], err error) {
 	err = quotaTransaction(ctx, r.entClient.Client(), func(tx *ent.Tx) error {
 		ctx := appViewer.NewSystemViewerContext(ctx)
-		defs, e := tx.QuotaDefinition.Query().Order(ent.Asc(quotadefinition.FieldCode)).All(ctx)
+		total, e := tx.QuotaDefinition.Query().Count(ctx)
 		if e != nil {
 			return e
 		}
-		out = &adminV1.ListQuotaDefinitionsResponse{Total: uint64(len(defs))}
-		start, end := 0, len(defs)
+		out = &entCrud.PagingResult[quotapb.QuotaDefinition]{Total: uint64(total)}
+		query := tx.QuotaDefinition.Query().Order(ent.Asc(quotadefinition.FieldCode))
 		if req != nil && !req.GetNoPaging() && req.GetPageSize() > 0 {
 			page := uint64(req.GetPage())
 			if page < 1 {
 				page = 1
 			}
-			start = int(min((page-1)*uint64(req.GetPageSize()), uint64(len(defs))))
-			end = int(min(uint64(start)+uint64(req.GetPageSize()), uint64(len(defs))))
+			offset := min((page-1)*uint64(req.GetPageSize()), uint64(total))
+			if offset == uint64(total) {
+				return nil
+			}
+			query.Offset(int(offset)).Limit(int(req.GetPageSize()))
 		} else if req != nil && !req.GetNoPaging() && req.Offset != nil && req.Limit != nil {
-			start = int(min(req.GetOffset(), uint64(len(defs))))
-			end = int(min(uint64(start)+uint64(req.GetLimit()), uint64(len(defs))))
+			offset := min(req.GetOffset(), uint64(total))
+			if offset == uint64(total) || req.GetLimit() == 0 {
+				return nil
+			}
+			query.Offset(int(offset)).Limit(int(req.GetLimit()))
 		}
-		for _, d := range defs[start:end] {
+		defs, e := query.All(ctx)
+		if e != nil {
+			return e
+		}
+		for _, d := range defs {
 			out.Items = append(out.Items, &quotapb.QuotaDefinition{Code: d.Code, DisplayName: d.DisplayName, Unit: d.Unit, AccountingKind: mapAccountingKind(string(d.AccountingKind)), Enforcement: r.enforcement(d.Code)})
 		}
 		return nil
 	})
 	return
 }
-func (r *QuotaAdminRepo) ListTenantAccounts(ctx context.Context, tid uint32) (out *adminV1.ListTenantQuotaAccountsResponse, err error) {
+func (r *QuotaAdminRepo) ListTenantAccounts(ctx context.Context, tid uint32) (out []*quotapb.QuotaAccountView, err error) {
 	if tid == 0 {
-		return nil, QuotaErrInvalid("tenant required")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "tenant required")
 	}
 	err = quotaTransaction(ctx, r.entClient.Client(), func(tx *ent.Tx) error {
 		ctx := appViewer.NewSystemViewerContext(ctx)
@@ -100,14 +109,13 @@ func (r *QuotaAdminRepo) ListTenantAccounts(ctx context.Context, tid uint32) (ou
 		if e != nil {
 			return e
 		}
-		out = &adminV1.ListTenantQuotaAccountsResponse{TenantId: tid}
 		for _, d := range defs {
 			limit, occ := limits[d.Code], occupied[d.Code]
 			available := limit - occ
 			if available < 0 {
 				available = 0
 			}
-			out.Items = append(out.Items, &quotapb.QuotaAccountView{QuotaCode: d.Code, Unit: d.Unit, Limit: strconv.FormatInt(limit, 10), Occupied: strconv.FormatInt(occ, 10), Available: strconv.FormatInt(available, 10), OverLimit: occ > limit, Enforcement: r.enforcement(d.Code)})
+			out = append(out, &quotapb.QuotaAccountView{QuotaCode: d.Code, Unit: d.Unit, Limit: strconv.FormatInt(limit, 10), Occupied: strconv.FormatInt(occ, 10), Available: strconv.FormatInt(available, 10), OverLimit: occ > limit, Enforcement: r.enforcement(d.Code)})
 		}
 		return nil
 	})
@@ -116,16 +124,9 @@ func (r *QuotaAdminRepo) ListTenantAccounts(ctx context.Context, tid uint32) (ou
 func (r *QuotaAdminRepo) HasPlanQuotaPolicy(ctx context.Context, id uint32, code string) (ok bool, err error) {
 	err = quotaTransaction(ctx, r.entClient.Client(), func(tx *ent.Tx) error {
 		ctx := appViewer.NewSystemViewerContext(ctx)
-		rows, e := tx.PlanQuota.Query().Where(planquota.HasPlanWith(plan.IDEQ(id))).Order(ent.Asc(planquota.FieldQuotaCode)).All(ctx)
-		if e != nil {
-			return e
-		}
-		for _, p := range rows {
-			if p.QuotaCode == code {
-				ok = true
-			}
-		}
-		return nil
+		var e error
+		ok, e = tx.PlanQuota.Query().Where(planquota.HasPlanWith(plan.IDEQ(id)), planquota.QuotaCodeEQ(code)).Exist(ctx)
+		return e
 	})
 	return
 }

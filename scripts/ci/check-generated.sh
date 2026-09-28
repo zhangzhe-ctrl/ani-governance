@@ -25,6 +25,19 @@ trap cleanup EXIT
 compare="$source_repo/scripts/ci/compare-generated.py"
 python3 "$compare" snapshot --repo "$source_repo" --sha "$sha" --output "$work/manifests/generation-baseline.json"
 git archive --format=tar HEAD | tar -x -C "$work/repo"
+# The baseline snapshot is the current worktree. Apply its tracked edits and
+# untracked source/generated files to the isolated archive before regenerating.
+python3 "$compare" overlay --repo "$source_repo" --target "$work/repo"
+python3 "$compare" snapshot --repo "$work/repo" --sha "$sha" --output "$work/manifests/generation-staged.json"
+python3 "$compare" compare \
+  --baseline "$work/manifests/generation-baseline.json" \
+  --first "$work/manifests/generation-staged.json" \
+  --second "$work/manifests/generation-staged.json"
+python3 "$compare" snapshot --repo "$source_repo" --sha "$sha" --output "$work/manifests/generation-source-after-overlay.json"
+python3 "$compare" compare \
+  --baseline "$work/manifests/generation-baseline.json" \
+  --first "$work/manifests/generation-source-after-overlay.json" \
+  --second "$work/manifests/generation-source-after-overlay.json"
 run_pass() {
   (
     cd "$work/repo"
@@ -41,6 +54,11 @@ python3 "$compare" compare \
   --baseline "$work/manifests/generation-baseline.json" \
   --first "$work/manifests/generation-first.json" \
   --second "$work/manifests/generation-second.json"
+python3 "$compare" snapshot --repo "$source_repo" --sha "$sha" --output "$work/manifests/generation-source-final.json"
+python3 "$compare" compare \
+  --baseline "$work/manifests/generation-baseline.json" \
+  --first "$work/manifests/generation-source-final.json" \
+  --second "$work/manifests/generation-source-final.json"
 log_dir=${ANI_CI_EVIDENCE_DIR:-$work/manifests}
 mkdir -p "$log_dir"
 echo 'generation: localized gow tests'

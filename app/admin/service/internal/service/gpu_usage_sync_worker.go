@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"sync"
 	"time"
 
@@ -174,7 +175,7 @@ func (w *GpuUsageSyncWorker) Step(ctx context.Context) error {
 
 func deriveGpuProjection(op *ent.QuotaOperation, charges []*ent.QuotaCharge, hasDelete bool) (*acc.GpuUsageProjection, error) {
 	if op == nil || op.TenantID == nil || *op.TenantID == 0 || op.CreateOperationID != nil || op.CreatedAt == nil || op.OwnerService != "ani-inference" {
-		return nil, data.QuotaErrInvalid("invalid GPU projection source")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid GPU projection source")
 	}
 	c, err := DecodeGpuCanonical([]byte(op.CanonicalRequest))
 	if err != nil {
@@ -185,7 +186,7 @@ func deriveGpuProjection(op *ent.QuotaOperation, charges []*ent.QuotaCharge, has
 	allEnded := true
 	for _, q := range charges {
 		if q == nil || q.TenantID == nil || *q.TenantID != *op.TenantID || q.OperationID != op.OperationID || q.ReleasedUnits < 0 || q.ReleasedUnits > q.OriginalUnits {
-			return nil, data.QuotaErrInvalid("invalid original GPU accounting")
+			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid original GPU accounting")
 		}
 		refs = append(refs, QuotaChargeRef{ChargeID: q.ChargeID, QuotaCode: q.QuotaCode, ChargedUnits: q.OriginalUnits})
 		if q.ReleasedUnits != q.OriginalUnits {
@@ -202,7 +203,7 @@ func deriveGpuProjection(op *ent.QuotaOperation, charges []*ent.QuotaCharge, has
 	suffix := "accepted"
 	if op.DispatchState == quotaoperation.DispatchStateCanceledUnsent {
 		if op.AttemptCount != 0 || !allEnded {
-			return nil, data.QuotaErrInvalid("inconsistent local GPU cancellation")
+			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "inconsistent local GPU cancellation")
 		}
 		p.Revision = 2
 		p.State = acc.UsageState_ENDED
@@ -210,7 +211,7 @@ func deriveGpuProjection(op *ent.QuotaOperation, charges []*ent.QuotaCharge, has
 		suffix = "canceled-unsent"
 	} else if gpuEnded {
 		if !hasDelete {
-			return nil, data.QuotaErrInvalid("GPU release has no persistent delete intent")
+			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "GPU release has no persistent delete intent")
 		}
 		p.Revision = 2
 		p.State = acc.UsageState_ENDED

@@ -15,6 +15,7 @@ import (
 
 	admin "go-wind-admin/api/gen/go/admin/service/v1"
 	view "go-wind-admin/api/gen/go/catalog/service/v1"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/pkg/middleware/auth"
 )
@@ -26,7 +27,7 @@ type GpuPreviewQuotaReader interface {
 	GPUPreviewQuota(context.Context, uint32, []*view.GpuPreviewQuotaItem) ([]*view.GpuPreviewQuotaCheck, error)
 }
 type AcceleratorQuotaAccounts interface {
-	ListTenantAccounts(context.Context, uint32) (*admin.ListTenantQuotaAccountsResponse, error)
+	ListTenantAccounts(context.Context, uint32) ([]*quotapb.QuotaAccountView, error)
 }
 
 type AcceleratorService struct {
@@ -634,7 +635,11 @@ func (s *AcceleratorService) GetMyQuotaAccounts(ctx context.Context, _ *emptypb.
 	if s.accounts == nil {
 		return nil, errors.ServiceUnavailable("QUOTA_READ_UNAVAILABLE", "quota accounts unavailable")
 	}
-	return s.accounts.ListTenantAccounts(ctx, p.TenantID)
+	items, err := s.accounts.ListTenantAccounts(ctx, p.TenantID)
+	if err != nil {
+		return nil, err
+	}
+	return &admin.ListTenantQuotaAccountsResponse{TenantId: p.TenantID, Items: items}, nil
 }
 
 func sameAcceleratorRef(a, b *acc.GpuUsageRef) bool {

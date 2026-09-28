@@ -135,3 +135,49 @@ func TestPlanQuotaPostgresListCompatibility(t *testing.T) {
 		require.Error(t, e)
 	})
 }
+
+func TestPlanQuotaReadProjectionAndFinalMask(t *testing.T) {
+	c := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, c)
+	r := newPlanQuotaRepoPostgres(t, c)
+	ctx := testutil.NewSystemViewerCtx(context.Background())
+	p, err := c.Client().Plan.Create().SetName("quota-read-mask").Save(ctx)
+	require.NoError(t, err)
+	code, value, actor := "gpu.shared_memory_mib", uint64(0), uint32(7)
+	require.NoError(t, r.Create(ctx, &identityV1.CreatePlanQuotaRequest{Data: &identityV1.PlanQuota{
+		PlanId: &p.ID, QuotaCode: &code, QuotaValue: &value, CreatedBy: &actor,
+	}}))
+	all, err := r.List(ctx, &paginationV1.PagingRequest{})
+	require.NoError(t, err)
+	require.Len(t, all.Items, 1)
+	item := all.Items[0]
+	require.Equal(t, p.ID, item.GetPlanId())
+	require.Equal(t, code, item.GetQuotaCode())
+	require.Nil(t, item.QuotaType)
+	require.NotNil(t, item.QuotaValue, "explicit zero must retain presence")
+	require.Zero(t, item.GetQuotaValue())
+	require.Equal(t, actor, item.GetCreatedBy())
+	require.NotNil(t, item.CreatedAt)
+	require.NotNil(t, item.UpdatedAt)
+
+	detail, err := r.Get(ctx, &identityV1.GetPlanQuotaRequest{
+		QueryBy:  &identityV1.GetPlanQuotaRequest_Id{Id: item.GetId()},
+		ViewMask: &fieldmaskpb.FieldMask{Paths: []string{"planId"}},
+	})
+	require.NoError(t, err)
+	require.Equal(t, p.ID, detail.GetPlanId())
+	require.Nil(t, detail.Id)
+	require.Nil(t, detail.QuotaCode)
+	require.Nil(t, detail.QuotaValue)
+	require.Nil(t, detail.CreatedAt)
+
+	masked, err := r.List(ctx, &paginationV1.PagingRequest{FieldMask: &fieldmaskpb.FieldMask{Paths: []string{"quotaCode", "quota_value"}}})
+	require.NoError(t, err)
+	require.Len(t, masked.Items, 1)
+	require.Nil(t, masked.Items[0].PlanId)
+	require.Nil(t, masked.Items[0].QuotaType)
+	require.Nil(t, masked.Items[0].CreatedAt)
+	require.Equal(t, code, masked.Items[0].GetQuotaCode())
+	require.NotNil(t, masked.Items[0].QuotaValue)
+	require.Zero(t, masked.Items[0].GetQuotaValue())
+}

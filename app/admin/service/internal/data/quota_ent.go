@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"time"
 
 	entsql "entgo.io/ent/dialect/sql"
@@ -95,7 +96,7 @@ func locateQuotaReleaseTenant(ctx context.Context, tx *ent.Tx, id, owner string)
 		return 0, err
 	}
 	if op.TenantID == nil || *op.TenantID == 0 {
-		return 0, QuotaErrInvalid("operation tenant required")
+		return 0, quotapb.ErrorInvalidQuotaRequest("%s", "operation tenant required")
 	}
 	return *op.TenantID, nil
 }
