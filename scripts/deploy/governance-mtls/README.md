@@ -44,7 +44,7 @@ kubectl -n "$NS" rollout status deployment/governance --timeout=60s
 补丁，或将补丁合入实际部署清单，否则旧脚本会恢复旧证书路径。
 客户端在启动时读证书。cert-manager 更新 Secret 后，执行
 `kubectl -n "$NS" rollout restart deployment/governance` 并等待 rollout 完成，
-随后查询模型列表。自动重载与根 CA 轮换不属于本次实现。
+随后运行当前下游接口的鉴权与跨租户验证。自动重载与根 CA 轮换需另行验证。
 证书自动续期不延长根 CA 的寿命；短期实验 CA 不作为正式环境长期签发机构。
 机制参考：https://cert-manager.io/docs/usage/certificate/
 
@@ -81,30 +81,8 @@ kubectl -n "$NS" rollout status deployment/governance --timeout=60s
 --to-revision=<原 revision>` 恢复原挂载和环境变量，并等待 rollout 完成。
 旧 Secret 在本次切换中保留；切勿在确认新链路成功前删除。
 
-## 本次实际验证（2026-09-19）
+## 每次部署后的复验
 
-- Fedora：`/home/chabking/ani-governance-runs/cert-manager-20260919`。
-- Kubernetes：ani-test-1～3；namespace `gov-model-20260919-01`。
-- 复用已安装的 cert-manager，把原实验 CA 导入该 namespace 的
-  `Secret/ani-internal-ca`，创建同名 CA Issuer；没有更换 Model 信任根，
-  没有从 Inference 实验中复制证书或 CA。
-- 该导入是本次旧实验迁移操作，不是 Governance 业务职责，也没有声称已完成
-  ani-installer 的正式公共 CA 交付。正式部署接平台提供的签发机构即可。
-- 原 CA 到期时间为 **2026-09-25 17:53:54 UTC**；不可将此实验 CA 作为长期部署配置。
-- 新证书 SAN 为 `ani-governance`，EKU 为 TLS Web Client Authentication；
-  有效期至 2026-09-22 10:51:11 UTC。旧 Deployment revision 为 17。
-- [必要验收结果](checks.json)：真实登录、两个租户的返回与实际 PostgreSQL 数据逐项
-  比对、未登录 401、无权限 403（均未进入 Model 业务）、伪造租户头无效、
-  无证书/错误服务证书 TLS 拒绝、最终读成功，全部 pass。
-- [Network 回归](network-check.json)：真实登录后 VPC 查询与数据库字段比对通过。
-- 本次仅改部署声明与验收脚本，沿用当前镜像，无 Go 改动，因此没有重新编译。
-  Python 语法与声明接线检查在 Fedora 执行；未运行全量测试。
-- 自然续期后自动重载、根 CA 轮换、所有其他服务推广：`not_verified`。
+按当前下游实际身份和租户准备独占可审计的请求，记录镜像 SHA、证书有效期、Deployment revision、命令和原始退出码。确认真实登录、两个租户的返回与其数据一致、未登录 401、无权限 403、伪造租户头无效、无证书与错误服务证书均在 TLS 层拒绝，以及授权请求实际读成功。Network 路径还需比对 VPC 返回字段与数据源；HTTP 200 本身不足以证明隔离。自然续期后的客户端重载、根 CA 轮换和其他下游仍需分别验收。
 
-重跑必要验证（Fedora，使用原任务私有账号及数据）：
-
-```sh
-python3 scripts/model-lab/check-cert-manager.py \
-  /home/chabking/ani-governance-runs/model-list-bootstrap-20260919-01 \
-  /home/chabking/ani-governance-runs/cert-manager-20260919/evidence/checks.json
-```
+2026-09-19 的两份固定结果 JSON 已退出 HEAD；它们只代表当时源码、实验 CA 和集群，来源见 [历史索引](../../../docs/history/README.md)。不可复用已过期实验 CA 或旧 namespace 作为当前部署参数。

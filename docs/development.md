@@ -12,7 +12,7 @@ ANI Governance 是 ANI 的治理后端。当前仓库只包含后端；业务服
 - 来源与许可集中见 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)。源码归档、原许可、历史日志不属于品牌清理目标。
 - 代码存在、构建成功、单项测试通过、服务部署成功是不同结论。没有执行的环节不能记为通过。
 
-本仓已记录 Model 接入暂摘。保留的 Model Proto 模板、lab 或 SQL 不因此变成当前可运行功能；接入状态以真实装配与当前专项记录为准，不只依赖旧教程。
+本仓已记录 Model 接入暂摘，旧 Model 生成模板已退出 HEAD。接入状态以真实装配与当前专项记录为准，不只依赖旧教程。
 
 ## 2. 从哪里开始阅读
 
@@ -71,7 +71,7 @@ make plugin cli gow
 
 本地 gow 的主要命令为 `api`、`ent`、`run`、`version`。不要照上游教程执行未接管的 `gow wire`、`project/new`、顶层 `generate`、`migrate` 等命令。
 
-**旧安装入口已退役：**`make install-dev` 在副作用前失败；旧 Unix/Windows 开发安装脚本已退出 HEAD，可从固定历史提交读取。生产/运维共享函数不属于该退役范围。
+**旧主机安装和 PM2 入口已退役：**相关 Make 目标与脚本均已退出 HEAD。固定工具按本节显式准备；旧实现可从固定历史提交读取。不要以主机安装代替容器部署说明。
 
 需要配置依赖代理时只在当前环境设置，保留校验机制。旧文档针对某些领域模块记录过代理不可取的问题；不要把当时某个模块名或网络状态当成当前依赖清单，先读本次 `go.mod` 与实际解析结果。
 
@@ -202,15 +202,15 @@ API 目录同步也是显式动作：先执行 `admin sync-apis --dry-run`，核
 | 受影响普通包 | `go test -mod=readonly -count=1 <包>`，需要时加 `-race` |
 | 本地 gow 工具 | 定向测试 `./tools/localdeps/gow/internal/...`，遵循测试需要的工具与工作区条件 |
 | redact 生成集成 | `make tools-integration`；需要固定 protoc 与本仓构建的插件，不因缺工具 skip |
-| Ent 生成／配额静态边界 | `make verify-quota-ent`；在隔离副本生成并比较，工具缺失失败 |
-| CI 三条门禁 | `make test-unit`、`make test-integration`、`make check-generated`；集成需独占 PG/Redis，生成需锁定工具 |
+| Ent 生成／配额静态边界 | `make check-generated` 在隔离副本完整运行两遍 `make gen` 并比较；`make check` 执行配额存储边界扫描 |
+| CI 三条门禁 | `make check`、`make test-integration`、`make check-generated`；`make verify-ci` 串行调用三者；集成需独占 PG/Redis，生成需锁定工具 |
 | 租户／数据范围 Ent 守卫 | 包是 `./app/admin/service/internal/data/ent`，不能以父包 `internal/data` 通过代替；helper 可能建表和 TRUNCATE，仅用独占测试库 |
 | 广泛测试 | `make test` 是 `go test ./...`，不负责准备所有外部资源，也不保证所有环境门控用例实际执行 |
 | lint | `make lint` 需要使用方明确准备合适版本的 golangci-lint；现有锁记录仍有未解析项，不承诺开箱即用 |
 
 当前 CI 位于 `.github/workflows/governance.yml`：`checks`、`integration`、`generation` 独立执行。PostgreSQL 16.10 经显式迁移和受限角色运行；Redis 每次有独占容器和标签。GitHub CI 与任务 Fedora 验证分别记录，均不代表部署或跨仓联调。
 
-`QUOTA_LAB_PG_DSN`（兼容现有测试环境变量名）与 `GUARD_TEST_PG_DSN` 必须指向本次授权的独占测试库；设置 `QUOTA_PG_EXCLUSIVE=1` 和 `GUARD_TEST_PG_EXCLUSIVE=1`。`scripts/ci/with-redis.sh` 每 run 创建独占容器并按 ID/label 清理。
+`ANI_TEST_DATABASE_DSN` 与 `ANI_TEST_GUARD_DATABASE_DSN` 必须指向本次授权的独占测试库；设置 `ANI_TEST_DATABASE_EXCLUSIVE=1` 和 `ANI_TEST_GUARD_DATABASE_EXCLUSIVE=1`。race 套件另用 `ANI_TEST_RACE_DATA_DSN` 和 `ANI_TEST_RACE_SERVICE_DSN`。不再接受旧通用测试变量名；`scripts/ci/with-redis.sh` 每 run 创建独占容器并按 ID/label 清理。
 
 成功需要命令真实退出码和所要求的具名测试结果；包级 `ok`、缓存命中、skip 和环境未启动的 not_verified 分开记录。保存管道命令结果时不使用最后一个 `tee`／`echo` 的退出码冒充测试结果。
 

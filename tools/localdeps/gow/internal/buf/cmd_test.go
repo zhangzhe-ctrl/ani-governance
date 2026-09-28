@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"testing"
 )
 
@@ -44,6 +45,35 @@ func TestScanYAMLFiles(t *testing.T) {
 		if got[i] != want[i] {
 			t.Fatalf("scanYAMLFiles[%d] = %q; want %q", i, got[i], want[i])
 		}
+	}
+}
+
+func TestSelectActiveTemplatesRejectsMissingDuplicateAndFormerModel(t *testing.T) {
+	root := t.TempDir()
+	found := make([]string, 0, len(activeGenConfigs))
+	for _, name := range activeGenConfigs {
+		found = append(found, filepath.Join(root, name))
+	}
+	selected, err := selectActiveTemplates(root, found)
+	if err != nil || len(selected) != len(found) {
+		t.Fatalf("active templates: %v, %v", selected, err)
+	}
+	cases := []struct {
+		name  string
+		files []string
+		want  string
+	}{
+		{"missing", found[:len(found)-1], "approved template is missing"},
+		{"duplicate", append(append([]string{}, found...), filepath.Join(root, "nested", activeGenConfigs[0])), "duplicate template name"},
+		{"former-model", append(append([]string{}, found...), filepath.Join(root, "buf.model.gen.yaml")), "unclassified template"},
+		{"unknown", append(append([]string{}, found...), filepath.Join(root, "buf.unknown.gen.yaml")), "unclassified template"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if _, err := selectActiveTemplates(root, tc.files); err == nil || !strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("want %q, got %v", tc.want, err)
+			}
+		})
 	}
 }
 
