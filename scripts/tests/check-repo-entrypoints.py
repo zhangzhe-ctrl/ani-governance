@@ -58,7 +58,7 @@ def fixture(repo:Path, root:Path)->dict:
     for name in ['go','gow','ent','buf','python3','redact-builder','docker','sudo','curl','git','apt-get','dnf','brew']:
         p=bin/name;p.write_text('#!'+sys.executable+' -S\n'+FAKE);p.chmod(0o755)
     env={k:v for k,v in os.environ.items() if k not in ['MAKEFLAGS','MFLAGS','MAKELEVEL','GOFLAGS','GOBIN','GOPATH','GOROOT','GOTOOLCHAIN','MAKEFILES','SHELL','ENV','BASH_ENV']}
-    env.update(PATH=str(bin)+os.pathsep+os.environ['PATH'],GOPATH=str(root/'gopath'),GOWORK='off',GOPROXY='off',HOME=str(root/'home'),MOCK_LOG=str(root/'calls.jsonl'),PWD=str(root),GOFLAGS='-mod=readonly')
+    env.update(PATH=str(bin)+os.pathsep+os.environ['PATH'],GOPATH=str(root/'gopath'),GOWORK='off',GOPROXY='off',HOME=str(root/'home'),MOCK_LOG=str(root/'calls.jsonl'),PWD=str(root),GOFLAGS='-mod=readonly',LC_ALL='C')
     (root/'home').mkdir();return env
 
 def read_events(root:Path)->list:
