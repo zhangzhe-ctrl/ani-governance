@@ -241,6 +241,6 @@ Gov usage worker 周期分页重扫原 CREATE 和完整 charges，派生同一 r
 | 多 owner | 新身份/公钥/adapter、查询/退款隔离和并发负向；当前 OWNER-03 未实现/未验证 |
 | 真实 GPU 后续门禁 | F>1 的 plan→Pod→实际分配→运行显存限制；同父卡两个真实模型加载推理；K 满后 Pending 且不越预算；整卡排他/尾差/真实解除后容量恢复；真实 owner 账本与完整清理一致。LIVE-01..05 未验证 |
 
-本批统一入口为 Gov `make verify-gpu` 与 Acc `make verify`，在授权 Fedora 隔离环境执行；集成脚本见 [run-joint-contract.sh](../../scripts/accelerator-acceptance/run-joint-contract.sh)。摘要表直接引用已有受测固定向量，不创造新“示例正确 hash”。完整 Goal 矩阵仍是 Acc `docs/plans/governance-accelerator-v1.2-acceptance.md`，本文不替代逐 ID 结果。
+Governance 当前统一入口为 `make verify-ci`，Acc 入口仍为 `make verify`，在授权 Fedora 隔离环境执行；集成脚本见 [run-joint-contract.sh](../../scripts/accelerator-acceptance/run-joint-contract.sh)。摘要表直接引用已有受测固定向量，不创造新“示例正确 hash”。完整 Goal 矩阵仍是 Acc `docs/plans/governance-accelerator-v1.2-acceptance.md`，本文不替代逐 ID 结果。
 
 [本批软件联调证据](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/joint-software.md)明确区分 fixture 和真实事实。测试 owner 的软件关闭可以与叠加观察中仍有 live binding 同时存在；这用于证明 ENDED 不清 binding，不能作为真实 owner 退款正确性的硬件证据。当前还缺正式 owner 注册、真实业务 API/渲染/清理、多 owner 和真实 GPU 验收；CPU 推理、sleep 容器、YAML 或 HTTP 存活都不能替代这些门槛。

@@ -47,12 +47,12 @@ func scopeCtx(ctx context.Context, uid, tid uint64, scopes ...viewer.DataScope) 
 
 func openScopeTestClient(t *testing.T) *ent.Client {
 	t.Helper()
-	dsn := os.Getenv("GUARD_TEST_PG_DSN")
+	dsn := os.Getenv("ANI_TEST_GUARD_DATABASE_DSN")
 	if dsn == "" {
-		t.Fatal("GUARD_TEST_PG_DSN is required for selected integration tests")
+		t.Fatal("ANI_TEST_GUARD_DATABASE_DSN is required for selected integration tests")
 	}
-	if os.Getenv("GUARD_TEST_PG_EXCLUSIVE") != "1" {
-		t.Fatal("GUARD_TEST_PG_EXCLUSIVE=1 is required for selected integration tests")
+	if os.Getenv("ANI_TEST_GUARD_DATABASE_EXCLUSIVE") != "1" {
+		t.Fatal("ANI_TEST_GUARD_DATABASE_EXCLUSIVE=1 is required for selected integration tests")
 	}
 	drv, err := sql.Open(dialect.Postgres, dsn)
 	if err != nil {

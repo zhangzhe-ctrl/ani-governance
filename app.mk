@@ -117,13 +117,8 @@ gen:
 # generate ent code, if ent schema exist in the project's internal/data/ent folder
 ent:
 ifneq ("$(wildcard ./internal/data/ent)","")
-	ent generate \
-				--feature privacy \
-				--feature entql \
-				--feature sql/modifier \
-				--feature sql/upsert \
-				--feature sql/lock \
-				./internal/data/ent/schema
+	$(MAKE) -C "$(MKFILE_DIR)" gow
+	$(MKFILE_DIR)tools/bin/gow ent "$(SERVICE_NAME)"
 endif
 
 # generate protobuf api go code

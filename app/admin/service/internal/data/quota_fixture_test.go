@@ -30,12 +30,12 @@ const QuotaCodeOwnerLab = "ani-gpu-simulator"
 // newLedgerPGClient 连接任务隔离 PostgreSQL（已迁移）。
 func newLedgerPGClient(t *testing.T) *entCrud.EntClient[*ent.Client] {
 	t.Helper()
-	dsn := os.Getenv("QUOTA_LAB_PG_DSN")
+	dsn := os.Getenv("ANI_TEST_DATABASE_DSN")
 	if dsn == "" {
-		t.Fatal("QUOTA_LAB_PG_DSN is required for quota_pg tests (missing DSN must fail, not skip)")
+		t.Fatal("ANI_TEST_DATABASE_DSN is required for quota_pg tests (missing DSN must fail, not skip)")
 	}
-	if os.Getenv("QUOTA_PG_EXCLUSIVE") != "1" {
-		t.Fatal("QUOTA_PG_EXCLUSIVE=1 is required for selected quota_pg tests")
+	if os.Getenv("ANI_TEST_DATABASE_EXCLUSIVE") != "1" {
+		t.Fatal("ANI_TEST_DATABASE_EXCLUSIVE=1 is required for selected quota_pg tests")
 	}
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
@@ -50,8 +50,8 @@ func newLedgerPGClient(t *testing.T) *entCrud.EntClient[*ent.Client] {
 // cleanLedger 清空账本表，保证测试互不干扰。
 func cleanLedger(t *testing.T, c *entCrud.EntClient[*ent.Client]) {
 	t.Helper()
-	if os.Getenv("QUOTA_PG_EXCLUSIVE") != "1" {
-		t.Fatal("ledger fixture cleanup requires QUOTA_PG_EXCLUSIVE=1")
+	if os.Getenv("ANI_TEST_DATABASE_EXCLUSIVE") != "1" {
+		t.Fatal("ledger fixture cleanup requires ANI_TEST_DATABASE_EXCLUSIVE=1")
 	}
 	ctx := context.Background()
 	for _, stmt := range []string{

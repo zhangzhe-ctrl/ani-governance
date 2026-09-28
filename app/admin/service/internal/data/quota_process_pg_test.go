@@ -75,7 +75,7 @@ func TestQuotaProcessChild(t *testing.T) {
 	b, e := os.ReadFile(file)
 	require.NoError(t, e)
 	require.NoError(t, json.Unmarshal(b, &s))
-	cfg, e := pgx.ParseConfig(os.Getenv("QUOTA_LAB_PG_DSN"))
+	cfg, e := pgx.ParseConfig(os.Getenv("ANI_TEST_DATABASE_DSN"))
 	require.NoError(t, e)
 	cfg.Tracer = &quotaCommitTrace{s.Point, s.Marker}
 	db := stdlib.OpenDB(*cfg)

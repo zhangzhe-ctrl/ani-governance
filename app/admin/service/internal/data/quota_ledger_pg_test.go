@@ -4,7 +4,7 @@ package data
 
 // QUOTA-GPU-LOCAL-01 强制 PostgreSQL 集成测试（计划 §15）。
 // 运行方式：go test -tags quota_pg ./app/admin/service/internal/data -run '^TestQuotaPostgres' -count=1
-// DSN 由任务环境提供（环境变量 QUOTA_LAB_PG_DSN，指向已按
+// DSN 由任务环境提供（环境变量 ANI_TEST_DATABASE_DSN，指向已按
 // expand→data→constraints 完成迁移的隔离库）；缺少 DSN 必须失败，不得 Skip。
 
 import (
@@ -328,7 +328,7 @@ func TestQuotaPostgresTwoInstances(t *testing.T) {
 	c := newLedgerPGClient(t)
 	cleanLedger(t, c)
 	repoA := newTestRepo(c)
-	db2, err := sql.Open("pgx", os.Getenv("QUOTA_LAB_PG_DSN"))
+	db2, err := sql.Open("pgx", os.Getenv("ANI_TEST_DATABASE_DSN"))
 	require.NoError(t, err)
 	defer func() { _ = db2.Close() }()
 	drv2 := entsql.OpenDB("postgres", db2)

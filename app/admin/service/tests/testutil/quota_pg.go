@@ -23,12 +23,12 @@ var quotaCleanup string
 // database. It never mutates data or schema. The caller owns fixture reset.
 func NewQuotaPGClient(t *testing.T) *entCrud.EntClient[*ent.Client] {
 	t.Helper()
-	dsn := os.Getenv("QUOTA_LAB_PG_DSN")
+	dsn := os.Getenv("ANI_TEST_DATABASE_DSN")
 	if dsn == "" {
-		t.Fatal("QUOTA_LAB_PG_DSN is required")
+		t.Fatal("ANI_TEST_DATABASE_DSN is required")
 	}
-	if os.Getenv("QUOTA_PG_EXCLUSIVE") != "1" {
-		t.Fatal("QUOTA_PG_EXCLUSIVE=1 is required for selected quota_pg tests")
+	if os.Getenv("ANI_TEST_DATABASE_EXCLUSIVE") != "1" {
+		t.Fatal("ANI_TEST_DATABASE_EXCLUSIVE=1 is required for selected quota_pg tests")
 	}
 	db, e := sql.Open("pgx", dsn)
 	require.NoError(t, e)
@@ -43,8 +43,8 @@ func NewQuotaPGClient(t *testing.T) *entCrud.EntClient[*ent.Client] {
 // asserted by the test runner. Callers choose when to reset their fixture.
 func ResetQuotaFixture(t *testing.T, client *entCrud.EntClient[*ent.Client]) {
 	t.Helper()
-	if os.Getenv("QUOTA_PG_EXCLUSIVE") != "1" {
-		t.Fatal("quota fixture reset requires QUOTA_PG_EXCLUSIVE=1")
+	if os.Getenv("ANI_TEST_DATABASE_EXCLUSIVE") != "1" {
+		t.Fatal("quota fixture reset requires ANI_TEST_DATABASE_EXCLUSIVE=1")
 	}
 	_, err := client.DB().ExecContext(context.Background(), quotaCleanup)
 	require.NoError(t, err)

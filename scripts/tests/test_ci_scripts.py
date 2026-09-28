@@ -61,10 +61,10 @@ if os.environ.get('FAIL_KIND') == kind: sys.exit(43 if kind == 'quota-server' el
             binary.chmod(0o755)
             env = dict(os.environ, PATH=str(binary.parent) + os.pathsep + os.environ['PATH'],
                        EVENTS=str(root / 'events'), ANI_CI_EVIDENCE_DIR=str(root / 'evidence'),
-                       QUOTA_LAB_PG_DSN='postgres://fixture/data', GUARD_TEST_PG_DSN='postgres://fixture/guard',
-                       QUOTA_RACE_DATA_PG_DSN='postgres://fixture/race-data',
-                       QUOTA_RACE_SERVICE_PG_DSN='postgres://fixture/race-service',
-                       QUOTA_PG_EXCLUSIVE='1', GUARD_TEST_PG_EXCLUSIVE='1')
+                       ANI_TEST_DATABASE_DSN='postgres://fixture/data', ANI_TEST_GUARD_DATABASE_DSN='postgres://fixture/guard',
+                       ANI_TEST_RACE_DATA_DSN='postgres://fixture/race-data',
+                       ANI_TEST_RACE_SERVICE_DSN='postgres://fixture/race-service',
+                       ANI_TEST_DATABASE_EXCLUSIVE='1', ANI_TEST_GUARD_DATABASE_EXCLUSIVE='1')
             def run(fail=None):
                 (root / 'events').write_text('')
                 env['FAIL_KIND'] = fail or ''
@@ -271,15 +271,23 @@ if os.environ.get('FAIL_KIND') == kind: sys.exit(43 if kind == 'quota-server' el
             self.assertFalse(marker.exists())
             self.assertTrue((state / 'id').exists())
 
-    def test_ent_check_rejects_missing_artifact(self):
+    def test_generation_evidence_keeps_stage_logs_on_failure(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            script = root / 'scripts/ci/check-ent-generated.sh'
-            script.parent.mkdir(parents=True)
-            shutil.copyfile(REPO / 'scripts/ci/check-ent-generated.sh', script)
-            result = subprocess.run(['bash', str(script)], cwd=root, capture_output=True)
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn(b'schema.sql missing', result.stderr)
+            env = dict(os.environ, ANI_CI_EVIDENCE_ROOT=str(root / 'public'),
+                       ANI_CI_RAW_EVIDENCE_ROOT=str(root / 'raw'))
+            program = ('import os,pathlib,sys; d=pathlib.Path(os.environ["ANI_CI_EVIDENCE_DIR"]); '
+                       '(d/"generation-baseline.json").write_text("{}\\n"); '
+                       '(d/"gow-tests.jsonl").write_text("{\\"Action\\":\\"fail\\"}\\n"); '
+                       '(d/"tools-integration.log").write_text("fixture failure\\n"); sys.exit(37)')
+            result = subprocess.run(['bash', str(REPO / 'scripts/ci/run-with-evidence.sh'),
+                                     'generation', '--', 'python3', '-c', program],
+                                    env=env, capture_output=True)
+            self.assertEqual(result.returncode, 37, result.stderr)
+            public = root / 'public/generation'
+            for name in ('generation-baseline.json', 'gow-tests.jsonl', 'tools-integration.log'):
+                self.assertTrue((public / name).is_file(), name)
+            self.assertEqual((root / 'public/job-status.txt').read_text().strip(), 'fail')
 
 
 if __name__ == '__main__':

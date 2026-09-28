@@ -24,6 +24,8 @@
 | 脚本测试 | `scripts/tests` | Python用`test_*.py`，Shell使用明确测试入口 |
 | 日常开发工具 | `scripts/dev`或已公开稳定入口 | 版本固定、无默认全局安装；路径变更更新消费者 |
 | 真实运维/诊断工具 | `scripts/ops`及已存在`deploy`/`backup`入口 | 数据库/发布操作需明确目标与授权 |
+| CI 专属库准备 SQL | `scripts/ci/sql` | 只用于独占测试实例，不冒充生产运维脚本 |
+| 显式版本数据步骤 | `sql/data` | 在对应结构迁移之间显式执行；Atlas 不自动读取 |
 | 人工实验 | `scripts/experiments/<topic>` | opt-in；单份README；显式参数；可完整清理 |
 | 代码生成配置 | `api/`、`tools/config/` | 配置不放历史回执目录；版本真相不复制多份 |
 | 现行合同与操作指南 | `docs/contracts`、`docs/operations`、现有指南 | 一项内容一个权威入口 |
@@ -51,6 +53,8 @@ fixture只负责Context、数据库、证书、时钟、连接与必要依赖。
 
 不使用`isTest`、环境变量或仅测试构造器绕过鉴权、租户隔离、事务、真实生命周期。确需改善可测性，做正常依赖注入/生命周期设计，独立说明行为边界。
 
+测试静态 SQL 放相邻 `testdata/`，跨包共享设施仍只放 `app/admin/service/tests/testutil`；`internal` 可以容纳测试。SQL 文件名不靠 `_test.sql` 获得 Go 构建隔离。版本迁移、正式 bootstrap、数据升级、运维 SQL、测试输入和生成快照各有不同消费者，不能相互替代；破坏性夹具不得混入正式运维步骤。
+
 ### 3.3 资源和时序
 
 使用`t.TempDir`、`t.Cleanup`及有界Context。资源创建成功立即登记清理；一次资源明确一个关闭责任人。后台goroutine通过channel报告结果，由测试主goroutine作Fatal/require判定。
@@ -77,6 +81,10 @@ SQLite可用于适合它的CRUD测试；不能据此声称覆盖PostgreSQL行锁
 
 `.github/workflows`只编排触发、环境、脚本和artifact。Make提供薄入口；检查实现位于`scripts/ci`，Go业务断言位于Go测试。不得维护三份不同的版本表或测试名单。
 
+当前单 workflow 保留 `checks`、`integration`、`generation` 三个 job，分别委托 `make check`、`make test-integration`、`make check-generated`；`make verify-ci` 串行调用三者。Ent 参数只在本仓 `gow` 有一份运行时来源，生成门禁复用正式 `make gen`。消除重复命令要先核对构建标签、测试集合及必要的独占资源；race、关键测试、生成保护和安全扫描不得因命令数减少而缺失。
+
+每个 job 保留一份含源码 SHA、真实退出码、脱敏日志和必要测试 JSON 的工件。安装与数据库准备失败时主检查记为 `not_started`，取消不算通过；同 PR 新提交可取消旧 run，main run 保持独立。日常开发由自动工件负责，不常设阶段回执或逐文件审批台账。
+
 脚本必须能从任意工作目录定位repo（以脚本真实位置或显式参数），有清晰usage、错误码、必要环境验证。Shell适合短编排，复杂JSON/条件逻辑用Python标准库等已有工具；不引入无必要框架。
 
 保存子命令真实退出码，不取最后一个tee/echo的状态。使用管道时正确启用pipefail并取适用进程状态；命令失败不得继续打印PASS。清理失败与主命令失败分别记录。
@@ -86,6 +94,8 @@ SQLite可用于适合它的CRUD测试；不能据此声称覆盖PostgreSQL行锁
 常规PR与main检查保持自动化；避免对同一普通开发分支的push和PR重复运行重任务。脚本自身、布局/生成检查及必要安全/并发测试都必须有可解释覆盖；不得以部署成功代替关键回归。
 
 修改CI名称/作业ID时核对既有保护要求，不能擅自更改仓库权限或绕过检查。默认不得部署、发布镜像、打tag或操作业务数据库。
+
+正式部署走容器与显式 Atlas 步骤；本仓不再维护主机自动安装、全局 Go 安装和 PM2 启动入口。开发者仍可直接 `go run`、`go build` 和 `go test`。仓库退役不授权卸载机器软件、停止现有服务或修改主机配置。
 
 ## 5. 实验规范
 

@@ -30,9 +30,10 @@ if name=='go':
     event('UNEXPECTED_GO');sys.exit(81)
 if name=='gow':
     if args==['api']:event('API');sys.exit(0)
+    if args==['ent','admin']:event('ENT');sys.exit(0)
     event('UNEXPECTED_GOW');sys.exit(82)
 if name=='redact-builder':event('BUILD_REDACT');sys.exit(0)
-if name=='ent':event('ENT');sys.exit(0)
+if name=='ent':event('FORBIDDEN_ENT');sys.exit(88)
 if name=='buf':
     event('OPENAPI_RAW' if args==['generate','--template','buf.admin.openapi.gen.yaml'] else 'BUF_RAW');sys.exit(0)
 if name=='python3':
@@ -50,6 +51,9 @@ def fixture(repo:Path, root:Path)->dict:
     (root/'api').mkdir();(root/'.env').write_text('PROJECT_NAME=ani\nSERVICE_APP_VERSION=1.0.0\n')
     (root/'scripts').mkdir()
     (root/'scripts/build-redact-plugin.sh').write_text('#!/bin/sh\nexec redact-builder\n')
+    (root/'scripts/ci').mkdir()
+    for name,kind in [('checks.sh','CHECK'),('integration.sh','INTEGRATION'),('check-generated.sh','GENERATION')]:
+        (root/'scripts/ci'/name).write_text('#!/bin/sh\nprintf \'{"kind":"'+kind+'","args":[]}\\n\' >> "$MOCK_LOG"\ntest "${MOCK_FAIL:-}" != '+kind+'\n')
     bin=root/'fake-bin';bin.mkdir()
     for name in ['go','gow','ent','buf','python3','redact-builder','docker','sudo','curl','git','apt-get','dnf','brew']:
         p=bin/name;p.write_text('#!'+sys.executable+' -S\n'+FAKE);p.chmod(0o755)
@@ -73,6 +77,7 @@ def check(repo:Path)->dict:
       ('root-build',[], 'build',{'API':1,'COMPILE':1,'ENT':0,'FINALIZE':0}),
       ('root-build-only',[], 'build_only',{'API':0,'COMPILE':1,'ENT':0}),
       ('root-gen',[], 'gen',{'API':1,'ENT':1,'SQL_EXPORT':1,'COMPILE':0,'FINALIZE':0}),
+      ('root-ent',[], 'ent',{'API':0,'ENT':1,'SQL_EXPORT':1}),
       ('root-all',[], 'all',{'API':1,'ENT':1,'SQL_EXPORT':1,'COMPILE':1,'FINALIZE':0}),
       ('root-openapi',[], 'openapi',{'API':0,'OPENAPI_RAW':1,'FINALIZE':1,'COMPILE':0}),
       ('service-api',['-C','app/admin/service'], 'api',{'API':1,'COMPILE':0,'FINALIZE':0}),
@@ -80,11 +85,13 @@ def check(repo:Path)->dict:
       ('service-build-only',['-C','app/admin/service'], 'build_only',{'API':0,'COMPILE':1,'ENT':0}),
       ('service-run',['-C','app/admin/service'], 'run',{'API':1,'RUN':1,'ENT':0,'FINALIZE':0}),
       ('service-gen',['-C','app/admin/service'], 'gen',{'API':1,'ENT':1,'SQL_EXPORT':0,'COMPILE':0,'FINALIZE':0}),
+      ('service-ent',['-C','app/admin/service'], 'ent',{'API':0,'ENT':1,'SQL_EXPORT':0}),
       ('service-app',['-C','app/admin/service'], 'app',{'API':1,'ENT':1,'COMPILE':1,'FINALIZE':0}),
       ('service-openapi',['-C','app/admin/service'], 'openapi',{'API':0,'OPENAPI_RAW':1,'FINALIZE':1}),
       ('root-parallel-build',['-j4'], 'build',{'API':1,'COMPILE':1,'FINALIZE':0}),
       ('root-parallel-all',['-j4'], 'all',{'API':1,'ENT':1,'SQL_EXPORT':1,'COMPILE':1,'FINALIZE':0}),
       ('service-parallel-app',['-j4','-C','app/admin/service'], 'app',{'API':1,'ENT':1,'COMPILE':1,'FINALIZE':0}),
+      ('verify-ci-parallel',['-j4'], 'verify-ci',{'CHECK':1,'INTEGRATION':1,'GENERATION':1}),
     ]
     results=[]
     with tempfile.TemporaryDirectory(prefix='ani-entrypoints-') as td:
@@ -100,6 +107,8 @@ def check(repo:Path)->dict:
         order=[e['kind'] for e in ev]
         if 'ENT' in order and 'API' in order and order.index('ENT')>order.index('API'):raise RuntimeError(label+': API preceded Ent')
         if 'API' in order and 'COMPILE' in order and order.index('API')>order.index('COMPILE'):raise RuntimeError(label+': compilation preceded API')
+        if label=='verify-ci-parallel' and order!=['CHECK','INTEGRATION','GENERATION']:
+            raise RuntimeError(label+': CI stages were not serial')
         for e in ev:
             if e['kind']=='COMPILE':
                 args=e['args']
@@ -109,7 +118,7 @@ def check(repo:Path)->dict:
                 raise RuntimeError(label+': runtime arguments changed')
         results.append({'case':label,'pass':True,'events':got})
       # Failures must stop downstream work, not be hidden by a trailing command/foreach.
-      for failure,target,forbidden in [('API','build',['COMPILE']),('ENT','gen',['API','SQL_EXPORT']),('COMPILE','build_only',[])]:
+      for failure,target,forbidden in [('API','build',['COMPILE']),('ENT','gen',['API','SQL_EXPORT']),('COMPILE','build_only',[]),('CHECK','verify-ci',['INTEGRATION','GENERATION']),('INTEGRATION','verify-ci',['GENERATION'])]:
         label='reject-'+failure;print('CHECK', label, flush=True);root=work/label;env=fixture(repo,root);env['MOCK_FAIL']=failure
         if failure=='COMPILE':
             dest=root/'app/zzz/service';dest.mkdir(parents=True);(dest/'Makefile').write_text('include ../../../app.mk\n')
@@ -119,14 +128,12 @@ def check(repo:Path)->dict:
         if any(got.get(k) for k in forbidden):raise RuntimeError(label+': continued after failed prerequisite')
         if failure=='COMPILE' and got.get('COMPILE')!=1:raise RuntimeError(label+': later service compiled after failure')
         results.append({'case':label,'pass':True,'actual_exit':p.returncode,'events':got})
-      # The old installers have exited HEAD; the Make target remains fail-fast.
-      root=work/'retired-root';env=fixture(repo,root)
-      p=subprocess.run([make,'--no-print-directory','install-dev'],cwd=root,env=env,capture_output=True,text=True,timeout=10)
-      if p.returncode!=2 or 'Retired:' not in p.stderr or read_events(root):
-        raise RuntimeError('retired-root: side effect/exit check failed')
-      if (repo/'scripts/env/install_unix_dev.sh').exists() or (repo/'scripts/env/install_windows_dev.ps1').exists():
-        raise RuntimeError('retired installers unexpectedly restored')
-      results.append({'case':'retired-root','pass':True,'actual_exit':p.returncode,'external_commands':0})
+      for target in ['install-dev','install-prod','install-golang','pm2-deploy','test-unit','verify-gpu','verify-gpu-regressions','verify-gpu-audit','verify-quota-ent']:
+        label='retired-'+target;root=work/label;env=fixture(repo,root)
+        p=subprocess.run([make,'--no-print-directory','--dry-run',target],cwd=root,env=env,capture_output=True,text=True,timeout=10)
+        if p.returncode==0 or 'No rule to make target' not in p.stderr or read_events(root):
+          raise RuntimeError(label+': target still exists or external command ran')
+        results.append({'case':label,'pass':True,'actual_exit':p.returncode,'external_commands':0})
     return {'scope':'mock Make delegation and retired entrypoints ONLY','pass':True,'cases':results,'real_generation':'NOT_RUN','database':'NOT_RUN','deployment':'NOT_RUN'}
 
 def main()->int:
