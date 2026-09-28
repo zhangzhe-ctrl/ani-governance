@@ -108,7 +108,7 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 | 编号 | 源码确认的现状 | 后续处理 | 状态 |
 | --- | --- | --- | --- |
 | ISSUE-01 | 原登录强制 AES 编码，与接口说明不一致 | 按用户要求改成 HTTPS 直接提交原始密码；更新源 Proto、生成代码/OpenAPI、登录用例及审计回归；数据库 bcrypt 不变 | 实现完成；登录/密码管理与审计定向测试、服务编译 PASS；前端与后端需同步发布，用户环境尚未部署 |
-| ISSUE-02 | 原首次种子遗漏 `sys:tenant_manager` → `POST /api/v1/auth/logout` | 已补首次种子；旧库显式执行 [登出授权补丁](../sql/patches/20260921_tenant_logout.sql)，操作见 [部署流程](deployment.md)；仍保留租户状态、套餐与角色权限检查 | 实现完成；PostgreSQL 18 定向验证 PASS；用户环境尚未应用，HTTP 联调 not_verified |
+| ISSUE-02 | 原首次种子遗漏 `sys:tenant_manager` → `POST /api/v1/auth/logout` | 已补首次种子；旧库显式执行 [登出授权补丁](../scripts/ops/sql/repair-tenant-logout.sql)，操作见 [部署流程](deployment.md)；仍保留租户状态、套餐与角色权限检查 | 实现完成；PostgreSQL 18 定向验证 PASS；用户环境尚未应用，HTTP 联调 not_verified |
 | ISSUE-03 | 认证路径为 `/api/v1/auth/*`，个人资料/初始化为 `/admin/v1/*`；字段也有 snake_case 与 camelCase 混用 | 累计记录差异，待用户指定批次与旧项目目标格式后统一调整 | 待指定 |
 | ISSUE-04 | 当前登出吊销用户全部后台会话，`jti` 仅审计用 | 用户指定保留全部登出还是改为当前会话 | 待指定 |
 | ISSUE-05 | kind 实际联调发现租户数据库已有套餐，但读取 DTO 丢失 `plan_id`，初始化菜单被误判为无套餐而清空 | 将现有 nullable 外键显式绑定为 Ent 字段；重新生成代码，租户详情与列表可返回套餐 ID；Atlas 确认与现有结构无差异，无需迁移 | 租户仓储、登录与租户服务回归 PASS；kind NodePort 平台/租户登录、非空菜单、权限、刷新、登出验收 PASS；详见 [运行记录](deployment-kind-20260921.md) |
@@ -951,7 +951,7 @@ HTTP 不接受 tenant/actor/context 作为身份来源；服务从已验证 Prin
 错误保留受限机器 reason，400/401/403/404/409/412/503/504 分别对应合同失败，原始下游正文不公开。
 
 先执行 `admin sync-apis --dry-run`、复核后执行 `admin sync-apis`，再显式应用
-`sql/patches/20260923_accelerator_permissions.sql` 登记精确权限关联。脚本不授予角色、不启用套餐、
+`scripts/ops/sql/register-accelerator-permissions.sql` 登记精确权限关联。脚本不授予角色、不启用套餐、
 不默认分配额度；部署方按明确租户/角色/套餐授权并刷新运行实例策略。接口目录存在不代表已授权。
 
 `SyncGpuUsage` 仅独立恢复 worker 以 Governance 服务身份调用，不受当前用户委托撤销或套餐到期阻断；

@@ -3,7 +3,7 @@
 固定顺序：**Atlas 迁移结构 → 显式初始化数据 → 检查 → 启动服务 → 登录/API 验收**。
 服务启动不建表、不播种、不同步 API、不恢复默认密码。配置 `data.database.migrate` 必须为 `false`；旧配置为 `true` 时明确报错。
 
-本次隔离环境的实际结果见 [验证记录](deployment-verification.md)。
+初始化复验应使用全新、可丢弃且以 `_bootstrap_test` 结尾的独占库，设置 `GOV_BOOTSTRAP_TEST_DSN` 后运行 `go test -tags=quota_pg -count=1 -run 'Test(BootstrapPostgres|EntClientRejectsStartupMigration)$' ./app/admin/service/internal/data`。该标签使测试包注册 pgx 驱动；只用 `-run` 不会注册它。另可运行 `go test -count=1 -run 'Test(ConstructorsDoNotAccessDatabase|CatalogValidation|ServiceTagToBusinessModuleExactMapping)$' ./sql/bootstrap ./app/admin/service/internal/service ./pkg/constants`。测试的 `Schema.Create` 仅用于临时测试库；实际部署仍按 Atlas 与显式 admin CLI 流程执行。历史部署结果只对应其当时源码与环境，不能代替当前复验。
 
 ## 1. 准备配置和制品
 
@@ -213,7 +213,7 @@ gow run admin
 使用目标库连接配置执行（例如按环境设置 `PGSERVICE` 或 `PGHOST` / `PGDATABASE` / `PGUSER`，密码使用凭据文件）：
 
 ```bash
-psql -v ON_ERROR_STOP=1 -f sql/patches/20260921_tenant_logout.sql
+psql -v ON_ERROR_STOP=1 -f scripts/ops/sql/repair-tenant-logout.sql
 ```
 
 补丁只补这一条权限关联，按权限 code 和 API 方法/路径查找，保留现有 ID；重复执行不重复插入。缺少或重复的前置权限/API 会报错并回滚，不自动新增 API、不启用被停用的账号/权限/接口，也不放宽套餐。
@@ -261,7 +261,7 @@ export ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE=/run/secrets/governance-access-key-enc
 配额功能引入三段式升级，**顺序固定为 expand → data → constraints**，不能用一次 `migrate apply` 推进带存量数据的库：
 
 1. `migrations/20260922190000_quota_expand.sql`：目录/账本五张表 + `sys_plan_quotas.quota_code`（nullable）。
-2. `sql/quota/001_catalog_and_backfill.sql`：版本数据脚本，插入固定目录（user.count/storage.bytes/api.calls/gpu.count）并精确回填旧行；任何坏数据（NULL/未知类型/重复/越界/悬空 plan）整笔失败，不合并不删除。幂等可重跑。
+2. `sql/data/20260922_quota_catalog_backfill.sql`：版本数据脚本，插入固定目录（user.count/storage.bytes/api.calls/gpu.count）并精确回填旧行；任何坏数据（NULL/未知类型/重复/越界/悬空 plan）整笔失败，不合并不删除。幂等可重跑。
 3. `migrations/20260922190100_quota_constraints.sql`：回填完成后加 NOT NULL、UNIQUE(plan_id,quota_code)、目录 FK、数值 CHECK。
 
 运行账号仍无 DDL；服务配置保持 `migrate: false`。配额内部退额 listener 由 `ANI_QUOTA_ENABLED`（默认 disabled）+ `ANI_QUOTA_INTERNAL_ADDR/_CA_FILE/_CERT_FILE/_KEY_FILE` 控制，enabled 缺凭据或显式 owner 身份映射启动失败，不降级明文。`gpu.count` 当前没有生产 GPU 执行器；旧 `quota_lab` 模拟路由与构建标签已退役。新账本表的 CHECK 约束已通过 `entsql.Annotation.Checks` 进入 Ent 导出的 schema.sql，与手写迁移同名同义。

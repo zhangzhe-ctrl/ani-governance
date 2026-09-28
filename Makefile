@@ -12,7 +12,7 @@ ROOT_DIR	:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 SRCS_MK		:= $(foreach dir, app, $(wildcard $(dir)/*/*/Makefile))
 
 .PHONY: help gen ent build build_only api openapi pgv init all vendor dep test cover vet lint docker \
-		register install-dev install-prod pm2-deploy check-repo-entrypoints
+		register check-repo-entrypoints
 
 # show environment variables
 env:
@@ -192,28 +192,9 @@ docker:
 # Script Commands - 脚本命令
 # ============================================================================
 
-# retired automatic development-environment installer (no installation is performed)
-install-dev:
-	@printf '%s\n' 'Retired: read docs/development.md; prepare pinned tools explicitly. No environment was changed.' >&2; exit 2
-
 # check Make delegation and retired entrypoints without installing tools or starting services
 check-repo-entrypoints:
 	python3 scripts/tests/check-repo-entrypoints.py --repo "$(CURDIR)"
-
-# install production environment (Unix/Linux/macOS)
-install-prod:
-	echo "Installing production environment..."
-	bash scripts/env/install_unix_prod.sh
-
-# install golang only
-install-golang:
-	echo "Installing Golang..."
-	bash scripts/env/install_golang.sh
-
-# deploy services with PM2
-pm2-deploy:
-	echo "Deploying services with PM2..."
-	bash scripts/deploy/pm2_service.sh
 
 # show help
 help:
@@ -240,10 +221,13 @@ build_admin:
 	go build -trimpath -ldflags "-s -w" -o bin/admin ./app/admin/service/cmd/admin
 
 # CI entrypoints delegate to scripts/ci; GitHub jobs call the same scripts.
-.PHONY: verify-ci test-unit test-integration check-generated verify-gpu verify-quota-ent verify-gpu-regressions verify-gpu-audit
-verify-ci: test-unit test-integration check-generated
+.PHONY: verify-ci check test-integration check-generated
+verify-ci:
+	$(MAKE) check
+	$(MAKE) test-integration
+	$(MAKE) check-generated
 
-test-unit:
+check:
 	bash scripts/ci/checks.sh
 
 test-integration:
@@ -251,13 +235,3 @@ test-integration:
 
 check-generated:
 	bash scripts/ci/check-generated.sh
-	$(MAKE) tools-integration
-
-# Transitional aliases for existing operator commands; remove after consumers migrate.
-verify-gpu: verify-ci
-verify-quota-ent:
-	python3 scripts/ci/check_quota_storage.py --repo .
-	bash scripts/ci/check-ent-generated.sh
-verify-gpu-regressions: test-integration
-verify-gpu-audit:
-	bash scripts/ci/audit.sh

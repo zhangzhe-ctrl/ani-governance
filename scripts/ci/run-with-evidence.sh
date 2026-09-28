@@ -27,6 +27,7 @@ mkdir -m 700 "$public" "$raw" || { echo "evidence step already exists: $step" >&
 sha=$(git rev-parse HEAD) || exit 2
 printf '%s\n' "$sha" > "$raw/source.sha"
 printf '%s\n' "$sha" > "$public/source.sha"
+printf '%s\n' 'running' > "$public_root/job-status.txt"
 printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$raw/started-at.txt"
 cp "$raw/started-at.txt" "$public/started-at.txt"
 printf '%q ' "$@" > "$raw/command.txt"
@@ -44,19 +45,22 @@ cp "$raw/ended-at.txt" "$public/ended-at.txt"
 
 evidence_rc=0
 for name in stdout.log stderr.log go-tests.jsonl critical-results.json \
-            generation-baseline.json generation-first.json generation-second.json resources.log; do
+            generation-baseline.json generation-first.json generation-second.json \
+            gow-tests.jsonl gow-tests.rc tools-integration.log tools-integration.rc resources.log; do
   if test -f "$raw/$name"; then
     python3 scripts/ci/redact-evidence.py "$raw/$name" "$public/$name" || evidence_rc=$?
   fi
 done
-if test "$step" = generation-gow-tests && test -f "$public/stdout.log"; then
-  cp "$public/stdout.log" "$public/gow-tests.jsonl" || evidence_rc=$?
-fi
 (
   cd "$raw" || exit 1
   for file in *; do test ! -f "$file" || sha256sum "$file"; done
 ) > "$public/raw-sha256.txt" || evidence_rc=$?
 printf '%s\n' "$evidence_rc" > "$public/evidence.rc"
+if test "$command_rc" -eq 0 && test "$evidence_rc" -eq 0; then
+  printf '%s\n' 'pass' > "$public_root/job-status.txt"
+else
+  printf '%s\n' 'fail' > "$public_root/job-status.txt"
+fi
 cat "$public/stdout.log" 2>/dev/null || true
 cat "$public/stderr.log" >&2 2>/dev/null || true
 printf 'evidence step=%s sha=%s command_rc=%s evidence_rc=%s\n' "$step" "$sha" "$command_rc" "$evidence_rc"

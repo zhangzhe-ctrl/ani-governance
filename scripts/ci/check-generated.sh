@@ -28,19 +28,34 @@ git archive --format=tar HEAD | tar -x -C "$work/repo"
 run_pass() {
   (
     cd "$work/repo"
-    GOWORK=off make api
-    cd app/admin/service
-    GOWORK=off go run entgo.io/ent/cmd/ent@v0.14.6 generate \
-      --feature privacy --feature entql --feature sql/modifier --feature sql/upsert --feature sql/lock \
-      ./internal/data/ent/schema
-    GOWORK=off go run ./cmd/schema > schema.sql
+    GOWORK=off make gen
   )
 }
+echo 'generation: first complete make gen pass'
 run_pass
 python3 "$compare" snapshot --repo "$work/repo" --sha "$sha" --output "$work/manifests/generation-first.json"
+echo 'generation: second complete make gen pass'
 run_pass
 python3 "$compare" snapshot --repo "$work/repo" --sha "$sha" --output "$work/manifests/generation-second.json"
 python3 "$compare" compare \
   --baseline "$work/manifests/generation-baseline.json" \
   --first "$work/manifests/generation-first.json" \
   --second "$work/manifests/generation-second.json"
+log_dir=${ANI_CI_EVIDENCE_DIR:-$work/manifests}
+mkdir -p "$log_dir"
+echo 'generation: localized gow tests'
+if GOWORK=off go test -json -count=1 ./tools/... > "$log_dir/gow-tests.jsonl"; then
+  printf '0\n' > "$log_dir/gow-tests.rc"
+else
+  rc=$?
+  printf '%s\n' "$rc" > "$log_dir/gow-tests.rc"
+  exit "$rc"
+fi
+echo 'generation: redact plugin integration'
+if GOWORK=off make tools-integration > "$log_dir/tools-integration.log" 2>&1; then
+  printf '0\n' > "$log_dir/tools-integration.rc"
+else
+  rc=$?
+  printf '%s\n' "$rc" > "$log_dir/tools-integration.rc"
+  exit "$rc"
+fi

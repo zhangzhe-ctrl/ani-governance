@@ -117,12 +117,12 @@ func generateEntAllService(ctx context.Context, projectRootPath string) error {
 	return lastErr
 }
 
-// entGenerateFeatures 是本仓 Ent 生成合同的 feature 列表，必须与 Ent 门禁
-// scripts/ci/check-ent-generated.sh 里的 --feature 集合逐项一致（见 feature_gate_test.go）。
+// entGenerateFeatures 是本仓 Ent 生成合同的唯一运行时 feature 列表；
+// app.mk 委托本地 gow，CI 的完整 make gen 在隔离副本中复用该入口。
 // 上游 gowind@v1.0.3 还带 sql/versioned-migration，那是给它自己的 gow migrate --versioned
 // 用的；本仓只接管了在用的 api/ent/run/version 命令，没有 migrate，门禁与已验收生成物
 // 也都不含该 feature 产生的 migrate.go Diff/NamedDiff 32 行。保留它会与
-// make verify-gpu 的 verify-quota-ent 阶段冲突，故按已裁决的生成合同去除。
+// 已验收 Ent 输出不包含该块，故按已裁决的生成合同去除。
 var entGenerateFeatures = []string{
 	"--feature", "privacy",
 	"--feature", "entql",

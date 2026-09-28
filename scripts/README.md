@@ -4,11 +4,11 @@
 
 | 范围 | 入口 |
 |---|---|
-| CI 检查、集成、生成 | `scripts/ci/`；对应 `make test-unit`、`make test-integration`、`make check-generated` |
+| CI 检查、集成、生成 | `scripts/ci/`；对应 `make check`、`make test-integration`、`make check-generated`；`make verify-ci` 串行调用三者 |
 | 脚本负对照 | `scripts/tests/`；Python unittest 与 Shell 安全测试 |
 | 正式生成 | `make api`、`make gow`、`make tools-integration`；版本见 `tools/config/tool-lock.json` |
 | 显式数据库运维 | `scripts/atlas.sh`、`scripts/backup/`、`scripts/ops/sql/` |
-| 可复用开发工具 | `scripts/dev/new-service-scaffold.sh`、`scripts/dev/lab/` |
+| 可复用开发工具 | `scripts/dev/new-service-scaffold.sh`、`scripts/dev/images/` |
 | 可选隔离实验 | `scripts/experiments/aksk-vpc/`、`scripts/experiments/gpu-contract/` |
 | 部署材料 | `scripts/deploy/`；另按部署授权执行 |
 

@@ -204,13 +204,8 @@ var activeGenConfigs = []string{
 	"buf.validate.gen.yaml",
 }
 
-// parkedGenConfigs 是已暂摘但保留作重接基线的模板；不执行、不删除。
-var parkedGenConfigs = map[string]string{
-	"buf.model.gen.yaml": "model 接入已暂摘（2026-09-21），重接前不可运行",
-}
-
-// selectActiveTemplates 把扫描到的模板分成三类：已批准活跃（按 activeGenConfigs 排序）、
-// 已登记暂摘（明确提示跳过）、以及未登记（直接报错，禁止悄悄漏生成或悄悄恢复暂摘入口）。
+// selectActiveTemplates 只接受已批准的活跃模板，按 activeGenConfigs 排序。
+// 缺失、重复或未知模板均失败，避免悄悄漏生成或恢复旧入口。
 func selectActiveTemplates(apiPath string, found []string) ([]string, error) {
 	byName := make(map[string]string, len(found))
 	for _, path := range found {
@@ -227,21 +222,10 @@ func selectActiveTemplates(apiPath string, found []string) ([]string, error) {
 		}
 	}
 
-	skipped := make([]string, 0, len(byName))
 	for name, path := range byName {
-		switch {
-		case slices.Contains(activeGenConfigs, name):
-			continue
-		case parkedGenConfigs[name] != "":
-			skipped = append(skipped, name)
-		default:
-			return nil, fmt.Errorf("unclassified template %s: add it to activeGenConfigs or park it explicitly", path)
+		if !slices.Contains(activeGenConfigs, name) {
+			return nil, fmt.Errorf("unclassified template %s: not in activeGenConfigs", path)
 		}
-	}
-
-	slices.Sort(skipped)
-	for _, name := range skipped {
-		fmt.Printf("skipping parked template %s: %s\n", name, parkedGenConfigs[name])
 	}
 
 	ordered := make([]string, 0, len(activeGenConfigs))

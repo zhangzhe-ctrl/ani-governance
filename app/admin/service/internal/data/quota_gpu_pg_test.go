@@ -38,7 +38,7 @@ var gpuTempForbidden string
 func TestQuotaGpuProductionEntComposition(t *testing.T) {
 	for _, trace := range []bool{false, true} {
 		t.Run(fmt.Sprint(trace), func(t *testing.T) {
-			dsn := os.Getenv("QUOTA_LAB_PG_DSN")
+			dsn := os.Getenv("ANI_TEST_DATABASE_DSN")
 			require.NotEmpty(t, dsn)
 			encoded, e := json.Marshal(map[string]any{"data": map[string]any{"database": map[string]any{"driver": "postgres", "source": dsn, "enableTrace": trace, "migrate": false}}})
 			require.NoError(t, e)

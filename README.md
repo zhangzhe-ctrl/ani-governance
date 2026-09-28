@@ -25,7 +25,7 @@ make check-repo-entrypoints       # 安全命令桩检查，不代替真实构�
 
 `tools/bin/gow api` 与根 `make api` 使用同一生成链。`make build` 为 API 生成后编译；`make gen` 为 Ent 生成/SQL 导出后 API 生成；`make all` 再加编译。只改普通 Go 实现时不自动运行生成器或依赖整理。
 
-旧 `make install-dev`、Unix/Windows 自动开发安装入口已经退役：它们在副作用之前明确失败。安装固定工具的方法见开发指南；不是重新引入一套主机安装器。
+旧主机安装和 PM2 Make 目标已移出 HEAD。安装固定工具的方法见开发指南；容器部署与 Atlas 迁移各按其现行说明执行。
 
 ## 运行、部署与业务接入
 

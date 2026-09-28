@@ -11,3 +11,5 @@
 | 旧混合 CHANGELOG | `docs/history/legacy-changelog.md` | 原文见 `git show 9ba13ad933b66e8f675f7eb9519123abcdb12e8f:CHANGELOG.md` |
 
 旧 R6 固定 dump 未恢复，状态仍是 `NOT_VERIFIED`。历史日志中的通过状态不能升级为当前部署或跨仓验收。当前开发从 [开发指南](../development.md) 与 [仓库规则](../contributing/repository-hygiene.md) 开始。
+
+本轮退出 HEAD 的旧部署结果、邀请审计报告、主机安装/PM2 与故障演示 SQL 可从固定基线 `0b06a893dc26f457434a50b3f878799dfb7fa23c` 的 Git 树按原路径查阅；其中历史判断只对应原时点，不是当前功能结论。

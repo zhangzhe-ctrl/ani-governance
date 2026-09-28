@@ -54,8 +54,27 @@ func TestBootstrapPostgres(t *testing.T) {
 	_, err = dbbootstrap.Initialize(ctx, db, catalog, "admin", "weak")
 	require.Error(t, err)
 	require.Zero(t, count("sys_users"))
-	_, err = dbbootstrap.Initialize(ctx, db, catalog[1:], "admin", "Valid-bootstrap@2026")
+	// Omit one API required by 001_initial.sql without changing the original catalog.
+	const requiredMethod, requiredPath = "GET", "/admin/v1/me"
+	originalCatalog := append([]dbbootstrap.API(nil), catalog...)
+	incompleteCatalog := make([]dbbootstrap.API, 0, len(catalog))
+	missingCount := 0
+	for _, api := range catalog {
+		if api.Method == requiredMethod && api.Path == requiredPath {
+			missingCount++
+			continue
+		}
+		incompleteCatalog = append(incompleteCatalog, api)
+	}
+	require.Equal(t, 1, missingCount)
+	require.Len(t, incompleteCatalog, len(catalog)-1)
+	for _, api := range incompleteCatalog {
+		require.False(t, api.Method == requiredMethod && api.Path == requiredPath)
+	}
+	require.Equal(t, originalCatalog, catalog)
+	_, err = dbbootstrap.Initialize(ctx, db, incompleteCatalog, "admin", "Valid-bootstrap@2026")
 	require.Error(t, err)
+	require.ErrorContains(t, err, "API catalog is incomplete")
 	require.Zero(t, count("sys_users"))
 	require.Zero(t, count("sys_apis"))
 	require.Zero(t, count("sys_roles"))
@@ -73,7 +92,7 @@ func TestBootstrapPostgres(t *testing.T) {
 	var logoutGrants int
 	require.NoError(t, db.QueryRowContext(ctx, logoutGrant).Scan(&logoutGrants))
 	require.Equal(t, 1, logoutGrants)
-	patch, err := os.ReadFile("../../../../../sql/patches/20260921_tenant_logout.sql")
+	patch, err := os.ReadFile("../../../../../scripts/ops/sql/repair-tenant-logout.sql")
 	require.NoError(t, err)
 	// Reproduce the old seed omission; the patch may only add this one binding.
 	_, err = db.ExecContext(ctx, `DELETE FROM sys_permission_apis WHERE permission_id IN
