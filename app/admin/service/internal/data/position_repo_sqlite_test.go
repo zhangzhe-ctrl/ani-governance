@@ -15,15 +15,15 @@ import (
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entPosition "go-wind-admin/app/admin/service/internal/data/ent/position"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // 本文件用 PositionRepo 作为样例，演示 enttest helper 的用法：
 //
-//	entClient := enttest.NewEntClientForTest(t)        // SQLite 内存库 ent client
+//	entClient := testutil.NewEntClientForTest(t)        // SQLite 内存库 ent client
 //	repo := &PositionRepo{entClient: entClient, ...}   // 白盒构造 repo
 //	repo.init()
-//	ctx := enttest.NewSystemViewerCtx(context.Background())
+//	ctx := testutil.NewSystemViewerCtx(context.Background())
 //	// ... 对 repo 做 CRUD 断言 ...
 //
 // 详见 enttest 包文档。
@@ -31,7 +31,7 @@ import (
 // newPositionRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的 PositionRepo。
 func newPositionRepoSqlite(t *testing.T) *PositionRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	// 白盒构造 PositionRepo，复用 NewPositionRepo.init() 的 mapper/converter 初始化逻辑
 	repo := &PositionRepo{
 		entClient: entClient,
@@ -53,7 +53,7 @@ func newPositionRepoSqlite(t *testing.T) *PositionRepo {
 func TestPositionRepoSqlite_Create(t *testing.T) {
 	repo := newPositionRepoSqlite(t)
 	// 注入系统级 ViewerContext，满足 ent mixin 的多租户隐私规则要求
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 通过 repo 的 Create API 写入一条记录，走完 mapper/converter → ent builder → SQLite 的完整链路
 	err := repo.Create(ctx, &identityV1.CreatePositionRequest{
@@ -75,7 +75,7 @@ func TestPositionRepoSqlite_Create(t *testing.T) {
 // contains 模糊搜索过滤语义（仓规：搜索条件一律 contains）。
 func TestPositionRepoSqlite_List(t *testing.T) {
 	repo := newPositionRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 两条带可区分标记的记录
 	require.NoError(t, repo.Create(ctx, &identityV1.CreatePositionRequest{
@@ -120,7 +120,7 @@ func TestPositionRepoSqlite_List(t *testing.T) {
 // 以及按名称/编码查询在平台上下文（tid=0）下被租户闸门拒绝。
 func TestPositionRepoSqlite_Get(t *testing.T) {
 	repo := newPositionRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreatePositionRequest{
 		Data: &identityV1.Position{
@@ -169,7 +169,7 @@ func TestPositionRepoSqlite_Get(t *testing.T) {
 // 只更新掩码内字段，掩码外字段保持原值。
 func TestPositionRepoSqlite_Update(t *testing.T) {
 	repo := newPositionRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreatePositionRequest{
 		Data: &identityV1.Position{
@@ -212,7 +212,7 @@ func TestPositionRepoSqlite_Update(t *testing.T) {
 func TestPositionRepoSqlite_TypeAllValuesLand(t *testing.T) {
 	repo := newPositionRepoSqlite(t)
 	// 注入系统级 ViewerContext，满足 ent mixin 的多租户隐私规则要求
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	cases := []struct {
 		protoType identityV1.Position_Type
@@ -257,7 +257,7 @@ func TestPositionRepoSqlite_TypeAllValuesLand(t *testing.T) {
 // 且删除不存在的记录返回错误。
 func TestPositionRepoSqlite_Delete(t *testing.T) {
 	repo := newPositionRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreatePositionRequest{
 		Data: &identityV1.Position{

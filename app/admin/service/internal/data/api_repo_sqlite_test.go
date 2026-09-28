@@ -17,7 +17,7 @@ import (
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/api"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newApiRepoSqlite 在给定 enttest client 上白盒构造 ApiRepo，
@@ -45,9 +45,9 @@ func newApiRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.Client]) *
 // TestApiRepoSqlite_Create 通过 repo.Create 写入后直查 SQLite 断言落库
 // （含 scope / business_module 枚举经 converter 的落库值）。
 func TestApiRepoSqlite_Create(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newApiRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &permissionV1.CreateApiRequest{
 		Data: &permissionV1.Api{
@@ -87,9 +87,9 @@ func TestApiRepoSqlite_Create(t *testing.T) {
 
 // TestApiRepoSqlite_ListContainsFilter 验证 List 的 contains 模糊搜索语义。
 func TestApiRepoSqlite_ListContainsFilter(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newApiRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreateApiRequest{
 		Data: &permissionV1.Api{
@@ -156,9 +156,9 @@ func TestApiRepoSqlite_ListContainsFilter(t *testing.T) {
 
 // TestApiRepoSqlite_Get 验证 Get 命中/未命中与 GetApiByEndpoint 的命中/未命中。
 func TestApiRepoSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newApiRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreateApiRequest{
 		Data: &permissionV1.Api{
@@ -220,9 +220,9 @@ func TestApiRepoSqlite_Get(t *testing.T) {
 // TestApiRepoSqlite_Update 验证 Update 只更新掩码内字段（description），
 // 掩码外字段（path）保持原值。
 func TestApiRepoSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newApiRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreateApiRequest{
 		Data: &permissionV1.Api{
@@ -254,9 +254,9 @@ func TestApiRepoSqlite_Update(t *testing.T) {
 
 // TestApiRepoSqlite_Delete 验证 Delete 后行数归零。
 func TestApiRepoSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newApiRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreateApiRequest{
 		Data: &permissionV1.Api{

@@ -37,7 +37,7 @@ import (
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/authorizer"
 	"go-wind-admin/pkg/constants"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
@@ -53,16 +53,16 @@ import (
 // init() 不在构造时调用，由用例按需触发。
 func newPermissionServiceForTest(t *testing.T) (*PermissionService, *ent.Client) {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	bootstrapCtx := bootstrap.NewContextWithParam(context.Background(), nil,
 		&conf.Bootstrap{Authz: &conf.Authorization{Type: "noop"}}, bLogger.NopLogger())
 	svc := &PermissionService{
 		log:                     bLogger.NewHelper(bLogger.NopLogger()),
-		permissionRepo:          data.NewPermissionRepoForTest(entClient),
-		permissionGroupRepo:     data.NewPermissionGroupRepoForTest(entClient),
-		menuRepo:                data.NewMenuRepoForTest(entClient),
-		apiRepo:                 data.NewApiRepoForTest(entClient),
-		roleRepo:                data.NewRoleRepoForTest(entClient),
+		permissionRepo:          newPermissionRepo(entClient),
+		permissionGroupRepo:     data.NewPermissionGroupRepo(newRepoContext(), entClient),
+		menuRepo:                data.NewMenuRepo(newRepoContext(), entClient),
+		apiRepo:                 data.NewApiRepo(newRepoContext(), entClient),
+		roleRepo:                newRoleRepo(entClient),
 		authorizer:              authorizer.NewAuthorizer(bootstrapCtx, stubAuthzProvider{}),
 		menuPermissionConverter: converter.NewMenuPermissionConverter(),
 		apiPermissionConverter:  converter.NewApiPermissionConverter(),
@@ -92,7 +92,7 @@ func seedPermissionGroups(t *testing.T, svc *PermissionService, ctx context.Cont
 // 权限-菜单、权限-接口）落库；未分类默认组恒建。
 func TestPermissionService_SyncPermissions_MenuAndApiDerived(t *testing.T) {
 	svc, client := newPermissionServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	// 目录菜单（根）与页面菜单（子）
@@ -176,7 +176,7 @@ func TestPermissionService_SyncPermissions_MenuAndApiDerived(t *testing.T) {
 // 与平台侧全量可见 + 组名富集。
 func TestPermissionService_ListAndGetTenantScoping(t *testing.T) {
 	svc, _ := newPermissionServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	seedPermissionGroups(t, svc, ctx, 5)
 	svc.seedFixture()
 	platformCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
@@ -237,7 +237,7 @@ func TestPermissionService_ListAndGetTenantScoping(t *testing.T) {
 // 操作人盖章、单字段掩码更新（掩码外保持原值）、删除清空。
 func TestPermissionService_CreateUpdateDelete(t *testing.T) {
 	svc, client := newPermissionServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &permissionV1.CreatePermissionRequest{})

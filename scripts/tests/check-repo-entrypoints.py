@@ -42,12 +42,13 @@ event('FORBIDDEN_'+name);sys.exit(88)
 
 def fixture(repo:Path, root:Path)->dict:
     root.mkdir()
-    for rel in ['Makefile','app.mk','scripts/env/install_unix_dev.sh','scripts/env/install_windows_dev.ps1']:
+    for rel in ['Makefile','app.mk']:
         dest=root/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(repo/rel,dest)
     service=root/'app/admin/service';service.mkdir(parents=True)
     (service/'Makefile').write_bytes((repo/'app/admin/service/Makefile').read_bytes())
     (service/'internal/data/ent/schema').mkdir(parents=True)
     (root/'api').mkdir();(root/'.env').write_text('PROJECT_NAME=ani\nSERVICE_APP_VERSION=1.0.0\n')
+    (root/'scripts').mkdir()
     (root/'scripts/build-redact-plugin.sh').write_text('#!/bin/sh\nexec redact-builder\n')
     bin=root/'fake-bin';bin.mkdir()
     for name in ['go','gow','ent','buf','python3','redact-builder','docker','sudo','curl','git','apt-get','dnf','brew']:
@@ -118,24 +119,14 @@ def check(repo:Path)->dict:
         if any(got.get(k) for k in forbidden):raise RuntimeError(label+': continued after failed prerequisite')
         if failure=='COMPILE' and got.get('COMPILE')!=1:raise RuntimeError(label+': later service compiled after failure')
         results.append({'case':label,'pass':True,'actual_exit':p.returncode,'events':got})
-      # Retirement checks run only the expected tiny wrappers, never the old installers.
-      for label,cmd in [('retired-root',[make,'--no-print-directory','install-dev']),('retired-unix',['bash','scripts/env/install_unix_dev.sh'])]:
-        print('CHECK', label, flush=True);root=work/label;env=fixture(repo,root)
-        text=(root/'scripts/env/install_unix_dev.sh').read_text()
-        if 'Retired:' not in text or 'source ' in '\n'.join(l for l in text.splitlines() if not l.startswith('#')):raise RuntimeError('Unix wrapper is not the reviewed retired wrapper; not executing it')
-        p=subprocess.run(cmd,cwd=root,env=env,capture_output=True,text=True,timeout=10)
-        ev=read_events(root)
-        if p.returncode!=2 or 'Retired:' not in p.stderr or ev:raise RuntimeError(label+': side effect/exit check failed')
-        results.append({'case':label,'pass':True,'actual_exit':p.returncode,'external_commands':0})
-      ps=(repo/'scripts/env/install_windows_dev.ps1').read_text(encoding='utf-8-sig')
-      if 'exit 2' not in ps or 'Retired:' not in ps or any(t in ps for t in ['Initialize-','go env','Install-',' . ','Invoke-']):raise RuntimeError('Windows wrapper differs from the retired boundary')
-      pwsh=shutil.which('pwsh')
-      if pwsh:
-        p=subprocess.run([pwsh,'-NoProfile','-NonInteractive','-File',str(repo/'scripts/env/install_windows_dev.ps1')],capture_output=True,text=True,timeout=15)
-        if p.returncode!=2 or 'Retired:' not in p.stderr:raise RuntimeError('PowerShell retirement returned an unexpected result')
-        ps_status='executed fail-fast wrapper with pwsh; not Windows platform validation'
-      else:ps_status='static boundary checked; pwsh unavailable; PowerShell/Windows execution NOT_VERIFIED'
-      results.append({'case':'retired-windows','static_pass':True,'execution':ps_status})
+      # The old installers have exited HEAD; the Make target remains fail-fast.
+      root=work/'retired-root';env=fixture(repo,root)
+      p=subprocess.run([make,'--no-print-directory','install-dev'],cwd=root,env=env,capture_output=True,text=True,timeout=10)
+      if p.returncode!=2 or 'Retired:' not in p.stderr or read_events(root):
+        raise RuntimeError('retired-root: side effect/exit check failed')
+      if (repo/'scripts/env/install_unix_dev.sh').exists() or (repo/'scripts/env/install_windows_dev.ps1').exists():
+        raise RuntimeError('retired installers unexpectedly restored')
+      results.append({'case':'retired-root','pass':True,'actual_exit':p.returncode,'external_commands':0})
     return {'scope':'mock Make delegation and retired entrypoints ONLY','pass':True,'cases':results,'real_generation':'NOT_RUN','database':'NOT_RUN','deployment':'NOT_RUN'}
 
 def main()->int:

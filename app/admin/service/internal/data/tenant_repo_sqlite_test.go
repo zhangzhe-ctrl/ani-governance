@@ -18,7 +18,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/api"
 	"go-wind-admin/app/admin/service/internal/data/ent/planmodule"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newTenantRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的 TenantRepo。
@@ -26,7 +26,7 @@ import (
 // 仅将 log 换为 NopLogger、entClient 换为 SQLite 内存库测试 client。
 func newTenantRepoSqlite(t *testing.T) *TenantRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := &TenantRepo{
 		entClient: entClient,
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
@@ -55,7 +55,7 @@ func newTenantRepoSqlite(t *testing.T) *TenantRepo {
 // 再用 ent client 直查（System viewer）确认记录与各字段确实落库。
 func TestTenantRepoSqlite_Create(t *testing.T) {
 	repo := newTenantRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// TenantRepo.Create 的真实签名直接接收 Tenant DTO（无 Request 包装）
 	_, err := repo.Create(ctx, &identityV1.Tenant{
@@ -87,7 +87,7 @@ func TestTenantRepoSqlite_Create(t *testing.T) {
 // contains 模糊搜索过滤语义（仓规：搜索条件一律 contains，不做 EQ）。
 func TestTenantRepoSqlite_List(t *testing.T) {
 	repo := newTenantRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 两条带可区分标记的记录
 	_, err := repo.Create(ctx, &identityV1.Tenant{
@@ -129,7 +129,7 @@ func TestTenantRepoSqlite_List(t *testing.T) {
 // TestTenantRepoSqlite_Get 验证 TenantRepo.Get 按主键/编码查询的命中与未命中。
 func TestTenantRepoSqlite_Get(t *testing.T) {
 	repo := newTenantRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := repo.Create(ctx, &identityV1.Tenant{
 		Name:        trans.Ptr("sqlite查询租户"),
@@ -181,7 +181,7 @@ func TestTenantRepoSqlite_Get(t *testing.T) {
 // 只更新掩码内字段，掩码外字段保持原值。
 func TestTenantRepoSqlite_Update(t *testing.T) {
 	repo := newTenantRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := repo.Create(ctx, &identityV1.Tenant{
 		Name: trans.Ptr("更新前名称"),
@@ -211,7 +211,7 @@ func TestTenantRepoSqlite_Update(t *testing.T) {
 // 且删除不存在的记录返回错误。
 func TestTenantRepoSqlite_Delete(t *testing.T) {
 	repo := newTenantRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := repo.Create(ctx, &identityV1.Tenant{
 		Name: trans.Ptr("待删除租户"),
@@ -243,8 +243,8 @@ func TestTenantRepoSqlite_Delete(t *testing.T) {
 // 以及租户闸门仍能识别 MODULE_MODEL 这个模块值。
 // 原先放在 model_client_test.go 中，因 model 接入暂摘而迁到此处。
 func TestResourceTenantUUIDPersistence(t *testing.T) {
-	client := enttest.NewEntClientForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	client := testutil.NewEntClientForTest(t)
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	a, err := client.Client().Tenant.Create().SetName("a").SetCode("a").Save(ctx)
 	if err != nil {
 		t.Fatal(err)
@@ -287,7 +287,7 @@ func TestResourceTenantUUIDPersistence(t *testing.T) {
 // PlanID is an existing Ent edge column and must survive DTO reads used by navigation.
 func TestTenantRepoSqlite_PlanIDRoundTrip(t *testing.T) {
 	repo := newTenantRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	first, err := repo.entClient.Client().Plan.Create().SetName("first").Save(ctx)
 	require.NoError(t, err)
 	second, err := repo.entClient.Client().Plan.Create().SetName("second").Save(ctx)

@@ -1,3 +1,5 @@
+//go:build integration
+
 package ent_test
 
 import (
@@ -47,28 +49,20 @@ func openScopeTestClient(t *testing.T) *ent.Client {
 	t.Helper()
 	dsn := os.Getenv("GUARD_TEST_PG_DSN")
 	if dsn == "" {
-		dsn = guardTestDSN
+		t.Fatal("GUARD_TEST_PG_DSN is required for selected integration tests")
+	}
+	if os.Getenv("GUARD_TEST_PG_EXCLUSIVE") != "1" {
+		t.Fatal("GUARD_TEST_PG_EXCLUSIVE=1 is required for selected integration tests")
 	}
 	drv, err := sql.Open(dialect.Postgres, dsn)
 	if err != nil {
 		t.Fatalf("open postgres: %v", err)
 	}
-	// 连不通（本地无 citus 容器/库未建/端口漂移）时跳过而非失败：
-	// 本文件验证的是编译进 ent 生成代码的数据范围隐私混入，属环境门控的集成测试，
-	// 缺库环境下套件应保持绿。
 	if err := drv.DB().Ping(); err != nil {
 		_ = drv.Close()
-		t.Skipf("guard-test postgres unavailable (set GUARD_TEST_PG_DSN to override): %v", err)
+		t.Fatalf("guard-test postgres unavailable: %v", err)
 	}
 	client := ent.NewClient(ent.Driver(drv))
-
-	ctx := context.Background()
-	if err := client.Schema.Create(ctx); err != nil {
-		t.Fatalf("migrate: %v", err)
-	}
-	if _, err := drv.DB().Exec("TRUNCATE sys_positions, sys_org_units CASCADE"); err != nil {
-		t.Fatalf("truncate: %v", err)
-	}
 	t.Cleanup(func() { _ = client.Close() })
 	return client
 }

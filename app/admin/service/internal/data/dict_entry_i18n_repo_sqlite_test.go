@@ -14,7 +14,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newDictEntryI18nRepoSqlite 在给定 enttest client 上白盒构造 DictEntryI18nRepo，
@@ -34,9 +34,9 @@ func newDictEntryI18nRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.
 // 首次调用落新行；同 (entry, language) 二次调用走更新分支改写标签且不新增行；
 // 另一语言代码互不影响。
 func TestDictEntryI18nRepoSqlite_Upsert(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryI18nRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	entry, err := entClient.Client().DictEntry.Create().
 		SetEntryValue("sqlite_i18n_upsert_value").
@@ -68,9 +68,9 @@ func TestDictEntryI18nRepoSqlite_Upsert(t *testing.T) {
 // TestDictEntryI18nRepoSqlite_ListAndGet 验证 ListByEntryID /
 // GetByEntryIDAndLangCode 的命中与未命中（行经 ReplaceByEntryID 造出）。
 func TestDictEntryI18nRepoSqlite_ListAndGet(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryI18nRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	entry, err := entClient.Client().DictEntry.Create().
 		SetEntryValue("sqlite_i18n_listget_value").
@@ -109,9 +109,9 @@ func TestDictEntryI18nRepoSqlite_ListAndGet(t *testing.T) {
 // TestDictEntryI18nRepoSqlite_CleanByEntryIDTx 验证事务版 CleanByEntryID
 // 提交后清除指定字典项的翻译行。
 func TestDictEntryI18nRepoSqlite_CleanByEntryIDTx(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryI18nRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	entry, err := entClient.Client().DictEntry.Create().
 		SetEntryValue("sqlite_i18n_clean_tx_value").
@@ -144,9 +144,9 @@ func TestDictEntryI18nRepoSqlite_CleanByEntryIDTx(t *testing.T) {
 // TestDictEntryI18nRepoSqlite_CleanByEntryIDs 验证按字典项集合清理：
 // 只清指定项，其他项的翻译不受影响。
 func TestDictEntryI18nRepoSqlite_CleanByEntryIDs(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryI18nRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	entryA, err := entClient.Client().DictEntry.Create().
 		SetEntryValue("sqlite_i18n_clean_ids_a").
@@ -183,9 +183,9 @@ func TestDictEntryI18nRepoSqlite_CleanByEntryIDs(t *testing.T) {
 
 // TestDictEntryI18nRepoSqlite_Truncate 验证 Truncate 后表内行数归零。
 func TestDictEntryI18nRepoSqlite_Truncate(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryI18nRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	entry, err := entClient.Client().DictEntry.Create().
 		SetEntryValue("sqlite_i18n_truncate_value").

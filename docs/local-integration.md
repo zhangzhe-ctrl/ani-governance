@@ -87,7 +87,7 @@ go1.26.7 install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20
 > `go_package`）。T15 已把它收敛为单一已验收链：`make api` 先构建本仓 `tools/bin/gow` 与
 > `tools/bin/protoc-gen-go-redact`，再委托 `gow api`（校验插件/输入 → 隔离暂存副本生成 →
 > 按受管清单写回），并在暂存副本内先执行 `scripts/finalize-aksk-openapi.py` 这一既有后处理（与 `make openapi` 同一脚本、同一规则，因此无需再补命令）；插件与版本记录在
-> `migration/patches/T15/T15-tool-lock.json`，PGV 范围记录在 `migration/pgv-scope.json`。
+> `tools/config/tool-lock.json`，PGV 范围记录在 `tools/config/pgv-scope.json`。
 > 实测在干净检出上执行两遍，受管产物与已提交内容逐字节一致、`go.mod`/`go.sum` 不变。
 > 因此 `post-generate-clean.sh` 已退役（现拒绝执行且不改任何文件）：若再次生成出现漂移，
 > 按缺陷排查，不要在生成之后还原或删除产物。
@@ -104,10 +104,10 @@ go1.26.7 install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@v0.0.0-20
 >   不宣称工作树未变；回滚不覆盖其后出现的用户修改。这只是一次写回的有限撤销，**不承诺**断电或
 >   kill 下的整目录原子性，也不是通用事务机制。
 > - 全链路运行会先把暂存副本里生成类别的文件全部清掉，因此"复现"必须真正重建：已批准清单中的产物
->   缺失即失败；清单外 validator 无论新增还是已存在被改写都拒绝；`migration/pgv-scope.json`
+>   缺失即失败；清单外 validator 无论新增还是已存在被改写都拒绝；`tools/config/pgv-scope.json`
 >   缺失、损坏或为空是硬失败（不再是"没有规则"）。部分切片只核对自己写回的部分，不要求产出 103 项。
 > - 插件仅"存在"已不足以通过：PATH 插件与 `buf` 都用 `go version -m` 读构建信息，对照
->   `migration/patches/T15/T15-tool-lock.json` 的模块与版本；读不到就明确失败，`--version`
+>   `tools/config/tool-lock.json` 的模块与版本；读不到就明确失败，`--version`
 >   输出不作为身份依据。本仓自有的 redact 插件每次生成都经 `scripts/build-redact-plugin.sh`
 >   从当前源码构建一次（Go 构建缓存承担重复成本；按插件计数，不按模板），并校验其 buildinfo 的
 >   模块与包路径属本仓且无 tx7do 依赖。各模板已批准的不同钉版保持原样：不统一、不安装 `@latest`、
@@ -256,7 +256,7 @@ governance 的闸门是层层串联的，**每一层都要有数据**，缺一�
    `subscription_plan` 字符串没用，闸门读的是 plan 外键 + 模块白名单。
 6. **API 登记**：`sys_apis` 插目标路由（path/method/module/
    business_module='NETWORK'）。参照
-   [scripts/bootstrap-network-access.sql](../scripts/bootstrap-network-access.sql)。
+   [scripts/ops/sql/bootstrap-network-access.sql](../scripts/ops/sql/bootstrap-network-access.sql)。
    这一步漏了就是"access denied"，一步对齐一层 403 就会消失。
 7. **租户登录必须带 `tenant_name`**（body 里，取值 `sys_tenants.code`），
    端点为 `POST /api/v1/auth/password/login`；平台管理员走

@@ -35,11 +35,7 @@ type QuotaLedgerRepo struct {
 func NewQuotaLedgerRepo(ctx *bootstrap.Context, c *entCrud.EntClient[*ent.Client]) *QuotaLedgerRepo {
 	return &QuotaLedgerRepo{c, ctx.NewLoggerHelper("quota-ledger/repo/admin-service")}
 }
-func NewQuotaLedgerRepoForTest(c *entCrud.EntClient[*ent.Client], log *bLogger.Helper) *QuotaLedgerRepo {
-	return &QuotaLedgerRepo{c, log}
-}
-func (r *QuotaLedgerRepo) DB() *sql.DB                   { return r.entClient.DB() }
-func (r *QuotaLedgerRepo) EntClientForTest() *ent.Client { return r.entClient.Client() }
+func (r *QuotaLedgerRepo) DB() *sql.DB { return r.entClient.DB() }
 func (r *QuotaLedgerRepo) transaction(ctx context.Context, fn func(*ent.Tx) error) error {
 	return quotaTransaction(ctx, r.entClient.Client(), fn)
 }

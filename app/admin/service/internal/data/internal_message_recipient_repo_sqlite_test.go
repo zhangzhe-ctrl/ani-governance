@@ -14,7 +14,7 @@ import (
 	internalMessageV1 "go-wind-admin/api/gen/go/internal_message/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entInternalMessageRecipient "go-wind-admin/app/admin/service/internal/data/ent/internalmessagerecipient"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newInternalMessageRecipientRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的
@@ -23,7 +23,7 @@ import (
 func newInternalMessageRecipientRepoSqlite(t *testing.T) *InternalMessageRecipientRepo {
 	t.Helper()
 	repo := &InternalMessageRecipientRepo{
-		entClient: enttest.NewEntClientForTest(t),
+		entClient: testutil.NewEntClientForTest(t),
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		mapper:    mapper.NewCopierMapper[internalMessageV1.InternalMessageRecipient, ent.InternalMessageRecipient](),
 		statusConverter: mapper.NewEnumTypeConverter[internalMessageV1.InternalMessageRecipient_Status, entInternalMessageRecipient.Status](
@@ -50,7 +50,7 @@ func newInternalMessageRecipientRepoSqlite(t *testing.T) *InternalMessageRecipie
 // 读视图的退化（丢值或零值伪造）将被本测试捕获。
 func TestInternalMessageRecipientRepoSqlite_EnumReadback(t *testing.T) {
 	repo := newInternalMessageRecipientRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// marker 经 RecipientUserId 落库并读回，用于在 List/Get 结果中定位各行。
 	type enumCase struct {

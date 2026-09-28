@@ -15,7 +15,7 @@ import (
 	dictV1 "go-wind-admin/api/gen/go/dict/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/constants"
 	"go-wind-admin/pkg/middleware/auth"
 )
@@ -26,16 +26,16 @@ func newLanguageServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.C
 	t.Helper()
 	return &LanguageService{
 		log:          bLogger.NewHelper(bLogger.NopLogger()),
-		languageRepo: data.NewLanguageRepoForTest(entClient),
+		languageRepo: data.NewLanguageRepo(newRepoContext(), entClient),
 	}
 }
 
 // TestLanguageServiceSqlite_Get_ByIdAndByCode 验证服务层 Get 按主键与按语言代码
 // 查询的命中与未命中。
 func TestLanguageServiceSqlite_Get_ByIdAndByCode(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newLanguageServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	svc.seedFixture()
 
@@ -79,9 +79,9 @@ func TestLanguageServiceSqlite_Get_ByIdAndByCode(t *testing.T) {
 // 更新、掩码外字段（language_code）保持原值；注意 language_name/native_name 必须同时
 // 进掩码（更新路径对二者做非空校验）。并断言 updated_by 被服务层盖入操作人 ID。
 func TestLanguageServiceSqlite_Update_OnlyMaskedFields(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newLanguageServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	svc.seedFixture()
@@ -121,9 +121,9 @@ func TestLanguageServiceSqlite_Update_OnlyMaskedFields(t *testing.T) {
 
 // TestLanguageServiceSqlite_Delete 验证服务层 Delete 删除一条已播种语言后计数减一。
 func TestLanguageServiceSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newLanguageServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	svc.seedFixture()
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,16 +32,7 @@ type QuotaDispatchWorker struct {
 	done   chan struct{}
 	stopMu sync.Mutex
 	cancel context.CancelFunc
-
-	// paused 仅 lab 控制钩子使用：占额提交后暂停投递（FAIL-02/15 屏障）。
-	paused atomic.Bool
 }
-
-// SetPaused 设置投递暂停屏障；仅 quota_lab 控制监听调用，正式构建不暴露。
-func (w *QuotaDispatchWorker) SetPaused(p bool) { w.paused.Store(p) }
-
-// Paused 返回当前暂停状态。
-func (w *QuotaDispatchWorker) Paused() bool { return w.paused.Load() }
 
 // 固定退避 1/2/4/8/16/30 秒（§8.2）。
 func backoffForAttempt(attempt int) time.Duration {
@@ -139,11 +129,7 @@ func (w *QuotaDispatchWorker) loop(ctx context.Context) {
 }
 
 // drain 扫描并投递一批到期操作；每次网络调用不在任何数据库事务内（§7.1）。
-// 暂停屏障生效时立即返回（已提交操作保持 QUEUED 等待恢复）。
 func (w *QuotaDispatchWorker) drain(ctx context.Context) {
-	if w.paused.Load() {
-		return
-	}
 	for {
 		select {
 		case <-w.stopCh:

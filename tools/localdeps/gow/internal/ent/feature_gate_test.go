@@ -10,11 +10,11 @@ import (
 )
 
 // TestGenerateFeaturesMatchEntGate keeps gow ent admin and the Ent gate of make verify-gpu on
-// one generation contract. The gate is scripts/verify-quota-schema.sh: it regenerates the whole
+// one generation contract. The gate is scripts/ci/check-ent-generated.sh: it regenerates the whole
 // ent tree and diffs it against the committed files, so any feature this tool adds or drops
 // either breaks the gate or narrows what the gate can still reproduce.
 func TestGenerateFeaturesMatchEntGate(t *testing.T) {
-	gate := filepath.Join(repoRoot(t), "scripts", "verify-quota-schema.sh")
+	gate := filepath.Join(repoRoot(t), "scripts", "ci", "check-ent-generated.sh")
 	src, err := os.ReadFile(gate)
 	if err != nil {
 		t.Fatalf("read the Ent gate script %s: %v", gate, err)

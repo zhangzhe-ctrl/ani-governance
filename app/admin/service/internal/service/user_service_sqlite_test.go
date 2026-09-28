@@ -41,7 +41,7 @@ import (
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 
 	"go-wind-admin/app/admin/service/internal/data"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
@@ -123,19 +123,18 @@ type userServiceEnv struct {
 // 注意：不经 NewUserService 构造，svc.seedFixture()（默认数据播种）仅在专门测试中显式调用。
 func newUserServiceForTest(t *testing.T) *userServiceEnv {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 
 	mr := miniredis.RunT(t)
 	rdb := redis.NewClient(&redis.Options{Addr: mr.Addr()})
 	t.Cleanup(func() { _ = rdb.Close() })
 
 	passwordCrypto := password.NewBCryptCrypto()
-	configRepo := data.NewConfigRepoForTest(entClient, rdb)
-	userCredentialRepo := data.NewUserCredentialRepoForTest(entClient, passwordCrypto, configRepo)
-	userTokenCache := data.NewUserTokenCacheForTest(rdb)
+	configRepo := newConfigRepo(t, entClient, rdb)
+	userCredentialRepo := data.NewUserCredentialRepo(newRepoContext(), entClient, passwordCrypto, configRepo)
+	userTokenCache := data.NewUserTokenCache(newRepoContext(), rdb)
 	jwtCfg := &conf.Authentication_Jwt{Method: "HS256", Key: authSvcTestJWTKey}
-	authenticator, err := data.NewAuthenticatorForTest(jwtCfg, userTokenCache)
-	require.NoError(t, err)
+	authenticator := newAuthenticator(t, jwtCfg, userTokenCache)
 
 	stub := &userServiceUserRepoStub{usersByID: make(map[uint32]*identityV1.User)}
 
@@ -143,10 +142,10 @@ func newUserServiceForTest(t *testing.T) *userServiceEnv {
 		log:                bLogger.NewHelper(bLogger.NopLogger()),
 		userRepo:           stub,
 		userCredentialRepo: userCredentialRepo,
-		roleRepo:           data.NewRoleRepoForTest(entClient),
-		positionRepo:       data.NewPositionRepoForTest(entClient),
-		orgUnitRepo:        data.NewOrgUnitRepoForTest(entClient),
-		tenantRepo:         data.NewTenantRepoForTest(entClient),
+		roleRepo:           newRoleRepo(entClient),
+		positionRepo:       data.NewPositionRepo(newRepoContext(), entClient),
+		orgUnitRepo:        newOrgUnitRepo(entClient),
+		tenantRepo:         data.NewTenantRepo(newRepoContext(), entClient),
 		membershipRepo:     nil,
 		authenticator:      authenticator,
 	}
@@ -154,7 +153,7 @@ func newUserServiceForTest(t *testing.T) *userServiceEnv {
 	return &userServiceEnv{
 		svc:  svc,
 		stub: stub,
-		ctx:  enttest.NewSystemViewerCtx(context.Background()),
+		ctx:  testutil.NewSystemViewerCtx(context.Background()),
 	}
 }
 

@@ -17,7 +17,7 @@ import (
 	entMembershipOrgUnit "go-wind-admin/app/admin/service/internal/data/ent/membershiporgunit"
 	entMembershipPosition "go-wind-admin/app/admin/service/internal/data/ent/membershipposition"
 	entMembershipRole "go-wind-admin/app/admin/service/internal/data/ent/membershiprole"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newMembershipRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的 MembershipRepo。
@@ -26,7 +26,7 @@ import (
 // 保证全部共享同一个 SQLite 内存库。
 func newMembershipRepoSqlite(t *testing.T) *MembershipRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 
 	// 内联依赖 1/3：MembershipRoleRepo（复刻 NewMembershipRoleRepo）
 	membershipRoleRepo := &MembershipRoleRepo{
@@ -81,7 +81,7 @@ func newMembershipRepoSqlite(t *testing.T) *MembershipRepo {
 // 与三张关联表（角色/单元/岗位）的联动写入，随后经各 List 查询路径交叉验证。
 func TestMembershipRepoSqlite_AssignAndRelationPropagation(t *testing.T) {
 	repo := newMembershipRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testUserID = uint32(17001)
@@ -153,7 +153,7 @@ func TestMembershipRepoSqlite_AssignAndRelationPropagation(t *testing.T) {
 // 的单条查询与活跃成员列表查询。
 func TestMembershipRepoSqlite_GetMembershipByUserTenantAndActive(t *testing.T) {
 	repo := newMembershipRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const testUserID = uint32(17002)
 
@@ -195,7 +195,7 @@ func TestMembershipRepoSqlite_GetMembershipByUserTenantAndActive(t *testing.T) {
 // upsert 语义：同一 (tenant_id, user_id) 重复分配只更新既有行而不新增。
 func TestMembershipRepoSqlite_UpsertIdempotent(t *testing.T) {
 	repo := newMembershipRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const testUserID = uint32(17003)
 
@@ -217,7 +217,7 @@ func TestMembershipRepoSqlite_UpsertIdempotent(t *testing.T) {
 // 状态/失效时间的按用户更新路径。
 func TestMembershipRepoSqlite_SetUserFields(t *testing.T) {
 	repo := newMembershipRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const testUserID = uint32(17004)
 
@@ -269,7 +269,7 @@ func TestMembershipRepoSqlite_SetUserFields(t *testing.T) {
 // 各查询/分配入口在平台上下文（System viewer，无租户范围）下的闸门行为。
 func TestMembershipRepoSqlite_TenantScopeGuard(t *testing.T) {
 	repo := newMembershipRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const testUserID = uint32(17005)
 

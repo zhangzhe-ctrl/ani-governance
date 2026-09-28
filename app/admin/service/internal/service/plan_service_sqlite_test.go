@@ -18,7 +18,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entPlan "go-wind-admin/app/admin/service/internal/data/ent/plan"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -28,16 +28,16 @@ func newPlanServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.Clien
 	t.Helper()
 	return &PlanService{
 		log:      bLogger.NewHelper(bLogger.NopLogger()),
-		planRepo: data.NewPlanRepoForTest(entClient),
+		planRepo: data.NewPlanRepo(newRepoContext(), entClient),
 	}
 }
 
 // TestPlanServiceSqlite_Create 通过服务层创建套餐，直查断言：
 // 普通字段、两个枚举字段（经转换器）按请求落库，且服务层把操作人 ID 盖到 created_by。
 func TestPlanServiceSqlite_Create(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &identityV1.CreatePlanRequest{
@@ -68,9 +68,9 @@ func TestPlanServiceSqlite_Create(t *testing.T) {
 // TestPlanServiceSqlite_CreateGuards 服务层 Create 的入参守卫：
 // Data 为 nil 返回 BadRequest；缺少操作人声明返回 ErrMissingJwtToken。
 func TestPlanServiceSqlite_CreateGuards(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := svc.Create(ctx, &identityV1.CreatePlanRequest{})
 	require.Error(t, err, "Data 为 nil 应返回错误")
@@ -92,9 +92,9 @@ func TestPlanServiceSqlite_CreateGuards(t *testing.T) {
 // TestPlanServiceSqlite_List 验证服务层 List 的全量返回与
 // contains 模糊搜索语义（仓规：搜索条件一律 contains）。
 func TestPlanServiceSqlite_List(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	for i, name := range []string{"MARKERALPHA 套餐", "MARKERBETA 套餐"} {
@@ -131,9 +131,9 @@ func TestPlanServiceSqlite_List(t *testing.T) {
 
 // TestPlanServiceSqlite_Get 验证服务层 Get 按主键查询的命中与未命中。
 func TestPlanServiceSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &identityV1.CreatePlanRequest{
@@ -162,9 +162,9 @@ func TestPlanServiceSqlite_Get(t *testing.T) {
 // TestPlanServiceSqlite_Update 验证服务层 Update 在单字段 updateMask 下
 // 只更新掩码内字段；并断言服务层把 updated_by 追加进掩码、盖入操作人 ID。
 func TestPlanServiceSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &identityV1.CreatePlanRequest{
@@ -199,9 +199,9 @@ func TestPlanServiceSqlite_Update(t *testing.T) {
 
 // TestPlanServiceSqlite_Delete 验证服务层 Delete 后表内计数归零。
 func TestPlanServiceSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPlanServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &identityV1.CreatePlanRequest{

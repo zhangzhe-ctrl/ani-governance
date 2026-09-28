@@ -52,7 +52,7 @@ type QuotaDispatchCommand struct {
 	Charges           []QuotaChargeRef
 }
 
-// ValidateDurableOwnerAck gates ACKED for every adapter, including quota_lab.
+// ValidateDurableOwnerAck gates ACKED for every registered adapter.
 // Accepted means durable receipt only; it says nothing about readiness/cleanup.
 func ValidateDurableOwnerAck(cmd *QuotaDispatchCommand, raw []byte) error {
 	invalid := status.Error(codes.FailedPrecondition, "INVALID_DURABLE_OWNER_ACK")

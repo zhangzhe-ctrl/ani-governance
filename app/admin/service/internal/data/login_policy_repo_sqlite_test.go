@@ -17,7 +17,7 @@ import (
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entLoginPolicy "go-wind-admin/app/admin/service/internal/data/ent/loginpolicy"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newLoginPolicyRepoSqlite 白盒构造 LoginPolicyRepo：
@@ -47,9 +47,9 @@ func newLoginPolicyRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.Cl
 // Get 按 ID 的回读映射 / 未命中错误；以及参数校验与
 // UNSPECIFIED 枚举被 ent 枚举校验器拒绝的错误路径。
 func TestLoginPolicyRepoSqlite_CreateAndGet(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newLoginPolicyRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &authenticationV1.CreateLoginPolicyRequest{
 		Data: &authenticationV1.LoginPolicy{
@@ -136,9 +136,9 @@ func TestLoginPolicyRepoSqlite_CreateAndGet(t *testing.T) {
 // 仅返回请求租户的策略行，且字段映射到 EffectivePolicy；
 // 不存在策略的租户返回空切片；全 nil 字段行回读为零值。
 func TestLoginPolicyRepoSqlite_ListForLoginTenantScope(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newLoginPolicyRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 租户 7：一条全局（target/value/reason 均省略）+ 一条定向
 	require.NoError(t, repo.Create(ctx, &authenticationV1.CreateLoginPolicyRequest{
@@ -204,9 +204,9 @@ func TestLoginPolicyRepoSqlite_ListForLoginTenantScope(t *testing.T) {
 // TestLoginPolicyRepoSqlite_List 验证 List 的分页返回与
 // value 的 contains 过滤（跨租户计数）；nil 请求返回 BadRequest。
 func TestLoginPolicyRepoSqlite_List(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newLoginPolicyRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &authenticationV1.CreateLoginPolicyRequest{
 		Data: &authenticationV1.LoginPolicy{
@@ -255,9 +255,9 @@ func TestLoginPolicyRepoSqlite_List(t *testing.T) {
 // TestLoginPolicyRepoSqlite_CountAndIsExist 验证 Count 的
 // 无条件计数与带 tenant 谓词的条件计数，及 IsExist 的命中/未命中。
 func TestLoginPolicyRepoSqlite_CountAndIsExist(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newLoginPolicyRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &authenticationV1.CreateLoginPolicyRequest{
 		Data: &authenticationV1.LoginPolicy{
@@ -308,9 +308,9 @@ func TestLoginPolicyRepoSqlite_CountAndIsExist(t *testing.T) {
 // 掩码内且载荷为 nil 的字段被置 NULL；不存在的 ID 无效果不报错；
 // AllowMissing 对存在 ID 走更新、对不存在 ID 走创建（created_by 取自 updated_by 载荷）。
 func TestLoginPolicyRepoSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newLoginPolicyRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &authenticationV1.CreateLoginPolicyRequest{
 		Data: &authenticationV1.LoginPolicy{
@@ -427,9 +427,9 @@ func TestLoginPolicyRepoSqlite_Update(t *testing.T) {
 // TestLoginPolicyRepoSqlite_Delete 验证 Delete 按指定 ID 删行、
 // 不存在 ID 无效果不报错、nil 请求返回 BadRequest。
 func TestLoginPolicyRepoSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newLoginPolicyRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &authenticationV1.CreateLoginPolicyRequest{
 		Data: &authenticationV1.LoginPolicy{

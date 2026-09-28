@@ -111,7 +111,7 @@ func TestParseGenTemplateMatchesTheAcceptedTemplates(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = raw
-	scopeDoc, err := os.ReadFile(filepath.Join(root, "migration", "pgv-scope.json"))
+	scopeDoc, err := os.ReadFile(filepath.Join(root, "tools", "config", "pgv-scope.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -240,10 +240,10 @@ func TestSyncBackRefusesLossAndUnapprovedValidators(t *testing.T) {
 		{"validator": filepath.Join(managed, "v1", "approved.pb.validate.go")},
 	}}
 	buf, _ := json.Marshal(scopeDoc)
-	if err := os.MkdirAll(filepath.Join(root, "migration"), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Join(root, "tools", "config"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(root, "migration", "pgv-scope.json"), buf, 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(root, "tools", "config", "pgv-scope.json"), buf, 0o644); err != nil {
 		t.Fatal(err)
 	}
 	roots := []managedRoot{{dir: managed, name: "buf.gen.yaml"}}
@@ -284,7 +284,7 @@ func TestSyncBackRefusesLossAndUnapprovedValidators(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := syncBack(root, stage, roots, snap, scope, false); err == nil {
-		t.Fatal("a validator outside migration/pgv-scope.json must fail the sync")
+		t.Fatal("a validator outside tools/config/pgv-scope.json must fail the sync")
 	}
 	if _, err := os.Stat(filepath.Join(root, managed, "v1", "sneak.pb.validate.go")); err == nil {
 		t.Error("an unapproved validator must not be written into the tree")

@@ -2,13 +2,13 @@
 
 本文面向 Inference 和后续 GPU 业务服务，描述 GOV-ACC-V12-01 已实现的 Governance 公共能力，以及真实 owner 必须完成的接缝。**当前正式构建没有 GPU owner adapter，两个正式 GPU 配额目录为 `NOT_ENABLED`。** 管理和只读 BFF 可独立使用；本文不是可直接调用的 Inference 创建 API，也不是生产启用说明。
 
-独立持久化测试 owner 只存在于 `app/admin/service/tests/gpucontract/*_test.go`。它运行真实 PostgreSQL 命令、墓碑和通知事务，但不创建 Kubernetes 工作负载，不实现 Inference，不证明物理 GPU 清理。软件、真实 owner、硬件和生产部署的结论必须分别记录。
+独立持久化测试 owner 只存在于 `app/admin/service/tests/contracts/gpu/*_test.go`。它运行真实 PostgreSQL 命令、墓碑和通知事务，但不创建 Kubernetes 工作负载，不实现 Inference，不证明物理 GPU 清理。软件、真实 owner、硬件和生产部署的结论必须分别记录。
 
 ## 1. 版本与可复用范围
 
 | 层 | 本文所需能力及版本门槛 | 当前边界 |
 |---|---|---|
-| Governance | 最低实现版本为 **`bd9ad1a33bbe8ce28f4faeb19bfc9ee494ae8a84`**：`GpuAcceptance`、schema 2 canonical、`gpu-metering-v1`、完整配额账本（当前已恢复 Ent；下列 SHA 为历史交付版本）、DELETE acceptance、独立 usage sync、严格 ACK/GPU release 校验 | 源码 manifest、版本对和后续证据提交写入[交付记录](../evidence/gov-acc-v12-01/release/closeout.md)。任务起点 `0fbe1a69e49cc23dc7a1696b62f68c34a7c6a48a` 不包含这些能力 |
+| Governance | 最低实现版本为 **`bd9ad1a33bbe8ce28f4faeb19bfc9ee494ae8a84`**：`GpuAcceptance`、schema 2 canonical、`gpu-metering-v1`、完整配额账本（当前已恢复 Ent；下列 SHA 为历史交付版本）、DELETE acceptance、独立 usage sync、严格 ACK/GPU release 校验 | 源码 manifest、版本对和后续证据提交写入[交付记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/release/closeout.md)。任务起点 `0fbe1a69e49cc23dc7a1696b62f68c34a7c6a48a` 不包含这些能力 |
 | Accelerator | 最低固定交付 SHA `1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3`；`accelerator.v1`、`accelerator.integration.v1`、22 RPC、公开附件及本批运行时整改 | 已发布的任务分支提交；这不表示生产部署、真实 owner 或硬件已经通过 |
 | 跨仓依赖 | 本仓 [go.mod](../../go.mod) / [go.sum](../../go.sum) 固定 `v0.0.0-20260924030150-1d32dd9a9173`，对应上行 Acc SHA | 上述 Gov 实现与该模块已完成 Fedora 软件验收；精确CI状态和用户接受不等待Gov CI的边界见交付记录。旧API基线联调不能认证新模块 |
 | 当前 owner | `ani-inference`，固定单 owner 的 ref、身份、公钥和查询约束 | 支持这一合同标识不等于已经注册正式 Inference adapter；第二 owner 未实现 |
@@ -26,7 +26,7 @@
 | 原子占额、取消、DELETE、累计释放 | [quota_ledger_repo.go](../../app/admin/service/internal/data/quota_ledger_repo.go) |
 | 独立投影扫描、租约、重试与 CAS | [gpu_usage_sync_worker.go](../../app/admin/service/internal/service/gpu_usage_sync_worker.go)、[quota_gpu_sync_repo.go](../../app/admin/service/internal/data/quota_gpu_sync_repo.go) |
 | owner 退款身份及稳定协议 | [quota_internal_server.go](../../app/admin/service/internal/server/quota_internal_server.go)、[quota_release.proto](../../api/protos/quota/service/v1/quota_release.proto) |
-| 正式构建默认关闭 | [wiring_quota_default.go](../../app/admin/service/cmd/server/wiring_quota_default.go) |
+| 正式构建默认关闭 | [wiring_ent.go](../../app/admin/service/cmd/server/wiring_ent.go) |
 | 已登记的公网接口和权限 | [接口集成登记](../interface-integration-register.md)、[BFF Proto](../../api/protos/admin/service/v1/i_accelerator.proto) |
 
 ## 2. 权威和职责
@@ -231,7 +231,7 @@ Gov usage worker 周期分页重扫原 CREATE 和完整 charges，派生同一 r
 | 验收范围 | 最少场景与现有入口 |
 |---|---|
 | 摘要、计量、附件、ACK | `TestGpuFrozenCanonicalVectors`、`TestGpuCanonicalRejectsSemanticMutations`、`TestGpuCanonicalUnicodeNullInteger`、`TestGpuChargesCompleteAndOrderIndependent`、`TestQuotaDurableAckFields`；需拒绝重新算对 hash 的非法 shape 和不完整非 GPU 向量 |
-| 公共软件闭环 | [tests/gpucontract](../../app/admin/service/tests/gpucontract)：真实 PG/独立进程/mTLS，同键 12 并发、持久 ACK 丢失、DELETE 先到、outbox 响应丢失、旧操作同步重建、混合 charge 恢复、非空 live binding；测试业务控制入口不能进入正式 API |
+| 公共软件闭环 | [tests/contracts/gpu](../../app/admin/service/tests/contracts/gpu)：真实 PG/独立进程/mTLS，同键 12 并发、持久 ACK 丢失、DELETE 先到、outbox 响应丢失、旧操作同步重建、混合 charge 恢复、非空 live binding；测试业务控制入口不能进入正式 API |
 | 受限数据库与进程故障 | [quota_process_pg_test.go](../../app/admin/service/internal/data/quota_process_pg_test.go)、[quota_gpu_pg_test.go](../../app/admin/service/internal/data/quota_gpu_pg_test.go)：各原子边界提交前 kill/提交后丢响应、双领取/取消、跨租户、迁移/还原、无双扣双退 |
 | 身份/BFF | 20 委托 RPC 缺 grant、错 URI/CA、租户/actor/scope 游标负向；退款同 owner 多 SAN 与不同 owner 多 SAN；真实 JWT/权限/套餐模块及非空 DTO 脱敏 |
 | A 正式边界 | 普通 Gov/Acc 二进制和合法受控 provider 来源；无消费证明时 Publish 必须真实失败且不落 profile/不变 VERIFIED；正式目录 NOT_ENABLED，新占额在 Resolve 前关闭 |
@@ -243,4 +243,4 @@ Gov usage worker 周期分页重扫原 CREATE 和完整 charges，派生同一 r
 
 本批统一入口为 Gov `make verify-gpu` 与 Acc `make verify`，在授权 Fedora 隔离环境执行；集成脚本见 [run-joint-contract.sh](../../scripts/accelerator-acceptance/run-joint-contract.sh)。摘要表直接引用已有受测固定向量，不创造新“示例正确 hash”。完整 Goal 矩阵仍是 Acc `docs/plans/governance-accelerator-v1.2-acceptance.md`，本文不替代逐 ID 结果。
 
-[本批软件联调证据](../evidence/gov-acc-v12-01/joint-software.md)明确区分 fixture 和真实事实。测试 owner 的软件关闭可以与叠加观察中仍有 live binding 同时存在；这用于证明 ENDED 不清 binding，不能作为真实 owner 退款正确性的硬件证据。当前还缺正式 owner 注册、真实业务 API/渲染/清理、多 owner 和真实 GPU 验收；CPU 推理、sleep 容器、YAML 或 HTTP 存活都不能替代这些门槛。
+[本批软件联调证据](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/joint-software.md)明确区分 fixture 和真实事实。测试 owner 的软件关闭可以与叠加观察中仍有 live binding 同时存在；这用于证明 ENDED 不清 binding，不能作为真实 owner 退款正确性的硬件证据。当前还缺正式 owner 注册、真实业务 API/渲染/清理、多 owner 和真实 GPU 验收；CPU 推理、sleep 容器、YAML 或 HTTP 存活都不能替代这些门槛。

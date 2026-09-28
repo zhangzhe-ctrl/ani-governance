@@ -29,14 +29,14 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/plan"
 	"go-wind-admin/app/admin/service/internal/data/ent/planmodule"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
-	enttest "go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newCheckerSqlite 白盒构造被测闸门（字段与生产构造器一致，仅 log 换 Nop）。
 func newCheckerSqlite(t *testing.T) (*TenantAccessCheckerImpl, *ent.Client, context.Context) {
 	t.Helper()
-	client := enttest.NewEntClientForTest(t).Client()
-	sysCtx := enttest.NewSystemViewerCtx(context.Background())
+	client := testutil.NewEntClientForTest(t).Client()
+	sysCtx := testutil.NewSystemViewerCtx(context.Background())
 	return &TenantAccessCheckerImpl{
 		entClient: client,
 		log:       bLogger.NewHelper(bLogger.NopLogger()),

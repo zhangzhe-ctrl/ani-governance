@@ -9,21 +9,21 @@ import (
 	"github.com/stretchr/testify/require"
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // TestServerMonitorRepoSqlite_GetInfoWithDatabase 验证 GetInfo 的聚合：
 // Go 运行时段、主机段与数据库段（SQLite 内存库：driver 标识与 ping 成功）
 // 均被填充，collected_at 非空。
 func TestServerMonitorRepoSqlite_GetInfoWithDatabase(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := &ServerMonitorRepo{
 		log:        bLogger.NewHelper(bLogger.NopLogger()),
 		db:         entClient.DB(),
 		driverName: "sqlite",
 		startTime:  time.Now().Add(-time.Minute),
 	}
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	info, err := repo.GetInfo(ctx)
 	require.NoError(t, err, "GetInfo 应成功")
@@ -67,7 +67,7 @@ func TestServerMonitorRepoSqlite_GetInfoWithoutDatabase(t *testing.T) {
 		driverName: "",
 		startTime:  time.Now(),
 	}
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	info, err := repo.GetInfo(ctx)
 	require.NoError(t, err, "GetInfo 应成功")

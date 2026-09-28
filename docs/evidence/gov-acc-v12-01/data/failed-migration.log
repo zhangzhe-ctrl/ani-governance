@@ -1,3 +1,0 @@
-ALTER TABLE
-COMMENT
-ERROR:  column "tenant_id" of relation "sys_quota_accounts" contains null values

@@ -17,7 +17,7 @@ import (
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/permissiongroup"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newPermissionGroupRepoSqlite 在给定 enttest client 上白盒构造 PermissionGroupRepo，
@@ -39,9 +39,9 @@ func newPermissionGroupRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*en
 // TestPermissionGroupRepoSqlite_Create 验证根分组的创建与落库，
 // 以及根节点物化路径 "/<id>/" 的计算落库。
 func TestPermissionGroupRepoSqlite_Create(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionGroupRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	dto, err := repo.Create(ctx, &permissionV1.CreatePermissionGroupRequest{
 		Data: &permissionV1.PermissionGroup{
@@ -74,9 +74,9 @@ func TestPermissionGroupRepoSqlite_Create(t *testing.T) {
 // TestPermissionGroupRepoSqlite_CreateTreePath 验证父子分组的物化路径：
 // 子节点路径为父路径 + 自身 ID。
 func TestPermissionGroupRepoSqlite_CreateTreePath(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionGroupRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := repo.Create(ctx, &permissionV1.CreatePermissionGroupRequest{
 		Data: &permissionV1.PermissionGroup{Name: trans.Ptr("sqlite分组-父")},
@@ -109,9 +109,9 @@ func TestPermissionGroupRepoSqlite_CreateTreePath(t *testing.T) {
 
 // TestPermissionGroupRepoSqlite_ListContainsFilter 验证 List 的 contains 模糊搜索语义。
 func TestPermissionGroupRepoSqlite_ListContainsFilter(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionGroupRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, func() error {
 		_, err := repo.Create(ctx, &permissionV1.CreatePermissionGroupRequest{
@@ -158,9 +158,9 @@ func TestPermissionGroupRepoSqlite_ListContainsFilter(t *testing.T) {
 
 // TestPermissionGroupRepoSqlite_Get 验证 Get 命中/未命中。
 func TestPermissionGroupRepoSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionGroupRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := repo.Create(ctx, &permissionV1.CreatePermissionGroupRequest{
 		Data: &permissionV1.PermissionGroup{Name: trans.Ptr("sqlite分组-Get")},
@@ -189,9 +189,9 @@ func TestPermissionGroupRepoSqlite_Get(t *testing.T) {
 // TestPermissionGroupRepoSqlite_Update 验证 Update 只更新掩码内字段（description），
 // 物化路径与 name 不受影响。
 func TestPermissionGroupRepoSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionGroupRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := repo.Create(ctx, &permissionV1.CreatePermissionGroupRequest{
 		Data: &permissionV1.PermissionGroup{
@@ -226,10 +226,10 @@ func TestPermissionGroupRepoSqlite_Update(t *testing.T) {
 // TestPermissionGroupRepoSqlite_Delete 验证叶子分组可删、
 // 有子分组/有权限点的分组删除被拒绝。
 func TestPermissionGroupRepoSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionGroupRepoSqlite(t, entClient)
 	permRepo := newPermissionRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 叶子分组：可删
 	leaf, err := repo.Create(ctx, &permissionV1.CreatePermissionGroupRequest{
@@ -281,9 +281,9 @@ func TestPermissionGroupRepoSqlite_Delete(t *testing.T) {
 // TestPermissionGroupRepoSqlite_ListByIDs 验证按 ID 集合查询：
 // 命中返回对应行，空集合返回空。
 func TestPermissionGroupRepoSqlite_ListByIDs(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionGroupRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	groupA, err := repo.Create(ctx, &permissionV1.CreatePermissionGroupRequest{
 		Data: &permissionV1.PermissionGroup{Name: trans.Ptr("按ID查-甲")},

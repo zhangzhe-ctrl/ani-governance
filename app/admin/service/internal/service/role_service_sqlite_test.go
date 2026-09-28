@@ -24,7 +24,7 @@ import (
 	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 
 	"go-wind-admin/app/admin/service/internal/data"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
@@ -47,15 +47,15 @@ func (roleServiceAuthProviderStub) ProvidePolicies(context.Context) (authorizer.
 // 并复刻生产构造器的 svc.seedFixture()（空表时播种 constants.DefaultRoles）。
 func newRoleServiceForTest(t *testing.T) *RoleService {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	// noop 引擎形态：Authz 配置为默认类型（空串 → noop 分支），日志用 NopLogger。
 	bootstrapCtx := bootstrap.NewContextWithParam(context.Background(), nil,
 		&conf.Bootstrap{Authz: &conf.Authorization{}}, bLogger.NopLogger())
 	svc := &RoleService{
 		log:        bLogger.NewHelper(bLogger.NopLogger()),
 		authorizer: authorizer.NewAuthorizer(bootstrapCtx, roleServiceAuthProviderStub{}),
-		roleRepo:   data.NewRoleRepoForTest(entClient),
-		tenantRepo: data.NewTenantRepoForTest(entClient),
+		roleRepo:   newRoleRepo(entClient),
+		tenantRepo: data.NewTenantRepo(newRepoContext(), entClient),
 	}
 	svc.seedFixture()
 	return svc
@@ -65,7 +65,7 @@ func newRoleServiceForTest(t *testing.T) *RoleService {
 // 租户级角色回填租户名，平台级角色（默认播种）不回填。
 func TestRoleServiceSqlite_ListEnrichment(t *testing.T) {
 	svc := newRoleServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	tenant, err := svc.tenantRepo.Create(ctx, &identityV1.Tenant{
 		Name:        trans.Ptr("RoleSvc 富集租户甲"),
@@ -114,7 +114,7 @@ func TestRoleServiceSqlite_ListEnrichment(t *testing.T) {
 // TestRoleServiceSqlite_GetEnrichment 验证 Get 单条查询的 TenantName 回填。
 func TestRoleServiceSqlite_GetEnrichment(t *testing.T) {
 	svc := newRoleServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	tenant, err := svc.tenantRepo.Create(ctx, &identityV1.Tenant{
 		Name:        trans.Ptr("RoleSvc 富集租户乙"),
@@ -163,7 +163,7 @@ func TestRoleServiceSqlite_GetEnrichment(t *testing.T) {
 // Delete 的非保护角色删除路径。
 func TestRoleServiceSqlite_CreateAndDelete(t *testing.T) {
 	svc := newRoleServiceForTest(t)
-	baseCtx := enttest.NewSystemViewerCtx(context.Background())
+	baseCtx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(baseCtx, &authenticationV1.UserTokenPayload{UserId: 4242})
 
 	// Create：操作人注入 CreatedBy，角色本体与角色元数据同事务落库。

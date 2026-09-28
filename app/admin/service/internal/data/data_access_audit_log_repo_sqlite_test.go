@@ -16,7 +16,7 @@ import (
 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entDataAccessAuditLog "go-wind-admin/app/admin/service/internal/data/ent/dataaccessauditlog"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newDataAccessAuditLogRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的
@@ -25,7 +25,7 @@ import (
 func newDataAccessAuditLogRepoSqlite(t *testing.T) *DataAccessAuditLogRepo {
 	t.Helper()
 	repo := &DataAccessAuditLogRepo{
-		entClient: enttest.NewEntClientForTest(t),
+		entClient: testutil.NewEntClientForTest(t),
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		mapper:    mapper.NewCopierMapper[auditV1.DataAccessAuditLog, ent.DataAccessAuditLog](),
 		accessTypeConverter: mapper.NewEnumTypeConverter[auditV1.DataAccessAuditLog_AccessType, entDataAccessAuditLog.AccessType](
@@ -43,7 +43,7 @@ func newDataAccessAuditLogRepoSqlite(t *testing.T) *DataAccessAuditLogRepo {
 // 数据访问审计日志，ent client 直查断言各字段按请求落库。
 func TestDataAccessAuditLogRepoSqlite_Create(t *testing.T) {
 	repo := newDataAccessAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &auditV1.CreateDataAccessAuditLogRequest{
 		Data: &auditV1.DataAccessAuditLog{
@@ -106,7 +106,7 @@ func TestDataAccessAuditLogRepoSqlite_Create(t *testing.T) {
 // 有效非零取值逐一建行，断言 proto → ent 与 ent → proto（List 路径）的双向映射逐对成立。
 func TestDataAccessAuditLogRepoSqlite_AccessTypeEnumPairs(t *testing.T) {
 	repo := newDataAccessAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	expectedEnt := map[string]int{}
 	expectedProto := map[int32]int{}
@@ -155,7 +155,7 @@ func TestDataAccessAuditLogRepoSqlite_AccessTypeEnumPairs(t *testing.T) {
 // 全部有效非零取值逐一建行，断言双向映射逐对成立。
 func TestDataAccessAuditLogRepoSqlite_SensitiveLevelEnumPairs(t *testing.T) {
 	repo := newDataAccessAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	expectedEnt := map[string]int{}
 	expectedProto := map[int32]int{}
@@ -202,7 +202,7 @@ func TestDataAccessAuditLogRepoSqlite_SensitiveLevelEnumPairs(t *testing.T) {
 // table_name 列 contains 模糊搜索、id 列等值过滤与分页语义。
 func TestDataAccessAuditLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 	repo := newDataAccessAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	for i, marker := range []string{"MARKERGAMMA", "MARKERDELTA"} {
 		require.NoError(t, repo.Create(ctx, &auditV1.CreateDataAccessAuditLogRequest{
@@ -284,7 +284,7 @@ func TestDataAccessAuditLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 // TestDataAccessAuditLogRepoSqlite_Get 验证 Get 按主键的命中与未命中。
 func TestDataAccessAuditLogRepoSqlite_Get(t *testing.T) {
 	repo := newDataAccessAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &auditV1.CreateDataAccessAuditLogRequest{
 		Data: &auditV1.DataAccessAuditLog{
@@ -319,7 +319,7 @@ func TestDataAccessAuditLogRepoSqlite_Get(t *testing.T) {
 // 与 IsExist 的命中/未命中。
 func TestDataAccessAuditLogRepoSqlite_CountAndIsExist(t *testing.T) {
 	repo := newDataAccessAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &auditV1.CreateDataAccessAuditLogRequest{
 		Data: &auditV1.DataAccessAuditLog{

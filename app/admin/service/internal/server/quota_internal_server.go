@@ -34,8 +34,7 @@ type QuotaInternalServerConfig struct {
 	CertFile string
 	KeyFile  string
 	// CertOwnerMap 将客户端证书的精确 DNS SAN 映射到已注册 owner_service。
-	// 仅 quota_lab 构建注册模拟 owner ani-gpu-simulator；正式构建不允许
-	// 通过配置一个字符串加载模拟身份。
+	// Only explicit production integrations may register an owner identity.
 	CertOwnerMap map[string]string
 }
 

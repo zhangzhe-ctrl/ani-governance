@@ -28,7 +28,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/notificationchannel"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -38,7 +38,7 @@ func newNotificationChannelServiceForTest(t *testing.T, entClient *entCrud.EntCl
 	t.Helper()
 	return &NotificationChannelService{
 		log:  bLogger.NewHelper(bLogger.NopLogger()),
-		repo: data.NewNotificationChannelRepoForTest(entClient),
+		repo: data.NewNotificationChannelRepo(newRepoContext(), entClient),
 	}
 }
 
@@ -46,9 +46,9 @@ func newNotificationChannelServiceForTest(t *testing.T, entClient *entCrud.EntCl
 // 枚举（类型/TLS）经转换器落库、操作人 ID 盖入 created_by、密码加密落库；
 // Get 回读的 DTO 字段与创建一致且带 HasPassword=true 标识。
 func TestNotificationChannelServiceSqlite_CreateAndGet(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newNotificationChannelServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 71})
 
 	created, err := svc.CreateNotificationChannel(opCtx, &notificationChannelV1.CreateNotificationChannelRequest{
@@ -107,9 +107,9 @@ func TestNotificationChannelServiceSqlite_CreateAndGet(t *testing.T) {
 // TestNotificationChannelServiceSqlite_CreateAndGetValidation 覆盖创建与查询的
 // 入参守卫分支：空名/空请求体拒绝；id 缺失、按不存在 id 查询报错。
 func TestNotificationChannelServiceSqlite_CreateAndGetValidation(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newNotificationChannelServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 71})
 
 	_, err := svc.CreateNotificationChannel(opCtx, &notificationChannelV1.CreateNotificationChannelRequest{
@@ -138,9 +138,9 @@ func TestNotificationChannelServiceSqlite_CreateAndGetValidation(t *testing.T) {
 // TestNotificationChannelServiceSqlite_ListHasPasswordFlag 验证 List 的
 // HasPassword 标识回填：带密码与不带密码的渠道分别回填 true/false。
 func TestNotificationChannelServiceSqlite_ListHasPasswordFlag(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newNotificationChannelServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 71})
 
 	_, err := svc.CreateNotificationChannel(opCtx, &notificationChannelV1.CreateNotificationChannelRequest{
@@ -181,9 +181,9 @@ func TestNotificationChannelServiceSqlite_ListHasPasswordFlag(t *testing.T) {
 // TestNotificationChannelServiceSqlite_UpdateRename 验证 Update 的改名落库；
 // 密码留空表示不修改已存密码。
 func TestNotificationChannelServiceSqlite_UpdateRename(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newNotificationChannelServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 72})
 
 	created, err := svc.CreateNotificationChannel(opCtx, &notificationChannelV1.CreateNotificationChannelRequest{
@@ -231,9 +231,9 @@ func TestNotificationChannelServiceSqlite_UpdateRename(t *testing.T) {
 // TestNotificationChannelServiceSqlite_Delete 验证删除后行数归零、
 // 再查询报不存在；id 缺失与 nil 请求体被拒绝。
 func TestNotificationChannelServiceSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newNotificationChannelServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 72})
 
 	created, err := svc.CreateNotificationChannel(opCtx, &notificationChannelV1.CreateNotificationChannelRequest{
@@ -271,9 +271,9 @@ func TestNotificationChannelServiceSqlite_Delete(t *testing.T) {
 // 的全部前置校验分支：id/recipient 缺失、停用渠道、非 EMAIL 渠道类型守卫、
 // SMTP 未配置（SendMail 在拨号前快速失败，不触网）。
 func TestNotificationChannelServiceSqlite_SendTestEmailBranches(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newNotificationChannelServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 73})
 
 	// 非 EMAIL 渠道。

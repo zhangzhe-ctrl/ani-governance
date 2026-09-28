@@ -17,7 +17,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entMenu "go-wind-admin/app/admin/service/internal/data/ent/menu"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -27,7 +27,7 @@ func newMenuServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.Clien
 	t.Helper()
 	return &MenuService{
 		log:      bLogger.NewHelper(bLogger.NopLogger()),
-		menuRepo: data.NewMenuRepoForTest(entClient),
+		menuRepo: data.NewMenuRepo(newRepoContext(), entClient),
 	}
 }
 
@@ -49,9 +49,9 @@ func menuIDByName(t *testing.T, entClient *entCrud.EntClient[*ent.Client], ctx c
 // ParentId 落库为指向父菜单的外键、枚举经转换器落库、操作人 ID 盖入 created_by；
 // Get 按主键命中/未命中。
 func TestMenuServiceSqlite_CreateAndGet_ParentChild(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newMenuServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &permissionV1.CreateMenuRequest{
@@ -108,9 +108,9 @@ func TestMenuServiceSqlite_CreateAndGet_ParentChild(t *testing.T) {
 // TestMenuServiceSqlite_List_FlatWithContainsFilter 验证服务层 List 的扁平返回
 // （treeTravel=false，不组装 Children）与 contains 模糊搜索语义（仓规：搜索条件一律 contains）。
 func TestMenuServiceSqlite_List_FlatWithContainsFilter(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newMenuServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	for _, name := range []string{"MARKERMENUALPHA 菜单", "无关菜单乙"} {
@@ -156,9 +156,9 @@ func TestMenuServiceSqlite_List_FlatWithContainsFilter(t *testing.T) {
 // TestMenuServiceSqlite_Update 验证服务层 Update 在单字段掩码下
 // 只更新掩码内字段（name），掩码外字段（path）保持原值。
 func TestMenuServiceSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newMenuServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &permissionV1.CreateMenuRequest{
@@ -192,9 +192,9 @@ func TestMenuServiceSqlite_Update(t *testing.T) {
 // （生产 MySQL/PG 上行为是整棵子树级联）。本用例按 SQLite 实际行为断言：
 // 父行被删、子行保留。
 func TestMenuServiceSqlite_Delete_ParentRowOnlyUnderSqlite(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newMenuServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &permissionV1.CreateMenuRequest{
@@ -238,9 +238,9 @@ func TestMenuServiceSqlite_Delete_ParentRowOnlyUnderSqlite(t *testing.T) {
 // MERGE 模式在空表上的行为：按传入树全量插入（缺失即新增），父子外键按树组装，
 // 操作人 ID 被盖入每行的 created_by。
 func TestMenuServiceSqlite_SyncMenus_MergeInsertsTree(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newMenuServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.SyncMenus(opCtx, &permissionV1.SyncMenusRequest{

@@ -59,7 +59,7 @@ func TestQuotaGpuProductionEntComposition(t *testing.T) {
 			tid, _ := seedTenantPlan(t, client, "ent-production", 10)
 			events := make([]audit.AuditEvent, 0)
 			accCtx := context.WithValue(context.Background(), audit.AccumulatorKey(), &events)
-			accepted, e := r.Occupy(accCtx, occupyInput(tid, "actor", uuid.NewString(), 2))
+			accepted, e := r.Occupy(accCtx, occupyInput(client, tid, "actor", uuid.NewString(), 2))
 			require.NoError(t, e)
 			require.NotEmpty(t, events)
 			reads, writes := 0, 0
@@ -118,7 +118,7 @@ func gpuLedgerInput(t *testing.T, c *ent.Client, tid, pid uint32) *QuotaOccupyIn
 	for _, code := range []string{"gpu.physical.count", "storage.bytes"} {
 		require.NoError(t, c.PlanQuota.Create().SetPlanID(pid).SetQuotaCode(code).SetQuotaValue(100).Exec(ctx))
 	}
-	in := occupyInput(tid, "actor", uuid.NewString(), 2)
+	in := occupyInputForResourceTenant(tid, c.Tenant.GetX(ctx, tid).ResourceTenantID, "actor", uuid.NewString(), 2)
 	in.OwnerService = "ani-inference"
 	in.Action = "GPU_CREATE"
 	in.Items = []QuotaOccupyItem{{"gpu.physical.count", 2}, {"storage.bytes", 10}}
@@ -329,35 +329,6 @@ func TestQuotaGpuAtomicCancelAndSameKey(t *testing.T) {
 	require.NotEmpty(t, candidates)
 	_, _, _, e = r.LoadGpuProjectionSource(ctx, tid, id)
 	require.Error(t, e)
-}
-
-// TestQuotaGpuRestoredProjectionContinuation runs only against the separately
-// restored populated database. It does not seed or clean the restored rows.
-func TestQuotaGpuRestoredProjectionContinuation(t *testing.T) {
-	if os.Getenv("QUOTA_RESTORE_VERIFY") != "1" {
-		t.Skip("separate populated-restore gate")
-	}
-	c := newLedgerPGClient(t)
-	r := newTestRepo(c)
-	ctx := context.Background()
-	pending, e := r.ClaimGpuUsageSync(ctx, "restore-worker", time.Minute, 10)
-	require.NoError(t, e)
-	require.NotEmpty(t, pending)
-	for _, p := range pending {
-		require.Equal(t, int64(2), p.Revision)
-		require.Equal(t, "ENDED", p.State)
-		ok, e := r.AckGpuUsageSync(ctx, p.TenantID, p.OperationID, p.Revision, p.LeaseGeneration)
-		require.NoError(t, e)
-		require.True(t, ok)
-		rows, e := r.RecomputeInvariants(ctx, p.TenantID)
-		require.NoError(t, e)
-		for _, v := range rows {
-			require.True(t, v.Balanced)
-		}
-	}
-	again, e := r.ClaimGpuUsageSync(ctx, "restore-worker-2", time.Minute, 10)
-	require.NoError(t, e)
-	require.Empty(t, again)
 }
 
 func TestQuotaGpuProjectionNullAndForeignRefConstraints(t *testing.T) {

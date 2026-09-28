@@ -42,7 +42,7 @@ import (
 	taskV1 "go-wind-admin/api/gen/go/task/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/middleware/auth"
 	"go-wind-admin/pkg/task"
@@ -96,16 +96,16 @@ func (s *taskSchedulerStub) RemoveAllPeriodicTask() { s.removeAllCount++ }
 // taskRepo 用 testkit 构造器）；其余依赖按用例置空/注入。
 func newTaskServiceForTest(t *testing.T, scheduler TaskScheduler, withTenantUsage bool) (*TaskService, *ent.Client) {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := &TaskService{
 		log:                 bLogger.NewHelper(bLogger.NopLogger()),
-		taskRepo:            data.NewTaskRepoForTest(entClient),
+		taskRepo:            data.NewTaskRepo(newRepoContext(), entClient),
 		userRepo:            nil,
 		tenantUsageRepo:     nil,
 		auditLogArchiveRepo: nil,
 	}
 	if withTenantUsage {
-		svc.tenantUsageRepo = data.NewTenantUsageRepoForTest(entClient, nil)
+		svc.tenantUsageRepo = data.NewTenantUsageRepo(newRepoContext(), entClient, nil)
 	}
 	if scheduler != nil {
 		svc.RegisterTaskScheduler(scheduler)
@@ -135,7 +135,7 @@ func seedTaskRow(t *testing.T, svc *TaskService, ctx context.Context, tenantID u
 // TestTaskService_NoSchedulerGuards 验证调度器未配置时的各守卫分支。
 func TestTaskService_NoSchedulerGuards(t *testing.T) {
 	svc, _ := newTaskServiceForTest(t, nil, false)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	resp, err := svc.ListTaskTypeName(ctx, &emptypb.Empty{})
 	require.NoError(t, err, "未配置调度器时 ListTaskTypeName 应返回空列表而非 panic")
@@ -185,7 +185,7 @@ func TestTaskService_AsyncTenantExpiryScan_EmptyDb(t *testing.T) {
 // nil Data 拒绝、未注册 typeName 拒绝（含未配置调度器）。
 func TestTaskService_CreateValidation(t *testing.T) {
 	svc, _ := newTaskServiceForTest(t, newTaskSchedulerStub("tasksvc_reg_type"), false)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &taskV1.CreateTaskRequest{})
@@ -218,7 +218,7 @@ func TestTaskService_CreateValidation(t *testing.T) {
 func TestTaskService_CreateDisabledSkipsScheduler(t *testing.T) {
 	stub := newTaskSchedulerStub("tasksvc_reg_type")
 	svc, client := newTaskServiceForTest(t, stub, false)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &taskV1.CreateTaskRequest{
@@ -243,7 +243,7 @@ func TestTaskService_CreateDisabledSkipsScheduler(t *testing.T) {
 func TestTaskService_CreateEnabledEntersScheduler(t *testing.T) {
 	stub := newTaskSchedulerStub("tasksvc_periodic_type", "tasksvc_delay_type", "tasksvc_wait_type")
 	svc, _ := newTaskServiceForTest(t, stub, false)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	for _, tc := range []struct {
@@ -279,7 +279,7 @@ func TestTaskService_CreateEnabledEntersScheduler(t *testing.T) {
 func TestTaskService_UpdateEnableToggleBackfillsTypeName(t *testing.T) {
 	stub := newTaskSchedulerStub("tasksvc_reg_type")
 	svc, _ := newTaskServiceForTest(t, stub, false)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	seedTaskRow(t, svc, ctx, 0, "tasksvc_reg_type", taskV1.Task_PERIODIC, "0 */5 * * * *", false)
@@ -315,7 +315,7 @@ func TestTaskService_UpdateEnableToggleBackfillsTypeName(t *testing.T) {
 func TestTaskService_UpdateUnregisteredBackfillRejected(t *testing.T) {
 	stub := newTaskSchedulerStub("tasksvc_other_type")
 	svc, _ := newTaskServiceForTest(t, stub, false)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	seedTaskRow(t, svc, ctx, 0, "tasksvc_unreg_backfill", taskV1.Task_PERIODIC, "0 */5 * * * *", false)
@@ -335,7 +335,7 @@ func TestTaskService_UpdateUnregisteredBackfillRejected(t *testing.T) {
 // TestTaskService_UpdateDeleteMissingId 验证不存在的任务 ID 更新/删除报错。
 func TestTaskService_UpdateDeleteMissingId(t *testing.T) {
 	svc, _ := newTaskServiceForTest(t, newTaskSchedulerStub("tasksvc_reg_type"), false)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Update(opCtx, &taskV1.UpdateTaskRequest{
@@ -355,7 +355,7 @@ func TestTaskService_UpdateDeleteMissingId(t *testing.T) {
 func TestTaskService_DeleteRemovesSchedulerEntry(t *testing.T) {
 	stub := newTaskSchedulerStub("tasksvc_del_type")
 	svc, client := newTaskServiceForTest(t, stub, false)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	seedTaskRow(t, svc, ctx, 0, "tasksvc_del_type", taskV1.Task_PERIODIC, "0 */5 * * * *", true)
 	rows, err := svc.taskRepo.List(ctx, &paginationV1.PagingRequest{NoPaging: trans.Ptr(true)})
@@ -381,7 +381,7 @@ func TestTaskService_DeleteRemovesSchedulerEntry(t *testing.T) {
 func TestTaskService_ControlTaskGuards(t *testing.T) {
 	stub := newTaskSchedulerStub("tasksvc_ctl_type", "tasksvc_delay_ctl")
 	svc, _ := newTaskServiceForTest(t, stub, false)
-	sysCtx := enttest.NewSystemViewerCtx(context.Background())
+	sysCtx := testutil.NewSystemViewerCtx(context.Background())
 	tenantCtx := crudViewer.WithContext(sysCtx, appViewer.NewUserViewer(1, 42, 0, "", nil))
 
 	// 未知控制类型（先于取行）
@@ -430,7 +430,7 @@ func TestTaskService_ControlTaskGuards(t *testing.T) {
 func TestTaskService_ControlTaskDispatch(t *testing.T) {
 	stub := newTaskSchedulerStub("tasksvc_ctl_dispatch")
 	svc, _ := newTaskServiceForTest(t, stub, false)
-	sysCtx := enttest.NewSystemViewerCtx(context.Background())
+	sysCtx := testutil.NewSystemViewerCtx(context.Background())
 	tenantCtx := crudViewer.WithContext(sysCtx, appViewer.NewUserViewer(1, 42, 0, "", nil))
 
 	seedTaskRow(t, svc, sysCtx, 42, "tasksvc_ctl_dispatch", taskV1.Task_PERIODIC, "0 */5 * * * *", true)
@@ -468,7 +468,7 @@ func TestTaskService_ControlTaskDispatch(t *testing.T) {
 func TestTaskService_RestartAllTask(t *testing.T) {
 	stub := newTaskSchedulerStub("tasksvc_dup_type", "tasksvc_delay_all_type")
 	svc, _ := newTaskServiceForTest(t, stub, false)
-	sysCtx := enttest.NewSystemViewerCtx(context.Background())
+	sysCtx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 两条同名 PERIODIC（分属不同租户规避唯一约束）+ 一条 DELAY
 	seedTaskRow(t, svc, sysCtx, 42, "tasksvc_dup_type", taskV1.Task_PERIODIC, "0 */5 * * * *", true)
@@ -493,7 +493,7 @@ func TestTaskService_RestartAllTask(t *testing.T) {
 func TestTaskService_StopAllTask(t *testing.T) {
 	stub := newTaskSchedulerStub()
 	svc, _ := newTaskServiceForTest(t, stub, false)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := svc.StopAllTask(ctx, &emptypb.Empty{})
 	require.NoError(t, err)

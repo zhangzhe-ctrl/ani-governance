@@ -2,8 +2,7 @@
 # 构建独立的 Atlas 迁移镜像（不把 Atlas 塞进应用镜像）。
 #
 # Atlas 二进制不在本仓库内，脚本只做定位与校验，不下载：
-#   ANI_ATLAS_BIN=<path> 或 PATH 里有 atlas，或放在
-#   /home/ubuntu/.local/share/ani-network-service/bin/atlas-<version>。
+#   ANI_ATLAS_BIN=<path> 或 PATH 里有 atlas。
 # 版本必须与 go.mod 的 arigaio/atlas 一致（当前 v1.3.0）。
 # 镜像标签带 Atlas 版本与 migrations 摘要，迁移内容变化即换镜像。
 set -euo pipefail
@@ -21,9 +20,6 @@ atlas_bin="${ANI_ATLAS_BIN:-}"
 if [[ -z "${atlas_bin}" ]]; then
   if command -v atlas >/dev/null 2>&1; then
     atlas_bin="$(command -v atlas)"
-  else
-    candidate="/home/ubuntu/.local/share/ani-network-service/bin/atlas-${ATLAS_VERSION}"
-    [[ -x "${candidate}" ]] && atlas_bin="${candidate}"
   fi
 fi
 [[ -n "${atlas_bin}" ]] || err "atlas binary not found; set ANI_ATLAS_BIN or install atlas ${ATLAS_VERSION} on PATH"

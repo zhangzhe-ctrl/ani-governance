@@ -19,7 +19,7 @@ import (
 	entRole "go-wind-admin/app/admin/service/internal/data/ent/role"
 	entRoleMetadata "go-wind-admin/app/admin/service/internal/data/ent/rolemetadata"
 	entRolePermission "go-wind-admin/app/admin/service/internal/data/ent/rolepermission"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/constants"
 )
 
@@ -29,7 +29,7 @@ import (
 // 生产构造器），保证全部共享同一个 SQLite 内存库。
 func newRoleRepoSqlite(t *testing.T) *RoleRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 
 	// 内联依赖 1/5：PermissionApiRepo（复刻 NewPermissionApiRepo）
 	permissionApiRepo := &PermissionApiRepo{
@@ -134,7 +134,7 @@ func newRoleRepoSqlite(t *testing.T) *RoleRepo {
 // 非模板），并用 ent client 直查独立确认。
 func TestRoleRepoSqlite_CreateAndMetadataCascade(t *testing.T) {
 	repo := newRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &permissionV1.CreateRoleRequest{
 		Data: &permissionV1.Role{
@@ -175,7 +175,7 @@ func TestRoleRepoSqlite_CreateAndMetadataCascade(t *testing.T) {
 // Get 按主键命中、按名称/编码在平台上下文被拒，及按 ID 列表查询。
 func TestRoleRepoSqlite_ListAndGet(t *testing.T) {
 	repo := newRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreateRoleRequest{
 		Data: &permissionV1.Role{
@@ -288,7 +288,7 @@ func TestRoleRepoSqlite_ListAndGet(t *testing.T) {
 // 只更新掩码内字段，掩码外字段保持原值。
 func TestRoleRepoSqlite_Update(t *testing.T) {
 	repo := newRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreateRoleRequest{
 		Data: &permissionV1.Role{
@@ -321,7 +321,7 @@ func TestRoleRepoSqlite_Update(t *testing.T) {
 // 角色表与其元数据、三张关联表一并清空。
 func TestRoleRepoSqlite_Delete(t *testing.T) {
 	repo := newRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreateRoleRequest{
 		Data: &permissionV1.Role{
@@ -353,7 +353,7 @@ func TestRoleRepoSqlite_Delete(t *testing.T) {
 // TestRoleRepoSqlite_ProtectedDeleteRejected 验证受保护角色禁止删除。
 func TestRoleRepoSqlite_ProtectedDeleteRejected(t *testing.T) {
 	repo := newRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreateRoleRequest{
 		Data: &permissionV1.Role{
@@ -383,7 +383,7 @@ func TestRoleRepoSqlite_ProtectedDeleteRejected(t *testing.T) {
 // 启用的普通角色可分配；停用角色、模板角色不可分配。
 func TestRoleRepoSqlite_CanAssignRole(t *testing.T) {
 	repo := newRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 启用的普通租户角色：可分配
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreateRoleRequest{
@@ -452,7 +452,7 @@ func TestRoleRepoSqlite_CanAssignRole(t *testing.T) {
 // 平台归属）四重条件命中；实例化产物挂到目标租户且编码去掉模板前缀。
 func TestRoleRepoSqlite_TemplateInstantiation(t *testing.T) {
 	repo := newRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 造一个与生产播种同构的租户管理员模板角色
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreateRoleRequest{

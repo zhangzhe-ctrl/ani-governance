@@ -13,14 +13,14 @@ import (
 
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 	entUserPosition "go-wind-admin/app/admin/service/internal/data/ent/userposition"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newUserPositionRepoSqlite 用 enttest helper 构造一个可直接做关联 CRUD 的 UserPositionRepo。
 // 白盒构造逐字段复刻 NewUserPositionRepo 的初始化（仅 log 换 NopLogger、entClient 换测试 client）。
 func newUserPositionRepoSqlite(t *testing.T) *UserPositionRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	return &UserPositionRepo{
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		entClient: entClient,
@@ -36,7 +36,7 @@ func newUserPositionRepoSqlite(t *testing.T) *UserPositionRepo {
 // ListPositionIDs/ListUserIDs（正反向查询）→ CleanRelationsByXxx（清理）→ 计数归零。
 func TestUserPositionRepoSqlite_AssignListAndClean(t *testing.T) {
 	repo := newUserPositionRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testUserID = uint32(5101)
@@ -109,7 +109,7 @@ func TestUserPositionRepoSqlite_AssignListAndClean(t *testing.T) {
 // RemovePositionsFromUser 的单向解除语义与按岗位清理路径。
 func TestUserPositionRepoSqlite_RemoveAndCleanByPosition(t *testing.T) {
 	repo := newUserPositionRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testUserID = uint32(5102)
@@ -153,7 +153,7 @@ func TestUserPositionRepoSqlite_RemoveAndCleanByPosition(t *testing.T) {
 // excludeExpired 语义：过期（end_at 早于当前时刻）的关联在过滤后被排除。
 func TestUserPositionRepoSqlite_ExcludeExpired(t *testing.T) {
 	repo := newUserPositionRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testUserID = uint32(5103)

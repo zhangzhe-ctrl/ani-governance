@@ -20,7 +20,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entPlan "go-wind-admin/app/admin/service/internal/data/ent/plan"
 	entPlanQuota "go-wind-admin/app/admin/service/internal/data/ent/planquota"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -30,7 +30,7 @@ func newPlanQuotaServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.
 	t.Helper()
 	return &PlanQuotaService{
 		log:           bLogger.NewHelper(bLogger.NopLogger()),
-		planQuotaRepo: data.NewPlanQuotaRepoForTest(entClient),
+		planQuotaRepo: data.NewPlanQuotaRepo(newRepoContext(), entClient),
 	}
 }
 
@@ -38,9 +38,10 @@ func newPlanQuotaServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.
 // 请求携带的 planId 真实落库为指向父套餐的外键（历史上该条件曾写反导致
 // 配额行的 plan_id 永远为 NULL），且配额类型枚举经转换器落库。
 func TestPlanQuotaServicePostgres_Create_AssociatesPlan(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	svc := newPlanQuotaServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parent, err := entClient.Client().Plan.Create().
@@ -78,9 +79,10 @@ func TestPlanQuotaServicePostgres_Create_AssociatesPlan(t *testing.T) {
 // TestPlanQuotaServicePostgres_List_BackfillsPlanId 验证服务层 List 从 plan 边
 // 回填 PlanId，并把配额字段回读出来。
 func TestPlanQuotaServicePostgres_List_BackfillsPlanId(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	svc := newPlanQuotaServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parent, err := entClient.Client().Plan.Create().
@@ -109,9 +111,10 @@ func TestPlanQuotaServicePostgres_List_BackfillsPlanId(t *testing.T) {
 // TestPlanQuotaServicePostgres_Create_MissingOperatorRejected 缺少操作人声明时
 // 服务层 Create 应直接拒绝，且不落库。
 func TestPlanQuotaServicePostgres_Create_MissingOperatorRejected(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	svc := newPlanQuotaServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	_, err := svc.Create(ctx, &identityV1.CreatePlanQuotaRequest{
 		Data: &identityV1.PlanQuota{QuotaType: identityV1.PlanQuota_API_CALL.Enum()},
@@ -125,9 +128,10 @@ func TestPlanQuotaServicePostgres_Create_MissingOperatorRejected(t *testing.T) {
 
 // TestPlanQuotaServicePostgres_Get 验证服务层 Get 按主键查询的命中与未命中。
 func TestPlanQuotaServicePostgres_Get(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	svc := newPlanQuotaServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parent, err := entClient.Client().Plan.Create().
@@ -164,9 +168,10 @@ func TestPlanQuotaServicePostgres_Get(t *testing.T) {
 // TestPlanQuotaServicePostgres_Update 验证服务层 Update 在单字段掩码下
 // 只更新掩码内字段（quota_value），其余保持原值。
 func TestPlanQuotaServicePostgres_Update(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	svc := newPlanQuotaServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parent, err := entClient.Client().Plan.Create().
@@ -203,9 +208,10 @@ func TestPlanQuotaServicePostgres_Update(t *testing.T) {
 
 // TestPlanQuotaServicePostgres_Delete 验证服务层 Delete 后表内计数归零。
 func TestPlanQuotaServicePostgres_Delete(t *testing.T) {
-	entClient := enttest.NewQuotaPGClient(t)
+	entClient := testutil.NewQuotaPGClient(t)
+	testutil.ResetQuotaFixture(t, entClient)
 	svc := newPlanQuotaServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parent, err := entClient.Client().Plan.Create().

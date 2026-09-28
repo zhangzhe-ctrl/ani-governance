@@ -35,8 +35,8 @@ ANI Governance 是 ANI 的治理后端。当前仓库只包含后端；业务服
 | `migrations/` | 数据库结构迁移及 `atlas.sum`；注意有复数 `s` |
 | `sql/bootstrap/` | 显式首次初始化的数据来源 |
 | `scripts/` | 生成、验证、部署及运维入口；先读脚本范围 |
-| `migration/` | 源码接管记录、测试清单和部分仍活跃的工具配置；不是数据库迁移 |
-| `third_party/tx7do/` | 锁定来源归档和校验资料，不是运行库，也不是全项目离线包 |
+| `tools/config/` | 活跃 PGV 范围与锁定工具身份；不可用历史目录代替 |
+| `tests/manifests/` | 关键测试结果清单，仅列不可漏的安全和数据断言 |
 | `docs/contracts/` | 业务合同；具体专题同时查现有部署、接入和接口登记文档 |
 
 阅读业务链时沿用现有单向装配：基础设施 → Repository → 认证授权 → Service → Server。`wiring_ent.go` 负责构造和传参，不放业务规则。资源创建成功后登记 cleanup，失败与退出逆序释放。
@@ -45,7 +45,7 @@ ANI Governance 是 ANI 的治理后端。当前仓库只包含后端；业务服
 
 ### 3.1 当前基线
 
-Go 版本由根 `go.mod` 定义，当前为 **1.26.7**。API 工具版本由根 Makefile、各活跃 Buf 模板和 `migration/patches/T15/T15-tool-lock.json` 共同限定；不同切片存在已批准的不同插件版本，不要自行“统一到最新版”。
+Go 版本由根 `go.mod` 定义，当前为 **1.26.7**。API 工具版本由根 Makefile、各活跃 Buf 模板和 `tools/config/tool-lock.json` 共同限定；不同切片存在已批准的不同插件版本，不要自行“统一到最新版”。
 
 `gow` 的来源版本为 `gowind@v1.0.3`，但当前工具包含本仓适配，**这不是安装上游 v1.0.3 二进制的指令**。必须使用当前 checkout 构建的 `tools/bin/gow`。
 
@@ -71,7 +71,7 @@ make plugin cli gow
 
 本地 gow 的主要命令为 `api`、`ent`、`run`、`version`。不要照上游教程执行未接管的 `gow wire`、`project/new`、顶层 `generate`、`migrate` 等命令。
 
-**旧安装入口已退役：**`make install-dev`、`scripts/env/install_unix_dev.sh`、`scripts/env/install_windows_dev.ps1` 在副作用前明确失败；共享 PowerShell 库中的 `Install-GoPlugins` 和 `Install-GoCliTools` 也只返回退役错误。原脚本仍可从 Git 历史读取，不再复制为可执行的现行教程。生产/运维共享函数不属于本次退役范围，也不因此获得执行授权。
+**旧安装入口已退役：**`make install-dev` 在副作用前失败；旧 Unix/Windows 开发安装脚本已退出 HEAD，可从固定历史提交读取。生产/运维共享函数不属于该退役范围。
 
 需要配置依赖代理时只在当前环境设置，保留校验机制。旧文档针对某些领域模块记录过代理不可取的问题；不要把当时某个模块名或网络状态当成当前依赖清单，先读本次 `go.mod` 与实际解析结果。
 
@@ -202,15 +202,15 @@ API 目录同步也是显式动作：先执行 `admin sync-apis --dry-run`，核
 | 受影响普通包 | `go test -mod=readonly -count=1 <包>`，需要时加 `-race` |
 | 本地 gow 工具 | 定向测试 `./tools/localdeps/gow/internal/...`，遵循测试需要的工具与工作区条件 |
 | redact 生成集成 | `make tools-integration`；需要固定 protoc 与本仓构建的插件，不因缺工具 skip |
-| Ent 生成／配额静态边界 | `make verify-quota-ent`；会运行生成检查，先保存用户未提交改动 |
-| GPU 配额正式门禁 | `make verify-gpu`；先具备任务独占 PG、运行角色、必要 lab 证书和 Docker／Redis 包装入口 |
+| Ent 生成／配额静态边界 | `make verify-quota-ent`；在隔离副本生成并比较，工具缺失失败 |
+| CI 三条门禁 | `make test-unit`、`make test-integration`、`make check-generated`；集成需独占 PG/Redis，生成需锁定工具 |
 | 租户／数据范围 Ent 守卫 | 包是 `./app/admin/service/internal/data/ent`，不能以父包 `internal/data` 通过代替；helper 可能建表和 TRUNCATE，仅用独占测试库 |
 | 广泛测试 | `make test` 是 `go test ./...`，不负责准备所有外部资源，也不保证所有环境门控用例实际执行 |
 | lint | `make lint` 需要使用方明确准备合适版本的 golangci-lint；现有锁记录仍有未解析项，不承诺开箱即用 |
 
-当前 CI 位于 `.github/workflows/gpu-quota.yml`：准备 PostgreSQL 16.10、显式迁移和受限角色、任务证书，然后运行 `make verify-gpu`。其文件明确限定覆盖边界，不代表部署或全部跨仓联调已完成。
+当前 CI 位于 `.github/workflows/governance.yml`：`checks`、`integration`、`generation` 独立执行。PostgreSQL 16.10 经显式迁移和受限角色运行；Redis 每次有独占容器和标签。GitHub CI 与任务 Fedora 验证分别记录，均不代表部署或跨仓联调。
 
-`QUOTA_LAB_PG_DSN`、`QUOTA_LAB_REGRESSION_DSN`、`GUARD_TEST_PG_DSN` 等必须指向本次授权的测试资源；不要复制历史命令中的主机、库名和密码。任务包装器已经有固定 Redis 容器名的使用约束，同一机器避免重叠运行互相清理的测试。
+`QUOTA_LAB_PG_DSN`（兼容现有测试环境变量名）与 `GUARD_TEST_PG_DSN` 必须指向本次授权的独占测试库；设置 `QUOTA_PG_EXCLUSIVE=1` 和 `GUARD_TEST_PG_EXCLUSIVE=1`。`scripts/ci/with-redis.sh` 每 run 创建独占容器并按 ID/label 清理。
 
 成功需要命令真实退出码和所要求的具名测试结果；包级 `ok`、缓存命中、skip 和环境未启动的 not_verified 分开记录。保存管道命令结果时不使用最后一个 `tee`／`echo` 的退出码冒充测试结果。
 
@@ -220,15 +220,9 @@ API 目录同步也是显式动作：先执行 `admin sync-apis --dry-run`，核
 
 维护接管源码时记录最小修改原因和针对性测试，保留对应来源与许可。不要把历史“逐字节等价”结论套到后续已修改源码；也不要每改一个本仓包都重跑 T00～T15。
 
-`migration/` 中至少以下文件仍与开发工具或校验直接关联：
+活跃生成配置为 `tools/config/pgv-scope.json` 与 `tools/config/tool-lock.json`；缺失或损坏会阻止严格生成。关键结果清单在 `tests/manifests/critical-tests.json`，`scripts/ci/assert-test-results.py` 区分 pass、fail、skip 与未执行。新增 validator 时按真实范围更新配置并审查；旧数量不是永久阈值。历史迁移回执与来源归档可从固定提交 `63849fc4cde38b879184a8fea4a6f539e60063e1` 阅读，见 [历史索引](history/README.md)。
 
-- `migration/pgv-scope.json`：批准的 validator 范围；缺失或损坏会阻止严格生成。
-- `migration/patches/T15/T15-tool-lock.json`：工具身份与版本依据。
-- 当前仍调用的 required-tests／known-defects 清单。
-
-因此，不要整体移动、删除或清空 `migration/`。历史来源哈希、旧日志和报告保持过去的内容，不替换成当前名字。将来确需新增 validator 时，按新功能范围更新来源和相应清单并评审；103 是这次基线，不是永久禁止增加功能。
-
-第三方源码归档不是完整离线依赖环境。下载路径、构建闭包和许可来源是不同概念，不能只搜索仓库里的字符串就声称依赖清零或无风险。
+历史第三方源码归档不是完整离线依赖环境；维护副本内的许可证仍在包目录。下载路径、构建闭包和许可来源是不同概念，不能只搜索仓库里的字符串就声称依赖清零或无风险。
 
 ## 9. 已知范围与生产边界
 
@@ -250,7 +244,7 @@ README 是项目入口，本文是开发步骤，AGENTS 保留代理工作规则
 
 ## 11. 文档依据与适用边界
 
-当前命令应对照根 [Makefile](../Makefile)、服务公共 [app.mk](../app.mk) 和 [服务 Makefile](../app/admin/service/Makefile)。版本对照 [工具锁](../migration/patches/T15/T15-tool-lock.json)、Go 模块声明及活跃模板，不复制第二份可编辑版本真相表。
+当前命令应对照根 [Makefile](../Makefile)、服务公共 [app.mk](../app.mk) 和 [服务 Makefile](../app/admin/service/Makefile)。版本对照 [工具锁](../tools/config/tool-lock.json)、Go 模块声明及活跃模板，不复制第二份可编辑版本真相表。
 
 基础部署与业务接入细则分别以 [部署文档](deployment.md)、[接入指南](service-integration.md) 和真实装配代码核对。本页不改写原专题中的历史证据、原机地址或当前计划状态；发现具体偏差应提出定向文档修订，不擅自修改安全合同或复制历史凭据。
 

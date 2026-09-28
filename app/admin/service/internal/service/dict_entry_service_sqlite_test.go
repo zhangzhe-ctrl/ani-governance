@@ -14,11 +14,10 @@ import (
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	dictV1 "go-wind-admin/api/gen/go/dict/service/v1"
-	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entDictEntry "go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	entDictType "go-wind-admin/app/admin/service/internal/data/ent/dicttype"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -28,7 +27,7 @@ func newDictEntryServiceForTest(t *testing.T, entClient *entCrud.EntClient[*ent.
 	t.Helper()
 	return &DictEntryService{
 		log:           bLogger.NewHelper(bLogger.NopLogger()),
-		dictEntryRepo: data.NewDictEntryRepoForTest(entClient),
+		dictEntryRepo: newDictEntryRepo(entClient),
 	}
 }
 
@@ -46,9 +45,9 @@ func createDictTypeParent(t *testing.T, entClient *entCrud.EntClient[*ent.Client
 // TestDictEntryServiceSqlite_Create_PersistsParentAssociation 验证服务层创建字典项时，
 // 请求携带的 TypeId 真实落库为指向父类型的外键（历史上该条件曾写反导致 type_id 永远为 NULL）。
 func TestDictEntryServiceSqlite_Create_PersistsParentAssociation(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newDictEntryServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parentID := createDictTypeParent(t, entClient, ctx, "svc-de-create-type")
@@ -88,9 +87,9 @@ func TestDictEntryServiceSqlite_Create_PersistsParentAssociation(t *testing.T) {
 // 仅命中指定父类型（父类型隔离）、仅启用条目（禁用排除）、按 sort_order 升序；
 // TypeCode 为空串应被服务层守卫拒绝。
 func TestDictEntryServiceSqlite_ListByTypeCode(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newDictEntryServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parentA := createDictTypeParent(t, entClient, ctx, "svc-de-list-type-a")
@@ -147,9 +146,9 @@ func TestDictEntryServiceSqlite_ListByTypeCode(t *testing.T) {
 // TestDictEntryServiceSqlite_List 验证服务层 List 的 contains 模糊搜索语义
 // 与 TypeId 从父类型边的回填。
 func TestDictEntryServiceSqlite_List(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newDictEntryServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parentID := createDictTypeParent(t, entClient, ctx, "svc-de-update-type")
@@ -197,9 +196,9 @@ func TestDictEntryServiceSqlite_List(t *testing.T) {
 // TestDictEntryServiceSqlite_Update 验证服务层 Update 在单字段掩码下
 // 只更新掩码内字段（entry_value），掩码外字段（sort_order）保持原值。
 func TestDictEntryServiceSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newDictEntryServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parentID := createDictTypeParent(t, entClient, ctx, "svc-de-update-type")
@@ -235,9 +234,9 @@ func TestDictEntryServiceSqlite_Update(t *testing.T) {
 
 // TestDictEntryServiceSqlite_Delete 验证服务层 Delete（按 ID 列表批量删除）后表内计数归零。
 func TestDictEntryServiceSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newDictEntryServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	parentID := createDictTypeParent(t, entClient, ctx, "svc-de-del-type")

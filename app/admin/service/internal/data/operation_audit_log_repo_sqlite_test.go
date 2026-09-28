@@ -16,7 +16,7 @@ import (
 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entOperationAuditLog "go-wind-admin/app/admin/service/internal/data/ent/operationauditlog"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newOperationAuditLogRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的
@@ -25,7 +25,7 @@ import (
 func newOperationAuditLogRepoSqlite(t *testing.T) *OperationAuditLogRepo {
 	t.Helper()
 	repo := &OperationAuditLogRepo{
-		entClient: enttest.NewEntClientForTest(t),
+		entClient: testutil.NewEntClientForTest(t),
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		mapper:    mapper.NewCopierMapper[auditV1.OperationAuditLog, ent.OperationAuditLog](),
 		actionTypeConverter: mapper.NewEnumTypeConverter[auditV1.OperationAuditLog_ActionType, entOperationAuditLog.Action](
@@ -43,7 +43,7 @@ func newOperationAuditLogRepoSqlite(t *testing.T) *OperationAuditLogRepo {
 // 操作审计日志，ent client 直查断言各字段按请求落库。
 func TestOperationAuditLogRepoSqlite_Create(t *testing.T) {
 	repo := newOperationAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &auditV1.CreateOperationAuditLogRequest{
 		Data: &auditV1.OperationAuditLog{
@@ -97,7 +97,7 @@ func TestOperationAuditLogRepoSqlite_Create(t *testing.T) {
 // 双向映射逐对成立。行在两阶段间累积，分布断言按字段过滤（nil 字段属另一阶段）。
 func TestOperationAuditLogRepoSqlite_EnumPairs(t *testing.T) {
 	repo := newOperationAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	seeded := 0
 	nextMarker := func() string {
@@ -190,7 +190,7 @@ func TestOperationAuditLogRepoSqlite_EnumPairs(t *testing.T) {
 // resource_type 列 contains 模糊搜索、id 列等值过滤与分页语义。
 func TestOperationAuditLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 	repo := newOperationAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	for i, marker := range []string{"MARKERETA", "MARKERTHETA"} {
 		require.NoError(t, repo.Create(ctx, &auditV1.CreateOperationAuditLogRequest{
@@ -272,7 +272,7 @@ func TestOperationAuditLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 // TestOperationAuditLogRepoSqlite_Get 验证 Get 按主键的命中与未命中。
 func TestOperationAuditLogRepoSqlite_Get(t *testing.T) {
 	repo := newOperationAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &auditV1.CreateOperationAuditLogRequest{
 		Data: &auditV1.OperationAuditLog{
@@ -304,7 +304,7 @@ func TestOperationAuditLogRepoSqlite_Get(t *testing.T) {
 // 与 IsExist 的命中/未命中。
 func TestOperationAuditLogRepoSqlite_CountAndIsExist(t *testing.T) {
 	repo := newOperationAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &auditV1.CreateOperationAuditLogRequest{
 		Data: &auditV1.OperationAuditLog{

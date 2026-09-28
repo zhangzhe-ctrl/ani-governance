@@ -15,7 +15,7 @@ import (
 
 	dictV1 "go-wind-admin/api/gen/go/dict/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newDictTypeRepoSqlite 在给定 enttest client 上白盒构造 DictTypeRepo，
@@ -33,9 +33,9 @@ func newDictTypeRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.Clien
 
 // TestDictTypeRepoSqlite_Create 通过 repo.Create 写入后直查 SQLite 断言落库。
 func TestDictTypeRepoSqlite_Create(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictTypeRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &dictV1.CreateDictTypeRequest{
 		Data: &dictV1.DictType{
@@ -55,9 +55,9 @@ func TestDictTypeRepoSqlite_Create(t *testing.T) {
 // TestDictTypeRepoSqlite_ListContainsFilter 验证 List 的 contains 模糊搜索语义：
 // 只返回 type_name 含指定标记的行，Total 与过滤后行数一致；无过滤时返回全部。
 func TestDictTypeRepoSqlite_ListContainsFilter(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictTypeRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 两行携带互斥标记，只有第一行含 "markerqwe"
 	require.NoError(t, repo.Create(ctx, &dictV1.CreateDictTypeRequest{
@@ -122,9 +122,9 @@ func TestDictTypeRepoSqlite_ListContainsFilter(t *testing.T) {
 // TestDictTypeRepoSqlite_Get 验证 Get 命中 / 未命中，
 // 以及平台上下文按 type_code 查询被拒绝的分支。
 func TestDictTypeRepoSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictTypeRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &dictV1.CreateDictTypeRequest{
 		Data: &dictV1.DictType{
@@ -161,9 +161,9 @@ func TestDictTypeRepoSqlite_Get(t *testing.T) {
 // TestDictTypeRepoSqlite_Update 验证 Update 只更新掩码内字段，
 // 掩码外字段（type_code）保持原值。
 func TestDictTypeRepoSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictTypeRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &dictV1.CreateDictTypeRequest{
 		Data: &dictV1.DictType{
@@ -194,9 +194,9 @@ func TestDictTypeRepoSqlite_Update(t *testing.T) {
 
 // TestDictTypeRepoSqlite_Delete 验证 Delete 与 BatchDelete 后行数归零。
 func TestDictTypeRepoSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictTypeRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &dictV1.CreateDictTypeRequest{
 		Data: &dictV1.DictType{

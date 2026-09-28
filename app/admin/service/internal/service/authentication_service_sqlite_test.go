@@ -49,7 +49,7 @@ import (
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 
 	"go-wind-admin/app/admin/service/internal/data"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
@@ -151,7 +151,7 @@ type authSvcEnv struct {
 // 仅被本批未覆盖的方法（OneToMany 分支为编译期死代码、忘记密码/换绑链路）使用，置 nil。
 func newAuthenticationServiceForTest(t *testing.T) *authSvcEnv {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 
 	mr := miniredis.RunT(t)
 	rdb := redis.NewClient(&redis.Options{Addr: mr.Addr()})
@@ -169,14 +169,13 @@ func newAuthenticationServiceForTest(t *testing.T) *authSvcEnv {
 
 	// 凭证仓储：bCrypt（与生产 data.NewPasswordCrypto 等价）+ miniredis 注入的 ConfigRepo。
 	passwordCrypto := password.NewBCryptCrypto()
-	configRepo := data.NewConfigRepoForTest(entClient, rdb)
-	userCredentialRepo := data.NewUserCredentialRepoForTest(entClient, passwordCrypto, configRepo)
+	configRepo := newConfigRepo(t, entClient, rdb)
+	userCredentialRepo := data.NewUserCredentialRepo(newRepoContext(), entClient, passwordCrypto, configRepo)
 
 	// authenticator：测试 HS256 临时密钥 + miniredis 令牌缓存。
-	userTokenCache := data.NewUserTokenCacheForTest(rdb)
+	userTokenCache := data.NewUserTokenCache(newRepoContext(), rdb)
 	jwtCfg := &conf.Authentication_Jwt{Method: "HS256", Key: authSvcTestJWTKey}
-	authenticator, err := data.NewAuthenticatorForTest(jwtCfg, userTokenCache)
-	require.NoError(t, err)
+	authenticator := newAuthenticator(t, jwtCfg, userTokenCache)
 
 	stub := &authSvcUserRepoStub{
 		usersByID:     make(map[uint32]*identityV1.User),
@@ -187,20 +186,20 @@ func newAuthenticationServiceForTest(t *testing.T) *authSvcEnv {
 		log:                     bLogger.NewHelper(bLogger.NopLogger()),
 		userRepo:                stub,
 		userCredentialRepo:      userCredentialRepo,
-		roleRepo:                data.NewRoleRepoForTest(entClient),
-		tenantRepo:              data.NewTenantRepoForTest(entClient),
+		roleRepo:                newRoleRepo(entClient),
+		tenantRepo:              data.NewTenantRepo(newRepoContext(), entClient),
 		membershipRepo:          nil,
-		orgUnitRepo:             data.NewOrgUnitRepoForTest(entClient),
-		roleOrgUnitRepo:         data.NewRoleOrgUnitRepoForTest(entClient),
-		roleFieldPermissionRepo: data.NewRoleFieldPermissionRepoForTest(entClient),
-		permissionRepo:          data.NewPermissionRepoForTest(entClient),
+		orgUnitRepo:             newOrgUnitRepo(entClient),
+		roleOrgUnitRepo:         data.NewRoleOrgUnitRepo(newRepoContext(), entClient),
+		roleFieldPermissionRepo: data.NewRoleFieldPermissionRepo(newRepoContext(), entClient),
+		permissionRepo:          newPermissionRepo(entClient),
 		authenticator:           authenticator,
 		clientType:              authenticationV1.ClientType_admin,
 		captchaClient:           captchaClient,
-		rateLimiter:             data.NewLoginRateLimiterForTest(rdb),
-		loginPolicyRepo:         data.NewLoginPolicyRepoForTest(entClient),
-		mfaFactorRepo:           data.NewUserMfaFactorRepoForTest(entClient),
-		mfaChallengeCache:       data.NewMfaChallengeCacheForTest(rdb),
+		rateLimiter:             data.NewLoginRateLimiter(newRepoContext(), rdb),
+		loginPolicyRepo:         data.NewLoginPolicyRepo(newRepoContext(), entClient),
+		mfaFactorRepo:           data.NewUserMfaFactorRepo(newRepoContext(), entClient),
+		mfaChallengeCache:       data.NewMfaChallengeCache(newRepoContext(), rdb),
 		vcodeCache:              nil,
 		notificationChannelRepo: nil,
 	}
@@ -210,7 +209,7 @@ func newAuthenticationServiceForTest(t *testing.T) *authSvcEnv {
 		stub:          stub,
 		mr:            mr,
 		captchaClient: captchaClient,
-		ctx:           enttest.NewSystemViewerCtx(context.Background()),
+		ctx:           testutil.NewSystemViewerCtx(context.Background()),
 	}
 }
 

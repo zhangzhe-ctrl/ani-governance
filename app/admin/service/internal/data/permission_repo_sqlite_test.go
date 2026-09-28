@@ -16,7 +16,7 @@ import (
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/permission"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newPermissionRepoSqlite 在给定 enttest client 上白盒构造 PermissionRepo。
@@ -48,9 +48,9 @@ func newPermissionRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.Cli
 
 // TestPermissionRepoSqlite_Create 通过 repo.Create 写入后直查 SQLite 断言落库。
 func TestPermissionRepoSqlite_Create(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &permissionV1.CreatePermissionRequest{
 		Data: &permissionV1.Permission{
@@ -73,9 +73,9 @@ func TestPermissionRepoSqlite_Create(t *testing.T) {
 
 // TestPermissionRepoSqlite_ListContainsFilter 验证 List 的 contains 模糊搜索语义。
 func TestPermissionRepoSqlite_ListContainsFilter(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreatePermissionRequest{
 		Data: &permissionV1.Permission{
@@ -140,9 +140,9 @@ func TestPermissionRepoSqlite_ListContainsFilter(t *testing.T) {
 
 // TestPermissionRepoSqlite_Get 验证按 ID 与按 code 的命中/未命中。
 func TestPermissionRepoSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreatePermissionRequest{
 		Data: &permissionV1.Permission{
@@ -187,9 +187,9 @@ func TestPermissionRepoSqlite_Get(t *testing.T) {
 
 // TestPermissionRepoSqlite_CodesAndIdsLookup 验证 ID↔code 双向映射查询。
 func TestPermissionRepoSqlite_CodesAndIdsLookup(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreatePermissionRequest{
 		Data: &permissionV1.Permission{
@@ -227,9 +227,9 @@ func TestPermissionRepoSqlite_CodesAndIdsLookup(t *testing.T) {
 // TestPermissionRepoSqlite_Update 验证 Update 只更新掩码内字段（description），
 // 掩码外字段（name/code/status）保持原值。
 func TestPermissionRepoSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreatePermissionRequest{
 		Data: &permissionV1.Permission{
@@ -262,9 +262,9 @@ func TestPermissionRepoSqlite_Update(t *testing.T) {
 
 // TestPermissionRepoSqlite_Delete 验证按 ID 与按 code 删除后行数归零。
 func TestPermissionRepoSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 按 ID 删除
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreatePermissionRequest{

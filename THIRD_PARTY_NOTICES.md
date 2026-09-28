@@ -5,8 +5,12 @@
 ANI Governance derives from https://github.com/tx7do/go-wind-admin, baseline
 `b720bc046b7d8c947fe9b4f44297765489414e9b`. The original copyright and
 permission notice is retained below. This preserves the upstream notice; it does
-not declare a new license for ANI additions. Dependency notices remain in their
-source archives under `third_party/tx7do/`.
+not declare a new license for ANI additions. The maintained local copies keep
+their LICENSE/NOTICE files in `pkg/localdeps/` and `tools/localdeps/`. The former
+source archive can be recovered from Git commit
+`63849fc4cde38b879184a8fea4a6f539e60063e1` under `third_party/tx7do/`.
+The archived BSR Proto export did not establish the exact upstream license for
+those two commits; that attribution remains unverified.
 
 ```text
 MIT License

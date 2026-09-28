@@ -17,7 +17,7 @@ import (
 const (
 	// localRedisURI was the upstream developer address. The localized tests refuse
 	// to use it: see testRedisURI, which only accepts the task-owned disposable
-	// instance that scripts/verify-gpu-redis.sh starts.
+	// instance that scripts/ci/with-redis.sh starts.
 	localRedisURI = "redis://:*Abcd123456@127.0.0.1:6379"
 
 	testTask1        = "test_task_1"
@@ -54,7 +54,7 @@ func testRedisURI(t *testing.T) string {
 	raw := strings.TrimSpace(os.Getenv(testRedisURIEnv))
 	if raw == "" {
 		t.Fatalf("%s is not set: start the task-owned Redis with "+
-			"'bash scripts/verify-gpu-redis.sh run -- go test ./pkg/localdeps/kratos-transport/...' "+
+			"'bash scripts/ci/with-redis.sh run -- go test ./pkg/localdeps/kratos-transport/...' "+
 			"(the upstream hard-coded 127.0.0.1:6379 is never used here)", testRedisURIEnv)
 	}
 	if !strings.Contains(raw, "://") {

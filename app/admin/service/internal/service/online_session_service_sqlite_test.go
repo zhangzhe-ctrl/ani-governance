@@ -29,7 +29,7 @@ import (
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	onlineSessionV1 "go-wind-admin/api/gen/go/online_session/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
@@ -44,12 +44,11 @@ func newOnlineSessionServiceForTest(t *testing.T) (*OnlineSessionService, *data.
 	rdb := redis.NewClient(&redis.Options{Addr: mr.Addr()})
 	t.Cleanup(func() { _ = rdb.Close() })
 
-	tokenCache := data.NewUserTokenCacheForTest(rdb)
-	authenticator, err := data.NewAuthenticatorForTest(&conf.Authentication_Jwt{
+	tokenCache := data.NewUserTokenCache(newRepoContext(), rdb)
+	authenticator := newAuthenticator(t, &conf.Authentication_Jwt{
 		Method: "HS256",
 		Key:    "online-session-svc-test-hs256-key",
 	}, tokenCache)
-	require.NoError(t, err, "构造测试 Authenticator 应成功")
 
 	return &OnlineSessionService{
 		log:           bLogger.NewHelper(bLogger.NopLogger()),
@@ -86,7 +85,7 @@ func seedOnlineSession(
 // 倒序、字段映射（用户名/IP/UA/设备/租户/客户端类型）、内存分页与越界清空。
 func TestOnlineSessionServiceSqlite_ListSortsAndPaginates(t *testing.T) {
 	svc, tokenCache := newOnlineSessionServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	seedOnlineSession(t, svc, tokenCache, ctx, authenticationV1.ClientType_admin, 101, "jti-101a", "user-101", "10.1.1.1", 1000)
 	seedOnlineSession(t, svc, tokenCache, ctx, authenticationV1.ClientType_admin, 102, "jti-102", "user-102", "10.2.2.2", 2000)
@@ -142,7 +141,7 @@ func TestOnlineSessionServiceSqlite_ListSortsAndPaginates(t *testing.T) {
 // 命中用户名或 IP 之一即保留；纯空白关键字视为无过滤；未命中清空。
 func TestOnlineSessionServiceSqlite_ListKeywordFilter(t *testing.T) {
 	svc, tokenCache := newOnlineSessionServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	seedOnlineSession(t, svc, tokenCache, ctx, authenticationV1.ClientType_admin, 201, "jti-201a", "user-201", "10.3.3.1", 1000)
 	seedOnlineSession(t, svc, tokenCache, ctx, authenticationV1.ClientType_admin, 202, "jti-202", "user-202", "10.4.4.4", 2000)
@@ -181,7 +180,7 @@ func TestOnlineSessionServiceSqlite_ListKeywordFilter(t *testing.T) {
 // 只返回本人会话、current 仅标记当前请求会话、按登录时间倒序。
 func TestOnlineSessionServiceSqlite_ListMySessionsCurrentFlag(t *testing.T) {
 	svc, tokenCache := newOnlineSessionServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	seedOnlineSession(t, svc, tokenCache, ctx, authenticationV1.ClientType_admin, 301, "jti-301a", "user-301", "10.5.5.1", 1000)
 	seedOnlineSession(t, svc, tokenCache, ctx, authenticationV1.ClientType_admin, 301, "jti-301b", "user-301", "10.5.5.2", 3000)
@@ -220,7 +219,7 @@ func TestOnlineSessionServiceSqlite_ListMySessionsCurrentFlag(t *testing.T) {
 // 他人会话不可达、jti 缺失拒绝。
 func TestOnlineSessionServiceSqlite_RevokeMySession(t *testing.T) {
 	svc, tokenCache := newOnlineSessionServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const uid = 401
 	seedOnlineSession(t, svc, tokenCache, ctx, authenticationV1.ClientType_admin, uid, "jti-401a", "user-401", "10.7.7.1", 1000)
@@ -280,7 +279,7 @@ func TestOnlineSessionServiceSqlite_RevokeMySession(t *testing.T) {
 // 会话元数据与访问令牌清理、入参守卫。
 func TestOnlineSessionServiceSqlite_ForceLogoutSession(t *testing.T) {
 	svc, tokenCache := newOnlineSessionServiceForTest(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const uid = 501
 	seedOnlineSession(t, svc, tokenCache, ctx, authenticationV1.ClientType_app, uid, "jti-501", "user-501", "10.9.9.9", 1000)

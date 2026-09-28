@@ -48,10 +48,10 @@ func TestUserService_AccountSessionRevocation(t *testing.T) {
 			mr := miniredis.RunT(t)
 			rdb := redis.NewClient(&redis.Options{Addr: mr.Addr(), MaxRetries: -1})
 			t.Cleanup(func() { _ = rdb.Close() })
-			cache := data.NewUserTokenCacheForTest(rdb)
-			a, err := data.NewAuthenticatorForTest(&conf.Authentication_Jwt{Method: "HS256", Key: authSvcTestJWTKey}, cache)
-			require.NoError(t, err)
+			cache := data.NewUserTokenCache(newRepoContext(), rdb)
+			a := newAuthenticator(t, &conf.Authentication_Jwt{Method: "HS256", Key: authSvcTestJWTKey}, cache)
 			e.users.authenticator = a
+			var err error
 
 			tenantID, roleID := uint32(0), e.roleID
 			if tc.tenant {

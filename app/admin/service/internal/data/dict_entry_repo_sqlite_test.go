@@ -18,7 +18,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentry"
 	"go-wind-admin/app/admin/service/internal/data/ent/dictentryi18n"
 	"go-wind-admin/app/admin/service/internal/data/ent/dicttype"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newDictEntryRepoSqlite 在给定 enttest client 上白盒构造 DictEntryRepo。
@@ -45,9 +45,9 @@ func newDictEntryRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.Clie
 // 直查断言：行落库、且 (entry → type) 外键真实落库到请求指定的父行。
 // 历史上这里有过"边与 TypeId 条件写反"导致 type_id 永远为 NULL 的 bug，本用例为其回归测试。
 func TestDictEntryRepoSqlite_Create(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().DictType.Create().
 		SetNillableTypeCode(trans.Ptr("sqlite_de_create_type")).
@@ -79,9 +79,9 @@ func TestDictEntryRepoSqlite_Create(t *testing.T) {
 // TestDictEntryRepoSqlite_ListContainsFilter 验证 List 的 contains 模糊搜索语义，
 // 以及列表路径上 TypeId 从父类型边正确回填。
 func TestDictEntryRepoSqlite_ListContainsFilter(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().DictType.Create().
 		SetNillableTypeCode(trans.Ptr("sqlite_de_list_type")).
@@ -138,9 +138,9 @@ func TestDictEntryRepoSqlite_ListContainsFilter(t *testing.T) {
 
 // TestDictEntryRepoSqlite_Get 验证按 ID 与按 entry_value 的命中/未命中。
 func TestDictEntryRepoSqlite_Get(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().DictType.Create().
 		SetNillableTypeCode(trans.Ptr("sqlite_de_get_type")).
@@ -190,9 +190,9 @@ func TestDictEntryRepoSqlite_Get(t *testing.T) {
 // TestDictEntryRepoSqlite_Update 验证 Update 掩码内字段更新、掩码外字段保持原值、
 // 父类型外键不受影响。
 func TestDictEntryRepoSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().DictType.Create().
 		SetNillableTypeCode(trans.Ptr("sqlite_de_update_type")).
@@ -238,9 +238,9 @@ func TestDictEntryRepoSqlite_Update(t *testing.T) {
 // TestDictEntryRepoSqlite_UpdateI18nReplace 验证 Update 携带 i18n 时走
 // ReplaceByEntryID：旧行被清理、新语言集合整体写入。
 func TestDictEntryRepoSqlite_UpdateI18nReplace(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().DictType.Create().
 		SetNillableTypeCode(trans.Ptr("sqlite_de_updi18n_type")).
@@ -301,9 +301,9 @@ func TestDictEntryRepoSqlite_UpdateI18nReplace(t *testing.T) {
 
 // TestDictEntryRepoSqlite_Delete 验证 Delete / BatchDelete 后行数归零。
 func TestDictEntryRepoSqlite_Delete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	parent, err := entClient.Client().DictType.Create().
 		SetNillableTypeCode(trans.Ptr("sqlite_de_del_type")).
@@ -349,9 +349,9 @@ func TestDictEntryRepoSqlite_Delete(t *testing.T) {
 // TestDictEntryRepoSqlite_ListByTypeCode 验证按类型编码列出的过滤语义：
 // 只返回该类型下的启用条目，其他类型与禁用条目不得混入。
 func TestDictEntryRepoSqlite_ListByTypeCode(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newDictEntryRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	typeA, err := entClient.Client().DictType.Create().
 		SetNillableTypeCode(trans.Ptr("sqlite_de_ltc_a")).

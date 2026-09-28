@@ -16,7 +16,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/orgunit"
 	"go-wind-admin/app/admin/service/internal/data/ent/userorgunit"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newOrgUnitRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的 OrgUnitRepo。
@@ -25,7 +25,7 @@ import (
 // NewUserOrgUnitRepo），保证两者共享同一个 SQLite 内存库。
 func newOrgUnitRepoSqlite(t *testing.T) *OrgUnitRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	userOrgUnitRepo := &UserOrgUnitRepo{
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		entClient: entClient,
@@ -58,7 +58,7 @@ func newOrgUnitRepoSqlite(t *testing.T) *OrgUnitRepo {
 // 并确认 Create 后置的物化路径（path）计算也随事务写入。
 func TestOrgUnitRepoSqlite_Create(t *testing.T) {
 	repo := newOrgUnitRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &identityV1.CreateOrgUnitRequest{
 		Data: &identityV1.OrgUnit{
@@ -88,7 +88,7 @@ func TestOrgUnitRepoSqlite_Create(t *testing.T) {
 // contains 模糊搜索过滤语义（仓规：搜索条件一律 contains）。
 func TestOrgUnitRepoSqlite_List(t *testing.T) {
 	repo := newOrgUnitRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreateOrgUnitRequest{
 		Data: &identityV1.OrgUnit{
@@ -129,7 +129,7 @@ func TestOrgUnitRepoSqlite_List(t *testing.T) {
 // TestOrgUnitRepoSqlite_Get 验证 OrgUnitRepo.Get 按主键查询的命中与未命中。
 func TestOrgUnitRepoSqlite_Get(t *testing.T) {
 	repo := newOrgUnitRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreateOrgUnitRequest{
 		Data: &identityV1.OrgUnit{
@@ -166,7 +166,7 @@ func TestOrgUnitRepoSqlite_Get(t *testing.T) {
 // 只更新掩码内字段，掩码外字段保持原值。
 func TestOrgUnitRepoSqlite_Update(t *testing.T) {
 	repo := newOrgUnitRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreateOrgUnitRequest{
 		Data: &identityV1.OrgUnit{
@@ -198,7 +198,7 @@ func TestOrgUnitRepoSqlite_Update(t *testing.T) {
 // 返回 0 行，随后按 [自身ID] 执行删除——即 SQLite 集成测试实际走的是"无子节点单删"路径。
 func TestOrgUnitRepoSqlite_Delete(t *testing.T) {
 	repo := newOrgUnitRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &identityV1.CreateOrgUnitRequest{
 		Data: &identityV1.OrgUnit{

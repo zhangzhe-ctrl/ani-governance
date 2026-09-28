@@ -16,7 +16,7 @@ import (
 	auditV1 "go-wind-admin/api/gen/go/audit/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entLoginAuditLog "go-wind-admin/app/admin/service/internal/data/ent/loginauditlog"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newLoginAuditLogRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的
@@ -25,7 +25,7 @@ import (
 func newLoginAuditLogRepoSqlite(t *testing.T) *LoginAuditLogRepo {
 	t.Helper()
 	repo := &LoginAuditLogRepo{
-		entClient: enttest.NewEntClientForTest(t),
+		entClient: testutil.NewEntClientForTest(t),
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		mapper:    mapper.NewCopierMapper[auditV1.LoginAuditLog, ent.LoginAuditLog](),
 		statusConverter: mapper.NewEnumTypeConverter[auditV1.LoginAuditLog_Status, entLoginAuditLog.Status](
@@ -49,7 +49,7 @@ func newLoginAuditLogRepoSqlite(t *testing.T) *LoginAuditLogRepo {
 // 登录审计日志，ent client 直查断言各字段按请求落库。
 func TestLoginAuditLogRepoSqlite_Create(t *testing.T) {
 	repo := newLoginAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &auditV1.CreateLoginAuditLogRequest{
 		Data: &auditV1.LoginAuditLog{
@@ -112,7 +112,7 @@ func TestLoginAuditLogRepoSqlite_Create(t *testing.T) {
 // 该取值在写入时被 ent 校验器拒绝（写入报错、不落行），属预期行为。
 func TestLoginAuditLogRepoSqlite_EnumPairs(t *testing.T) {
 	repo := newLoginAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	seeded := 0
 	nextMarker := func() string {
@@ -273,7 +273,7 @@ func TestLoginAuditLogRepoSqlite_EnumPairs(t *testing.T) {
 // username 列 contains 模糊搜索、id 列等值过滤与分页语义。
 func TestLoginAuditLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 	repo := newLoginAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	for i, marker := range []string{"MARKEREPSILON", "MARKERZETA"} {
 		require.NoError(t, repo.Create(ctx, &auditV1.CreateLoginAuditLogRequest{
@@ -356,7 +356,7 @@ func TestLoginAuditLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 // TestLoginAuditLogRepoSqlite_Get 验证 Get 按主键的命中与未命中。
 func TestLoginAuditLogRepoSqlite_Get(t *testing.T) {
 	repo := newLoginAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &auditV1.CreateLoginAuditLogRequest{
 		Data: &auditV1.LoginAuditLog{
@@ -387,7 +387,7 @@ func TestLoginAuditLogRepoSqlite_Get(t *testing.T) {
 // 与 IsExist 的命中/未命中。
 func TestLoginAuditLogRepoSqlite_CountAndIsExist(t *testing.T) {
 	repo := newLoginAuditLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &auditV1.CreateLoginAuditLogRequest{
 		Data: &auditV1.LoginAuditLog{

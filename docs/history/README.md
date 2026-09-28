@@ -1,13 +1,13 @@
-# 历史材料
+# 历史索引
 
-## 旧混合变更日志
+本仓以提交 `63849fc4cde38b879184a8fea4a6f539e60063e1` 冻结清理前来源。被移出 HEAD 的 `migration/`、`docs/evidence/`、`third_party/` 与日期计划可用 `git show <提交>:<路径>` 或该提交的 Git 树读取。Fedora 任务私有归档 `historical-source-63849fc.tar.gz` 只覆盖前三个目录；它已经试解包并核对摘要，不是当前运行输入，也不进入 PR。
 
-[legacy-changelog.md](legacy-changelog.md) 是原根 `CHANGELOG.md` 在提交 `9ba13ad933b66e8f675f7eb9519123abcdb12e8f` 的逐字副本。它包含上游历史和部分 ANI 修改，不能把全部条目重新归为上游或 ANI 当前发布成果。
+| 历史主题 | 原路径或入口 | 当前入口 |
+|---|---|---|
+| T00～T15 迁移回执、预检与补丁 | `migration/` | 活跃 PGV 范围及工具锁迁至 `tools/config/`；数据库结构迁移仍在 `migrations/` |
+| 配额、AK/SK、GPU/Accelerator 验收日志 | `docs/evidence/` | 当前合同见 `docs/contracts/`、接口登记和 Actions artifact；旧日志只代表对应 SHA 与环境 |
+| tx7do 模块和 Buf 来源备份 | `third_party/tx7do/` | 维护副本内的 LICENSE/NOTICE 与根 `THIRD_PARTY_NOTICES.md`；Buf 精确许可归属仍未核验 |
+| 旧 Model/Network/GPU 实验与日期计划 | `scripts/model-lab/`、`scripts/network-lab/`、`scripts/quota-lab/`、日期命名计划 | `scripts/experiments/` 保留当前可参数化的合同入口；旧实验不能直接在现环境执行 |
+| 旧混合 CHANGELOG | `docs/history/legacy-changelog.md` | 原文见 `git show 9ba13ad933b66e8f675f7eb9519123abcdb12e8f:CHANGELOG.md` |
 
-原位置：`CHANGELOG.md`。可在任意当前 checkout 用 `git show 9ba13ad933b66e8f675f7eb9519123abcdb12e8f:CHANGELOG.md` 读取原件。旧正文中的相对链接、标签和路径保留当时含义，不作为今天的教程，不为修复旧相对链接修改原文。
-
-## 旧开发安装入口
-
-被退役的 Unix/Windows 开发安装脚本及开发专用插件安装函数留在 Git 历史中，原版本同为 `9ba13ad933b66e8f675f7eb9519123abcdb12e8f`。当前路径保留 fail-fast 提示，不复制可执行旧安装器到另一个“推荐目录”。生产/运维脚本的其他共享函数没有随之删除。
-
-其他计划、接口登记、来源归档和验收证据本轮不移动、不改名、不重写。当前开发入口见 [开发指南](../development.md)，来源许可见 [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md)。
+旧 R6 固定 dump 未恢复，状态仍是 `NOT_VERIFIED`。历史日志中的通过状态不能升级为当前部署或跨仓验收。当前开发从 [开发指南](../development.md) 与 [仓库规则](../contributing/repository-hygiene.md) 开始。

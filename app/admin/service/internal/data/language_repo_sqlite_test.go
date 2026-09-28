@@ -14,7 +14,7 @@ import (
 
 	dictV1 "go-wind-admin/api/gen/go/dict/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newLanguageRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的 LanguageRepo。
@@ -22,7 +22,7 @@ import (
 // 仅将 log 换为 NopLogger、entClient 换为 SQLite 内存库测试 client。
 func newLanguageRepoSqlite(t *testing.T) *LanguageRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := &LanguageRepo{
 		entClient: entClient,
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
@@ -38,7 +38,7 @@ func newLanguageRepoSqlite(t *testing.T) *LanguageRepo {
 // （请求体按 proto 约定包 Data 字段）。
 func TestLanguageRepoSqlite_Create(t *testing.T) {
 	repo := newLanguageRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &dictV1.CreateLanguageRequest{
 		Data: &dictV1.Language{
@@ -60,7 +60,7 @@ func TestLanguageRepoSqlite_Create(t *testing.T) {
 // contains 模糊搜索过滤语义（仓规：搜索条件一律 contains）。
 func TestLanguageRepoSqlite_List(t *testing.T) {
 	repo := newLanguageRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &dictV1.CreateLanguageRequest{
 		Data: &dictV1.Language{
@@ -98,7 +98,7 @@ func TestLanguageRepoSqlite_List(t *testing.T) {
 // TestLanguageRepoSqlite_Get 验证 LanguageRepo.Get 按主键查询的命中与未命中。
 func TestLanguageRepoSqlite_Get(t *testing.T) {
 	repo := newLanguageRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &dictV1.CreateLanguageRequest{
 		Data: &dictV1.Language{
@@ -131,7 +131,7 @@ func TestLanguageRepoSqlite_Get(t *testing.T) {
 // 只更新掩码内字段，掩码外字段保持原值。
 func TestLanguageRepoSqlite_Update(t *testing.T) {
 	repo := newLanguageRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &dictV1.CreateLanguageRequest{
 		Data: &dictV1.Language{
@@ -169,7 +169,7 @@ func TestLanguageRepoSqlite_Update(t *testing.T) {
 // TestLanguageRepoSqlite_Delete 验证 LanguageRepo.Delete 删除记录后表内计数归零。
 func TestLanguageRepoSqlite_Delete(t *testing.T) {
 	repo := newLanguageRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &dictV1.CreateLanguageRequest{
 		Data: &dictV1.Language{

@@ -1,0 +1,129 @@
+name: ANI Governance CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GOWORK: 'off'
+      GOFLAGS: '-mod=readonly -p=2'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Prepare private tool directory
+        run: |
+          echo "GOBIN=$RUNNER_TEMP/ani-bin" >> "$GITHUB_ENV"
+          echo "TMPDIR=$RUNNER_TEMP" >> "$GITHUB_ENV"
+          echo "$RUNNER_TEMP/ani-bin" >> "$GITHUB_PATH"
+          echo "ANI_CI_EVIDENCE_ROOT=$RUNNER_TEMP/ani-evidence-checks" >> "$GITHUB_ENV"
+          echo "ANI_CI_RAW_EVIDENCE_ROOT=$RUNNER_TEMP/ani-evidence-raw-checks" >> "$GITHUB_ENV"
+      - name: Install pinned scanners
+        run: bash scripts/ci/run-with-evidence.sh install-scanners -- bash scripts/ci/install-tools.sh scanners
+      - name: Source and security checks
+        run: bash scripts/ci/run-with-evidence.sh checks -- bash scripts/ci/checks.sh
+      - name: Upload redacted checks evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-checks-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ani-evidence-checks
+          if-no-files-found: error
+          retention-days: 30
+
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      postgres:
+        image: postgres:16.10
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      GOWORK: 'off'
+      GOFLAGS: '-mod=readonly -p=2'
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      QUOTA_LAB_PG_DSN: postgres://gov_acc_runtime@127.0.0.1:5432/gov_acc_data?sslmode=disable
+      GUARD_TEST_PG_DSN: postgres://gov_acc_runtime@127.0.0.1:5432/gov_acc_guard?sslmode=disable
+      QUOTA_RACE_DATA_PG_DSN: postgres://gov_acc_runtime@127.0.0.1:5432/gov_acc_race_data?sslmode=disable
+      QUOTA_RACE_SERVICE_PG_DSN: postgres://gov_acc_runtime@127.0.0.1:5432/gov_acc_race_service?sslmode=disable
+      QUOTA_PG_EXCLUSIVE: '1'
+      GUARD_TEST_PG_EXCLUSIVE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Prepare temporary directory
+        run: |
+          echo "TMPDIR=$RUNNER_TEMP" >> "$GITHUB_ENV"
+          echo "ANI_CI_EVIDENCE_ROOT=$RUNNER_TEMP/ani-evidence-integration" >> "$GITHUB_ENV"
+          echo "ANI_CI_RAW_EVIDENCE_ROOT=$RUNNER_TEMP/ani-evidence-raw-integration" >> "$GITHUB_ENV"
+      - name: Migrate isolated PostgreSQL and grant runtime role
+        run: bash scripts/ci/run-with-evidence.sh setup-postgres -- bash scripts/ci/setup-postgres.sh
+      - name: Real PostgreSQL Redis and mTLS regression
+        run: bash scripts/ci/run-with-evidence.sh integration -- bash scripts/ci/integration.sh
+      - name: Upload redacted integration evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-integration-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ani-evidence-integration
+          if-no-files-found: error
+          retention-days: 30
+
+  generation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GOWORK: 'off'
+      GOFLAGS: '-mod=readonly -p=2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Prepare private tool directory
+        run: |
+          echo "GOBIN=$RUNNER_TEMP/ani-bin" >> "$GITHUB_ENV"
+          echo "TMPDIR=$RUNNER_TEMP" >> "$GITHUB_ENV"
+          echo "$RUNNER_TEMP/ani-bin" >> "$GITHUB_PATH"
+          echo "ANI_CI_EVIDENCE_ROOT=$RUNNER_TEMP/ani-evidence-generation" >> "$GITHUB_ENV"
+          echo "ANI_CI_RAW_EVIDENCE_ROOT=$RUNNER_TEMP/ani-evidence-raw-generation" >> "$GITHUB_ENV"
+      - name: Install pinned generation tools
+        run: bash scripts/ci/run-with-evidence.sh install-generation -- bash scripts/ci/install-tools.sh generation
+      - name: Compare two API and Ent generations
+        run: bash scripts/ci/run-with-evidence.sh generation-compare -- bash scripts/ci/check-generated.sh
+      - name: Test localized gow tooling
+        run: bash scripts/ci/run-with-evidence.sh generation-gow-tests -- go test -json -count=1 ./tools/...
+      - name: Verify localized generator integration
+        run: bash scripts/ci/run-with-evidence.sh tools-integration -- make tools-integration
+      - name: Upload redacted generation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-generation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ani-evidence-generation
+          if-no-files-found: error
+          retention-days: 30

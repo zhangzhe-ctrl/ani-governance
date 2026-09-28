@@ -17,7 +17,8 @@ import (
 	accesskeyV1 "go-wind-admin/api/gen/go/access_key/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent/accesskey"
 	"go-wind-admin/app/admin/service/internal/data/ent/role"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
+	appcrypto "go-wind-admin/pkg/crypto"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/middleware/auth"
 )
@@ -25,8 +26,10 @@ import (
 // SQLite covers repository behavior only. The Atlas composite FK and the
 // acceptance path are checked separately against the isolated PostgreSQL lab.
 func TestAccessKeyRepoLifecycle(t *testing.T) {
-	repo := NewAccessKeyRepoForTest(enttest.NewEntClientForTest(t))
-	system := enttest.NewSystemViewerCtx(context.Background())
+	cipher, err := appcrypto.NewAccessKeyCipher("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
+	require.NoError(t, err)
+	repo := NewAccessKeyRepo(testutil.NewBootstrapContext(nil), testutil.NewEntClientForTest(t), cipher)
+	system := testutil.NewSystemViewerCtx(context.Background())
 	tenant := func(id uint64) context.Context {
 		return viewer.WithContext(context.Background(), appViewer.NewUserViewer(10, id, 0, "", []viewer.DataScope{{ScopeType: viewer.ScopeTypeAll}}))
 	}

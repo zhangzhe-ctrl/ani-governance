@@ -37,7 +37,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/user"
 	"go-wind-admin/app/admin/service/internal/data/ent/usercredential"
 	"go-wind-admin/app/admin/service/internal/data/ent/userrole"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/constants"
 	"go-wind-admin/pkg/middleware/auth"
 )
@@ -48,7 +48,7 @@ func onboardingClient(t *testing.T) *entCrud.EntClient[*ent.Client] {
 	t.Helper()
 	dsn := os.Getenv("ANI_ONBOARDING_TEST_DSN")
 	if dsn == "" {
-		return enttest.NewEntClientForTest(t)
+		return testutil.NewEntClientForTest(t)
 	}
 	db, err := sql.Open("postgres", dsn)
 	require.NoError(t, err)
@@ -81,12 +81,12 @@ type onboardingEnv struct {
 func newOnboardingEnv(t *testing.T) *onboardingEnv {
 	t.Helper()
 	ec := onboardingClient(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	bctx := bootstrap.NewContextWithParam(ctx, nil, nil, bLogger.NopLogger())
 	u := data.NewUserRepo(bctx, ec, data.NewUserRoleRepo(bctx, ec), data.NewUserOrgUnitRepo(bctx, ec), data.NewUserPositionRepo(bctx, ec), nil)
-	c := data.NewUserCredentialRepoForTest(ec, password.NewBCryptCrypto(), data.NewConfigRepoForTest(ec, nil))
-	r := data.NewRoleRepoForTest(ec)
-	channels := data.NewNotificationChannelRepoForTest(ec)
+	c := data.NewUserCredentialRepo(newRepoContext(), ec, password.NewBCryptCrypto(), newConfigRepo(t, ec, nil))
+	r := newRoleRepo(ec)
+	channels := data.NewNotificationChannelRepo(newRepoContext(), ec)
 	operator := ec.Client().User.Create().SetTenantID(0).SetUsername("operator").SaveX(ctx)
 	platformRole := ec.Client().Role.Create().SetTenantID(0).SetCode(constants.PlatformAdminRoleCode).SetName("platform admin").SetType(role.TypeSystem).SaveX(ctx)
 	ec.Client().Role.Create().SetTenantID(0).SetCode(constants.TenantAdminTemplateRoleCode).SetName("template").SetType(role.TypeTemplate).SetStatus(role.StatusOn).SetIsProtected(true).SaveX(ctx)
@@ -94,7 +94,7 @@ func newOnboardingEnv(t *testing.T) *onboardingEnv {
 		ctx:    auth.NewContext(ctx, &authV1.UserTokenPayload{UserId: operator.ID, TenantId: trans.Ptr(uint32(0))}),
 		client: ec.Client(), credentials: c, roleID: platformRole.ID,
 		users:   &UserService{log: bLogger.NewHelper(bLogger.NopLogger()), userRepo: u, userCredentialRepo: c, roleRepo: r, notificationChannels: channels},
-		tenants: &TenantService{log: bLogger.NewHelper(bLogger.NopLogger()), tenantRepo: data.NewTenantRepoForTest(ec), userRepo: u, userCredentialsRepo: c, roleRepo: r, notificationChannels: channels},
+		tenants: &TenantService{log: bLogger.NewHelper(bLogger.NopLogger()), tenantRepo: data.NewTenantRepo(newRepoContext(), ec), userRepo: u, userCredentialsRepo: c, roleRepo: r, notificationChannels: channels},
 	}
 }
 
@@ -309,7 +309,7 @@ func TestOnboardingAPIRegistration(t *testing.T) {
 		t.Skip("requires disposable PostgreSQL")
 	}
 	ec := onboardingClient(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	ec.Client().Api.Create().SetID(900).SetModule("UserService").SetPath("/admin/v1/users").SetMethod("POST").SaveX(ctx)
 	script, err := os.ReadFile("../../../../../scripts/bootstrap-invitation-api.sql")
 	require.NoError(t, err)

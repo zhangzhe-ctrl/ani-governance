@@ -12,7 +12,7 @@ import (
 
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/permissionapi"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newPermissionApiRepoSqlite 在给定 enttest client 上白盒构造 PermissionApiRepo，
@@ -28,9 +28,9 @@ func newPermissionApiRepoSqlite(t *testing.T, entClient *entCrud.EntClient[*ent.
 // TestPermissionApiRepoSqlite_AssignAndListAndDelete 验证 AssignApi 落库、
 // ListApiIDs 按权限列出、Delete 按权限清空（两侧父行经直建提供）。
 func TestPermissionApiRepoSqlite_AssignAndListAndDelete(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionApiRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 父行：权限点与 API 资源各一（表上 required 列：name/code 走必填 setter）
 	permRow, err := entClient.Client().Permission.Create().
@@ -74,9 +74,9 @@ func TestPermissionApiRepoSqlite_AssignAndListAndDelete(t *testing.T) {
 // TestPermissionApiRepoSqlite_AssignApisReplaces 验证 AssignApis 的替换语义：
 // 后一次分配清理前一次不在集合内的关联（CleanNotExistApis），只保留最新集合。
 func TestPermissionApiRepoSqlite_AssignApisReplaces(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionApiRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	permRow, err := entClient.Client().Permission.Create().
 		SetName("替换语义权限点").
@@ -120,9 +120,9 @@ func TestPermissionApiRepoSqlite_AssignApisReplaces(t *testing.T) {
 
 // TestPermissionApiRepoSqlite_DeleteByPermissionIDs 验证按权限集合清理关联。
 func TestPermissionApiRepoSqlite_DeleteByPermissionIDs(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	repo := newPermissionApiRepoSqlite(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	permA, err := entClient.Client().Permission.Create().
 		SetName("集合清理权限点A").

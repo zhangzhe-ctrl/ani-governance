@@ -596,11 +596,11 @@ type pgvScope struct {
 	approved map[string]bool
 }
 
-// readPGVScope loads migration/pgv-scope.json and refuses to continue on a missing, corrupt,
+// readPGVScope loads tools/config/pgv-scope.json and refuses to continue on a missing, corrupt,
 // duplicated or empty inventory: without it the chain cannot tell an approved artifact from a
 // surprise, and "no list" must never mean "anything goes".
 func readPGVScope(root string) (*pgvScope, error) {
-	const scopeRel = "migration/pgv-scope.json"
+	const scopeRel = "tools/config/pgv-scope.json"
 	file := filepath.Join(root, filepath.FromSlash(scopeRel))
 	raw, err := os.ReadFile(file)
 	if err != nil {

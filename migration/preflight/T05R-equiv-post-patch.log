@@ -1,2 +1,0 @@
-non-import AST changed: migration/patches/T05/_orig/kratos-authn-engine-metadata.go -> pkg/localdeps/kratos-authn/engine/metadata.go
-exit status 1

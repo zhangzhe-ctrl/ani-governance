@@ -16,7 +16,7 @@ import (
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entPolicyEvaluationLog "go-wind-admin/app/admin/service/internal/data/ent/policyevaluationlog"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newPolicyEvaluationLogRepoSqlite 用 enttest helper 构造一个可直接做 CRUD 的
@@ -24,7 +24,7 @@ import (
 func newPolicyEvaluationLogRepoSqlite(t *testing.T) *PolicyEvaluationLogRepo {
 	t.Helper()
 	repo := &PolicyEvaluationLogRepo{
-		entClient: enttest.NewEntClientForTest(t),
+		entClient: testutil.NewEntClientForTest(t),
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		mapper:    mapper.NewCopierMapper[permissionV1.PolicyEvaluationLog, ent.PolicyEvaluationLog](),
 	}
@@ -36,7 +36,7 @@ func newPolicyEvaluationLogRepoSqlite(t *testing.T) *PolicyEvaluationLogRepo {
 // 策略评估日志，ent client 直查断言各字段按请求落库。
 func TestPolicyEvaluationLogRepoSqlite_Create(t *testing.T) {
 	repo := newPolicyEvaluationLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	err := repo.Create(ctx, &permissionV1.CreatePolicyEvaluationLogRequest{
 		Data: &permissionV1.PolicyEvaluationLog{
@@ -85,7 +85,7 @@ func TestPolicyEvaluationLogRepoSqlite_Create(t *testing.T) {
 // request_path 列 contains 模糊搜索、id 列等值过滤与分页语义。
 func TestPolicyEvaluationLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 	repo := newPolicyEvaluationLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	for i, marker := range []string{"MARKERLAMBDA", "MARKERMU"} {
 		require.NoError(t, repo.Create(ctx, &permissionV1.CreatePolicyEvaluationLogRequest{
@@ -167,7 +167,7 @@ func TestPolicyEvaluationLogRepoSqlite_ListFilterAndPaging(t *testing.T) {
 // TestPolicyEvaluationLogRepoSqlite_Get 验证 Get 按主键的命中与未命中。
 func TestPolicyEvaluationLogRepoSqlite_Get(t *testing.T) {
 	repo := newPolicyEvaluationLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreatePolicyEvaluationLogRequest{
 		Data: &permissionV1.PolicyEvaluationLog{
@@ -199,7 +199,7 @@ func TestPolicyEvaluationLogRepoSqlite_Get(t *testing.T) {
 // 与 IsExist 的命中/未命中。
 func TestPolicyEvaluationLogRepoSqlite_CountAndIsExist(t *testing.T) {
 	repo := newPolicyEvaluationLogRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreatePolicyEvaluationLogRequest{
 		Data: &permissionV1.PolicyEvaluationLog{
@@ -246,7 +246,7 @@ func TestPolicyEvaluationLogRepoSqlite_CountAndIsExist(t *testing.T) {
 func TestPolicyEvaluationLogRepoSqlite_ResolvePermissionPolicyByRoute(t *testing.T) {
 	repo := newPolicyEvaluationLogRepoSqlite(t)
 	client := repo.entClient.Client()
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	// 评估埋点行（验证 Resolve 本身不依赖日志行存在）
 	require.NoError(t, repo.Create(ctx, &permissionV1.CreatePolicyEvaluationLogRequest{

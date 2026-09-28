@@ -17,7 +17,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	entPermissionGroup "go-wind-admin/app/admin/service/internal/data/ent/permissiongroup"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/constants"
 	"go-wind-admin/pkg/middleware/auth"
 )
@@ -30,7 +30,7 @@ func newPermissionGroupServiceForTest(t *testing.T, entClient *entCrud.EntClient
 	t.Helper()
 	return &PermissionGroupService{
 		log:                 bLogger.NewHelper(bLogger.NopLogger()),
-		permissionGroupRepo: data.NewPermissionGroupRepoForTest(entClient),
+		permissionGroupRepo: data.NewPermissionGroupRepo(newRepoContext(), entClient),
 		permissionRepo:      nil,
 	}
 }
@@ -40,9 +40,9 @@ func newPermissionGroupServiceForTest(t *testing.T, entClient *entCrud.EntClient
 // 服务层 List 走 treeTravel=true：响应只含根节点，全部子节点组装进根的 Children，
 // Total 统计全部行。
 func TestPermissionGroupServiceSqlite_ListAssemblesTree(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPermissionGroupServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	svc.seedFixture()
 
@@ -73,9 +73,9 @@ func TestPermissionGroupServiceSqlite_ListAssemblesTree(t *testing.T) {
 // 操作人 ID 盖入 created_by、ParentId 落库为指向父分组的外键、物化路径按父路径拼接；
 // 新子分组随后出现在服务层 List 的树形组装中；Get 按主键命中/未命中。
 func TestPermissionGroupServiceSqlite_CreateAndGet(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPermissionGroupServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	svc.seedFixture()
@@ -140,9 +140,9 @@ func TestPermissionGroupServiceSqlite_CreateAndGet(t *testing.T) {
 // TestPermissionGroupServiceSqlite_Update 验证服务层 Update 在单字段掩码下
 // 只更新掩码内字段（name），掩码外字段（module）保持原值。
 func TestPermissionGroupServiceSqlite_Update(t *testing.T) {
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	svc := newPermissionGroupServiceForTest(t, entClient)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 	opCtx := auth.NewContext(ctx, &authenticationV1.UserTokenPayload{UserId: 7})
 
 	_, err := svc.Create(opCtx, &permissionV1.CreatePermissionGroupRequest{

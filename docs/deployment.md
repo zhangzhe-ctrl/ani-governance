@@ -252,9 +252,9 @@ export ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE=/run/secrets/governance-access-key-enc
 
 `admin init` 本身不要求 SK 主密钥，因为它只执行显式首次播种。首次种子已包含六条新管理路由与租户管理员权限。基础套餐仍仅 DASHBOARD/OPM；用管理 API 创建本次专用套餐，保留这两项并增加 SYSTEM/NETWORK。角色由已有管理权限的操作人显式准备：租户管理员默认能查角色，默认没有角色创建权限。Key 必须绑定本租户 ON/TENANT 角色。
 
-为目标角色授予 VPC 权限时，使用已有 `scripts/bootstrap-network-access.sql`，明确传入真实 tenant_id/role_id；该脚本检查持久化 resource_tenant_id 与 NETWORK 套餐，随后重载内存策略。管理 API 也可维护权限，但不能把开模块当成授予所有 API 权限。
+为目标角色授予 VPC 权限时，使用已有 `scripts/ops/sql/bootstrap-network-access.sql`，明确传入真实 tenant_id/role_id；该脚本检查持久化 resource_tenant_id 与 NETWORK 套餐，随后重载内存策略。管理 API 也可维护权限，但不能把开模块当成授予所有 API 权限。
 
-可复现的空库建表、初始化、平台创建套餐/租户/角色、租户创建 Key、Python NodePort 查询及负向验收命令见 [隔离实验说明](../scripts/aksk-lab/README.md)；本次真实结果见 [验收证据](evidence/aksk-vpc-20260922/README.md)。客户端为 `scripts/aksk_vpc_client.py`，默认验证 HTTPS、不跟随重定向；隔离 HTTP 必须明确设置 `ANI_ALLOW_HTTP_FOR_TEST=1`。
+可复现的空库建表、初始化、平台创建套餐/租户/角色、租户创建 Key、Python NodePort 查询及负向验收命令见 [隔离实验说明](../scripts/experiments/aksk-vpc/README.md)；本次真实结果见 [验收证据](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/aksk-vpc-20260922/README.md)。客户端为 `scripts/ops/aksk_vpc_client.py`，默认验证 HTTPS、不跟随重定向；隔离 HTTP 必须明确设置 `ANI_ALLOW_HTTP_FOR_TEST=1`。
 
 ## 8. 配额账本与迁移顺序（QUOTA-GPU-LOCAL-01 增量）
 
@@ -264,6 +264,6 @@ export ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE=/run/secrets/governance-access-key-enc
 2. `sql/quota/001_catalog_and_backfill.sql`：版本数据脚本，插入固定目录（user.count/storage.bytes/api.calls/gpu.count）并精确回填旧行；任何坏数据（NULL/未知类型/重复/越界/悬空 plan）整笔失败，不合并不删除。幂等可重跑。
 3. `migrations/20260922190100_quota_constraints.sql`：回填完成后加 NOT NULL、UNIQUE(plan_id,quota_code)、目录 FK、数值 CHECK。
 
-运行账号仍无 DDL；服务配置保持 `migrate: false`。配额内部退额 listener 由 `ANI_QUOTA_ENABLED`（默认 disabled）+ `ANI_QUOTA_INTERNAL_ADDR/_CA_FILE/_CERT_FILE/_KEY_FILE` 控制，enabled 缺凭据启动失败，不降级明文。`gpu.count` 只有 LAB_ONLY 执行能力：正式构建没有 GPU 路由，也不存在生产 GPU 执行器；实验路由仅存在于 `-tags quota_lab` 构建（验收脚本 `scripts/quota-lab/run.py`）。新账本表的 CHECK 约束已通过 `entsql.Annotation.Checks` 进入 Ent 导出的 schema.sql，与手写迁移同名同义。
+运行账号仍无 DDL；服务配置保持 `migrate: false`。配额内部退额 listener 由 `ANI_QUOTA_ENABLED`（默认 disabled）+ `ANI_QUOTA_INTERNAL_ADDR/_CA_FILE/_CERT_FILE/_KEY_FILE` 控制，enabled 缺凭据或显式 owner 身份映射启动失败，不降级明文。`gpu.count` 当前没有生产 GPU 执行器；旧 `quota_lab` 模拟路由与构建标签已退役。新账本表的 CHECK 约束已通过 `entsql.Annotation.Checks` 进入 Ent 导出的 schema.sql，与手写迁移同名同义。
 
 本次 Atlas 检查确认 AK/SK、审计与角色复合约束一致。同时发现实施前初始基线仍保留 `files` 表、`sys_users.avatar` 列，而 Ent 已移除它们；这两项既有偏差不属于本批，未执行删除。今后 `migrate diff` 必须审查这些 DROP 候选，不得直接应用。

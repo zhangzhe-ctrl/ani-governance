@@ -4,42 +4,79 @@ import (
 	"context"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/alicebob/miniredis/v2"
+	"github.com/redis/go-redis/v9"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/stretchr/testify/require"
-	"go-wind-admin/pkg/localdeps/go-utils/mapper"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
-	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
 
 	paginationV1 "go-wind-admin/pkg/localdeps/go-crud/api/gen/go/pagination/v1"
 
 	configV1 "go-wind-admin/api/gen/go/config/service/v1"
-	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/sysconfig"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
-// newConfigRepoSqlite 用 enttest helper 白盒构造一个可直接做 CRUD 的 ConfigRepo
-// （同 position_repo_sqlite_test.go 的套路）。
+func TestConfigRepoSubscriptionCloseAndBroadcast(t *testing.T) {
+	mr := miniredis.RunT(t)
+	rdb := redis.NewClient(&redis.Options{Addr: mr.Addr()})
+	t.Cleanup(func() { _ = rdb.Close() })
+	client := testutil.NewEntClientForTest(t)
+	ctx := testutil.NewBootstrapContext(nil)
+	first := NewConfigRepo(ctx, client, rdb)
+	second := NewConfigRepo(ctx, client, rdb)
+	t.Cleanup(first.Close)
+	t.Cleanup(second.Close)
+
+	deadline := time.Now().Add(3 * time.Second)
+	for {
+		count, err := rdb.PubSubNumSub(context.Background(), configInvalidateChannel).Result()
+		require.NoError(t, err)
+		if count[configInvalidateChannel] == 2 {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("both config subscribers did not become ready")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	second.cacheMu.Lock()
+	second.cache["shared.key"] = sysConfigCacheEntry{found: true, value: "old"}
+	second.cacheMu.Unlock()
+	first.invalidateCacheKey(context.Background(), "shared.key")
+	for {
+		second.cacheMu.RLock()
+		_, exists := second.cache["shared.key"]
+		second.cacheMu.RUnlock()
+		if !exists {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("broadcast did not invalidate the other repository cache")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	first.Close()
+	first.Close()
+	second.Close()
+}
+
+// newConfigRepoSqlite uses the production constructor over an isolated client.
 func newConfigRepoSqlite(t *testing.T) *ConfigRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
-	repo := &ConfigRepo{
-		entClient: entClient,
-		log:       bLogger.NewHelper(bLogger.NopLogger()),
-		mapper:    mapper.NewCopierMapper[configV1.Config, ent.SysConfig](),
-		valueTypeConverter: mapper.NewEnumTypeConverter[configV1.Config_ConfigValueType, sysconfig.ValueType](
-			configV1.Config_ConfigValueType_name, configV1.Config_ConfigValueType_value,
-		),
-		cache: make(map[string]sysConfigCacheEntry),
-	}
-	repo.init()
+	entClient := testutil.NewEntClientForTest(t)
+	repo := NewConfigRepo(testutil.NewBootstrapContext(nil), entClient, nil)
+	t.Cleanup(repo.Close)
 	return repo
 }
 
 func newConfigRepoCtx() context.Context {
-	return enttest.NewSystemViewerCtx(context.Background())
+	return testutil.NewSystemViewerCtx(context.Background())
 }
 
 // TestConfigRepoSqlite_AccessorTypedReads 端到端验证参数读取器：三种类型按声明类型解析，

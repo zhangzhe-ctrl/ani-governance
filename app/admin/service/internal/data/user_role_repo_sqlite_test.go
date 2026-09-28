@@ -13,14 +13,14 @@ import (
 
 	permissionV1 "go-wind-admin/api/gen/go/permission/service/v1"
 	entUserRole "go-wind-admin/app/admin/service/internal/data/ent/userrole"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 )
 
 // newUserRoleRepoSqlite 用 enttest helper 构造一个可直接做关联 CRUD 的 UserRoleRepo。
 // 白盒构造逐字段复刻 NewUserRoleRepo 的初始化（仅 log 换 NopLogger、entClient 换测试 client）。
 func newUserRoleRepoSqlite(t *testing.T) *UserRoleRepo {
 	t.Helper()
-	entClient := enttest.NewEntClientForTest(t)
+	entClient := testutil.NewEntClientForTest(t)
 	return &UserRoleRepo{
 		log:       bLogger.NewHelper(bLogger.NopLogger()),
 		entClient: entClient,
@@ -36,7 +36,7 @@ func newUserRoleRepoSqlite(t *testing.T) *UserRoleRepo {
 // → CleanRelationsByUserID（清理）→ 计数归零。
 func TestUserRoleRepoSqlite_AssignListAndClean(t *testing.T) {
 	repo := newUserRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testUserID = uint32(1101)
@@ -105,7 +105,7 @@ func TestUserRoleRepoSqlite_AssignListAndClean(t *testing.T) {
 // 再次分配会先清空该用户既有关联，再写入新集合。
 func TestUserRoleRepoSqlite_ReplaceSemantics(t *testing.T) {
 	repo := newUserRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testUserID = uint32(1102)
@@ -156,7 +156,7 @@ func TestUserRoleRepoSqlite_ReplaceSemantics(t *testing.T) {
 // 单向解除语义：只移除指定角色关联，其余关联保留。
 func TestUserRoleRepoSqlite_RemoveRolesFromUser(t *testing.T) {
 	repo := newUserRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testUserID = uint32(1103)
@@ -200,7 +200,7 @@ func TestUserRoleRepoSqlite_RemoveRolesFromUser(t *testing.T) {
 // excludeExpired 语义：过期（end_at 早于当前时刻）的关联在过滤后被排除。
 func TestUserRoleRepoSqlite_ExcludeExpired(t *testing.T) {
 	repo := newUserRoleRepoSqlite(t)
-	ctx := enttest.NewSystemViewerCtx(context.Background())
+	ctx := testutil.NewSystemViewerCtx(context.Background())
 
 	const (
 		testUserID  = uint32(1104)

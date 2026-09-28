@@ -36,7 +36,7 @@ func newWriteBackFixture(t *testing.T, approved []string, managedDirs ...string)
 	return f
 }
 
-// writeScope installs migration/pgv-scope.json and reads it back through the same strict loader the
+// writeScope installs tools/config/pgv-scope.json and reads it back through the same strict loader the
 // generation entry uses. A fixture that does not care about validators still needs one entry, because
 // an empty inventory is a hard failure by design.
 func (f *writeBackFixture) writeScope(validators []string) *writeBackFixture {
@@ -52,7 +52,7 @@ func (f *writeBackFixture) writeScope(validators []string) *writeBackFixture {
 	if err != nil {
 		f.t.Fatal(err)
 	}
-	dir := filepath.Join(f.root, "migration")
+	dir := filepath.Join(f.root, "tools", "config")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		f.t.Fatal(err)
 	}
@@ -519,7 +519,7 @@ func TestWriteBackScopeRules(t *testing.T) {
 	t.Run("a missing scope file is a hard failure", func(t *testing.T) {
 		dir := t.TempDir()
 		if _, err := readPGVScope(dir); err == nil {
-			t.Fatal("no migration/pgv-scope.json must not mean no rule")
+			t.Fatal("no tools/config/pgv-scope.json must not mean no rule")
 		} else if !strings.Contains(err.Error(), "pgv-scope.json") {
 			t.Errorf("the message must name the file: %v", err)
 		}
@@ -543,10 +543,10 @@ func TestReadPGVScopeRejectsADamagedInventory(t *testing.T) {
 	for name, doc := range cases {
 		t.Run(name, func(t *testing.T) {
 			root := t.TempDir()
-			if err := os.MkdirAll(filepath.Join(root, "migration"), 0o755); err != nil {
+			if err := os.MkdirAll(filepath.Join(root, "tools", "config"), 0o755); err != nil {
 				t.Fatal(err)
 			}
-			if err := os.WriteFile(filepath.Join(root, "migration", "pgv-scope.json"), []byte(doc), 0o644); err != nil {
+			if err := os.WriteFile(filepath.Join(root, "tools", "config", "pgv-scope.json"), []byte(doc), 0o644); err != nil {
 				t.Fatal(err)
 			}
 			if _, err := readPGVScope(root); err == nil {

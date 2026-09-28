@@ -18,8 +18,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go-wind-admin/app/admin/service/internal/data"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
 	"go-wind-admin/app/admin/service/internal/service"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	bConf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
 	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
@@ -42,7 +42,7 @@ func newRestServerWithSwagger(t *testing.T, enableSwagger bool) http.Handler {
 
 	// ApiService is the one service NewRestServer touches while building (it stores the
 	// route walker), so it gets a real instance over the isolated in-memory database.
-	apiService := service.NewApiService(ctx, data.NewApiRepoForTest(enttest.NewEntClientForTest(t)), nil)
+	apiService := service.NewApiService(ctx, data.NewApiRepo(ctx, testutil.NewEntClientForTest(t)), nil)
 
 	srv, err := NewRestServer(ctx, nil, nil,
 		nil,        // authenticationService
@@ -85,7 +85,6 @@ func newRestServerWithSwagger(t *testing.T, enableSwagger bool) http.Handler {
 		nil,        // configService
 		nil,        // networkService
 		nil,        // acceleratorService
-		nil,        // extraRouteRegistrar
 	)
 	require.NoError(t, err)
 	require.NotNil(t, srv, "NewRestServer must build a server for this configuration")

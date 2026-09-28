@@ -3,7 +3,7 @@
 // 关闭 task_service_sqlite_test.go 明确记录的跳过项「真实 asynq 调度器与 Redis 队列」：
 // StartAllTask / RestartAllTask / StopAllTask 不再走本地桩，而是装配
 // go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq 的真实 Server，
-// 连接 scripts/verify-gpu-redis.sh 启动的任务专用一次性 Redis，并真的消费消息。
+// 连接 scripts/ci/with-redis.sh 启动的任务专用一次性 Redis，并真的消费消息。
 //
 // 顺序与生产一致：NewAsynqServer 先注册 handler、再 StartAllTask，最后由 kratos
 // app 启动 transport.Server（Scheduler 只在 Start 时才运行，这是 v1.3.14 的既有行为，
@@ -24,7 +24,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	taskV1 "go-wind-admin/api/gen/go/task/service/v1"
-	"go-wind-admin/app/admin/service/internal/data/enttest"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
 	asynqServer "go-wind-admin/pkg/localdeps/kratos-transport/transport/asynq"
 	"go-wind-admin/pkg/task"
@@ -38,7 +38,7 @@ func taskRedisURI(t *testing.T) string {
 	t.Helper()
 	raw := strings.TrimSpace(os.Getenv(testRedisURIEnv))
 	if raw == "" {
-		t.Fatalf("%s is not set: run this package through 'bash scripts/verify-gpu-redis.sh run -- ...' "+
+		t.Fatalf("%s is not set: run this package through 'bash scripts/ci/with-redis.sh run -- ...' "+
 			"(the Makefile verify-gpu-regressions recipe does that as well)", testRedisURIEnv)
 	}
 	if !strings.Contains(raw, "://") {
@@ -133,7 +133,7 @@ func seedAcceptedTaskRow(t *testing.T, svc *TaskService, ctx context.Context, te
 func TestTaskService_RealAsynqSchedulerLifecycle(t *testing.T) {
 	uri := taskRedisURI(t)
 	ctx := context.Background()
-	sysCtx := enttest.NewSystemViewerCtx(ctx)
+	sysCtx := testutil.NewSystemViewerCtx(ctx)
 
 	const (
 		periodicType = "t11_service_real_periodic"
