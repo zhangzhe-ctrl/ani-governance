@@ -20,7 +20,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -35,6 +34,8 @@ jobs:
           echo "ANI_CI_RAW_EVIDENCE_ROOT=$RUNNER_TEMP/ani-evidence-raw-checks" >> "$GITHUB_ENV"
           mkdir -p "$RUNNER_TEMP/ani-evidence-checks"
           git rev-parse HEAD > "$RUNNER_TEMP/ani-evidence-checks/source.sha"
+          git rev-parse 'HEAD^{tree}' > "$RUNNER_TEMP/ani-evidence-checks/checkout.tree"
+          printf '%s\n' '${{ github.event.pull_request.head.sha }}' > "$RUNNER_TEMP/ani-evidence-checks/pr-head.sha"
           echo not_started > "$RUNNER_TEMP/ani-evidence-checks/job-status.txt"
       - name: Install pinned scanners
         run: bash scripts/ci/install-tools.sh scanners
@@ -78,8 +79,6 @@ jobs:
       ANI_TEST_GUARD_DATABASE_EXCLUSIVE: '1'
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -92,6 +91,8 @@ jobs:
           echo "ANI_CI_RAW_EVIDENCE_ROOT=$RUNNER_TEMP/ani-evidence-raw-integration" >> "$GITHUB_ENV"
           mkdir -p "$RUNNER_TEMP/ani-evidence-integration"
           git rev-parse HEAD > "$RUNNER_TEMP/ani-evidence-integration/source.sha"
+          git rev-parse 'HEAD^{tree}' > "$RUNNER_TEMP/ani-evidence-integration/checkout.tree"
+          printf '%s\n' '${{ github.event.pull_request.head.sha }}' > "$RUNNER_TEMP/ani-evidence-integration/pr-head.sha"
           echo not_started > "$RUNNER_TEMP/ani-evidence-integration/job-status.txt"
       - name: Migrate isolated PostgreSQL and grant runtime role
         run: bash scripts/ci/setup-postgres.sh
@@ -114,8 +115,6 @@ jobs:
       GOFLAGS: '-mod=readonly -p=2'
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -130,6 +129,8 @@ jobs:
           echo "ANI_CI_RAW_EVIDENCE_ROOT=$RUNNER_TEMP/ani-evidence-raw-generation" >> "$GITHUB_ENV"
           mkdir -p "$RUNNER_TEMP/ani-evidence-generation"
           git rev-parse HEAD > "$RUNNER_TEMP/ani-evidence-generation/source.sha"
+          git rev-parse 'HEAD^{tree}' > "$RUNNER_TEMP/ani-evidence-generation/checkout.tree"
+          printf '%s\n' '${{ github.event.pull_request.head.sha }}' > "$RUNNER_TEMP/ani-evidence-generation/pr-head.sha"
           echo not_started > "$RUNNER_TEMP/ani-evidence-generation/job-status.txt"
       - name: Install pinned generation tools
         run: bash scripts/ci/install-tools.sh generation
