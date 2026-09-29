@@ -37,6 +37,9 @@ func validateImageSpace(v *imagev1.ImageSpace,tenant string)error{
 func validateImageCredential(v *imagev1.PublisherCredential,tenant string)error{
  if v==nil||v.TenantId!=tenant||!imageUUID(v.SpaceId)||!imageTime(v.UpdatedAt)||(v.ExpiresAt!=nil&&!imageTime(v.ExpiresAt)){return imageInvalidReply()}
  if v.State=="not_issued"{if v.Generation!=0||v.Version!=0||v.Username!=""||v.ExpiresAt!=nil{return imageInvalidReply()};return nil}
+ // An interrupted first issuance has a durable candidate row but no active
+ // generation yet. Its safe metadata remains readable while the command resumes.
+ if v.State=="issuing"&&v.Generation==0&&v.Version>0&&v.Username==""&&v.ExpiresAt==nil{return nil}
  if v.Generation<1||v.Version<1||v.Username==""||len(v.Username)>256||strings.ContainsAny(v.Username,"\r\n\x00"){return imageInvalidReply()}
  switch v.State{case "issuing","active","disabled","blocked":return nil};return imageInvalidReply()
 }

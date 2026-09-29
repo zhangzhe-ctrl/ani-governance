@@ -12,7 +12,10 @@ cp -a api "$stage/api"
 mkdir -p "$stage/app/admin/service/cmd/server/assets"
 (
  cd "$stage/api"
- "$BUF" lint --path protos/admin/service/v1/i_image.proto --path protos/catalog/service/v1/image.proto --path protos/identity/service/v1/module.proto
+ # Keep the original Image-only STANDARD lint gate. The shared Module enum
+ # deliberately retains its existing unprefixed wire/JSON names; validate its
+ # additive numbering with TestImageModulePreservesExistingContract.
+ "$BUF" lint --path protos/admin/service/v1/i_image.proto --path protos/catalog/service/v1/image.proto
  "$BUF" build --path protos/admin/service/v1/i_image.proto --path protos/catalog/service/v1/image.proto --path protos/identity/service/v1/module.proto
  "$BUF" generate --template buf.image.gen.yaml
  "$BUF" generate --template buf.admin.openapi.gen.yaml

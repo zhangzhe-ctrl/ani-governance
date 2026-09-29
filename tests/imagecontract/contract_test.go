@@ -5,6 +5,7 @@ import (
 
 	admin "go-wind-admin/api/gen/go/admin/service/v1"
 	catalog "go-wind-admin/api/gen/go/catalog/service/v1"
+	identity "go-wind-admin/api/gen/go/identity/service/v1"
 )
 
 func TestPublicImageSurface(t *testing.T) {
@@ -32,4 +33,10 @@ func TestPublicImageSurface(t *testing.T) {
 			t.Fatal("runtime surface exposed")
 		}
 	}
+}
+
+func TestImageModulePreservesExistingContract(t *testing.T) {
+	expected := map[string]int32{"MODULE_UNSPECIFIED":0,"DASHBOARD":1,"OPM":2,"SYSTEM":3,"DICT":4,"TENANT":5,"PERMISSION":6,"LOG":7,"INTERNAL_MESSAGE":8,"TASK":10,"MODEL":11,"NETWORK":12,"ACCELERATOR":13,"IMAGE":14}
+	if len(identity.Module_value)!=len(expected){t.Fatal("unexpected module additions or removals")}
+	for name,value:=range expected{if got,ok:=identity.Module_value[name];!ok||got!=value{t.Fatalf("module contract changed: %s",name)}}
 }
