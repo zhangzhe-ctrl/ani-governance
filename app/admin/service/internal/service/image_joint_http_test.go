@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/rand"
 	"database/sql"
+_ "github.com/jackc/pgx/v5/stdlib"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
