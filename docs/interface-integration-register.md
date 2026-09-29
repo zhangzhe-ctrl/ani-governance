@@ -1005,3 +1005,13 @@ QUOTA-01～04 与 ACC 既有路由、字段和鉴权保持原合同。`ListQuota
 本轮结论仅为“历史客户端对新服务的 HTTP 读写、错误、权限、分页/mask 与脱敏合同一致”，不含 gRPC
 （该配置只启 REST、SSE 与 asynq，无 gRPC 监听），也不含真实外部客户端应用联调（仍记 not_verified）。
 整体接口登记仍未结项。
+
+## IMAGE-01～11：Image MVP 契约输入（2026-09-30）
+
+本次明确授权增加 `ImageService`，公开 DTO 在 `catalog/service/v1/image.proto`，
+11 个 HTTP 绑定在 `admin/service/v1/i_image.proto`。具体路由/字段/权限按
+Resource `docs/specs/image-api.md`；IMG-01 仅放入契约，尚未注册服务或授权。
+租户由可信 Principal 经现有 ResourceTenantResolver 解析，不允许用户输入 tenant；
+内部 pull material 不进入公开 Proto。目录使用本任务明确接受的 limit/cursor、固定元数据替换，
+不改现有通用分页/mask。凭证交付仅 issue/reset，no-store 与日志排除在 IMG-06 实现验证。
+模块 IMAGE 及精确权限后续单独接入，不借 NETWORK 权限；部署同步与授权仍须实证。
