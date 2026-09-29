@@ -7,10 +7,10 @@ import (
 	"context"
 	"crypto/rand"
 	"database/sql"
-_ "github.com/jackc/pgx/v5/stdlib"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -240,7 +240,7 @@ func TestImageJointHTTP(t *testing.T) {
 	require.Equal(t, "1", out["space"].(map[string]any)["version"])
 	get("/api/v1/images/publisher-credential", readerToken, nil, "", 200)
 	listed := get("/api/v1/images/registrations?scope=tenant", readerToken, nil, "", 200)
-require.Equal(t,"img_"+strings.Repeat("a",32),listed["items"].([]any)[0].(map[string]any)["image_id"])
+	require.Equal(t, "img_"+strings.Repeat("a", 32), listed["items"].([]any)[0].(map[string]any)["image_id"])
 	get("/api/v1/images/registrations?scope=platform", readerToken, nil, "", 200)
 	get("/api/v1/images/registrations/img_"+strings.Repeat("a", 32)+"?scope=tenant", readerToken, nil, "", 200)
 	get("/api/v1/images/space", otherToken, nil, "", 200)

@@ -6166,7 +6166,7 @@ paths:
                 - AccessKeyAuth: []
                   SignatureAuth: []
                   SignatureTime: []
-    /api/v1/images/registrations/{imageId}:
+    /api/v1/images/registrations/{image_id}:
         get:
             tags:
                 - ImageService
@@ -6174,7 +6174,7 @@ paths:
             description: Requires active tenant, IMAGE module and image:registration:get. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
             operationId: ImageService_GetImage
             parameters:
-                - name: imageId
+                - name: image_id
                   in: path
                   required: true
                   schema:
@@ -6202,7 +6202,7 @@ paths:
             description: Requires active tenant, IMAGE module and image:registration:update. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
             operationId: ImageService_UpdateImage
             parameters:
-                - name: imageId
+                - name: image_id
                   in: path
                   required: true
                   schema:
@@ -6225,7 +6225,7 @@ paths:
                 - AccessKeyAuth: []
                   SignatureAuth: []
                   SignatureTime: []
-    /api/v1/images/registrations/{imageId}:unregister:
+    /api/v1/images/registrations/{image_id}:unregister:
         post:
             tags:
                 - ImageService
@@ -6233,7 +6233,7 @@ paths:
             description: Requires active tenant, IMAGE module and image:registration:unregister. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
             operationId: ImageService_UnregisterImage
             parameters:
-                - name: imageId
+                - name: image_id
                   in: path
                   required: true
                   schema:
@@ -8700,7 +8700,7 @@ components:
         ImageRegistration:
             type: object
             properties:
-                imageId:
+                image_id:
                     type: string
                 scope:
                     type: string
@@ -12274,7 +12274,7 @@ components:
         UnregisterImageRequest:
             type: object
             properties:
-                imageId:
+                image_id:
                     type: string
                 expectedVersion:
                     type: string
@@ -12368,7 +12368,7 @@ components:
         UpdateImageRequest:
             type: object
             properties:
-                imageId:
+                image_id:
                     type: string
                 displayName:
                     type: string

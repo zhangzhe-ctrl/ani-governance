@@ -286,7 +286,7 @@ func (x *PublisherCredential) GetUpdatedAt() *timestamppb.Timestamp {
 
 type ImageRegistration struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
-	ImageId           string                 `protobuf:"bytes,1,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"`
+	ImageId           string                 `protobuf:"bytes,1,opt,name=image_id,proto3" json:"image_id,omitempty"`
 	Scope             string                 `protobuf:"bytes,2,opt,name=scope,proto3" json:"scope,omitempty"`
 	SpaceId           string                 `protobuf:"bytes,3,opt,name=space_id,json=spaceId,proto3" json:"space_id,omitempty"`
 	DisplayName       string                 `protobuf:"bytes,4,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
@@ -1155,7 +1155,7 @@ func (x *RegisterImageResponse) GetImage() *ImageRegistration {
 type GetImageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Scope         string                 `protobuf:"bytes,1,opt,name=scope,proto3" json:"scope,omitempty"`
-	ImageId       string                 `protobuf:"bytes,2,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"`
+	ImageId       string                 `protobuf:"bytes,2,opt,name=image_id,proto3" json:"image_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1386,7 +1386,7 @@ func (x *ListImagesResponse) GetNextCursor() string {
 
 type UpdateImageRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	ImageId         string                 `protobuf:"bytes,1,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"`
+	ImageId         string                 `protobuf:"bytes,1,opt,name=image_id,proto3" json:"image_id,omitempty"`
 	DisplayName     string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	Description     string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	Purposes        []string               `protobuf:"bytes,4,rep,name=purposes,proto3" json:"purposes,omitempty"`
@@ -1522,7 +1522,7 @@ func (x *UpdateImageResponse) GetImage() *ImageRegistration {
 
 type UnregisterImageRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	ImageId         string                 `protobuf:"bytes,1,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"`
+	ImageId         string                 `protobuf:"bytes,1,opt,name=image_id,proto3" json:"image_id,omitempty"`
 	ExpectedVersion int64                  `protobuf:"varint,2,opt,name=expected_version,json=expectedVersion,proto3" json:"expected_version,omitempty"`
 	IdempotencyKey  string                 `protobuf:"bytes,3,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
 	unknownFields   protoimpl.UnknownFields
@@ -1657,9 +1657,9 @@ const file_catalog_service_v1_image_proto_rawDesc = "" +
 	"\n" +
 	"expires_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x129\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x8a\x05\n" +
-	"\x11ImageRegistration\x12\x19\n" +
-	"\bimage_id\x18\x01 \x01(\tR\aimageId\x12\x14\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x8b\x05\n" +
+	"\x11ImageRegistration\x12\x1a\n" +
+	"\bimage_id\x18\x01 \x01(\tR\bimage_id\x12\x14\n" +
 	"\x05scope\x18\x02 \x01(\tR\x05scope\x12\x19\n" +
 	"\bspace_id\x18\x03 \x01(\tR\aspaceId\x12!\n" +
 	"\fdisplay_name\x18\x04 \x01(\tR\vdisplayName\x12 \n" +
@@ -1726,10 +1726,10 @@ const file_catalog_service_v1_image_proto_rawDesc = "" +
 	"\vaccelerator\x18\x05 \x01(\tR\vaccelerator\x12'\n" +
 	"\x0fidempotency_key\x18\x06 \x01(\tR\x0eidempotencyKey\"T\n" +
 	"\x15RegisterImageResponse\x12;\n" +
-	"\x05image\x18\x01 \x01(\v2%.catalog.service.v1.ImageRegistrationR\x05image\"B\n" +
+	"\x05image\x18\x01 \x01(\v2%.catalog.service.v1.ImageRegistrationR\x05image\"C\n" +
 	"\x0fGetImageRequest\x12\x14\n" +
-	"\x05scope\x18\x01 \x01(\tR\x05scope\x12\x19\n" +
-	"\bimage_id\x18\x02 \x01(\tR\aimageId\"O\n" +
+	"\x05scope\x18\x01 \x01(\tR\x05scope\x12\x1a\n" +
+	"\bimage_id\x18\x02 \x01(\tR\bimage_id\"O\n" +
 	"\x10GetImageResponse\x12;\n" +
 	"\x05image\x18\x01 \x01(\v2%.catalog.service.v1.ImageRegistrationR\x05image\"\xad\x01\n" +
 	"\x11ListImagesRequest\x12\x14\n" +
@@ -1742,9 +1742,9 @@ const file_catalog_service_v1_image_proto_rawDesc = "" +
 	"\x12ListImagesResponse\x12;\n" +
 	"\x05items\x18\x01 \x03(\v2%.catalog.service.v1.ImageRegistrationR\x05items\x12\x1f\n" +
 	"\vnext_cursor\x18\x02 \x01(\tR\n" +
-	"nextCursor\"\x86\x02\n" +
-	"\x12UpdateImageRequest\x12\x19\n" +
-	"\bimage_id\x18\x01 \x01(\tR\aimageId\x12!\n" +
+	"nextCursor\"\x87\x02\n" +
+	"\x12UpdateImageRequest\x12\x1a\n" +
+	"\bimage_id\x18\x01 \x01(\tR\bimage_id\x12!\n" +
 	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x1a\n" +
 	"\bpurposes\x18\x04 \x03(\tR\bpurposes\x12 \n" +
@@ -1752,9 +1752,9 @@ const file_catalog_service_v1_image_proto_rawDesc = "" +
 	"\x10expected_version\x18\x06 \x01(\x03R\x0fexpectedVersion\x12'\n" +
 	"\x0fidempotency_key\x18\a \x01(\tR\x0eidempotencyKey\"R\n" +
 	"\x13UpdateImageResponse\x12;\n" +
-	"\x05image\x18\x01 \x01(\v2%.catalog.service.v1.ImageRegistrationR\x05image\"\x87\x01\n" +
-	"\x16UnregisterImageRequest\x12\x19\n" +
-	"\bimage_id\x18\x01 \x01(\tR\aimageId\x12)\n" +
+	"\x05image\x18\x01 \x01(\v2%.catalog.service.v1.ImageRegistrationR\x05image\"\x88\x01\n" +
+	"\x16UnregisterImageRequest\x12\x1a\n" +
+	"\bimage_id\x18\x01 \x01(\tR\bimage_id\x12)\n" +
 	"\x10expected_version\x18\x02 \x01(\x03R\x0fexpectedVersion\x12'\n" +
 	"\x0fidempotency_key\x18\x03 \x01(\tR\x0eidempotencyKey\"V\n" +
 	"\x17UnregisterImageResponse\x12;\n" +

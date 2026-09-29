@@ -1,11 +1,11 @@
 package imagecontract
 
 import (
+	"github.com/getkin/kin-openapi/openapi3"
+	"go-wind-admin/app/admin/service/cmd/server/assets"
+	"go-wind-admin/pkg/middleware/auth"
+	"google.golang.org/protobuf/reflect/protoreflect"
 	"testing"
-"google.golang.org/protobuf/reflect/protoreflect"
-"github.com/getkin/kin-openapi/openapi3"
-"go-wind-admin/app/admin/service/cmd/server/assets"
-"go-wind-admin/pkg/middleware/auth"
 
 	admin "go-wind-admin/api/gen/go/admin/service/v1"
 	catalog "go-wind-admin/api/gen/go/catalog/service/v1"
@@ -54,13 +54,23 @@ func TestImageModulePreservesExistingContract(t *testing.T) {
 // gnostic names path variables from JSON names, while Kratos routes retain the
 // proto annotation spelling. Catalog/permission lookup requires exact equality.
 func TestImageCatalogRouteConsistency(t *testing.T) {
- doc,err:=openapi3.NewLoader().LoadFromData(assets.OpenApiData);if err!=nil{t.Fatal(err)}
- for _,policy:=range auth.ImageOperations {
-  item:=doc.Paths.Value(policy.Path);if item==nil{t.Fatalf("OpenAPI path differs from HTTP route: %s",policy.Path)}
-  if item.Operations()[policy.Method]==nil{t.Fatalf("OpenAPI method missing: %s %s",policy.Method,policy.Path)}
- }
- for _,message:=range []string{"ImageRegistration","GetImageRequest","UpdateImageRequest","UnregisterImageRequest"}{
-  m:=catalog.File_catalog_service_v1_image_proto.Messages().ByName(protoreflect.Name(message))
-  if m.Fields().ByName("image_id").JSONName()!="image_id"{t.Fatal("Image ID JSON/path spelling drift",message)}
- }
+	doc, err := openapi3.NewLoader().LoadFromData(assets.OpenApiData)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, policy := range auth.ImageOperations {
+		item := doc.Paths.Value(policy.Path)
+		if item == nil {
+			t.Fatalf("OpenAPI path differs from HTTP route: %s", policy.Path)
+		}
+		if item.Operations()[policy.Method] == nil {
+			t.Fatalf("OpenAPI method missing: %s %s", policy.Method, policy.Path)
+		}
+	}
+	for _, message := range []string{"ImageRegistration", "GetImageRequest", "UpdateImageRequest", "UnregisterImageRequest"} {
+		m := catalog.File_catalog_service_v1_image_proto.Messages().ByName(protoreflect.Name(message))
+		if m.Fields().ByName("image_id").JSONName() != "image_id" {
+			t.Fatal("Image ID JSON/path spelling drift", message)
+		}
+	}
 }
