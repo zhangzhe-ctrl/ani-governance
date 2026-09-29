@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+cd "$(dirname "$0")/.."
+readonly pg_image='docker.io/library/postgres@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1'
+readonly redis_image='docker.io/library/redis@sha256:a9cc41d6d01da2aa26c219e4f99ecbeead955a7b656c1c499cce8922311b2514'
+private=$(mktemp -d "${TMPDIR:?task-owned HOME TMPDIR required}/igov.XXXXXX")
+chmod 700 "$private"
+pg=''; redis=''
+cleanup(){
+ local rc=$? cleanup_rc=0 id owner
+ trap - EXIT
+ for id in "$redis" "$pg"; do
+  [[ -n $id ]] || continue
+  owner=$(docker inspect --format '{{index .Config.Labels "ani.image.gov.fixture"}}' "$id") || cleanup_rc=$?
+  if [[ $owner == "$private" ]]; then
+   if docker rm -f -v "$id" >/dev/null; then printf 'removed Image Governance fixture=%s\n' "$id"; else cleanup_rc=$?; fi
+  else echo 'refusing fixture cleanup: ownership mismatch' >&2;cleanup_rc=1;fi
+ done
+ rm -rf -- "$private" || cleanup_rc=$?
+ if [[ $rc -ne 0 ]];then exit "$rc";fi
+ exit "$cleanup_rc"
+}
+trap cleanup EXIT
+umask 077
+python3 - "$private" <<'PY'
+from pathlib import Path
+import secrets,sys
+p=Path(sys.argv[1]);pg=secrets.token_hex(32);runtime=secrets.token_hex(32);redis=secrets.token_hex(32)
+(p/'postgres.env').write_text('POSTGRES_PASSWORD='+pg+'\n')
+(p/'runtime.password').write_text(runtime)
+(p/'redis.conf').write_text('bind 0.0.0.0\nprotected-mode yes\nport 6379\nsave ""\nappendonly no\nrequirepass '+redis+'\n')
+(p/'redis.password').write_text(redis)
+PY
+for img in "$pg_image" "$redis_image"; do docker image inspect "$img" >/dev/null 2>&1 || docker pull "$img";done
+pg=$(docker run -d --label "ani.image.gov.fixture=$private" --memory=768m --memory-swap=768m --cpus=1 --mount type=tmpfs,destination=/var/lib/postgresql/data --env-file "$private/postgres.env" -p 127.0.0.1::5432 "$pg_image")
+# Root starts only this private config; the image entrypoint drops to redis.
+redis=$(docker create --label "ani.image.gov.fixture=$private" --memory=128m --memory-swap=128m --cpus=.5 -p 127.0.0.1::6379 "$redis_image" redis-server /data/image-redis.conf)
+docker cp "$private/redis.conf" "$redis:/data/image-redis.conf"
+docker start "$redis" >/dev/null
+for attempt in $(seq 1 45);do if docker exec "$pg" pg_isready -h 127.0.0.1 -U postgres >/dev/null 2>&1;then break;fi;sleep 1;done
+docker exec "$pg" pg_isready -h 127.0.0.1 -U postgres
+docker exec "$pg" postgres --version
+docker exec "$redis" redis-server --version
+docker inspect --format 'fixture={{.Id}} memory={{.HostConfig.Memory}} memory_swap={{.HostConfig.MemorySwap}} nanocpus={{.HostConfig.NanoCpus}}' "$pg" "$redis"
+for migration in migrations/*.sql;do
+ printf 'apply isolated migration=%s\n' "$migration"
+ docker exec -i "$pg" psql -U postgres -v ON_ERROR_STOP=1 -q < "$migration"
+done
+python3 - "$private" <<'PY'
+from pathlib import Path
+import sys
+p=Path(sys.argv[1]);password=(p/'runtime.password').read_text()
+(p/'runtime.sql').write_text("CREATE ROLE image_gov_runtime LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS PASSWORD '"+password+"';\nGRANT CONNECT ON DATABASE postgres TO image_gov_runtime;\nGRANT USAGE ON SCHEMA public TO image_gov_runtime;\nGRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO image_gov_runtime;\nGRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO image_gov_runtime;\n")
+PY
+docker exec -i "$pg" psql -U postgres -v ON_ERROR_STOP=1 -q < "$private/runtime.sql"
+pg_port=$(docker port "$pg" 5432/tcp | awk -F: '$1=="127.0.0.1"{print $2}')
+redis_port=$(docker port "$redis" 6379/tcp | awk -F: '$1=="127.0.0.1"{print $2}')
+[[ $pg_port =~ ^[0-9]+$ && $redis_port =~ ^[0-9]+$ ]]
+python3 - "$private" "$pg_port" "$redis_port" <<'PY'
+from pathlib import Path
+import json,sys
+p=Path(sys.argv[1]);pg=(p/'postgres.env').read_text().strip().split('=',1)[1];runtime=(p/'runtime.password').read_text()
+for name,user,password in [('admin','postgres',pg),('runtime','image_gov_runtime',runtime)]:
+ (p/(name+'.dsn')).write_text('postgres://'+user+':'+password+'@127.0.0.1:'+sys.argv[2]+'/postgres?sslmode=disable')
+(p/'redis.json').write_text(json.dumps({'Address':'127.0.0.1:'+sys.argv[3],'Password':(p/'redis.password').read_text()}))
+PY
+export IMAGE_GOV_ADMIN_DSN_FILE="$private/admin.dsn" IMAGE_GOV_RUNTIME_DSN_FILE="$private/runtime.dsn" IMAGE_GOV_REDIS_FILE="$private/redis.json"
+printf 'Image Governance joint fixture pg=%s redis=%s\n' "$pg" "$redis"
+go test -mod=readonly -tags=imageintegration -count=1 -timeout=10m -run '^TestImageJointHTTP$' -v "$@" ./app/admin/service/internal/service
