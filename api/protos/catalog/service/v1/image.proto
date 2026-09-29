@@ -56,7 +56,7 @@ message PublisherCredential {
 
 message ImageRegistration {
 
-  string image_id = 1;
+  string image_id = 1 [json_name = "image_id"];
 
   string scope = 2;
 
@@ -200,7 +200,7 @@ message GetImageRequest {
 
   string scope = 1;
 
-  string image_id = 2;
+  string image_id = 2 [json_name = "image_id"];
 
 }
 
@@ -236,7 +236,7 @@ message ListImagesResponse {
 
 message UpdateImageRequest {
 
-  string image_id = 1;
+  string image_id = 1 [json_name = "image_id"];
 
   string display_name = 2;
 
@@ -260,7 +260,7 @@ message UpdateImageResponse {
 
 message UnregisterImageRequest {
 
-  string image_id = 1;
+  string image_id = 1 [json_name = "image_id"];
 
   int64 expected_version = 2;
 
