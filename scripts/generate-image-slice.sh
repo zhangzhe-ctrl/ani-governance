@@ -9,7 +9,8 @@ test "$(go version -m "$BUF" | awk '$1 == "mod" {print $2 "@" $3; exit}')" = git
 stage=$(mktemp -d "${TMPDIR:?set a task-private TMPDIR}/image-api.XXXXXX")
 trap 'rm -rf -- "$stage"' EXIT
 cp -a api "$stage/api"
-mkdir -p "$stage/app/admin/service/cmd/server/assets"
+mkdir -p "$stage/app/admin/service/cmd/server/assets" "$stage/scripts"
+cp scripts/finalize-aksk-openapi.py "$stage/scripts/"
 (
  cd "$stage/api"
  # Keep the original Image-only STANDARD lint gate. The shared Module enum
@@ -20,6 +21,7 @@ mkdir -p "$stage/app/admin/service/cmd/server/assets"
  "$BUF" generate --template buf.image.gen.yaml
  "$BUF" generate --template buf.admin.openapi.gen.yaml
 )
+python3 "$stage/scripts/finalize-aksk-openapi.py"
 for output in catalog/service/v1/image.pb.go admin/service/v1/i_image.pb.go admin/service/v1/i_image_grpc.pb.go admin/service/v1/i_image_http.pb.go identity/service/v1/module.pb.go; do
  test -f "$stage/api/gen/go/$output"
  mkdir -p "api/gen/go/$(dirname "$output")"
