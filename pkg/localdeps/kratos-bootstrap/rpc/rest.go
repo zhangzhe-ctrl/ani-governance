@@ -24,7 +24,13 @@ import (
 
 // CreateRestServer 创建REST服务端
 func CreateRestServer(cfg *conf.Bootstrap, mds ...middleware.Middleware) (*kratosRest.Server, error) {
-	options, err := initRestConfig(cfg, mds...)
+	return CreateRestServerWithFilters(cfg, nil, mds...)
+}
+
+// CreateRestServerWithFilters retains the configured server and middleware
+// chain while allowing a service-owned pre-decoding HTTP boundary.
+func CreateRestServerWithFilters(cfg *conf.Bootstrap, extra []kratosRest.FilterFunc, mds ...middleware.Middleware) (*kratosRest.Server, error) {
+	options, err := initRestConfigWithFilters(cfg, extra, mds...)
 	if err != nil {
 		return nil, err
 	}
@@ -40,11 +46,16 @@ func CreateRestServer(cfg *conf.Bootstrap, mds ...middleware.Middleware) (*krato
 
 // initRestConfig 初始化REST服务配置
 func initRestConfig(cfg *conf.Bootstrap, mds ...middleware.Middleware) ([]kratosRest.ServerOption, error) {
+	return initRestConfigWithFilters(cfg,nil,mds...)
+}
+
+func initRestConfigWithFilters(cfg *conf.Bootstrap, extra []kratosRest.FilterFunc, mds ...middleware.Middleware) ([]kratosRest.ServerOption, error) {
 	if cfg == nil || cfg.Server == nil || cfg.Server.Rest == nil {
 		return nil, nil
 	}
 
 	var options []kratosRest.ServerOption
+	var filters []kratosRest.FilterFunc
 
 	if cfg.Server.Rest.Cors != nil {
 		corsOptions := []handlers.CORSOption{
@@ -57,8 +68,10 @@ func initRestConfig(cfg *conf.Bootstrap, mds ...middleware.Middleware) ([]kratos
 		if cfg.Server.Rest.Cors.GetAllowCredentials() {
 			corsOptions = append(corsOptions, handlers.AllowCredentials())
 		}
-		options = append(options, kratosRest.Filter(handlers.CORS(corsOptions...)))
+		filters=append(filters,handlers.CORS(corsOptions...))
 	}
+	filters=append(filters,extra...)
+	if len(filters)>0 { options=append(options,kratosRest.Filter(filters...)) }
 
 	var ms []middleware.Middleware
 	if cfg.Server.Rest.Middleware != nil {

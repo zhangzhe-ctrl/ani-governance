@@ -27,6 +27,7 @@ inputs:
     paths:
       - protos/admin/service/v1/i_image.proto
       - protos/catalog/service/v1/image.proto
+      - protos/identity/service/v1/module.proto
 plugins:
   - local: [go, run, google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11]
     out: gen/go

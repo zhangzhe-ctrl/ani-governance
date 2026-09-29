@@ -1015,3 +1015,11 @@ Resource `docs/specs/image-api.md`；IMG-01 仅放入契约，尚未注册服务
 内部 pull material 不进入公开 Proto。目录使用本任务明确接受的 limit/cursor、固定元数据替换，
 不改现有通用分页/mask。凭证交付仅 issue/reset，no-store 与日志排除在 IMG-06 实现验证。
 模块 IMAGE 及精确权限后续单独接入，不借 NETWORK 权限；部署同步与授权仍须实证。
+
+### IMAGE-01～11：IMG-06 安全接入实现输入
+
+本批实现同一11路由的 Resource mTLS 客户端、BFF、IMAGE=14 模块和严格 HTTP 边界；保持 Kratos v2 和既有 Network 客户端不变。客户端重建三项可信 metadata；空间/登记/凭证回复逐项验证 tenant/scope/ID，内部 Runtime RPC 不注册公开路由。JSON 使用现有 Proto 编码（camelCase 字段、int64 字符串），额外身份字段/未知字段/重复字段拒绝。凭证路径所有响应 no-store/no-cache，审计只保留操作及认证归属，不收集 Image 请求体。
+
+Image AK 使用现有 ANI-HMAC-SHA256 七行形式：算法、HTTP method、规范 path、`url.Values.Encode()` query、access key、timestamp、原始 body SHA256；空体为标准空SHA256。时间窗口仍为五分钟，必须同时通过当前租户状态/IMAGE套餐及角色API策略；新增签名支持不授予任何角色。`auth.ImageOperations` 为精确路由—permission映射，现有权限同步为这些路由使用 `image:*` code。部署仍需显式 API 同步 dry-run/应用、权限同步及角色/套餐分配；普通读者只选 ReadOnly 项，发布/凭证写仅租户管理员或指定发布者。现有实例不自动重播 bootstrap、不自动扩大 AK 权限。
+
+环境变量为独立 `ANI_IMAGE_ADDR/CA/CERT/KEY/TIMEOUT`，空ADDR保持未配置；固定 Resource server SAN 仍为 `ani-network-service`。本段是源码合同；Fedora测试结果由 Resource 唯一 Image 账本关联，不代表部署或真Harbor通过。

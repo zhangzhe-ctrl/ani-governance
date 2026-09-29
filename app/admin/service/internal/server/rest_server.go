@@ -179,6 +179,7 @@ func NewRestServer(
 	configService *service.ConfigService,
 	networkService *service.NetworkService,
 	acceleratorService *service.AcceleratorService,
+	imageService *service.ImageService,
 ) (*http.Server, error) {
 	cfg := ctx.GetConfig()
 
@@ -186,7 +187,7 @@ func NewRestServer(
 		return nil, nil
 	}
 
-	srv, err := rpc.CreateRestServer(cfg,
+	srv, err := rpc.CreateRestServerWithFilters(cfg, []http.FilterFunc{auth.ImageHTTPFilter},
 		middlewares...,
 	)
 	if err != nil {
@@ -249,6 +250,7 @@ func NewRestServer(
 	registerAccessKeyHTTP(srv, accessKeyService)
 	adminV1.RegisterConfigServiceHTTPServer(srv, configService)
 	adminV1.RegisterNetworkServiceHTTPServer(srv, networkService)
+	adminV1.RegisterImageServiceHTTPServer(srv, imageService)
 	adminV1.RegisterAcceleratorAdminServiceHTTPServer(srv, acceleratorService)
 	adminV1.RegisterAcceleratorServiceHTTPServer(srv, acceleratorService)
 	adminV1.RegisterQuotaSelfServiceHTTPServer(srv, acceleratorService)

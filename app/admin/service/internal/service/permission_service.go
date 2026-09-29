@@ -310,6 +310,7 @@ func (s *PermissionService) appendAPis(
 	for _, api := range apis.Items {
 		//code := s.apiPermissionConverter.ConvertCodeByOperationID(api.GetOperation())
 		code := s.apiPermissionConverter.ConvertCodeByPath(api.GetMethod(), api.GetPath())
+		if imageCode,ok:=auth.ImagePermission(api.GetMethod(),api.GetPath());ok { code=imageCode }
 		if code == "" {
 			continue
 		}

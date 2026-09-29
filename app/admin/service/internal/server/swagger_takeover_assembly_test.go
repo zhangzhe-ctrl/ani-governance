@@ -85,6 +85,7 @@ func newRestServerWithSwagger(t *testing.T, enableSwagger bool) http.Handler {
 		nil,        // configService
 		nil,        // networkService
 		nil,        // acceleratorService
+		nil,        // imageService
 	)
 	require.NoError(t, err)
 	require.NotNil(t, srv, "NewRestServer must build a server for this configuration")
