@@ -46,7 +46,7 @@ func CreateRestServerWithFilters(cfg *conf.Bootstrap, extra []kratosRest.FilterF
 
 // initRestConfig 初始化REST服务配置
 func initRestConfig(cfg *conf.Bootstrap, mds ...middleware.Middleware) ([]kratosRest.ServerOption, error) {
-	return initRestConfigWithFilters(cfg,nil,mds...)
+	return initRestConfigWithFilters(cfg, nil, mds...)
 }
 
 func initRestConfigWithFilters(cfg *conf.Bootstrap, extra []kratosRest.FilterFunc, mds ...middleware.Middleware) ([]kratosRest.ServerOption, error) {
@@ -68,10 +68,12 @@ func initRestConfigWithFilters(cfg *conf.Bootstrap, extra []kratosRest.FilterFun
 		if cfg.Server.Rest.Cors.GetAllowCredentials() {
 			corsOptions = append(corsOptions, handlers.AllowCredentials())
 		}
-		filters=append(filters,handlers.CORS(corsOptions...))
+		filters = append(filters, handlers.CORS(corsOptions...))
 	}
-	filters=append(filters,extra...)
-	if len(filters)>0 { options=append(options,kratosRest.Filter(filters...)) }
+	filters = append(filters, extra...)
+	if len(filters) > 0 {
+		options = append(options, kratosRest.Filter(filters...))
+	}
 
 	var ms []middleware.Middleware
 	if cfg.Server.Rest.Middleware != nil {

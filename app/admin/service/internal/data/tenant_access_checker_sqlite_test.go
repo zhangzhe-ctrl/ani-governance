@@ -190,7 +190,7 @@ func TestModuleMapping(t *testing.T) {
 		identityV1.Module_INTERNAL_MESSAGE: {planmodule.ModuleInternalMessage, api.BusinessModuleInternalMessage},
 		identityV1.Module_TASK:             {planmodule.ModuleTask, api.BusinessModuleTask},
 		identityV1.Module_ACCELERATOR:      {planmodule.ModuleAccelerator, api.BusinessModuleAccelerator},
-		identityV1.Module_IMAGE: {planmodule.ModuleImage, api.BusinessModuleImage},
+		identityV1.Module_IMAGE:            {planmodule.ModuleImage, api.BusinessModuleImage},
 	}
 
 	for protoMod, entMods := range pairs {

@@ -21,7 +21,9 @@ const VPCReadOperation = "/admin.service.v1.NetworkService/GetVPC"
 // Key-enabled operations are explicit. Adding a route never grants machine access implicitly.
 var keyOperations = map[string]bool{VPCReadOperation: true}
 
-func allowsAPIKey(operation string) bool { return keyOperations[operation] || IsImageOperation(operation) }
+func allowsAPIKey(operation string) bool {
+	return keyOperations[operation] || IsImageOperation(operation)
+}
 
 const emptyBodySHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
@@ -99,8 +101,12 @@ func verifySignature(ctx context.Context, r *http.Request, operation string, sto
 	if IsImageOperation(operation) {
 		var ok bool
 		imageDigest, ok = r.Context().Value(imageRequestDigestKey{}).(imageRequestDigest)
-		if !ok || imageDigest.Operation != operation || r.URL.RawQuery != r.URL.Query().Encode() { return denied() }
-	} else if err := ValidateVPCReadRequest(r); err != nil { return nil, err }
+		if !ok || imageDigest.Operation != operation || r.URL.RawQuery != r.URL.Query().Encode() {
+			return denied()
+		}
+	} else if err := ValidateVPCReadRequest(r); err != nil {
+		return nil, err
+	}
 	if store == nil {
 		return nil, errors.ServiceUnavailable("SIGNING_STORE_UNAVAILABLE", "credential store unavailable")
 	}
@@ -118,7 +124,9 @@ func verifySignature(ctx context.Context, r *http.Request, operation string, sto
 		return nil, errors.ServiceUnavailable("SIGNING_STORE_UNAVAILABLE", "credential secret unavailable")
 	}
 	expected := VPCSignature(key.Secret, r.URL.Path, ak, ts)
-	if IsImageOperation(operation) { expected = imageSignatureDigest(key.Secret,r.Method,r.URL.Path,r.URL.RawQuery,ak,ts,imageDigest.Digest) }
+	if IsImageOperation(operation) {
+		expected = imageSignatureDigest(key.Secret, r.Method, r.URL.Path, r.URL.RawQuery, ak, ts, imageDigest.Digest)
+	}
 	if !hmac.Equal([]byte(expected), []byte(sig)) {
 		return denied()
 	}
