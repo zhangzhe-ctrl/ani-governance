@@ -15,8 +15,9 @@ import (
 )
 
 var (
-	ErrModelDevBindingGenerationConflict = errors.New("modeldev release binding generation conflict")
-	ErrModelDevBindingNotFound           = errors.New("modeldev release binding not found")
+	ErrModelDevBindingGenerationConflict  = errors.New("modeldev release binding generation conflict")
+	ErrModelDevBindingGenerationExhausted = errors.New("modeldev release binding generation exhausted")
+	ErrModelDevBindingNotFound            = errors.New("modeldev release binding not found")
 )
 
 // ModelDevReleaseBindingScope identifies one tenant's managed preset binding.

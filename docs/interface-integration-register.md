@@ -22,7 +22,7 @@
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
 | Network 租户面读写对接（GOV-RESOURCE-20260922） | NET-02～NET-11；复用 AK-*、AUTH-* | BFF 路由/客户端/Service 已实现，17/17 全链路验收 PASS | GOV-RESOURCE-20260922 完成 |
 | 通用配额与 GPU 本地模拟 | QUOTA-01～03、QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 本地模拟闭环已实现并通过指定验收；正式构建无 GPU 路由；真实 GPU 未接入 | QUOTA-GPU-LOCAL-01，本地验收完成（真实 GPU not_verified） |
-| ModelDev CPU 主干受理 | MODELDEV-01 | 已解析候选的持久受理与原键重放；HTTP、权限目录及投递尚未装配 | CPU-P01，进行中 |
+| ModelDev CPU 主干受理 | MODELDEV-01～MODELDEV-02 | 已解析候选的持久受理、原键重放和当前绑定持久 CAS；HTTP、权限目录及投递尚未装配 | CPU-P01，进行中 |
 
 ## 风格改动批次
 
@@ -1018,7 +1018,7 @@ Governance 通过 go.mod/go.sum 固定精确模块版本，生产代码不导入
 | 编号 | 路由与方法 | 请求与响应合同 | 鉴权与范围 | 当前边界 |
 | --- | --- | --- | --- | --- |
 | MODELDEV-01 | `POST /admin/v1/modeldev/executions` | lower_snake_case 的 name、kind、preset_id、dataset_version_id、可选 image_version_id/general_parameters/source_execution_id 及 idempotency_key；只允许 GENERAL_TRAINING。持久受理后返回 202、原 operation/execution、resolved_release_id、replayed 和四组正交状态 | 复用当前 Principal、TenantAccess、动作及资源权限；通过 ResourceTenantResolver 取得 resource tenant UUID。body 不含 tenant/actor/cluster/SA/command/raw CRD，旧 actor 仅审计 | HTTP/授权装配、当前 binding generation CAS、可信 immutable catalogue 解析和可靠投递仍待后续切片 |
-| MODELDEV-02 | 受管 T02 启用/回退作业（入口待实现） | 已解析 release ID/digest、expected_generation、new_submissions_enabled、原因和证据引用；返回 before/after/generation/replayed | 当前受权操作者和租户映射来自可信上下文；启用前必须核验 ModelDev 不可变目录及实际验收证据，同目标重放仍重新授权 | 仅准备真实 PG CAS 测试、Ent schema 和 repository stub；没有公开管理页、直连 SQL 入口或 VERIFIED 开关 |
+| MODELDEV-02 | 受管 T02 启用/回退作业（入口待实现） | 已解析 release ID/digest、expected_generation、new_submissions_enabled、原因和证据引用；返回 before/after/generation/replayed | 当前受权操作者和租户映射来自可信上下文；启用前必须核验 ModelDev 不可变目录及实际验收证据，同目标重放仍重新授权 | 仓储 Get/CAS 已通过真实 PG 正向、同目标重放和过期代际冲突验证；管理入口、完整参数与并发隔离验证仍待后续切片；没有公开管理页、直连 SQL 入口或 VERIFIED 开关 |
 
 `general_parameters` 保留缺省与显式 `[]` 的区别，外部 JSON 不直接套用 ProtoJSON。
 内部共享 `ParameterSelection` 仅负责 wire presence；BFF 的严格 JSON 适配负责
@@ -1034,6 +1034,11 @@ UUID 由复合外键保持对应。这是 CPU05 租户受管启用的实现选�
 默认值，也不是全平台通用设置。`sys_modeldev_release_bindings` 只保存当前指针、
 generation、新受理开关及最近一次生效变更的审计字段。初次 expected_generation=0
 建立 generation=1；目标变化要求当前代际并增加一次，同目标重放保留代际和原审计。
+Governance 当前指针代际受 PostgreSQL bigint 限制，范围为 `1..MaxInt64`；
+首次建立要求 expected_generation=0；范围内的旧代际可用于同目标重放。
+超出范围的请求必须拒绝，最大代际仍可
+同目标重放，但更换目标必须原子拒绝而不改写任何字段；该边界正在独立 TDD 验证。
+此存储范围不改变共享 snapshot/wire 的 uint64，也不限制 ModelDev 的关闭代际合同。
 当前仓储测试中的证据引用是合成 fixture，不证明真实 Release 已验收。
 受理事务内复核该代际以及暂停仅影响新键，将在后续切片接入；当前 AcceptFrozen
 尚未消费该表。不可变目录远程解析始终在本地事务之外。
