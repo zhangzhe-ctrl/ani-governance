@@ -1018,6 +1018,7 @@ Governance 通过 go.mod/go.sum 固定精确模块版本，生产代码不导入
 | 编号 | 路由与方法 | 请求与响应合同 | 鉴权与范围 | 当前边界 |
 | --- | --- | --- | --- | --- |
 | MODELDEV-01 | `POST /admin/v1/modeldev/executions` | lower_snake_case 的 name、kind、preset_id、dataset_version_id、可选 image_version_id/general_parameters/source_execution_id 及 idempotency_key；只允许 GENERAL_TRAINING。持久受理后返回 202、原 operation/execution、resolved_release_id、replayed 和四组正交状态 | 复用当前 Principal、TenantAccess、动作及资源权限；通过 ResourceTenantResolver 取得 resource tenant UUID。body 不含 tenant/actor/cluster/SA/command/raw CRD，旧 actor 仅审计 | HTTP/授权装配、当前 binding generation CAS、可信 immutable catalogue 解析和可靠投递仍待后续切片 |
+| MODELDEV-02 | 受管 T02 启用/回退作业（入口待实现） | 已解析 release ID/digest、expected_generation、new_submissions_enabled、原因和证据引用；返回 before/after/generation/replayed | 当前受权操作者和租户映射来自可信上下文；启用前必须核验 ModelDev 不可变目录及实际验收证据，同目标重放仍重新授权 | 仅准备真实 PG CAS 测试、Ent schema 和 repository stub；没有公开管理页、直连 SQL 入口或 VERIFIED 开关 |
 
 `general_parameters` 保留缺省与显式 `[]` 的区别，外部 JSON 不直接套用 ProtoJSON。
 内部共享 `ParameterSelection` 仅负责 wire presence；BFF 的严格 JSON 适配负责
@@ -1027,6 +1028,15 @@ Governance 通过 go.mod/go.sum 固定精确模块版本，生产代码不导入
 Governance 是唯一当前 Release binding/generation 权威；ModelDev 持有 immutable
 catalogue，后续以 Governance 专用受理解析能力按指定 Release/Input/Image ID
 返回固定事实。普通 Query 不因此暴露后端存储引用，也不在 Governance 复制第二套目录。
+
+本切片当前绑定按 `(resource_tenant_id, preset_id)` 唯一；本地 tenant_id 与 resource
+UUID 由复合外键保持对应。这是 CPU05 租户受管启用的实现选择，不是按 actor 保存
+默认值，也不是全平台通用设置。`sys_modeldev_release_bindings` 只保存当前指针、
+generation、新受理开关及最近一次生效变更的审计字段。初次 expected_generation=0
+建立 generation=1；目标变化要求当前代际并增加一次，同目标重放保留代际和原审计。
+当前仓储测试中的证据引用是合成 fixture，不证明真实 Release 已验收。
+受理事务内复核该代际以及暂停仅影响新键，将在后续切片接入；当前 AcceptFrozen
+尚未消费该表。不可变目录远程解析始终在本地事务之外。
 
 CPU 受理持久化使用 `sys_modeldev_acceptances`，保存 scope、双摘要和完整冻结
 规范字节，并同时记录 QUEUED 投递意图。它不创建 GPU operation/account/charge。
