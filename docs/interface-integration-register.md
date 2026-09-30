@@ -1046,8 +1046,8 @@ UTC 年份 1..9999 且精确到微秒；reason/evidence_reference 必须为非�
 且不能含 PostgreSQL text 不支持的 NUL。
 这些持久边界校验已通过真实 PG 验证；它们不证明引用对象存在、已核验或操作者当前有权。
 当前仓储测试中的证据引用是合成 fixture，不证明真实 Release 已验收。
-受理消费绑定的行为测试已写，当前 AcceptFrozen 尚未消费该表，等待固定版本 RED。
-新键受理将在同一事务按 tenant → binding 顺序加锁并复核：缺绑定返回 NotFound，
+受理消费绑定已取得固定版本真实 PG RED，最小实现待新版本 GREEN。
+新键受理在同一事务按 tenant → binding 顺序加锁并复核：缺绑定返回 NotFound，
 暂停返回 Disabled，generation 或 release ID/digest 不一致返回 GenerationConflict；
 这些错误不占用幂等键或排入投递。原键同意图先返回旧快照，异参先报幂等冲突；
 每次当前授权仍由上游检查。不可变目录远程解析始终在本地事务之外。

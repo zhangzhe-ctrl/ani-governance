@@ -7,11 +7,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/zhangzhe-ctrl/ani-modeldev-service/contract/cpup01"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/modeldevacceptance"
+	"go-wind-admin/app/admin/service/internal/data/ent/modeldevreleasebinding"
 	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 )
@@ -31,8 +33,8 @@ type ModelDevAdmissionScope struct {
 }
 
 // ModelDevFrozenCandidate is resolved before entering the database transaction.
-// Current binding generation validation belongs to the admission coordinator;
-// replay must return the first accepted value rather than use a new candidate.
+// New keys recheck the current binding within the acceptance transaction;
+// replay returns the first accepted value rather than use a new candidate.
 type ModelDevFrozenCandidate struct {
 	OperationID string
 	ExecutionID string
@@ -117,6 +119,28 @@ func (r *ModelDevAcceptanceRepo) AcceptFrozen(ctx context.Context, scope ModelDe
 		_, snapshotCanonical, err := envelope.CanonicalPayloads()
 		if err != nil {
 			return err
+		}
+		// Catalogue resolution happened outside this transaction. Serialize
+		// against pointer CAS using the same tenant -> binding lock order;
+		// only new keys consume the current target and admission gate.
+		binding, err := tx.ModelDevReleaseBinding.Query().Where(
+			modeldevreleasebinding.TenantIDEQ(scope.TenantID),
+			modeldevreleasebinding.ResourceTenantIDEQ(scope.ResourceTenantID),
+			modeldevreleasebinding.PresetIDEQ(strings.ToLower(candidate.Snapshot.Release.PresetID)),
+		).ForUpdate().Only(ctx)
+		if ent.IsNotFound(err) {
+			return ErrModelDevBindingNotFound
+		}
+		if err != nil {
+			return err
+		}
+		if !binding.NewSubmissionsEnabled {
+			return ErrModelDevBindingDisabled
+		}
+		if binding.Generation != candidate.Snapshot.Release.AcceptedBindingGeneration ||
+			binding.ReleaseID != strings.ToLower(candidate.Snapshot.Release.ReleaseID) ||
+			binding.ReleaseDigest != candidate.Snapshot.Release.ReleaseDigest {
+			return ErrModelDevBindingGenerationConflict
 		}
 		// The shared envelope rejects sub-microsecond timestamps instead of
 		// silently changing the immutable accepted_at persisted by PostgreSQL.
