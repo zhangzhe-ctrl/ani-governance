@@ -75,7 +75,7 @@ func TestModelDevAcceptanceFindRejectsConflictingIntentWithoutMutation(t *testin
 	require.Nil(t, actual)
 	actual, err = repo.FindAccepted(ctx, scope, candidate.Intent)
 	require.NoError(t, err)
-	require.Equal(t, original, actual)
+	requireSameModelDevAcceptance(t, original, actual)
 	count, err := reader.Client().ModelDevAcceptance.Query().Where(modeldevacceptance.TenantIDEQ(scope.TenantID)).Count(ctx)
 	require.NoError(t, err)
 	require.Equal(t, 1, count)
@@ -97,7 +97,7 @@ func TestModelDevAcceptanceFindRejectsInvalidScopeAndIntent(t *testing.T) {
 		{"zero tenant", func(s *ModelDevAdmissionScope, _ *cpup01.Intent) { s.TenantID = 0 }},
 		{"missing resource tenant", func(s *ModelDevAdmissionScope, _ *cpup01.Intent) { s.ResourceTenantID = "" }},
 		{"missing actor", func(s *ModelDevAdmissionScope, _ *cpup01.Intent) { s.Actor = "" }},
-		{"untrusted actor spelling", func(s *ModelDevAdmissionScope, _ *cpup01.Intent) { s.Actor = "user:7" }},
+		{"actor with leading whitespace", func(s *ModelDevAdmissionScope, _ *cpup01.Intent) { s.Actor = " governance:user:7" }},
 		{"wrong action", func(s *ModelDevAdmissionScope, _ *cpup01.Intent) { s.Action = "modeldev.execution.stop" }},
 		{"missing key", func(s *ModelDevAdmissionScope, _ *cpup01.Intent) { s.IdempotencyKey = "" }},
 		{"invalid intent", func(_ *ModelDevAdmissionScope, i *cpup01.Intent) { i.Name = "" }},
@@ -115,7 +115,7 @@ func TestModelDevAcceptanceFindRejectsInvalidScopeAndIntent(t *testing.T) {
 	}
 	actual, err := repo.FindAccepted(ctx, scope, candidate.Intent)
 	require.NoError(t, err)
-	require.Equal(t, original, actual)
+	requireSameModelDevAcceptance(t, original, actual)
 	for tenantID, expected := range map[uint32]int{scope.TenantID: 1, otherScope.TenantID: 0} {
 		count, err := reader.Client().ModelDevAcceptance.Query().Where(modeldevacceptance.TenantIDEQ(tenantID)).Count(ctx)
 		require.NoError(t, err)
@@ -164,15 +164,26 @@ func TestModelDevAcceptanceFindIsolatesTenantActorAndKey(t *testing.T) {
 			require.NotEqual(t, original.OperationID, accepted.OperationID)
 			actual, err := repo.FindAccepted(ctx, group.scope, separate.Intent)
 			require.NoError(t, err)
-			require.Equal(t, accepted, actual)
+			requireSameModelDevAcceptance(t, accepted, actual)
 		})
 	}
 	actual, err := repo.FindAccepted(ctx, scope, candidate.Intent)
 	require.NoError(t, err)
-	require.Equal(t, original, actual)
+	requireSameModelDevAcceptance(t, original, actual)
 	for tenantID, expected := range map[uint32]int{scope.TenantID: 3, otherTenant.TenantID: 1} {
 		count, err := reader.Client().ModelDevAcceptance.Query().Where(modeldevacceptance.TenantIDEQ(tenantID)).Count(ctx)
 		require.NoError(t, err)
 		require.Equal(t, expected, count)
 	}
+}
+
+func requireSameModelDevAcceptance(t *testing.T, expected, actual *ModelDevAcceptance) {
+	t.Helper()
+	require.NotNil(t, expected)
+	require.NotNil(t, actual)
+	// PostgreSQL timestamptz preserves the instant, not Go's time.Location.
+	// Normalize only location on copies; retain all fields and time precision.
+	want, got := *expected, *actual
+	want.AcceptedAt, got.AcceptedAt = want.AcceptedAt.UTC(), got.AcceptedAt.UTC()
+	require.Equal(t, want, got)
 }
