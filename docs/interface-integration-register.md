@@ -1025,6 +1025,14 @@ Governance 通过 go.mod/go.sum 固定精确模块版本，生产代码不导入
 拒绝重复键、null、未知字段和用户越权配置。原键先查受理记录，再读当前启用绑定；
 同意图返回原快照和 IDs，异参冲突。新受理暂停不能阻断原键找回、查询与停止。
 
+MODELDEV-01 的内部前置查询为 `ModelDevAcceptanceRepo.FindAccepted(ctx, scope, intent)`：
+只接收当前可信租户映射、actor/action/key 和用户意图，不要求候选快照或当前目录可用。
+命中返回原受理对象；不存在返回明确 NotFound，同键异意图返回既有幂等冲突。
+查询不消耗 key、不写入投递记录、不检查当前新受理开关。后续 BFF 必须先完成
+当前身份、TenantAccess、动作和资产授权，再调用该查询；原记录 actor 不是访问票据。
+这是原 CreateExecution 的内部查询接缝，不新增公开按 key 查询路由。当前为待真实
+PG RED/GREEN 验证的候选，HTTP/usecase 装配与可靠投递仍未完成。
+
 Governance 是唯一当前 Release binding/generation 权威；ModelDev 持有 immutable
 catalogue，后续以 Governance 专用受理解析能力按指定 Release/Input/Image ID
 返回固定事实。普通 Query 不因此暴露后端存储引用，也不在 Governance 复制第二套目录。

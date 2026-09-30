@@ -22,6 +22,8 @@ const ModelDevCreateAction = "modeldev.execution.create"
 
 var ErrModelDevIdempotencyConflict = errors.New("modeldev idempotency conflict")
 
+var ErrModelDevAcceptanceNotFound = errors.New("modeldev acceptance not found")
+
 // ModelDevAdmissionScope is derived by Governance from the current verified
 // Principal and its persisted resource tenant mapping, never from public JSON.
 type ModelDevAdmissionScope struct {
@@ -63,6 +65,15 @@ type ModelDevAcceptanceRepo struct {
 
 func NewModelDevAcceptanceRepo(client *entCrud.EntClient[*ent.Client]) *ModelDevAcceptanceRepo {
 	return &ModelDevAcceptanceRepo{entClient: client}
+}
+
+// FindAccepted retrieves the immutable original before resolving the current
+// catalogue. Scope must come from current trusted identity and tenant mapping;
+// the caller must recheck current authorization on every request. A miss is
+// ErrModelDevAcceptanceNotFound, and a different intent conflicts. This read
+// neither consumes the key nor checks the current submission gate.
+func (r *ModelDevAcceptanceRepo) FindAccepted(ctx context.Context, scope ModelDevAdmissionScope, intent cpup01.Intent) (*ModelDevAcceptance, error) {
+	return nil, errors.New("modeldev acceptance lookup not implemented")
 }
 
 // AcceptFrozen returns only after the acceptance transaction commits. The bool
