@@ -189,7 +189,7 @@ func modelDevAcceptanceFromRow(row *ent.ModelDevAcceptance) (*ModelDevAcceptance
 		return nil, invalid
 	}
 	return &ModelDevAcceptance{
-		Scope: ModelDevAdmissionScope{TenantID: *row.TenantID, ResourceTenantID: row.ResourceTenantID, Actor: row.Actor, Action: row.Action, IdempotencyKey: row.IdempotencyKey},
+		Scope:       ModelDevAdmissionScope{TenantID: *row.TenantID, ResourceTenantID: row.ResourceTenantID, Actor: row.Actor, Action: row.Action, IdempotencyKey: row.IdempotencyKey},
 		OperationID: row.OperationID, ExecutionID: row.ExecutionID,
 		Intent: intentEnvelope.Intent, Snapshot: snapshot,
 		IntentHash: row.IntentHash, ExecutionSpecHash: row.ExecutionSpecHash,
