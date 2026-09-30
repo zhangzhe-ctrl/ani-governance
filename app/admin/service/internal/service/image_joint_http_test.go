@@ -235,6 +235,33 @@ func TestImageJointHTTP(t *testing.T) {
 		return request(host, "GET", path, bearer, "", key, secret, nil, want)
 	}
 	callCount := func() int { peer.mu.Lock(); defer peer.mu.Unlock(); return peer.calls }
+	{
+		t.Log("real Resource disable contract via authenticated HTTP and mTLS")
+		realHost := serverFor(newImageResourceContractPeer(t))
+		post := func(path, body string, want int) map[string]any {
+			return request(realHost, "POST", path, publisherToken, body, nil, "", nil, want)
+		}
+		post("/api/v1/images/space:enable", `{"slug":"contract","idempotencyKey":"contract-enable"}`, 200)
+		const disablePath = "/api/v1/images/publisher-credential:disable"
+		unissued := post(disablePath, `{"expectedVersion":"0","idempotencyKey":"contract-empty"}`, 409)
+		require.Equal(t, "CREDENTIAL_NOT_ISSUED", unissued["reason"])
+		issued := post("/api/v1/images/publisher-credential:issue", `{"expectedVersion":"0","idempotencyKey":"contract-issue"}`, 200)
+		version := issued["credential"].(map[string]any)["version"].(string)
+		body := fmt.Sprintf(`{"expectedVersion":%q,"idempotencyKey":"contract-disable"}`, version)
+		disabled := post(disablePath, body, 200)["credential"].(map[string]any)
+		require.Equal(t, "disabled", disabled["state"])
+		require.Equal(t, disabled, post(disablePath, body, 200)["credential"])
+		conflict := post(disablePath, `{"expectedVersion":"0","idempotencyKey":"contract-disable"}`, 409)
+		require.Equal(t, "IDEMPOTENCY_CONFLICT", conflict["reason"])
+		conflict = request(realHost, "POST", disablePath, "", body, publisherAK, publisherSK, nil, 409)
+		require.Equal(t, "IDEMPOTENCY_CONFLICT", conflict["reason"], "same key belongs to a different authenticated actor")
+		stale := post(disablePath, fmt.Sprintf(`{"expectedVersion":%q,"idempotencyKey":"contract-stale"}`, version), 409)
+		require.Equal(t, "VERSION_CONFLICT", stale["reason"])
+		bodyDisabled := fmt.Sprintf(`{"expectedVersion":%q,"idempotencyKey":"contract-disabled"}`, disabled["version"])
+		require.Equal(t, disabled, post(disablePath, bodyDisabled, 200)["credential"])
+		post("/api/v1/images/publisher-credential:issue", fmt.Sprintf(`{"expectedVersion":%q,"idempotencyKey":"contract-reissue"}`, disabled["version"]), 200)
+		require.Equal(t, disabled, post(disablePath, body, 200)["credential"], "completed replay survives a new active generation")
+	}
 	get("/api/v1/images/publisher-credential", "", nil, "", 401)
 	out := get("/api/v1/images/space", readerToken, nil, "", 200)
 	require.Equal(t, "1", out["space"].(map[string]any)["version"])
