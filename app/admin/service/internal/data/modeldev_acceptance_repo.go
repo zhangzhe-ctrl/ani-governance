@@ -145,14 +145,16 @@ func (r *ModelDevAcceptanceRepo) AcceptFrozen(ctx context.Context, scope ModelDe
 		// The shared envelope rejects sub-microsecond timestamps instead of
 		// silently changing the immutable accepted_at persisted by PostgreSQL.
 		acceptedAt := candidate.AcceptedAt.UTC()
+		// The shared validator accepts UUID case variants. Persist one spelling
+		// so string uniqueness enforces the UUID identity received by ModelDev.
 		row, err = tx.ModelDevAcceptance.Create().
 			SetTenantID(scope.TenantID).
 			SetResourceTenantID(scope.ResourceTenantID).
 			SetActor(scope.Actor).
 			SetAction(scope.Action).
 			SetIdempotencyKey(scope.IdempotencyKey).
-			SetOperationID(candidate.OperationID).
-			SetExecutionID(candidate.ExecutionID).
+			SetOperationID(strings.ToLower(candidate.OperationID)).
+			SetExecutionID(strings.ToLower(candidate.ExecutionID)).
 			SetIntentHash(intentHash).
 			SetIntentCanonical(intentCanonical).
 			SetExecutionSpecHash(specHash).
