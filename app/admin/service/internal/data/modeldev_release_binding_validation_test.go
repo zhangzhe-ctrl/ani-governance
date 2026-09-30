@@ -172,6 +172,9 @@ func TestModelDevReleaseBindingRejectsInvalidParametersWithoutMutation(t *testin
 		{"invalid UTF8 reason", func(_ *ModelDevReleaseBindingScope, update *ModelDevReleaseBindingUpdate) {
 			update.Reason = string([]byte{0xff})
 		}},
+		{"NUL reason cannot roundtrip PostgreSQL text", func(_ *ModelDevReleaseBindingScope, update *ModelDevReleaseBindingUpdate) {
+			update.Reason = "reason\x00suffix"
+		}},
 		{"missing evidence reference", func(_ *ModelDevReleaseBindingScope, update *ModelDevReleaseBindingUpdate) {
 			update.EvidenceReference = ""
 		}},
@@ -180,6 +183,9 @@ func TestModelDevReleaseBindingRejectsInvalidParametersWithoutMutation(t *testin
 		}},
 		{"invalid UTF8 evidence reference", func(_ *ModelDevReleaseBindingScope, update *ModelDevReleaseBindingUpdate) {
 			update.EvidenceReference = string([]byte{0xff})
+		}},
+		{"NUL evidence cannot roundtrip PostgreSQL text", func(_ *ModelDevReleaseBindingScope, update *ModelDevReleaseBindingUpdate) {
+			update.EvidenceReference = "contract:release\x00suffix"
 		}},
 	}
 	for _, test := range cases {

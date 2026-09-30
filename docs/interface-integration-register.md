@@ -1042,7 +1042,8 @@ Governance 当前指针代际受 PostgreSQL bigint 限制，范围为 `1..MaxInt
 绑定的 resource tenant、preset 和 release ID 使用标准 36 字符非零 UUID，写入及
 查询前归一化为小写；不接受 compact、URN 等别名。release_digest 是 64 位小写
 十六进制摘要。审计 actor 复用共享 `ValidAuditActor`，requested_at 要求非零、
-UTC 年份 1..9999 且精确到微秒；reason/evidence_reference 必须为非空白 UTF-8。
+UTC 年份 1..9999 且精确到微秒；reason/evidence_reference 必须为非空白 UTF-8，
+且不能含 PostgreSQL text 不支持的 NUL。
 这些持久边界校验正在独立 TDD 验证；它们不证明引用对象存在、已核验或操作者当前有权。
 当前仓储测试中的证据引用是合成 fixture，不证明真实 Release 已验收。
 受理事务内复核该代际以及暂停仅影响新键，将在后续切片接入；当前 AcceptFrozen
