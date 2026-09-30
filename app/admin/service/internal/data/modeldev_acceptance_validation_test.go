@@ -91,7 +91,8 @@ func newModelDevAcceptanceFixture(t *testing.T) (context.Context, *entCrud.EntCl
 	ctx, cancel := context.WithTimeout(appViewer.NewSystemViewerContext(context.Background()), 30*time.Second)
 	t.Cleanup(cancel)
 	client := newModelDevPGClient(t)
-	tenant, err := client.Client().Tenant.Create().SetName("modeldev admission contract").SetCode("cpu-" + uuid.NewString()).Save(ctx)
+	fixtureID := uuid.NewString()
+	tenant, err := client.Client().Tenant.Create().SetName("cpu-" + fixtureID).SetCode("cpu-" + fixtureID).Save(ctx)
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		cleanup, stop := context.WithTimeout(appViewer.NewSystemViewerContext(context.Background()), 5*time.Second)
