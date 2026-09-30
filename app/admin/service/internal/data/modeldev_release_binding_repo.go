@@ -22,6 +22,7 @@ var (
 	ErrModelDevBindingGenerationConflict  = errors.New("modeldev release binding generation conflict")
 	ErrModelDevBindingGenerationExhausted = errors.New("modeldev release binding generation exhausted")
 	ErrModelDevBindingNotFound            = errors.New("modeldev release binding not found")
+	ErrModelDevBindingDisabled            = errors.New("modeldev release binding disabled")
 )
 
 // PostgreSQL bigint bounds Governance's current-pointer generation. Shared

@@ -17,6 +17,7 @@ import (
 
 func TestModelDevAcceptanceConflictingIntentPreservesOriginal(t *testing.T) {
 	ctx, client, scope, candidate := newModelDevAcceptanceFixture(t)
+	bindModelDevAcceptanceFixture(t, ctx, client, scope, candidate)
 	repo := NewModelDevAcceptanceRepo(client)
 	original, replayed, err := repo.AcceptFrozen(ctx, scope, candidate)
 	require.NoError(t, err)
@@ -70,6 +71,8 @@ func TestModelDevAcceptanceConflictingIntentPreservesOriginal(t *testing.T) {
 func TestModelDevAcceptanceConcurrentScopeIsolation(t *testing.T) {
 	baseContext, firstClient, firstScope, firstCandidate := newModelDevAcceptanceFixture(t)
 	_, secondClient, secondScope, secondCandidate := newModelDevAcceptanceFixture(t)
+	bindModelDevAcceptanceFixture(t, baseContext, firstClient, firstScope, firstCandidate)
+	bindModelDevAcceptanceFixture(t, baseContext, secondClient, secondScope, secondCandidate)
 	secondScope.Actor, secondScope.IdempotencyKey = firstScope.Actor, firstScope.IdempotencyKey
 	otherKey, otherActor := firstScope, firstScope
 	otherKey.IdempotencyKey = uuid.NewString()

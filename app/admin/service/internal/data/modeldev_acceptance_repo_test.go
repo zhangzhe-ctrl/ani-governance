@@ -42,6 +42,7 @@ func TestModelDevAcceptancePersistsAndReplaysFrozenVersion(t *testing.T) {
 	intent.PresetID = snapshot.Release.PresetID
 	intent.DatasetVersionID = snapshot.Input.InputVersionID
 	candidate := ModelDevFrozenCandidate{OperationID: uuid.NewString(), ExecutionID: uuid.NewString(), Intent: intent, Snapshot: snapshot, AcceptedAt: snapshot.DeadlineAt.Add(-time.Hour)}
+	bindModelDevAcceptanceFixture(t, ctx, client, scope, candidate)
 	intentCanonical, intentHash, err := cpup01.CanonicalIntent(intent)
 	require.NoError(t, err)
 

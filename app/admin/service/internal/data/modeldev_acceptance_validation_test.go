@@ -64,6 +64,7 @@ func TestModelDevAcceptanceRejectsInvalidEnvelopeWithoutConsumingKey(t *testing.
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
 			ctx, client, scope, candidate := newModelDevAcceptanceFixture(t)
+			bindModelDevAcceptanceFixture(t, ctx, client, scope, candidate)
 			invalidScope, invalidCandidate := scope, candidate
 			test.mutate(&invalidScope, &invalidCandidate)
 			accepted, replayed, err := NewModelDevAcceptanceRepo(client).AcceptFrozen(ctx, invalidScope, invalidCandidate)
