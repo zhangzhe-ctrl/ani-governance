@@ -73,14 +73,46 @@ func NewModelDevAcceptanceRepo(client *entCrud.EntClient[*ent.Client]) *ModelDev
 // ErrModelDevAcceptanceNotFound, and a different intent conflicts. This read
 // neither consumes the key nor checks the current submission gate.
 func (r *ModelDevAcceptanceRepo) FindAccepted(ctx context.Context, scope ModelDevAdmissionScope, intent cpup01.Intent) (*ModelDevAcceptance, error) {
-	return nil, errors.New("modeldev acceptance lookup not implemented")
+	if err := validateModelDevAdmissionScope(scope); err != nil {
+		return nil, err
+	}
+	canonical, intentHash, err := cpup01.CanonicalIntent(intent)
+	if err != nil {
+		return nil, err
+	}
+	mapped, err := r.entClient.Client().Tenant.Query().Where(
+		tenant.IDEQ(scope.TenantID), tenant.ResourceTenantIDEQ(scope.ResourceTenantID),
+	).Exist(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !mapped {
+		return nil, fmt.Errorf("%w: modeldev tenant mapping", cpup01.ErrInvalidArgument)
+	}
+	row, err := r.entClient.Client().ModelDevAcceptance.Query().Where(
+		modeldevacceptance.TenantIDEQ(scope.TenantID),
+		modeldevacceptance.ResourceTenantIDEQ(scope.ResourceTenantID),
+		modeldevacceptance.ActorEQ(scope.Actor),
+		modeldevacceptance.ActionEQ(scope.Action),
+		modeldevacceptance.IdempotencyKeyEQ(scope.IdempotencyKey),
+	).Only(ctx)
+	if ent.IsNotFound(err) {
+		return nil, ErrModelDevAcceptanceNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	if row.IntentHash != intentHash || !bytes.Equal(row.IntentCanonical, canonical) {
+		return nil, ErrModelDevIdempotencyConflict
+	}
+	return modelDevAcceptanceFromRow(row)
 }
 
 // AcceptFrozen returns only after the acceptance transaction commits. The bool
 // distinguishes a same-intent replay from this call's newly persisted record.
 func (r *ModelDevAcceptanceRepo) AcceptFrozen(ctx context.Context, scope ModelDevAdmissionScope, candidate ModelDevFrozenCandidate) (*ModelDevAcceptance, bool, error) {
-	if scope.TenantID == 0 || scope.ResourceTenantID == "" || !cpup01.ValidAuditActor(scope.Actor) || scope.Action != ModelDevCreateAction || scope.IdempotencyKey == "" {
-		return nil, false, fmt.Errorf("%w: modeldev admission scope", cpup01.ErrInvalidArgument)
+	if err := validateModelDevAdmissionScope(scope); err != nil {
+		return nil, false, err
 	}
 	intentCanonical, intentHash, err := cpup01.CanonicalIntent(candidate.Intent)
 	if err != nil {
@@ -183,6 +215,13 @@ func (r *ModelDevAcceptanceRepo) AcceptFrozen(ctx context.Context, scope ModelDe
 		return nil, false, err
 	}
 	return accepted, replayed, nil
+}
+
+func validateModelDevAdmissionScope(scope ModelDevAdmissionScope) error {
+	if scope.TenantID == 0 || scope.ResourceTenantID == "" || !cpup01.ValidAuditActor(scope.Actor) || scope.Action != ModelDevCreateAction || scope.IdempotencyKey == "" {
+		return fmt.Errorf("%w: modeldev admission scope", cpup01.ErrInvalidArgument)
+	}
+	return nil
 }
 
 func (r *ModelDevAcceptanceRepo) acceptanceTransaction(ctx context.Context, work func(*ent.Tx) error) (err error) {
