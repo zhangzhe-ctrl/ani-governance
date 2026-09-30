@@ -66,7 +66,7 @@ func NewModelDevAcceptanceRepo(client *entCrud.EntClient[*ent.Client]) *ModelDev
 // AcceptFrozen returns only after the acceptance transaction commits. The bool
 // distinguishes a same-intent replay from this call's newly persisted record.
 func (r *ModelDevAcceptanceRepo) AcceptFrozen(ctx context.Context, scope ModelDevAdmissionScope, candidate ModelDevFrozenCandidate) (*ModelDevAcceptance, bool, error) {
-	if scope.TenantID == 0 || scope.ResourceTenantID == "" || scope.Actor == "" || scope.Action != ModelDevCreateAction || scope.IdempotencyKey == "" {
+	if scope.TenantID == 0 || scope.ResourceTenantID == "" || !cpup01.ValidAuditActor(scope.Actor) || scope.Action != ModelDevCreateAction || scope.IdempotencyKey == "" {
 		return nil, false, fmt.Errorf("%w: modeldev admission scope", cpup01.ErrInvalidArgument)
 	}
 	intentCanonical, intentHash, err := cpup01.CanonicalIntent(candidate.Intent)
@@ -79,6 +79,9 @@ func (r *ModelDevAcceptanceRepo) AcceptFrozen(ctx context.Context, scope ModelDe
 		// Serialize acceptance within this tenant before looking up the key. The
 		// resource UUID must be the current persisted Governance tenant mapping.
 		if _, err := tx.Tenant.Query().Where(tenant.IDEQ(scope.TenantID), tenant.ResourceTenantIDEQ(scope.ResourceTenantID)).ForUpdate().Only(ctx); err != nil {
+			if ent.IsNotFound(err) {
+				return fmt.Errorf("%w: modeldev tenant mapping", cpup01.ErrInvalidArgument)
+			}
 			return err
 		}
 		row, err := tx.ModelDevAcceptance.Query().Where(
@@ -101,20 +104,23 @@ func (r *ModelDevAcceptanceRepo) AcceptFrozen(ctx context.Context, scope ModelDe
 		}
 		// Only a new key consumes the resolved candidate. Historical replay is
 		// independent of new defaults and does not revalidate a new snapshot.
-		if candidate.OperationID == "" || candidate.ExecutionID == "" || candidate.AcceptedAt.IsZero() || !candidate.Snapshot.DeadlineAt.After(candidate.AcceptedAt) {
-			return fmt.Errorf("%w: modeldev frozen admission", cpup01.ErrInvalidArgument)
-		}
-		snapshotCanonical, err := candidate.Snapshot.Canonical()
-		if err != nil {
-			return err
-		}
 		specHash, err := candidate.Snapshot.Digest()
 		if err != nil {
 			return err
 		}
-		// PostgreSQL timestamps retain microseconds. Persist and return the same
-		// accepted_at so a later reader cannot observe a different audit value.
-		acceptedAt := candidate.AcceptedAt.UTC().Truncate(time.Microsecond)
+		envelope := cpup01.AdmissionEnvelope{
+			TenantID: scope.ResourceTenantID, Actor: scope.Actor,
+			OperationID: candidate.OperationID, ExecutionID: candidate.ExecutionID,
+			Intent: candidate.Intent, IntentHash: intentHash,
+			Snapshot: candidate.Snapshot, SpecHash: specHash, AcceptedAt: candidate.AcceptedAt,
+		}
+		_, snapshotCanonical, err := envelope.CanonicalPayloads()
+		if err != nil {
+			return err
+		}
+		// The shared envelope rejects sub-microsecond timestamps instead of
+		// silently changing the immutable accepted_at persisted by PostgreSQL.
+		acceptedAt := candidate.AcceptedAt.UTC()
 		row, err = tx.ModelDevAcceptance.Create().
 			SetTenantID(scope.TenantID).
 			SetResourceTenantID(scope.ResourceTenantID).
@@ -176,16 +182,14 @@ func modelDevAcceptanceFromRow(row *ent.ModelDevAcceptance) (*ModelDevAcceptance
 	if json.Unmarshal(row.IntentCanonical, &intentEnvelope) != nil || json.Unmarshal(row.SnapshotCanonical, &snapshot) != nil {
 		return nil, invalid
 	}
-	intentCanonical, intentHash, err := cpup01.CanonicalIntent(intentEnvelope.Intent)
-	if err != nil || intentHash != row.IntentHash || !bytes.Equal(intentCanonical, row.IntentCanonical) {
-		return nil, invalid
+	envelope := cpup01.AdmissionEnvelope{
+		TenantID: row.ResourceTenantID, Actor: row.Actor,
+		OperationID: row.OperationID, ExecutionID: row.ExecutionID,
+		Intent: intentEnvelope.Intent, IntentHash: row.IntentHash,
+		Snapshot: snapshot, SpecHash: row.ExecutionSpecHash, AcceptedAt: row.AcceptedAt,
 	}
-	snapshotCanonical, err := snapshot.Canonical()
-	if err != nil || !bytes.Equal(snapshotCanonical, row.SnapshotCanonical) {
-		return nil, invalid
-	}
-	specHash, err := snapshot.Digest()
-	if err != nil || specHash != row.ExecutionSpecHash {
+	intentCanonical, snapshotCanonical, err := envelope.CanonicalPayloads()
+	if err != nil || !bytes.Equal(intentCanonical, row.IntentCanonical) || !bytes.Equal(snapshotCanonical, row.SnapshotCanonical) {
 		return nil, invalid
 	}
 	return &ModelDevAcceptance{

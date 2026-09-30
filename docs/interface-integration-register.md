@@ -22,7 +22,7 @@
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
 | Network 租户面读写对接（GOV-RESOURCE-20260922） | NET-02～NET-11；复用 AK-*、AUTH-* | BFF 路由/客户端/Service 已实现，17/17 全链路验收 PASS | GOV-RESOURCE-20260922 完成 |
 | 通用配额与 GPU 本地模拟 | QUOTA-01～03、QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 本地模拟闭环已实现并通过指定验收；正式构建无 GPU 路由；真实 GPU 未接入 | QUOTA-GPU-LOCAL-01，本地验收完成（真实 GPU not_verified） |
-| ModelDev CPU 主干受理 | MODELDEV-01 | 受理持久化首片测试与 schema 输入；HTTP、权限目录及投递尚未装配 | CPU-P01，进行中 |
+| ModelDev CPU 主干受理 | MODELDEV-01 | 已解析候选的持久受理与原键重放；HTTP、权限目录及投递尚未装配 | CPU-P01，进行中 |
 
 ## 风格改动批次
 
@@ -1012,7 +1012,7 @@ QUOTA-01～04 与 ACC 既有路由、字段和鉴权保持原合同。`ListQuota
 本组沿用 v0.4 的 `/admin/v1/modeldev` 路由，只增加 CPU-P01 明确启用的能力。
 共享 Intent、Snapshot、Proto 和规范测试向量由 ani-modeldev-service 单点维护；
 Governance 通过 go.mod/go.sum 固定精确模块版本，生产代码不导入 conformance fixture。
-当前首片仅准备持久受理的真实 PostgreSQL 测试、Repository stub 和 Ent schema 输入，
+当前首片实现已解析候选的 PostgreSQL 持久受理、原键重放和 Ent/Atlas schema，
 没有注册下面的 HTTP 路由或声明其可用。
 
 | 编号 | 路由与方法 | 请求与响应合同 | 鉴权与范围 | 当前边界 |
@@ -1031,5 +1031,8 @@ catalogue，后续以 Governance 专用受理解析能力按指定 Release/Input
 CPU 受理持久化使用 `sys_modeldev_acceptances`，保存 scope、双摘要和完整冻结
 规范字节，并同时记录 QUEUED 投递意图。它不创建 GPU operation/account/charge。
 tenant/resource tenant 关联通过导出器中的复合外键约束；迁移经 Atlas 显式执行。
+新键持久化前和原记录读取时使用提供方的 `cpup01.AdmissionEnvelope` 校验身份、
+双摘要及意图与快照的对应关系；拒绝亚微秒 accepted_at，不能静默截断审计时间。
+Governance 不维护第二套快照对应规则，非法候选不得占用幂等键。
 首片只验证已解析候选的持久保存与原键重放，不能代替 binding 切换/CAS、worker
 重试与重启、ModelDev durable ACK 或目标集群业务验收。
