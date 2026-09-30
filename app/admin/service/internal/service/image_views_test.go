@@ -51,4 +51,9 @@ func TestImageResponseOwnershipAndScope(t *testing.T) {
 	if errors.Code(e) != 409 || errors.Reason(e) != "VERSION_CONFLICT" || strings.Contains(e.Error(), "sensitive") {
 		t.Fatal("Image error contract lost")
 	}
+	s, _ = status.New(codes.FailedPrecondition, "sensitive-provider-message").WithDetails(&errdetails.ErrorInfo{Domain: "image.ani.io", Reason: "CREDENTIAL_NOT_ISSUED"})
+	e = mapImageError(s.Err())
+	if errors.Code(e) != 409 || errors.Reason(e) != "CREDENTIAL_NOT_ISSUED" || strings.Contains(e.Error(), "sensitive") {
+		t.Fatal("not-issued publisher error contract lost")
+	}
 }
