@@ -3,10 +3,14 @@ package data
 import (
 	"context"
 	"database/sql"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
+	"unicode/utf8"
 
+	"github.com/google/uuid"
 	"github.com/zhangzhe-ctrl/ani-modeldev-service/contract/cpup01"
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/modeldevreleasebinding"
@@ -79,6 +83,10 @@ func NewModelDevReleaseBindingRepo(client *entCrud.EntClient[*ent.Client]) *Mode
 }
 
 func (r *ModelDevReleaseBindingRepo) Get(ctx context.Context, scope ModelDevReleaseBindingScope) (*ModelDevReleaseBinding, error) {
+	scope, err := canonicalModelDevBindingScope(scope)
+	if err != nil {
+		return nil, err
+	}
 	row, err := r.entClient.Client().ModelDevReleaseBinding.Query().Where(
 		modeldevreleasebinding.TenantIDEQ(scope.TenantID),
 		modeldevreleasebinding.ResourceTenantIDEQ(scope.ResourceTenantID),
@@ -100,8 +108,16 @@ func (r *ModelDevReleaseBindingRepo) CompareAndSwap(ctx context.Context, scope M
 	if update.ExpectedGeneration > maxModelDevBindingGeneration {
 		return nil, fmt.Errorf("%w: modeldev binding expected generation", cpup01.ErrInvalidArgument)
 	}
+	scope, err := canonicalModelDevBindingScope(scope)
+	if err != nil {
+		return nil, err
+	}
+	update, err = canonicalModelDevBindingUpdate(update)
+	if err != nil {
+		return nil, err
+	}
 	var change *ModelDevReleaseBindingChange
-	err := r.bindingTransaction(ctx, func(tx *ent.Tx) error {
+	err = r.bindingTransaction(ctx, func(tx *ent.Tx) error {
 		// The tenant row also serializes first creation, when no binding row
 		// exists yet. Acceptance uses this same tenant lock ordering.
 		if _, err := tx.Tenant.Query().Where(tenant.IDEQ(scope.TenantID), tenant.ResourceTenantIDEQ(scope.ResourceTenantID)).ForUpdate().Only(ctx); err != nil {
@@ -180,6 +196,70 @@ func (r *ModelDevReleaseBindingRepo) CompareAndSwap(ctx context.Context, scope M
 		return nil, err
 	}
 	return change, nil
+}
+
+func canonicalModelDevBindingScope(scope ModelDevReleaseBindingScope) (ModelDevReleaseBindingScope, error) {
+	if scope.TenantID == 0 {
+		return ModelDevReleaseBindingScope{}, invalidModelDevBindingField("tenant ID")
+	}
+	var valid bool
+	scope.ResourceTenantID, valid = canonicalModelDevBindingUUID(scope.ResourceTenantID)
+	if !valid {
+		return ModelDevReleaseBindingScope{}, invalidModelDevBindingField("resource tenant ID")
+	}
+	scope.PresetID, valid = canonicalModelDevBindingUUID(scope.PresetID)
+	if !valid {
+		return ModelDevReleaseBindingScope{}, invalidModelDevBindingField("preset ID")
+	}
+	return scope, nil
+}
+
+func canonicalModelDevBindingUpdate(update ModelDevReleaseBindingUpdate) (ModelDevReleaseBindingUpdate, error) {
+	var valid bool
+	update.Target.ReleaseID, valid = canonicalModelDevBindingUUID(update.Target.ReleaseID)
+	if !valid {
+		return ModelDevReleaseBindingUpdate{}, invalidModelDevBindingField("release ID")
+	}
+	digest := update.Target.ReleaseDigest
+	if len(digest) != 64 || strings.ToLower(digest) != digest {
+		return ModelDevReleaseBindingUpdate{}, invalidModelDevBindingField("release digest")
+	}
+	if _, err := hex.DecodeString(digest); err != nil {
+		return ModelDevReleaseBindingUpdate{}, invalidModelDevBindingField("release digest")
+	}
+	if !cpup01.ValidAuditActor(update.Actor) {
+		return ModelDevReleaseBindingUpdate{}, invalidModelDevBindingField("audit actor")
+	}
+	update.RequestedAt = update.RequestedAt.UTC()
+	if update.RequestedAt.IsZero() || update.RequestedAt.Year() < 1 || update.RequestedAt.Year() > 9999 || update.RequestedAt.Nanosecond()%1000 != 0 {
+		return ModelDevReleaseBindingUpdate{}, invalidModelDevBindingField("audit time")
+	}
+	if !validModelDevBindingAuditText(update.Reason) {
+		return ModelDevReleaseBindingUpdate{}, invalidModelDevBindingField("reason")
+	}
+	if !validModelDevBindingAuditText(update.EvidenceReference) {
+		return ModelDevReleaseBindingUpdate{}, invalidModelDevBindingField("evidence reference")
+	}
+	return update, nil
+}
+
+func canonicalModelDevBindingUUID(value string) (string, bool) {
+	if len(value) != 36 {
+		return "", false
+	}
+	id, err := uuid.Parse(value)
+	if err != nil || id == uuid.Nil {
+		return "", false
+	}
+	return id.String(), true
+}
+
+func validModelDevBindingAuditText(value string) bool {
+	return utf8.ValidString(value) && strings.TrimSpace(value) != "" && !strings.ContainsRune(value, 0)
+}
+
+func invalidModelDevBindingField(field string) error {
+	return fmt.Errorf("%w: modeldev binding %s", cpup01.ErrInvalidArgument, field)
 }
 
 func (r *ModelDevReleaseBindingRepo) bindingTransaction(ctx context.Context, work func(*ent.Tx) error) (err error) {
