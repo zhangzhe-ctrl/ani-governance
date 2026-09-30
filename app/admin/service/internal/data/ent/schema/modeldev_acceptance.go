@@ -18,7 +18,7 @@ func (ModelDevAcceptance) Annotations() []schema.Annotation {
 		Table: "sys_modeldev_acceptances",
 		Checks: map[string]string{
 			"sys_modeldev_acceptances_tenant_positive_ck": "tenant_id > 0",
-			"sys_modeldev_acceptances_action_ck": "action = 'modeldev.execution.create'",
+			"sys_modeldev_acceptances_action_ck":          "action = 'modeldev.execution.create'",
 		},
 	}}
 }

@@ -52,6 +52,8 @@ type Tx struct {
 	MembershipRole *MembershipRoleClient
 	// Menu is the client for interacting with the Menu builders.
 	Menu *MenuClient
+	// ModelDevAcceptance is the client for interacting with the ModelDevAcceptance builders.
+	ModelDevAcceptance *ModelDevAcceptanceClient
 	// NotificationChannel is the client for interacting with the NotificationChannel builders.
 	NotificationChannel *NotificationChannelClient
 	// OperationAuditLog is the client for interacting with the OperationAuditLog builders.
@@ -269,6 +271,7 @@ func (tx *Tx) init() {
 	tx.MembershipPosition = NewMembershipPositionClient(tx.config)
 	tx.MembershipRole = NewMembershipRoleClient(tx.config)
 	tx.Menu = NewMenuClient(tx.config)
+	tx.ModelDevAcceptance = NewModelDevAcceptanceClient(tx.config)
 	tx.NotificationChannel = NewNotificationChannelClient(tx.config)
 	tx.OperationAuditLog = NewOperationAuditLogClient(tx.config)
 	tx.OrgUnit = NewOrgUnitClient(tx.config)

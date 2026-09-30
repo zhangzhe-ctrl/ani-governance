@@ -25,6 +25,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/membershipposition"
 	"go-wind-admin/app/admin/service/internal/data/ent/membershiprole"
 	"go-wind-admin/app/admin/service/internal/data/ent/menu"
+	"go-wind-admin/app/admin/service/internal/data/ent/modeldevacceptance"
 	"go-wind-admin/app/admin/service/internal/data/ent/notificationchannel"
 	"go-wind-admin/app/admin/service/internal/data/ent/operationauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/orgunit"
@@ -723,6 +724,70 @@ func init() {
 	menuDescID := menuMixinFields0[0].Descriptor()
 	// menu.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	menu.IDValidator = menuDescID.Validators[0].(func(uint32) error)
+	modeldevacceptanceMixin := schema.ModelDevAcceptance{}.Mixin()
+	modeldevacceptance.Policy = privacy.NewPolicies(modeldevacceptanceMixin[1], schema.ModelDevAcceptance{})
+	modeldevacceptance.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := modeldevacceptance.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	modeldevacceptanceMixinFields0 := modeldevacceptanceMixin[0].Fields()
+	_ = modeldevacceptanceMixinFields0
+	modeldevacceptanceMixinFields1 := modeldevacceptanceMixin[1].Fields()
+	_ = modeldevacceptanceMixinFields1
+	modeldevacceptanceFields := schema.ModelDevAcceptance{}.Fields()
+	_ = modeldevacceptanceFields
+	// modeldevacceptanceDescTenantID is the schema descriptor for tenant_id field.
+	modeldevacceptanceDescTenantID := modeldevacceptanceMixinFields1[0].Descriptor()
+	// modeldevacceptance.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	modeldevacceptance.TenantIDValidator = modeldevacceptanceDescTenantID.Validators[0].(func(uint32) error)
+	// modeldevacceptanceDescResourceTenantID is the schema descriptor for resource_tenant_id field.
+	modeldevacceptanceDescResourceTenantID := modeldevacceptanceFields[0].Descriptor()
+	// modeldevacceptance.ResourceTenantIDValidator is a validator for the "resource_tenant_id" field. It is called by the builders before save.
+	modeldevacceptance.ResourceTenantIDValidator = modeldevacceptanceDescResourceTenantID.Validators[0].(func(string) error)
+	// modeldevacceptanceDescActor is the schema descriptor for actor field.
+	modeldevacceptanceDescActor := modeldevacceptanceFields[1].Descriptor()
+	// modeldevacceptance.ActorValidator is a validator for the "actor" field. It is called by the builders before save.
+	modeldevacceptance.ActorValidator = modeldevacceptanceDescActor.Validators[0].(func(string) error)
+	// modeldevacceptanceDescAction is the schema descriptor for action field.
+	modeldevacceptanceDescAction := modeldevacceptanceFields[2].Descriptor()
+	// modeldevacceptance.ActionValidator is a validator for the "action" field. It is called by the builders before save.
+	modeldevacceptance.ActionValidator = modeldevacceptanceDescAction.Validators[0].(func(string) error)
+	// modeldevacceptanceDescIdempotencyKey is the schema descriptor for idempotency_key field.
+	modeldevacceptanceDescIdempotencyKey := modeldevacceptanceFields[3].Descriptor()
+	// modeldevacceptance.IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
+	modeldevacceptance.IdempotencyKeyValidator = modeldevacceptanceDescIdempotencyKey.Validators[0].(func(string) error)
+	// modeldevacceptanceDescOperationID is the schema descriptor for operation_id field.
+	modeldevacceptanceDescOperationID := modeldevacceptanceFields[4].Descriptor()
+	// modeldevacceptance.OperationIDValidator is a validator for the "operation_id" field. It is called by the builders before save.
+	modeldevacceptance.OperationIDValidator = modeldevacceptanceDescOperationID.Validators[0].(func(string) error)
+	// modeldevacceptanceDescExecutionID is the schema descriptor for execution_id field.
+	modeldevacceptanceDescExecutionID := modeldevacceptanceFields[5].Descriptor()
+	// modeldevacceptance.ExecutionIDValidator is a validator for the "execution_id" field. It is called by the builders before save.
+	modeldevacceptance.ExecutionIDValidator = modeldevacceptanceDescExecutionID.Validators[0].(func(string) error)
+	// modeldevacceptanceDescIntentHash is the schema descriptor for intent_hash field.
+	modeldevacceptanceDescIntentHash := modeldevacceptanceFields[6].Descriptor()
+	// modeldevacceptance.IntentHashValidator is a validator for the "intent_hash" field. It is called by the builders before save.
+	modeldevacceptance.IntentHashValidator = modeldevacceptanceDescIntentHash.Validators[0].(func(string) error)
+	// modeldevacceptanceDescIntentCanonical is the schema descriptor for intent_canonical field.
+	modeldevacceptanceDescIntentCanonical := modeldevacceptanceFields[7].Descriptor()
+	// modeldevacceptance.IntentCanonicalValidator is a validator for the "intent_canonical" field. It is called by the builders before save.
+	modeldevacceptance.IntentCanonicalValidator = modeldevacceptanceDescIntentCanonical.Validators[0].(func([]byte) error)
+	// modeldevacceptanceDescExecutionSpecHash is the schema descriptor for execution_spec_hash field.
+	modeldevacceptanceDescExecutionSpecHash := modeldevacceptanceFields[8].Descriptor()
+	// modeldevacceptance.ExecutionSpecHashValidator is a validator for the "execution_spec_hash" field. It is called by the builders before save.
+	modeldevacceptance.ExecutionSpecHashValidator = modeldevacceptanceDescExecutionSpecHash.Validators[0].(func(string) error)
+	// modeldevacceptanceDescSnapshotCanonical is the schema descriptor for snapshot_canonical field.
+	modeldevacceptanceDescSnapshotCanonical := modeldevacceptanceFields[9].Descriptor()
+	// modeldevacceptance.SnapshotCanonicalValidator is a validator for the "snapshot_canonical" field. It is called by the builders before save.
+	modeldevacceptance.SnapshotCanonicalValidator = modeldevacceptanceDescSnapshotCanonical.Validators[0].(func([]byte) error)
+	// modeldevacceptanceDescID is the schema descriptor for id field.
+	modeldevacceptanceDescID := modeldevacceptanceMixinFields0[0].Descriptor()
+	// modeldevacceptance.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	modeldevacceptance.IDValidator = modeldevacceptanceDescID.Validators[0].(func(uint32) error)
 	notificationchannelMixin := schema.NotificationChannel{}.Mixin()
 	notificationchannelMixinFields0 := notificationchannelMixin[0].Fields()
 	_ = notificationchannelMixinFields0

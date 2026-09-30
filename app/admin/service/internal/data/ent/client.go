@@ -31,6 +31,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/membershipposition"
 	"go-wind-admin/app/admin/service/internal/data/ent/membershiprole"
 	"go-wind-admin/app/admin/service/internal/data/ent/menu"
+	"go-wind-admin/app/admin/service/internal/data/ent/modeldevacceptance"
 	"go-wind-admin/app/admin/service/internal/data/ent/notificationchannel"
 	"go-wind-admin/app/admin/service/internal/data/ent/operationauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/orgunit"
@@ -116,6 +117,8 @@ type Client struct {
 	MembershipRole *MembershipRoleClient
 	// Menu is the client for interacting with the Menu builders.
 	Menu *MenuClient
+	// ModelDevAcceptance is the client for interacting with the ModelDevAcceptance builders.
+	ModelDevAcceptance *ModelDevAcceptanceClient
 	// NotificationChannel is the client for interacting with the NotificationChannel builders.
 	NotificationChannel *NotificationChannelClient
 	// OperationAuditLog is the client for interacting with the OperationAuditLog builders.
@@ -213,6 +216,7 @@ func (c *Client) init() {
 	c.MembershipPosition = NewMembershipPositionClient(c.config)
 	c.MembershipRole = NewMembershipRoleClient(c.config)
 	c.Menu = NewMenuClient(c.config)
+	c.ModelDevAcceptance = NewModelDevAcceptanceClient(c.config)
 	c.NotificationChannel = NewNotificationChannelClient(c.config)
 	c.OperationAuditLog = NewOperationAuditLogClient(c.config)
 	c.OrgUnit = NewOrgUnitClient(c.config)
@@ -358,6 +362,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		MembershipPosition:       NewMembershipPositionClient(cfg),
 		MembershipRole:           NewMembershipRoleClient(cfg),
 		Menu:                     NewMenuClient(cfg),
+		ModelDevAcceptance:       NewModelDevAcceptanceClient(cfg),
 		NotificationChannel:      NewNotificationChannelClient(cfg),
 		OperationAuditLog:        NewOperationAuditLogClient(cfg),
 		OrgUnit:                  NewOrgUnitClient(cfg),
@@ -430,6 +435,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		MembershipPosition:       NewMembershipPositionClient(cfg),
 		MembershipRole:           NewMembershipRoleClient(cfg),
 		Menu:                     NewMenuClient(cfg),
+		ModelDevAcceptance:       NewModelDevAcceptanceClient(cfg),
 		NotificationChannel:      NewNotificationChannelClient(cfg),
 		OperationAuditLog:        NewOperationAuditLogClient(cfg),
 		OrgUnit:                  NewOrgUnitClient(cfg),
@@ -496,11 +502,11 @@ func (c *Client) Use(hooks ...Hook) {
 		c.DictEntryI18n, c.DictType, c.GpuDeleteAcceptance, c.GpuUsageSync,
 		c.InternalMessage, c.InternalMessageCategory, c.InternalMessageRecipient,
 		c.Language, c.LoginAuditLog, c.LoginPolicy, c.Membership, c.MembershipOrgUnit,
-		c.MembershipPosition, c.MembershipRole, c.Menu, c.NotificationChannel,
-		c.OperationAuditLog, c.OrgUnit, c.Permission, c.PermissionApi,
-		c.PermissionAuditLog, c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy,
-		c.Plan, c.PlanModule, c.PlanQuota, c.PolicyEvaluationLog, c.Position,
-		c.QuotaAccount, c.QuotaCharge, c.QuotaDefinition, c.QuotaOperation,
+		c.MembershipPosition, c.MembershipRole, c.Menu, c.ModelDevAcceptance,
+		c.NotificationChannel, c.OperationAuditLog, c.OrgUnit, c.Permission,
+		c.PermissionApi, c.PermissionAuditLog, c.PermissionGroup, c.PermissionMenu,
+		c.PermissionPolicy, c.Plan, c.PlanModule, c.PlanQuota, c.PolicyEvaluationLog,
+		c.Position, c.QuotaAccount, c.QuotaCharge, c.QuotaDefinition, c.QuotaOperation,
 		c.QuotaReleaseReceipt, c.Role, c.RoleFieldPermission, c.RoleMetadata,
 		c.RoleOrgUnit, c.RolePermission, c.SysConfig, c.Task, c.Tenant, c.User,
 		c.UserCredential, c.UserMfaFactor, c.UserOrgUnit, c.UserPosition, c.UserRole,
@@ -517,11 +523,11 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.DictEntryI18n, c.DictType, c.GpuDeleteAcceptance, c.GpuUsageSync,
 		c.InternalMessage, c.InternalMessageCategory, c.InternalMessageRecipient,
 		c.Language, c.LoginAuditLog, c.LoginPolicy, c.Membership, c.MembershipOrgUnit,
-		c.MembershipPosition, c.MembershipRole, c.Menu, c.NotificationChannel,
-		c.OperationAuditLog, c.OrgUnit, c.Permission, c.PermissionApi,
-		c.PermissionAuditLog, c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy,
-		c.Plan, c.PlanModule, c.PlanQuota, c.PolicyEvaluationLog, c.Position,
-		c.QuotaAccount, c.QuotaCharge, c.QuotaDefinition, c.QuotaOperation,
+		c.MembershipPosition, c.MembershipRole, c.Menu, c.ModelDevAcceptance,
+		c.NotificationChannel, c.OperationAuditLog, c.OrgUnit, c.Permission,
+		c.PermissionApi, c.PermissionAuditLog, c.PermissionGroup, c.PermissionMenu,
+		c.PermissionPolicy, c.Plan, c.PlanModule, c.PlanQuota, c.PolicyEvaluationLog,
+		c.Position, c.QuotaAccount, c.QuotaCharge, c.QuotaDefinition, c.QuotaOperation,
 		c.QuotaReleaseReceipt, c.Role, c.RoleFieldPermission, c.RoleMetadata,
 		c.RoleOrgUnit, c.RolePermission, c.SysConfig, c.Task, c.Tenant, c.User,
 		c.UserCredential, c.UserMfaFactor, c.UserOrgUnit, c.UserPosition, c.UserRole,
@@ -573,6 +579,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.MembershipRole.mutate(ctx, m)
 	case *MenuMutation:
 		return c.Menu.mutate(ctx, m)
+	case *ModelDevAcceptanceMutation:
+		return c.ModelDevAcceptance.mutate(ctx, m)
 	case *NotificationChannelMutation:
 		return c.NotificationChannel.mutate(ctx, m)
 	case *OperationAuditLogMutation:
@@ -3414,6 +3422,140 @@ func (c *MenuClient) mutate(ctx context.Context, m *MenuMutation) (Value, error)
 		return (&MenuDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Menu mutation op: %q", m.Op())
+	}
+}
+
+// ModelDevAcceptanceClient is a client for the ModelDevAcceptance schema.
+type ModelDevAcceptanceClient struct {
+	config
+}
+
+// NewModelDevAcceptanceClient returns a client for the ModelDevAcceptance from the given config.
+func NewModelDevAcceptanceClient(c config) *ModelDevAcceptanceClient {
+	return &ModelDevAcceptanceClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `modeldevacceptance.Hooks(f(g(h())))`.
+func (c *ModelDevAcceptanceClient) Use(hooks ...Hook) {
+	c.hooks.ModelDevAcceptance = append(c.hooks.ModelDevAcceptance, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `modeldevacceptance.Intercept(f(g(h())))`.
+func (c *ModelDevAcceptanceClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ModelDevAcceptance = append(c.inters.ModelDevAcceptance, interceptors...)
+}
+
+// Create returns a builder for creating a ModelDevAcceptance entity.
+func (c *ModelDevAcceptanceClient) Create() *ModelDevAcceptanceCreate {
+	mutation := newModelDevAcceptanceMutation(c.config, OpCreate)
+	return &ModelDevAcceptanceCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ModelDevAcceptance entities.
+func (c *ModelDevAcceptanceClient) CreateBulk(builders ...*ModelDevAcceptanceCreate) *ModelDevAcceptanceCreateBulk {
+	return &ModelDevAcceptanceCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ModelDevAcceptanceClient) MapCreateBulk(slice any, setFunc func(*ModelDevAcceptanceCreate, int)) *ModelDevAcceptanceCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ModelDevAcceptanceCreateBulk{err: fmt.Errorf("calling to ModelDevAcceptanceClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ModelDevAcceptanceCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ModelDevAcceptanceCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ModelDevAcceptance.
+func (c *ModelDevAcceptanceClient) Update() *ModelDevAcceptanceUpdate {
+	mutation := newModelDevAcceptanceMutation(c.config, OpUpdate)
+	return &ModelDevAcceptanceUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ModelDevAcceptanceClient) UpdateOne(_m *ModelDevAcceptance) *ModelDevAcceptanceUpdateOne {
+	mutation := newModelDevAcceptanceMutation(c.config, OpUpdateOne, withModelDevAcceptance(_m))
+	return &ModelDevAcceptanceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ModelDevAcceptanceClient) UpdateOneID(id uint32) *ModelDevAcceptanceUpdateOne {
+	mutation := newModelDevAcceptanceMutation(c.config, OpUpdateOne, withModelDevAcceptanceID(id))
+	return &ModelDevAcceptanceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ModelDevAcceptance.
+func (c *ModelDevAcceptanceClient) Delete() *ModelDevAcceptanceDelete {
+	mutation := newModelDevAcceptanceMutation(c.config, OpDelete)
+	return &ModelDevAcceptanceDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ModelDevAcceptanceClient) DeleteOne(_m *ModelDevAcceptance) *ModelDevAcceptanceDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ModelDevAcceptanceClient) DeleteOneID(id uint32) *ModelDevAcceptanceDeleteOne {
+	builder := c.Delete().Where(modeldevacceptance.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ModelDevAcceptanceDeleteOne{builder}
+}
+
+// Query returns a query builder for ModelDevAcceptance.
+func (c *ModelDevAcceptanceClient) Query() *ModelDevAcceptanceQuery {
+	return &ModelDevAcceptanceQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeModelDevAcceptance},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ModelDevAcceptance entity by its id.
+func (c *ModelDevAcceptanceClient) Get(ctx context.Context, id uint32) (*ModelDevAcceptance, error) {
+	return c.Query().Where(modeldevacceptance.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ModelDevAcceptanceClient) GetX(ctx context.Context, id uint32) *ModelDevAcceptance {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ModelDevAcceptanceClient) Hooks() []Hook {
+	hooks := c.hooks.ModelDevAcceptance
+	return append(hooks[:len(hooks):len(hooks)], modeldevacceptance.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ModelDevAcceptanceClient) Interceptors() []Interceptor {
+	return c.inters.ModelDevAcceptance
+}
+
+func (c *ModelDevAcceptanceClient) mutate(ctx context.Context, m *ModelDevAcceptanceMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ModelDevAcceptanceCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ModelDevAcceptanceUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ModelDevAcceptanceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ModelDevAcceptanceDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ModelDevAcceptance mutation op: %q", m.Op())
 	}
 }
 
@@ -7994,8 +8136,8 @@ type (
 		DictType, GpuDeleteAcceptance, GpuUsageSync, InternalMessage,
 		InternalMessageCategory, InternalMessageRecipient, Language, LoginAuditLog,
 		LoginPolicy, Membership, MembershipOrgUnit, MembershipPosition, MembershipRole,
-		Menu, NotificationChannel, OperationAuditLog, OrgUnit, Permission,
-		PermissionApi, PermissionAuditLog, PermissionGroup, PermissionMenu,
+		Menu, ModelDevAcceptance, NotificationChannel, OperationAuditLog, OrgUnit,
+		Permission, PermissionApi, PermissionAuditLog, PermissionGroup, PermissionMenu,
 		PermissionPolicy, Plan, PlanModule, PlanQuota, PolicyEvaluationLog, Position,
 		QuotaAccount, QuotaCharge, QuotaDefinition, QuotaOperation,
 		QuotaReleaseReceipt, Role, RoleFieldPermission, RoleMetadata, RoleOrgUnit,
@@ -8007,8 +8149,8 @@ type (
 		DictType, GpuDeleteAcceptance, GpuUsageSync, InternalMessage,
 		InternalMessageCategory, InternalMessageRecipient, Language, LoginAuditLog,
 		LoginPolicy, Membership, MembershipOrgUnit, MembershipPosition, MembershipRole,
-		Menu, NotificationChannel, OperationAuditLog, OrgUnit, Permission,
-		PermissionApi, PermissionAuditLog, PermissionGroup, PermissionMenu,
+		Menu, ModelDevAcceptance, NotificationChannel, OperationAuditLog, OrgUnit,
+		Permission, PermissionApi, PermissionAuditLog, PermissionGroup, PermissionMenu,
 		PermissionPolicy, Plan, PlanModule, PlanQuota, PolicyEvaluationLog, Position,
 		QuotaAccount, QuotaCharge, QuotaDefinition, QuotaOperation,
 		QuotaReleaseReceipt, Role, RoleFieldPermission, RoleMetadata, RoleOrgUnit,

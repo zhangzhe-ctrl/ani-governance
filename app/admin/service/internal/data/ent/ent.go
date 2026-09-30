@@ -26,6 +26,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/membershipposition"
 	"go-wind-admin/app/admin/service/internal/data/ent/membershiprole"
 	"go-wind-admin/app/admin/service/internal/data/ent/menu"
+	"go-wind-admin/app/admin/service/internal/data/ent/modeldevacceptance"
 	"go-wind-admin/app/admin/service/internal/data/ent/notificationchannel"
 	"go-wind-admin/app/admin/service/internal/data/ent/operationauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/orgunit"
@@ -145,6 +146,7 @@ func checkColumn(t, c string) error {
 			membershipposition.Table:       membershipposition.ValidColumn,
 			membershiprole.Table:           membershiprole.ValidColumn,
 			menu.Table:                     menu.ValidColumn,
+			modeldevacceptance.Table:       modeldevacceptance.ValidColumn,
 			notificationchannel.Table:      notificationchannel.ValidColumn,
 			operationauditlog.Table:        operationauditlog.ValidColumn,
 			orgunit.Table:                  orgunit.ValidColumn,

@@ -1356,6 +1356,46 @@ var (
 			},
 		},
 	}
+	// SysModeldevAcceptancesColumns holds the columns for the "sys_modeldev_acceptances" table.
+	SysModeldevAcceptancesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true},
+		{Name: "tenant_id", Type: field.TypeUint32},
+		{Name: "resource_tenant_id", Type: field.TypeString},
+		{Name: "actor", Type: field.TypeString},
+		{Name: "action", Type: field.TypeString},
+		{Name: "idempotency_key", Type: field.TypeString},
+		{Name: "operation_id", Type: field.TypeString, Unique: true},
+		{Name: "execution_id", Type: field.TypeString, Unique: true},
+		{Name: "intent_hash", Type: field.TypeString},
+		{Name: "intent_canonical", Type: field.TypeBytes},
+		{Name: "execution_spec_hash", Type: field.TypeString},
+		{Name: "snapshot_canonical", Type: field.TypeBytes},
+		{Name: "accepted_at", Type: field.TypeTime},
+		{Name: "dispatch_state", Type: field.TypeEnum, Enums: []string{"QUEUED"}, Default: "QUEUED"},
+	}
+	// SysModeldevAcceptancesTable holds the schema information for the "sys_modeldev_acceptances" table.
+	SysModeldevAcceptancesTable = &schema.Table{
+		Name:       "sys_modeldev_acceptances",
+		Columns:    SysModeldevAcceptancesColumns,
+		PrimaryKey: []*schema.Column{SysModeldevAcceptancesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_modeldev_acceptances_idempotency",
+				Unique:  true,
+				Columns: []*schema.Column{SysModeldevAcceptancesColumns[2], SysModeldevAcceptancesColumns[3], SysModeldevAcceptancesColumns[4], SysModeldevAcceptancesColumns[5]},
+			},
+			{
+				Name:    "uix_sys_modeldev_acceptances_tenant_operation",
+				Unique:  true,
+				Columns: []*schema.Column{SysModeldevAcceptancesColumns[1], SysModeldevAcceptancesColumns[6]},
+			},
+			{
+				Name:    "uix_sys_modeldev_acceptances_tenant_execution",
+				Unique:  true,
+				Columns: []*schema.Column{SysModeldevAcceptancesColumns[1], SysModeldevAcceptancesColumns[7]},
+			},
+		},
+	}
 	// SysNotificationChannelsColumns holds the columns for the "sys_notification_channels" table.
 	SysNotificationChannelsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
@@ -3332,6 +3372,7 @@ var (
 		SysMembershipPositionsTable,
 		SysMembershipRolesTable,
 		SysMenusTable,
+		SysModeldevAcceptancesTable,
 		SysNotificationChannelsTable,
 		SysOperationAuditLogsTable,
 		SysOrgUnitsTable,
@@ -3479,6 +3520,13 @@ func init() {
 		Table:     "sys_menus",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
+	}
+	SysModeldevAcceptancesTable.Annotation = &entsql.Annotation{
+		Table: "sys_modeldev_acceptances",
+	}
+	SysModeldevAcceptancesTable.Annotation.Checks = map[string]string{
+		"sys_modeldev_acceptances_action_ck":          "action = 'modeldev.execution.create'",
+		"sys_modeldev_acceptances_tenant_positive_ck": "tenant_id > 0",
 	}
 	SysNotificationChannelsTable.Annotation = &entsql.Annotation{
 		Table:     "sys_notification_channels",

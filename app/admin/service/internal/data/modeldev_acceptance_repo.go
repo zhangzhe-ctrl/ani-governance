@@ -17,11 +17,11 @@ var ErrModelDevIdempotencyConflict = errors.New("modeldev idempotency conflict")
 // ModelDevAdmissionScope is derived by Governance from the current verified
 // Principal and its persisted resource tenant mapping, never from public JSON.
 type ModelDevAdmissionScope struct {
-	TenantID uint32
+	TenantID         uint32
 	ResourceTenantID string
-	Actor string
-	Action string
-	IdempotencyKey string
+	Actor            string
+	Action           string
+	IdempotencyKey   string
 }
 
 // ModelDevFrozenCandidate is resolved before entering the database transaction.
@@ -30,21 +30,21 @@ type ModelDevAdmissionScope struct {
 type ModelDevFrozenCandidate struct {
 	OperationID string
 	ExecutionID string
-	Intent cpup01.Intent
-	Snapshot cpup01.Snapshot
-	AcceptedAt time.Time
+	Intent      cpup01.Intent
+	Snapshot    cpup01.Snapshot
+	AcceptedAt  time.Time
 }
 
 type ModelDevAcceptance struct {
-	Scope ModelDevAdmissionScope
-	OperationID string
-	ExecutionID string
-	Intent cpup01.Intent
-	Snapshot cpup01.Snapshot
-	IntentHash string
+	Scope             ModelDevAdmissionScope
+	OperationID       string
+	ExecutionID       string
+	Intent            cpup01.Intent
+	Snapshot          cpup01.Snapshot
+	IntentHash        string
 	ExecutionSpecHash string
-	AcceptedAt time.Time
-	DispatchState string
+	AcceptedAt        time.Time
+	DispatchState     string
 }
 
 // ModelDevAcceptanceRepo persists CPU admission and its queued delivery intent.
