@@ -1017,7 +1017,7 @@ Governance 通过 go.mod/go.sum 固定精确模块版本，生产代码不导入
 
 | 编号 | 路由与方法 | 请求与响应合同 | 鉴权与范围 | 当前边界 |
 | --- | --- | --- | --- | --- |
-| MODELDEV-01 | `POST /admin/v1/modeldev/executions` | lower_snake_case 的 name、kind、preset_id、dataset_version_id、可选 image_version_id/general_parameters/source_execution_id 及 idempotency_key；只允许 GENERAL_TRAINING。持久受理后返回 202、原 operation/execution、resolved_release_id、replayed 和四组正交状态 | 复用当前 Principal、TenantAccess、动作及资源权限；通过 ResourceTenantResolver 取得 resource tenant UUID。body 不含 tenant/actor/cluster/SA/command/raw CRD，旧 actor 仅审计 | 受理事务复核当前绑定正在 TDD；HTTP/授权装配、可信 immutable catalogue 解析和可靠投递仍待后续切片 |
+| MODELDEV-01 | `POST /admin/v1/modeldev/executions` | lower_snake_case 的 name、kind、preset_id、dataset_version_id、可选 image_version_id/general_parameters/source_execution_id 及 idempotency_key；只允许 GENERAL_TRAINING。持久受理后返回 202、原 operation/execution、resolved_release_id、replayed 和四组正交状态 | 复用当前 Principal、TenantAccess、动作及资源权限；通过 ResourceTenantResolver 取得 resource tenant UUID。body 不含 tenant/actor/cluster/SA/command/raw CRD，旧 actor 仅审计 | 受理事务复核当前绑定已通过真实 PG 验证；HTTP/授权装配、可信 immutable catalogue 解析和可靠投递仍待后续切片 |
 | MODELDEV-02 | 受管 T02 启用/回退作业（入口待实现） | 已解析 release ID/digest、expected_generation、new_submissions_enabled、原因和证据引用；返回 before/after/generation/replayed | 当前受权操作者和租户映射来自可信上下文；启用前必须核验 ModelDev 不可变目录及实际验收证据，同目标重放仍重新授权 | 仓储 Get/CAS 已通过真实 PG 参数、代际边界、重放、并发及租户/预设隔离验证，race 通过；管理入口尚未装配，没有公开管理页、直连 SQL 入口或 VERIFIED 开关 |
 
 `general_parameters` 保留缺省与显式 `[]` 的区别，外部 JSON 不直接套用 ProtoJSON。
@@ -1046,7 +1046,7 @@ UTC 年份 1..9999 且精确到微秒；reason/evidence_reference 必须为非�
 且不能含 PostgreSQL text 不支持的 NUL。
 这些持久边界校验已通过真实 PG 验证；它们不证明引用对象存在、已核验或操作者当前有权。
 当前仓储测试中的证据引用是合成 fixture，不证明真实 Release 已验收。
-受理消费绑定已取得固定版本真实 PG RED，最小实现待新版本 GREEN。
+受理消费绑定已取得固定版本真实 PG RED → GREEN。
 新键受理在同一事务按 tenant → binding 顺序加锁并复核：缺绑定返回 NotFound，
 暂停返回 Disabled，generation 或 release ID/digest 不一致返回 GenerationConflict；
 这些错误不占用幂等键或排入投递。原键同意图先返回旧快照，异参先报幂等冲突；
