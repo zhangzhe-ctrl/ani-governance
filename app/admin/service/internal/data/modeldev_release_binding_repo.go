@@ -20,6 +20,10 @@ var (
 	ErrModelDevBindingNotFound            = errors.New("modeldev release binding not found")
 )
 
+// PostgreSQL bigint bounds Governance's current-pointer generation. Shared
+// snapshot and wire uint64 fields keep their separate contract.
+const maxModelDevBindingGeneration uint64 = 1<<63 - 1
+
 // ModelDevReleaseBindingScope identifies one tenant's managed preset binding.
 // It is derived from trusted context and the persisted tenant mapping, not a
 // user's choice of actor, namespace, backend endpoint, or global setting.
@@ -93,6 +97,9 @@ func (r *ModelDevReleaseBindingRepo) Get(ctx context.Context, scope ModelDevRele
 // target requires the observed generation; the same target replays the stored
 // generation and audit values. Replays do not replace current authorization.
 func (r *ModelDevReleaseBindingRepo) CompareAndSwap(ctx context.Context, scope ModelDevReleaseBindingScope, update ModelDevReleaseBindingUpdate) (*ModelDevReleaseBindingChange, error) {
+	if update.ExpectedGeneration > maxModelDevBindingGeneration {
+		return nil, fmt.Errorf("%w: modeldev binding expected generation", cpup01.ErrInvalidArgument)
+	}
 	var change *ModelDevReleaseBindingChange
 	err := r.bindingTransaction(ctx, func(tx *ent.Tx) error {
 		// The tenant row also serializes first creation, when no binding row
@@ -141,6 +148,9 @@ func (r *ModelDevReleaseBindingRepo) CompareAndSwap(ctx context.Context, scope M
 		}
 		if row.Generation != update.ExpectedGeneration {
 			return ErrModelDevBindingGenerationConflict
+		}
+		if row.Generation >= maxModelDevBindingGeneration {
+			return ErrModelDevBindingGenerationExhausted
 		}
 		row, err = tx.ModelDevReleaseBinding.UpdateOneID(row.ID).Where(
 			modeldevreleasebinding.TenantIDEQ(scope.TenantID),
