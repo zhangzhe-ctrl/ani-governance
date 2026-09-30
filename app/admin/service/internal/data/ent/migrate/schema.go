@@ -1396,6 +1396,39 @@ var (
 			},
 		},
 	}
+	// SysModeldevReleaseBindingsColumns holds the columns for the "sys_modeldev_release_bindings" table.
+	SysModeldevReleaseBindingsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true},
+		{Name: "tenant_id", Type: field.TypeUint32},
+		{Name: "resource_tenant_id", Type: field.TypeString},
+		{Name: "preset_id", Type: field.TypeString},
+		{Name: "release_id", Type: field.TypeString},
+		{Name: "release_digest", Type: field.TypeString},
+		{Name: "generation", Type: field.TypeUint64},
+		{Name: "new_submissions_enabled", Type: field.TypeBool, Default: false},
+		{Name: "updated_by", Type: field.TypeString},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "reason", Type: field.TypeString},
+		{Name: "evidence_reference", Type: field.TypeString},
+	}
+	// SysModeldevReleaseBindingsTable holds the schema information for the "sys_modeldev_release_bindings" table.
+	SysModeldevReleaseBindingsTable = &schema.Table{
+		Name:       "sys_modeldev_release_bindings",
+		Columns:    SysModeldevReleaseBindingsColumns,
+		PrimaryKey: []*schema.Column{SysModeldevReleaseBindingsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_modeldev_release_bindings_scope",
+				Unique:  true,
+				Columns: []*schema.Column{SysModeldevReleaseBindingsColumns[2], SysModeldevReleaseBindingsColumns[3]},
+			},
+			{
+				Name:    "uix_sys_modeldev_release_bindings_tenant_preset",
+				Unique:  true,
+				Columns: []*schema.Column{SysModeldevReleaseBindingsColumns[1], SysModeldevReleaseBindingsColumns[3]},
+			},
+		},
+	}
 	// SysNotificationChannelsColumns holds the columns for the "sys_notification_channels" table.
 	SysNotificationChannelsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
@@ -3373,6 +3406,7 @@ var (
 		SysMembershipRolesTable,
 		SysMenusTable,
 		SysModeldevAcceptancesTable,
+		SysModeldevReleaseBindingsTable,
 		SysNotificationChannelsTable,
 		SysOperationAuditLogsTable,
 		SysOrgUnitsTable,
@@ -3527,6 +3561,13 @@ func init() {
 	SysModeldevAcceptancesTable.Annotation.Checks = map[string]string{
 		"sys_modeldev_acceptances_action_ck":          "action = 'modeldev.execution.create'",
 		"sys_modeldev_acceptances_tenant_positive_ck": "tenant_id > 0",
+	}
+	SysModeldevReleaseBindingsTable.Annotation = &entsql.Annotation{
+		Table: "sys_modeldev_release_bindings",
+	}
+	SysModeldevReleaseBindingsTable.Annotation.Checks = map[string]string{
+		"sys_modeldev_release_bindings_generation_positive_ck": "generation > 0",
+		"sys_modeldev_release_bindings_tenant_positive_ck":     "tenant_id > 0",
 	}
 	SysNotificationChannelsTable.Annotation = &entsql.Annotation{
 		Table:     "sys_notification_channels",
