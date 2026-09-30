@@ -1037,8 +1037,13 @@ generation、新受理开关及最近一次生效变更的审计字段。初次 
 Governance 当前指针代际受 PostgreSQL bigint 限制，范围为 `1..MaxInt64`；
 首次建立要求 expected_generation=0；范围内的旧代际可用于同目标重放。
 超出范围的请求必须拒绝，最大代际仍可
-同目标重放，但更换目标必须原子拒绝而不改写任何字段；该边界正在独立 TDD 验证。
+同目标重放，但更换目标必须原子拒绝而不改写任何字段；该边界已通过独立真实 PG 验证。
 此存储范围不改变共享 snapshot/wire 的 uint64，也不限制 ModelDev 的关闭代际合同。
+绑定的 resource tenant、preset 和 release ID 使用标准 36 字符非零 UUID，写入及
+查询前归一化为小写；不接受 compact、URN 等别名。release_digest 是 64 位小写
+十六进制摘要。审计 actor 复用共享 `ValidAuditActor`，requested_at 要求非零、
+UTC 年份 1..9999 且精确到微秒；reason/evidence_reference 必须为非空白 UTF-8。
+这些持久边界校验正在独立 TDD 验证；它们不证明引用对象存在、已核验或操作者当前有权。
 当前仓储测试中的证据引用是合成 fixture，不证明真实 Release 已验收。
 受理事务内复核该代际以及暂停仅影响新键，将在后续切片接入；当前 AcceptFrozen
 尚未消费该表。不可变目录远程解析始终在本地事务之外。
