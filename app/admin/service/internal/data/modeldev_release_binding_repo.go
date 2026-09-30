@@ -194,8 +194,8 @@ func (r *ModelDevReleaseBindingRepo) bindingTransaction(ctx context.Context, wor
 
 func modelDevReleaseBindingFromRow(row *ent.ModelDevReleaseBinding) *ModelDevReleaseBinding {
 	return &ModelDevReleaseBinding{
-		Scope: ModelDevReleaseBindingScope{TenantID: *row.TenantID, ResourceTenantID: row.ResourceTenantID, PresetID: row.PresetID},
-		Target: ModelDevReleaseBindingTarget{ReleaseID: row.ReleaseID, ReleaseDigest: row.ReleaseDigest, NewSubmissionsEnabled: row.NewSubmissionsEnabled},
+		Scope:      ModelDevReleaseBindingScope{TenantID: *row.TenantID, ResourceTenantID: row.ResourceTenantID, PresetID: row.PresetID},
+		Target:     ModelDevReleaseBindingTarget{ReleaseID: row.ReleaseID, ReleaseDigest: row.ReleaseDigest, NewSubmissionsEnabled: row.NewSubmissionsEnabled},
 		Generation: row.Generation, UpdatedBy: row.UpdatedBy, UpdatedAt: row.UpdatedAt.UTC(),
 		Reason: row.Reason, EvidenceReference: row.EvidenceReference,
 	}
