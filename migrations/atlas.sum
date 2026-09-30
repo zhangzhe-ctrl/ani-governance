@@ -1,4 +1,4 @@
-h1:gjphN44rLtHlTokKG2jiJntgPCCzj63NSM5id2qFw3s=
+h1:mLRw5pb/figG4706JjPpsmboLhGfayGZQISO3msoDjM=
 20260921134442_initial.sql h1:wcoowx/qa0ev483qqzyy2giZB06OLheXrMOnWzoyHQo=
 20260922190000_quota_expand.sql h1:O2egZip9fZi342945Yxx8knOMw5JKExhpIIfPcuT1W8=
 20260922190100_quota_constraints.sql h1:rlPy/NiWSfQWSZFQqlPvw0qM69zD3buJkuG+glRs7WY=
@@ -7,3 +7,4 @@ h1:gjphN44rLtHlTokKG2jiJntgPCCzj63NSM5id2qFw3s=
 20260923130200_gpu_sync_ref.sql h1:0sMs/hhU9HtpX5bdEmi+ZaOWpNltzzTLF7rbeZ2+iOU=
 20260923143455_drop_geo_location.sql h1:tc/Yx6HpPDRJEwa19U8QlKpSjnJSY3zGpZ1CMsebqmc=
 20260930093111_cpu_modeldev_acceptance.sql h1:Y/xjm2ilrHWkZPWgQPWS8AlYtH2u+SqMr4Xpgp4K2hY=
+20260930103955_cpu_modeldev_release_binding.sql h1:HI0TZgADCIKkLgYHW4Eoc/ls56UoOfEE4CvbTZEoJ+E=
