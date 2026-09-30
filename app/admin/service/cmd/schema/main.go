@@ -122,6 +122,14 @@ func main() {
 		RefColumns: []*schema.Column{column(definitions, "code")},
 		OnDelete:   schema.Restrict,
 	})
+	modeldevAcceptances := mustTable(migrate.Tables, "sys_modeldev_acceptances")
+	modeldevAcceptances.ForeignKeys = append(modeldevAcceptances.ForeignKeys, &schema.ForeignKey{
+		Symbol: "sys_modeldev_acceptances_tenant_resource_mapping_fkey",
+		Columns: []*schema.Column{column(modeldevAcceptances, "tenant_id"), column(modeldevAcceptances, "resource_tenant_id")},
+		RefTable: tenants,
+		RefColumns: []*schema.Column{column(tenants, "id"), column(tenants, "resource_tenant_id")},
+		OnDelete: schema.Restrict,
+	})
 
 	ddl, err := schema.DDL(context.Background(), schema.DDLArgs{Dialect: dialect.Postgres, Version: "16.0.0", Tables: migrate.Tables})
 	if err != nil {
