@@ -13,6 +13,7 @@ var ServiceTagToBusinessModule = map[string]identityV1.Module{
 	"AcceleratorService":      identityV1.Module_ACCELERATOR,
 	"QuotaSelfService":        identityV1.Module_TENANT,
 	"NetworkService":          identityV1.Module_NETWORK,
+	"ModelDevService":         identityV1.Module_MODEL,
 	"AdminPortalService":      identityV1.Module_DASHBOARD,
 	"DashboardService":        identityV1.Module_DASHBOARD,
 

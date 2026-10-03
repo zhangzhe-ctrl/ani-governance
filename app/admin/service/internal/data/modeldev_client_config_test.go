@@ -15,9 +15,9 @@ func TestModelDevConfigFromEnvDisablesUnconfiguredResolution(t *testing.T) {
 
 func TestModelDevConfigFromEnvLoadsExplicitConnection(t *testing.T) {
 	for _, tc := range []struct {
-		name string
+		name    string
 		timeout string
-		want time.Duration
+		want    time.Duration
 	}{
 		{name: "default timeout", want: 3 * time.Second},
 		{name: "explicit timeout", timeout: "1250ms", want: 1250 * time.Millisecond},
@@ -28,11 +28,11 @@ func TestModelDevConfigFromEnvLoadsExplicitConnection(t *testing.T) {
 			t.Setenv("ANI_MODELDEV_TIMEOUT", tc.timeout)
 			got, err := ModelDevConfigFromEnv()
 			want := ModelDevClientConfig{
-				Address: "modeldev.internal:9443",
-				CAFile: "/managed/modeldev/ca.pem",
+				Address:  "modeldev.internal:9443",
+				CAFile:   "/managed/modeldev/ca.pem",
 				CertFile: "/managed/modeldev/client.pem",
-				KeyFile: "/managed/modeldev/client.key",
-				Timeout: tc.want,
+				KeyFile:  "/managed/modeldev/client.key",
+				Timeout:  tc.want,
 			}
 			if err != nil || got != want {
 				t.Fatalf("explicit connection settings must be loaded without reading certificate files: got=%+v want=%+v err=%v", got, want, err)

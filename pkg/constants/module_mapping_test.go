@@ -63,7 +63,7 @@ func TestServiceTagToBusinessModuleExactMapping(t *testing.T) {
 		"InternalMessageCategoryService":  identityV1.Module_INTERNAL_MESSAGE,
 		"InternalMessageRecipientService": identityV1.Module_INTERNAL_MESSAGE,
 
-		"NetworkService": identityV1.Module_NETWORK,
+		"NetworkService":  identityV1.Module_NETWORK,
 		"ModelDevService": identityV1.Module_MODEL,
 	}
 	assert.Equal(t, expected, ServiceTagToBusinessModule,
