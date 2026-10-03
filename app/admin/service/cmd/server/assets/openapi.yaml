@@ -2686,12 +2686,6 @@ paths:
                             $ref: '#/components/schemas/CreateExecutionRequest'
                 required: true
             responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/CreateExecutionResponse'
                 "202":
                     description: Accepted; the frozen request and CPU delivery intent are durable
                     content:

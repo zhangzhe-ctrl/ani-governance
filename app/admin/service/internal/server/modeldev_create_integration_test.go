@@ -93,17 +93,24 @@ func TestModelDevCreatePersistsBefore202AndReplaysOriginal(t *testing.T) {
 	membership, err := writer.Client().UserRole.Create().SetTenantID(owner.ID).SetUserID(operator.ID).SetRoleID(currentRole.ID).
 		SetStatus(userrole.StatusActive).SetStartAt(time.Now().Add(-time.Hour)).SetEndAt(time.Now().Add(time.Hour)).Save(sys)
 	require.NoError(t, err)
-	removeAfterTest(func(c context.Context) error { _, e := writer.Client().UserRole.Delete().Where(userrole.IDEQ(membership.ID)).Exec(c); return e })
+	removeAfterTest(func(c context.Context) error {
+		_, e := writer.Client().UserRole.Delete().Where(userrole.IDEQ(membership.ID)).Exec(c)
+		return e
+	})
 	createPermission, err := writer.Client().Permission.Create().SetName("modeldev HTTP create").SetCode("modeldev.http.create." + suffix).SetStatus(permission.StatusOn).Save(sys)
 	require.NoError(t, err)
-	removeAfterTest(func(c context.Context) error { return writer.Client().Permission.DeleteOneID(createPermission.ID).Exec(c) })
+	removeAfterTest(func(c context.Context) error {
+		return writer.Client().Permission.DeleteOneID(createPermission.ID).Exec(c)
+	})
 	createAPI, err := writer.Client().Api.Create().SetModule("ModelDevService").SetScope(api.ScopeAdmin).
 		SetPath("/admin/v1/modeldev/executions").SetMethod("POST").SetBusinessModule(api.BusinessModuleModel).SetStatus(api.StatusOn).Save(sys)
 	require.NoError(t, err, "MODELDEV_CREATE_PREFLIGHT: this exclusive database must have no conflicting route fixture")
 	removeAfterTest(func(c context.Context) error { return writer.Client().Api.DeleteOneID(createAPI.ID).Exec(c) })
 	permissionAPI, err := writer.Client().PermissionApi.Create().SetPermissionID(createPermission.ID).SetAPIID(createAPI.ID).Save(sys)
 	require.NoError(t, err)
-	removeAfterTest(func(c context.Context) error { return writer.Client().PermissionApi.DeleteOneID(permissionAPI.ID).Exec(c) })
+	removeAfterTest(func(c context.Context) error {
+		return writer.Client().PermissionApi.DeleteOneID(permissionAPI.ID).Exec(c)
+	})
 	grant, err := writer.Client().RolePermission.Create().SetTenantID(owner.ID).SetRoleID(currentRole.ID).SetPermissionID(createPermission.ID).
 		SetStatus(rolepermission.StatusOn).SetEffect(rolepermission.EffectAllow).Save(sys)
 	require.NoError(t, err)
@@ -112,7 +119,9 @@ func TestModelDevCreatePersistsBefore202AndReplaysOriginal(t *testing.T) {
 	keyBytes := make([]byte, 32)
 	_, err = rand.Read(keyBytes)
 	require.NoError(t, err)
-	for _, name := range []string{"GWA_AUTH_JWT_PRIVATE_KEY", "GWA_AUTH_JWT_PUBLIC_KEY", "GWA_AUTH_JWT_KEY"} { t.Setenv(name, "") }
+	for _, name := range []string{"GWA_AUTH_JWT_PRIVATE_KEY", "GWA_AUTH_JWT_PUBLIC_KEY", "GWA_AUTH_JWT_KEY"} {
+		t.Setenv(name, "")
+	}
 	bctx := testutil.NewBootstrapContext(&conf.Bootstrap{
 		Authz: &conf.Authorization{Type: "casbin"},
 		Authn: &conf.Authentication{Jwt: &conf.Authentication_Jwt{Method: "HS256", Key: hex.EncodeToString(keyBytes)}},
@@ -120,7 +129,9 @@ func TestModelDevCreatePersistsBefore202AndReplaysOriginal(t *testing.T) {
 	redisAddress := os.Getenv("ANI_MODELDEV_REDIS_ADDR")
 	host, port, addressErr := net.SplitHostPort(redisAddress)
 	portNumber, portErr := strconv.ParseUint(port, 10, 16)
-	if addressErr != nil || host != "127.0.0.1" || portErr != nil || portNumber == 0 { t.Fatal("MODELDEV_CREATE_PREFLIGHT: explicit task loopback Redis required") }
+	if addressErr != nil || host != "127.0.0.1" || portErr != nil || portNumber == 0 {
+		t.Fatal("MODELDEV_CREATE_PREFLIGHT: explicit task loopback Redis required")
+	}
 	rdb := redis.NewClient(&redis.Options{Addr: redisAddress})
 	t.Cleanup(func() { require.NoError(t, rdb.Close()) })
 	require.NoError(t, rdb.Ping(ctx).Err(), "MODELDEV_CREATE_PREFLIGHT: actual Redis")
@@ -138,7 +149,9 @@ func TestModelDevCreatePersistsBefore202AndReplaysOriginal(t *testing.T) {
 	payload := &authv1.UserTokenPayload{UserId: operator.ID, TenantId: trans.Ptr(owner.ID), Roles: []string{*currentRole.Code}, DataScopes: []identityv1.DataScope{identityv1.DataScope_ALL}}
 	token, _, err := authenticator.CreateUserToken(ctx, authv1.ClientType_admin, payload)
 	require.NoError(t, err, "MODELDEV_CREATE_PREFLIGHT: actual JWT and Redis session issuance")
-	removeAfterTest(func(c context.Context) error { return cache.RevokeTokenByJti(c, authv1.ClientType_admin, operator.ID, payload.GetJti()) })
+	removeAfterTest(func(c context.Context) error {
+		return cache.RevokeTokenByJti(c, authv1.ClientType_admin, operator.ID, payload.GetJti())
+	})
 	valid, verified := checker.IsValidAccessToken(ctx, token, false)
 	require.True(t, valid)
 	require.NotNil(t, verified)
@@ -156,7 +169,7 @@ func TestModelDevCreatePersistsBefore202AndReplaysOriginal(t *testing.T) {
 	actor, err := principal.Actor()
 	require.NoError(t, err)
 
-	resolver, closeResolver, err := data.NewModelDevClient(data.ModelDevClientConfig{Address: provider.Address, CAFile: provider.TLS.CAFile, CertFile: provider.TLS.CertFile, KeyFile: provider.TLS.KeyFile, Timeout: 3*time.Second})
+	resolver, closeResolver, err := data.NewModelDevClient(data.ModelDevClientConfig{Address: provider.Address, CAFile: provider.TLS.CAFile, CertFile: provider.TLS.CertFile, KeyFile: provider.TLS.KeyFile, Timeout: 3 * time.Second})
 	require.NoError(t, err, "MODELDEV_CREATE_PREFLIGHT: actual typed ModelDev client")
 	t.Cleanup(closeResolver)
 	preflight, err := resolver.Resolve(ctx, data.ModelDevResolveScope{ResourceTenantID: provider.Scope.ResourceTenantID, Actor: actor}, provider.Intent,
@@ -169,14 +182,20 @@ func TestModelDevCreatePersistsBefore202AndReplaysOriginal(t *testing.T) {
 	require.Equal(t, wantHash, preflight.ExecutionSpecHash)
 	bindings := data.NewModelDevReleaseBindingRepo(runtime)
 	bindingScope := data.ModelDevReleaseBindingScope{TenantID: owner.ID, ResourceTenantID: provider.Scope.ResourceTenantID, PresetID: provider.Intent.PresetID}
-	removeAfterTest(func(c context.Context) error { _, e := writer.Client().ModelDevReleaseBinding.Delete().Where(modeldevreleasebinding.TenantIDEQ(owner.ID)).Exec(c); return e })
+	removeAfterTest(func(c context.Context) error {
+		_, e := writer.Client().ModelDevReleaseBinding.Delete().Where(modeldevreleasebinding.TenantIDEQ(owner.ID)).Exec(c)
+		return e
+	})
 	binding, err := bindings.CompareAndSwap(requestCtx, bindingScope, data.ModelDevReleaseBindingUpdate{
 		Target: data.ModelDevReleaseBindingTarget{ReleaseID: provider.Release.ReleaseID, ReleaseDigest: provider.Release.ReleaseDigest, NewSubmissionsEnabled: true},
-		Actor: actor, RequestedAt: time.Now().UTC().Truncate(time.Microsecond), Reason: "owned HTTP fixture", EvidenceReference: "contract:cpu-p01:modeldev-http",
+		Actor:  actor, RequestedAt: time.Now().UTC().Truncate(time.Microsecond), Reason: "owned HTTP fixture", EvidenceReference: "contract:cpu-p01:modeldev-http",
 	})
 	require.NoError(t, err)
 	require.Equal(t, uint64(1), binding.After.Generation)
-	removeAfterTest(func(c context.Context) error { _, e := writer.Client().ModelDevAcceptance.Delete().Where(modeldevacceptance.TenantIDEQ(owner.ID)).Exec(c); return e })
+	removeAfterTest(func(c context.Context) error {
+		_, e := writer.Client().ModelDevAcceptance.Delete().Where(modeldevacceptance.TenantIDEQ(owner.ID)).Exec(c)
+		return e
+	})
 	acceptances := data.NewModelDevAcceptanceRepo(runtime)
 	bff := service.NewModelDevService(authorization, data.NewTenantRepo(bctx, runtime), acceptances, bindings, resolver)
 	server := khttp.NewServer(khttp.Middleware(auth.CredentialHeaders(), auth.Server(auth.WithAccessTokenChecker(checker), auth.WithTenantAccessChecker(tenantChecker), auth.WithInjectMetadata(false), auth.WithInjectEnt(true)), authzMiddleware.Server(policy.Engine())))
@@ -209,7 +228,9 @@ func TestModelDevCreatePersistsBefore202AndReplaysOriginal(t *testing.T) {
 	statusCode, responseBody := post(provider.Intent, key)
 	after := time.Now().UTC()
 	if statusCode == http.StatusNotImplemented {
-		var failure struct { Reason string `json:"reason"` }
+		var failure struct {
+			Reason string `json:"reason"`
+		}
 		require.NoError(t, json.Unmarshal(responseBody, &failure))
 		require.Equal(t, "MODELDEV_CREATE_NOT_IMPLEMENTED", failure.Reason, "unexpected 501 is not the planned service RED")
 		count, readErr := observer.Client().ModelDevAcceptance.Query().Where(modeldevacceptance.TenantIDEQ(owner.ID)).Count(sys)
@@ -254,7 +275,7 @@ func TestModelDevCreatePersistsBefore202AndReplaysOriginal(t *testing.T) {
 	// The actual acceptance time is bounded above. Fixed provider facts and the
 	// 30-minute Release timeout determine the independently expected snapshot.
 	expected.Release.AcceptedBindingGeneration = 1
-	expected.DeadlineAt = stored.AcceptedAt.Add(30*time.Minute)
+	expected.DeadlineAt = stored.AcceptedAt.Add(30 * time.Minute)
 	expectedBytes, err := expected.Canonical()
 	require.NoError(t, err)
 	digest := sha256.Sum256(expectedBytes)
@@ -302,15 +323,23 @@ func prepareModelDevHTTPDatabase(t *testing.T, ctx context.Context) (*entCrud.En
 	t.Helper()
 	runtimeDSN := os.Getenv("ANI_TEST_DATABASE_DSN")
 	file := os.Getenv("ANI_MODELDEV_FIXTURE_DSN_FILE")
-	if runtimeDSN == "" || os.Getenv("ANI_TEST_DATABASE_EXCLUSIVE") != "1" || !filepath.IsAbs(file) { t.Fatal("MODELDEV_CREATE_PREFLIGHT: explicit exclusive PG and private fixture identity required") }
+	if runtimeDSN == "" || os.Getenv("ANI_TEST_DATABASE_EXCLUSIVE") != "1" || !filepath.IsAbs(file) {
+		t.Fatal("MODELDEV_CREATE_PREFLIGHT: explicit exclusive PG and private fixture identity required")
+	}
 	info, err := os.Lstat(file)
-	if err != nil || !info.Mode().IsRegular() || info.Mode().Perm() != 0600 || info.Size() > 16384 { t.Fatal("MODELDEV_CREATE_PREFLIGHT: bounded private fixture DSN file required") }
+	if err != nil || !info.Mode().IsRegular() || info.Mode().Perm() != 0600 || info.Size() > 16384 {
+		t.Fatal("MODELDEV_CREATE_PREFLIGHT: bounded private fixture DSN file required")
+	}
 	raw, err := os.ReadFile(file)
-	if err != nil { t.Fatal("MODELDEV_CREATE_PREFLIGHT: cannot read fixture identity") }
+	if err != nil {
+		t.Fatal("MODELDEV_CREATE_PREFLIGHT: cannot read fixture identity")
+	}
 	fixtureDSN := strings.TrimSpace(string(raw))
 	runtimeConfig, runtimeErr := pgx.ParseConfig(runtimeDSN)
 	fixtureConfig, fixtureErr := pgx.ParseConfig(fixtureDSN)
-	if runtimeErr != nil || fixtureErr != nil || runtimeConfig.Host != fixtureConfig.Host || runtimeConfig.Port != fixtureConfig.Port || runtimeConfig.Database != fixtureConfig.Database || runtimeConfig.User == fixtureConfig.User { t.Fatal("MODELDEV_CREATE_PREFLIGHT: runtime/fixture must be separate roles on the same task database") }
+	if runtimeErr != nil || fixtureErr != nil || runtimeConfig.Host != fixtureConfig.Host || runtimeConfig.Port != fixtureConfig.Port || runtimeConfig.Database != fixtureConfig.Database || runtimeConfig.User == fixtureConfig.User {
+		t.Fatal("MODELDEV_CREATE_PREFLIGHT: runtime/fixture must be separate roles on the same task database")
+	}
 	runtime, writer := openModelDevHTTPPG(t, runtimeDSN), openModelDevHTTPPG(t, fixtureDSN)
 	var runtimeUser, fixtureUser, runtimeDatabase, fixtureDatabase, runtimeAddress, fixtureAddress string
 	var runtimePort, fixturePort int
@@ -335,12 +364,16 @@ func prepareModelDevHTTPDatabase(t *testing.T, ctx context.Context) (*entCrud.En
 func openModelDevHTTPPG(t *testing.T, dsn string) *entCrud.EntClient[*ent.Client] {
 	t.Helper()
 	db, err := sql.Open("pgx", dsn)
-	if err != nil { t.Fatal("MODELDEV_CREATE_PREFLIGHT: PG client configuration failed") }
+	if err != nil {
+		t.Fatal("MODELDEV_CREATE_PREFLIGHT: PG client configuration failed")
+	}
 	driver := entsql.OpenDB("postgres", db)
 	client := ent.NewClient(ent.Driver(driver))
 	t.Cleanup(func() { require.NoError(t, client.Close()) })
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := db.PingContext(ctx); err != nil { t.Fatal("MODELDEV_CREATE_PREFLIGHT: PG unavailable") }
+	if err := db.PingContext(ctx); err != nil {
+		t.Fatal("MODELDEV_CREATE_PREFLIGHT: PG unavailable")
+	}
 	return entCrud.NewEntClient(client, driver)
 }

@@ -13,10 +13,10 @@ import (
 // the fixed server identity are validated by NewModelDevClient.
 func ModelDevConfigFromEnv() (ModelDevClientConfig, error) {
 	config := ModelDevClientConfig{
-		Address: os.Getenv("ANI_MODELDEV_ADDR"),
-		CAFile: os.Getenv("ANI_MODELDEV_CA"),
+		Address:  os.Getenv("ANI_MODELDEV_ADDR"),
+		CAFile:   os.Getenv("ANI_MODELDEV_CA"),
 		CertFile: os.Getenv("ANI_MODELDEV_CERT"),
-		KeyFile: os.Getenv("ANI_MODELDEV_KEY"),
+		KeyFile:  os.Getenv("ANI_MODELDEV_KEY"),
 	}
 	timeout := os.Getenv("ANI_MODELDEV_TIMEOUT")
 	if config == (ModelDevClientConfig{}) && timeout == "" {

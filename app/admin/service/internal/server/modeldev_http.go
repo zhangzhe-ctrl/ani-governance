@@ -57,7 +57,9 @@ func invalidModelDevCreate() error {
 }
 
 func decodeModelDevCreate(reader io.Reader) (service.ModelDevCreateInput, error) {
-	invalid := func() (service.ModelDevCreateInput, error) { return service.ModelDevCreateInput{}, invalidModelDevCreate() }
+	invalid := func() (service.ModelDevCreateInput, error) {
+		return service.ModelDevCreateInput{}, invalidModelDevCreate()
+	}
 	if reader == nil {
 		return invalid()
 	}
