@@ -159,7 +159,7 @@ func TestModelDevAuthorizationUsesCurrentRoleMembership(t *testing.T) {
 	require.Equal(t, &allow, storedGrant.Effect)
 	t.Log("PG authorization fixture independently verified before product behavior")
 
-	// Retain the same tenant/user and old ALL viewer for both calls. A revoked
+	// Retain the same tenant/user and old ALL viewer across calls. A revoked
 	// database membership must not inherit authority from that stale context.
 	requestCtx := viewer.WithContext(ctx, appViewer.NewUserViewer(
 		uint64(operator.ID), uint64(owner.ID), 0, "",
@@ -169,10 +169,134 @@ func TestModelDevAuthorizationUsesCurrentRoleMembership(t *testing.T) {
 	require.NoError(t, repo.AuthorizeCreate(requestCtx, owner.ID, operator.ID),
 		"current valid MODEL/create grant and ALL scope must authorize")
 
+	// Change one committed fact through the independent connection, retaining
+	// the original caller context. Restore even if a denial assertion fails.
+	for _, scenario := range []struct {
+		name string
+		change func(context.Context) error
+		restore func(context.Context) error
+	}{
+		{
+			name: "user disabled",
+			change: func(writeCtx context.Context) error {
+				return reader.Client().User.UpdateOneID(operator.ID).SetStatus(user.StatusDisabled).Exec(writeCtx)
+			},
+			restore: func(writeCtx context.Context) error {
+				return reader.Client().User.UpdateOneID(operator.ID).SetStatus(user.StatusNormal).Exec(writeCtx)
+			},
+		},
+		{
+			name: "role off",
+			change: func(writeCtx context.Context) error {
+				return reader.Client().Role.UpdateOneID(currentRole.ID).SetStatus(role.StatusOff).Exec(writeCtx)
+			},
+			restore: func(writeCtx context.Context) error {
+				return reader.Client().Role.UpdateOneID(currentRole.ID).SetStatus(role.StatusOn).Exec(writeCtx)
+			},
+		},
+		{
+			name: "membership disabled",
+			change: func(writeCtx context.Context) error {
+				return reader.Client().UserRole.UpdateOneID(membership.ID).SetStatus(userrole.StatusDisabled).Exec(writeCtx)
+			},
+			restore: func(writeCtx context.Context) error {
+				return reader.Client().UserRole.UpdateOneID(membership.ID).SetStatus(userrole.StatusActive).Exec(writeCtx)
+			},
+		},
+		{
+			name: "membership not started",
+			change: func(writeCtx context.Context) error {
+				return reader.Client().UserRole.UpdateOneID(membership.ID).SetStartAt(now.Add(time.Minute)).Exec(writeCtx)
+			},
+			restore: func(writeCtx context.Context) error {
+				return reader.Client().UserRole.UpdateOneID(membership.ID).SetStartAt(starts).Exec(writeCtx)
+			},
+		},
+		{
+			name: "membership expired",
+			change: func(writeCtx context.Context) error {
+				return reader.Client().UserRole.UpdateOneID(membership.ID).SetEndAt(now.Add(-time.Minute)).Exec(writeCtx)
+			},
+			restore: func(writeCtx context.Context) error {
+				return reader.Client().UserRole.UpdateOneID(membership.ID).SetEndAt(ends).Exec(writeCtx)
+			},
+		},
+		{
+			name: "scope narrowed to self",
+			change: func(writeCtx context.Context) error {
+				return reader.Client().Role.UpdateOneID(currentRole.ID).SetDataScope(role.DataScopeSelf).Exec(writeCtx)
+			},
+			restore: func(writeCtx context.Context) error {
+				return reader.Client().Role.UpdateOneID(currentRole.ID).SetDataScope(role.DataScopeAll).Exec(writeCtx)
+			},
+		},
+		{
+			name: "permission off",
+			change: func(writeCtx context.Context) error {
+				return reader.Client().Permission.UpdateOneID(createPermission.ID).SetStatus(permission.StatusOff).Exec(writeCtx)
+			},
+			restore: func(writeCtx context.Context) error {
+				return reader.Client().Permission.UpdateOneID(createPermission.ID).SetStatus(permission.StatusOn).Exec(writeCtx)
+			},
+		},
+		{
+			name: "API off",
+			change: func(writeCtx context.Context) error {
+				return reader.Client().Api.UpdateOneID(createAPI.ID).SetStatus(api.StatusOff).Exec(writeCtx)
+			},
+			restore: func(writeCtx context.Context) error {
+				return reader.Client().Api.UpdateOneID(createAPI.ID).SetStatus(api.StatusOn).Exec(writeCtx)
+			},
+		},
+	} {
+		t.Run(scenario.name, func(t *testing.T) {
+			t.Cleanup(func() {
+				cleanup, stop := context.WithTimeout(appViewer.NewSystemViewerContext(context.Background()), 5*time.Second)
+				defer stop()
+				require.NoError(t, scenario.restore(cleanup), "restore the owned authorization fact after failures")
+			})
+			require.NoError(t, scenario.change(ctx), "commit the changed authorization fact")
+			require.ErrorIs(t, repo.AuthorizeCreate(requestCtx, owner.ID, operator.ID), ErrModelDevAuthorizationDenied)
+			require.NoError(t, scenario.restore(ctx))
+			require.NoError(t, repo.AuthorizeCreate(requestCtx, owner.ID, operator.ID), "restoring the current grant permits the same caller")
+		})
+	}
+
+	t.Run("different trusted tenant", func(t *testing.T) {
+		other, createErr := reader.Client().Tenant.Create().
+			SetName("modeldev other tenant").SetCode("cpu-auth-other-" + fixtureID).
+			SetStatus(tenant.StatusOn).Save(ctx)
+		require.NoError(t, createErr)
+		t.Cleanup(func() {
+			cleanup, stop := context.WithTimeout(appViewer.NewSystemViewerContext(context.Background()), 5*time.Second)
+			defer stop()
+			require.NoError(t, reader.Client().Tenant.DeleteOneID(other.ID).Exec(cleanup))
+		})
+		otherCtx := viewer.WithContext(ctx, appViewer.NewUserViewer(
+			uint64(operator.ID), uint64(other.ID), 0, "",
+			[]viewer.DataScope{{ScopeType: viewer.ScopeTypeAll}},
+		))
+		require.ErrorIs(t, repo.AuthorizeCreate(otherCtx, other.ID, operator.ID), ErrModelDevAuthorizationDenied,
+			"an active tenant cannot borrow a different tenant's user or grant")
+	})
+	t.Run("caller already canceled", func(t *testing.T) {
+		canceledCtx, stop := context.WithCancel(requestCtx)
+		stop()
+		require.ErrorIs(t, repo.AuthorizeCreate(canceledCtx, owner.ID, operator.ID), context.Canceled)
+		require.NoError(t, repo.AuthorizeCreate(requestCtx, owner.ID, operator.ID))
+	})
+	t.Run("authorization database closed", func(t *testing.T) {
+		closed := newModelDevPGClient(t)
+		require.NoError(t, closed.Close(), "close this separately opened real PG client")
+		require.ErrorIs(t, NewModelDevAuthorizationRepo(closed).AuthorizeCreate(requestCtx, owner.ID, operator.ID),
+			ErrModelDevAuthorizationUnavailable, "storage failure is not an authorization denial")
+		require.NoError(t, repo.AuthorizeCreate(requestCtx, owner.ID, operator.ID), "the owned live client remains usable")
+	})
+
 	require.NoError(t, reader.Client().UserRole.DeleteOneID(membership.ID).Exec(ctx))
 	present, err := client.Client().UserRole.Query().Where(userrole.IDEQ(membership.ID)).Exist(ctx)
 	require.NoError(t, err)
-	require.False(t, present, "revocation must be committed before the second authorization")
+	require.False(t, present, "revocation must be committed before checking the original caller again")
 	require.ErrorIs(t, repo.AuthorizeCreate(requestCtx, owner.ID, operator.ID), ErrModelDevAuthorizationDenied,
 		"the same caller must lose create authorization immediately after membership revocation")
 }

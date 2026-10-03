@@ -26,22 +26,30 @@ func TestModelDevResolveRealProviderBoundaries(t *testing.T) {
 	fixture := readModelDevContractFixture(t)
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	config := ModelDevClientConfig{Address: fixture.Address, CAFile: fixture.TLS.CAFile, CertFile: fixture.TLS.CertFile, KeyFile: fixture.TLS.KeyFile, Timeout: 2*time.Second}
+	config := ModelDevClientConfig{Address: fixture.Address, CAFile: fixture.TLS.CAFile, CertFile: fixture.TLS.CertFile, KeyFile: fixture.TLS.KeyFile, Timeout: 2 * time.Second}
 	scope := ModelDevResolveScope{ResourceTenantID: fixture.Scope.ResourceTenantID, Actor: fixture.Scope.Actor}
 	selection := ModelDevReleaseSelection{ReleaseID: fixture.Release.ReleaseID, ReleaseDigest: fixture.Release.ReleaseDigest, BindingGeneration: fixture.Release.BindingGeneration}
 	wantCanonical, wantHash := expectedModelDevContractSnapshot(t)
 	wireIntent, err := contractpb.EncodeIntent(fixture.Intent)
-	if err != nil { t.Fatal("MODELDEV_BOUNDARY_PREFLIGHT: fixed intent cannot encode; behavior NOT_RUN") }
+	if err != nil {
+		t.Fatal("MODELDEV_BOUNDARY_PREFLIGHT: fixed intent cannot encode; behavior NOT_RUN")
+	}
 	direct := modeldevv1.NewModelDevAdmissionServiceClient(modelDevDirectTLSConnection(t, config, "ani-modeldev-service"))
 	directContext := metadata.NewOutgoingContext(ctx, metadata.Pairs("x-ani-tenant-id", scope.ResourceTenantID, "x-ani-actor", scope.Actor, "x-ani-request-id", uuid.NewString()))
 	control, err := direct.ResolveAdmission(directContext, &modeldevv1.ResolveAdmissionRequest{
 		Intent: wireIntent, Release: &modeldevv1.AdmissionReleaseSelection{ReleaseId: selection.ReleaseID, ReleaseDigest: selection.ReleaseDigest, BindingGeneration: selection.BindingGeneration}, AcceptedAt: timestamppb.New(fixture.AcceptedAt),
 	}, grpc.WaitForReady(true))
-	if err != nil || control == nil { t.Fatalf("MODELDEV_BOUNDARY_PREFLIGHT: real generated RPC failed (%s); behavior NOT_RUN", status.Code(err)) }
+	if err != nil || control == nil {
+		t.Fatalf("MODELDEV_BOUNDARY_PREFLIGHT: real generated RPC failed (%s); behavior NOT_RUN", status.Code(err))
+	}
 	snapshot, err := contractpb.DecodeSnapshot(control.Snapshot)
-	if err != nil { t.Fatal("MODELDEV_BOUNDARY_PREFLIGHT: real provider returned invalid snapshot; behavior NOT_RUN") }
+	if err != nil {
+		t.Fatal("MODELDEV_BOUNDARY_PREFLIGHT: real provider returned invalid snapshot; behavior NOT_RUN")
+	}
 	canonical, err := snapshot.Canonical()
-	if err != nil || !bytes.Equal(canonical, wantCanonical) || control.ExecutionSpecHash != wantHash { t.Fatal("MODELDEV_BOUNDARY_PREFLIGHT: real provider differs from authored complete expected facts; behavior NOT_RUN") }
+	if err != nil || !bytes.Equal(canonical, wantCanonical) || control.ExecutionSpecHash != wantHash {
+		t.Fatal("MODELDEV_BOUNDARY_PREFLIGHT: real provider differs from authored complete expected facts; behavior NOT_RUN")
+	}
 	t.Log("MODELDEV_BOUNDARY_PREFLIGHT PASS: generated direct RPC, actual separate ModelDev buildApp, mTLS, pinned files and recovered PostgreSQL READY")
 	client := newModelDevBoundaryClient(t, config)
 
@@ -55,7 +63,9 @@ func TestModelDevResolveRealProviderBoundaries(t *testing.T) {
 		)
 		beforeMetadata := poison.Copy()
 		beforeIntent, _, err := cpup01.CanonicalIntent(fixture.Intent)
-		if err != nil { t.Fatal("MODELDEV_BOUNDARY_PREFLIGHT: original intent cannot canonicalize") }
+		if err != nil {
+			t.Fatal("MODELDEV_BOUNDARY_PREFLIGHT: original intent cannot canonicalize")
+		}
 		polluted := metadata.NewOutgoingContext(metadata.NewIncomingContext(ctx, poison), poison)
 		resolved, err := client.Resolve(polluted, scope, fixture.Intent, selection, fixture.AcceptedAt)
 		assertRealModelDevCandidate(t, resolved, err, wantCanonical, wantHash)
@@ -78,7 +88,9 @@ func TestModelDevResolveRealProviderBoundaries(t *testing.T) {
 				details := status.Convert(err).Details()
 				if len(details) == 1 {
 					if detail, ok := details[0].(*modeldevv1.ErrorDetail); ok {
-						if detail.CorrelationId == lastID { t.Error("different RPCs reused the same request identity") }
+						if detail.CorrelationId == lastID {
+							t.Error("different RPCs reused the same request identity")
+						}
 						lastID = detail.CorrelationId
 					}
 				}
@@ -88,14 +100,22 @@ func TestModelDevResolveRealProviderBoundaries(t *testing.T) {
 		assertRealModelDevCandidate(t, resolved, err, wantCanonical, wantHash)
 	})
 
-	for _, test := range []struct { name string; change func(*cpup01.Intent); code codes.Code; reason modeldevv1.ErrorReason; message string }{
+	for _, test := range []struct {
+		name    string
+		change  func(*cpup01.Intent)
+		code    codes.Code
+		reason  modeldevv1.ErrorReason
+		message string
+	}{
 		{"missing input", func(i *cpup01.Intent) { i.DatasetVersionID = uuid.NewString() }, codes.NotFound, modeldevv1.ErrorReason_ERROR_REASON_RESOURCE_NOT_FOUND, "input version unavailable"},
 		{"incompatible intent preset", func(i *cpup01.Intent) { i.PresetID = uuid.NewString() }, codes.FailedPrecondition, modeldevv1.ErrorReason_ERROR_REASON_NO_COMPATIBLE_RELEASE, "selected Release is unavailable or incompatible"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			intent := fixture.Intent
 			test.change(&intent)
-			if _, _, err := cpup01.CanonicalIntent(intent); err != nil { t.Fatal("MODELDEV_BOUNDARY_PREFLIGHT: provider-denial request is not valid") }
+			if _, _, err := cpup01.CanonicalIntent(intent); err != nil {
+				t.Fatal("MODELDEV_BOUNDARY_PREFLIGHT: provider-denial request is not valid")
+			}
 			resolved, err := client.Resolve(ctx, scope, intent, selection, fixture.AcceptedAt)
 			assertModelDevSafeFailure(t, resolved, err, test.code, test.message, test.reason)
 		})
@@ -105,12 +125,18 @@ func TestModelDevResolveRealProviderBoundaries(t *testing.T) {
 		t.Run(field, func(t *testing.T) {
 			badScope, badSelection, at := scope, selection, fixture.AcceptedAt
 			switch field {
-			case "zero tenant": badScope.ResourceTenantID = uuid.Nil.String()
-			case "actor exceeds uint32": badScope.Actor = "governance:user:4294967296"
-			case "zero generation": badSelection.BindingGeneration = 0
-			case "invalid digest": badSelection.ReleaseDigest = "not-a-digest"
-			case "zero time": at = time.Time{}
-			case "submicrosecond time": at = at.Add(time.Nanosecond)
+			case "zero tenant":
+				badScope.ResourceTenantID = uuid.Nil.String()
+			case "actor exceeds uint32":
+				badScope.Actor = "governance:user:4294967296"
+			case "zero generation":
+				badSelection.BindingGeneration = 0
+			case "invalid digest":
+				badSelection.ReleaseDigest = "not-a-digest"
+			case "zero time":
+				at = time.Time{}
+			case "submicrosecond time":
+				at = at.Add(time.Nanosecond)
 			}
 			resolved, err := client.Resolve(ctx, badScope, fixture.Intent, badSelection, at)
 			assertModelDevSafeFailure(t, resolved, err, codes.InvalidArgument, "invalid modeldev resolution request", 0)
