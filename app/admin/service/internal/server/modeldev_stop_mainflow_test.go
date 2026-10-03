@@ -20,10 +20,10 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// The provider marker is emitted only after a real optimizer step and committed
-// RUNNING history. It coordinates timing; only the actual BFF Stop creates the
-// durable stop intent. ModelDev never consumes a fabricated stop notification.
-func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httptest.Server, token, otherToken, deniedToken, operationID, executionID string, tenantID uint32) {
+// Normally the provider marker follows a real optimizer step and committed
+// RUNNING history. Stop-before-delivery instead starts the same worker only
+// after the real BFF Stop commits. No marker fabricates the durable stop intent.
+func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httptest.Server, token, otherToken, deniedToken, operationID, executionID string, tenantID uint32, startAfterStop func()) {
 	t.Helper()
 	readMarker := func(name string, out any) {
 		t.Helper()
@@ -50,13 +50,15 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 			}
 		}
 	}
-	var started struct {
-		OperationID string `json:"operation_id"`
-		ExecutionID string `json:"execution_id"`
+	if startAfterStop == nil {
+		var started struct {
+			OperationID string `json:"operation_id"`
+			ExecutionID string `json:"execution_id"`
+		}
+		readMarker("training-started.json", &started)
+		require.Equal(t, operationID, started.OperationID)
+		require.Equal(t, executionID, started.ExecutionID)
 	}
-	readMarker("training-started.json", &started)
-	require.Equal(t, operationID, started.OperationID)
-	require.Equal(t, executionID, started.ExecutionID)
 	request := func(method, path, accessToken string) (int, []byte) {
 		req, err := http.NewRequestWithContext(ctx, method, web.URL+path, nil)
 		require.NoError(t, err)
@@ -78,7 +80,7 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 	status, _ = request("POST", path+":stop", deniedToken)
 	require.Equal(t, http.StatusForbidden, status)
 	status, raw := request("POST", path+":stop", token)
-	require.Equal(t, http.StatusAccepted, status, "CPU10_BFF_STOP_MAIN_FLOW: actual training Stop must be accepted")
+	require.Equal(t, http.StatusAccepted, status, "CPU10_BFF_STOP_MAIN_FLOW: actual BFF Stop must be accepted")
 	var first modeldevv1.StopExecutionResponse
 	require.NoError(t, protojson.Unmarshal(raw, &first))
 	require.Equal(t, operationID, first.OperationId)
@@ -95,6 +97,12 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 	require.NoError(t, protojson.Unmarshal(raw, &replay))
 	require.Equal(t, first.IntentGeneration, replay.IntentGeneration)
 	require.True(t, replay.Replayed)
+	if startAfterStop != nil {
+		// Both current-authorized Stop requests committed before any delivery.
+		// The production worker sends the durable close before the queued create.
+		startAfterStop()
+		t.Log("BFF_STOP_BEFORE_DELIVERY: current-authorized Stop and replay committed before worker started")
+	}
 	var closed struct {
 		OperationID     string `json:"operation_id"`
 		ExecutionID     string `json:"execution_id"`
@@ -118,10 +126,10 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 	ticker := time.NewTicker(50 * time.Millisecond)
 	defer ticker.Stop()
 	for {
-		var state string
-		err := observer.DB().QueryRowContext(appViewer.NewSystemViewerContext(ackContext), `SELECT close_dispatch_state FROM sys_modeldev_acceptances WHERE tenant_id=$1 AND operation_id=$2 AND execution_id=$3`, tenantID, operationID, executionID).Scan(&state)
+		var state, createState string
+		err := observer.DB().QueryRowContext(appViewer.NewSystemViewerContext(ackContext), `SELECT close_dispatch_state,dispatch_state FROM sys_modeldev_acceptances WHERE tenant_id=$1 AND operation_id=$2 AND execution_id=$3`, tenantID, operationID, executionID).Scan(&state, &createState)
 		require.NoError(t, err)
-		if state == "ACKED" {
+		if state == "ACKED" && (startAfterStop == nil || createState == "ACKED") {
 			break
 		}
 		select {
@@ -130,5 +138,6 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 		case <-ticker.C:
 		}
 	}
+	if startAfterStop != nil { t.Log("BFF_STOP_BEFORE_CLOSED: close and late create both durably ACKED; real BFF Query observed CLOSED") }
 	t.Logf("BFF_STOP_CLOSED execution=%s at=%s close_generation=%d; real current-authorized query and independent close ACKED", executionID, time.Now().UTC().Format(time.RFC3339Nano), closed.CloseGeneration)
 }

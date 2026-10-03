@@ -195,18 +195,22 @@ func readModelDevMainFlowStartup(t *testing.T) *modelDevMainFlowStartup {
 // This test calls the real ModelDev query service on its real PG publication.
 // Only the KFP/Kubernetes/S3 boundaries in the provider remain explicit fixtures.
 func TestModelDevQueryCurrentAuthorizationDownloadsPublishedArtifacts(t *testing.T) {
-	testModelDevBFFMainFlow(t, false, false)
+	testModelDevBFFMainFlow(t, false, false, false)
 }
 
 func TestModelDevStopDuringActualTrainingAndObserveClosed(t *testing.T) {
-	testModelDevBFFMainFlow(t, true, false)
+	testModelDevBFFMainFlow(t, true, false, false)
 }
 
 func TestModelDevListAndRealTrainingLogsThroughBFF(t *testing.T) {
-	testModelDevBFFMainFlow(t, false, true)
+	testModelDevBFFMainFlow(t, false, true, false)
 }
 
-func testModelDevBFFMainFlow(t *testing.T, stopping, listLogs bool) {
+func TestModelDevStopBeforeDeliveryClosesWithoutTraining(t *testing.T) {
+	testModelDevBFFMainFlow(t, true, false, true)
+}
+
+func testModelDevBFFMainFlow(t *testing.T, stopping, listLogs, stopBefore bool) {
 	startup := readModelDevMainFlowStartup(t)
 	if stopping {
 		require.NotNil(t, startup, "CPU10_STOP_PREFLIGHT: actual create provider required")
@@ -389,8 +393,11 @@ func testModelDevBFFMainFlow(t *testing.T, stopping, listLogs bool) {
 		require.Equal(t, stored.ExecutionID, accepted.ExecutionId)
 		require.Equal(t, stored.OperationID, accepted.OperationId)
 		worker := service.NewModelDevDispatchWorker(bctx, acceptances, resolver)
-		require.NoError(t, worker.Start(ctx))
-		cleanup(worker.Stop)
+		startWorker := func() {
+			require.NoError(t, worker.Start(ctx))
+			cleanup(worker.Stop)
+		}
+		if !stopBefore { startWorker() }
 		created, e := json.Marshal(map[string]string{"execution_id": accepted.ExecutionId, "operation_id": accepted.OperationId})
 		require.NoError(t, e)
 		createdPath := filepath.Join(filepath.Dir(os.Getenv("ANI_MODELDEV_MAINFLOW_STARTUP")), "created.json")
@@ -403,7 +410,9 @@ func testModelDevBFFMainFlow(t *testing.T, stopping, listLogs bool) {
 		require.NoError(t, os.Rename(createdPath+".pending", createdPath))
 		t.Log("BFF_MAIN_FLOW_CREATED: real authenticated HTTP202 committed before actual delivery worker")
 		if stopping {
-			verifyModelDevBFFStopMainFlow(t, ctx, web, token, otherToken, deniedToken, accepted.OperationId, accepted.ExecutionId, owner.tenant)
+			var startAfterStop func()
+			if stopBefore { startAfterStop = startWorker }
+			verifyModelDevBFFStopMainFlow(t, ctx, web, token, otherToken, deniedToken, accepted.OperationId, accepted.ExecutionId, owner.tenant, startAfterStop)
 			return
 		}
 		ticker := time.NewTicker(100 * time.Millisecond)
