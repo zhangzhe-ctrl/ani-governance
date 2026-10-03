@@ -12,12 +12,19 @@ import (
 	"strings"
 	"time"
 
+	klog "github.com/go-kratos/kratos/v2/log"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go-wind-admin/app/admin/service/cmd/server/assets"
 	dbbootstrap "go-wind-admin/sql/bootstrap"
 )
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "modeldev-pause" {
+		// Kratos's config reader logs raw source bytes on decode failures. This
+		// standalone management process reports only the command's bounded
+		// errors and persisted audit result, even before bootstrap is available.
+		klog.SetLogger(klog.NewStdLogger(io.Discard))
+	}
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
