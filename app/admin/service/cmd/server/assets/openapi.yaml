@@ -7422,6 +7422,7 @@ components:
                     description: Optional registered parameters; omitted and [] are distinct intents. Null is rejected.
                 source_execution_id:
                     type: string
+                    description: Reserved optional association. Currently rejected with 403 SOURCE_EXECUTION_UNAVAILABLE until source execution access can be verified. Omit this field.
             description: |-
                 CPU-P01 public intent. Shared canonicalization and immutable execution
                  contracts are maintained by ani-modeldev-service/contract/cpup01.

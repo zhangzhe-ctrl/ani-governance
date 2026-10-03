@@ -292,7 +292,7 @@ var File_modeldev_service_v1_execution_proto protoreflect.FileDescriptor
 
 const file_modeldev_service_v1_execution_proto_rawDesc = "" +
 	"\n" +
-	"#modeldev/service/v1/execution.proto\x12\x13modeldev.service.v1\x1a$gnostic/openapi/v3/annotations.proto\"\xf7\x04\n" +
+	"#modeldev/service/v1/execution.proto\x12\x13modeldev.service.v1\x1a$gnostic/openapi/v3/annotations.proto\"\x9a\x06\n" +
 	"\x16CreateExecutionRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12@\n" +
 	"\x04kind\x18\x02 \x01(\tB,\xbaG)\x92\x02&CPU-P01 supports GENERAL_TRAINING onlyR\x04kind\x12\x1c\n" +
@@ -300,8 +300,8 @@ const file_modeldev_service_v1_execution_proto_rawDesc = "" +
 	"\x12dataset_version_id\x18\x04 \x01(\tR\x12dataset_version_id\x12(\n" +
 	"\x0fidempotency_key\x18\x05 \x01(\tR\x0fidempotency_key\x12/\n" +
 	"\x10image_version_id\x18\x06 \x01(\tH\x00R\x10image_version_id\x88\x01\x01\x12\xb3\x01\n" +
-	"\x12general_parameters\x18\a \x03(\v2%.modeldev.service.v1.GeneralParameterB\\\xbaGY\x92\x02VOptional registered parameters; omitted and [] are distinct intents. Null is rejected.R\x12general_parameters\x125\n" +
-	"\x13source_execution_id\x18\b \x01(\tH\x01R\x13source_execution_id\x88\x01\x01:D\xbaGA\xba\x01\x04name\xba\x01\x04kind\xba\x01\tpreset_id\xba\x01\x12dataset_version_id\xba\x01\x0fidempotency_keyB\x13\n" +
+	"\x12general_parameters\x18\a \x03(\v2%.modeldev.service.v1.GeneralParameterB\\\xbaGY\x92\x02VOptional registered parameters; omitted and [] are distinct intents. Null is rejected.R\x12general_parameters\x12\xd7\x01\n" +
+	"\x13source_execution_id\x18\b \x01(\tB\x9f\x01\xbaG\x9b\x01\x92\x02\x97\x01Reserved optional association. Currently rejected with 403 SOURCE_EXECUTION_UNAVAILABLE until source execution access can be verified. Omit this field.H\x01R\x13source_execution_id\x88\x01\x01:D\xbaGA\xba\x01\x04name\xba\x01\x04kind\xba\x01\tpreset_id\xba\x01\x12dataset_version_id\xba\x01\x0fidempotency_keyB\x13\n" +
 	"\x11_image_version_idB\x16\n" +
 	"\x14_source_execution_id\"P\n" +
 	"\x10GeneralParameter\x12\x12\n" +
