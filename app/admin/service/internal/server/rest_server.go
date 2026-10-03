@@ -179,6 +179,7 @@ func NewRestServer(
 	configService *service.ConfigService,
 	networkService *service.NetworkService,
 	acceleratorService *service.AcceleratorService,
+	modeldevService *service.ModelDevService,
 ) (*http.Server, error) {
 	cfg := ctx.GetConfig()
 
@@ -252,6 +253,7 @@ func NewRestServer(
 	adminV1.RegisterAcceleratorAdminServiceHTTPServer(srv, acceleratorService)
 	adminV1.RegisterAcceleratorServiceHTTPServer(srv, acceleratorService)
 	adminV1.RegisterQuotaSelfServiceHTTPServer(srv, acceleratorService)
+	registerModelDevHTTP(srv, modeldevService)
 
 	if cfg.GetServer().GetRest().GetEnableSwagger() {
 		swaggerUI.RegisterSwaggerUIServerWithOption(

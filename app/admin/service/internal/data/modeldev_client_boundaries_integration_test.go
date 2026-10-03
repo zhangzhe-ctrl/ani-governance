@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go-wind-admin/app/admin/service/tests/testutil"
 	modeldevv1 "github.com/zhangzhe-ctrl/ani-modeldev-service/api/ani/modeldev/v1"
 	"github.com/zhangzhe-ctrl/ani-modeldev-service/contract/cpup01"
 	contractpb "github.com/zhangzhe-ctrl/ani-modeldev-service/contract/cpup01/protobuf"
@@ -23,13 +24,13 @@ import (
 // The runner starts a fresh real provider for this entire suite. Read the
 // handshake exactly once: its existing cleanup is the sole stop-signal owner.
 func TestModelDevResolveRealProviderBoundaries(t *testing.T) {
-	fixture := readModelDevContractFixture(t)
+	fixture := testutil.ReadModelDevContractFixture(t)
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	config := ModelDevClientConfig{Address: fixture.Address, CAFile: fixture.TLS.CAFile, CertFile: fixture.TLS.CertFile, KeyFile: fixture.TLS.KeyFile, Timeout: 2 * time.Second}
 	scope := ModelDevResolveScope{ResourceTenantID: fixture.Scope.ResourceTenantID, Actor: fixture.Scope.Actor}
 	selection := ModelDevReleaseSelection{ReleaseID: fixture.Release.ReleaseID, ReleaseDigest: fixture.Release.ReleaseDigest, BindingGeneration: fixture.Release.BindingGeneration}
-	wantCanonical, wantHash := expectedModelDevContractSnapshot(t)
+	wantCanonical, wantHash := testutil.ExpectedModelDevContractSnapshot(t)
 	wireIntent, err := contractpb.EncodeIntent(fixture.Intent)
 	if err != nil {
 		t.Fatal("MODELDEV_BOUNDARY_PREFLIGHT: fixed intent cannot encode; behavior NOT_RUN")
