@@ -390,6 +390,27 @@ func TestModelDevPauseCommandPersistsGateAndReplays(t *testing.T) {
 		require.ErrorIs(t, err, data.ErrModelDevBindingNotFound, "a foreign target must not create a tenant B binding")
 	})
 
+	for _, rejection := range []struct {
+		name string
+		releaseID string
+		generation uint64
+	}{
+		{"different fixed release cannot be reinterpreted", uuid.NewString(), 1},
+		{"future generation cannot replay paused target", target.ReleaseID, 3},
+	} {
+		t.Run(rejection.name, func(t *testing.T) {
+			invalidTarget := request
+			invalidTarget.ReleaseID = rejection.releaseID
+			invalidTarget.ExpectedGeneration = rejection.generation
+			raw, err := json.Marshal(invalidTarget)
+			require.NoError(t, err)
+			inputFile := filepath.Join(t.TempDir(), "request.json")
+			require.NoError(t, os.WriteFile(inputFile, raw, 0600))
+			assertValidToken(t, token, operator.ID, owner.ID)
+			assertRejected(t, []string{"modeldev-pause", "--conf", configDirectory, "--token-file", tokenFile, "--request-file", inputFile}, 409, "MODELDEV_BINDING_CHANGED")
+		})
+	}
+
 	t.Run("blacklist lookup unavailable denies without writing", func(t *testing.T) {
 		// Restore this owned synthetic binding to enabled so an authentication
 		// bypass would cause an observable write rather than an unchanged replay.
