@@ -326,6 +326,90 @@ func TestModelDevCreatePersistsBefore202AndReplaysOriginal(t *testing.T) {
 	statusCode, _ = post(changed, key)
 	require.Equal(t, http.StatusConflict, statusCode)
 
+	// ClaimDelivery scans the managed queue globally. Require this exclusive
+	// fixture to own its only row before advancing it through the real repo.
+	count, readErr = observer.Client().ModelDevAcceptance.Query().Count(sys)
+	require.NoError(t, readErr)
+	require.Equal(t, 1, count, "delivery projection fixture must not claim another acceptance")
+	claim, err := acceptances.ClaimDelivery(sys, "http-projection-"+suffix, time.Minute)
+	require.NoError(t, err)
+	require.NotNil(t, claim)
+	require.Equal(t, owner.ID, claim.Acceptance.Scope.TenantID)
+	require.Equal(t, stored.OperationID, claim.Acceptance.OperationID)
+	deferred, err := acceptances.DeferDelivery(sys, claim, data.ModelDevDeliveryFailure{Code: "OWNER_UNAVAILABLE"})
+	require.NoError(t, err)
+	require.True(t, deferred)
+	unknown, err := observer.Client().ModelDevAcceptance.Query().Where(
+		modeldevacceptance.TenantIDEQ(owner.ID), modeldevacceptance.OperationIDEQ(stored.OperationID),
+	).Only(sys)
+	require.NoError(t, err)
+	require.Equal(t, modeldevacceptance.DispatchStateUNKNOWN, unknown.DispatchState)
+	require.Empty(t, unknown.OwnerReceiptCanonical)
+	statusCode, responseBody = post(provider.Intent, key)
+	require.Equal(t, http.StatusAccepted, statusCode, "UNKNOWN must preserve the accepted original-key response")
+	var unknownReply modeldevv1.CreateExecutionResponse
+	require.NoError(t, protojson.Unmarshal(responseBody, &unknownReply))
+	wantProjection := &modeldevv1.CreateExecutionResponse{
+		OperationId: stored.OperationID, ExecutionId: stored.ExecutionID,
+		ResolvedReleaseId: provider.Release.ReleaseID, Replayed: true,
+		ComputeState: "ACCEPTED", DeliveryState: "PENDING", ResourceState: "NOT_APPLICABLE", CloseState: "OPEN",
+	}
+	require.True(t, proto.Equal(wantProjection, &unknownReply), "UNKNOWN exposes original acceptance knowledge, not an invented owner ACK")
+	count, readErr = observer.Client().ModelDevAcceptance.Query().Where(modeldevacceptance.TenantIDEQ(owner.ID)).Count(sys)
+	require.NoError(t, readErr)
+	require.Equal(t, 1, count, "UNKNOWN replay must not create another acceptance")
+
+	// Observe the real database backoff through ClaimDelivery; do not alter the
+	// stored retry time or dispatch state to make this projection test advance.
+	claimContext, cancelClaim := context.WithTimeout(sys, 3*time.Second)
+	defer cancelClaim()
+	poll := time.NewTicker(25 * time.Millisecond)
+	defer poll.Stop()
+	for {
+		claim, err = acceptances.ClaimDelivery(claimContext, "http-projection-"+suffix, time.Minute)
+		require.NoError(t, err)
+		if claim != nil {
+			break
+		}
+		select {
+		case <-claimContext.Done():
+			t.Fatal("delivery projection fixture did not reclaim its original within three seconds")
+		case <-poll.C:
+		}
+	}
+	poll.Stop()
+	cancelClaim()
+	require.Equal(t, owner.ID, claim.Acceptance.Scope.TenantID)
+	require.Equal(t, stored.OperationID, claim.Acceptance.OperationID)
+	// This authored typed receipt is a BFF persistence/projection fixture. It is
+	// not an actual owner ACK or proof of training; the Resolve provider retains
+	// its zero-execution assertion and receives no AcceptExecution from here.
+	ownerReceipt := data.ModelDevOwnerReceipt{
+		OperationID: stored.OperationID, ExecutionID: stored.ExecutionID, ExecutionSpecHash: stored.ExecutionSpecHash,
+		ComputeState: "SUCCEEDED", DeliveryState: "PUBLISHED", ResourceState: "NOT_APPLICABLE", CloseState: "CLOSED",
+		Revision: 37, Replayed: false,
+	}
+	acked, err := acceptances.AckDelivery(sys, claim, ownerReceipt)
+	require.NoError(t, err)
+	require.True(t, acked)
+	durable, err := data.NewModelDevAcceptanceRepo(observer).FindAccepted(sys, claim.Acceptance.Scope, provider.Intent)
+	require.NoError(t, err)
+	require.NotNil(t, durable)
+	require.Equal(t, "ACKED", durable.DispatchState)
+	require.Equal(t, &ownerReceipt, durable.OwnerReceipt, "independent connection must recover the complete persisted projection input")
+	statusCode, responseBody = post(provider.Intent, key)
+	require.Equal(t, http.StatusAccepted, statusCode, "ACKED must preserve authorized original-key replay")
+	var ackedReply modeldevv1.CreateExecutionResponse
+	require.NoError(t, protojson.Unmarshal(responseBody, &ackedReply))
+	wantProjection.ComputeState, wantProjection.DeliveryState = ownerReceipt.ComputeState, ownerReceipt.DeliveryState
+	wantProjection.ResourceState, wantProjection.CloseState = ownerReceipt.ResourceState, ownerReceipt.CloseState
+	require.True(t, proto.Equal(wantProjection, &ackedReply), "ACKED must project all four persisted owner states and original identity")
+	beforeRevocation, err := observer.Client().ModelDevAcceptance.Query().Where(modeldevacceptance.TenantIDEQ(owner.ID)).Only(sys)
+	require.NoError(t, err, "ACKED replay must leave exactly one original acceptance")
+	require.Equal(t, modeldevacceptance.DispatchStateACKED, beforeRevocation.DispatchState)
+	require.NotEmpty(t, beforeRevocation.OwnerReceiptCanonical)
+	t.Log("MODELDEV_CREATE_PROJECTION PASS: real HTTP/JWT replay of persisted UNKNOWN and ACKED; authored receipt fixture only, not owner delivery or training")
+
 	require.NoError(t, writer.Client().UserRole.DeleteOneID(membership.ID).Exec(sys))
 	valid, _ = checker.IsValidAccessToken(ctx, token, false)
 	require.True(t, valid, "the old JWT session remains valid while its current DB membership is revoked")
@@ -343,7 +427,8 @@ func TestModelDevCreatePersistsBefore202AndReplaysOriginal(t *testing.T) {
 	require.Equal(t, stored.IntentHash, unchanged.IntentHash)
 	require.Equal(t, stored.ExecutionSpecHash, unchanged.ExecutionSpecHash)
 	require.True(t, stored.AcceptedAt.Equal(unchanged.AcceptedAt))
-	require.Equal(t, stored.DispatchState, unchanged.DispatchState)
+	require.Equal(t, beforeRevocation.DispatchState, unchanged.DispatchState)
+	require.Equal(t, beforeRevocation.OwnerReceiptCanonical, unchanged.OwnerReceiptCanonical)
 }
 
 func prepareModelDevHTTPDatabase(t *testing.T, ctx context.Context) (*entCrud.EntClient[*ent.Client], *entCrud.EntClient[*ent.Client]) {

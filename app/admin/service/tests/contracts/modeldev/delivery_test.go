@@ -9,15 +9,18 @@ import (
 	"crypto/x509"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"io"
 	"net"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
+	entgo "entgo.io/ent"
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -46,7 +49,7 @@ import (
 
 func TestModelDevWorkerDeliversFrozenAcceptanceAfterRestart(t *testing.T) {
 	fixture := readModelDevDeliveryFixture(t)
-	ctx, cancel := context.WithTimeout(appViewer.NewSystemViewerContext(context.Background()), 40*time.Second)
+	ctx, cancel := context.WithTimeout(appViewer.NewSystemViewerContext(context.Background()), 50*time.Second)
 	defer cancel()
 	original := fixture.Frozen.envelope(fixture.Target)
 	control := fixture.Frozen.envelope(fixture.Control)
@@ -90,7 +93,7 @@ func TestModelDevWorkerDeliversFrozenAcceptanceAfterRestart(t *testing.T) {
 	closeInitial()
 	require.Error(t, initial.DB().PingContext(ctx), "the accepting connection must actually be closed before reconstruction")
 
-	workerConnection, _ := openModelDevDeliveryPG(t, runtimeDSN)
+	workerConnection, closeWorkerConnection := openModelDevDeliveryPG(t, runtimeDSN)
 	observer, _ := openModelDevDeliveryPG(t, runtimeDSN)
 	assertModelDevDeliveryOriginal(t, ctx, observer, scope, original, wantIntent, wantSnapshot, "QUEUED")
 	client, closeClient, err := data.NewModelDevClient(data.ModelDevClientConfig{
@@ -98,6 +101,11 @@ func TestModelDevWorkerDeliversFrozenAcceptanceAfterRestart(t *testing.T) {
 	})
 	require.NoError(t, err, "MODELDEV_DELIVERY_PREFLIGHT: real fixed-identity client must construct")
 	t.Cleanup(closeClient)
+	// Only the ACKED mutation is faulted. Claim must first commit normally and
+	// the actual mTLS owner must return a validated ACK before this hook runs.
+	// This is an Ent commit-boundary substitute, not a PostgreSQL server COMMIT
+	// failure. The ACK SQL update and its rollback still use the real database.
+	failedACK, commitFaults := rejectModelDevDeliveryACKCommit(workerConnection)
 	worker := service.NewModelDevDispatchWorker(testutil.NewBootstrapContext(nil), data.NewModelDevAcceptanceRepo(workerConnection), client)
 	t.Cleanup(func() {
 		cleanup, stop := context.WithTimeout(context.Background(), 5*time.Second)
@@ -105,26 +113,73 @@ func TestModelDevWorkerDeliversFrozenAcceptanceAfterRestart(t *testing.T) {
 		require.NoError(t, worker.Stop(cleanup))
 	})
 	t.Log("MODELDEV_DELIVERY_PREFLIGHT PASS: real generated mTLS control ACK, runtime PostgreSQL role, committed frozen QUEUED record, closed accepting connection and reconstructed worker")
-	if err := worker.Start(ctx); err != nil {
-		if err.Error() != "modeldev dispatch worker not implemented" {
-			t.Fatal("MODELDEV_DELIVERY_BEHAVIOR: unexpected worker Start failure; not the planned RED")
-		}
-		assertModelDevDeliveryOriginal(t, ctx, observer, scope, original, wantIntent, wantSnapshot, "QUEUED")
-		// The current RED schema has no receipt column. Do not read future
-		// delivery columns until the product's Start actually succeeds.
-		t.Fatal("MODELDEV_DELIVERY_BEHAVIOR: modeldev dispatch worker not implemented after real PG/mTLS preflight PASS")
+	require.NoError(t, worker.Start(ctx))
+	firstACKDeadline := time.NewTimer(8 * time.Second)
+	defer firstACKDeadline.Stop()
+	var rejectedReceipt []byte
+	select {
+	case rejectedReceipt = <-failedACK:
+	case <-ctx.Done():
+		t.Fatal("MODELDEV_DELIVERY_RECOVERY: context ended before the actual ACK commit boundary")
+	case <-firstACKDeadline.C:
+		t.Fatal("MODELDEV_DELIVERY_RECOVERY: no ACKED commit-boundary fault was observed")
 	}
+	assertModelDevDeliveryReceipt(t, rejectedReceipt, original, false)
+	stopContext, stop := context.WithTimeout(context.Background(), 5*time.Second)
+	require.NoError(t, worker.Stop(stopContext))
+	stop()
+	require.Equal(t, int64(1), commitFaults.Load(), "the controlled failure must hit exactly the first ACK commit")
+	assertModelDevDeliveryOriginal(t, ctx, observer, scope, original, wantIntent, wantSnapshot, "DISPATCHING")
+	var firstGeneration, firstAttempt int64
+	var firstLeaseUntil time.Time
+	var pendingReceipt []byte
+	require.NoError(t, observer.DB().QueryRowContext(ctx, `SELECT lease_generation,attempt_count,lease_until,owner_receipt_canonical
+		FROM sys_modeldev_acceptances WHERE tenant_id=$1 AND resource_tenant_id=$2 AND operation_id=$3`,
+		scope.TenantID, scope.ResourceTenantID, original.OperationID).Scan(&firstGeneration, &firstAttempt, &firstLeaseUntil, &pendingReceipt))
+	require.Equal(t, int64(1), firstGeneration)
+	require.Equal(t, int64(1), firstAttempt)
+	require.Nil(t, pendingReceipt, "the real ACK update must have rolled back")
+	requestModelDevDeliveryOwnerObservation(t, ctx, fixture, original)
+	t.Log("MODELDEV_DELIVERY_RECOVERY GAP: provider independently confirmed durable original; Governance ACK commit hook hit once, rollback left DISPATCHING with no receipt")
+	closeWorkerConnection()
+	closeClient()
+	require.Error(t, workerConnection.DB().PingContext(ctx), "the failed worker's database connection must close before reconstruction")
 
-	deadline := time.NewTimer(8 * time.Second)
+	// Recreate both outbound resources and the worker. No fixture UPDATE moves
+	// the lease; the restarted worker must wait for the real 15-second expiry.
+	recoveryConnection, _ := openModelDevDeliveryPG(t, runtimeDSN)
+	recoveryClient, closeRecoveryClient, err := data.NewModelDevClient(data.ModelDevClientConfig{
+		Address: fixture.Address, CAFile: fixture.TLS.CAFile, CertFile: fixture.TLS.CertFile, KeyFile: fixture.TLS.KeyFile, Timeout: 3 * time.Second,
+	})
+	require.NoError(t, err)
+	t.Cleanup(closeRecoveryClient)
+	recoveryWorker := service.NewModelDevDispatchWorker(testutil.NewBootstrapContext(nil), data.NewModelDevAcceptanceRepo(recoveryConnection), recoveryClient)
+	t.Cleanup(func() {
+		cleanup, stop := context.WithTimeout(context.Background(), 5*time.Second)
+		defer stop()
+		require.NoError(t, recoveryWorker.Stop(cleanup))
+	})
+	var leaseStillLive bool
+	require.NoError(t, observer.DB().QueryRowContext(ctx, `SELECT statement_timestamp() < $1::timestamptz`, firstLeaseUntil).Scan(&leaseStillLive))
+	require.True(t, leaseStillLive, "recovery must start while the committed first lease is still live")
+	require.NoError(t, recoveryWorker.Start(ctx))
+
+	deadline := time.NewTimer(25 * time.Second)
 	defer deadline.Stop()
 	poll := time.NewTicker(25 * time.Millisecond)
 	defer poll.Stop()
 	var receiptBytes []byte
+	var recoveredGeneration, recoveredAttempt int64
+	var leaseExpired bool
 	for {
 		var state string
-		err := observer.DB().QueryRowContext(ctx, `SELECT dispatch_state,owner_receipt_canonical FROM sys_modeldev_acceptances WHERE tenant_id=$1 AND resource_tenant_id=$2 AND operation_id=$3`, scope.TenantID, scope.ResourceTenantID, original.OperationID).Scan(&state, &receiptBytes)
+		err := observer.DB().QueryRowContext(ctx, `SELECT dispatch_state,owner_receipt_canonical,lease_generation,attempt_count,
+			statement_timestamp() >= $4::timestamptz FROM sys_modeldev_acceptances
+			WHERE tenant_id=$1 AND resource_tenant_id=$2 AND operation_id=$3`,
+			scope.TenantID, scope.ResourceTenantID, original.OperationID, firstLeaseUntil).
+			Scan(&state, &receiptBytes, &recoveredGeneration, &recoveredAttempt, &leaseExpired)
 		if err != nil {
-			t.Fatal("MODELDEV_DELIVERY_BEHAVIOR: receipt read failed after successful Start; not the planned stub RED")
+			t.Fatal("MODELDEV_DELIVERY_RECOVERY: independent durable receipt read failed")
 		}
 		if state == "ACKED" {
 			break
@@ -133,21 +188,117 @@ func TestModelDevWorkerDeliversFrozenAcceptanceAfterRestart(t *testing.T) {
 		case <-ctx.Done():
 			t.Fatal("MODELDEV_DELIVERY_BEHAVIOR: context ended before durable ACK")
 		case <-deadline.C:
-			t.Fatal("MODELDEV_DELIVERY_BEHAVIOR: worker did not persist ACK within eight seconds")
+			t.Fatal("MODELDEV_DELIVERY_RECOVERY: worker did not persist replay ACK within twenty-five seconds")
 		case <-poll.C:
 		}
 	}
-	assertModelDevDeliveryReceipt(t, receiptBytes, original)
+	require.True(t, leaseExpired, "the second claim must not bypass the live first lease")
+	require.Equal(t, int64(2), recoveredGeneration)
+	require.Equal(t, int64(2), recoveredAttempt)
+	require.Equal(t, int64(1), commitFaults.Load(), "the stopped first worker must not resume sending")
+	assertModelDevDeliveryReceipt(t, receiptBytes, original, true)
 	assertModelDevDeliveryOriginal(t, ctx, observer, scope, original, wantIntent, wantSnapshot, "ACKED")
-	stopContext, stop := context.WithTimeout(context.Background(), 5*time.Second)
-	require.NoError(t, worker.Stop(stopContext))
+	stopContext, stop = context.WithTimeout(context.Background(), 5*time.Second)
+	require.NoError(t, recoveryWorker.Stop(stopContext))
 	stop()
 	reconnected, _ := openModelDevDeliveryPG(t, runtimeDSN)
 	var afterRestart []byte
 	require.NoError(t, reconnected.DB().QueryRowContext(ctx, `SELECT owner_receipt_canonical FROM sys_modeldev_acceptances WHERE tenant_id=$1 AND resource_tenant_id=$2 AND operation_id=$3 AND dispatch_state='ACKED'`, scope.TenantID, scope.ResourceTenantID, original.OperationID).Scan(&afterRestart))
 	require.Equal(t, receiptBytes, afterRestart, "a new connection must recover the complete same durable owner receipt")
-	assertModelDevDeliveryReceipt(t, afterRestart, original)
-	t.Log("MODELDEV_DELIVERY_BEHAVIOR PASS: original admission retained, strict owner ACK durable after worker stop and reconnect")
+	assertModelDevDeliveryReceipt(t, afterRestart, original, true)
+	t.Log("MODELDEV_DELIVERY_BEHAVIOR PASS: ACK commit hook rolled back; reconstructed worker replayed the original after real lease expiry; owner revision=1, Governance attempts=2, durable replay ACK retained after reconnect")
+}
+
+func rejectModelDevDeliveryACKCommit(client *entCrud.EntClient[*ent.Client]) (<-chan []byte, *atomic.Int64) {
+	failed := make(chan []byte, 1)
+	calls := &atomic.Int64{}
+	client.Client().ModelDevAcceptance.Use(func(next entgo.Mutator) entgo.Mutator {
+		return entgo.MutateFunc(func(ctx context.Context, mutation entgo.Mutation) (entgo.Value, error) {
+			m, ok := mutation.(*ent.ModelDevAcceptanceMutation)
+			if !ok {
+				return nil, errors.New("unexpected delivery mutation")
+			}
+			state, changed := m.DispatchState()
+			if !changed || state != modeldevacceptance.DispatchStateACKED {
+				return next.Mutate(ctx, mutation)
+			}
+			raw, present := m.OwnerReceiptCanonical()
+			if !present || len(raw) == 0 {
+				return nil, errors.New("ACK mutation has no receipt")
+			}
+			tx, err := m.Tx()
+			if err != nil {
+				return nil, err
+			}
+			raw = bytes.Clone(raw)
+			tx.OnCommit(func(ent.Committer) ent.Committer {
+				return ent.CommitFunc(func(context.Context, *ent.Tx) error {
+					calls.Add(1)
+					select {
+					case failed <- raw:
+					default:
+					}
+					return errors.New("controlled ACK commit boundary failure")
+				})
+			})
+			return next.Mutate(ctx, mutation)
+		})
+	})
+	return failed, calls
+}
+
+// This one-purpose file barrier asks the already running real provider to
+// inspect its own PG state. No target command is sent by this helper.
+func requestModelDevDeliveryOwnerObservation(t *testing.T, ctx context.Context, fixture modelDevDeliveryFixture, original cpup01.AdmissionEnvelope) {
+	t.Helper()
+	directory := filepath.Dir(fixture.TLS.CAFile)
+	request, err := os.OpenFile(filepath.Join(directory, "observe-target"), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+	require.NoError(t, err)
+	require.NoError(t, request.Close())
+	deadline := time.NewTimer(5 * time.Second)
+	defer deadline.Stop()
+	tick := time.NewTicker(25 * time.Millisecond)
+	defer tick.Stop()
+	path := filepath.Join(directory, "target-observed.json")
+	for {
+		info, err := os.Lstat(path)
+		if err == nil {
+			require.True(t, info.Mode().IsRegular())
+			require.Equal(t, os.FileMode(0600), info.Mode().Perm())
+			require.LessOrEqual(t, info.Size(), int64(1024))
+			raw, err := os.ReadFile(path)
+			require.NoError(t, err)
+			require.LessOrEqual(t, len(raw), 1024)
+			var observed struct {
+				Schema string `json:"schema"`
+				OperationID string `json:"operation_id"`
+				ExecutionID string `json:"execution_id"`
+				ExecutionSpecHash string `json:"execution_spec_hash"`
+				Revision uint64 `json:"revision"`
+			}
+			decoder := json.NewDecoder(bytes.NewReader(raw))
+			decoder.DisallowUnknownFields()
+			require.NoError(t, decoder.Decode(&observed))
+			require.Equal(t, io.EOF, decoder.Decode(new(any)))
+			canonical, err := json.Marshal(observed)
+			require.NoError(t, err)
+			require.Equal(t, canonical, raw)
+			require.Equal(t, "ani.cpu-p01.delivery-observation.v1", observed.Schema)
+			require.Equal(t, original.OperationID, observed.OperationID)
+			require.Equal(t, original.ExecutionID, observed.ExecutionID)
+			require.Equal(t, original.SpecHash, observed.ExecutionSpecHash)
+			require.Equal(t, uint64(1), observed.Revision)
+			return
+		}
+		require.True(t, os.IsNotExist(err), "provider observation path failed before publication")
+		select {
+		case <-ctx.Done():
+			t.Fatal("MODELDEV_DELIVERY_RECOVERY: context ended before independent owner observation")
+		case <-deadline.C:
+			t.Fatal("MODELDEV_DELIVERY_RECOVERY: owner did not publish its independent observation")
+		case <-tick.C:
+		}
+	}
 }
 
 type modelDevDeliveryIdentity struct {
@@ -383,7 +534,7 @@ func assertModelDevDeliveryOriginal(t *testing.T, ctx context.Context, observer 
 	require.Equal(t, 1, count, "the same frozen acceptance is the only queued or acknowledged command")
 }
 
-func assertModelDevDeliveryReceipt(t *testing.T, raw []byte, original cpup01.AdmissionEnvelope) {
+func assertModelDevDeliveryReceipt(t *testing.T, raw []byte, original cpup01.AdmissionEnvelope, replayed bool) {
 	t.Helper()
 	var receipt struct {
 		Schema   string `json:"schema"`
@@ -421,4 +572,5 @@ func assertModelDevDeliveryReceipt(t *testing.T, raw []byte, original cpup01.Adm
 	require.NoError(t, err)
 	require.Equal(t, uint64(1), revision, "this provider permits no owner facts beyond the original admission")
 	require.Equal(t, strconv.FormatUint(revision, 10), receipt.Revision)
+	require.Equal(t, replayed, receipt.Replayed)
 }
