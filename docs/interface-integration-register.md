@@ -22,7 +22,7 @@
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
 | Network 租户面读写对接（GOV-RESOURCE-20260922） | NET-02～NET-11；复用 AK-*、AUTH-* | BFF 路由/客户端/Service 已实现，17/17 全链路验收 PASS | GOV-RESOURCE-20260922 完成 |
 | 通用配额与 GPU 本地模拟 | QUOTA-01～03、QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 本地模拟闭环已实现并通过指定验收；正式构建无 GPU 路由；真实 GPU 未接入 | QUOTA-GPU-LOCAL-01，本地验收完成（真实 GPU not_verified） |
-| ModelDev CPU 主干受理 | MODELDEV-01～MODELDEV-02 | 当前授权、可信解析、持久受理和原键重放已装配；可靠投递及受管启用入口待实现，未部署 | CPU-P01，进行中 |
+| ModelDev CPU 主干受理 | MODELDEV-01～MODELDEV-02 | 当前授权、可信解析、持久受理和原键重放已装配；可靠投递候选待验证，受管启用入口待实现，未部署 | CPU-P01，进行中 |
 
 ## 风格改动批次
 
@@ -1029,8 +1029,9 @@ Governance 通过 go.mod/go.sum 固定精确模块版本，生产代码不导入
 因此任何提供该字段的合法意图都在原键查找和受理前返回固定 `403 SOURCE_EXECUTION_UNAVAILABLE`，
 不区分是否存在，也不查询或暴露其他租户的执行。省略该字段可继续正常受理；null 仍是非法输入。
 这是尚未支持关联的明确边界，不是完成了源执行访问授权。当前 ALL 数据范围要求也只是
-本切片的保守实现选择，不声称支持 SELF/组织范围。可靠投递尚未装配，202 的四轴初态
-`ACCEPTED/PENDING/OPEN/NOT_APPLICABLE` 只代表 Governance 已持久接受。
+本切片的保守实现选择，不声称支持 SELF/组织范围。尚未保存 owner ACK 时，202 的四轴初态
+`ACCEPTED/PENDING/OPEN/NOT_APPLICABLE` 只代表 Governance 已持久接受；保存 ACK 后，
+原键重放投影同一持久回执的四轴，不混入单独查询的结果。
 
 MODELDEV-01 的内部前置查询为 `ModelDevAcceptanceRepo.FindAccepted(ctx, scope, intent)`：
 只接收当前可信租户映射、actor/action/key 和用户意图，不要求候选快照或当前目录可用。
@@ -1078,3 +1079,14 @@ tenant/resource tenant 关联通过导出器中的复合外键约束；迁移经
 Governance 不维护第二套快照对应规则，非法候选不得占用幂等键。
 首片只验证已解析候选的持久保存与原键重放，不能代替 binding 切换/CAS、worker
 重试与重启、ModelDev durable ACK 或目标集群业务验收。
+
+可靠投递候选继续使用该受理行，状态为 QUEUED/DISPATCHING/UNKNOWN/ACKED，
+保存有限重试原因、数据库时钟的到期时间、worker 租约与代际，以及完整 owner 回执。
+每次领取先锁 tenant 再锁原受理；过期租约可接管，ACK 和失败回写均检查两种 tenant
+身份、operation、租约 owner/代际/有效期。事务未提交不返回领取成功或持久 ACK。
+命令损坏或明确的 owner 合同冲突保留原件并停止自动重试，暂时不可达与无效 ACK 有界退避。
+worker 仅在显式 ModelDev mTLS client 已配置时装配；构造不访问网络或数据库。
+投递使用原 intent/snapshot/IDs/accepted_at/deadline，不重查当前默认值或续期；
+只重建可信 tenant/actor/request-id 元数据，不携带用户 JWT。ACK 的 identity、四轴和
+完整 uint64 revision 同时验证并以私有版本化规范字节保存。此候选仍待固定版本
+生成、迁移、模块与真实 owner 软件集成验证，不代表目标集群运行或整卡完成。

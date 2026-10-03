@@ -248,7 +248,7 @@ func (r *ModelDevAcceptanceRepo) acceptanceTransaction(ctx context.Context, work
 
 func modelDevAcceptanceFromRow(row *ent.ModelDevAcceptance) (*ModelDevAcceptance, error) {
 	invalid := errors.New("invalid persisted modeldev acceptance")
-	if row.TenantID == nil || *row.TenantID == 0 {
+	if row == nil || row.TenantID == nil || *row.TenantID == 0 || row.Action != ModelDevCreateAction || row.IdempotencyKey == "" {
 		return nil, invalid
 	}
 	var intentEnvelope struct {
@@ -269,11 +269,39 @@ func modelDevAcceptanceFromRow(row *ent.ModelDevAcceptance) (*ModelDevAcceptance
 	if err != nil || !bytes.Equal(intentCanonical, row.IntentCanonical) || !bytes.Equal(snapshotCanonical, row.SnapshotCanonical) {
 		return nil, invalid
 	}
-	return &ModelDevAcceptance{
+	accepted := &ModelDevAcceptance{
 		Scope:       ModelDevAdmissionScope{TenantID: *row.TenantID, ResourceTenantID: row.ResourceTenantID, Actor: row.Actor, Action: row.Action, IdempotencyKey: row.IdempotencyKey},
 		OperationID: row.OperationID, ExecutionID: row.ExecutionID,
 		Intent: intentEnvelope.Intent, Snapshot: snapshot,
 		IntentHash: row.IntentHash, ExecutionSpecHash: row.ExecutionSpecHash,
 		AcceptedAt: row.AcceptedAt, DispatchState: string(row.DispatchState),
-	}, nil
+	}
+	if row.AttemptCount < 0 || row.LeaseGeneration < 0 {
+		return nil, invalid
+	}
+	if row.DispatchState == modeldevacceptance.DispatchStateDISPATCHING {
+		if row.LeaseOwner == nil || *row.LeaseOwner == "" || row.LeaseUntil == nil || row.LeaseGeneration == 0 {
+			return nil, invalid
+		}
+	} else if row.LeaseOwner != nil || row.LeaseUntil != nil {
+		return nil, invalid
+	}
+	if row.DispatchState != modeldevacceptance.DispatchStateUNKNOWN && (row.NextAttemptAt != nil || row.RetryBlocked) {
+		return nil, invalid
+	}
+	switch row.DispatchState {
+	case modeldevacceptance.DispatchStateQUEUED, modeldevacceptance.DispatchStateDISPATCHING, modeldevacceptance.DispatchStateUNKNOWN:
+		if len(row.OwnerReceiptCanonical) != 0 {
+			return nil, invalid
+		}
+	case modeldevacceptance.DispatchStateACKED:
+		receipt, err := decodeModelDevOwnerReceipt(row.OwnerReceiptCanonical, envelope)
+		if err != nil {
+			return nil, err
+		}
+		accepted.OwnerReceipt = receipt
+	default:
+		return nil, invalid
+	}
+	return accepted, nil
 }

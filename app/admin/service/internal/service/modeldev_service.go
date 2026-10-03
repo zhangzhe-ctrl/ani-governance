@@ -185,14 +185,36 @@ func (s *ModelDevService) CreateExecution(ctx context.Context, in ModelDevCreate
 }
 
 func modelDevCreateReply(accepted *data.ModelDevAcceptance, replayed bool) (*modeldevv1.CreateExecutionResponse, error) {
-	if accepted == nil || accepted.DispatchState != "QUEUED" {
+	if accepted == nil {
 		return nil, modelDevCreateUnavailable()
 	}
-	return &modeldevv1.CreateExecutionResponse{
+	reply := &modeldevv1.CreateExecutionResponse{
 		OperationId: accepted.OperationID, ExecutionId: accepted.ExecutionID,
 		ResolvedReleaseId: accepted.Snapshot.Release.ReleaseID, Replayed: replayed,
-		ComputeState: "ACCEPTED", DeliveryState: "PENDING", CloseState: "OPEN", ResourceState: "NOT_APPLICABLE",
-	}, nil
+	}
+	switch accepted.DispatchState {
+	case "QUEUED", "DISPATCHING", "UNKNOWN":
+		if accepted.OwnerReceipt != nil {
+			return nil, modelDevCreateUnavailable()
+		}
+		// Until a durable owner ACK exists, Governance knows only that it
+		// accepted the original. Transport progress is not execution progress.
+		reply.ComputeState, reply.DeliveryState = "ACCEPTED", "PENDING"
+		reply.CloseState, reply.ResourceState = "OPEN", "NOT_APPLICABLE"
+	case "ACKED":
+		if accepted.OwnerReceipt == nil || accepted.OwnerReceipt.Validate(accepted.Envelope()) != nil {
+			return nil, modelDevCreateUnavailable()
+		}
+		// These four states and their revision came from the same persisted
+		// receipt as this admission. No separate owner query is composed here.
+		reply.ComputeState = accepted.OwnerReceipt.ComputeState
+		reply.DeliveryState = accepted.OwnerReceipt.DeliveryState
+		reply.CloseState = accepted.OwnerReceipt.CloseState
+		reply.ResourceState = accepted.OwnerReceipt.ResourceState
+	default:
+		return nil, modelDevCreateUnavailable()
+	}
+	return reply, nil
 }
 
 func modelDevCreateInvalid() error {
