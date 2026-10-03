@@ -3,7 +3,9 @@ package data
 import (
 	"context"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
+	"errors"
 	"strings"
 	"time"
 
@@ -32,7 +34,7 @@ func isWriteStatement(query string) bool {
 
 // auditDriver 包装 dialect.Driver，在 Exec/Query 前后采集 SQL 事件。
 // 照 dialect.DebugDriver/DebugTx（entgo.io/ent/dialect/dialect.go:67-208）范式：
-// 内嵌 Driver 转发 Close/Dialect/Tx，覆盖 Tx 返回包装后的 auditTx。
+// 内嵌 Driver 转发 Close/Dialect，Tx/BeginTx 返回包装后的 auditTx。
 type auditDriver struct {
 	dialect.Driver
 }
@@ -105,6 +107,20 @@ func (d *auditDriver) QueryContext(ctx context.Context, query string, args ...an
 
 func (d *auditDriver) Tx(ctx context.Context) (dialect.Tx, error) {
 	tx, err := d.Driver.Tx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &auditTx{tx}, nil
+}
+
+func (d *auditDriver) BeginTx(ctx context.Context, opts *sql.TxOptions) (dialect.Tx, error) {
+	driver, ok := d.Driver.(interface {
+		BeginTx(context.Context, *sql.TxOptions) (dialect.Tx, error)
+	})
+	if !ok {
+		return nil, errors.New("audit driver does not support transaction options")
+	}
+	tx, err := driver.BeginTx(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
