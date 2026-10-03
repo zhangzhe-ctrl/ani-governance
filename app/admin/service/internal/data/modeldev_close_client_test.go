@@ -48,7 +48,7 @@ func TestModelDevCloseClientDeliversSavedIntentWithFreshDelegation(t *testing.T)
 	defer cancel()
 	ctx = metadata.NewOutgoingContext(metadata.NewIncomingContext(ctx, poison), poison)
 	wantWire := &modeldevv1.ApplyCloseIntentRequest{
-		Identity: &trainingv1.ExecutionIdentity{OperationId: intent.OperationID, ExecutionId: intent.ExecutionID, ExecutionSpecHash: intent.ExecutionSpecHash},
+		Identity:         &trainingv1.ExecutionIdentity{OperationId: intent.OperationID, ExecutionId: intent.ExecutionID, ExecutionSpecHash: intent.ExecutionSpecHash},
 		ResourceTenantId: intent.ResourceTenantID, IntentGeneration: 7, Reason: modeldevv1.CloseReason_CLOSE_REASON_USER_STOP,
 		RequestedAt: timestamppb.New(intent.RequestedAt), RequestedActorId: "governance:user:73",
 	}
@@ -105,16 +105,22 @@ func TestModelDevCloseClientRejectsUnsafeAcknowledgment(t *testing.T) {
 		{"not durable", func(r *modeldevv1.ApplyCloseIntentResponse) { r.DurablyRecorded = false }},
 		{"zero fence", func(r *modeldevv1.ApplyCloseIntentResponse) { r.CloseGeneration = 0 }},
 		{"open", func(r *modeldevv1.ApplyCloseIntentResponse) { r.CloseState = modeldevv1.CloseState_CLOSE_STATE_OPEN }},
-		{"unspecified", func(r *modeldevv1.ApplyCloseIntentResponse) { r.CloseState = modeldevv1.CloseState_CLOSE_STATE_UNSPECIFIED }},
+		{"unspecified", func(r *modeldevv1.ApplyCloseIntentResponse) {
+			r.CloseState = modeldevv1.CloseState_CLOSE_STATE_UNSPECIFIED
+		}},
 		{"unknown state", func(r *modeldevv1.ApplyCloseIntentResponse) { r.CloseState = modeldevv1.CloseState(999) }},
 		{"unknown response", func(r *modeldevv1.ApplyCloseIntentResponse) { r.ProtoReflect().SetUnknown([]byte{0xa0, 0x06, 0x01}) }},
-		{"unknown identity", func(r *modeldevv1.ApplyCloseIntentResponse) { r.Identity.ProtoReflect().SetUnknown([]byte{0xa0, 0x06, 0x01}) }},
+		{"unknown identity", func(r *modeldevv1.ApplyCloseIntentResponse) {
+			r.Identity.ProtoReflect().SetUnknown([]byte{0xa0, 0x06, 0x01})
+		}},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			intent, response := modelDevCloseClientFixture()
 			bad := proto.Clone(response).(*modeldevv1.ApplyCloseIntentResponse)
 			test.change(bad)
-			config := startModelDevClosePeer(t, response, func(context.Context, *modeldevv1.ApplyCloseIntentRequest) (*modeldevv1.ApplyCloseIntentResponse, error) { return bad, nil })
+			config := startModelDevClosePeer(t, response, func(context.Context, *modeldevv1.ApplyCloseIntentRequest) (*modeldevv1.ApplyCloseIntentResponse, error) {
+				return bad, nil
+			})
 			got, err := newModelDevBoundaryClient(t, config).ApplyCloseIntent(context.Background(), intent)
 			var failure *ModelDevDeliveryFailure
 			if got != (ModelDevCloseReceipt{}) || !errors.As(err, &failure) || failure.Code != "INVALID_ACK" || failure.Permanent {

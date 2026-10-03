@@ -75,8 +75,8 @@ func modelDevStopIntentFromRow(row *ent.ModelDevAcceptance) (*ModelDevStopIntent
 }
 
 type ModelDevCloseDeliveryClaim struct {
-	Intent *ModelDevStopIntent
-	LeaseOwner string
+	Intent                        *ModelDevStopIntent
+	LeaseOwner                    string
 	LeaseGeneration, AttemptCount int64
 }
 
