@@ -24,9 +24,19 @@ var (
 	ErrModelDevAuthorizationUnavailable = errors.New("modeldev create authorization unavailable")
 )
 
-// ModelDevAuthorizationRepo checks the current database grant for the fixed
-// CPU-P01 create action. JWT authentication, TenantAccess and Casbin remain
-// required before this check; it does not authenticate a user or enable assets.
+const ModelDevManageReleaseBindingPermissionCode = "modeldev:manage_release_binding"
+
+type modelDevAuthorizationAction uint8
+
+const (
+	modelDevCreateAction modelDevAuthorizationAction = iota + 1
+	modelDevManageReleaseBindingAction
+)
+
+// ModelDevAuthorizationRepo checks current database grants for the fixed
+// CPU-P01 create and release-binding management actions. It does not
+// authenticate a user or enable assets. Create's HTTP authentication,
+// TenantAccess and Casbin checks remain required before AuthorizeCreate.
 type ModelDevAuthorizationRepo struct {
 	entClient *entCrud.EntClient[*ent.Client]
 }
@@ -37,7 +47,18 @@ func NewModelDevAuthorizationRepo(client *entCrud.EntClient[*ent.Client]) *Model
 
 // AuthorizeCreate requires trusted tenant/user IDs from the verified Principal.
 // It must run before FindAccepted for both new requests and original-key replay.
-func (r *ModelDevAuthorizationRepo) AuthorizeCreate(ctx context.Context, tenantID, userID uint32) (result error) {
+func (r *ModelDevAuthorizationRepo) AuthorizeCreate(ctx context.Context, tenantID, userID uint32) error {
+	return r.authorizeCurrent(ctx, tenantID, userID, modelDevCreateAction)
+}
+
+// AuthorizeManageReleaseBinding requires trusted tenant/user IDs from the
+// verified Principal and the current, separate management permission. A create
+// API grant or a JWT's cached roles cannot authorize this action.
+func (r *ModelDevAuthorizationRepo) AuthorizeManageReleaseBinding(ctx context.Context, tenantID, userID uint32) error {
+	return r.authorizeCurrent(ctx, tenantID, userID, modelDevManageReleaseBindingAction)
+}
+
+func (r *ModelDevAuthorizationRepo) authorizeCurrent(ctx context.Context, tenantID, userID uint32, action modelDevAuthorizationAction) (result error) {
 	// Cancellation remains distinguishable from a denied grant or failed store,
 	// including cancellation during transaction completion or cleanup.
 	defer func() {
@@ -133,17 +154,38 @@ func (r *ModelDevAuthorizationRepo) AuthorizeCreate(ctx context.Context, tenantI
 	if len(permissionIDs) == 0 {
 		return ErrModelDevAuthorizationDenied
 	}
-	permissionIDs, err = tx.Permission.Query().Where(
+	permissionQuery := tx.Permission.Query().Where(
 		permission.IDIn(permissionIDs...), permission.StatusEQ(permission.StatusOn), permission.DeletedAtIsNil(),
-	).IDs(ctx)
+	)
+	switch action {
+	case modelDevCreateAction:
+		// Create retains its permission-to-API check below.
+	case modelDevManageReleaseBindingAction:
+		permissionQuery.Where(permission.CodeEQ(ModelDevManageReleaseBindingPermissionCode))
+	default:
+		return ErrModelDevAuthorizationDenied
+	}
+	permissionIDs, err = permissionQuery.IDs(ctx)
 	if err != nil {
 		return ErrModelDevAuthorizationUnavailable
 	}
 	if len(permissionIDs) == 0 {
 		return ErrModelDevAuthorizationDenied
 	}
+	if action == modelDevCreateAction {
+		if err := authorizeModelDevCreateAPI(ctx, tx, permissionIDs); err != nil {
+			return err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return ErrModelDevAuthorizationUnavailable
+	}
+	return nil
+}
+
+func authorizeModelDevCreateAPI(ctx context.Context, tx *ent.Tx, permissionIDs []uint32) error {
 	var apiIDs []uint32
-	err = tx.PermissionApi.Query().Where(
+	err := tx.PermissionApi.Query().Where(
 		permissionapi.PermissionIDIn(permissionIDs...), permissionapi.APIIDGT(0), permissionapi.DeletedAtIsNil(),
 	).Select(permissionapi.FieldAPIID).Scan(ctx, &apiIDs)
 	if err != nil {
@@ -162,9 +204,6 @@ func (r *ModelDevAuthorizationRepo) AuthorizeCreate(ctx context.Context, tenantI
 	}
 	if !allowed {
 		return ErrModelDevAuthorizationDenied
-	}
-	if err := tx.Commit(); err != nil {
-		return ErrModelDevAuthorizationUnavailable
 	}
 	return nil
 }

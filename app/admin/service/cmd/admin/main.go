@@ -1,11 +1,10 @@
-// admin performs explicit deployment data operations. It needs PostgreSQL only;
-// it never starts HTTP, connects Redis, or changes the database schema.
+// admin performs explicit deployment and management operations without starting
+// HTTP or changing the schema. ModelDev management also verifies Redis sessions.
 package main
 
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -35,7 +34,7 @@ func runAdmin(ctx context.Context, args []string, stdout io.Writer) error {
 	}
 	command := args[0]
 	if command == "modeldev-pause" {
-		return errors.New("modeldev pause not implemented")
+		return runModelDevPause(ctx, args[1:], stdout)
 	}
 	flags := flag.NewFlagSet(command, flag.ContinueOnError)
 	username := flags.String("username", "admin", "first platform administrator username (init only)")
