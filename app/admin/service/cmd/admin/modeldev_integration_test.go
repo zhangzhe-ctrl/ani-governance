@@ -85,7 +85,9 @@ func TestModelDevPauseCommandPersistsGateAndReplays(t *testing.T) {
 	managePermission, err := writer.Client().Permission.Create().SetName("modeldev binding maintenance fixture").
 		SetCode("modeldev:manage_release_binding").SetStatus(permission.StatusOn).Save(sys)
 	require.NoError(t, err, "MODELDEV_PAUSE_PREFLIGHT: exclusive database must not contain a conflicting managed permission")
-	removeAfterTest(func(c context.Context) error { return writer.Client().Permission.DeleteOneID(managePermission.ID).Exec(c) })
+	removeAfterTest(func(c context.Context) error {
+		return writer.Client().Permission.DeleteOneID(managePermission.ID).Exec(c)
+	})
 	grant, err := writer.Client().RolePermission.Create().SetTenantID(owner.ID).SetRoleID(currentRole.ID).SetPermissionID(managePermission.ID).
 		SetStatus(rolepermission.StatusOn).SetEffect(rolepermission.EffectAllow).Save(sys)
 	require.NoError(t, err)
@@ -123,7 +125,7 @@ func TestModelDevPauseCommandPersistsGateAndReplays(t *testing.T) {
 	cfg := &conf.Bootstrap{
 		Data: &conf.Data{
 			Database: &conf.Data_Database{Driver: "postgres", Source: runtimeDSN, Migrate: false, MaxOpenConnections: trans.Ptr(int32(2)), MaxIdleConnections: trans.Ptr(int32(1)), ConnectionMaxLifetime: durationpb.New(time.Minute)},
-			Redis: &conf.Data_Redis{Addr: redisAddress, DialTimeout: durationpb.New(2 * time.Second), ReadTimeout: durationpb.New(2 * time.Second), WriteTimeout: durationpb.New(2 * time.Second)},
+			Redis:    &conf.Data_Redis{Addr: redisAddress, DialTimeout: durationpb.New(2 * time.Second), ReadTimeout: durationpb.New(2 * time.Second), WriteTimeout: durationpb.New(2 * time.Second)},
 		},
 		Authn: &conf.Authentication{Type: "jwt", Jwt: &conf.Authentication_Jwt{Method: "HS256", Key: hex.EncodeToString(keyBytes)}},
 		Authz: &conf.Authorization{Type: "casbin"},
@@ -137,7 +139,9 @@ func TestModelDevPauseCommandPersistsGateAndReplays(t *testing.T) {
 	payload := &authv1.UserTokenPayload{UserId: operator.ID, TenantId: trans.Ptr(owner.ID), Roles: []string{*currentRole.Code}}
 	token, _, err := authenticator.CreateUserToken(ctx, authv1.ClientType_admin, payload)
 	require.NoError(t, err, "MODELDEV_PAUSE_PREFLIGHT: actual signed token and Redis session")
-	removeAfterTest(func(c context.Context) error { return cache.RevokeTokenByJti(c, authv1.ClientType_admin, operator.ID, payload.GetJti()) })
+	removeAfterTest(func(c context.Context) error {
+		return cache.RevokeTokenByJti(c, authv1.ClientType_admin, operator.ID, payload.GetJti())
+	})
 	verified, err := authenticator.Authenticate(ctx, &authv1.ValidateTokenRequest{
 		ClientType: authv1.ClientType_admin, TokenCategory: authv1.TokenCategory_ACCESS, Token: token,
 	})
@@ -188,12 +192,12 @@ func TestModelDevPauseCommandPersistsGateAndReplays(t *testing.T) {
 	tokenFile := filepath.Join(private, "access-token")
 	require.NoError(t, os.WriteFile(tokenFile, []byte(token), 0600))
 	request := struct {
-		PresetID string `json:"preset_id"`
-		ReleaseID string `json:"release_id"`
-		ReleaseDigest string `json:"release_digest"`
+		PresetID           string `json:"preset_id"`
+		ReleaseID          string `json:"release_id"`
+		ReleaseDigest      string `json:"release_digest"`
 		ExpectedGeneration uint64 `json:"expected_generation"`
-		Reason string `json:"reason"`
-		EvidenceReference string `json:"evidence_reference"`
+		Reason             string `json:"reason"`
+		EvidenceReference  string `json:"evidence_reference"`
 	}{scope.PresetID, target.ReleaseID, target.ReleaseDigest, 1, "pause new CPU admissions", "contract:cpu-p01:pause-" + suffix}
 	requestBytes, err := json.Marshal(request)
 	require.NoError(t, err)
@@ -234,18 +238,18 @@ func TestModelDevPauseCommandPersistsGateAndReplays(t *testing.T) {
 }
 
 type modelDevPauseBindingOutput struct {
-	ReleaseID string `json:"release_id"`
-	ReleaseDigest string `json:"release_digest"`
-	Generation uint64 `json:"generation"`
-	NewSubmissionsEnabled bool `json:"new_submissions_enabled"`
-	UpdatedBy string `json:"updated_by"`
+	ReleaseID             string `json:"release_id"`
+	ReleaseDigest         string `json:"release_digest"`
+	Generation            uint64 `json:"generation"`
+	NewSubmissionsEnabled bool   `json:"new_submissions_enabled"`
+	UpdatedBy             string `json:"updated_by"`
 }
 
 type modelDevPauseOutput struct {
-	Operator string `json:"operator"`
-	Before modelDevPauseBindingOutput `json:"before"`
-	After modelDevPauseBindingOutput `json:"after"`
-	Replayed bool `json:"replayed"`
+	Operator string                     `json:"operator"`
+	Before   modelDevPauseBindingOutput `json:"before"`
+	After    modelDevPauseBindingOutput `json:"after"`
+	Replayed bool                       `json:"replayed"`
 }
 
 func decodeModelDevPauseOutput(t *testing.T, raw []byte) modelDevPauseOutput {
