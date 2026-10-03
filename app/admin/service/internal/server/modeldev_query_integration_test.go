@@ -151,13 +151,13 @@ func TestModelDevQueryCurrentAuthorizationDownloadsPublishedArtifacts(t *testing
 	}
 	makeIdentity := func(resourceTenant string) identity {
 		id := uuid.NewString()
-		owner, e := writer.Client().Tenant.Create().SetName("query fixture").SetCode("cpu-query-" + id).SetResourceTenantID(resourceTenant).SetStatus(tenant.StatusOn).SetPlanID(plan.ID).Save(sys)
+		owner, e := writer.Client().Tenant.Create().SetName("query fixture " + id).SetCode("cpu-query-" + id).SetResourceTenantID(resourceTenant).SetStatus(tenant.StatusOn).SetPlanID(plan.ID).Save(sys)
 		require.NoError(t, e)
 		cleanup(func(c context.Context) error { return writer.Client().Tenant.DeleteOneID(owner.ID).Exec(c) })
 		operator, e := writer.Client().User.Create().SetTenantID(owner.ID).SetUsername("cpu-query-" + id).SetStatus(user.StatusNormal).Save(sys)
 		require.NoError(t, e)
 		cleanup(func(c context.Context) error { return writer.Client().User.DeleteOneID(operator.ID).Exec(c) })
-		currentRole, e := writer.Client().Role.Create().SetTenantID(owner.ID).SetName("query fixture").SetCode("tenant:cpu-query:" + id).SetType(role.TypeTenant).SetStatus(role.StatusOn).SetDataScope(role.DataScopeAll).Save(sys)
+		currentRole, e := writer.Client().Role.Create().SetTenantID(owner.ID).SetName("query fixture " + id).SetCode("tenant:cpu-query:" + id).SetType(role.TypeTenant).SetStatus(role.StatusOn).SetDataScope(role.DataScopeAll).Save(sys)
 		require.NoError(t, e)
 		cleanup(func(c context.Context) error { return writer.Client().Role.DeleteOneID(currentRole.ID).Exec(c) })
 		membership, e := writer.Client().UserRole.Create().SetTenantID(owner.ID).SetUserID(operator.ID).SetRoleID(currentRole.ID).SetStatus(userrole.StatusActive).Save(sys)
@@ -166,7 +166,7 @@ func TestModelDevQueryCurrentAuthorizationDownloadsPublishedArtifacts(t *testing
 			_, e := writer.Client().UserRole.Delete().Where(userrole.IDEQ(membership.ID)).Exec(c)
 			return e
 		})
-		grantPermission, e := writer.Client().Permission.Create().SetName("query fixture").SetCode("cpu.query." + id).SetStatus(permission.StatusOn).Save(sys)
+		grantPermission, e := writer.Client().Permission.Create().SetName("query fixture " + id).SetCode("cpu.query." + id).SetStatus(permission.StatusOn).Save(sys)
 		require.NoError(t, e)
 		cleanup(func(c context.Context) error {
 			return writer.Client().Permission.DeleteOneID(grantPermission.ID).Exec(c)
