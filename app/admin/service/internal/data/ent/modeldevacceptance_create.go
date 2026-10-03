@@ -108,6 +108,110 @@ func (_c *ModelDevAcceptanceCreate) SetNillableDispatchState(v *modeldevacceptan
 	return _c
 }
 
+// SetAttemptCount sets the "attempt_count" field.
+func (_c *ModelDevAcceptanceCreate) SetAttemptCount(v int64) *ModelDevAcceptanceCreate {
+	_c.mutation.SetAttemptCount(v)
+	return _c
+}
+
+// SetNillableAttemptCount sets the "attempt_count" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableAttemptCount(v *int64) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetAttemptCount(*v)
+	}
+	return _c
+}
+
+// SetLeaseGeneration sets the "lease_generation" field.
+func (_c *ModelDevAcceptanceCreate) SetLeaseGeneration(v int64) *ModelDevAcceptanceCreate {
+	_c.mutation.SetLeaseGeneration(v)
+	return _c
+}
+
+// SetNillableLeaseGeneration sets the "lease_generation" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableLeaseGeneration(v *int64) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetLeaseGeneration(*v)
+	}
+	return _c
+}
+
+// SetLeaseOwner sets the "lease_owner" field.
+func (_c *ModelDevAcceptanceCreate) SetLeaseOwner(v string) *ModelDevAcceptanceCreate {
+	_c.mutation.SetLeaseOwner(v)
+	return _c
+}
+
+// SetNillableLeaseOwner sets the "lease_owner" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableLeaseOwner(v *string) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetLeaseOwner(*v)
+	}
+	return _c
+}
+
+// SetLeaseUntil sets the "lease_until" field.
+func (_c *ModelDevAcceptanceCreate) SetLeaseUntil(v time.Time) *ModelDevAcceptanceCreate {
+	_c.mutation.SetLeaseUntil(v)
+	return _c
+}
+
+// SetNillableLeaseUntil sets the "lease_until" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableLeaseUntil(v *time.Time) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetLeaseUntil(*v)
+	}
+	return _c
+}
+
+// SetNextAttemptAt sets the "next_attempt_at" field.
+func (_c *ModelDevAcceptanceCreate) SetNextAttemptAt(v time.Time) *ModelDevAcceptanceCreate {
+	_c.mutation.SetNextAttemptAt(v)
+	return _c
+}
+
+// SetNillableNextAttemptAt sets the "next_attempt_at" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableNextAttemptAt(v *time.Time) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetNextAttemptAt(*v)
+	}
+	return _c
+}
+
+// SetRetryBlocked sets the "retry_blocked" field.
+func (_c *ModelDevAcceptanceCreate) SetRetryBlocked(v bool) *ModelDevAcceptanceCreate {
+	_c.mutation.SetRetryBlocked(v)
+	return _c
+}
+
+// SetNillableRetryBlocked sets the "retry_blocked" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableRetryBlocked(v *bool) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetRetryBlocked(*v)
+	}
+	return _c
+}
+
+// SetLastErrorCode sets the "last_error_code" field.
+func (_c *ModelDevAcceptanceCreate) SetLastErrorCode(v string) *ModelDevAcceptanceCreate {
+	_c.mutation.SetLastErrorCode(v)
+	return _c
+}
+
+// SetNillableLastErrorCode sets the "last_error_code" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableLastErrorCode(v *string) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetLastErrorCode(*v)
+	}
+	return _c
+}
+
+// SetOwnerReceiptCanonical sets the "owner_receipt_canonical" field.
+func (_c *ModelDevAcceptanceCreate) SetOwnerReceiptCanonical(v []byte) *ModelDevAcceptanceCreate {
+	_c.mutation.SetOwnerReceiptCanonical(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *ModelDevAcceptanceCreate) SetID(v uint32) *ModelDevAcceptanceCreate {
 	_c.mutation.SetID(v)
@@ -154,6 +258,18 @@ func (_c *ModelDevAcceptanceCreate) defaults() error {
 	if _, ok := _c.mutation.DispatchState(); !ok {
 		v := modeldevacceptance.DefaultDispatchState
 		_c.mutation.SetDispatchState(v)
+	}
+	if _, ok := _c.mutation.AttemptCount(); !ok {
+		v := modeldevacceptance.DefaultAttemptCount
+		_c.mutation.SetAttemptCount(v)
+	}
+	if _, ok := _c.mutation.LeaseGeneration(); !ok {
+		v := modeldevacceptance.DefaultLeaseGeneration
+		_c.mutation.SetLeaseGeneration(v)
+	}
+	if _, ok := _c.mutation.RetryBlocked(); !ok {
+		v := modeldevacceptance.DefaultRetryBlocked
+		_c.mutation.SetRetryBlocked(v)
 	}
 	return nil
 }
@@ -259,6 +375,30 @@ func (_c *ModelDevAcceptanceCreate) check() error {
 			return &ValidationError{Name: "dispatch_state", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.dispatch_state": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.AttemptCount(); !ok {
+		return &ValidationError{Name: "attempt_count", err: errors.New(`ent: missing required field "ModelDevAcceptance.attempt_count"`)}
+	}
+	if v, ok := _c.mutation.AttemptCount(); ok {
+		if err := modeldevacceptance.AttemptCountValidator(v); err != nil {
+			return &ValidationError{Name: "attempt_count", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.attempt_count": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.LeaseGeneration(); !ok {
+		return &ValidationError{Name: "lease_generation", err: errors.New(`ent: missing required field "ModelDevAcceptance.lease_generation"`)}
+	}
+	if v, ok := _c.mutation.LeaseGeneration(); ok {
+		if err := modeldevacceptance.LeaseGenerationValidator(v); err != nil {
+			return &ValidationError{Name: "lease_generation", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.lease_generation": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.LeaseOwner(); ok {
+		if err := modeldevacceptance.LeaseOwnerValidator(v); err != nil {
+			return &ValidationError{Name: "lease_owner", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.lease_owner": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.RetryBlocked(); !ok {
+		return &ValidationError{Name: "retry_blocked", err: errors.New(`ent: missing required field "ModelDevAcceptance.retry_blocked"`)}
+	}
 	if v, ok := _c.mutation.ID(); ok {
 		if err := modeldevacceptance.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.id": %w`, err)}
@@ -349,6 +489,38 @@ func (_c *ModelDevAcceptanceCreate) createSpec() (*ModelDevAcceptance, *sqlgraph
 		_spec.SetField(modeldevacceptance.FieldDispatchState, field.TypeEnum, value)
 		_node.DispatchState = value
 	}
+	if value, ok := _c.mutation.AttemptCount(); ok {
+		_spec.SetField(modeldevacceptance.FieldAttemptCount, field.TypeInt64, value)
+		_node.AttemptCount = value
+	}
+	if value, ok := _c.mutation.LeaseGeneration(); ok {
+		_spec.SetField(modeldevacceptance.FieldLeaseGeneration, field.TypeInt64, value)
+		_node.LeaseGeneration = value
+	}
+	if value, ok := _c.mutation.LeaseOwner(); ok {
+		_spec.SetField(modeldevacceptance.FieldLeaseOwner, field.TypeString, value)
+		_node.LeaseOwner = &value
+	}
+	if value, ok := _c.mutation.LeaseUntil(); ok {
+		_spec.SetField(modeldevacceptance.FieldLeaseUntil, field.TypeTime, value)
+		_node.LeaseUntil = &value
+	}
+	if value, ok := _c.mutation.NextAttemptAt(); ok {
+		_spec.SetField(modeldevacceptance.FieldNextAttemptAt, field.TypeTime, value)
+		_node.NextAttemptAt = &value
+	}
+	if value, ok := _c.mutation.RetryBlocked(); ok {
+		_spec.SetField(modeldevacceptance.FieldRetryBlocked, field.TypeBool, value)
+		_node.RetryBlocked = value
+	}
+	if value, ok := _c.mutation.LastErrorCode(); ok {
+		_spec.SetField(modeldevacceptance.FieldLastErrorCode, field.TypeString, value)
+		_node.LastErrorCode = &value
+	}
+	if value, ok := _c.mutation.OwnerReceiptCanonical(); ok {
+		_spec.SetField(modeldevacceptance.FieldOwnerReceiptCanonical, field.TypeBytes, value)
+		_node.OwnerReceiptCanonical = value
+	}
 	return _node, _spec
 }
 
@@ -410,6 +582,144 @@ func (u *ModelDevAcceptanceUpsert) SetDispatchState(v modeldevacceptance.Dispatc
 // UpdateDispatchState sets the "dispatch_state" field to the value that was provided on create.
 func (u *ModelDevAcceptanceUpsert) UpdateDispatchState() *ModelDevAcceptanceUpsert {
 	u.SetExcluded(modeldevacceptance.FieldDispatchState)
+	return u
+}
+
+// SetAttemptCount sets the "attempt_count" field.
+func (u *ModelDevAcceptanceUpsert) SetAttemptCount(v int64) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldAttemptCount, v)
+	return u
+}
+
+// UpdateAttemptCount sets the "attempt_count" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateAttemptCount() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldAttemptCount)
+	return u
+}
+
+// AddAttemptCount adds v to the "attempt_count" field.
+func (u *ModelDevAcceptanceUpsert) AddAttemptCount(v int64) *ModelDevAcceptanceUpsert {
+	u.Add(modeldevacceptance.FieldAttemptCount, v)
+	return u
+}
+
+// SetLeaseGeneration sets the "lease_generation" field.
+func (u *ModelDevAcceptanceUpsert) SetLeaseGeneration(v int64) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldLeaseGeneration, v)
+	return u
+}
+
+// UpdateLeaseGeneration sets the "lease_generation" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateLeaseGeneration() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldLeaseGeneration)
+	return u
+}
+
+// AddLeaseGeneration adds v to the "lease_generation" field.
+func (u *ModelDevAcceptanceUpsert) AddLeaseGeneration(v int64) *ModelDevAcceptanceUpsert {
+	u.Add(modeldevacceptance.FieldLeaseGeneration, v)
+	return u
+}
+
+// SetLeaseOwner sets the "lease_owner" field.
+func (u *ModelDevAcceptanceUpsert) SetLeaseOwner(v string) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldLeaseOwner, v)
+	return u
+}
+
+// UpdateLeaseOwner sets the "lease_owner" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateLeaseOwner() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldLeaseOwner)
+	return u
+}
+
+// ClearLeaseOwner clears the value of the "lease_owner" field.
+func (u *ModelDevAcceptanceUpsert) ClearLeaseOwner() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldLeaseOwner)
+	return u
+}
+
+// SetLeaseUntil sets the "lease_until" field.
+func (u *ModelDevAcceptanceUpsert) SetLeaseUntil(v time.Time) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldLeaseUntil, v)
+	return u
+}
+
+// UpdateLeaseUntil sets the "lease_until" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateLeaseUntil() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldLeaseUntil)
+	return u
+}
+
+// ClearLeaseUntil clears the value of the "lease_until" field.
+func (u *ModelDevAcceptanceUpsert) ClearLeaseUntil() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldLeaseUntil)
+	return u
+}
+
+// SetNextAttemptAt sets the "next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsert) SetNextAttemptAt(v time.Time) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldNextAttemptAt, v)
+	return u
+}
+
+// UpdateNextAttemptAt sets the "next_attempt_at" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateNextAttemptAt() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldNextAttemptAt)
+	return u
+}
+
+// ClearNextAttemptAt clears the value of the "next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsert) ClearNextAttemptAt() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldNextAttemptAt)
+	return u
+}
+
+// SetRetryBlocked sets the "retry_blocked" field.
+func (u *ModelDevAcceptanceUpsert) SetRetryBlocked(v bool) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldRetryBlocked, v)
+	return u
+}
+
+// UpdateRetryBlocked sets the "retry_blocked" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateRetryBlocked() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldRetryBlocked)
+	return u
+}
+
+// SetLastErrorCode sets the "last_error_code" field.
+func (u *ModelDevAcceptanceUpsert) SetLastErrorCode(v string) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldLastErrorCode, v)
+	return u
+}
+
+// UpdateLastErrorCode sets the "last_error_code" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateLastErrorCode() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldLastErrorCode)
+	return u
+}
+
+// ClearLastErrorCode clears the value of the "last_error_code" field.
+func (u *ModelDevAcceptanceUpsert) ClearLastErrorCode() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldLastErrorCode)
+	return u
+}
+
+// SetOwnerReceiptCanonical sets the "owner_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsert) SetOwnerReceiptCanonical(v []byte) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldOwnerReceiptCanonical, v)
+	return u
+}
+
+// UpdateOwnerReceiptCanonical sets the "owner_receipt_canonical" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateOwnerReceiptCanonical() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldOwnerReceiptCanonical)
+	return u
+}
+
+// ClearOwnerReceiptCanonical clears the value of the "owner_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsert) ClearOwnerReceiptCanonical() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldOwnerReceiptCanonical)
 	return u
 }
 
@@ -508,6 +818,167 @@ func (u *ModelDevAcceptanceUpsertOne) SetDispatchState(v modeldevacceptance.Disp
 func (u *ModelDevAcceptanceUpsertOne) UpdateDispatchState() *ModelDevAcceptanceUpsertOne {
 	return u.Update(func(s *ModelDevAcceptanceUpsert) {
 		s.UpdateDispatchState()
+	})
+}
+
+// SetAttemptCount sets the "attempt_count" field.
+func (u *ModelDevAcceptanceUpsertOne) SetAttemptCount(v int64) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetAttemptCount(v)
+	})
+}
+
+// AddAttemptCount adds v to the "attempt_count" field.
+func (u *ModelDevAcceptanceUpsertOne) AddAttemptCount(v int64) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.AddAttemptCount(v)
+	})
+}
+
+// UpdateAttemptCount sets the "attempt_count" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateAttemptCount() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateAttemptCount()
+	})
+}
+
+// SetLeaseGeneration sets the "lease_generation" field.
+func (u *ModelDevAcceptanceUpsertOne) SetLeaseGeneration(v int64) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetLeaseGeneration(v)
+	})
+}
+
+// AddLeaseGeneration adds v to the "lease_generation" field.
+func (u *ModelDevAcceptanceUpsertOne) AddLeaseGeneration(v int64) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.AddLeaseGeneration(v)
+	})
+}
+
+// UpdateLeaseGeneration sets the "lease_generation" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateLeaseGeneration() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateLeaseGeneration()
+	})
+}
+
+// SetLeaseOwner sets the "lease_owner" field.
+func (u *ModelDevAcceptanceUpsertOne) SetLeaseOwner(v string) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetLeaseOwner(v)
+	})
+}
+
+// UpdateLeaseOwner sets the "lease_owner" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateLeaseOwner() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateLeaseOwner()
+	})
+}
+
+// ClearLeaseOwner clears the value of the "lease_owner" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearLeaseOwner() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearLeaseOwner()
+	})
+}
+
+// SetLeaseUntil sets the "lease_until" field.
+func (u *ModelDevAcceptanceUpsertOne) SetLeaseUntil(v time.Time) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetLeaseUntil(v)
+	})
+}
+
+// UpdateLeaseUntil sets the "lease_until" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateLeaseUntil() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateLeaseUntil()
+	})
+}
+
+// ClearLeaseUntil clears the value of the "lease_until" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearLeaseUntil() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearLeaseUntil()
+	})
+}
+
+// SetNextAttemptAt sets the "next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsertOne) SetNextAttemptAt(v time.Time) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetNextAttemptAt(v)
+	})
+}
+
+// UpdateNextAttemptAt sets the "next_attempt_at" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateNextAttemptAt() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateNextAttemptAt()
+	})
+}
+
+// ClearNextAttemptAt clears the value of the "next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearNextAttemptAt() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearNextAttemptAt()
+	})
+}
+
+// SetRetryBlocked sets the "retry_blocked" field.
+func (u *ModelDevAcceptanceUpsertOne) SetRetryBlocked(v bool) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetRetryBlocked(v)
+	})
+}
+
+// UpdateRetryBlocked sets the "retry_blocked" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateRetryBlocked() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateRetryBlocked()
+	})
+}
+
+// SetLastErrorCode sets the "last_error_code" field.
+func (u *ModelDevAcceptanceUpsertOne) SetLastErrorCode(v string) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetLastErrorCode(v)
+	})
+}
+
+// UpdateLastErrorCode sets the "last_error_code" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateLastErrorCode() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateLastErrorCode()
+	})
+}
+
+// ClearLastErrorCode clears the value of the "last_error_code" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearLastErrorCode() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearLastErrorCode()
+	})
+}
+
+// SetOwnerReceiptCanonical sets the "owner_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsertOne) SetOwnerReceiptCanonical(v []byte) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetOwnerReceiptCanonical(v)
+	})
+}
+
+// UpdateOwnerReceiptCanonical sets the "owner_receipt_canonical" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateOwnerReceiptCanonical() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateOwnerReceiptCanonical()
+	})
+}
+
+// ClearOwnerReceiptCanonical clears the value of the "owner_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearOwnerReceiptCanonical() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearOwnerReceiptCanonical()
 	})
 }
 
@@ -772,6 +1243,167 @@ func (u *ModelDevAcceptanceUpsertBulk) SetDispatchState(v modeldevacceptance.Dis
 func (u *ModelDevAcceptanceUpsertBulk) UpdateDispatchState() *ModelDevAcceptanceUpsertBulk {
 	return u.Update(func(s *ModelDevAcceptanceUpsert) {
 		s.UpdateDispatchState()
+	})
+}
+
+// SetAttemptCount sets the "attempt_count" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetAttemptCount(v int64) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetAttemptCount(v)
+	})
+}
+
+// AddAttemptCount adds v to the "attempt_count" field.
+func (u *ModelDevAcceptanceUpsertBulk) AddAttemptCount(v int64) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.AddAttemptCount(v)
+	})
+}
+
+// UpdateAttemptCount sets the "attempt_count" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateAttemptCount() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateAttemptCount()
+	})
+}
+
+// SetLeaseGeneration sets the "lease_generation" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetLeaseGeneration(v int64) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetLeaseGeneration(v)
+	})
+}
+
+// AddLeaseGeneration adds v to the "lease_generation" field.
+func (u *ModelDevAcceptanceUpsertBulk) AddLeaseGeneration(v int64) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.AddLeaseGeneration(v)
+	})
+}
+
+// UpdateLeaseGeneration sets the "lease_generation" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateLeaseGeneration() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateLeaseGeneration()
+	})
+}
+
+// SetLeaseOwner sets the "lease_owner" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetLeaseOwner(v string) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetLeaseOwner(v)
+	})
+}
+
+// UpdateLeaseOwner sets the "lease_owner" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateLeaseOwner() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateLeaseOwner()
+	})
+}
+
+// ClearLeaseOwner clears the value of the "lease_owner" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearLeaseOwner() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearLeaseOwner()
+	})
+}
+
+// SetLeaseUntil sets the "lease_until" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetLeaseUntil(v time.Time) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetLeaseUntil(v)
+	})
+}
+
+// UpdateLeaseUntil sets the "lease_until" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateLeaseUntil() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateLeaseUntil()
+	})
+}
+
+// ClearLeaseUntil clears the value of the "lease_until" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearLeaseUntil() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearLeaseUntil()
+	})
+}
+
+// SetNextAttemptAt sets the "next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetNextAttemptAt(v time.Time) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetNextAttemptAt(v)
+	})
+}
+
+// UpdateNextAttemptAt sets the "next_attempt_at" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateNextAttemptAt() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateNextAttemptAt()
+	})
+}
+
+// ClearNextAttemptAt clears the value of the "next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearNextAttemptAt() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearNextAttemptAt()
+	})
+}
+
+// SetRetryBlocked sets the "retry_blocked" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetRetryBlocked(v bool) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetRetryBlocked(v)
+	})
+}
+
+// UpdateRetryBlocked sets the "retry_blocked" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateRetryBlocked() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateRetryBlocked()
+	})
+}
+
+// SetLastErrorCode sets the "last_error_code" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetLastErrorCode(v string) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetLastErrorCode(v)
+	})
+}
+
+// UpdateLastErrorCode sets the "last_error_code" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateLastErrorCode() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateLastErrorCode()
+	})
+}
+
+// ClearLastErrorCode clears the value of the "last_error_code" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearLastErrorCode() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearLastErrorCode()
+	})
+}
+
+// SetOwnerReceiptCanonical sets the "owner_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetOwnerReceiptCanonical(v []byte) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetOwnerReceiptCanonical(v)
+	})
+}
+
+// UpdateOwnerReceiptCanonical sets the "owner_receipt_canonical" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateOwnerReceiptCanonical() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateOwnerReceiptCanonical()
+	})
+}
+
+// ClearOwnerReceiptCanonical clears the value of the "owner_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearOwnerReceiptCanonical() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearOwnerReceiptCanonical()
 	})
 }
 

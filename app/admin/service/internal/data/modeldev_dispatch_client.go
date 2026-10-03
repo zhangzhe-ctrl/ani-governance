@@ -55,11 +55,11 @@ func (c *ModelDevClient) AcceptExecution(ctx context.Context, envelope cpup01.Ad
 	}
 	receipt := ModelDevOwnerReceipt{
 		OperationID: response.Identity.OperationId, ExecutionID: response.Identity.ExecutionId, ExecutionSpecHash: response.Identity.ExecutionSpecHash,
-		ComputeState: strings.TrimPrefix(response.States.ComputeState.String(), "COMPUTE_STATE_"),
+		ComputeState:  strings.TrimPrefix(response.States.ComputeState.String(), "COMPUTE_STATE_"),
 		DeliveryState: strings.TrimPrefix(response.States.DeliveryState.String(), "DELIVERY_STATE_"),
 		ResourceState: strings.TrimPrefix(response.States.ResourceState.String(), "RESOURCE_STATE_"),
-		CloseState: strings.TrimPrefix(response.States.CloseState.String(), "CLOSE_STATE_"),
-		Revision: response.Revision, Replayed: response.Replayed,
+		CloseState:    strings.TrimPrefix(response.States.CloseState.String(), "CLOSE_STATE_"),
+		Revision:      response.Revision, Replayed: response.Replayed,
 	}
 	validationErr := validateModelDevOwnerReceipt(receipt, envelope)
 	if contextErr := ctx.Err(); contextErr != nil {
@@ -91,7 +91,7 @@ func modelDevDispatchRequest(envelope cpup01.AdmissionEnvelope) (*modeldevv1.Acc
 		return nil, invalid
 	}
 	return &modeldevv1.AcceptExecutionRequest{
-		Identity: &trainingv1.ExecutionIdentity{OperationId: envelope.OperationID, ExecutionId: envelope.ExecutionID, ExecutionSpecHash: envelope.SpecHash},
+		Identity:         &trainingv1.ExecutionIdentity{OperationId: envelope.OperationID, ExecutionId: envelope.ExecutionID, ExecutionSpecHash: envelope.SpecHash},
 		ResourceTenantId: envelope.TenantID, AdmittedActorId: envelope.Actor, IntentHash: envelope.IntentHash,
 		Intent: intent, Snapshot: snapshot, AcceptedAt: timestamppb.New(envelope.AcceptedAt),
 	}, nil

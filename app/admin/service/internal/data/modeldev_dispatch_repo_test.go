@@ -29,7 +29,7 @@ func TestModelDevDeliveryClaimsOnceAcrossConcurrentWorkers(t *testing.T) {
 	clients := []*entCrud.EntClient[*ent.Client]{newModelDevPGClient(t), newModelDevPGClient(t)}
 	type outcome struct {
 		claim *ModelDevDeliveryClaim
-		err error
+		err   error
 	}
 	start, results := make(chan struct{}), make(chan outcome, len(clients))
 	var workers sync.WaitGroup
@@ -95,7 +95,7 @@ func TestModelDevDeliveryTakeoverFencesLateAndForeignClaims(t *testing.T) {
 	require.Equal(t, int64(2), current.AttemptCount)
 	baseline := readModelDevDeliveryRow(t, ctx, observer, original)
 	for _, test := range []struct {
-		name string
+		name  string
 		claim func() *ModelDevDeliveryClaim
 	}{
 		{"expired owner", func() *ModelDevDeliveryClaim { return old }},
@@ -145,7 +145,7 @@ func TestModelDevDeliveryPersistsFullOwnerReceiptAndRejectsInvalidACK(t *testing
 	observer := newModelDevDeliveryObserver(t, ctx)
 	baseline := readModelDevDeliveryRow(t, ctx, observer, original)
 	for _, test := range []struct {
-		name string
+		name   string
 		change func(*ModelDevOwnerReceipt)
 	}{
 		{"zero revision", func(r *ModelDevOwnerReceipt) { r.Revision = 0 }},
@@ -408,19 +408,19 @@ func requireModelDevDeliveryOriginal(t *testing.T, expected, actual *ModelDevAcc
 }
 
 type modelDevDeliveryRow struct {
-	State string
-	LeaseOwner sql.NullString
-	LeaseUntil sql.NullTime
-	Generation int64
-	Attempts int64
+	State       string
+	LeaseOwner  sql.NullString
+	LeaseUntil  sql.NullTime
+	Generation  int64
+	Attempts    int64
 	NextAttempt sql.NullTime
-	Blocked bool
-	Failure sql.NullString
-	Receipt []byte
-	Intent []byte
-	Snapshot []byte
-	IntentHash string
-	SpecHash string
+	Blocked     bool
+	Failure     sql.NullString
+	Receipt     []byte
+	Intent      []byte
+	Snapshot    []byte
+	IntentHash  string
+	SpecHash    string
 }
 
 func newModelDevDeliveryObserver(t *testing.T, ctx context.Context) *sql.DB {

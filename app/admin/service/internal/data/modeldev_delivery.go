@@ -16,21 +16,21 @@ var ErrModelDevInvalidReceipt = errors.New("invalid modeldev owner receipt")
 // ModelDevOwnerReceipt is one validated, committed owner observation. Revision
 // and all four states belong to the same response; they are never fetched apart.
 type ModelDevOwnerReceipt struct {
-	OperationID string
-	ExecutionID string
+	OperationID       string
+	ExecutionID       string
 	ExecutionSpecHash string
-	ComputeState string
-	DeliveryState string
-	ResourceState string
-	CloseState string
-	Revision uint64
-	Replayed bool
+	ComputeState      string
+	DeliveryState     string
+	ResourceState     string
+	CloseState        string
+	Revision          uint64
+	Replayed          bool
 }
 
 // ModelDevDeliveryFailure keeps only a finite safe reason. Remote messages and
 // credentials never become a persisted diagnostic or worker log message.
 type ModelDevDeliveryFailure struct {
-	Code string
+	Code      string
 	Permanent bool
 }
 
@@ -71,20 +71,20 @@ const modelDevOwnerReceiptSchema = "ani.governance.modeldev-owner-receipt.v1"
 // The private storage envelope keeps the complete owner observation together.
 // A decimal string retains the full uint64 revision across JSON/SQL consumers.
 type modelDevReceiptDocument struct {
-	Schema string `json:"schema"`
+	Schema   string `json:"schema"`
 	Identity struct {
-		OperationID string `json:"operation_id"`
-		ExecutionID string `json:"execution_id"`
+		OperationID       string `json:"operation_id"`
+		ExecutionID       string `json:"execution_id"`
 		ExecutionSpecHash string `json:"execution_spec_hash"`
 	} `json:"identity"`
 	States struct {
-		ComputeState string `json:"compute_state"`
+		ComputeState  string `json:"compute_state"`
 		DeliveryState string `json:"delivery_state"`
 		ResourceState string `json:"resource_state"`
-		CloseState string `json:"close_state"`
+		CloseState    string `json:"close_state"`
 	} `json:"states"`
 	Revision string `json:"revision"`
-	Replayed bool `json:"replayed"`
+	Replayed bool   `json:"replayed"`
 }
 
 func encodeModelDevOwnerReceipt(r ModelDevOwnerReceipt, envelope cpup01.AdmissionEnvelope) ([]byte, error) {

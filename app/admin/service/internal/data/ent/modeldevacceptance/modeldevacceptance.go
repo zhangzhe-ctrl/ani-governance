@@ -40,6 +40,22 @@ const (
 	FieldAcceptedAt = "accepted_at"
 	// FieldDispatchState holds the string denoting the dispatch_state field in the database.
 	FieldDispatchState = "dispatch_state"
+	// FieldAttemptCount holds the string denoting the attempt_count field in the database.
+	FieldAttemptCount = "attempt_count"
+	// FieldLeaseGeneration holds the string denoting the lease_generation field in the database.
+	FieldLeaseGeneration = "lease_generation"
+	// FieldLeaseOwner holds the string denoting the lease_owner field in the database.
+	FieldLeaseOwner = "lease_owner"
+	// FieldLeaseUntil holds the string denoting the lease_until field in the database.
+	FieldLeaseUntil = "lease_until"
+	// FieldNextAttemptAt holds the string denoting the next_attempt_at field in the database.
+	FieldNextAttemptAt = "next_attempt_at"
+	// FieldRetryBlocked holds the string denoting the retry_blocked field in the database.
+	FieldRetryBlocked = "retry_blocked"
+	// FieldLastErrorCode holds the string denoting the last_error_code field in the database.
+	FieldLastErrorCode = "last_error_code"
+	// FieldOwnerReceiptCanonical holds the string denoting the owner_receipt_canonical field in the database.
+	FieldOwnerReceiptCanonical = "owner_receipt_canonical"
 	// Table holds the table name of the modeldevacceptance in the database.
 	Table = "sys_modeldev_acceptances"
 )
@@ -60,6 +76,14 @@ var Columns = []string{
 	FieldSnapshotCanonical,
 	FieldAcceptedAt,
 	FieldDispatchState,
+	FieldAttemptCount,
+	FieldLeaseGeneration,
+	FieldLeaseOwner,
+	FieldLeaseUntil,
+	FieldNextAttemptAt,
+	FieldRetryBlocked,
+	FieldLastErrorCode,
+	FieldOwnerReceiptCanonical,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -102,6 +126,18 @@ var (
 	ExecutionSpecHashValidator func(string) error
 	// SnapshotCanonicalValidator is a validator for the "snapshot_canonical" field. It is called by the builders before save.
 	SnapshotCanonicalValidator func([]byte) error
+	// DefaultAttemptCount holds the default value on creation for the "attempt_count" field.
+	DefaultAttemptCount int64
+	// AttemptCountValidator is a validator for the "attempt_count" field. It is called by the builders before save.
+	AttemptCountValidator func(int64) error
+	// DefaultLeaseGeneration holds the default value on creation for the "lease_generation" field.
+	DefaultLeaseGeneration int64
+	// LeaseGenerationValidator is a validator for the "lease_generation" field. It is called by the builders before save.
+	LeaseGenerationValidator func(int64) error
+	// LeaseOwnerValidator is a validator for the "lease_owner" field. It is called by the builders before save.
+	LeaseOwnerValidator func(string) error
+	// DefaultRetryBlocked holds the default value on creation for the "retry_blocked" field.
+	DefaultRetryBlocked bool
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(uint32) error
 )
@@ -114,7 +150,10 @@ const DefaultDispatchState = DispatchStateQUEUED
 
 // DispatchState values.
 const (
-	DispatchStateQUEUED DispatchState = "QUEUED"
+	DispatchStateQUEUED      DispatchState = "QUEUED"
+	DispatchStateDISPATCHING DispatchState = "DISPATCHING"
+	DispatchStateUNKNOWN     DispatchState = "UNKNOWN"
+	DispatchStateACKED       DispatchState = "ACKED"
 )
 
 func (ds DispatchState) String() string {
@@ -124,7 +163,7 @@ func (ds DispatchState) String() string {
 // DispatchStateValidator is a validator for the "dispatch_state" field enum values. It is called by the builders before save.
 func DispatchStateValidator(ds DispatchState) error {
 	switch ds {
-	case DispatchStateQUEUED:
+	case DispatchStateQUEUED, DispatchStateDISPATCHING, DispatchStateUNKNOWN, DispatchStateACKED:
 		return nil
 	default:
 		return fmt.Errorf("modeldevacceptance: invalid enum value for dispatch_state field: %q", ds)
@@ -192,4 +231,39 @@ func ByAcceptedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDispatchState orders the results by the dispatch_state field.
 func ByDispatchState(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDispatchState, opts...).ToFunc()
+}
+
+// ByAttemptCount orders the results by the attempt_count field.
+func ByAttemptCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAttemptCount, opts...).ToFunc()
+}
+
+// ByLeaseGeneration orders the results by the lease_generation field.
+func ByLeaseGeneration(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLeaseGeneration, opts...).ToFunc()
+}
+
+// ByLeaseOwner orders the results by the lease_owner field.
+func ByLeaseOwner(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLeaseOwner, opts...).ToFunc()
+}
+
+// ByLeaseUntil orders the results by the lease_until field.
+func ByLeaseUntil(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLeaseUntil, opts...).ToFunc()
+}
+
+// ByNextAttemptAt orders the results by the next_attempt_at field.
+func ByNextAttemptAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNextAttemptAt, opts...).ToFunc()
+}
+
+// ByRetryBlocked orders the results by the retry_blocked field.
+func ByRetryBlocked(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRetryBlocked, opts...).ToFunc()
+}
+
+// ByLastErrorCode orders the results by the last_error_code field.
+func ByLastErrorCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastErrorCode, opts...).ToFunc()
 }

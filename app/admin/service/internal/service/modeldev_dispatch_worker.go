@@ -17,12 +17,12 @@ import (
 // neither current user authorization nor Release/default resolution.
 type ModelDevDispatchWorker struct {
 	repository *data.ModelDevAcceptanceRepo
-	client *data.ModelDevClient
-	log *bLogger.Helper
-	workerID string
-	mu sync.Mutex
-	cancel context.CancelFunc
-	done chan struct{}
+	client     *data.ModelDevClient
+	log        *bLogger.Helper
+	workerID   string
+	mu         sync.Mutex
+	cancel     context.CancelFunc
+	done       chan struct{}
 }
 
 // Construction performs no database or network work and starts no goroutine.

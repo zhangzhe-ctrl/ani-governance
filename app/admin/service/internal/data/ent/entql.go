@@ -648,19 +648,27 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 		Type: "ModelDevAcceptance",
 		Fields: map[string]*sqlgraph.FieldSpec{
-			modeldevacceptance.FieldTenantID:          {Type: field.TypeUint32, Column: modeldevacceptance.FieldTenantID},
-			modeldevacceptance.FieldResourceTenantID:  {Type: field.TypeString, Column: modeldevacceptance.FieldResourceTenantID},
-			modeldevacceptance.FieldActor:             {Type: field.TypeString, Column: modeldevacceptance.FieldActor},
-			modeldevacceptance.FieldAction:            {Type: field.TypeString, Column: modeldevacceptance.FieldAction},
-			modeldevacceptance.FieldIdempotencyKey:    {Type: field.TypeString, Column: modeldevacceptance.FieldIdempotencyKey},
-			modeldevacceptance.FieldOperationID:       {Type: field.TypeString, Column: modeldevacceptance.FieldOperationID},
-			modeldevacceptance.FieldExecutionID:       {Type: field.TypeString, Column: modeldevacceptance.FieldExecutionID},
-			modeldevacceptance.FieldIntentHash:        {Type: field.TypeString, Column: modeldevacceptance.FieldIntentHash},
-			modeldevacceptance.FieldIntentCanonical:   {Type: field.TypeBytes, Column: modeldevacceptance.FieldIntentCanonical},
-			modeldevacceptance.FieldExecutionSpecHash: {Type: field.TypeString, Column: modeldevacceptance.FieldExecutionSpecHash},
-			modeldevacceptance.FieldSnapshotCanonical: {Type: field.TypeBytes, Column: modeldevacceptance.FieldSnapshotCanonical},
-			modeldevacceptance.FieldAcceptedAt:        {Type: field.TypeTime, Column: modeldevacceptance.FieldAcceptedAt},
-			modeldevacceptance.FieldDispatchState:     {Type: field.TypeEnum, Column: modeldevacceptance.FieldDispatchState},
+			modeldevacceptance.FieldTenantID:              {Type: field.TypeUint32, Column: modeldevacceptance.FieldTenantID},
+			modeldevacceptance.FieldResourceTenantID:      {Type: field.TypeString, Column: modeldevacceptance.FieldResourceTenantID},
+			modeldevacceptance.FieldActor:                 {Type: field.TypeString, Column: modeldevacceptance.FieldActor},
+			modeldevacceptance.FieldAction:                {Type: field.TypeString, Column: modeldevacceptance.FieldAction},
+			modeldevacceptance.FieldIdempotencyKey:        {Type: field.TypeString, Column: modeldevacceptance.FieldIdempotencyKey},
+			modeldevacceptance.FieldOperationID:           {Type: field.TypeString, Column: modeldevacceptance.FieldOperationID},
+			modeldevacceptance.FieldExecutionID:           {Type: field.TypeString, Column: modeldevacceptance.FieldExecutionID},
+			modeldevacceptance.FieldIntentHash:            {Type: field.TypeString, Column: modeldevacceptance.FieldIntentHash},
+			modeldevacceptance.FieldIntentCanonical:       {Type: field.TypeBytes, Column: modeldevacceptance.FieldIntentCanonical},
+			modeldevacceptance.FieldExecutionSpecHash:     {Type: field.TypeString, Column: modeldevacceptance.FieldExecutionSpecHash},
+			modeldevacceptance.FieldSnapshotCanonical:     {Type: field.TypeBytes, Column: modeldevacceptance.FieldSnapshotCanonical},
+			modeldevacceptance.FieldAcceptedAt:            {Type: field.TypeTime, Column: modeldevacceptance.FieldAcceptedAt},
+			modeldevacceptance.FieldDispatchState:         {Type: field.TypeEnum, Column: modeldevacceptance.FieldDispatchState},
+			modeldevacceptance.FieldAttemptCount:          {Type: field.TypeInt64, Column: modeldevacceptance.FieldAttemptCount},
+			modeldevacceptance.FieldLeaseGeneration:       {Type: field.TypeInt64, Column: modeldevacceptance.FieldLeaseGeneration},
+			modeldevacceptance.FieldLeaseOwner:            {Type: field.TypeString, Column: modeldevacceptance.FieldLeaseOwner},
+			modeldevacceptance.FieldLeaseUntil:            {Type: field.TypeTime, Column: modeldevacceptance.FieldLeaseUntil},
+			modeldevacceptance.FieldNextAttemptAt:         {Type: field.TypeTime, Column: modeldevacceptance.FieldNextAttemptAt},
+			modeldevacceptance.FieldRetryBlocked:          {Type: field.TypeBool, Column: modeldevacceptance.FieldRetryBlocked},
+			modeldevacceptance.FieldLastErrorCode:         {Type: field.TypeString, Column: modeldevacceptance.FieldLastErrorCode},
+			modeldevacceptance.FieldOwnerReceiptCanonical: {Type: field.TypeBytes, Column: modeldevacceptance.FieldOwnerReceiptCanonical},
 		},
 	}
 	graph.Nodes[21] = &sqlgraph.Node{
@@ -4309,6 +4317,46 @@ func (f *ModelDevAcceptanceFilter) WhereAcceptedAt(p entql.TimeP) {
 // WhereDispatchState applies the entql string predicate on the dispatch_state field.
 func (f *ModelDevAcceptanceFilter) WhereDispatchState(p entql.StringP) {
 	f.Where(p.Field(modeldevacceptance.FieldDispatchState))
+}
+
+// WhereAttemptCount applies the entql int64 predicate on the attempt_count field.
+func (f *ModelDevAcceptanceFilter) WhereAttemptCount(p entql.Int64P) {
+	f.Where(p.Field(modeldevacceptance.FieldAttemptCount))
+}
+
+// WhereLeaseGeneration applies the entql int64 predicate on the lease_generation field.
+func (f *ModelDevAcceptanceFilter) WhereLeaseGeneration(p entql.Int64P) {
+	f.Where(p.Field(modeldevacceptance.FieldLeaseGeneration))
+}
+
+// WhereLeaseOwner applies the entql string predicate on the lease_owner field.
+func (f *ModelDevAcceptanceFilter) WhereLeaseOwner(p entql.StringP) {
+	f.Where(p.Field(modeldevacceptance.FieldLeaseOwner))
+}
+
+// WhereLeaseUntil applies the entql time.Time predicate on the lease_until field.
+func (f *ModelDevAcceptanceFilter) WhereLeaseUntil(p entql.TimeP) {
+	f.Where(p.Field(modeldevacceptance.FieldLeaseUntil))
+}
+
+// WhereNextAttemptAt applies the entql time.Time predicate on the next_attempt_at field.
+func (f *ModelDevAcceptanceFilter) WhereNextAttemptAt(p entql.TimeP) {
+	f.Where(p.Field(modeldevacceptance.FieldNextAttemptAt))
+}
+
+// WhereRetryBlocked applies the entql bool predicate on the retry_blocked field.
+func (f *ModelDevAcceptanceFilter) WhereRetryBlocked(p entql.BoolP) {
+	f.Where(p.Field(modeldevacceptance.FieldRetryBlocked))
+}
+
+// WhereLastErrorCode applies the entql string predicate on the last_error_code field.
+func (f *ModelDevAcceptanceFilter) WhereLastErrorCode(p entql.StringP) {
+	f.Where(p.Field(modeldevacceptance.FieldLastErrorCode))
+}
+
+// WhereOwnerReceiptCanonical applies the entql []byte predicate on the owner_receipt_canonical field.
+func (f *ModelDevAcceptanceFilter) WhereOwnerReceiptCanonical(p entql.BytesP) {
+	f.Where(p.Field(modeldevacceptance.FieldOwnerReceiptCanonical))
 }
 
 // addPredicate implements the predicateAdder interface.

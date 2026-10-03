@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"go-wind-admin/app/admin/service/internal/data/ent/modeldevacceptance"
 	"go-wind-admin/app/admin/service/internal/data/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -39,6 +40,154 @@ func (_u *ModelDevAcceptanceUpdate) SetNillableDispatchState(v *modeldevacceptan
 	if v != nil {
 		_u.SetDispatchState(*v)
 	}
+	return _u
+}
+
+// SetAttemptCount sets the "attempt_count" field.
+func (_u *ModelDevAcceptanceUpdate) SetAttemptCount(v int64) *ModelDevAcceptanceUpdate {
+	_u.mutation.ResetAttemptCount()
+	_u.mutation.SetAttemptCount(v)
+	return _u
+}
+
+// SetNillableAttemptCount sets the "attempt_count" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdate) SetNillableAttemptCount(v *int64) *ModelDevAcceptanceUpdate {
+	if v != nil {
+		_u.SetAttemptCount(*v)
+	}
+	return _u
+}
+
+// AddAttemptCount adds value to the "attempt_count" field.
+func (_u *ModelDevAcceptanceUpdate) AddAttemptCount(v int64) *ModelDevAcceptanceUpdate {
+	_u.mutation.AddAttemptCount(v)
+	return _u
+}
+
+// SetLeaseGeneration sets the "lease_generation" field.
+func (_u *ModelDevAcceptanceUpdate) SetLeaseGeneration(v int64) *ModelDevAcceptanceUpdate {
+	_u.mutation.ResetLeaseGeneration()
+	_u.mutation.SetLeaseGeneration(v)
+	return _u
+}
+
+// SetNillableLeaseGeneration sets the "lease_generation" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdate) SetNillableLeaseGeneration(v *int64) *ModelDevAcceptanceUpdate {
+	if v != nil {
+		_u.SetLeaseGeneration(*v)
+	}
+	return _u
+}
+
+// AddLeaseGeneration adds value to the "lease_generation" field.
+func (_u *ModelDevAcceptanceUpdate) AddLeaseGeneration(v int64) *ModelDevAcceptanceUpdate {
+	_u.mutation.AddLeaseGeneration(v)
+	return _u
+}
+
+// SetLeaseOwner sets the "lease_owner" field.
+func (_u *ModelDevAcceptanceUpdate) SetLeaseOwner(v string) *ModelDevAcceptanceUpdate {
+	_u.mutation.SetLeaseOwner(v)
+	return _u
+}
+
+// SetNillableLeaseOwner sets the "lease_owner" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdate) SetNillableLeaseOwner(v *string) *ModelDevAcceptanceUpdate {
+	if v != nil {
+		_u.SetLeaseOwner(*v)
+	}
+	return _u
+}
+
+// ClearLeaseOwner clears the value of the "lease_owner" field.
+func (_u *ModelDevAcceptanceUpdate) ClearLeaseOwner() *ModelDevAcceptanceUpdate {
+	_u.mutation.ClearLeaseOwner()
+	return _u
+}
+
+// SetLeaseUntil sets the "lease_until" field.
+func (_u *ModelDevAcceptanceUpdate) SetLeaseUntil(v time.Time) *ModelDevAcceptanceUpdate {
+	_u.mutation.SetLeaseUntil(v)
+	return _u
+}
+
+// SetNillableLeaseUntil sets the "lease_until" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdate) SetNillableLeaseUntil(v *time.Time) *ModelDevAcceptanceUpdate {
+	if v != nil {
+		_u.SetLeaseUntil(*v)
+	}
+	return _u
+}
+
+// ClearLeaseUntil clears the value of the "lease_until" field.
+func (_u *ModelDevAcceptanceUpdate) ClearLeaseUntil() *ModelDevAcceptanceUpdate {
+	_u.mutation.ClearLeaseUntil()
+	return _u
+}
+
+// SetNextAttemptAt sets the "next_attempt_at" field.
+func (_u *ModelDevAcceptanceUpdate) SetNextAttemptAt(v time.Time) *ModelDevAcceptanceUpdate {
+	_u.mutation.SetNextAttemptAt(v)
+	return _u
+}
+
+// SetNillableNextAttemptAt sets the "next_attempt_at" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdate) SetNillableNextAttemptAt(v *time.Time) *ModelDevAcceptanceUpdate {
+	if v != nil {
+		_u.SetNextAttemptAt(*v)
+	}
+	return _u
+}
+
+// ClearNextAttemptAt clears the value of the "next_attempt_at" field.
+func (_u *ModelDevAcceptanceUpdate) ClearNextAttemptAt() *ModelDevAcceptanceUpdate {
+	_u.mutation.ClearNextAttemptAt()
+	return _u
+}
+
+// SetRetryBlocked sets the "retry_blocked" field.
+func (_u *ModelDevAcceptanceUpdate) SetRetryBlocked(v bool) *ModelDevAcceptanceUpdate {
+	_u.mutation.SetRetryBlocked(v)
+	return _u
+}
+
+// SetNillableRetryBlocked sets the "retry_blocked" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdate) SetNillableRetryBlocked(v *bool) *ModelDevAcceptanceUpdate {
+	if v != nil {
+		_u.SetRetryBlocked(*v)
+	}
+	return _u
+}
+
+// SetLastErrorCode sets the "last_error_code" field.
+func (_u *ModelDevAcceptanceUpdate) SetLastErrorCode(v string) *ModelDevAcceptanceUpdate {
+	_u.mutation.SetLastErrorCode(v)
+	return _u
+}
+
+// SetNillableLastErrorCode sets the "last_error_code" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdate) SetNillableLastErrorCode(v *string) *ModelDevAcceptanceUpdate {
+	if v != nil {
+		_u.SetLastErrorCode(*v)
+	}
+	return _u
+}
+
+// ClearLastErrorCode clears the value of the "last_error_code" field.
+func (_u *ModelDevAcceptanceUpdate) ClearLastErrorCode() *ModelDevAcceptanceUpdate {
+	_u.mutation.ClearLastErrorCode()
+	return _u
+}
+
+// SetOwnerReceiptCanonical sets the "owner_receipt_canonical" field.
+func (_u *ModelDevAcceptanceUpdate) SetOwnerReceiptCanonical(v []byte) *ModelDevAcceptanceUpdate {
+	_u.mutation.SetOwnerReceiptCanonical(v)
+	return _u
+}
+
+// ClearOwnerReceiptCanonical clears the value of the "owner_receipt_canonical" field.
+func (_u *ModelDevAcceptanceUpdate) ClearOwnerReceiptCanonical() *ModelDevAcceptanceUpdate {
+	_u.mutation.ClearOwnerReceiptCanonical()
 	return _u
 }
 
@@ -81,6 +230,21 @@ func (_u *ModelDevAcceptanceUpdate) check() error {
 			return &ValidationError{Name: "dispatch_state", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.dispatch_state": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.AttemptCount(); ok {
+		if err := modeldevacceptance.AttemptCountValidator(v); err != nil {
+			return &ValidationError{Name: "attempt_count", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.attempt_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.LeaseGeneration(); ok {
+		if err := modeldevacceptance.LeaseGenerationValidator(v); err != nil {
+			return &ValidationError{Name: "lease_generation", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.lease_generation": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.LeaseOwner(); ok {
+		if err := modeldevacceptance.LeaseOwnerValidator(v); err != nil {
+			return &ValidationError{Name: "lease_owner", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.lease_owner": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -104,6 +268,51 @@ func (_u *ModelDevAcceptanceUpdate) sqlSave(ctx context.Context) (_node int, err
 	}
 	if value, ok := _u.mutation.DispatchState(); ok {
 		_spec.SetField(modeldevacceptance.FieldDispatchState, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.AttemptCount(); ok {
+		_spec.SetField(modeldevacceptance.FieldAttemptCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedAttemptCount(); ok {
+		_spec.AddField(modeldevacceptance.FieldAttemptCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.LeaseGeneration(); ok {
+		_spec.SetField(modeldevacceptance.FieldLeaseGeneration, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedLeaseGeneration(); ok {
+		_spec.AddField(modeldevacceptance.FieldLeaseGeneration, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.LeaseOwner(); ok {
+		_spec.SetField(modeldevacceptance.FieldLeaseOwner, field.TypeString, value)
+	}
+	if _u.mutation.LeaseOwnerCleared() {
+		_spec.ClearField(modeldevacceptance.FieldLeaseOwner, field.TypeString)
+	}
+	if value, ok := _u.mutation.LeaseUntil(); ok {
+		_spec.SetField(modeldevacceptance.FieldLeaseUntil, field.TypeTime, value)
+	}
+	if _u.mutation.LeaseUntilCleared() {
+		_spec.ClearField(modeldevacceptance.FieldLeaseUntil, field.TypeTime)
+	}
+	if value, ok := _u.mutation.NextAttemptAt(); ok {
+		_spec.SetField(modeldevacceptance.FieldNextAttemptAt, field.TypeTime, value)
+	}
+	if _u.mutation.NextAttemptAtCleared() {
+		_spec.ClearField(modeldevacceptance.FieldNextAttemptAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RetryBlocked(); ok {
+		_spec.SetField(modeldevacceptance.FieldRetryBlocked, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.LastErrorCode(); ok {
+		_spec.SetField(modeldevacceptance.FieldLastErrorCode, field.TypeString, value)
+	}
+	if _u.mutation.LastErrorCodeCleared() {
+		_spec.ClearField(modeldevacceptance.FieldLastErrorCode, field.TypeString)
+	}
+	if value, ok := _u.mutation.OwnerReceiptCanonical(); ok {
+		_spec.SetField(modeldevacceptance.FieldOwnerReceiptCanonical, field.TypeBytes, value)
+	}
+	if _u.mutation.OwnerReceiptCanonicalCleared() {
+		_spec.ClearField(modeldevacceptance.FieldOwnerReceiptCanonical, field.TypeBytes)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -138,6 +347,154 @@ func (_u *ModelDevAcceptanceUpdateOne) SetNillableDispatchState(v *modeldevaccep
 	if v != nil {
 		_u.SetDispatchState(*v)
 	}
+	return _u
+}
+
+// SetAttemptCount sets the "attempt_count" field.
+func (_u *ModelDevAcceptanceUpdateOne) SetAttemptCount(v int64) *ModelDevAcceptanceUpdateOne {
+	_u.mutation.ResetAttemptCount()
+	_u.mutation.SetAttemptCount(v)
+	return _u
+}
+
+// SetNillableAttemptCount sets the "attempt_count" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdateOne) SetNillableAttemptCount(v *int64) *ModelDevAcceptanceUpdateOne {
+	if v != nil {
+		_u.SetAttemptCount(*v)
+	}
+	return _u
+}
+
+// AddAttemptCount adds value to the "attempt_count" field.
+func (_u *ModelDevAcceptanceUpdateOne) AddAttemptCount(v int64) *ModelDevAcceptanceUpdateOne {
+	_u.mutation.AddAttemptCount(v)
+	return _u
+}
+
+// SetLeaseGeneration sets the "lease_generation" field.
+func (_u *ModelDevAcceptanceUpdateOne) SetLeaseGeneration(v int64) *ModelDevAcceptanceUpdateOne {
+	_u.mutation.ResetLeaseGeneration()
+	_u.mutation.SetLeaseGeneration(v)
+	return _u
+}
+
+// SetNillableLeaseGeneration sets the "lease_generation" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdateOne) SetNillableLeaseGeneration(v *int64) *ModelDevAcceptanceUpdateOne {
+	if v != nil {
+		_u.SetLeaseGeneration(*v)
+	}
+	return _u
+}
+
+// AddLeaseGeneration adds value to the "lease_generation" field.
+func (_u *ModelDevAcceptanceUpdateOne) AddLeaseGeneration(v int64) *ModelDevAcceptanceUpdateOne {
+	_u.mutation.AddLeaseGeneration(v)
+	return _u
+}
+
+// SetLeaseOwner sets the "lease_owner" field.
+func (_u *ModelDevAcceptanceUpdateOne) SetLeaseOwner(v string) *ModelDevAcceptanceUpdateOne {
+	_u.mutation.SetLeaseOwner(v)
+	return _u
+}
+
+// SetNillableLeaseOwner sets the "lease_owner" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdateOne) SetNillableLeaseOwner(v *string) *ModelDevAcceptanceUpdateOne {
+	if v != nil {
+		_u.SetLeaseOwner(*v)
+	}
+	return _u
+}
+
+// ClearLeaseOwner clears the value of the "lease_owner" field.
+func (_u *ModelDevAcceptanceUpdateOne) ClearLeaseOwner() *ModelDevAcceptanceUpdateOne {
+	_u.mutation.ClearLeaseOwner()
+	return _u
+}
+
+// SetLeaseUntil sets the "lease_until" field.
+func (_u *ModelDevAcceptanceUpdateOne) SetLeaseUntil(v time.Time) *ModelDevAcceptanceUpdateOne {
+	_u.mutation.SetLeaseUntil(v)
+	return _u
+}
+
+// SetNillableLeaseUntil sets the "lease_until" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdateOne) SetNillableLeaseUntil(v *time.Time) *ModelDevAcceptanceUpdateOne {
+	if v != nil {
+		_u.SetLeaseUntil(*v)
+	}
+	return _u
+}
+
+// ClearLeaseUntil clears the value of the "lease_until" field.
+func (_u *ModelDevAcceptanceUpdateOne) ClearLeaseUntil() *ModelDevAcceptanceUpdateOne {
+	_u.mutation.ClearLeaseUntil()
+	return _u
+}
+
+// SetNextAttemptAt sets the "next_attempt_at" field.
+func (_u *ModelDevAcceptanceUpdateOne) SetNextAttemptAt(v time.Time) *ModelDevAcceptanceUpdateOne {
+	_u.mutation.SetNextAttemptAt(v)
+	return _u
+}
+
+// SetNillableNextAttemptAt sets the "next_attempt_at" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdateOne) SetNillableNextAttemptAt(v *time.Time) *ModelDevAcceptanceUpdateOne {
+	if v != nil {
+		_u.SetNextAttemptAt(*v)
+	}
+	return _u
+}
+
+// ClearNextAttemptAt clears the value of the "next_attempt_at" field.
+func (_u *ModelDevAcceptanceUpdateOne) ClearNextAttemptAt() *ModelDevAcceptanceUpdateOne {
+	_u.mutation.ClearNextAttemptAt()
+	return _u
+}
+
+// SetRetryBlocked sets the "retry_blocked" field.
+func (_u *ModelDevAcceptanceUpdateOne) SetRetryBlocked(v bool) *ModelDevAcceptanceUpdateOne {
+	_u.mutation.SetRetryBlocked(v)
+	return _u
+}
+
+// SetNillableRetryBlocked sets the "retry_blocked" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdateOne) SetNillableRetryBlocked(v *bool) *ModelDevAcceptanceUpdateOne {
+	if v != nil {
+		_u.SetRetryBlocked(*v)
+	}
+	return _u
+}
+
+// SetLastErrorCode sets the "last_error_code" field.
+func (_u *ModelDevAcceptanceUpdateOne) SetLastErrorCode(v string) *ModelDevAcceptanceUpdateOne {
+	_u.mutation.SetLastErrorCode(v)
+	return _u
+}
+
+// SetNillableLastErrorCode sets the "last_error_code" field if the given value is not nil.
+func (_u *ModelDevAcceptanceUpdateOne) SetNillableLastErrorCode(v *string) *ModelDevAcceptanceUpdateOne {
+	if v != nil {
+		_u.SetLastErrorCode(*v)
+	}
+	return _u
+}
+
+// ClearLastErrorCode clears the value of the "last_error_code" field.
+func (_u *ModelDevAcceptanceUpdateOne) ClearLastErrorCode() *ModelDevAcceptanceUpdateOne {
+	_u.mutation.ClearLastErrorCode()
+	return _u
+}
+
+// SetOwnerReceiptCanonical sets the "owner_receipt_canonical" field.
+func (_u *ModelDevAcceptanceUpdateOne) SetOwnerReceiptCanonical(v []byte) *ModelDevAcceptanceUpdateOne {
+	_u.mutation.SetOwnerReceiptCanonical(v)
+	return _u
+}
+
+// ClearOwnerReceiptCanonical clears the value of the "owner_receipt_canonical" field.
+func (_u *ModelDevAcceptanceUpdateOne) ClearOwnerReceiptCanonical() *ModelDevAcceptanceUpdateOne {
+	_u.mutation.ClearOwnerReceiptCanonical()
 	return _u
 }
 
@@ -193,6 +550,21 @@ func (_u *ModelDevAcceptanceUpdateOne) check() error {
 			return &ValidationError{Name: "dispatch_state", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.dispatch_state": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.AttemptCount(); ok {
+		if err := modeldevacceptance.AttemptCountValidator(v); err != nil {
+			return &ValidationError{Name: "attempt_count", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.attempt_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.LeaseGeneration(); ok {
+		if err := modeldevacceptance.LeaseGenerationValidator(v); err != nil {
+			return &ValidationError{Name: "lease_generation", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.lease_generation": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.LeaseOwner(); ok {
+		if err := modeldevacceptance.LeaseOwnerValidator(v); err != nil {
+			return &ValidationError{Name: "lease_owner", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.lease_owner": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -233,6 +605,51 @@ func (_u *ModelDevAcceptanceUpdateOne) sqlSave(ctx context.Context) (_node *Mode
 	}
 	if value, ok := _u.mutation.DispatchState(); ok {
 		_spec.SetField(modeldevacceptance.FieldDispatchState, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.AttemptCount(); ok {
+		_spec.SetField(modeldevacceptance.FieldAttemptCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedAttemptCount(); ok {
+		_spec.AddField(modeldevacceptance.FieldAttemptCount, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.LeaseGeneration(); ok {
+		_spec.SetField(modeldevacceptance.FieldLeaseGeneration, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.AddedLeaseGeneration(); ok {
+		_spec.AddField(modeldevacceptance.FieldLeaseGeneration, field.TypeInt64, value)
+	}
+	if value, ok := _u.mutation.LeaseOwner(); ok {
+		_spec.SetField(modeldevacceptance.FieldLeaseOwner, field.TypeString, value)
+	}
+	if _u.mutation.LeaseOwnerCleared() {
+		_spec.ClearField(modeldevacceptance.FieldLeaseOwner, field.TypeString)
+	}
+	if value, ok := _u.mutation.LeaseUntil(); ok {
+		_spec.SetField(modeldevacceptance.FieldLeaseUntil, field.TypeTime, value)
+	}
+	if _u.mutation.LeaseUntilCleared() {
+		_spec.ClearField(modeldevacceptance.FieldLeaseUntil, field.TypeTime)
+	}
+	if value, ok := _u.mutation.NextAttemptAt(); ok {
+		_spec.SetField(modeldevacceptance.FieldNextAttemptAt, field.TypeTime, value)
+	}
+	if _u.mutation.NextAttemptAtCleared() {
+		_spec.ClearField(modeldevacceptance.FieldNextAttemptAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RetryBlocked(); ok {
+		_spec.SetField(modeldevacceptance.FieldRetryBlocked, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.LastErrorCode(); ok {
+		_spec.SetField(modeldevacceptance.FieldLastErrorCode, field.TypeString, value)
+	}
+	if _u.mutation.LastErrorCodeCleared() {
+		_spec.ClearField(modeldevacceptance.FieldLastErrorCode, field.TypeString)
+	}
+	if value, ok := _u.mutation.OwnerReceiptCanonical(); ok {
+		_spec.SetField(modeldevacceptance.FieldOwnerReceiptCanonical, field.TypeBytes, value)
+	}
+	if _u.mutation.OwnerReceiptCanonicalCleared() {
+		_spec.ClearField(modeldevacceptance.FieldOwnerReceiptCanonical, field.TypeBytes)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &ModelDevAcceptance{config: _u.config}

@@ -44,7 +44,23 @@ type ModelDevAcceptance struct {
 	AcceptedAt time.Time `json:"accepted_at,omitempty"`
 	// DispatchState holds the value of the "dispatch_state" field.
 	DispatchState modeldevacceptance.DispatchState `json:"dispatch_state,omitempty"`
-	selectValues  sql.SelectValues
+	// AttemptCount holds the value of the "attempt_count" field.
+	AttemptCount int64 `json:"attempt_count,omitempty"`
+	// LeaseGeneration holds the value of the "lease_generation" field.
+	LeaseGeneration int64 `json:"lease_generation,omitempty"`
+	// LeaseOwner holds the value of the "lease_owner" field.
+	LeaseOwner *string `json:"lease_owner,omitempty"`
+	// LeaseUntil holds the value of the "lease_until" field.
+	LeaseUntil *time.Time `json:"lease_until,omitempty"`
+	// NextAttemptAt holds the value of the "next_attempt_at" field.
+	NextAttemptAt *time.Time `json:"next_attempt_at,omitempty"`
+	// RetryBlocked holds the value of the "retry_blocked" field.
+	RetryBlocked bool `json:"retry_blocked,omitempty"`
+	// LastErrorCode holds the value of the "last_error_code" field.
+	LastErrorCode *string `json:"last_error_code,omitempty"`
+	// OwnerReceiptCanonical holds the value of the "owner_receipt_canonical" field.
+	OwnerReceiptCanonical []byte `json:"owner_receipt_canonical,omitempty"`
+	selectValues          sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -52,13 +68,15 @@ func (*ModelDevAcceptance) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case modeldevacceptance.FieldIntentCanonical, modeldevacceptance.FieldSnapshotCanonical:
+		case modeldevacceptance.FieldIntentCanonical, modeldevacceptance.FieldSnapshotCanonical, modeldevacceptance.FieldOwnerReceiptCanonical:
 			values[i] = new([]byte)
-		case modeldevacceptance.FieldID, modeldevacceptance.FieldTenantID:
+		case modeldevacceptance.FieldRetryBlocked:
+			values[i] = new(sql.NullBool)
+		case modeldevacceptance.FieldID, modeldevacceptance.FieldTenantID, modeldevacceptance.FieldAttemptCount, modeldevacceptance.FieldLeaseGeneration:
 			values[i] = new(sql.NullInt64)
-		case modeldevacceptance.FieldResourceTenantID, modeldevacceptance.FieldActor, modeldevacceptance.FieldAction, modeldevacceptance.FieldIdempotencyKey, modeldevacceptance.FieldOperationID, modeldevacceptance.FieldExecutionID, modeldevacceptance.FieldIntentHash, modeldevacceptance.FieldExecutionSpecHash, modeldevacceptance.FieldDispatchState:
+		case modeldevacceptance.FieldResourceTenantID, modeldevacceptance.FieldActor, modeldevacceptance.FieldAction, modeldevacceptance.FieldIdempotencyKey, modeldevacceptance.FieldOperationID, modeldevacceptance.FieldExecutionID, modeldevacceptance.FieldIntentHash, modeldevacceptance.FieldExecutionSpecHash, modeldevacceptance.FieldDispatchState, modeldevacceptance.FieldLeaseOwner, modeldevacceptance.FieldLastErrorCode:
 			values[i] = new(sql.NullString)
-		case modeldevacceptance.FieldAcceptedAt:
+		case modeldevacceptance.FieldAcceptedAt, modeldevacceptance.FieldLeaseUntil, modeldevacceptance.FieldNextAttemptAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -160,6 +178,58 @@ func (_m *ModelDevAcceptance) assignValues(columns []string, values []any) error
 			} else if value.Valid {
 				_m.DispatchState = modeldevacceptance.DispatchState(value.String)
 			}
+		case modeldevacceptance.FieldAttemptCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field attempt_count", values[i])
+			} else if value.Valid {
+				_m.AttemptCount = value.Int64
+			}
+		case modeldevacceptance.FieldLeaseGeneration:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field lease_generation", values[i])
+			} else if value.Valid {
+				_m.LeaseGeneration = value.Int64
+			}
+		case modeldevacceptance.FieldLeaseOwner:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field lease_owner", values[i])
+			} else if value.Valid {
+				_m.LeaseOwner = new(string)
+				*_m.LeaseOwner = value.String
+			}
+		case modeldevacceptance.FieldLeaseUntil:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field lease_until", values[i])
+			} else if value.Valid {
+				_m.LeaseUntil = new(time.Time)
+				*_m.LeaseUntil = value.Time
+			}
+		case modeldevacceptance.FieldNextAttemptAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field next_attempt_at", values[i])
+			} else if value.Valid {
+				_m.NextAttemptAt = new(time.Time)
+				*_m.NextAttemptAt = value.Time
+			}
+		case modeldevacceptance.FieldRetryBlocked:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field retry_blocked", values[i])
+			} else if value.Valid {
+				_m.RetryBlocked = value.Bool
+			}
+		case modeldevacceptance.FieldLastErrorCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field last_error_code", values[i])
+			} else if value.Valid {
+				_m.LastErrorCode = new(string)
+				*_m.LastErrorCode = value.String
+			}
+		case modeldevacceptance.FieldOwnerReceiptCanonical:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field owner_receipt_canonical", values[i])
+			} else if value != nil {
+				_m.OwnerReceiptCanonical = *value
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -236,6 +306,38 @@ func (_m *ModelDevAcceptance) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("dispatch_state=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DispatchState))
+	builder.WriteString(", ")
+	builder.WriteString("attempt_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AttemptCount))
+	builder.WriteString(", ")
+	builder.WriteString("lease_generation=")
+	builder.WriteString(fmt.Sprintf("%v", _m.LeaseGeneration))
+	builder.WriteString(", ")
+	if v := _m.LeaseOwner; v != nil {
+		builder.WriteString("lease_owner=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.LeaseUntil; v != nil {
+		builder.WriteString("lease_until=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.NextAttemptAt; v != nil {
+		builder.WriteString("next_attempt_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("retry_blocked=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RetryBlocked))
+	builder.WriteString(", ")
+	if v := _m.LastErrorCode; v != nil {
+		builder.WriteString("last_error_code=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	builder.WriteString("owner_receipt_canonical=")
+	builder.WriteString(fmt.Sprintf("%v", _m.OwnerReceiptCanonical))
 	builder.WriteByte(')')
 	return builder.String()
 }

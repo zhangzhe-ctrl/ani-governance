@@ -31380,27 +31380,37 @@ func (m *MenuMutation) ResetEdge(name string) error {
 // ModelDevAcceptanceMutation represents an operation that mutates the ModelDevAcceptance nodes in the graph.
 type ModelDevAcceptanceMutation struct {
 	config
-	op                  Op
-	typ                 string
-	id                  *uint32
-	tenant_id           *uint32
-	addtenant_id        *int32
-	resource_tenant_id  *string
-	actor               *string
-	action              *string
-	idempotency_key     *string
-	operation_id        *string
-	execution_id        *string
-	intent_hash         *string
-	intent_canonical    *[]byte
-	execution_spec_hash *string
-	snapshot_canonical  *[]byte
-	accepted_at         *time.Time
-	dispatch_state      *modeldevacceptance.DispatchState
-	clearedFields       map[string]struct{}
-	done                bool
-	oldValue            func(context.Context) (*ModelDevAcceptance, error)
-	predicates          []predicate.ModelDevAcceptance
+	op                      Op
+	typ                     string
+	id                      *uint32
+	tenant_id               *uint32
+	addtenant_id            *int32
+	resource_tenant_id      *string
+	actor                   *string
+	action                  *string
+	idempotency_key         *string
+	operation_id            *string
+	execution_id            *string
+	intent_hash             *string
+	intent_canonical        *[]byte
+	execution_spec_hash     *string
+	snapshot_canonical      *[]byte
+	accepted_at             *time.Time
+	dispatch_state          *modeldevacceptance.DispatchState
+	attempt_count           *int64
+	addattempt_count        *int64
+	lease_generation        *int64
+	addlease_generation     *int64
+	lease_owner             *string
+	lease_until             *time.Time
+	next_attempt_at         *time.Time
+	retry_blocked           *bool
+	last_error_code         *string
+	owner_receipt_canonical *[]byte
+	clearedFields           map[string]struct{}
+	done                    bool
+	oldValue                func(context.Context) (*ModelDevAcceptance, error)
+	predicates              []predicate.ModelDevAcceptance
 }
 
 var _ ent.Mutation = (*ModelDevAcceptanceMutation)(nil)
@@ -31995,6 +32005,399 @@ func (m *ModelDevAcceptanceMutation) ResetDispatchState() {
 	m.dispatch_state = nil
 }
 
+// SetAttemptCount sets the "attempt_count" field.
+func (m *ModelDevAcceptanceMutation) SetAttemptCount(i int64) {
+	m.attempt_count = &i
+	m.addattempt_count = nil
+}
+
+// AttemptCount returns the value of the "attempt_count" field in the mutation.
+func (m *ModelDevAcceptanceMutation) AttemptCount() (r int64, exists bool) {
+	v := m.attempt_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAttemptCount returns the old "attempt_count" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldAttemptCount(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAttemptCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAttemptCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAttemptCount: %w", err)
+	}
+	return oldValue.AttemptCount, nil
+}
+
+// AddAttemptCount adds i to the "attempt_count" field.
+func (m *ModelDevAcceptanceMutation) AddAttemptCount(i int64) {
+	if m.addattempt_count != nil {
+		*m.addattempt_count += i
+	} else {
+		m.addattempt_count = &i
+	}
+}
+
+// AddedAttemptCount returns the value that was added to the "attempt_count" field in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedAttemptCount() (r int64, exists bool) {
+	v := m.addattempt_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAttemptCount resets all changes to the "attempt_count" field.
+func (m *ModelDevAcceptanceMutation) ResetAttemptCount() {
+	m.attempt_count = nil
+	m.addattempt_count = nil
+}
+
+// SetLeaseGeneration sets the "lease_generation" field.
+func (m *ModelDevAcceptanceMutation) SetLeaseGeneration(i int64) {
+	m.lease_generation = &i
+	m.addlease_generation = nil
+}
+
+// LeaseGeneration returns the value of the "lease_generation" field in the mutation.
+func (m *ModelDevAcceptanceMutation) LeaseGeneration() (r int64, exists bool) {
+	v := m.lease_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLeaseGeneration returns the old "lease_generation" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldLeaseGeneration(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLeaseGeneration is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLeaseGeneration requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLeaseGeneration: %w", err)
+	}
+	return oldValue.LeaseGeneration, nil
+}
+
+// AddLeaseGeneration adds i to the "lease_generation" field.
+func (m *ModelDevAcceptanceMutation) AddLeaseGeneration(i int64) {
+	if m.addlease_generation != nil {
+		*m.addlease_generation += i
+	} else {
+		m.addlease_generation = &i
+	}
+}
+
+// AddedLeaseGeneration returns the value that was added to the "lease_generation" field in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedLeaseGeneration() (r int64, exists bool) {
+	v := m.addlease_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetLeaseGeneration resets all changes to the "lease_generation" field.
+func (m *ModelDevAcceptanceMutation) ResetLeaseGeneration() {
+	m.lease_generation = nil
+	m.addlease_generation = nil
+}
+
+// SetLeaseOwner sets the "lease_owner" field.
+func (m *ModelDevAcceptanceMutation) SetLeaseOwner(s string) {
+	m.lease_owner = &s
+}
+
+// LeaseOwner returns the value of the "lease_owner" field in the mutation.
+func (m *ModelDevAcceptanceMutation) LeaseOwner() (r string, exists bool) {
+	v := m.lease_owner
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLeaseOwner returns the old "lease_owner" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldLeaseOwner(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLeaseOwner is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLeaseOwner requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLeaseOwner: %w", err)
+	}
+	return oldValue.LeaseOwner, nil
+}
+
+// ClearLeaseOwner clears the value of the "lease_owner" field.
+func (m *ModelDevAcceptanceMutation) ClearLeaseOwner() {
+	m.lease_owner = nil
+	m.clearedFields[modeldevacceptance.FieldLeaseOwner] = struct{}{}
+}
+
+// LeaseOwnerCleared returns if the "lease_owner" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) LeaseOwnerCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldLeaseOwner]
+	return ok
+}
+
+// ResetLeaseOwner resets all changes to the "lease_owner" field.
+func (m *ModelDevAcceptanceMutation) ResetLeaseOwner() {
+	m.lease_owner = nil
+	delete(m.clearedFields, modeldevacceptance.FieldLeaseOwner)
+}
+
+// SetLeaseUntil sets the "lease_until" field.
+func (m *ModelDevAcceptanceMutation) SetLeaseUntil(t time.Time) {
+	m.lease_until = &t
+}
+
+// LeaseUntil returns the value of the "lease_until" field in the mutation.
+func (m *ModelDevAcceptanceMutation) LeaseUntil() (r time.Time, exists bool) {
+	v := m.lease_until
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLeaseUntil returns the old "lease_until" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldLeaseUntil(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLeaseUntil is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLeaseUntil requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLeaseUntil: %w", err)
+	}
+	return oldValue.LeaseUntil, nil
+}
+
+// ClearLeaseUntil clears the value of the "lease_until" field.
+func (m *ModelDevAcceptanceMutation) ClearLeaseUntil() {
+	m.lease_until = nil
+	m.clearedFields[modeldevacceptance.FieldLeaseUntil] = struct{}{}
+}
+
+// LeaseUntilCleared returns if the "lease_until" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) LeaseUntilCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldLeaseUntil]
+	return ok
+}
+
+// ResetLeaseUntil resets all changes to the "lease_until" field.
+func (m *ModelDevAcceptanceMutation) ResetLeaseUntil() {
+	m.lease_until = nil
+	delete(m.clearedFields, modeldevacceptance.FieldLeaseUntil)
+}
+
+// SetNextAttemptAt sets the "next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) SetNextAttemptAt(t time.Time) {
+	m.next_attempt_at = &t
+}
+
+// NextAttemptAt returns the value of the "next_attempt_at" field in the mutation.
+func (m *ModelDevAcceptanceMutation) NextAttemptAt() (r time.Time, exists bool) {
+	v := m.next_attempt_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNextAttemptAt returns the old "next_attempt_at" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldNextAttemptAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNextAttemptAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNextAttemptAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNextAttemptAt: %w", err)
+	}
+	return oldValue.NextAttemptAt, nil
+}
+
+// ClearNextAttemptAt clears the value of the "next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) ClearNextAttemptAt() {
+	m.next_attempt_at = nil
+	m.clearedFields[modeldevacceptance.FieldNextAttemptAt] = struct{}{}
+}
+
+// NextAttemptAtCleared returns if the "next_attempt_at" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) NextAttemptAtCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldNextAttemptAt]
+	return ok
+}
+
+// ResetNextAttemptAt resets all changes to the "next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) ResetNextAttemptAt() {
+	m.next_attempt_at = nil
+	delete(m.clearedFields, modeldevacceptance.FieldNextAttemptAt)
+}
+
+// SetRetryBlocked sets the "retry_blocked" field.
+func (m *ModelDevAcceptanceMutation) SetRetryBlocked(b bool) {
+	m.retry_blocked = &b
+}
+
+// RetryBlocked returns the value of the "retry_blocked" field in the mutation.
+func (m *ModelDevAcceptanceMutation) RetryBlocked() (r bool, exists bool) {
+	v := m.retry_blocked
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRetryBlocked returns the old "retry_blocked" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldRetryBlocked(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRetryBlocked is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRetryBlocked requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRetryBlocked: %w", err)
+	}
+	return oldValue.RetryBlocked, nil
+}
+
+// ResetRetryBlocked resets all changes to the "retry_blocked" field.
+func (m *ModelDevAcceptanceMutation) ResetRetryBlocked() {
+	m.retry_blocked = nil
+}
+
+// SetLastErrorCode sets the "last_error_code" field.
+func (m *ModelDevAcceptanceMutation) SetLastErrorCode(s string) {
+	m.last_error_code = &s
+}
+
+// LastErrorCode returns the value of the "last_error_code" field in the mutation.
+func (m *ModelDevAcceptanceMutation) LastErrorCode() (r string, exists bool) {
+	v := m.last_error_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastErrorCode returns the old "last_error_code" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldLastErrorCode(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastErrorCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastErrorCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastErrorCode: %w", err)
+	}
+	return oldValue.LastErrorCode, nil
+}
+
+// ClearLastErrorCode clears the value of the "last_error_code" field.
+func (m *ModelDevAcceptanceMutation) ClearLastErrorCode() {
+	m.last_error_code = nil
+	m.clearedFields[modeldevacceptance.FieldLastErrorCode] = struct{}{}
+}
+
+// LastErrorCodeCleared returns if the "last_error_code" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) LastErrorCodeCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldLastErrorCode]
+	return ok
+}
+
+// ResetLastErrorCode resets all changes to the "last_error_code" field.
+func (m *ModelDevAcceptanceMutation) ResetLastErrorCode() {
+	m.last_error_code = nil
+	delete(m.clearedFields, modeldevacceptance.FieldLastErrorCode)
+}
+
+// SetOwnerReceiptCanonical sets the "owner_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) SetOwnerReceiptCanonical(b []byte) {
+	m.owner_receipt_canonical = &b
+}
+
+// OwnerReceiptCanonical returns the value of the "owner_receipt_canonical" field in the mutation.
+func (m *ModelDevAcceptanceMutation) OwnerReceiptCanonical() (r []byte, exists bool) {
+	v := m.owner_receipt_canonical
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOwnerReceiptCanonical returns the old "owner_receipt_canonical" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldOwnerReceiptCanonical(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOwnerReceiptCanonical is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOwnerReceiptCanonical requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOwnerReceiptCanonical: %w", err)
+	}
+	return oldValue.OwnerReceiptCanonical, nil
+}
+
+// ClearOwnerReceiptCanonical clears the value of the "owner_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) ClearOwnerReceiptCanonical() {
+	m.owner_receipt_canonical = nil
+	m.clearedFields[modeldevacceptance.FieldOwnerReceiptCanonical] = struct{}{}
+}
+
+// OwnerReceiptCanonicalCleared returns if the "owner_receipt_canonical" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) OwnerReceiptCanonicalCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldOwnerReceiptCanonical]
+	return ok
+}
+
+// ResetOwnerReceiptCanonical resets all changes to the "owner_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) ResetOwnerReceiptCanonical() {
+	m.owner_receipt_canonical = nil
+	delete(m.clearedFields, modeldevacceptance.FieldOwnerReceiptCanonical)
+}
+
 // Where appends a list predicates to the ModelDevAcceptanceMutation builder.
 func (m *ModelDevAcceptanceMutation) Where(ps ...predicate.ModelDevAcceptance) {
 	m.predicates = append(m.predicates, ps...)
@@ -32029,7 +32432,7 @@ func (m *ModelDevAcceptanceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ModelDevAcceptanceMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 21)
 	if m.tenant_id != nil {
 		fields = append(fields, modeldevacceptance.FieldTenantID)
 	}
@@ -32069,6 +32472,30 @@ func (m *ModelDevAcceptanceMutation) Fields() []string {
 	if m.dispatch_state != nil {
 		fields = append(fields, modeldevacceptance.FieldDispatchState)
 	}
+	if m.attempt_count != nil {
+		fields = append(fields, modeldevacceptance.FieldAttemptCount)
+	}
+	if m.lease_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldLeaseGeneration)
+	}
+	if m.lease_owner != nil {
+		fields = append(fields, modeldevacceptance.FieldLeaseOwner)
+	}
+	if m.lease_until != nil {
+		fields = append(fields, modeldevacceptance.FieldLeaseUntil)
+	}
+	if m.next_attempt_at != nil {
+		fields = append(fields, modeldevacceptance.FieldNextAttemptAt)
+	}
+	if m.retry_blocked != nil {
+		fields = append(fields, modeldevacceptance.FieldRetryBlocked)
+	}
+	if m.last_error_code != nil {
+		fields = append(fields, modeldevacceptance.FieldLastErrorCode)
+	}
+	if m.owner_receipt_canonical != nil {
+		fields = append(fields, modeldevacceptance.FieldOwnerReceiptCanonical)
+	}
 	return fields
 }
 
@@ -32103,6 +32530,22 @@ func (m *ModelDevAcceptanceMutation) Field(name string) (ent.Value, bool) {
 		return m.AcceptedAt()
 	case modeldevacceptance.FieldDispatchState:
 		return m.DispatchState()
+	case modeldevacceptance.FieldAttemptCount:
+		return m.AttemptCount()
+	case modeldevacceptance.FieldLeaseGeneration:
+		return m.LeaseGeneration()
+	case modeldevacceptance.FieldLeaseOwner:
+		return m.LeaseOwner()
+	case modeldevacceptance.FieldLeaseUntil:
+		return m.LeaseUntil()
+	case modeldevacceptance.FieldNextAttemptAt:
+		return m.NextAttemptAt()
+	case modeldevacceptance.FieldRetryBlocked:
+		return m.RetryBlocked()
+	case modeldevacceptance.FieldLastErrorCode:
+		return m.LastErrorCode()
+	case modeldevacceptance.FieldOwnerReceiptCanonical:
+		return m.OwnerReceiptCanonical()
 	}
 	return nil, false
 }
@@ -32138,6 +32581,22 @@ func (m *ModelDevAcceptanceMutation) OldField(ctx context.Context, name string) 
 		return m.OldAcceptedAt(ctx)
 	case modeldevacceptance.FieldDispatchState:
 		return m.OldDispatchState(ctx)
+	case modeldevacceptance.FieldAttemptCount:
+		return m.OldAttemptCount(ctx)
+	case modeldevacceptance.FieldLeaseGeneration:
+		return m.OldLeaseGeneration(ctx)
+	case modeldevacceptance.FieldLeaseOwner:
+		return m.OldLeaseOwner(ctx)
+	case modeldevacceptance.FieldLeaseUntil:
+		return m.OldLeaseUntil(ctx)
+	case modeldevacceptance.FieldNextAttemptAt:
+		return m.OldNextAttemptAt(ctx)
+	case modeldevacceptance.FieldRetryBlocked:
+		return m.OldRetryBlocked(ctx)
+	case modeldevacceptance.FieldLastErrorCode:
+		return m.OldLastErrorCode(ctx)
+	case modeldevacceptance.FieldOwnerReceiptCanonical:
+		return m.OldOwnerReceiptCanonical(ctx)
 	}
 	return nil, fmt.Errorf("unknown ModelDevAcceptance field %s", name)
 }
@@ -32238,6 +32697,62 @@ func (m *ModelDevAcceptanceMutation) SetField(name string, value ent.Value) erro
 		}
 		m.SetDispatchState(v)
 		return nil
+	case modeldevacceptance.FieldAttemptCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAttemptCount(v)
+		return nil
+	case modeldevacceptance.FieldLeaseGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLeaseGeneration(v)
+		return nil
+	case modeldevacceptance.FieldLeaseOwner:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLeaseOwner(v)
+		return nil
+	case modeldevacceptance.FieldLeaseUntil:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLeaseUntil(v)
+		return nil
+	case modeldevacceptance.FieldNextAttemptAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNextAttemptAt(v)
+		return nil
+	case modeldevacceptance.FieldRetryBlocked:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRetryBlocked(v)
+		return nil
+	case modeldevacceptance.FieldLastErrorCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastErrorCode(v)
+		return nil
+	case modeldevacceptance.FieldOwnerReceiptCanonical:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOwnerReceiptCanonical(v)
+		return nil
 	}
 	return fmt.Errorf("unknown ModelDevAcceptance field %s", name)
 }
@@ -32249,6 +32764,12 @@ func (m *ModelDevAcceptanceMutation) AddedFields() []string {
 	if m.addtenant_id != nil {
 		fields = append(fields, modeldevacceptance.FieldTenantID)
 	}
+	if m.addattempt_count != nil {
+		fields = append(fields, modeldevacceptance.FieldAttemptCount)
+	}
+	if m.addlease_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldLeaseGeneration)
+	}
 	return fields
 }
 
@@ -32259,6 +32780,10 @@ func (m *ModelDevAcceptanceMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case modeldevacceptance.FieldTenantID:
 		return m.AddedTenantID()
+	case modeldevacceptance.FieldAttemptCount:
+		return m.AddedAttemptCount()
+	case modeldevacceptance.FieldLeaseGeneration:
+		return m.AddedLeaseGeneration()
 	}
 	return nil, false
 }
@@ -32275,6 +32800,20 @@ func (m *ModelDevAcceptanceMutation) AddField(name string, value ent.Value) erro
 		}
 		m.AddTenantID(v)
 		return nil
+	case modeldevacceptance.FieldAttemptCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAttemptCount(v)
+		return nil
+	case modeldevacceptance.FieldLeaseGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLeaseGeneration(v)
+		return nil
 	}
 	return fmt.Errorf("unknown ModelDevAcceptance numeric field %s", name)
 }
@@ -32282,7 +32821,23 @@ func (m *ModelDevAcceptanceMutation) AddField(name string, value ent.Value) erro
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ModelDevAcceptanceMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(modeldevacceptance.FieldLeaseOwner) {
+		fields = append(fields, modeldevacceptance.FieldLeaseOwner)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldLeaseUntil) {
+		fields = append(fields, modeldevacceptance.FieldLeaseUntil)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldNextAttemptAt) {
+		fields = append(fields, modeldevacceptance.FieldNextAttemptAt)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldLastErrorCode) {
+		fields = append(fields, modeldevacceptance.FieldLastErrorCode)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldOwnerReceiptCanonical) {
+		fields = append(fields, modeldevacceptance.FieldOwnerReceiptCanonical)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -32295,6 +32850,23 @@ func (m *ModelDevAcceptanceMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ModelDevAcceptanceMutation) ClearField(name string) error {
+	switch name {
+	case modeldevacceptance.FieldLeaseOwner:
+		m.ClearLeaseOwner()
+		return nil
+	case modeldevacceptance.FieldLeaseUntil:
+		m.ClearLeaseUntil()
+		return nil
+	case modeldevacceptance.FieldNextAttemptAt:
+		m.ClearNextAttemptAt()
+		return nil
+	case modeldevacceptance.FieldLastErrorCode:
+		m.ClearLastErrorCode()
+		return nil
+	case modeldevacceptance.FieldOwnerReceiptCanonical:
+		m.ClearOwnerReceiptCanonical()
+		return nil
+	}
 	return fmt.Errorf("unknown ModelDevAcceptance nullable field %s", name)
 }
 
@@ -32340,6 +32912,30 @@ func (m *ModelDevAcceptanceMutation) ResetField(name string) error {
 		return nil
 	case modeldevacceptance.FieldDispatchState:
 		m.ResetDispatchState()
+		return nil
+	case modeldevacceptance.FieldAttemptCount:
+		m.ResetAttemptCount()
+		return nil
+	case modeldevacceptance.FieldLeaseGeneration:
+		m.ResetLeaseGeneration()
+		return nil
+	case modeldevacceptance.FieldLeaseOwner:
+		m.ResetLeaseOwner()
+		return nil
+	case modeldevacceptance.FieldLeaseUntil:
+		m.ResetLeaseUntil()
+		return nil
+	case modeldevacceptance.FieldNextAttemptAt:
+		m.ResetNextAttemptAt()
+		return nil
+	case modeldevacceptance.FieldRetryBlocked:
+		m.ResetRetryBlocked()
+		return nil
+	case modeldevacceptance.FieldLastErrorCode:
+		m.ResetLastErrorCode()
+		return nil
+	case modeldevacceptance.FieldOwnerReceiptCanonical:
+		m.ResetOwnerReceiptCanonical()
 		return nil
 	}
 	return fmt.Errorf("unknown ModelDevAcceptance field %s", name)

@@ -17,14 +17,14 @@ func (ModelDevAcceptance) Annotations() []schema.Annotation {
 	return []schema.Annotation{entsql.Annotation{
 		Table: "sys_modeldev_acceptances",
 		Checks: map[string]string{
-			"sys_modeldev_acceptances_tenant_positive_ck": "tenant_id > 0",
-			"sys_modeldev_acceptances_action_ck":          "action = 'modeldev.execution.create'",
-			"sys_modeldev_acceptances_dispatch_state_ck": "dispatch_state IN ('QUEUED','DISPATCHING','UNKNOWN','ACKED')",
+			"sys_modeldev_acceptances_tenant_positive_ck":   "tenant_id > 0",
+			"sys_modeldev_acceptances_action_ck":            "action = 'modeldev.execution.create'",
+			"sys_modeldev_acceptances_dispatch_state_ck":    "dispatch_state IN ('QUEUED','DISPATCHING','UNKNOWN','ACKED')",
 			"sys_modeldev_acceptances_delivery_counters_ck": "attempt_count >= 0 AND lease_generation >= 0",
-			"sys_modeldev_acceptances_delivery_lease_ck": "(dispatch_state = 'DISPATCHING' AND lease_owner IS NOT NULL AND length(lease_owner) BETWEEN 1 AND 128 AND lease_until IS NOT NULL AND lease_generation > 0) OR (dispatch_state <> 'DISPATCHING' AND lease_owner IS NULL AND lease_until IS NULL)",
-			"sys_modeldev_acceptances_owner_receipt_ck": "(dispatch_state = 'ACKED' AND owner_receipt_canonical IS NOT NULL AND octet_length(owner_receipt_canonical) BETWEEN 1 AND 4096) OR (dispatch_state <> 'ACKED' AND owner_receipt_canonical IS NULL)",
-			"sys_modeldev_acceptances_delivery_error_ck": "last_error_code IS NULL OR last_error_code IN ('INVALID_COMMAND','COMMAND_CONFLICT','OWNER_UNAVAILABLE','INVALID_ACK','LEASE_EXHAUSTED','ATTEMPTS_EXHAUSTED')",
-			"sys_modeldev_acceptances_delivery_due_ck": "dispatch_state = 'UNKNOWN' OR (next_attempt_at IS NULL AND retry_blocked = false)",
+			"sys_modeldev_acceptances_delivery_lease_ck":    "(dispatch_state = 'DISPATCHING' AND lease_owner IS NOT NULL AND length(lease_owner) BETWEEN 1 AND 128 AND lease_until IS NOT NULL AND lease_generation > 0) OR (dispatch_state <> 'DISPATCHING' AND lease_owner IS NULL AND lease_until IS NULL)",
+			"sys_modeldev_acceptances_owner_receipt_ck":     "(dispatch_state = 'ACKED' AND owner_receipt_canonical IS NOT NULL AND octet_length(owner_receipt_canonical) BETWEEN 1 AND 4096) OR (dispatch_state <> 'ACKED' AND owner_receipt_canonical IS NULL)",
+			"sys_modeldev_acceptances_delivery_error_ck":    "last_error_code IS NULL OR last_error_code IN ('INVALID_COMMAND','COMMAND_CONFLICT','OWNER_UNAVAILABLE','INVALID_ACK','LEASE_EXHAUSTED','ATTEMPTS_EXHAUSTED')",
+			"sys_modeldev_acceptances_delivery_due_ck":      "dispatch_state = 'UNKNOWN' OR (next_attempt_at IS NULL AND retry_blocked = false)",
 		},
 	}}
 }

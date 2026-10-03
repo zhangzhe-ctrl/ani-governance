@@ -17,10 +17,10 @@ import (
 )
 
 type ModelDevDeliveryClaim struct {
-	Acceptance *ModelDevAcceptance
-	LeaseOwner string
+	Acceptance      *ModelDevAcceptance
+	LeaseOwner      string
 	LeaseGeneration int64
-	AttemptCount int64
+	AttemptCount    int64
 }
 
 // ClaimDelivery is an internal, managed queue operation. Its one bounded global
@@ -74,14 +74,14 @@ func (r *ModelDevAcceptanceRepo) ClaimDelivery(ctx context.Context, workerID str
 			}
 			n, err := tx.ModelDevAcceptance.Update().Where(scope...).
 				SetDispatchState(modeldevacceptance.DispatchStateDISPATCHING).
-				SetAttemptCount(row.AttemptCount+1).SetLeaseGeneration(row.LeaseGeneration+1).
+				SetAttemptCount(row.AttemptCount + 1).SetLeaseGeneration(row.LeaseGeneration + 1).
 				SetLeaseOwner(workerID).ClearNextAttemptAt().ClearLastErrorCode().SetRetryBlocked(false).
 				Modify(func(u *entsql.UpdateBuilder) { u.Set(modeldevacceptance.FieldLeaseUntil, modelDevDeliveryAfter(lease)) }).Save(ctx)
 			if err != nil || n != 1 {
 				return err
 			}
 			accepted.DispatchState = string(modeldevacceptance.DispatchStateDISPATCHING)
-			claim = &ModelDevDeliveryClaim{Acceptance: accepted, LeaseOwner: workerID, LeaseGeneration: row.LeaseGeneration+1, AttemptCount: row.AttemptCount+1}
+			claim = &ModelDevDeliveryClaim{Acceptance: accepted, LeaseOwner: workerID, LeaseGeneration: row.LeaseGeneration + 1, AttemptCount: row.AttemptCount + 1}
 			return nil
 		})
 		if ent.IsNotFound(err) {
@@ -129,14 +129,16 @@ func (r *ModelDevAcceptanceRepo) DeferDelivery(ctx context.Context, claim *Model
 		return false, fmt.Errorf("%w: modeldev delivery failure", cpup01.ErrInvalidArgument)
 	}
 	return r.withModelDevDeliveryClaim(ctx, claim, func(ctx context.Context, tx *ent.Tx, row *ent.ModelDevAcceptance, fence []predicate.ModelDevAcceptance) (bool, error) {
-		delay := min(30*time.Second, time.Second << min(max(row.AttemptCount-1, 0), 5))
+		delay := min(30*time.Second, time.Second<<min(max(row.AttemptCount-1, 0), 5))
 		update := tx.ModelDevAcceptance.Update().Where(fence...).
 			SetDispatchState(modeldevacceptance.DispatchStateUNKNOWN).SetLastErrorCode(failure.Code).SetRetryBlocked(failure.Permanent).
 			ClearLeaseOwner().ClearLeaseUntil()
 		if failure.Permanent {
 			update.ClearNextAttemptAt()
 		} else {
-			update.Modify(func(u *entsql.UpdateBuilder) { u.Set(modeldevacceptance.FieldNextAttemptAt, modelDevDeliveryAfter(delay)) })
+			update.Modify(func(u *entsql.UpdateBuilder) {
+				u.Set(modeldevacceptance.FieldNextAttemptAt, modelDevDeliveryAfter(delay))
+			})
 		}
 		n, err := update.Save(ctx)
 		return n == 1, err

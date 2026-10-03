@@ -785,6 +785,26 @@ func init() {
 	modeldevacceptanceDescSnapshotCanonical := modeldevacceptanceFields[9].Descriptor()
 	// modeldevacceptance.SnapshotCanonicalValidator is a validator for the "snapshot_canonical" field. It is called by the builders before save.
 	modeldevacceptance.SnapshotCanonicalValidator = modeldevacceptanceDescSnapshotCanonical.Validators[0].(func([]byte) error)
+	// modeldevacceptanceDescAttemptCount is the schema descriptor for attempt_count field.
+	modeldevacceptanceDescAttemptCount := modeldevacceptanceFields[12].Descriptor()
+	// modeldevacceptance.DefaultAttemptCount holds the default value on creation for the attempt_count field.
+	modeldevacceptance.DefaultAttemptCount = modeldevacceptanceDescAttemptCount.Default.(int64)
+	// modeldevacceptance.AttemptCountValidator is a validator for the "attempt_count" field. It is called by the builders before save.
+	modeldevacceptance.AttemptCountValidator = modeldevacceptanceDescAttemptCount.Validators[0].(func(int64) error)
+	// modeldevacceptanceDescLeaseGeneration is the schema descriptor for lease_generation field.
+	modeldevacceptanceDescLeaseGeneration := modeldevacceptanceFields[13].Descriptor()
+	// modeldevacceptance.DefaultLeaseGeneration holds the default value on creation for the lease_generation field.
+	modeldevacceptance.DefaultLeaseGeneration = modeldevacceptanceDescLeaseGeneration.Default.(int64)
+	// modeldevacceptance.LeaseGenerationValidator is a validator for the "lease_generation" field. It is called by the builders before save.
+	modeldevacceptance.LeaseGenerationValidator = modeldevacceptanceDescLeaseGeneration.Validators[0].(func(int64) error)
+	// modeldevacceptanceDescLeaseOwner is the schema descriptor for lease_owner field.
+	modeldevacceptanceDescLeaseOwner := modeldevacceptanceFields[14].Descriptor()
+	// modeldevacceptance.LeaseOwnerValidator is a validator for the "lease_owner" field. It is called by the builders before save.
+	modeldevacceptance.LeaseOwnerValidator = modeldevacceptanceDescLeaseOwner.Validators[0].(func(string) error)
+	// modeldevacceptanceDescRetryBlocked is the schema descriptor for retry_blocked field.
+	modeldevacceptanceDescRetryBlocked := modeldevacceptanceFields[17].Descriptor()
+	// modeldevacceptance.DefaultRetryBlocked holds the default value on creation for the retry_blocked field.
+	modeldevacceptance.DefaultRetryBlocked = modeldevacceptanceDescRetryBlocked.Default.(bool)
 	// modeldevacceptanceDescID is the schema descriptor for id field.
 	modeldevacceptanceDescID := modeldevacceptanceMixinFields0[0].Descriptor()
 	// modeldevacceptance.IDValidator is a validator for the "id" field. It is called by the builders before save.
