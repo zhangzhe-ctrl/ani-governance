@@ -44,14 +44,18 @@ func TestModelDevAuthorizationUsesCurrentRoleMembership(t *testing.T) {
 		SetTenantID(owner.ID).SetUsername("cpu-auth-" + fixtureID).
 		SetStatus(user.StatusNormal).Save(ctx)
 	require.NoError(t, err, "PG fixture preparation is not authorization RED")
-	removeAfterTest(func(cleanup context.Context) error { return client.Client().User.DeleteOneID(operator.ID).Exec(cleanup) })
+	removeAfterTest(func(cleanup context.Context) error {
+		return client.Client().User.DeleteOneID(operator.ID).Exec(cleanup)
+	})
 
 	currentRole, err := client.Client().Role.Create().
 		SetTenantID(owner.ID).SetName("modeldev create fixture").
 		SetCode("tenant:modeldev-auth:" + fixtureID).SetType(role.TypeTenant).
 		SetStatus(role.StatusOn).SetDataScope(role.DataScopeAll).Save(ctx)
 	require.NoError(t, err, "PG fixture preparation is not authorization RED")
-	removeAfterTest(func(cleanup context.Context) error { return client.Client().Role.DeleteOneID(currentRole.ID).Exec(cleanup) })
+	removeAfterTest(func(cleanup context.Context) error {
+		return client.Client().Role.DeleteOneID(currentRole.ID).Exec(cleanup)
+	})
 
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	starts, ends := now.Add(-time.Hour), now.Add(time.Hour)
@@ -68,25 +72,33 @@ func TestModelDevAuthorizationUsesCurrentRoleMembership(t *testing.T) {
 		SetName("modeldev create fixture").SetCode("modeldev.execution.create." + fixtureID).
 		SetStatus(permission.StatusOn).Save(ctx)
 	require.NoError(t, err, "PG fixture preparation is not authorization RED")
-	removeAfterTest(func(cleanup context.Context) error { return client.Client().Permission.DeleteOneID(createPermission.ID).Exec(cleanup) })
+	removeAfterTest(func(cleanup context.Context) error {
+		return client.Client().Permission.DeleteOneID(createPermission.ID).Exec(cleanup)
+	})
 
 	createAPI, err := client.Client().Api.Create().
 		SetModule("modeldev-auth-" + fixtureID).SetPath("/admin/v1/modeldev/executions").
 		SetMethod("POST").SetScope(api.ScopeAdmin).
 		SetBusinessModule(api.BusinessModuleModel).SetStatus(api.StatusOn).Save(ctx)
 	require.NoError(t, err, "PG fixture preparation is not authorization RED")
-	removeAfterTest(func(cleanup context.Context) error { return client.Client().Api.DeleteOneID(createAPI.ID).Exec(cleanup) })
+	removeAfterTest(func(cleanup context.Context) error {
+		return client.Client().Api.DeleteOneID(createAPI.ID).Exec(cleanup)
+	})
 
 	permissionAPI, err := client.Client().PermissionApi.Create().
 		SetPermissionID(createPermission.ID).SetAPIID(createAPI.ID).Save(ctx)
 	require.NoError(t, err, "PG fixture preparation is not authorization RED")
-	removeAfterTest(func(cleanup context.Context) error { return client.Client().PermissionApi.DeleteOneID(permissionAPI.ID).Exec(cleanup) })
+	removeAfterTest(func(cleanup context.Context) error {
+		return client.Client().PermissionApi.DeleteOneID(permissionAPI.ID).Exec(cleanup)
+	})
 
 	roleGrant, err := client.Client().RolePermission.Create().
 		SetTenantID(owner.ID).SetRoleID(currentRole.ID).SetPermissionID(createPermission.ID).
 		SetStatus(rolepermission.StatusOn).SetEffect(rolepermission.EffectAllow).Save(ctx)
 	require.NoError(t, err, "PG fixture preparation is not authorization RED")
-	removeAfterTest(func(cleanup context.Context) error { return client.Client().RolePermission.DeleteOneID(roleGrant.ID).Exec(cleanup) })
+	removeAfterTest(func(cleanup context.Context) error {
+		return client.Client().RolePermission.DeleteOneID(roleGrant.ID).Exec(cleanup)
+	})
 
 	// A separately opened connection proves the complete committed authorization
 	// fixture. Failures above or here are preparation failures, not product RED.
