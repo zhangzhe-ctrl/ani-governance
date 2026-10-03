@@ -27,8 +27,11 @@ var File_admin_service_v1_i_modeldev_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_modeldev_proto_rawDesc = "" +
 	"\n" +
-	"!admin/service/v1/i_modeldev.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a#modeldev/service/v1/execution.proto2\xde\x02\n" +
-	"\x0fModelDevService\x12\xca\x02\n" +
+	"!admin/service/v1/i_modeldev.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a#modeldev/service/v1/execution.proto2\x87\a\n" +
+	"\x0fModelDevService\x12\x99\x01\n" +
+	"\fGetExecution\x12(.modeldev.service.v1.GetExecutionRequest\x1a).modeldev.service.v1.GetExecutionResponse\"4\x82\xd3\xe4\x93\x02.\x12,/admin/v1/modeldev/executions/{execution_id}\x12\xc1\x01\n" +
+	"\x16ListExecutionArtifacts\x122.modeldev.service.v1.ListExecutionArtifactsRequest\x1a3.modeldev.service.v1.ListExecutionArtifactsResponse\">\x82\xd3\xe4\x93\x028\x126/admin/v1/modeldev/executions/{execution_id}/artifacts\x12\xc6\x01\n" +
+	"\x19AuthorizeArtifactDownload\x125.modeldev.service.v1.AuthorizeArtifactDownloadRequest\x1a6.modeldev.service.v1.AuthorizeArtifactDownloadResponse\":\x82\xd3\xe4\x93\x024\x122/admin/v1/modeldev/artifacts/{artifact_id}/content\x12\xca\x02\n" +
 	"\x0fCreateExecution\x12+.modeldev.service.v1.CreateExecutionRequest\x1a,.modeldev.service.v1.CreateExecutionResponse\"\xdb\x01\xbaG\xaf\x01B\x9a\x01\x12\x97\x01\n" +
 	"\x03202\x12\x8f\x01\n" +
 	"\x8c\x01\n" +
@@ -43,14 +46,26 @@ const file_admin_service_v1_i_modeldev_proto_rawDesc = "" +
 	"\x14com.admin.service.v1B\x0eIModeldevProtoP\x01Z1go-wind-admin/api/gen/go/admin/service/v1;adminpb\xa2\x02\x03ASX\xaa\x02\x10Admin.Service.V1\xca\x02\x10Admin\\Service\\V1\xe2\x02\x1cAdmin\\Service\\V1\\GPBMetadata\xea\x02\x12Admin::Service::V1b\x06proto3"
 
 var file_admin_service_v1_i_modeldev_proto_goTypes = []any{
-	(*v1.CreateExecutionRequest)(nil),  // 0: modeldev.service.v1.CreateExecutionRequest
-	(*v1.CreateExecutionResponse)(nil), // 1: modeldev.service.v1.CreateExecutionResponse
+	(*v1.GetExecutionRequest)(nil),               // 0: modeldev.service.v1.GetExecutionRequest
+	(*v1.ListExecutionArtifactsRequest)(nil),     // 1: modeldev.service.v1.ListExecutionArtifactsRequest
+	(*v1.AuthorizeArtifactDownloadRequest)(nil),  // 2: modeldev.service.v1.AuthorizeArtifactDownloadRequest
+	(*v1.CreateExecutionRequest)(nil),            // 3: modeldev.service.v1.CreateExecutionRequest
+	(*v1.GetExecutionResponse)(nil),              // 4: modeldev.service.v1.GetExecutionResponse
+	(*v1.ListExecutionArtifactsResponse)(nil),    // 5: modeldev.service.v1.ListExecutionArtifactsResponse
+	(*v1.AuthorizeArtifactDownloadResponse)(nil), // 6: modeldev.service.v1.AuthorizeArtifactDownloadResponse
+	(*v1.CreateExecutionResponse)(nil),           // 7: modeldev.service.v1.CreateExecutionResponse
 }
 var file_admin_service_v1_i_modeldev_proto_depIdxs = []int32{
-	0, // 0: admin.service.v1.ModelDevService.CreateExecution:input_type -> modeldev.service.v1.CreateExecutionRequest
-	1, // 1: admin.service.v1.ModelDevService.CreateExecution:output_type -> modeldev.service.v1.CreateExecutionResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	0, // 0: admin.service.v1.ModelDevService.GetExecution:input_type -> modeldev.service.v1.GetExecutionRequest
+	1, // 1: admin.service.v1.ModelDevService.ListExecutionArtifacts:input_type -> modeldev.service.v1.ListExecutionArtifactsRequest
+	2, // 2: admin.service.v1.ModelDevService.AuthorizeArtifactDownload:input_type -> modeldev.service.v1.AuthorizeArtifactDownloadRequest
+	3, // 3: admin.service.v1.ModelDevService.CreateExecution:input_type -> modeldev.service.v1.CreateExecutionRequest
+	4, // 4: admin.service.v1.ModelDevService.GetExecution:output_type -> modeldev.service.v1.GetExecutionResponse
+	5, // 5: admin.service.v1.ModelDevService.ListExecutionArtifacts:output_type -> modeldev.service.v1.ListExecutionArtifactsResponse
+	6, // 6: admin.service.v1.ModelDevService.AuthorizeArtifactDownload:output_type -> modeldev.service.v1.AuthorizeArtifactDownloadResponse
+	7, // 7: admin.service.v1.ModelDevService.CreateExecution:output_type -> modeldev.service.v1.CreateExecutionResponse
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name

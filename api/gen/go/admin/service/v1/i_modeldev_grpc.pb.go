@@ -20,7 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ModelDevService_CreateExecution_FullMethodName = "/admin.service.v1.ModelDevService/CreateExecution"
+	ModelDevService_GetExecution_FullMethodName              = "/admin.service.v1.ModelDevService/GetExecution"
+	ModelDevService_ListExecutionArtifacts_FullMethodName    = "/admin.service.v1.ModelDevService/ListExecutionArtifacts"
+	ModelDevService_AuthorizeArtifactDownload_FullMethodName = "/admin.service.v1.ModelDevService/AuthorizeArtifactDownload"
+	ModelDevService_CreateExecution_FullMethodName           = "/admin.service.v1.ModelDevService/CreateExecution"
 )
 
 // ModelDevServiceClient is the client API for ModelDevService service.
@@ -29,6 +32,9 @@ const (
 //
 // CPU-P01 entry in the existing Governance BFF.
 type ModelDevServiceClient interface {
+	GetExecution(ctx context.Context, in *v1.GetExecutionRequest, opts ...grpc.CallOption) (*v1.GetExecutionResponse, error)
+	ListExecutionArtifacts(ctx context.Context, in *v1.ListExecutionArtifactsRequest, opts ...grpc.CallOption) (*v1.ListExecutionArtifactsResponse, error)
+	AuthorizeArtifactDownload(ctx context.Context, in *v1.AuthorizeArtifactDownloadRequest, opts ...grpc.CallOption) (*v1.AuthorizeArtifactDownloadResponse, error)
 	CreateExecution(ctx context.Context, in *v1.CreateExecutionRequest, opts ...grpc.CallOption) (*v1.CreateExecutionResponse, error)
 }
 
@@ -38,6 +44,36 @@ type modelDevServiceClient struct {
 
 func NewModelDevServiceClient(cc grpc.ClientConnInterface) ModelDevServiceClient {
 	return &modelDevServiceClient{cc}
+}
+
+func (c *modelDevServiceClient) GetExecution(ctx context.Context, in *v1.GetExecutionRequest, opts ...grpc.CallOption) (*v1.GetExecutionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.GetExecutionResponse)
+	err := c.cc.Invoke(ctx, ModelDevService_GetExecution_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelDevServiceClient) ListExecutionArtifacts(ctx context.Context, in *v1.ListExecutionArtifactsRequest, opts ...grpc.CallOption) (*v1.ListExecutionArtifactsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ListExecutionArtifactsResponse)
+	err := c.cc.Invoke(ctx, ModelDevService_ListExecutionArtifacts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelDevServiceClient) AuthorizeArtifactDownload(ctx context.Context, in *v1.AuthorizeArtifactDownloadRequest, opts ...grpc.CallOption) (*v1.AuthorizeArtifactDownloadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.AuthorizeArtifactDownloadResponse)
+	err := c.cc.Invoke(ctx, ModelDevService_AuthorizeArtifactDownload_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *modelDevServiceClient) CreateExecution(ctx context.Context, in *v1.CreateExecutionRequest, opts ...grpc.CallOption) (*v1.CreateExecutionResponse, error) {
@@ -56,6 +92,9 @@ func (c *modelDevServiceClient) CreateExecution(ctx context.Context, in *v1.Crea
 //
 // CPU-P01 entry in the existing Governance BFF.
 type ModelDevServiceServer interface {
+	GetExecution(context.Context, *v1.GetExecutionRequest) (*v1.GetExecutionResponse, error)
+	ListExecutionArtifacts(context.Context, *v1.ListExecutionArtifactsRequest) (*v1.ListExecutionArtifactsResponse, error)
+	AuthorizeArtifactDownload(context.Context, *v1.AuthorizeArtifactDownloadRequest) (*v1.AuthorizeArtifactDownloadResponse, error)
 	CreateExecution(context.Context, *v1.CreateExecutionRequest) (*v1.CreateExecutionResponse, error)
 	mustEmbedUnimplementedModelDevServiceServer()
 }
@@ -67,6 +106,15 @@ type ModelDevServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedModelDevServiceServer struct{}
 
+func (UnimplementedModelDevServiceServer) GetExecution(context.Context, *v1.GetExecutionRequest) (*v1.GetExecutionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetExecution not implemented")
+}
+func (UnimplementedModelDevServiceServer) ListExecutionArtifacts(context.Context, *v1.ListExecutionArtifactsRequest) (*v1.ListExecutionArtifactsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListExecutionArtifacts not implemented")
+}
+func (UnimplementedModelDevServiceServer) AuthorizeArtifactDownload(context.Context, *v1.AuthorizeArtifactDownloadRequest) (*v1.AuthorizeArtifactDownloadResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AuthorizeArtifactDownload not implemented")
+}
 func (UnimplementedModelDevServiceServer) CreateExecution(context.Context, *v1.CreateExecutionRequest) (*v1.CreateExecutionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateExecution not implemented")
 }
@@ -89,6 +137,60 @@ func RegisterModelDevServiceServer(s grpc.ServiceRegistrar, srv ModelDevServiceS
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ModelDevService_ServiceDesc, srv)
+}
+
+func _ModelDevService_GetExecution_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.GetExecutionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelDevServiceServer).GetExecution(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelDevService_GetExecution_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelDevServiceServer).GetExecution(ctx, req.(*v1.GetExecutionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelDevService_ListExecutionArtifacts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ListExecutionArtifactsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelDevServiceServer).ListExecutionArtifacts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelDevService_ListExecutionArtifacts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelDevServiceServer).ListExecutionArtifacts(ctx, req.(*v1.ListExecutionArtifactsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelDevService_AuthorizeArtifactDownload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.AuthorizeArtifactDownloadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelDevServiceServer).AuthorizeArtifactDownload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelDevService_AuthorizeArtifactDownload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelDevServiceServer).AuthorizeArtifactDownload(ctx, req.(*v1.AuthorizeArtifactDownloadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ModelDevService_CreateExecution_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -116,6 +218,18 @@ var ModelDevService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "admin.service.v1.ModelDevService",
 	HandlerType: (*ModelDevServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetExecution",
+			Handler:    _ModelDevService_GetExecution_Handler,
+		},
+		{
+			MethodName: "ListExecutionArtifacts",
+			Handler:    _ModelDevService_ListExecutionArtifacts_Handler,
+		},
+		{
+			MethodName: "AuthorizeArtifactDownload",
+			Handler:    _ModelDevService_AuthorizeArtifactDownload_Handler,
+		},
 		{
 			MethodName: "CreateExecution",
 			Handler:    _ModelDevService_CreateExecution_Handler,

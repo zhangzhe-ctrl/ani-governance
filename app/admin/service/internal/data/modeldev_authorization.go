@@ -37,22 +37,26 @@ const (
 )
 
 const (
- ModelDevGetExecutionPath = "/admin/v1/modeldev/executions/{execution_id}"
- ModelDevListArtifactsPath = "/admin/v1/modeldev/executions/{execution_id}/artifacts"
- ModelDevDownloadArtifactPath = "/admin/v1/modeldev/artifacts/{artifact_id}/content"
+	ModelDevGetExecutionPath     = "/admin/v1/modeldev/executions/{execution_id}"
+	ModelDevListArtifactsPath    = "/admin/v1/modeldev/executions/{execution_id}/artifacts"
+	ModelDevDownloadArtifactPath = "/admin/v1/modeldev/artifacts/{artifact_id}/content"
 )
 
 // AuthorizeQuery checks the current independent GET grant and ALL data scope.
 // Only these fixed route templates can produce downstream query delegation.
 func (r *ModelDevAuthorizationRepo) AuthorizeQuery(ctx context.Context, tenantID, userID uint32, path string) error {
- var action modelDevAuthorizationAction
- switch path {
- case ModelDevGetExecutionPath: action = modelDevGetExecutionAction
- case ModelDevListArtifactsPath: action = modelDevListArtifactsAction
- case ModelDevDownloadArtifactPath: action = modelDevDownloadArtifactAction
- default: return ErrModelDevAuthorizationDenied
- }
- return r.authorizeCurrent(ctx, tenantID, userID, action)
+	var action modelDevAuthorizationAction
+	switch path {
+	case ModelDevGetExecutionPath:
+		action = modelDevGetExecutionAction
+	case ModelDevListArtifactsPath:
+		action = modelDevListArtifactsAction
+	case ModelDevDownloadArtifactPath:
+		action = modelDevDownloadArtifactAction
+	default:
+		return ErrModelDevAuthorizationDenied
+	}
+	return r.authorizeCurrent(ctx, tenantID, userID, action)
 }
 
 // ModelDevAuthorizationRepo checks current database grants for the fixed
@@ -197,9 +201,12 @@ func (r *ModelDevAuthorizationRepo) authorizeCurrent(ctx context.Context, tenant
 	if action != modelDevManageReleaseBindingAction {
 		path, method := "/admin/v1/modeldev/executions", "POST"
 		switch action {
-		case modelDevGetExecutionAction: path, method = ModelDevGetExecutionPath, "GET"
-		case modelDevListArtifactsAction: path, method = ModelDevListArtifactsPath, "GET"
-		case modelDevDownloadArtifactAction: path, method = ModelDevDownloadArtifactPath, "GET"
+		case modelDevGetExecutionAction:
+			path, method = ModelDevGetExecutionPath, "GET"
+		case modelDevListArtifactsAction:
+			path, method = ModelDevListArtifactsPath, "GET"
+		case modelDevDownloadArtifactAction:
+			path, method = ModelDevDownloadArtifactPath, "GET"
 		}
 		if err := authorizeModelDevAPI(ctx, tx, permissionIDs, path, method); err != nil {
 			return err

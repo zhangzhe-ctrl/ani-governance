@@ -20,15 +20,90 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationModelDevServiceAuthorizeArtifactDownload = "/admin.service.v1.ModelDevService/AuthorizeArtifactDownload"
 const OperationModelDevServiceCreateExecution = "/admin.service.v1.ModelDevService/CreateExecution"
+const OperationModelDevServiceGetExecution = "/admin.service.v1.ModelDevService/GetExecution"
+const OperationModelDevServiceListExecutionArtifacts = "/admin.service.v1.ModelDevService/ListExecutionArtifacts"
 
 type ModelDevServiceHTTPServer interface {
+	AuthorizeArtifactDownload(context.Context, *v1.AuthorizeArtifactDownloadRequest) (*v1.AuthorizeArtifactDownloadResponse, error)
 	CreateExecution(context.Context, *v1.CreateExecutionRequest) (*v1.CreateExecutionResponse, error)
+	GetExecution(context.Context, *v1.GetExecutionRequest) (*v1.GetExecutionResponse, error)
+	ListExecutionArtifacts(context.Context, *v1.ListExecutionArtifactsRequest) (*v1.ListExecutionArtifactsResponse, error)
 }
 
 func RegisterModelDevServiceHTTPServer(s *http.Server, srv ModelDevServiceHTTPServer) {
 	r := s.Route("/")
+	r.GET("/admin/v1/modeldev/executions/{execution_id}", _ModelDevService_GetExecution0_HTTP_Handler(srv))
+	r.GET("/admin/v1/modeldev/executions/{execution_id}/artifacts", _ModelDevService_ListExecutionArtifacts0_HTTP_Handler(srv))
+	r.GET("/admin/v1/modeldev/artifacts/{artifact_id}/content", _ModelDevService_AuthorizeArtifactDownload0_HTTP_Handler(srv))
 	r.POST("/admin/v1/modeldev/executions", _ModelDevService_CreateExecution0_HTTP_Handler(srv))
+}
+
+func _ModelDevService_GetExecution0_HTTP_Handler(srv ModelDevServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.GetExecutionRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationModelDevServiceGetExecution)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetExecution(ctx, req.(*v1.GetExecutionRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.GetExecutionResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ModelDevService_ListExecutionArtifacts0_HTTP_Handler(srv ModelDevServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.ListExecutionArtifactsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationModelDevServiceListExecutionArtifacts)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListExecutionArtifacts(ctx, req.(*v1.ListExecutionArtifactsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.ListExecutionArtifactsResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ModelDevService_AuthorizeArtifactDownload0_HTTP_Handler(srv ModelDevServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.AuthorizeArtifactDownloadRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationModelDevServiceAuthorizeArtifactDownload)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AuthorizeArtifactDownload(ctx, req.(*v1.AuthorizeArtifactDownloadRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.AuthorizeArtifactDownloadResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _ModelDevService_CreateExecution0_HTTP_Handler(srv ModelDevServiceHTTPServer) func(ctx http.Context) error {
@@ -54,7 +129,10 @@ func _ModelDevService_CreateExecution0_HTTP_Handler(srv ModelDevServiceHTTPServe
 }
 
 type ModelDevServiceHTTPClient interface {
+	AuthorizeArtifactDownload(ctx context.Context, req *v1.AuthorizeArtifactDownloadRequest, opts ...http.CallOption) (rsp *v1.AuthorizeArtifactDownloadResponse, err error)
 	CreateExecution(ctx context.Context, req *v1.CreateExecutionRequest, opts ...http.CallOption) (rsp *v1.CreateExecutionResponse, err error)
+	GetExecution(ctx context.Context, req *v1.GetExecutionRequest, opts ...http.CallOption) (rsp *v1.GetExecutionResponse, err error)
+	ListExecutionArtifacts(ctx context.Context, req *v1.ListExecutionArtifactsRequest, opts ...http.CallOption) (rsp *v1.ListExecutionArtifactsResponse, err error)
 }
 
 type ModelDevServiceHTTPClientImpl struct {
@@ -65,6 +143,19 @@ func NewModelDevServiceHTTPClient(client *http.Client) ModelDevServiceHTTPClient
 	return &ModelDevServiceHTTPClientImpl{client}
 }
 
+func (c *ModelDevServiceHTTPClientImpl) AuthorizeArtifactDownload(ctx context.Context, in *v1.AuthorizeArtifactDownloadRequest, opts ...http.CallOption) (*v1.AuthorizeArtifactDownloadResponse, error) {
+	var out v1.AuthorizeArtifactDownloadResponse
+	pattern := "/admin/v1/modeldev/artifacts/{artifact_id}/content"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationModelDevServiceAuthorizeArtifactDownload))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *ModelDevServiceHTTPClientImpl) CreateExecution(ctx context.Context, in *v1.CreateExecutionRequest, opts ...http.CallOption) (*v1.CreateExecutionResponse, error) {
 	var out v1.CreateExecutionResponse
 	pattern := "/admin/v1/modeldev/executions"
@@ -72,6 +163,32 @@ func (c *ModelDevServiceHTTPClientImpl) CreateExecution(ctx context.Context, in 
 	opts = append(opts, http.Operation(OperationModelDevServiceCreateExecution))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *ModelDevServiceHTTPClientImpl) GetExecution(ctx context.Context, in *v1.GetExecutionRequest, opts ...http.CallOption) (*v1.GetExecutionResponse, error) {
+	var out v1.GetExecutionResponse
+	pattern := "/admin/v1/modeldev/executions/{execution_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationModelDevServiceGetExecution))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *ModelDevServiceHTTPClientImpl) ListExecutionArtifacts(ctx context.Context, in *v1.ListExecutionArtifactsRequest, opts ...http.CallOption) (*v1.ListExecutionArtifactsResponse, error) {
+	var out v1.ListExecutionArtifactsResponse
+	pattern := "/admin/v1/modeldev/executions/{execution_id}/artifacts"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationModelDevServiceListExecutionArtifacts))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

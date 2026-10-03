@@ -2674,6 +2674,24 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /admin/v1/modeldev/artifacts/{artifact_id}/content:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_AuthorizeArtifactDownload
+            parameters:
+                - name: artifact_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthorizeArtifactDownloadResponse'
     /admin/v1/modeldev/executions:
         post:
             tags:
@@ -2694,6 +2712,51 @@ paths:
                                 $ref: '#/components/schemas/CreateExecutionResponse'
             security:
                 - BearerAuth: []
+    /admin/v1/modeldev/executions/{execution_id}:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_GetExecution
+            parameters:
+                - name: execution_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetExecutionResponse'
+    /admin/v1/modeldev/executions/{execution_id}/artifacts:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_ListExecutionArtifacts
+            parameters:
+                - name: execution_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: page_token
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListExecutionArtifactsResponse'
     /admin/v1/notification-channels:
         get:
             tags:
@@ -7133,6 +7196,35 @@ components:
                     description: 日志创建时间
                     format: date-time
             description: 接口审计日志
+        ArtifactView:
+            type: object
+            properties:
+                artifact_id:
+                    type: string
+                execution_id:
+                    type: string
+                filename:
+                    type: string
+                role:
+                    type: string
+                size_bytes:
+                    type: string
+                sha256:
+                    type: string
+                delivery_state:
+                    type: string
+                verified_at:
+                    type: string
+        AuthorizeArtifactDownloadResponse:
+            type: object
+            properties:
+                artifact:
+                    $ref: '#/components/schemas/ArtifactView'
+                download_url:
+                    type: string
+                    description: 'Short-lived secret: served only with Cache-Control: no-store.'
+                expires_at:
+                    type: string
         BatchCreateLanguagesRequest:
             type: object
             properties:
@@ -8215,6 +8307,45 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/NamedExampleOrReference'
+        ExecutionView:
+            type: object
+            properties:
+                operation_id:
+                    type: string
+                execution_id:
+                    type: string
+                name:
+                    type: string
+                kind:
+                    type: string
+                preset_id:
+                    type: string
+                release_id:
+                    type: string
+                input_version_id:
+                    type: string
+                image_version_id:
+                    type: string
+                compute_state:
+                    type: string
+                delivery_state:
+                    type: string
+                close_state:
+                    type: string
+                resource_state:
+                    type: string
+                current_step:
+                    type: string
+                stop_requested:
+                    type: boolean
+                close_generation:
+                    type: string
+                accepted_at:
+                    type: string
+                deadline_at:
+                    type: string
+                observed_at:
+                    type: string
         Expression:
             type: object
             properties:
@@ -8287,6 +8418,11 @@ components:
             properties:
                 eip:
                     $ref: '#/components/schemas/EIP'
+        GetExecutionResponse:
+            type: object
+            properties:
+                execution:
+                    $ref: '#/components/schemas/ExecutionView'
         GetMFAStatusResponse:
             type: object
             properties:
@@ -8873,6 +9009,15 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/EnrolledMethod'
+        ListExecutionArtifactsResponse:
+            type: object
+            properties:
+                artifacts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ArtifactView'
+                next_page_token:
+                    type: string
         ListInternalMessageCategoryResponse:
             type: object
             properties:
