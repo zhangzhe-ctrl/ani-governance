@@ -30,34 +30,34 @@ import (
 // identity is fixed to ani-modeldev-service, never supplied by a public request.
 type ModelDevClientConfig struct {
 	Address, CAFile, CertFile, KeyFile string
-	Timeout time.Duration
+	Timeout                            time.Duration
 }
 
 // ModelDevResolveScope is supplied after current Governance authorization and
 // its persisted tenant mapping. It is not a public request DTO.
 type ModelDevResolveScope struct {
 	ResourceTenantID string
-	Actor string
+	Actor            string
 }
 
 // ModelDevReleaseSelection is one current binding observation. ModelDev must
 // not choose another Release or allocate Governance's binding generation.
 type ModelDevReleaseSelection struct {
-	ReleaseID string
-	ReleaseDigest string
+	ReleaseID         string
+	ReleaseDigest     string
 	BindingGeneration uint64
 }
 
 // ModelDevResolution is an unpersisted candidate, not a command receipt.
 type ModelDevResolution struct {
-	Snapshot cpup01.Snapshot
+	Snapshot          cpup01.Snapshot
 	ExecutionSpecHash string
 }
 
 type ModelDevClient struct {
 	connection *grpc.ClientConn
-	client modeldevv1.ModelDevAdmissionServiceClient
-	timeout time.Duration
+	client     modeldevv1.ModelDevAdmissionServiceClient
+	timeout    time.Duration
 }
 
 func NewModelDevClient(config ModelDevClientConfig) (*ModelDevClient, func(), error) {
@@ -194,8 +194,8 @@ func modelDevResolutionRequest(scope ModelDevResolveScope, intent cpup01.Intent,
 		return nil, cpup01.Intent{}, invalid
 	}
 	return &modeldevv1.ResolveAdmissionRequest{
-		Intent: wireIntent,
-		Release: &modeldevv1.AdmissionReleaseSelection{ReleaseId: release, ReleaseDigest: selection.ReleaseDigest, BindingGeneration: selection.BindingGeneration},
+		Intent:     wireIntent,
+		Release:    &modeldevv1.AdmissionReleaseSelection{ReleaseId: release, ReleaseDigest: selection.ReleaseDigest, BindingGeneration: selection.BindingGeneration},
 		AcceptedAt: timestamppb.New(acceptedAt),
 	}, normalized.Intent, nil
 }

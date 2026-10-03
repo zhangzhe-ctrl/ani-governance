@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	ErrModelDevAuthorizationDenied = errors.New("modeldev create authorization denied")
+	ErrModelDevAuthorizationDenied      = errors.New("modeldev create authorization denied")
 	ErrModelDevAuthorizationUnavailable = errors.New("modeldev create authorization unavailable")
 )
 

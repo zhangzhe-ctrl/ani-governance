@@ -2674,6 +2674,32 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /admin/v1/modeldev/executions:
+        post:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_CreateExecution
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateExecutionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateExecutionResponse'
+                "202":
+                    description: Accepted; the frozen request and CPU delivery intent are durable
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateExecutionResponse'
+            security:
+                - BearerAuth: []
     /admin/v1/notification-channels:
         get:
             tags:
@@ -7373,6 +7399,61 @@ components:
             properties:
                 eip:
                     $ref: '#/components/schemas/EIP'
+        CreateExecutionRequest:
+            required:
+                - name
+                - kind
+                - preset_id
+                - dataset_version_id
+                - idempotency_key
+            type: object
+            properties:
+                name:
+                    type: string
+                kind:
+                    type: string
+                    description: CPU-P01 supports GENERAL_TRAINING only
+                preset_id:
+                    type: string
+                dataset_version_id:
+                    type: string
+                idempotency_key:
+                    type: string
+                image_version_id:
+                    type: string
+                general_parameters:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GeneralParameter'
+                    description: Optional registered parameters; omitted and [] are distinct intents. Null is rejected.
+                source_execution_id:
+                    type: string
+            description: |-
+                CPU-P01 public intent. Shared canonicalization and immutable execution
+                 contracts are maintained by ani-modeldev-service/contract/cpup01.
+                 The HTTP adapter preserves omitted versus explicitly empty parameters.
+        CreateExecutionResponse:
+            type: object
+            properties:
+                operation_id:
+                    type: string
+                execution_id:
+                    type: string
+                resolved_release_id:
+                    type: string
+                replayed:
+                    type: boolean
+                compute_state:
+                    type: string
+                delivery_state:
+                    type: string
+                close_state:
+                    type: string
+                resource_state:
+                    type: string
+            description: |-
+                Returned only after Governance has durably accepted the frozen intent.
+                 Acceptance does not establish a KFP Run or successful training.
         CreateInternalMessageCategoryRequest:
             type: object
             properties:
@@ -8187,6 +8268,16 @@ components:
                     type: string
                     description: 登录账号或绑定邮箱
             description: 忘记密码 - 请求（identifier 为已绑定的邮箱）
+        GeneralParameter:
+            type: object
+            properties:
+                name:
+                    type: string
+                type:
+                    type: string
+                value:
+                    type: string
+                    description: Values are strings, including INTEGER and DECIMAL parameters.
         GenerateCaptchaResponse:
             type: object
             properties:
@@ -12539,6 +12630,8 @@ tags:
          管理侧 RPC（GetMFAStatus/ListEnrolledMethods/StartEnrollMethod/ConfirmEnrollMethod/
          DisableMFA/RevokeMFADevice）需登录态，走正常 auth+authz 中间件，不加 security:{}。
          登录挑战侧 RPC（VerifyMFAChallenge）免鉴权，加 security:{} 并加入 rest_server 白名单。
+    - name: ModelDevService
+      description: CPU-P01 entry in the existing Governance BFF.
     - name: NetworkService
     - name: NotificationChannelService
       description: 通知渠道管理服务（平台级配置）

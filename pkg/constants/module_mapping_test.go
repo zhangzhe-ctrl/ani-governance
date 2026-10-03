@@ -64,6 +64,7 @@ func TestServiceTagToBusinessModuleExactMapping(t *testing.T) {
 		"InternalMessageRecipientService": identityV1.Module_INTERNAL_MESSAGE,
 
 		"NetworkService": identityV1.Module_NETWORK,
+		"ModelDevService": identityV1.Module_MODEL,
 	}
 	assert.Equal(t, expected, ServiceTagToBusinessModule,
 		"ServiceTagToBusinessModule 内容漂移；如为有意变更请同步更新本测试")
@@ -85,6 +86,7 @@ func TestServiceTagToBusinessModuleReverseMapping(t *testing.T) {
 		identityV1.Module_INTERNAL_MESSAGE: {"InternalMessageService", "InternalMessageCategoryService", "InternalMessageRecipientService"},
 		identityV1.Module_NETWORK:          {"NetworkService"},
 		identityV1.Module_ACCELERATOR:      {"AcceleratorAdminService", "AcceleratorService"},
+		identityV1.Module_MODEL:            {"ModelDevService"},
 	}
 
 	actual := make(map[identityV1.Module][]string)
@@ -116,12 +118,9 @@ func TestServiceTagToBusinessModuleValuesValid(t *testing.T) {
 // modulesWithoutService 是"已在枚举中定义、但当前确实没有服务登记"的模块白名单。
 // 加入本表等于显式声明：该模块此刻没有任何服务承接，是有意为之而非漏登记。
 //
-// MODULE_MODEL：model 接入已于 2026-09-21 暂摘（出站客户端与 /api/v1/models 下线），
-// 但模块枚举刻意保留，以便重接时只需恢复 ServiceTagToBusinessModule 的一行登记，
-// 不必改 identity proto / Ent schema，也不必清理存量 sys_apis 与 sys_plan_modules 行。
-var modulesWithoutService = map[identityV1.Module]string{
-	identityV1.Module_MODEL: "model 接入已暂摘，等待重接；重接时恢复 ModelService 登记并从此表移除",
-}
+// CPU-P01 ModelDev uses the existing MODEL module. Model registration and
+// the retired /api/v1/models route are not restored by this mapping.
+var modulesWithoutService = map[identityV1.Module]string{}
 
 // TestServiceTagToBusinessModuleCoversAllDefinedModules 覆盖完备性：每个已定义的
 // 非 UNSPECIFIED 模块都必须有至少一个服务 tag 登记。模块枚举新增值而映射表

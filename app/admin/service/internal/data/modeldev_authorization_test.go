@@ -172,8 +172,8 @@ func TestModelDevAuthorizationUsesCurrentRoleMembership(t *testing.T) {
 	// Change one committed fact through the independent connection, retaining
 	// the original caller context. Restore even if a denial assertion fails.
 	for _, scenario := range []struct {
-		name string
-		change func(context.Context) error
+		name    string
+		change  func(context.Context) error
 		restore func(context.Context) error
 	}{
 		{
