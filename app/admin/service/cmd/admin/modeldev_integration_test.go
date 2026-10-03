@@ -19,6 +19,7 @@ import (
 	"time"
 
 	entsql "entgo.io/ent/dialect/sql"
+	kratoserrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -27,6 +28,7 @@ import (
 	authv1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
+	"go-wind-admin/app/admin/service/internal/data/ent/api"
 	"go-wind-admin/app/admin/service/internal/data/ent/modeldevreleasebinding"
 	"go-wind-admin/app/admin/service/internal/data/ent/permission"
 	"go-wind-admin/app/admin/service/internal/data/ent/role"
@@ -55,11 +57,7 @@ func TestModelDevPauseCommandPersistsGateAndReplays(t *testing.T) {
 	runtime := openModelDevPausePG(t, runtimeDSN)
 	assertModelDevPauseDatabaseRoles(t, ctx, runtime, writer)
 	removeAfterTest := func(remove func(context.Context) error) {
-		t.Cleanup(func() {
-			cleanup, stop := context.WithTimeout(appViewer.NewSystemViewerContext(context.Background()), 5*time.Second)
-			defer stop()
-			require.NoError(t, remove(cleanup), "remove only the owned pause fixture")
-		})
+		cleanupModelDevPauseFixture(t, remove)
 	}
 	suffix := uuid.NewString()
 	resourceTenantID := uuid.NewString()
@@ -236,6 +234,162 @@ func TestModelDevPauseCommandPersistsGateAndReplays(t *testing.T) {
 	require.Equal(t, storedAfter, replayed, "same-target replay retains generation and original audit fields")
 	t.Log("MODELDEV_PAUSE_BEHAVIOR PASS: trusted operator paused the unchanged target at generation 2; same-target replay preserved audit without owner access")
 
+	// Keep the original expected-generation=1 request for every denial. A
+	// paused target must not turn replay into an authorization bypass.
+	assertValidToken := func(t *testing.T, accessToken string, userID, tenantID uint32) {
+		t.Helper()
+		verified, err := authenticator.Authenticate(ctx, &authv1.ValidateTokenRequest{
+			ClientType: authv1.ClientType_admin, TokenCategory: authv1.TokenCategory_ACCESS, Token: accessToken,
+		})
+		require.NoError(t, err, "negative preflight requires a live JWT and Redis session")
+		require.NotNil(t, verified)
+		require.True(t, verified.IsValid)
+		require.Equal(t, userID, verified.Payload.GetUserId())
+		require.Equal(t, tenantID, verified.Payload.GetTenantId())
+	}
+	bindingSnapshot := func(t *testing.T) string {
+		t.Helper()
+		row, err := observer.Client().ModelDevReleaseBinding.Query().Where(
+			modeldevreleasebinding.TenantIDEQ(scope.TenantID),
+			modeldevreleasebinding.ResourceTenantIDEQ(scope.ResourceTenantID),
+			modeldevreleasebinding.PresetIDEQ(scope.PresetID),
+		).Only(sys)
+		require.NoError(t, err)
+		raw, err := json.Marshal(row)
+		require.NoError(t, err)
+		return string(raw) // Every persisted column, including the row ID.
+	}
+	unchangedBinding := bindingSnapshot(t)
+	assertRejected := func(t *testing.T, commandArgs []string, code int32, reason string) {
+		t.Helper()
+		var rejectedOutput bytes.Buffer
+		err := runAdmin(ctx, commandArgs, &rejectedOutput)
+		require.Error(t, err, "a rejected pause must not return a successful replay")
+		failure := kratoserrors.FromError(err)
+		require.Equal(t, code, failure.Code)
+		require.Equal(t, reason, failure.Reason)
+		require.Empty(t, rejectedOutput.String(), "denied commands emit no successful result")
+		require.JSONEq(t, unchangedBinding, bindingSnapshot(t), "denial must preserve every target-tenant binding column")
+	}
+	disableManagementGrant := func(t *testing.T) {
+		t.Helper()
+		// Subtest cleanup restores this existing grant before the next scenario.
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			return writer.Client().RolePermission.UpdateOneID(grant.ID).SetStatus(rolepermission.StatusOn).Exec(c)
+		})
+		require.NoError(t, writer.Client().RolePermission.UpdateOneID(grant.ID).SetStatus(rolepermission.StatusOff).Exec(sys))
+		stored, err := observer.Client().RolePermission.Get(sys, grant.ID)
+		require.NoError(t, err)
+		require.Equal(t, trans.Ptr(rolepermission.StatusOff), stored.Status, "grant revocation must already be committed")
+	}
+
+	t.Run("revoked management rejects original replay", func(t *testing.T) {
+		disableManagementGrant(t)
+		assertValidToken(t, token, operator.ID, owner.ID)
+		assertRejected(t, args, 403, "FORBIDDEN")
+	})
+
+	t.Run("current create grant cannot replace management", func(t *testing.T) {
+		disableManagementGrant(t)
+		createPermission, err := writer.Client().Permission.Create().
+			SetName("modeldev pause create-only fixture").SetCode("modeldev.execution.create.pause." + suffix).
+			SetStatus(permission.StatusOn).Save(sys)
+		require.NoError(t, err)
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			return writer.Client().Permission.DeleteOneID(createPermission.ID).Exec(c)
+		})
+		createAPI, err := writer.Client().Api.Create().
+			SetModule("modeldev-pause-create-" + suffix).SetPath("/admin/v1/modeldev/executions").SetMethod("POST").
+			SetScope(api.ScopeAdmin).SetBusinessModule(api.BusinessModuleModel).SetStatus(api.StatusOn).Save(sys)
+		require.NoError(t, err)
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			return writer.Client().Api.DeleteOneID(createAPI.ID).Exec(c)
+		})
+		permissionAPI, err := writer.Client().PermissionApi.Create().SetPermissionID(createPermission.ID).SetAPIID(createAPI.ID).Save(sys)
+		require.NoError(t, err)
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			return writer.Client().PermissionApi.DeleteOneID(permissionAPI.ID).Exec(c)
+		})
+		createGrant, err := writer.Client().RolePermission.Create().SetTenantID(owner.ID).SetRoleID(currentRole.ID).
+			SetPermissionID(createPermission.ID).SetStatus(rolepermission.StatusOn).SetEffect(rolepermission.EffectAllow).Save(sys)
+		require.NoError(t, err)
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			return writer.Client().RolePermission.DeleteOneID(createGrant.ID).Exec(c)
+		})
+		require.NoError(t, data.NewModelDevAuthorizationRepo(observer).AuthorizeCreate(sys, owner.ID, operator.ID),
+			"negative preflight: the independent reader must authorize the current real PermissionApi create grant")
+		assertValidToken(t, token, operator.ID, owner.ID)
+		assertRejected(t, args, 403, "FORBIDDEN")
+	})
+
+	t.Run("another authorized tenant cannot pause this target", func(t *testing.T) {
+		otherResourceTenantID := uuid.NewString()
+		otherTenant, err := writer.Client().Tenant.Create().SetName("modeldev pause other tenant fixture").
+			SetCode("cpu-pause-other-" + suffix).SetResourceTenantID(otherResourceTenantID).SetStatus(tenant.StatusOn).Save(sys)
+		require.NoError(t, err)
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			return writer.Client().Tenant.DeleteOneID(otherTenant.ID).Exec(c)
+		})
+		otherUser, err := writer.Client().User.Create().SetTenantID(otherTenant.ID).
+			SetUsername("cpu-pause-other-" + suffix).SetStatus(user.StatusNormal).Save(sys)
+		require.NoError(t, err)
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			return writer.Client().User.DeleteOneID(otherUser.ID).Exec(c)
+		})
+		otherRole, err := writer.Client().Role.Create().SetTenantID(otherTenant.ID).SetName("modeldev other binding maintainer fixture").
+			SetCode("tenant:modeldev-pause-other:" + suffix).SetType(role.TypeTenant).SetStatus(role.StatusOn).SetDataScope(role.DataScopeAll).Save(sys)
+		require.NoError(t, err)
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			return writer.Client().Role.DeleteOneID(otherRole.ID).Exec(c)
+		})
+		otherMembership, err := writer.Client().UserRole.Create().SetTenantID(otherTenant.ID).SetUserID(otherUser.ID).
+			SetRoleID(otherRole.ID).SetStatus(userrole.StatusActive).SetStartAt(now.Add(-time.Hour)).SetEndAt(now.Add(time.Hour)).Save(sys)
+		require.NoError(t, err)
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			return writer.Client().UserRole.DeleteOneID(otherMembership.ID).Exec(c)
+		})
+		otherGrant, err := writer.Client().RolePermission.Create().SetTenantID(otherTenant.ID).SetRoleID(otherRole.ID).
+			SetPermissionID(managePermission.ID).SetStatus(rolepermission.StatusOn).SetEffect(rolepermission.EffectAllow).Save(sys)
+		require.NoError(t, err)
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			return writer.Client().RolePermission.DeleteOneID(otherGrant.ID).Exec(c)
+		})
+		require.NoError(t, data.NewModelDevAuthorizationRepo(observer).AuthorizeManageReleaseBinding(sys, otherTenant.ID, otherUser.ID),
+			"negative preflight: tenant B has its own current management grant and ALL data scope")
+		otherMapping, err := data.NewTenantRepo(bctx, observer).ResourceTenantID(sys, otherTenant.ID)
+		require.NoError(t, err)
+		require.Equal(t, otherResourceTenantID, otherMapping)
+		otherPayload := &authv1.UserTokenPayload{UserId: otherUser.ID, TenantId: trans.Ptr(otherTenant.ID), Roles: []string{*otherRole.Code}}
+		otherToken, _, err := authenticator.CreateUserToken(ctx, authv1.ClientType_admin, otherPayload)
+		require.NoError(t, err)
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			return cache.RevokeTokenByJti(c, authv1.ClientType_admin, otherUser.ID, otherPayload.GetJti())
+		})
+		assertValidToken(t, otherToken, otherUser.ID, otherTenant.ID)
+		otherPrivate := t.TempDir()
+		require.NoError(t, os.Chmod(otherPrivate, 0700))
+		otherTokenFile := filepath.Join(otherPrivate, "access-token")
+		require.NoError(t, os.WriteFile(otherTokenFile, []byte(otherToken), 0600))
+		otherArgs := []string{"modeldev-pause", "--conf", configDirectory, "--token-file", otherTokenFile, "--request-file", requestFile}
+		otherScope := data.ModelDevReleaseBindingScope{
+			TenantID: otherTenant.ID, ResourceTenantID: otherResourceTenantID, PresetID: scope.PresetID,
+		}
+		_, err = data.NewModelDevReleaseBindingRepo(observer).Get(sys, otherScope)
+		require.ErrorIs(t, err, data.ErrModelDevBindingNotFound, "tenant B must begin without this preset binding")
+		cleanupModelDevPauseFixture(t, func(c context.Context) error {
+			// Also remove an unexpected row if the negative assertion detects a write.
+			_, err := writer.Client().ModelDevReleaseBinding.Delete().Where(
+				modeldevreleasebinding.TenantIDEQ(otherTenant.ID),
+				modeldevreleasebinding.ResourceTenantIDEQ(otherResourceTenantID),
+				modeldevreleasebinding.PresetIDEQ(scope.PresetID),
+			).Exec(c)
+			return err
+		})
+		assertRejected(t, otherArgs, 404, "MODELDEV_BINDING_NOT_FOUND")
+		_, err = data.NewModelDevReleaseBindingRepo(observer).Get(sys, otherScope)
+		require.ErrorIs(t, err, data.ErrModelDevBindingNotFound, "a foreign target must not create a tenant B binding")
+	})
+
 	t.Run("blacklist lookup unavailable denies without writing", func(t *testing.T) {
 		// Restore this owned synthetic binding to enabled so an authentication
 		// bypass would cause an observable write rather than an unchanged replay.
@@ -358,4 +512,15 @@ func assertModelDevPauseDatabaseRoles(t *testing.T, ctx context.Context, runtime
 	require.False(t, bypassRLS)
 	require.False(t, canCreate)
 	require.False(t, canTemp)
+}
+
+// Cleanup is scoped to the calling test: a negative subtest restores its grants
+// before the parent resumes, while the original fixture retains LIFO cleanup.
+func cleanupModelDevPauseFixture(t *testing.T, cleanup func(context.Context) error) {
+	t.Helper()
+	t.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(appViewer.NewSystemViewerContext(context.Background()), 5*time.Second)
+		defer cancel()
+		require.NoError(t, cleanup(ctx), "restore or remove only the owned pause fixture")
+	})
 }

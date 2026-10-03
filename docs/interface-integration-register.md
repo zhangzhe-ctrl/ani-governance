@@ -1018,7 +1018,7 @@ Governance 通过 go.mod/go.sum 固定精确模块版本，生产代码不导入
 | 编号 | 路由与方法 | 请求与响应合同 | 鉴权与范围 | 当前边界 |
 | --- | --- | --- | --- | --- |
 | MODELDEV-01 | `POST /admin/v1/modeldev/executions` | lower_snake_case 的 name、kind、preset_id、dataset_version_id、可选 image_version_id/general_parameters 及 idempotency_key；只允许 GENERAL_TRAINING。source_execution_id 暂不支持非空关联，当前必须省略。持久受理后返回 202、原 operation/execution、resolved_release_id、replayed 和四组正交状态 | 复用 Principal、TenantAccess、Casbin，并重查当前数据库的有效租户、用户、成员角色、ALL 数据范围及 MODEL/POST 权限；通过 ResourceTenantResolver 取得 resource tenant UUID。body 不含 tenant/actor/cluster/SA/command/raw CRD，旧 actor 仅审计 | 实际 JWT/Redis、当前授权、mTLS 解析、PG commit 后 202、暂停后重放、异参冲突及撤权拒绝已获隔离 Fedora 证据；可靠投递、其他数据范围和目标集群业务验收仍未完成 |
-| MODELDEV-02 | 受管 T02 启用/回退作业（入口待实现） | 已解析 release ID/digest、expected_generation、new_submissions_enabled、原因和证据引用；返回 before/after/generation/replayed | 当前受权操作者和租户映射来自可信上下文；启用前必须核验 ModelDev 不可变目录及实际验收证据，同目标重放仍重新授权 | 仓储 Get/CAS 已通过真实 PG 参数、代际边界、重放、并发及租户/预设隔离验证，race 通过；管理入口尚未装配，没有公开管理页、直连 SQL 入口或 VERIFIED 开关 |
+| MODELDEV-02 | 受管 T02 作业：`admin modeldev-pause`；启用/回退入口待实现 | 暂停请求只含 preset_id、release_id、release_digest、expected_generation、reason、evidence_reference；返回 operator、before/after（含 generation）和 replayed | 实际 admin ACCESS JWT 与 Redis session/blacklist、当前有效租户与用户、当前 ALL 数据范围及独立 `modeldev:manage_release_binding` 权限；租户和操作者只来自可信上下文，同目标重放仍重新授权 | 暂停入口复用原 Get/CAS，只能关闭已存在固定目标的新受理；不创建绑定、不启用或换版本，不要求 ModelDev 在线。其余管理作业、部署和真实目录资格未完成；仓储证据不能替代入口证据，详见[操作合同](deployment.md#暂停-modeldev-新受理) |
 
 `general_parameters` 保留缺省与显式 `[]` 的区别，外部 JSON 不直接套用 ProtoJSON。
 内部共享 `ParameterSelection` 仅负责 wire presence；BFF 的严格 JSON 适配负责
