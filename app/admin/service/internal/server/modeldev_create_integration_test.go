@@ -282,6 +282,33 @@ func TestModelDevCreatePersistsBefore202AndReplaysOriginal(t *testing.T) {
 	require.Equal(t, expectedBytes, stored.SnapshotCanonical)
 	require.Equal(t, hex.EncodeToString(digest[:]), stored.ExecutionSpecHash)
 
+	sourceIntent := provider.Intent
+	sourceID := uuid.NewString()
+	sourceIntent.SourceExecutionID = &sourceID
+	sourceCanonical, _, err := cpup01.CanonicalIntent(sourceIntent)
+	require.NoError(t, err, "the source-access denial must exercise a shape-valid intent")
+	sourceKey := uuid.NewString()
+	statusCode, responseBody = post(sourceIntent, sourceKey)
+	count, readErr := observer.Client().ModelDevAcceptance.Query().Where(modeldevacceptance.TenantIDEQ(owner.ID)).Count(sys)
+	require.NoError(t, readErr, "independent source-access persistence observation")
+	if statusCode == http.StatusAccepted {
+		unexpected, readErr := observer.Client().ModelDevAcceptance.Query().Where(
+			modeldevacceptance.TenantIDEQ(owner.ID), modeldevacceptance.IdempotencyKeyEQ(sourceKey),
+		).Only(sys)
+		require.NoError(t, readErr, "HTTP202 alone is insufficient for the planned source-access RED")
+		require.Equal(t, 2, count)
+		require.Equal(t, sourceCanonical, unexpected.IntentCanonical)
+		// Existing exact-tenant fixture cleanup removes this unintended row too.
+		t.Fatal("MODELDEV_SOURCE_ACCESS_BEHAVIOR: unverified source_execution_id accepted with HTTP202 and second durable acceptance; want 403 SOURCE_EXECUTION_UNAVAILABLE and one original acceptance")
+	}
+	require.Equal(t, http.StatusForbidden, statusCode, "unexpected status is not the planned source-access RED")
+	var sourceFailure struct {
+		Reason string `json:"reason"`
+	}
+	require.NoError(t, json.Unmarshal(responseBody, &sourceFailure))
+	require.Equal(t, "SOURCE_EXECUTION_UNAVAILABLE", sourceFailure.Reason)
+	require.Equal(t, 1, count, "source-access denial must leave only the original acceptance")
+
 	_, err = bindings.CompareAndSwap(requestCtx, bindingScope, data.ModelDevReleaseBindingUpdate{
 		ExpectedGeneration: 1, Target: data.ModelDevReleaseBindingTarget{ReleaseID: provider.Release.ReleaseID, ReleaseDigest: provider.Release.ReleaseDigest, NewSubmissionsEnabled: false},
 		Actor: actor, RequestedAt: time.Now().UTC().Truncate(time.Microsecond), Reason: "pause only new fixture admissions", EvidenceReference: "contract:cpu-p01:modeldev-http-paused",
