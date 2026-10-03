@@ -95,7 +95,8 @@ func (w *ModelDevDispatchWorker) Stop(ctx context.Context) error {
 func (w *ModelDevDispatchWorker) loop(ctx context.Context) {
 	defer close(w.done)
 	for ctx.Err() == nil {
-		if w.deliverNext(ctx) {
+		closed, queueAvailable := w.deliverNextClose(ctx)
+		if closed || (queueAvailable && w.deliverNext(ctx)) {
 			continue
 		}
 		timer := time.NewTimer(300 * time.Millisecond)

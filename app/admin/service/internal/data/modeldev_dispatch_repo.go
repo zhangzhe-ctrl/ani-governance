@@ -194,6 +194,9 @@ func validModelDevLeaseOwner(owner string) bool {
 // transaction's start time could already be older than a lease or retry due.
 func modelDevDeliveryDue(s *entsql.Selector) {
 	s.Where(entsql.And(entsql.EQ(s.C(modeldevacceptance.FieldRetryBlocked), false),
+		// Stop-before-create must first persist the owner's tombstone. An
+		// already in-flight create remains subject to the owner's shared fence.
+		entsql.Or(entsql.EQ(s.C(modeldevacceptance.FieldStopIntentGeneration), 0), entsql.EQ(s.C(modeldevacceptance.FieldCloseDispatchState), "ACKED")),
 		entsql.Or(entsql.IsNull(s.C(modeldevacceptance.FieldNextAttemptAt)), entsql.LTE(s.C(modeldevacceptance.FieldNextAttemptAt), entsql.Expr("statement_timestamp()"))),
 		entsql.Or(entsql.In(s.C(modeldevacceptance.FieldDispatchState), "QUEUED", "UNKNOWN"),
 			entsql.And(entsql.EQ(s.C(modeldevacceptance.FieldDispatchState), "DISPATCHING"), entsql.LTE(s.C(modeldevacceptance.FieldLeaseUntil), entsql.Expr("statement_timestamp()"))))))

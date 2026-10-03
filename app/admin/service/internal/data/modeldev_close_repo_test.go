@@ -3,7 +3,6 @@
 package data
 
 import (
-	"context"
 	"encoding/json"
 	"testing"
 	"time"
@@ -25,6 +24,9 @@ func TestModelDevCloseDeliveryRecoversOriginalAndFencesExpiredWorker(t *testing.
 	require.NoError(t, err, "CPU10_CLOSE_DELIVERY_NOT_IMPLEMENTED: accepted stop must survive into the reliable command queue")
 	require.NotNil(t, claim)
 	require.Equal(t, intent, claim.Intent)
+	create, err := repo.ClaimDelivery(ctx, "create-after-stop", time.Minute)
+	require.NoError(t, err)
+	require.Nil(t, create, "a queued create must wait for the stop tombstone acknowledgment")
 	second, err := NewModelDevAcceptanceRepo(newModelDevPGClient(t)).ClaimCloseDelivery(ctx, "close-contender", time.Minute)
 	require.NoError(t, err)
 	require.Nil(t, second, "one live lease owns the stop command")
@@ -65,6 +67,10 @@ func TestModelDevCloseDeliveryRecoversOriginalAndFencesExpiredWorker(t *testing.
 	var saved ModelDevCloseReceipt
 	require.NoError(t, json.Unmarshal(row.CloseReceiptCanonical, &saved))
 	require.Equal(t, receipt, saved)
+	create, err = restarted.ClaimDelivery(ctx, "create-after-tombstone", time.Minute)
+	require.NoError(t, err)
+	require.NotNil(t, create, "the original admission still reaches its owner after the durable tombstone")
+	require.Equal(t, accepted.ExecutionID, create.Acceptance.ExecutionID)
 	_, replayed, err = restarted.AcceptStop(ctx, scope.TenantID, scope.ResourceTenantID, accepted.ExecutionID, "governance:user:9")
 	require.NoError(t, err)
 	require.True(t, replayed)
@@ -90,7 +96,7 @@ func TestModelDevCloseDeliveryRetainsUnknownAndRetriesAfterRestart(t *testing.T)
 	var retry *ModelDevCloseDeliveryClaim
 	require.Eventually(t, func() bool {
 		var e error
-		retry, e = restarted.ClaimCloseDelivery(context.WithoutCancel(ctx), "close-retry", time.Minute)
+		retry, e = restarted.ClaimCloseDelivery(ctx, "close-retry", time.Minute)
 		require.NoError(t, e)
 		return retry != nil
 	}, 3*time.Second, 50*time.Millisecond)

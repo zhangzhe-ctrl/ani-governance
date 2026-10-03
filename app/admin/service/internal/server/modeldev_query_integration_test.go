@@ -195,7 +195,16 @@ func readModelDevMainFlowStartup(t *testing.T) *modelDevMainFlowStartup {
 // This test calls the real ModelDev query service on its real PG publication.
 // Only the KFP/Kubernetes/S3 boundaries in the provider remain explicit fixtures.
 func TestModelDevQueryCurrentAuthorizationDownloadsPublishedArtifacts(t *testing.T) {
+	testModelDevBFFMainFlow(t, false)
+}
+
+func TestModelDevStopDuringActualTrainingAndObserveClosed(t *testing.T) {
+	testModelDevBFFMainFlow(t, true)
+}
+
+func testModelDevBFFMainFlow(t *testing.T, stopping bool) {
 	startup := readModelDevMainFlowStartup(t)
+	if stopping { require.NotNil(t, startup, "CPU10_STOP_PREFLIGHT: actual create provider required") }
 	var provider modelDevQueryFixture
 	if startup == nil {
 		provider = readModelDevQueryFixture(t)
@@ -224,10 +233,11 @@ func TestModelDevQueryCurrentAuthorizationDownloadsPublishedArtifacts(t *testing
 	if startup != nil {
 		paths = append(paths, "/admin/v1/modeldev/executions")
 	}
+	if stopping { paths = append(paths, data.ModelDevStopExecutionPath) }
 	var apiIDs []uint32
 	for _, path := range paths {
 		method := "GET"
-		if path == "/admin/v1/modeldev/executions" {
+		if path == "/admin/v1/modeldev/executions" || path == data.ModelDevStopExecutionPath {
 			method = "POST"
 		}
 		row, e := writer.Client().Api.Create().SetModule("ModelDevService").SetScope(api.ScopeAdmin).SetPath(path).SetMethod(method).SetBusinessModule(api.BusinessModuleModel).SetStatus(api.StatusOn).Save(sys)
@@ -380,6 +390,10 @@ func TestModelDevQueryCurrentAuthorizationDownloadsPublishedArtifacts(t *testing
 		require.NoError(t, file.Close())
 		require.NoError(t, os.Rename(createdPath+".pending", createdPath))
 		t.Log("BFF_MAIN_FLOW_CREATED: real authenticated HTTP202 committed before actual delivery worker")
+		if stopping {
+			verifyModelDevBFFStopMainFlow(t, ctx, web, token, otherToken, deniedToken, accepted.OperationId, accepted.ExecutionId, owner.tenant)
+			return
+		}
 		ticker := time.NewTicker(100 * time.Millisecond)
 		defer ticker.Stop()
 		for {
