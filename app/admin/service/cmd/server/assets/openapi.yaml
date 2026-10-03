@@ -2693,6 +2693,27 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/AuthorizeArtifactDownloadResponse'
     /admin/v1/modeldev/executions:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_ListExecutions
+            parameters:
+                - name: page_size
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: page_token
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListExecutionsResponse'
         post:
             tags:
                 - ModelDevService
@@ -2757,6 +2778,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListExecutionArtifactsResponse'
+    /admin/v1/modeldev/executions/{execution_id}/logs:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_GetExecutionLogs
+            parameters:
+                - name: execution_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: tail_lines
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: max_bytes
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetExecutionLogsResponse'
     /admin/v1/modeldev/executions/{execution_id}:stop:
         post:
             tags:
@@ -8327,6 +8376,13 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/NamedExampleOrReference'
+        ExecutionLogLine:
+            type: object
+            properties:
+                timestamp:
+                    type: string
+                text:
+                    type: string
         ExecutionView:
             type: object
             properties:
@@ -8438,6 +8494,20 @@ components:
             properties:
                 eip:
                     $ref: '#/components/schemas/EIP'
+        GetExecutionLogsResponse:
+            type: object
+            properties:
+                log_id:
+                    type: string
+                lines:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ExecutionLogLine'
+                truncated:
+                    type: boolean
+                observed_at:
+                    type: string
+            description: Bounded actual training output. Pod identity and selectors remain internal.
         GetExecutionResponse:
             type: object
             properties:
@@ -9036,6 +9106,15 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/ArtifactView'
+                next_page_token:
+                    type: string
+        ListExecutionsResponse:
+            type: object
+            properties:
+                executions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ExecutionView'
                 next_page_token:
                     type: string
         ListInternalMessageCategoryResponse:

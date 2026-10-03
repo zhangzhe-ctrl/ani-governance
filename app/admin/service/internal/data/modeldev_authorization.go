@@ -43,7 +43,7 @@ const (
 	ModelDevGetExecutionPath     = "/admin/v1/modeldev/executions/{execution_id}"
 	ModelDevListArtifactsPath    = "/admin/v1/modeldev/executions/{execution_id}/artifacts"
 	ModelDevDownloadArtifactPath = "/admin/v1/modeldev/artifacts/{artifact_id}/content"
-	ModelDevListExecutionsPath = "/admin/v1/modeldev/executions"
+	ModelDevListExecutionsPath   = "/admin/v1/modeldev/executions"
 	ModelDevGetExecutionLogsPath = "/admin/v1/modeldev/executions/{execution_id}/logs"
 )
 

@@ -58,23 +58,39 @@ func (s *ModelDevService) GetExecution(ctx context.Context, in *modeldevv1.GetEx
 
 func (s *ModelDevService) ListExecutions(ctx context.Context, in *modeldevv1.ListExecutionsRequest) (*modeldevv1.ListExecutionsResponse, error) {
 	scope, err := s.modelDevQueryScope(ctx, data.ModelDevListExecutionsPath)
-	if err != nil { return nil, err }
-	if in == nil || in.PageSize > 100 || len(in.PageToken) > 2048 { return nil, modelDevQueryInvalid() }
+	if err != nil {
+		return nil, err
+	}
+	if in == nil || in.PageSize > 100 || len(in.PageToken) > 2048 {
+		return nil, modelDevQueryInvalid()
+	}
 	out, err := s.resolver.ListExecutions(ctx, scope, in.PageSize, in.PageToken)
-	if err != nil { return nil, modelDevQueryFailure(err) }
+	if err != nil {
+		return nil, modelDevQueryFailure(err)
+	}
 	reply := &modeldevv1.ListExecutionsResponse{NextPageToken: out.NextPageToken}
-	for _, execution := range out.Executions { reply.Executions = append(reply.Executions, modelDevPublicExecution(execution)) }
+	for _, execution := range out.Executions {
+		reply.Executions = append(reply.Executions, modelDevPublicExecution(execution))
+	}
 	return reply, nil
 }
 
 func (s *ModelDevService) GetExecutionLogs(ctx context.Context, in *modeldevv1.GetExecutionLogsRequest) (*modeldevv1.GetExecutionLogsResponse, error) {
 	scope, err := s.modelDevQueryScope(ctx, data.ModelDevGetExecutionLogsPath)
-	if err != nil { return nil, err }
-	if in == nil || !modelDevQueryUUID(in.ExecutionId) || in.TailLines > 1000 || in.MaxBytes > 65536 { return nil, modelDevQueryInvalid() }
+	if err != nil {
+		return nil, err
+	}
+	if in == nil || !modelDevQueryUUID(in.ExecutionId) || in.TailLines > 1000 || in.MaxBytes > 65536 {
+		return nil, modelDevQueryInvalid()
+	}
 	out, err := s.resolver.GetExecutionLogs(ctx, scope, in.ExecutionId, in.TailLines, in.MaxBytes)
-	if err != nil { return nil, modelDevQueryFailure(err) }
+	if err != nil {
+		return nil, modelDevQueryFailure(err)
+	}
 	reply := &modeldevv1.GetExecutionLogsResponse{LogId: out.Source.LogId, Truncated: out.Truncated, ObservedAt: out.ObservedAt.AsTime().UTC().Format(time.RFC3339Nano)}
-	for _, line := range out.Lines { reply.Lines = append(reply.Lines, &modeldevv1.ExecutionLogLine{Timestamp: line.Timestamp.AsTime().UTC().Format(time.RFC3339Nano), Text: line.Text}) }
+	for _, line := range out.Lines {
+		reply.Lines = append(reply.Lines, &modeldevv1.ExecutionLogLine{Timestamp: line.Timestamp.AsTime().UTC().Format(time.RFC3339Nano), Text: line.Text})
+	}
 	return reply, nil
 }
 

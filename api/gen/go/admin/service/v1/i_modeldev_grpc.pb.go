@@ -20,6 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ModelDevService_ListExecutions_FullMethodName            = "/admin.service.v1.ModelDevService/ListExecutions"
+	ModelDevService_GetExecutionLogs_FullMethodName          = "/admin.service.v1.ModelDevService/GetExecutionLogs"
 	ModelDevService_StopExecution_FullMethodName             = "/admin.service.v1.ModelDevService/StopExecution"
 	ModelDevService_GetExecution_FullMethodName              = "/admin.service.v1.ModelDevService/GetExecution"
 	ModelDevService_ListExecutionArtifacts_FullMethodName    = "/admin.service.v1.ModelDevService/ListExecutionArtifacts"
@@ -33,6 +35,8 @@ const (
 //
 // CPU-P01 entry in the existing Governance BFF.
 type ModelDevServiceClient interface {
+	ListExecutions(ctx context.Context, in *v1.ListExecutionsRequest, opts ...grpc.CallOption) (*v1.ListExecutionsResponse, error)
+	GetExecutionLogs(ctx context.Context, in *v1.GetExecutionLogsRequest, opts ...grpc.CallOption) (*v1.GetExecutionLogsResponse, error)
 	StopExecution(ctx context.Context, in *v1.StopExecutionRequest, opts ...grpc.CallOption) (*v1.StopExecutionResponse, error)
 	GetExecution(ctx context.Context, in *v1.GetExecutionRequest, opts ...grpc.CallOption) (*v1.GetExecutionResponse, error)
 	ListExecutionArtifacts(ctx context.Context, in *v1.ListExecutionArtifactsRequest, opts ...grpc.CallOption) (*v1.ListExecutionArtifactsResponse, error)
@@ -46,6 +50,26 @@ type modelDevServiceClient struct {
 
 func NewModelDevServiceClient(cc grpc.ClientConnInterface) ModelDevServiceClient {
 	return &modelDevServiceClient{cc}
+}
+
+func (c *modelDevServiceClient) ListExecutions(ctx context.Context, in *v1.ListExecutionsRequest, opts ...grpc.CallOption) (*v1.ListExecutionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ListExecutionsResponse)
+	err := c.cc.Invoke(ctx, ModelDevService_ListExecutions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelDevServiceClient) GetExecutionLogs(ctx context.Context, in *v1.GetExecutionLogsRequest, opts ...grpc.CallOption) (*v1.GetExecutionLogsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.GetExecutionLogsResponse)
+	err := c.cc.Invoke(ctx, ModelDevService_GetExecutionLogs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *modelDevServiceClient) StopExecution(ctx context.Context, in *v1.StopExecutionRequest, opts ...grpc.CallOption) (*v1.StopExecutionResponse, error) {
@@ -104,6 +128,8 @@ func (c *modelDevServiceClient) CreateExecution(ctx context.Context, in *v1.Crea
 //
 // CPU-P01 entry in the existing Governance BFF.
 type ModelDevServiceServer interface {
+	ListExecutions(context.Context, *v1.ListExecutionsRequest) (*v1.ListExecutionsResponse, error)
+	GetExecutionLogs(context.Context, *v1.GetExecutionLogsRequest) (*v1.GetExecutionLogsResponse, error)
 	StopExecution(context.Context, *v1.StopExecutionRequest) (*v1.StopExecutionResponse, error)
 	GetExecution(context.Context, *v1.GetExecutionRequest) (*v1.GetExecutionResponse, error)
 	ListExecutionArtifacts(context.Context, *v1.ListExecutionArtifactsRequest) (*v1.ListExecutionArtifactsResponse, error)
@@ -119,6 +145,12 @@ type ModelDevServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedModelDevServiceServer struct{}
 
+func (UnimplementedModelDevServiceServer) ListExecutions(context.Context, *v1.ListExecutionsRequest) (*v1.ListExecutionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListExecutions not implemented")
+}
+func (UnimplementedModelDevServiceServer) GetExecutionLogs(context.Context, *v1.GetExecutionLogsRequest) (*v1.GetExecutionLogsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetExecutionLogs not implemented")
+}
 func (UnimplementedModelDevServiceServer) StopExecution(context.Context, *v1.StopExecutionRequest) (*v1.StopExecutionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method StopExecution not implemented")
 }
@@ -153,6 +185,42 @@ func RegisterModelDevServiceServer(s grpc.ServiceRegistrar, srv ModelDevServiceS
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ModelDevService_ServiceDesc, srv)
+}
+
+func _ModelDevService_ListExecutions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ListExecutionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelDevServiceServer).ListExecutions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelDevService_ListExecutions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelDevServiceServer).ListExecutions(ctx, req.(*v1.ListExecutionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelDevService_GetExecutionLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.GetExecutionLogsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelDevServiceServer).GetExecutionLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelDevService_GetExecutionLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelDevServiceServer).GetExecutionLogs(ctx, req.(*v1.GetExecutionLogsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ModelDevService_StopExecution_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -252,6 +320,14 @@ var ModelDevService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "admin.service.v1.ModelDevService",
 	HandlerType: (*ModelDevServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListExecutions",
+			Handler:    _ModelDevService_ListExecutions_Handler,
+		},
+		{
+			MethodName: "GetExecutionLogs",
+			Handler:    _ModelDevService_GetExecutionLogs_Handler,
+		},
 		{
 			MethodName: "StopExecution",
 			Handler:    _ModelDevService_StopExecution_Handler,
