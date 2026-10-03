@@ -235,6 +235,47 @@ func TestModelDevPauseCommandPersistsGateAndReplays(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, storedAfter, replayed, "same-target replay retains generation and original audit fields")
 	t.Log("MODELDEV_PAUSE_BEHAVIOR PASS: trusted operator paused the unchanged target at generation 2; same-target replay preserved audit without owner access")
+
+	t.Run("blacklist lookup unavailable denies without writing", func(t *testing.T) {
+		// Restore this owned synthetic binding to enabled so an authentication
+		// bypass would cause an observable write rather than an unchanged replay.
+		enabled, err := data.NewModelDevReleaseBindingRepo(runtime).CompareAndSwap(sys, scope, data.ModelDevReleaseBindingUpdate{
+			ExpectedGeneration: 2, Target: target, Actor: previousActor, RequestedAt: time.Now().UTC().Truncate(time.Microsecond),
+			Reason: "synthetic blacklist-failure preparation", EvidenceReference: "contract:cpu-p01:pause-blacklist",
+		})
+		require.NoError(t, err)
+		require.Equal(t, uint64(3), enabled.After.Generation)
+		request.ExpectedGeneration = 3
+		raw, err := json.Marshal(request)
+		require.NoError(t, err)
+		require.NoError(t, os.WriteFile(requestFile, raw, 0600))
+		stored, err := data.NewModelDevReleaseBindingRepo(observer).Get(sys, scope)
+		require.NoError(t, err)
+		require.Equal(t, enabled.After, stored)
+		// Only the runner-owned Redis is affected. Restoring the ACL uses an
+		// independent cleanup context before the owned token/rows are removed.
+		require.NoError(t, rdb.Do(ctx, "ACL", "SETUSER", "default", "-exists").Err())
+		t.Cleanup(func() {
+			cleanup, stop := context.WithTimeout(context.Background(), 5*time.Second)
+			defer stop()
+			require.NoError(t, rdb.Do(cleanup, "ACL", "SETUSER", "default", "+exists").Err())
+		})
+		require.NoError(t, rdb.Ping(ctx).Err())
+		valid, err := cache.IsValidAccessToken(ctx, authv1.ClientType_admin, operator.ID, payload.GetJti(), token)
+		require.NoError(t, err)
+		require.True(t, valid, "real signed token still has its Redis session")
+		err = rdb.Exists(ctx, "cpu-p01-synthetic-blacklist-probe").Err()
+		require.ErrorContains(t, err, "NOPERM", "only the real blacklist command is unavailable")
+		t.Log("MODELDEV_PAUSE_BLACKLIST_PREFLIGHT PASS: real session GET/PING allowed and EXISTS denied on owned Redis; enabled binding generation 3 persisted")
+		output.Reset()
+		err = runAdmin(ctx, args, &output)
+		require.Error(t, err, "MODELDEV_PAUSE_BLACKLIST_BEHAVIOR: unavailable blacklist must reject the command")
+		require.Empty(t, output.String())
+		afterDenied, err := data.NewModelDevReleaseBindingRepo(observer).Get(sys, scope)
+		require.NoError(t, err)
+		require.Equal(t, stored, afterDenied, "denial preserves gate, generation and all audit fields")
+		t.Log("MODELDEV_PAUSE_BLACKLIST_BEHAVIOR PASS: unavailable blacklist rejected with zero binding mutation")
+	})
 }
 
 type modelDevPauseBindingOutput struct {
