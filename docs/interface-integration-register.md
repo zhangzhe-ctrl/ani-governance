@@ -22,7 +22,7 @@
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
 | Network 租户面读写对接（GOV-RESOURCE-20260922） | NET-02～NET-11；复用 AK-*、AUTH-* | BFF 路由/客户端/Service 已实现，17/17 全链路验收 PASS | GOV-RESOURCE-20260922 完成 |
 | 通用配额与 GPU 本地模拟 | QUOTA-01～03、QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 本地模拟闭环已实现并通过指定验收；正式构建无 GPU 路由；真实 GPU 未接入 | QUOTA-GPU-LOCAL-01，本地验收完成（真实 GPU not_verified） |
-| ModelDev CPU 主干受理 | MODELDEV-01～MODELDEV-02 | 已解析候选的持久受理、解析前原键查询和当前绑定持久 CAS；HTTP、权限目录及投递尚未装配 | CPU-P01，进行中 |
+| ModelDev CPU 主干受理 | MODELDEV-01～MODELDEV-02 | 当前授权、可信解析、持久受理和原键重放已装配；可靠投递及受管启用入口待实现，未部署 | CPU-P01，进行中 |
 
 ## 风格改动批次
 
@@ -1012,12 +1012,12 @@ QUOTA-01～04 与 ACC 既有路由、字段和鉴权保持原合同。`ListQuota
 本组沿用 v0.4 的 `/admin/v1/modeldev` 路由，只增加 CPU-P01 明确启用的能力。
 共享 Intent、Snapshot、Proto 和规范测试向量由 ani-modeldev-service 单点维护；
 Governance 通过 go.mod/go.sum 固定精确模块版本，生产代码不导入 conformance fixture。
-当前仓储覆盖已解析候选的 PostgreSQL 持久受理、解析前原键查询和当前绑定 CAS，配套 Ent/Atlas schema，
-没有注册下面的 HTTP 路由或声明其可用。
+当前已装配 Create HTTP、当前数据库授权、可信 ModelDev 解析、PostgreSQL 持久受理和原键重放；
+当前绑定 CAS 有配套 Ent/Atlas schema。此处记录源码能力，不表示已部署、已同步真实 API 目录或已授予权限。
 
 | 编号 | 路由与方法 | 请求与响应合同 | 鉴权与范围 | 当前边界 |
 | --- | --- | --- | --- | --- |
-| MODELDEV-01 | `POST /admin/v1/modeldev/executions` | lower_snake_case 的 name、kind、preset_id、dataset_version_id、可选 image_version_id/general_parameters/source_execution_id 及 idempotency_key；只允许 GENERAL_TRAINING。持久受理后返回 202、原 operation/execution、resolved_release_id、replayed 和四组正交状态 | 复用当前 Principal、TenantAccess、动作及资源权限；通过 ResourceTenantResolver 取得 resource tenant UUID。body 不含 tenant/actor/cluster/SA/command/raw CRD，旧 actor 仅审计 | 解析前原键查询和受理事务复核当前绑定已通过真实 PG 验证；HTTP/授权装配、可信 immutable catalogue 解析和可靠投递仍待后续切片 |
+| MODELDEV-01 | `POST /admin/v1/modeldev/executions` | lower_snake_case 的 name、kind、preset_id、dataset_version_id、可选 image_version_id/general_parameters 及 idempotency_key；只允许 GENERAL_TRAINING。source_execution_id 暂不支持非空关联，当前必须省略。持久受理后返回 202、原 operation/execution、resolved_release_id、replayed 和四组正交状态 | 复用 Principal、TenantAccess、Casbin，并重查当前数据库的有效租户、用户、成员角色、ALL 数据范围及 MODEL/POST 权限；通过 ResourceTenantResolver 取得 resource tenant UUID。body 不含 tenant/actor/cluster/SA/command/raw CRD，旧 actor 仅审计 | 实际 JWT/Redis、当前授权、mTLS 解析、PG commit 后 202、暂停后重放、异参冲突及撤权拒绝已获隔离 Fedora 证据；可靠投递、其他数据范围和目标集群业务验收仍未完成 |
 | MODELDEV-02 | 受管 T02 启用/回退作业（入口待实现） | 已解析 release ID/digest、expected_generation、new_submissions_enabled、原因和证据引用；返回 before/after/generation/replayed | 当前受权操作者和租户映射来自可信上下文；启用前必须核验 ModelDev 不可变目录及实际验收证据，同目标重放仍重新授权 | 仓储 Get/CAS 已通过真实 PG 参数、代际边界、重放、并发及租户/预设隔离验证，race 通过；管理入口尚未装配，没有公开管理页、直连 SQL 入口或 VERIFIED 开关 |
 
 `general_parameters` 保留缺省与显式 `[]` 的区别，外部 JSON 不直接套用 ProtoJSON。
@@ -1025,19 +1025,26 @@ Governance 通过 go.mod/go.sum 固定精确模块版本，生产代码不导入
 拒绝重复键、null、未知字段和用户越权配置。原键先查受理记录，再读当前启用绑定；
 同意图返回原快照和 IDs，异参冲突。新受理暂停不能阻断原键找回、查询与停止。
 
+`source_execution_id` 的原合同要求源执行可访问；当前尚无受权查询可证明这一点，
+因此任何提供该字段的合法意图都在原键查找和受理前返回固定 `403 SOURCE_EXECUTION_UNAVAILABLE`，
+不区分是否存在，也不查询或暴露其他租户的执行。省略该字段可继续正常受理；null 仍是非法输入。
+这是尚未支持关联的明确边界，不是完成了源执行访问授权。当前 ALL 数据范围要求也只是
+本切片的保守实现选择，不声称支持 SELF/组织范围。可靠投递尚未装配，202 的四轴初态
+`ACCEPTED/PENDING/OPEN/NOT_APPLICABLE` 只代表 Governance 已持久接受。
+
 MODELDEV-01 的内部前置查询为 `ModelDevAcceptanceRepo.FindAccepted(ctx, scope, intent)`：
 只接收当前可信租户映射、actor/action/key 和用户意图，不要求候选快照或当前目录可用。
 命中返回原受理对象；不存在返回明确 NotFound，同键异意图返回既有幂等冲突。
-查询不消耗 key、不写入投递记录、不检查当前新受理开关。后续 BFF 必须先完成
-当前身份、TenantAccess、动作和资产授权，再调用该查询；原记录 actor 不是访问票据。
+查询不消耗 key、不写入投递记录、不检查当前新受理开关。BFF 在该查询之前完成
+当前身份、TenantAccess、动作和上述数据范围检查；原记录 actor 不是访问票据。
 这是原 CreateExecution 的内部查询接缝，不新增公开按 key 查询路由。仓储实现已通过
 真实 PG RED/GREEN 及后续回归：未绑定时原键未命中不占键，当前绑定切换或暂停后仍
 找回原件；同键异意图冲突，非法 scope/intent 及真实租户映射错配拒绝，tenant、actor、
-key 相互隔离。查询不修改原受理、当前指针或投递状态。上述验证只覆盖仓储边界，
-HTTP/usecase、当前权限检查与可靠投递仍未装配。
+key 相互隔离。查询不修改原受理、当前指针或投递状态。仓储检查和新增 BFF 隔离软件
+验证分别留证，仍不证明可靠投递、真实目录启用或目标集群业务链已完成。
 
 Governance 是唯一当前 Release binding/generation 权威；ModelDev 持有 immutable
-catalogue，后续以 Governance 专用受理解析能力按指定 Release/Input/Image ID
+catalogue，以 Governance 专用受理解析能力按指定 Release/Input/Image ID
 返回固定事实。普通 Query 不因此暴露后端存储引用，也不在 Governance 复制第二套目录。
 
 本切片当前绑定按 `(resource_tenant_id, preset_id)` 唯一；本地 tenant_id 与 resource

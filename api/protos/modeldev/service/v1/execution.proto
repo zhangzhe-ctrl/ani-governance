@@ -25,7 +25,12 @@ message CreateExecutionRequest {
       description: "Optional registered parameters; omitted and [] are distinct intents. Null is rejected."
     }
   ];
-  optional string source_execution_id = 8 [json_name = "source_execution_id"];
+  optional string source_execution_id = 8 [
+    json_name = "source_execution_id",
+    (gnostic.openapi.v3.property) = {
+      description: "Reserved optional association. Currently rejected with 403 SOURCE_EXECUTION_UNAVAILABLE until source execution access can be verified. Omit this field."
+    }
+  ];
 }
 
 message GeneralParameter {

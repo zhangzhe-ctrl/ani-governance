@@ -114,6 +114,9 @@ func (s *ModelDevService) CreateExecution(ctx context.Context, in ModelDevCreate
 	if json.Unmarshal(canonical, &normalized) != nil {
 		return nil, modelDevCreateUnavailable()
 	}
+	if normalized.SourceExecutionID != nil {
+		return nil, errors.Forbidden("SOURCE_EXECUTION_UNAVAILABLE", "source execution is unavailable")
+	}
 	scope := data.ModelDevAdmissionScope{
 		TenantID: principal.TenantID, ResourceTenantID: tenant, Actor: actor,
 		Action: data.ModelDevCreateAction, IdempotencyKey: in.IdempotencyKey,
