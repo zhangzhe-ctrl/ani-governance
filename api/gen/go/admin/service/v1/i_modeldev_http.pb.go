@@ -24,20 +24,45 @@ const OperationModelDevServiceAuthorizeArtifactDownload = "/admin.service.v1.Mod
 const OperationModelDevServiceCreateExecution = "/admin.service.v1.ModelDevService/CreateExecution"
 const OperationModelDevServiceGetExecution = "/admin.service.v1.ModelDevService/GetExecution"
 const OperationModelDevServiceListExecutionArtifacts = "/admin.service.v1.ModelDevService/ListExecutionArtifacts"
+const OperationModelDevServiceStopExecution = "/admin.service.v1.ModelDevService/StopExecution"
 
 type ModelDevServiceHTTPServer interface {
 	AuthorizeArtifactDownload(context.Context, *v1.AuthorizeArtifactDownloadRequest) (*v1.AuthorizeArtifactDownloadResponse, error)
 	CreateExecution(context.Context, *v1.CreateExecutionRequest) (*v1.CreateExecutionResponse, error)
 	GetExecution(context.Context, *v1.GetExecutionRequest) (*v1.GetExecutionResponse, error)
 	ListExecutionArtifacts(context.Context, *v1.ListExecutionArtifactsRequest) (*v1.ListExecutionArtifactsResponse, error)
+	StopExecution(context.Context, *v1.StopExecutionRequest) (*v1.StopExecutionResponse, error)
 }
 
 func RegisterModelDevServiceHTTPServer(s *http.Server, srv ModelDevServiceHTTPServer) {
 	r := s.Route("/")
+	r.POST("/admin/v1/modeldev/executions/{execution_id}:stop", _ModelDevService_StopExecution0_HTTP_Handler(srv))
 	r.GET("/admin/v1/modeldev/executions/{execution_id}", _ModelDevService_GetExecution0_HTTP_Handler(srv))
 	r.GET("/admin/v1/modeldev/executions/{execution_id}/artifacts", _ModelDevService_ListExecutionArtifacts0_HTTP_Handler(srv))
 	r.GET("/admin/v1/modeldev/artifacts/{artifact_id}/content", _ModelDevService_AuthorizeArtifactDownload0_HTTP_Handler(srv))
 	r.POST("/admin/v1/modeldev/executions", _ModelDevService_CreateExecution0_HTTP_Handler(srv))
+}
+
+func _ModelDevService_StopExecution0_HTTP_Handler(srv ModelDevServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.StopExecutionRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationModelDevServiceStopExecution)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.StopExecution(ctx, req.(*v1.StopExecutionRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.StopExecutionResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _ModelDevService_GetExecution0_HTTP_Handler(srv ModelDevServiceHTTPServer) func(ctx http.Context) error {
@@ -133,6 +158,7 @@ type ModelDevServiceHTTPClient interface {
 	CreateExecution(ctx context.Context, req *v1.CreateExecutionRequest, opts ...http.CallOption) (rsp *v1.CreateExecutionResponse, err error)
 	GetExecution(ctx context.Context, req *v1.GetExecutionRequest, opts ...http.CallOption) (rsp *v1.GetExecutionResponse, err error)
 	ListExecutionArtifacts(ctx context.Context, req *v1.ListExecutionArtifactsRequest, opts ...http.CallOption) (rsp *v1.ListExecutionArtifactsResponse, err error)
+	StopExecution(ctx context.Context, req *v1.StopExecutionRequest, opts ...http.CallOption) (rsp *v1.StopExecutionResponse, err error)
 }
 
 type ModelDevServiceHTTPClientImpl struct {
@@ -189,6 +215,19 @@ func (c *ModelDevServiceHTTPClientImpl) ListExecutionArtifacts(ctx context.Conte
 	opts = append(opts, http.Operation(OperationModelDevServiceListExecutionArtifacts))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *ModelDevServiceHTTPClientImpl) StopExecution(ctx context.Context, in *v1.StopExecutionRequest, opts ...http.CallOption) (*v1.StopExecutionResponse, error) {
+	var out v1.StopExecutionResponse
+	pattern := "/admin/v1/modeldev/executions/{execution_id}:stop"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationModelDevServiceStopExecution))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

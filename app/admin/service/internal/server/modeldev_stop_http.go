@@ -26,7 +26,9 @@ func registerModelDevStopHTTP(server *khttp.Server, modeldev *service.ModelDevSe
 			return modeldev.StopExecution(c, v.(*modeldevv1.StopExecutionRequest))
 		})
 		out, err := handler(ctx, &in)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 		return ctx.Result(http.StatusAccepted, out)
 	})
 }

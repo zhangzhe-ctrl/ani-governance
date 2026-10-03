@@ -154,6 +154,61 @@ func OwnerReceiptCanonical(v []byte) predicate.ModelDevAcceptance {
 	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldOwnerReceiptCanonical, v))
 }
 
+// StopIntentGeneration applies equality check predicate on the "stop_intent_generation" field. It's identical to StopIntentGenerationEQ.
+func StopIntentGeneration(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldStopIntentGeneration, v))
+}
+
+// StopRequestedAt applies equality check predicate on the "stop_requested_at" field. It's identical to StopRequestedAtEQ.
+func StopRequestedAt(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldStopRequestedAt, v))
+}
+
+// StopRequestedActor applies equality check predicate on the "stop_requested_actor" field. It's identical to StopRequestedActorEQ.
+func StopRequestedActor(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldStopRequestedActor, v))
+}
+
+// CloseAttemptCount applies equality check predicate on the "close_attempt_count" field. It's identical to CloseAttemptCountEQ.
+func CloseAttemptCount(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseAttemptCount, v))
+}
+
+// CloseLeaseGeneration applies equality check predicate on the "close_lease_generation" field. It's identical to CloseLeaseGenerationEQ.
+func CloseLeaseGeneration(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseLeaseGeneration, v))
+}
+
+// CloseLeaseOwner applies equality check predicate on the "close_lease_owner" field. It's identical to CloseLeaseOwnerEQ.
+func CloseLeaseOwner(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseUntil applies equality check predicate on the "close_lease_until" field. It's identical to CloseLeaseUntilEQ.
+func CloseLeaseUntil(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseLeaseUntil, v))
+}
+
+// CloseNextAttemptAt applies equality check predicate on the "close_next_attempt_at" field. It's identical to CloseNextAttemptAtEQ.
+func CloseNextAttemptAt(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseNextAttemptAt, v))
+}
+
+// CloseRetryBlocked applies equality check predicate on the "close_retry_blocked" field. It's identical to CloseRetryBlockedEQ.
+func CloseRetryBlocked(v bool) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseRetryBlocked, v))
+}
+
+// CloseLastErrorCode applies equality check predicate on the "close_last_error_code" field. It's identical to CloseLastErrorCodeEQ.
+func CloseLastErrorCode(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseLastErrorCode, v))
+}
+
+// CloseReceiptCanonical applies equality check predicate on the "close_receipt_canonical" field. It's identical to CloseReceiptCanonicalEQ.
+func CloseReceiptCanonical(v []byte) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseReceiptCanonical, v))
+}
+
 // TenantIDEQ applies the EQ predicate on the "tenant_id" field.
 func TenantIDEQ(v uint32) predicate.ModelDevAcceptance {
 	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldTenantID, v))
@@ -1242,6 +1297,581 @@ func OwnerReceiptCanonicalIsNil() predicate.ModelDevAcceptance {
 // OwnerReceiptCanonicalNotNil applies the NotNil predicate on the "owner_receipt_canonical" field.
 func OwnerReceiptCanonicalNotNil() predicate.ModelDevAcceptance {
 	return predicate.ModelDevAcceptance(sql.FieldNotNull(FieldOwnerReceiptCanonical))
+}
+
+// StopIntentGenerationEQ applies the EQ predicate on the "stop_intent_generation" field.
+func StopIntentGenerationEQ(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldStopIntentGeneration, v))
+}
+
+// StopIntentGenerationNEQ applies the NEQ predicate on the "stop_intent_generation" field.
+func StopIntentGenerationNEQ(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldStopIntentGeneration, v))
+}
+
+// StopIntentGenerationIn applies the In predicate on the "stop_intent_generation" field.
+func StopIntentGenerationIn(vs ...int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIn(FieldStopIntentGeneration, vs...))
+}
+
+// StopIntentGenerationNotIn applies the NotIn predicate on the "stop_intent_generation" field.
+func StopIntentGenerationNotIn(vs ...int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotIn(FieldStopIntentGeneration, vs...))
+}
+
+// StopIntentGenerationGT applies the GT predicate on the "stop_intent_generation" field.
+func StopIntentGenerationGT(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGT(FieldStopIntentGeneration, v))
+}
+
+// StopIntentGenerationGTE applies the GTE predicate on the "stop_intent_generation" field.
+func StopIntentGenerationGTE(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGTE(FieldStopIntentGeneration, v))
+}
+
+// StopIntentGenerationLT applies the LT predicate on the "stop_intent_generation" field.
+func StopIntentGenerationLT(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLT(FieldStopIntentGeneration, v))
+}
+
+// StopIntentGenerationLTE applies the LTE predicate on the "stop_intent_generation" field.
+func StopIntentGenerationLTE(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLTE(FieldStopIntentGeneration, v))
+}
+
+// StopRequestedAtEQ applies the EQ predicate on the "stop_requested_at" field.
+func StopRequestedAtEQ(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldStopRequestedAt, v))
+}
+
+// StopRequestedAtNEQ applies the NEQ predicate on the "stop_requested_at" field.
+func StopRequestedAtNEQ(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldStopRequestedAt, v))
+}
+
+// StopRequestedAtIn applies the In predicate on the "stop_requested_at" field.
+func StopRequestedAtIn(vs ...time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIn(FieldStopRequestedAt, vs...))
+}
+
+// StopRequestedAtNotIn applies the NotIn predicate on the "stop_requested_at" field.
+func StopRequestedAtNotIn(vs ...time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotIn(FieldStopRequestedAt, vs...))
+}
+
+// StopRequestedAtGT applies the GT predicate on the "stop_requested_at" field.
+func StopRequestedAtGT(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGT(FieldStopRequestedAt, v))
+}
+
+// StopRequestedAtGTE applies the GTE predicate on the "stop_requested_at" field.
+func StopRequestedAtGTE(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGTE(FieldStopRequestedAt, v))
+}
+
+// StopRequestedAtLT applies the LT predicate on the "stop_requested_at" field.
+func StopRequestedAtLT(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLT(FieldStopRequestedAt, v))
+}
+
+// StopRequestedAtLTE applies the LTE predicate on the "stop_requested_at" field.
+func StopRequestedAtLTE(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLTE(FieldStopRequestedAt, v))
+}
+
+// StopRequestedAtIsNil applies the IsNil predicate on the "stop_requested_at" field.
+func StopRequestedAtIsNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIsNull(FieldStopRequestedAt))
+}
+
+// StopRequestedAtNotNil applies the NotNil predicate on the "stop_requested_at" field.
+func StopRequestedAtNotNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotNull(FieldStopRequestedAt))
+}
+
+// StopRequestedActorEQ applies the EQ predicate on the "stop_requested_actor" field.
+func StopRequestedActorEQ(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldStopRequestedActor, v))
+}
+
+// StopRequestedActorNEQ applies the NEQ predicate on the "stop_requested_actor" field.
+func StopRequestedActorNEQ(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldStopRequestedActor, v))
+}
+
+// StopRequestedActorIn applies the In predicate on the "stop_requested_actor" field.
+func StopRequestedActorIn(vs ...string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIn(FieldStopRequestedActor, vs...))
+}
+
+// StopRequestedActorNotIn applies the NotIn predicate on the "stop_requested_actor" field.
+func StopRequestedActorNotIn(vs ...string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotIn(FieldStopRequestedActor, vs...))
+}
+
+// StopRequestedActorGT applies the GT predicate on the "stop_requested_actor" field.
+func StopRequestedActorGT(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGT(FieldStopRequestedActor, v))
+}
+
+// StopRequestedActorGTE applies the GTE predicate on the "stop_requested_actor" field.
+func StopRequestedActorGTE(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGTE(FieldStopRequestedActor, v))
+}
+
+// StopRequestedActorLT applies the LT predicate on the "stop_requested_actor" field.
+func StopRequestedActorLT(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLT(FieldStopRequestedActor, v))
+}
+
+// StopRequestedActorLTE applies the LTE predicate on the "stop_requested_actor" field.
+func StopRequestedActorLTE(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLTE(FieldStopRequestedActor, v))
+}
+
+// StopRequestedActorContains applies the Contains predicate on the "stop_requested_actor" field.
+func StopRequestedActorContains(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldContains(FieldStopRequestedActor, v))
+}
+
+// StopRequestedActorHasPrefix applies the HasPrefix predicate on the "stop_requested_actor" field.
+func StopRequestedActorHasPrefix(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldHasPrefix(FieldStopRequestedActor, v))
+}
+
+// StopRequestedActorHasSuffix applies the HasSuffix predicate on the "stop_requested_actor" field.
+func StopRequestedActorHasSuffix(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldHasSuffix(FieldStopRequestedActor, v))
+}
+
+// StopRequestedActorIsNil applies the IsNil predicate on the "stop_requested_actor" field.
+func StopRequestedActorIsNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIsNull(FieldStopRequestedActor))
+}
+
+// StopRequestedActorNotNil applies the NotNil predicate on the "stop_requested_actor" field.
+func StopRequestedActorNotNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotNull(FieldStopRequestedActor))
+}
+
+// StopRequestedActorEqualFold applies the EqualFold predicate on the "stop_requested_actor" field.
+func StopRequestedActorEqualFold(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEqualFold(FieldStopRequestedActor, v))
+}
+
+// StopRequestedActorContainsFold applies the ContainsFold predicate on the "stop_requested_actor" field.
+func StopRequestedActorContainsFold(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldContainsFold(FieldStopRequestedActor, v))
+}
+
+// CloseDispatchStateEQ applies the EQ predicate on the "close_dispatch_state" field.
+func CloseDispatchStateEQ(v CloseDispatchState) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseDispatchState, v))
+}
+
+// CloseDispatchStateNEQ applies the NEQ predicate on the "close_dispatch_state" field.
+func CloseDispatchStateNEQ(v CloseDispatchState) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldCloseDispatchState, v))
+}
+
+// CloseDispatchStateIn applies the In predicate on the "close_dispatch_state" field.
+func CloseDispatchStateIn(vs ...CloseDispatchState) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIn(FieldCloseDispatchState, vs...))
+}
+
+// CloseDispatchStateNotIn applies the NotIn predicate on the "close_dispatch_state" field.
+func CloseDispatchStateNotIn(vs ...CloseDispatchState) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotIn(FieldCloseDispatchState, vs...))
+}
+
+// CloseAttemptCountEQ applies the EQ predicate on the "close_attempt_count" field.
+func CloseAttemptCountEQ(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseAttemptCount, v))
+}
+
+// CloseAttemptCountNEQ applies the NEQ predicate on the "close_attempt_count" field.
+func CloseAttemptCountNEQ(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldCloseAttemptCount, v))
+}
+
+// CloseAttemptCountIn applies the In predicate on the "close_attempt_count" field.
+func CloseAttemptCountIn(vs ...int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIn(FieldCloseAttemptCount, vs...))
+}
+
+// CloseAttemptCountNotIn applies the NotIn predicate on the "close_attempt_count" field.
+func CloseAttemptCountNotIn(vs ...int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotIn(FieldCloseAttemptCount, vs...))
+}
+
+// CloseAttemptCountGT applies the GT predicate on the "close_attempt_count" field.
+func CloseAttemptCountGT(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGT(FieldCloseAttemptCount, v))
+}
+
+// CloseAttemptCountGTE applies the GTE predicate on the "close_attempt_count" field.
+func CloseAttemptCountGTE(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGTE(FieldCloseAttemptCount, v))
+}
+
+// CloseAttemptCountLT applies the LT predicate on the "close_attempt_count" field.
+func CloseAttemptCountLT(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLT(FieldCloseAttemptCount, v))
+}
+
+// CloseAttemptCountLTE applies the LTE predicate on the "close_attempt_count" field.
+func CloseAttemptCountLTE(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLTE(FieldCloseAttemptCount, v))
+}
+
+// CloseLeaseGenerationEQ applies the EQ predicate on the "close_lease_generation" field.
+func CloseLeaseGenerationEQ(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseLeaseGeneration, v))
+}
+
+// CloseLeaseGenerationNEQ applies the NEQ predicate on the "close_lease_generation" field.
+func CloseLeaseGenerationNEQ(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldCloseLeaseGeneration, v))
+}
+
+// CloseLeaseGenerationIn applies the In predicate on the "close_lease_generation" field.
+func CloseLeaseGenerationIn(vs ...int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIn(FieldCloseLeaseGeneration, vs...))
+}
+
+// CloseLeaseGenerationNotIn applies the NotIn predicate on the "close_lease_generation" field.
+func CloseLeaseGenerationNotIn(vs ...int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotIn(FieldCloseLeaseGeneration, vs...))
+}
+
+// CloseLeaseGenerationGT applies the GT predicate on the "close_lease_generation" field.
+func CloseLeaseGenerationGT(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGT(FieldCloseLeaseGeneration, v))
+}
+
+// CloseLeaseGenerationGTE applies the GTE predicate on the "close_lease_generation" field.
+func CloseLeaseGenerationGTE(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGTE(FieldCloseLeaseGeneration, v))
+}
+
+// CloseLeaseGenerationLT applies the LT predicate on the "close_lease_generation" field.
+func CloseLeaseGenerationLT(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLT(FieldCloseLeaseGeneration, v))
+}
+
+// CloseLeaseGenerationLTE applies the LTE predicate on the "close_lease_generation" field.
+func CloseLeaseGenerationLTE(v int64) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLTE(FieldCloseLeaseGeneration, v))
+}
+
+// CloseLeaseOwnerEQ applies the EQ predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerEQ(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseOwnerNEQ applies the NEQ predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerNEQ(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseOwnerIn applies the In predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerIn(vs ...string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIn(FieldCloseLeaseOwner, vs...))
+}
+
+// CloseLeaseOwnerNotIn applies the NotIn predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerNotIn(vs ...string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotIn(FieldCloseLeaseOwner, vs...))
+}
+
+// CloseLeaseOwnerGT applies the GT predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerGT(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGT(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseOwnerGTE applies the GTE predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerGTE(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGTE(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseOwnerLT applies the LT predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerLT(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLT(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseOwnerLTE applies the LTE predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerLTE(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLTE(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseOwnerContains applies the Contains predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerContains(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldContains(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseOwnerHasPrefix applies the HasPrefix predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerHasPrefix(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldHasPrefix(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseOwnerHasSuffix applies the HasSuffix predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerHasSuffix(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldHasSuffix(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseOwnerIsNil applies the IsNil predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerIsNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIsNull(FieldCloseLeaseOwner))
+}
+
+// CloseLeaseOwnerNotNil applies the NotNil predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerNotNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotNull(FieldCloseLeaseOwner))
+}
+
+// CloseLeaseOwnerEqualFold applies the EqualFold predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerEqualFold(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEqualFold(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseOwnerContainsFold applies the ContainsFold predicate on the "close_lease_owner" field.
+func CloseLeaseOwnerContainsFold(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldContainsFold(FieldCloseLeaseOwner, v))
+}
+
+// CloseLeaseUntilEQ applies the EQ predicate on the "close_lease_until" field.
+func CloseLeaseUntilEQ(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseLeaseUntil, v))
+}
+
+// CloseLeaseUntilNEQ applies the NEQ predicate on the "close_lease_until" field.
+func CloseLeaseUntilNEQ(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldCloseLeaseUntil, v))
+}
+
+// CloseLeaseUntilIn applies the In predicate on the "close_lease_until" field.
+func CloseLeaseUntilIn(vs ...time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIn(FieldCloseLeaseUntil, vs...))
+}
+
+// CloseLeaseUntilNotIn applies the NotIn predicate on the "close_lease_until" field.
+func CloseLeaseUntilNotIn(vs ...time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotIn(FieldCloseLeaseUntil, vs...))
+}
+
+// CloseLeaseUntilGT applies the GT predicate on the "close_lease_until" field.
+func CloseLeaseUntilGT(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGT(FieldCloseLeaseUntil, v))
+}
+
+// CloseLeaseUntilGTE applies the GTE predicate on the "close_lease_until" field.
+func CloseLeaseUntilGTE(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGTE(FieldCloseLeaseUntil, v))
+}
+
+// CloseLeaseUntilLT applies the LT predicate on the "close_lease_until" field.
+func CloseLeaseUntilLT(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLT(FieldCloseLeaseUntil, v))
+}
+
+// CloseLeaseUntilLTE applies the LTE predicate on the "close_lease_until" field.
+func CloseLeaseUntilLTE(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLTE(FieldCloseLeaseUntil, v))
+}
+
+// CloseLeaseUntilIsNil applies the IsNil predicate on the "close_lease_until" field.
+func CloseLeaseUntilIsNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIsNull(FieldCloseLeaseUntil))
+}
+
+// CloseLeaseUntilNotNil applies the NotNil predicate on the "close_lease_until" field.
+func CloseLeaseUntilNotNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotNull(FieldCloseLeaseUntil))
+}
+
+// CloseNextAttemptAtEQ applies the EQ predicate on the "close_next_attempt_at" field.
+func CloseNextAttemptAtEQ(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseNextAttemptAt, v))
+}
+
+// CloseNextAttemptAtNEQ applies the NEQ predicate on the "close_next_attempt_at" field.
+func CloseNextAttemptAtNEQ(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldCloseNextAttemptAt, v))
+}
+
+// CloseNextAttemptAtIn applies the In predicate on the "close_next_attempt_at" field.
+func CloseNextAttemptAtIn(vs ...time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIn(FieldCloseNextAttemptAt, vs...))
+}
+
+// CloseNextAttemptAtNotIn applies the NotIn predicate on the "close_next_attempt_at" field.
+func CloseNextAttemptAtNotIn(vs ...time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotIn(FieldCloseNextAttemptAt, vs...))
+}
+
+// CloseNextAttemptAtGT applies the GT predicate on the "close_next_attempt_at" field.
+func CloseNextAttemptAtGT(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGT(FieldCloseNextAttemptAt, v))
+}
+
+// CloseNextAttemptAtGTE applies the GTE predicate on the "close_next_attempt_at" field.
+func CloseNextAttemptAtGTE(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGTE(FieldCloseNextAttemptAt, v))
+}
+
+// CloseNextAttemptAtLT applies the LT predicate on the "close_next_attempt_at" field.
+func CloseNextAttemptAtLT(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLT(FieldCloseNextAttemptAt, v))
+}
+
+// CloseNextAttemptAtLTE applies the LTE predicate on the "close_next_attempt_at" field.
+func CloseNextAttemptAtLTE(v time.Time) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLTE(FieldCloseNextAttemptAt, v))
+}
+
+// CloseNextAttemptAtIsNil applies the IsNil predicate on the "close_next_attempt_at" field.
+func CloseNextAttemptAtIsNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIsNull(FieldCloseNextAttemptAt))
+}
+
+// CloseNextAttemptAtNotNil applies the NotNil predicate on the "close_next_attempt_at" field.
+func CloseNextAttemptAtNotNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotNull(FieldCloseNextAttemptAt))
+}
+
+// CloseRetryBlockedEQ applies the EQ predicate on the "close_retry_blocked" field.
+func CloseRetryBlockedEQ(v bool) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseRetryBlocked, v))
+}
+
+// CloseRetryBlockedNEQ applies the NEQ predicate on the "close_retry_blocked" field.
+func CloseRetryBlockedNEQ(v bool) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldCloseRetryBlocked, v))
+}
+
+// CloseLastErrorCodeEQ applies the EQ predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeEQ(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseLastErrorCode, v))
+}
+
+// CloseLastErrorCodeNEQ applies the NEQ predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeNEQ(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldCloseLastErrorCode, v))
+}
+
+// CloseLastErrorCodeIn applies the In predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeIn(vs ...string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIn(FieldCloseLastErrorCode, vs...))
+}
+
+// CloseLastErrorCodeNotIn applies the NotIn predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeNotIn(vs ...string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotIn(FieldCloseLastErrorCode, vs...))
+}
+
+// CloseLastErrorCodeGT applies the GT predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeGT(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGT(FieldCloseLastErrorCode, v))
+}
+
+// CloseLastErrorCodeGTE applies the GTE predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeGTE(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGTE(FieldCloseLastErrorCode, v))
+}
+
+// CloseLastErrorCodeLT applies the LT predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeLT(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLT(FieldCloseLastErrorCode, v))
+}
+
+// CloseLastErrorCodeLTE applies the LTE predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeLTE(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLTE(FieldCloseLastErrorCode, v))
+}
+
+// CloseLastErrorCodeContains applies the Contains predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeContains(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldContains(FieldCloseLastErrorCode, v))
+}
+
+// CloseLastErrorCodeHasPrefix applies the HasPrefix predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeHasPrefix(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldHasPrefix(FieldCloseLastErrorCode, v))
+}
+
+// CloseLastErrorCodeHasSuffix applies the HasSuffix predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeHasSuffix(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldHasSuffix(FieldCloseLastErrorCode, v))
+}
+
+// CloseLastErrorCodeIsNil applies the IsNil predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeIsNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIsNull(FieldCloseLastErrorCode))
+}
+
+// CloseLastErrorCodeNotNil applies the NotNil predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeNotNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotNull(FieldCloseLastErrorCode))
+}
+
+// CloseLastErrorCodeEqualFold applies the EqualFold predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeEqualFold(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEqualFold(FieldCloseLastErrorCode, v))
+}
+
+// CloseLastErrorCodeContainsFold applies the ContainsFold predicate on the "close_last_error_code" field.
+func CloseLastErrorCodeContainsFold(v string) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldContainsFold(FieldCloseLastErrorCode, v))
+}
+
+// CloseReceiptCanonicalEQ applies the EQ predicate on the "close_receipt_canonical" field.
+func CloseReceiptCanonicalEQ(v []byte) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldEQ(FieldCloseReceiptCanonical, v))
+}
+
+// CloseReceiptCanonicalNEQ applies the NEQ predicate on the "close_receipt_canonical" field.
+func CloseReceiptCanonicalNEQ(v []byte) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNEQ(FieldCloseReceiptCanonical, v))
+}
+
+// CloseReceiptCanonicalIn applies the In predicate on the "close_receipt_canonical" field.
+func CloseReceiptCanonicalIn(vs ...[]byte) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIn(FieldCloseReceiptCanonical, vs...))
+}
+
+// CloseReceiptCanonicalNotIn applies the NotIn predicate on the "close_receipt_canonical" field.
+func CloseReceiptCanonicalNotIn(vs ...[]byte) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotIn(FieldCloseReceiptCanonical, vs...))
+}
+
+// CloseReceiptCanonicalGT applies the GT predicate on the "close_receipt_canonical" field.
+func CloseReceiptCanonicalGT(v []byte) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGT(FieldCloseReceiptCanonical, v))
+}
+
+// CloseReceiptCanonicalGTE applies the GTE predicate on the "close_receipt_canonical" field.
+func CloseReceiptCanonicalGTE(v []byte) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldGTE(FieldCloseReceiptCanonical, v))
+}
+
+// CloseReceiptCanonicalLT applies the LT predicate on the "close_receipt_canonical" field.
+func CloseReceiptCanonicalLT(v []byte) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLT(FieldCloseReceiptCanonical, v))
+}
+
+// CloseReceiptCanonicalLTE applies the LTE predicate on the "close_receipt_canonical" field.
+func CloseReceiptCanonicalLTE(v []byte) predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldLTE(FieldCloseReceiptCanonical, v))
+}
+
+// CloseReceiptCanonicalIsNil applies the IsNil predicate on the "close_receipt_canonical" field.
+func CloseReceiptCanonicalIsNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldIsNull(FieldCloseReceiptCanonical))
+}
+
+// CloseReceiptCanonicalNotNil applies the NotNil predicate on the "close_receipt_canonical" field.
+func CloseReceiptCanonicalNotNil() predicate.ModelDevAcceptance {
+	return predicate.ModelDevAcceptance(sql.FieldNotNull(FieldCloseReceiptCanonical))
 }
 
 // And groups predicates with the AND operator between them.

@@ -212,6 +212,166 @@ func (_c *ModelDevAcceptanceCreate) SetOwnerReceiptCanonical(v []byte) *ModelDev
 	return _c
 }
 
+// SetStopIntentGeneration sets the "stop_intent_generation" field.
+func (_c *ModelDevAcceptanceCreate) SetStopIntentGeneration(v int64) *ModelDevAcceptanceCreate {
+	_c.mutation.SetStopIntentGeneration(v)
+	return _c
+}
+
+// SetNillableStopIntentGeneration sets the "stop_intent_generation" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableStopIntentGeneration(v *int64) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetStopIntentGeneration(*v)
+	}
+	return _c
+}
+
+// SetStopRequestedAt sets the "stop_requested_at" field.
+func (_c *ModelDevAcceptanceCreate) SetStopRequestedAt(v time.Time) *ModelDevAcceptanceCreate {
+	_c.mutation.SetStopRequestedAt(v)
+	return _c
+}
+
+// SetNillableStopRequestedAt sets the "stop_requested_at" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableStopRequestedAt(v *time.Time) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetStopRequestedAt(*v)
+	}
+	return _c
+}
+
+// SetStopRequestedActor sets the "stop_requested_actor" field.
+func (_c *ModelDevAcceptanceCreate) SetStopRequestedActor(v string) *ModelDevAcceptanceCreate {
+	_c.mutation.SetStopRequestedActor(v)
+	return _c
+}
+
+// SetNillableStopRequestedActor sets the "stop_requested_actor" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableStopRequestedActor(v *string) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetStopRequestedActor(*v)
+	}
+	return _c
+}
+
+// SetCloseDispatchState sets the "close_dispatch_state" field.
+func (_c *ModelDevAcceptanceCreate) SetCloseDispatchState(v modeldevacceptance.CloseDispatchState) *ModelDevAcceptanceCreate {
+	_c.mutation.SetCloseDispatchState(v)
+	return _c
+}
+
+// SetNillableCloseDispatchState sets the "close_dispatch_state" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableCloseDispatchState(v *modeldevacceptance.CloseDispatchState) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetCloseDispatchState(*v)
+	}
+	return _c
+}
+
+// SetCloseAttemptCount sets the "close_attempt_count" field.
+func (_c *ModelDevAcceptanceCreate) SetCloseAttemptCount(v int64) *ModelDevAcceptanceCreate {
+	_c.mutation.SetCloseAttemptCount(v)
+	return _c
+}
+
+// SetNillableCloseAttemptCount sets the "close_attempt_count" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableCloseAttemptCount(v *int64) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetCloseAttemptCount(*v)
+	}
+	return _c
+}
+
+// SetCloseLeaseGeneration sets the "close_lease_generation" field.
+func (_c *ModelDevAcceptanceCreate) SetCloseLeaseGeneration(v int64) *ModelDevAcceptanceCreate {
+	_c.mutation.SetCloseLeaseGeneration(v)
+	return _c
+}
+
+// SetNillableCloseLeaseGeneration sets the "close_lease_generation" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableCloseLeaseGeneration(v *int64) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetCloseLeaseGeneration(*v)
+	}
+	return _c
+}
+
+// SetCloseLeaseOwner sets the "close_lease_owner" field.
+func (_c *ModelDevAcceptanceCreate) SetCloseLeaseOwner(v string) *ModelDevAcceptanceCreate {
+	_c.mutation.SetCloseLeaseOwner(v)
+	return _c
+}
+
+// SetNillableCloseLeaseOwner sets the "close_lease_owner" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableCloseLeaseOwner(v *string) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetCloseLeaseOwner(*v)
+	}
+	return _c
+}
+
+// SetCloseLeaseUntil sets the "close_lease_until" field.
+func (_c *ModelDevAcceptanceCreate) SetCloseLeaseUntil(v time.Time) *ModelDevAcceptanceCreate {
+	_c.mutation.SetCloseLeaseUntil(v)
+	return _c
+}
+
+// SetNillableCloseLeaseUntil sets the "close_lease_until" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableCloseLeaseUntil(v *time.Time) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetCloseLeaseUntil(*v)
+	}
+	return _c
+}
+
+// SetCloseNextAttemptAt sets the "close_next_attempt_at" field.
+func (_c *ModelDevAcceptanceCreate) SetCloseNextAttemptAt(v time.Time) *ModelDevAcceptanceCreate {
+	_c.mutation.SetCloseNextAttemptAt(v)
+	return _c
+}
+
+// SetNillableCloseNextAttemptAt sets the "close_next_attempt_at" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableCloseNextAttemptAt(v *time.Time) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetCloseNextAttemptAt(*v)
+	}
+	return _c
+}
+
+// SetCloseRetryBlocked sets the "close_retry_blocked" field.
+func (_c *ModelDevAcceptanceCreate) SetCloseRetryBlocked(v bool) *ModelDevAcceptanceCreate {
+	_c.mutation.SetCloseRetryBlocked(v)
+	return _c
+}
+
+// SetNillableCloseRetryBlocked sets the "close_retry_blocked" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableCloseRetryBlocked(v *bool) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetCloseRetryBlocked(*v)
+	}
+	return _c
+}
+
+// SetCloseLastErrorCode sets the "close_last_error_code" field.
+func (_c *ModelDevAcceptanceCreate) SetCloseLastErrorCode(v string) *ModelDevAcceptanceCreate {
+	_c.mutation.SetCloseLastErrorCode(v)
+	return _c
+}
+
+// SetNillableCloseLastErrorCode sets the "close_last_error_code" field if the given value is not nil.
+func (_c *ModelDevAcceptanceCreate) SetNillableCloseLastErrorCode(v *string) *ModelDevAcceptanceCreate {
+	if v != nil {
+		_c.SetCloseLastErrorCode(*v)
+	}
+	return _c
+}
+
+// SetCloseReceiptCanonical sets the "close_receipt_canonical" field.
+func (_c *ModelDevAcceptanceCreate) SetCloseReceiptCanonical(v []byte) *ModelDevAcceptanceCreate {
+	_c.mutation.SetCloseReceiptCanonical(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *ModelDevAcceptanceCreate) SetID(v uint32) *ModelDevAcceptanceCreate {
 	_c.mutation.SetID(v)
@@ -270,6 +430,26 @@ func (_c *ModelDevAcceptanceCreate) defaults() error {
 	if _, ok := _c.mutation.RetryBlocked(); !ok {
 		v := modeldevacceptance.DefaultRetryBlocked
 		_c.mutation.SetRetryBlocked(v)
+	}
+	if _, ok := _c.mutation.StopIntentGeneration(); !ok {
+		v := modeldevacceptance.DefaultStopIntentGeneration
+		_c.mutation.SetStopIntentGeneration(v)
+	}
+	if _, ok := _c.mutation.CloseDispatchState(); !ok {
+		v := modeldevacceptance.DefaultCloseDispatchState
+		_c.mutation.SetCloseDispatchState(v)
+	}
+	if _, ok := _c.mutation.CloseAttemptCount(); !ok {
+		v := modeldevacceptance.DefaultCloseAttemptCount
+		_c.mutation.SetCloseAttemptCount(v)
+	}
+	if _, ok := _c.mutation.CloseLeaseGeneration(); !ok {
+		v := modeldevacceptance.DefaultCloseLeaseGeneration
+		_c.mutation.SetCloseLeaseGeneration(v)
+	}
+	if _, ok := _c.mutation.CloseRetryBlocked(); !ok {
+		v := modeldevacceptance.DefaultCloseRetryBlocked
+		_c.mutation.SetCloseRetryBlocked(v)
 	}
 	return nil
 }
@@ -399,6 +579,51 @@ func (_c *ModelDevAcceptanceCreate) check() error {
 	if _, ok := _c.mutation.RetryBlocked(); !ok {
 		return &ValidationError{Name: "retry_blocked", err: errors.New(`ent: missing required field "ModelDevAcceptance.retry_blocked"`)}
 	}
+	if _, ok := _c.mutation.StopIntentGeneration(); !ok {
+		return &ValidationError{Name: "stop_intent_generation", err: errors.New(`ent: missing required field "ModelDevAcceptance.stop_intent_generation"`)}
+	}
+	if v, ok := _c.mutation.StopIntentGeneration(); ok {
+		if err := modeldevacceptance.StopIntentGenerationValidator(v); err != nil {
+			return &ValidationError{Name: "stop_intent_generation", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.stop_intent_generation": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.StopRequestedActor(); ok {
+		if err := modeldevacceptance.StopRequestedActorValidator(v); err != nil {
+			return &ValidationError{Name: "stop_requested_actor", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.stop_requested_actor": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.CloseDispatchState(); !ok {
+		return &ValidationError{Name: "close_dispatch_state", err: errors.New(`ent: missing required field "ModelDevAcceptance.close_dispatch_state"`)}
+	}
+	if v, ok := _c.mutation.CloseDispatchState(); ok {
+		if err := modeldevacceptance.CloseDispatchStateValidator(v); err != nil {
+			return &ValidationError{Name: "close_dispatch_state", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.close_dispatch_state": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.CloseAttemptCount(); !ok {
+		return &ValidationError{Name: "close_attempt_count", err: errors.New(`ent: missing required field "ModelDevAcceptance.close_attempt_count"`)}
+	}
+	if v, ok := _c.mutation.CloseAttemptCount(); ok {
+		if err := modeldevacceptance.CloseAttemptCountValidator(v); err != nil {
+			return &ValidationError{Name: "close_attempt_count", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.close_attempt_count": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.CloseLeaseGeneration(); !ok {
+		return &ValidationError{Name: "close_lease_generation", err: errors.New(`ent: missing required field "ModelDevAcceptance.close_lease_generation"`)}
+	}
+	if v, ok := _c.mutation.CloseLeaseGeneration(); ok {
+		if err := modeldevacceptance.CloseLeaseGenerationValidator(v); err != nil {
+			return &ValidationError{Name: "close_lease_generation", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.close_lease_generation": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.CloseLeaseOwner(); ok {
+		if err := modeldevacceptance.CloseLeaseOwnerValidator(v); err != nil {
+			return &ValidationError{Name: "close_lease_owner", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.close_lease_owner": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.CloseRetryBlocked(); !ok {
+		return &ValidationError{Name: "close_retry_blocked", err: errors.New(`ent: missing required field "ModelDevAcceptance.close_retry_blocked"`)}
+	}
 	if v, ok := _c.mutation.ID(); ok {
 		if err := modeldevacceptance.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "ModelDevAcceptance.id": %w`, err)}
@@ -520,6 +745,54 @@ func (_c *ModelDevAcceptanceCreate) createSpec() (*ModelDevAcceptance, *sqlgraph
 	if value, ok := _c.mutation.OwnerReceiptCanonical(); ok {
 		_spec.SetField(modeldevacceptance.FieldOwnerReceiptCanonical, field.TypeBytes, value)
 		_node.OwnerReceiptCanonical = value
+	}
+	if value, ok := _c.mutation.StopIntentGeneration(); ok {
+		_spec.SetField(modeldevacceptance.FieldStopIntentGeneration, field.TypeInt64, value)
+		_node.StopIntentGeneration = value
+	}
+	if value, ok := _c.mutation.StopRequestedAt(); ok {
+		_spec.SetField(modeldevacceptance.FieldStopRequestedAt, field.TypeTime, value)
+		_node.StopRequestedAt = &value
+	}
+	if value, ok := _c.mutation.StopRequestedActor(); ok {
+		_spec.SetField(modeldevacceptance.FieldStopRequestedActor, field.TypeString, value)
+		_node.StopRequestedActor = &value
+	}
+	if value, ok := _c.mutation.CloseDispatchState(); ok {
+		_spec.SetField(modeldevacceptance.FieldCloseDispatchState, field.TypeEnum, value)
+		_node.CloseDispatchState = value
+	}
+	if value, ok := _c.mutation.CloseAttemptCount(); ok {
+		_spec.SetField(modeldevacceptance.FieldCloseAttemptCount, field.TypeInt64, value)
+		_node.CloseAttemptCount = value
+	}
+	if value, ok := _c.mutation.CloseLeaseGeneration(); ok {
+		_spec.SetField(modeldevacceptance.FieldCloseLeaseGeneration, field.TypeInt64, value)
+		_node.CloseLeaseGeneration = value
+	}
+	if value, ok := _c.mutation.CloseLeaseOwner(); ok {
+		_spec.SetField(modeldevacceptance.FieldCloseLeaseOwner, field.TypeString, value)
+		_node.CloseLeaseOwner = &value
+	}
+	if value, ok := _c.mutation.CloseLeaseUntil(); ok {
+		_spec.SetField(modeldevacceptance.FieldCloseLeaseUntil, field.TypeTime, value)
+		_node.CloseLeaseUntil = &value
+	}
+	if value, ok := _c.mutation.CloseNextAttemptAt(); ok {
+		_spec.SetField(modeldevacceptance.FieldCloseNextAttemptAt, field.TypeTime, value)
+		_node.CloseNextAttemptAt = &value
+	}
+	if value, ok := _c.mutation.CloseRetryBlocked(); ok {
+		_spec.SetField(modeldevacceptance.FieldCloseRetryBlocked, field.TypeBool, value)
+		_node.CloseRetryBlocked = value
+	}
+	if value, ok := _c.mutation.CloseLastErrorCode(); ok {
+		_spec.SetField(modeldevacceptance.FieldCloseLastErrorCode, field.TypeString, value)
+		_node.CloseLastErrorCode = &value
+	}
+	if value, ok := _c.mutation.CloseReceiptCanonical(); ok {
+		_spec.SetField(modeldevacceptance.FieldCloseReceiptCanonical, field.TypeBytes, value)
+		_node.CloseReceiptCanonical = value
 	}
 	return _node, _spec
 }
@@ -720,6 +993,210 @@ func (u *ModelDevAcceptanceUpsert) UpdateOwnerReceiptCanonical() *ModelDevAccept
 // ClearOwnerReceiptCanonical clears the value of the "owner_receipt_canonical" field.
 func (u *ModelDevAcceptanceUpsert) ClearOwnerReceiptCanonical() *ModelDevAcceptanceUpsert {
 	u.SetNull(modeldevacceptance.FieldOwnerReceiptCanonical)
+	return u
+}
+
+// SetStopIntentGeneration sets the "stop_intent_generation" field.
+func (u *ModelDevAcceptanceUpsert) SetStopIntentGeneration(v int64) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldStopIntentGeneration, v)
+	return u
+}
+
+// UpdateStopIntentGeneration sets the "stop_intent_generation" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateStopIntentGeneration() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldStopIntentGeneration)
+	return u
+}
+
+// AddStopIntentGeneration adds v to the "stop_intent_generation" field.
+func (u *ModelDevAcceptanceUpsert) AddStopIntentGeneration(v int64) *ModelDevAcceptanceUpsert {
+	u.Add(modeldevacceptance.FieldStopIntentGeneration, v)
+	return u
+}
+
+// SetStopRequestedAt sets the "stop_requested_at" field.
+func (u *ModelDevAcceptanceUpsert) SetStopRequestedAt(v time.Time) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldStopRequestedAt, v)
+	return u
+}
+
+// UpdateStopRequestedAt sets the "stop_requested_at" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateStopRequestedAt() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldStopRequestedAt)
+	return u
+}
+
+// ClearStopRequestedAt clears the value of the "stop_requested_at" field.
+func (u *ModelDevAcceptanceUpsert) ClearStopRequestedAt() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldStopRequestedAt)
+	return u
+}
+
+// SetStopRequestedActor sets the "stop_requested_actor" field.
+func (u *ModelDevAcceptanceUpsert) SetStopRequestedActor(v string) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldStopRequestedActor, v)
+	return u
+}
+
+// UpdateStopRequestedActor sets the "stop_requested_actor" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateStopRequestedActor() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldStopRequestedActor)
+	return u
+}
+
+// ClearStopRequestedActor clears the value of the "stop_requested_actor" field.
+func (u *ModelDevAcceptanceUpsert) ClearStopRequestedActor() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldStopRequestedActor)
+	return u
+}
+
+// SetCloseDispatchState sets the "close_dispatch_state" field.
+func (u *ModelDevAcceptanceUpsert) SetCloseDispatchState(v modeldevacceptance.CloseDispatchState) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldCloseDispatchState, v)
+	return u
+}
+
+// UpdateCloseDispatchState sets the "close_dispatch_state" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateCloseDispatchState() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldCloseDispatchState)
+	return u
+}
+
+// SetCloseAttemptCount sets the "close_attempt_count" field.
+func (u *ModelDevAcceptanceUpsert) SetCloseAttemptCount(v int64) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldCloseAttemptCount, v)
+	return u
+}
+
+// UpdateCloseAttemptCount sets the "close_attempt_count" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateCloseAttemptCount() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldCloseAttemptCount)
+	return u
+}
+
+// AddCloseAttemptCount adds v to the "close_attempt_count" field.
+func (u *ModelDevAcceptanceUpsert) AddCloseAttemptCount(v int64) *ModelDevAcceptanceUpsert {
+	u.Add(modeldevacceptance.FieldCloseAttemptCount, v)
+	return u
+}
+
+// SetCloseLeaseGeneration sets the "close_lease_generation" field.
+func (u *ModelDevAcceptanceUpsert) SetCloseLeaseGeneration(v int64) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldCloseLeaseGeneration, v)
+	return u
+}
+
+// UpdateCloseLeaseGeneration sets the "close_lease_generation" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateCloseLeaseGeneration() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldCloseLeaseGeneration)
+	return u
+}
+
+// AddCloseLeaseGeneration adds v to the "close_lease_generation" field.
+func (u *ModelDevAcceptanceUpsert) AddCloseLeaseGeneration(v int64) *ModelDevAcceptanceUpsert {
+	u.Add(modeldevacceptance.FieldCloseLeaseGeneration, v)
+	return u
+}
+
+// SetCloseLeaseOwner sets the "close_lease_owner" field.
+func (u *ModelDevAcceptanceUpsert) SetCloseLeaseOwner(v string) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldCloseLeaseOwner, v)
+	return u
+}
+
+// UpdateCloseLeaseOwner sets the "close_lease_owner" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateCloseLeaseOwner() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldCloseLeaseOwner)
+	return u
+}
+
+// ClearCloseLeaseOwner clears the value of the "close_lease_owner" field.
+func (u *ModelDevAcceptanceUpsert) ClearCloseLeaseOwner() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldCloseLeaseOwner)
+	return u
+}
+
+// SetCloseLeaseUntil sets the "close_lease_until" field.
+func (u *ModelDevAcceptanceUpsert) SetCloseLeaseUntil(v time.Time) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldCloseLeaseUntil, v)
+	return u
+}
+
+// UpdateCloseLeaseUntil sets the "close_lease_until" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateCloseLeaseUntil() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldCloseLeaseUntil)
+	return u
+}
+
+// ClearCloseLeaseUntil clears the value of the "close_lease_until" field.
+func (u *ModelDevAcceptanceUpsert) ClearCloseLeaseUntil() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldCloseLeaseUntil)
+	return u
+}
+
+// SetCloseNextAttemptAt sets the "close_next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsert) SetCloseNextAttemptAt(v time.Time) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldCloseNextAttemptAt, v)
+	return u
+}
+
+// UpdateCloseNextAttemptAt sets the "close_next_attempt_at" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateCloseNextAttemptAt() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldCloseNextAttemptAt)
+	return u
+}
+
+// ClearCloseNextAttemptAt clears the value of the "close_next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsert) ClearCloseNextAttemptAt() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldCloseNextAttemptAt)
+	return u
+}
+
+// SetCloseRetryBlocked sets the "close_retry_blocked" field.
+func (u *ModelDevAcceptanceUpsert) SetCloseRetryBlocked(v bool) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldCloseRetryBlocked, v)
+	return u
+}
+
+// UpdateCloseRetryBlocked sets the "close_retry_blocked" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateCloseRetryBlocked() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldCloseRetryBlocked)
+	return u
+}
+
+// SetCloseLastErrorCode sets the "close_last_error_code" field.
+func (u *ModelDevAcceptanceUpsert) SetCloseLastErrorCode(v string) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldCloseLastErrorCode, v)
+	return u
+}
+
+// UpdateCloseLastErrorCode sets the "close_last_error_code" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateCloseLastErrorCode() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldCloseLastErrorCode)
+	return u
+}
+
+// ClearCloseLastErrorCode clears the value of the "close_last_error_code" field.
+func (u *ModelDevAcceptanceUpsert) ClearCloseLastErrorCode() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldCloseLastErrorCode)
+	return u
+}
+
+// SetCloseReceiptCanonical sets the "close_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsert) SetCloseReceiptCanonical(v []byte) *ModelDevAcceptanceUpsert {
+	u.Set(modeldevacceptance.FieldCloseReceiptCanonical, v)
+	return u
+}
+
+// UpdateCloseReceiptCanonical sets the "close_receipt_canonical" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsert) UpdateCloseReceiptCanonical() *ModelDevAcceptanceUpsert {
+	u.SetExcluded(modeldevacceptance.FieldCloseReceiptCanonical)
+	return u
+}
+
+// ClearCloseReceiptCanonical clears the value of the "close_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsert) ClearCloseReceiptCanonical() *ModelDevAcceptanceUpsert {
+	u.SetNull(modeldevacceptance.FieldCloseReceiptCanonical)
 	return u
 }
 
@@ -979,6 +1456,244 @@ func (u *ModelDevAcceptanceUpsertOne) UpdateOwnerReceiptCanonical() *ModelDevAcc
 func (u *ModelDevAcceptanceUpsertOne) ClearOwnerReceiptCanonical() *ModelDevAcceptanceUpsertOne {
 	return u.Update(func(s *ModelDevAcceptanceUpsert) {
 		s.ClearOwnerReceiptCanonical()
+	})
+}
+
+// SetStopIntentGeneration sets the "stop_intent_generation" field.
+func (u *ModelDevAcceptanceUpsertOne) SetStopIntentGeneration(v int64) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetStopIntentGeneration(v)
+	})
+}
+
+// AddStopIntentGeneration adds v to the "stop_intent_generation" field.
+func (u *ModelDevAcceptanceUpsertOne) AddStopIntentGeneration(v int64) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.AddStopIntentGeneration(v)
+	})
+}
+
+// UpdateStopIntentGeneration sets the "stop_intent_generation" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateStopIntentGeneration() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateStopIntentGeneration()
+	})
+}
+
+// SetStopRequestedAt sets the "stop_requested_at" field.
+func (u *ModelDevAcceptanceUpsertOne) SetStopRequestedAt(v time.Time) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetStopRequestedAt(v)
+	})
+}
+
+// UpdateStopRequestedAt sets the "stop_requested_at" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateStopRequestedAt() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateStopRequestedAt()
+	})
+}
+
+// ClearStopRequestedAt clears the value of the "stop_requested_at" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearStopRequestedAt() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearStopRequestedAt()
+	})
+}
+
+// SetStopRequestedActor sets the "stop_requested_actor" field.
+func (u *ModelDevAcceptanceUpsertOne) SetStopRequestedActor(v string) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetStopRequestedActor(v)
+	})
+}
+
+// UpdateStopRequestedActor sets the "stop_requested_actor" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateStopRequestedActor() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateStopRequestedActor()
+	})
+}
+
+// ClearStopRequestedActor clears the value of the "stop_requested_actor" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearStopRequestedActor() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearStopRequestedActor()
+	})
+}
+
+// SetCloseDispatchState sets the "close_dispatch_state" field.
+func (u *ModelDevAcceptanceUpsertOne) SetCloseDispatchState(v modeldevacceptance.CloseDispatchState) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseDispatchState(v)
+	})
+}
+
+// UpdateCloseDispatchState sets the "close_dispatch_state" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateCloseDispatchState() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseDispatchState()
+	})
+}
+
+// SetCloseAttemptCount sets the "close_attempt_count" field.
+func (u *ModelDevAcceptanceUpsertOne) SetCloseAttemptCount(v int64) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseAttemptCount(v)
+	})
+}
+
+// AddCloseAttemptCount adds v to the "close_attempt_count" field.
+func (u *ModelDevAcceptanceUpsertOne) AddCloseAttemptCount(v int64) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.AddCloseAttemptCount(v)
+	})
+}
+
+// UpdateCloseAttemptCount sets the "close_attempt_count" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateCloseAttemptCount() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseAttemptCount()
+	})
+}
+
+// SetCloseLeaseGeneration sets the "close_lease_generation" field.
+func (u *ModelDevAcceptanceUpsertOne) SetCloseLeaseGeneration(v int64) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseLeaseGeneration(v)
+	})
+}
+
+// AddCloseLeaseGeneration adds v to the "close_lease_generation" field.
+func (u *ModelDevAcceptanceUpsertOne) AddCloseLeaseGeneration(v int64) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.AddCloseLeaseGeneration(v)
+	})
+}
+
+// UpdateCloseLeaseGeneration sets the "close_lease_generation" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateCloseLeaseGeneration() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseLeaseGeneration()
+	})
+}
+
+// SetCloseLeaseOwner sets the "close_lease_owner" field.
+func (u *ModelDevAcceptanceUpsertOne) SetCloseLeaseOwner(v string) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseLeaseOwner(v)
+	})
+}
+
+// UpdateCloseLeaseOwner sets the "close_lease_owner" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateCloseLeaseOwner() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseLeaseOwner()
+	})
+}
+
+// ClearCloseLeaseOwner clears the value of the "close_lease_owner" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearCloseLeaseOwner() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearCloseLeaseOwner()
+	})
+}
+
+// SetCloseLeaseUntil sets the "close_lease_until" field.
+func (u *ModelDevAcceptanceUpsertOne) SetCloseLeaseUntil(v time.Time) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseLeaseUntil(v)
+	})
+}
+
+// UpdateCloseLeaseUntil sets the "close_lease_until" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateCloseLeaseUntil() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseLeaseUntil()
+	})
+}
+
+// ClearCloseLeaseUntil clears the value of the "close_lease_until" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearCloseLeaseUntil() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearCloseLeaseUntil()
+	})
+}
+
+// SetCloseNextAttemptAt sets the "close_next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsertOne) SetCloseNextAttemptAt(v time.Time) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseNextAttemptAt(v)
+	})
+}
+
+// UpdateCloseNextAttemptAt sets the "close_next_attempt_at" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateCloseNextAttemptAt() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseNextAttemptAt()
+	})
+}
+
+// ClearCloseNextAttemptAt clears the value of the "close_next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearCloseNextAttemptAt() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearCloseNextAttemptAt()
+	})
+}
+
+// SetCloseRetryBlocked sets the "close_retry_blocked" field.
+func (u *ModelDevAcceptanceUpsertOne) SetCloseRetryBlocked(v bool) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseRetryBlocked(v)
+	})
+}
+
+// UpdateCloseRetryBlocked sets the "close_retry_blocked" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateCloseRetryBlocked() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseRetryBlocked()
+	})
+}
+
+// SetCloseLastErrorCode sets the "close_last_error_code" field.
+func (u *ModelDevAcceptanceUpsertOne) SetCloseLastErrorCode(v string) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseLastErrorCode(v)
+	})
+}
+
+// UpdateCloseLastErrorCode sets the "close_last_error_code" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateCloseLastErrorCode() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseLastErrorCode()
+	})
+}
+
+// ClearCloseLastErrorCode clears the value of the "close_last_error_code" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearCloseLastErrorCode() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearCloseLastErrorCode()
+	})
+}
+
+// SetCloseReceiptCanonical sets the "close_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsertOne) SetCloseReceiptCanonical(v []byte) *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseReceiptCanonical(v)
+	})
+}
+
+// UpdateCloseReceiptCanonical sets the "close_receipt_canonical" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertOne) UpdateCloseReceiptCanonical() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseReceiptCanonical()
+	})
+}
+
+// ClearCloseReceiptCanonical clears the value of the "close_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsertOne) ClearCloseReceiptCanonical() *ModelDevAcceptanceUpsertOne {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearCloseReceiptCanonical()
 	})
 }
 
@@ -1404,6 +2119,244 @@ func (u *ModelDevAcceptanceUpsertBulk) UpdateOwnerReceiptCanonical() *ModelDevAc
 func (u *ModelDevAcceptanceUpsertBulk) ClearOwnerReceiptCanonical() *ModelDevAcceptanceUpsertBulk {
 	return u.Update(func(s *ModelDevAcceptanceUpsert) {
 		s.ClearOwnerReceiptCanonical()
+	})
+}
+
+// SetStopIntentGeneration sets the "stop_intent_generation" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetStopIntentGeneration(v int64) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetStopIntentGeneration(v)
+	})
+}
+
+// AddStopIntentGeneration adds v to the "stop_intent_generation" field.
+func (u *ModelDevAcceptanceUpsertBulk) AddStopIntentGeneration(v int64) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.AddStopIntentGeneration(v)
+	})
+}
+
+// UpdateStopIntentGeneration sets the "stop_intent_generation" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateStopIntentGeneration() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateStopIntentGeneration()
+	})
+}
+
+// SetStopRequestedAt sets the "stop_requested_at" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetStopRequestedAt(v time.Time) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetStopRequestedAt(v)
+	})
+}
+
+// UpdateStopRequestedAt sets the "stop_requested_at" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateStopRequestedAt() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateStopRequestedAt()
+	})
+}
+
+// ClearStopRequestedAt clears the value of the "stop_requested_at" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearStopRequestedAt() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearStopRequestedAt()
+	})
+}
+
+// SetStopRequestedActor sets the "stop_requested_actor" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetStopRequestedActor(v string) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetStopRequestedActor(v)
+	})
+}
+
+// UpdateStopRequestedActor sets the "stop_requested_actor" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateStopRequestedActor() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateStopRequestedActor()
+	})
+}
+
+// ClearStopRequestedActor clears the value of the "stop_requested_actor" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearStopRequestedActor() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearStopRequestedActor()
+	})
+}
+
+// SetCloseDispatchState sets the "close_dispatch_state" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetCloseDispatchState(v modeldevacceptance.CloseDispatchState) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseDispatchState(v)
+	})
+}
+
+// UpdateCloseDispatchState sets the "close_dispatch_state" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateCloseDispatchState() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseDispatchState()
+	})
+}
+
+// SetCloseAttemptCount sets the "close_attempt_count" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetCloseAttemptCount(v int64) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseAttemptCount(v)
+	})
+}
+
+// AddCloseAttemptCount adds v to the "close_attempt_count" field.
+func (u *ModelDevAcceptanceUpsertBulk) AddCloseAttemptCount(v int64) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.AddCloseAttemptCount(v)
+	})
+}
+
+// UpdateCloseAttemptCount sets the "close_attempt_count" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateCloseAttemptCount() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseAttemptCount()
+	})
+}
+
+// SetCloseLeaseGeneration sets the "close_lease_generation" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetCloseLeaseGeneration(v int64) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseLeaseGeneration(v)
+	})
+}
+
+// AddCloseLeaseGeneration adds v to the "close_lease_generation" field.
+func (u *ModelDevAcceptanceUpsertBulk) AddCloseLeaseGeneration(v int64) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.AddCloseLeaseGeneration(v)
+	})
+}
+
+// UpdateCloseLeaseGeneration sets the "close_lease_generation" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateCloseLeaseGeneration() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseLeaseGeneration()
+	})
+}
+
+// SetCloseLeaseOwner sets the "close_lease_owner" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetCloseLeaseOwner(v string) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseLeaseOwner(v)
+	})
+}
+
+// UpdateCloseLeaseOwner sets the "close_lease_owner" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateCloseLeaseOwner() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseLeaseOwner()
+	})
+}
+
+// ClearCloseLeaseOwner clears the value of the "close_lease_owner" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearCloseLeaseOwner() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearCloseLeaseOwner()
+	})
+}
+
+// SetCloseLeaseUntil sets the "close_lease_until" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetCloseLeaseUntil(v time.Time) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseLeaseUntil(v)
+	})
+}
+
+// UpdateCloseLeaseUntil sets the "close_lease_until" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateCloseLeaseUntil() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseLeaseUntil()
+	})
+}
+
+// ClearCloseLeaseUntil clears the value of the "close_lease_until" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearCloseLeaseUntil() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearCloseLeaseUntil()
+	})
+}
+
+// SetCloseNextAttemptAt sets the "close_next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetCloseNextAttemptAt(v time.Time) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseNextAttemptAt(v)
+	})
+}
+
+// UpdateCloseNextAttemptAt sets the "close_next_attempt_at" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateCloseNextAttemptAt() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseNextAttemptAt()
+	})
+}
+
+// ClearCloseNextAttemptAt clears the value of the "close_next_attempt_at" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearCloseNextAttemptAt() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearCloseNextAttemptAt()
+	})
+}
+
+// SetCloseRetryBlocked sets the "close_retry_blocked" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetCloseRetryBlocked(v bool) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseRetryBlocked(v)
+	})
+}
+
+// UpdateCloseRetryBlocked sets the "close_retry_blocked" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateCloseRetryBlocked() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseRetryBlocked()
+	})
+}
+
+// SetCloseLastErrorCode sets the "close_last_error_code" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetCloseLastErrorCode(v string) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseLastErrorCode(v)
+	})
+}
+
+// UpdateCloseLastErrorCode sets the "close_last_error_code" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateCloseLastErrorCode() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseLastErrorCode()
+	})
+}
+
+// ClearCloseLastErrorCode clears the value of the "close_last_error_code" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearCloseLastErrorCode() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearCloseLastErrorCode()
+	})
+}
+
+// SetCloseReceiptCanonical sets the "close_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsertBulk) SetCloseReceiptCanonical(v []byte) *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.SetCloseReceiptCanonical(v)
+	})
+}
+
+// UpdateCloseReceiptCanonical sets the "close_receipt_canonical" field to the value that was provided on create.
+func (u *ModelDevAcceptanceUpsertBulk) UpdateCloseReceiptCanonical() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.UpdateCloseReceiptCanonical()
+	})
+}
+
+// ClearCloseReceiptCanonical clears the value of the "close_receipt_canonical" field.
+func (u *ModelDevAcceptanceUpsertBulk) ClearCloseReceiptCanonical() *ModelDevAcceptanceUpsertBulk {
+	return u.Update(func(s *ModelDevAcceptanceUpsert) {
+		s.ClearCloseReceiptCanonical()
 	})
 }
 

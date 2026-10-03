@@ -1380,6 +1380,18 @@ var (
 		{Name: "retry_blocked", Type: field.TypeBool, Default: false},
 		{Name: "last_error_code", Type: field.TypeString, Nullable: true},
 		{Name: "owner_receipt_canonical", Type: field.TypeBytes, Nullable: true},
+		{Name: "stop_intent_generation", Type: field.TypeInt64, Default: 0},
+		{Name: "stop_requested_at", Type: field.TypeTime, Nullable: true},
+		{Name: "stop_requested_actor", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "close_dispatch_state", Type: field.TypeEnum, Enums: []string{"IDLE", "QUEUED", "DISPATCHING", "UNKNOWN", "ACKED"}, Default: "IDLE"},
+		{Name: "close_attempt_count", Type: field.TypeInt64, Default: 0},
+		{Name: "close_lease_generation", Type: field.TypeInt64, Default: 0},
+		{Name: "close_lease_owner", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "close_lease_until", Type: field.TypeTime, Nullable: true},
+		{Name: "close_next_attempt_at", Type: field.TypeTime, Nullable: true},
+		{Name: "close_retry_blocked", Type: field.TypeBool, Default: false},
+		{Name: "close_last_error_code", Type: field.TypeString, Nullable: true},
+		{Name: "close_receipt_canonical", Type: field.TypeBytes, Nullable: true},
 	}
 	// SysModeldevAcceptancesTable holds the schema information for the "sys_modeldev_acceptances" table.
 	SysModeldevAcceptancesTable = &schema.Table{
@@ -1406,6 +1418,11 @@ var (
 				Name:    "idx_sys_modeldev_acceptances_delivery_due",
 				Unique:  false,
 				Columns: []*schema.Column{SysModeldevAcceptancesColumns[19], SysModeldevAcceptancesColumns[13], SysModeldevAcceptancesColumns[18], SysModeldevAcceptancesColumns[17], SysModeldevAcceptancesColumns[0]},
+			},
+			{
+				Name:    "idx_sys_modeldev_acceptances_close_due",
+				Unique:  false,
+				Columns: []*schema.Column{SysModeldevAcceptancesColumns[31], SysModeldevAcceptancesColumns[25], SysModeldevAcceptancesColumns[30], SysModeldevAcceptancesColumns[29], SysModeldevAcceptancesColumns[0]},
 			},
 		},
 	}
@@ -3573,12 +3590,18 @@ func init() {
 	}
 	SysModeldevAcceptancesTable.Annotation.Checks = map[string]string{
 		"sys_modeldev_acceptances_action_ck":            "action = 'modeldev.execution.create'",
+		"sys_modeldev_acceptances_close_counters_ck":    "close_attempt_count >= 0 AND close_lease_generation >= 0",
+		"sys_modeldev_acceptances_close_due_ck":         "close_dispatch_state = 'UNKNOWN' OR (close_next_attempt_at IS NULL AND close_retry_blocked = false)",
+		"sys_modeldev_acceptances_close_error_ck":       "close_last_error_code IS NULL OR close_last_error_code IN ('INVALID_COMMAND','COMMAND_CONFLICT','OWNER_UNAVAILABLE','INVALID_ACK','LEASE_EXHAUSTED','ATTEMPTS_EXHAUSTED')",
+		"sys_modeldev_acceptances_close_lease_ck":       "((close_dispatch_state = 'DISPATCHING' AND close_lease_owner IS NOT NULL AND length(close_lease_owner) BETWEEN 1 AND 128 AND close_lease_until IS NOT NULL AND close_lease_generation > 0) OR (close_dispatch_state <> 'DISPATCHING' AND close_lease_owner IS NULL AND close_lease_until IS NULL))",
+		"sys_modeldev_acceptances_close_receipt_ck":     "((close_dispatch_state = 'ACKED' AND close_receipt_canonical IS NOT NULL AND octet_length(close_receipt_canonical) BETWEEN 1 AND 4096) OR (close_dispatch_state <> 'ACKED' AND close_receipt_canonical IS NULL))",
 		"sys_modeldev_acceptances_delivery_counters_ck": "attempt_count >= 0 AND lease_generation >= 0",
 		"sys_modeldev_acceptances_delivery_due_ck":      "dispatch_state = 'UNKNOWN' OR (next_attempt_at IS NULL AND retry_blocked = false)",
 		"sys_modeldev_acceptances_delivery_error_ck":    "last_error_code IS NULL OR last_error_code IN ('INVALID_COMMAND','COMMAND_CONFLICT','OWNER_UNAVAILABLE','INVALID_ACK','LEASE_EXHAUSTED','ATTEMPTS_EXHAUSTED')",
 		"sys_modeldev_acceptances_delivery_lease_ck":    "((dispatch_state = 'DISPATCHING' AND lease_owner IS NOT NULL AND length(lease_owner) BETWEEN 1 AND 128 AND lease_until IS NOT NULL AND lease_generation > 0) OR (dispatch_state <> 'DISPATCHING' AND lease_owner IS NULL AND lease_until IS NULL))",
 		"sys_modeldev_acceptances_dispatch_state_ck":    "dispatch_state IN ('QUEUED','DISPATCHING','UNKNOWN','ACKED')",
 		"sys_modeldev_acceptances_owner_receipt_ck":     "((dispatch_state = 'ACKED' AND owner_receipt_canonical IS NOT NULL AND octet_length(owner_receipt_canonical) BETWEEN 1 AND 4096) OR (dispatch_state <> 'ACKED' AND owner_receipt_canonical IS NULL))",
+		"sys_modeldev_acceptances_stop_intent_ck":       "((stop_intent_generation = 0 AND stop_requested_at IS NULL AND stop_requested_actor IS NULL AND close_dispatch_state = 'IDLE') OR (stop_intent_generation > 0 AND stop_requested_at IS NOT NULL AND stop_requested_actor IS NOT NULL AND length(stop_requested_actor) BETWEEN 1 AND 128 AND close_dispatch_state IN ('QUEUED','DISPATCHING','UNKNOWN','ACKED')))",
 		"sys_modeldev_acceptances_tenant_positive_ck":   "tenant_id > 0",
 	}
 	SysModeldevReleaseBindingsTable.Annotation = &entsql.Annotation{

@@ -31380,37 +31380,52 @@ func (m *MenuMutation) ResetEdge(name string) error {
 // ModelDevAcceptanceMutation represents an operation that mutates the ModelDevAcceptance nodes in the graph.
 type ModelDevAcceptanceMutation struct {
 	config
-	op                      Op
-	typ                     string
-	id                      *uint32
-	tenant_id               *uint32
-	addtenant_id            *int32
-	resource_tenant_id      *string
-	actor                   *string
-	action                  *string
-	idempotency_key         *string
-	operation_id            *string
-	execution_id            *string
-	intent_hash             *string
-	intent_canonical        *[]byte
-	execution_spec_hash     *string
-	snapshot_canonical      *[]byte
-	accepted_at             *time.Time
-	dispatch_state          *modeldevacceptance.DispatchState
-	attempt_count           *int64
-	addattempt_count        *int64
-	lease_generation        *int64
-	addlease_generation     *int64
-	lease_owner             *string
-	lease_until             *time.Time
-	next_attempt_at         *time.Time
-	retry_blocked           *bool
-	last_error_code         *string
-	owner_receipt_canonical *[]byte
-	clearedFields           map[string]struct{}
-	done                    bool
-	oldValue                func(context.Context) (*ModelDevAcceptance, error)
-	predicates              []predicate.ModelDevAcceptance
+	op                        Op
+	typ                       string
+	id                        *uint32
+	tenant_id                 *uint32
+	addtenant_id              *int32
+	resource_tenant_id        *string
+	actor                     *string
+	action                    *string
+	idempotency_key           *string
+	operation_id              *string
+	execution_id              *string
+	intent_hash               *string
+	intent_canonical          *[]byte
+	execution_spec_hash       *string
+	snapshot_canonical        *[]byte
+	accepted_at               *time.Time
+	dispatch_state            *modeldevacceptance.DispatchState
+	attempt_count             *int64
+	addattempt_count          *int64
+	lease_generation          *int64
+	addlease_generation       *int64
+	lease_owner               *string
+	lease_until               *time.Time
+	next_attempt_at           *time.Time
+	retry_blocked             *bool
+	last_error_code           *string
+	owner_receipt_canonical   *[]byte
+	stop_intent_generation    *int64
+	addstop_intent_generation *int64
+	stop_requested_at         *time.Time
+	stop_requested_actor      *string
+	close_dispatch_state      *modeldevacceptance.CloseDispatchState
+	close_attempt_count       *int64
+	addclose_attempt_count    *int64
+	close_lease_generation    *int64
+	addclose_lease_generation *int64
+	close_lease_owner         *string
+	close_lease_until         *time.Time
+	close_next_attempt_at     *time.Time
+	close_retry_blocked       *bool
+	close_last_error_code     *string
+	close_receipt_canonical   *[]byte
+	clearedFields             map[string]struct{}
+	done                      bool
+	oldValue                  func(context.Context) (*ModelDevAcceptance, error)
+	predicates                []predicate.ModelDevAcceptance
 }
 
 var _ ent.Mutation = (*ModelDevAcceptanceMutation)(nil)
@@ -32398,6 +32413,589 @@ func (m *ModelDevAcceptanceMutation) ResetOwnerReceiptCanonical() {
 	delete(m.clearedFields, modeldevacceptance.FieldOwnerReceiptCanonical)
 }
 
+// SetStopIntentGeneration sets the "stop_intent_generation" field.
+func (m *ModelDevAcceptanceMutation) SetStopIntentGeneration(i int64) {
+	m.stop_intent_generation = &i
+	m.addstop_intent_generation = nil
+}
+
+// StopIntentGeneration returns the value of the "stop_intent_generation" field in the mutation.
+func (m *ModelDevAcceptanceMutation) StopIntentGeneration() (r int64, exists bool) {
+	v := m.stop_intent_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStopIntentGeneration returns the old "stop_intent_generation" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldStopIntentGeneration(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStopIntentGeneration is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStopIntentGeneration requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStopIntentGeneration: %w", err)
+	}
+	return oldValue.StopIntentGeneration, nil
+}
+
+// AddStopIntentGeneration adds i to the "stop_intent_generation" field.
+func (m *ModelDevAcceptanceMutation) AddStopIntentGeneration(i int64) {
+	if m.addstop_intent_generation != nil {
+		*m.addstop_intent_generation += i
+	} else {
+		m.addstop_intent_generation = &i
+	}
+}
+
+// AddedStopIntentGeneration returns the value that was added to the "stop_intent_generation" field in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedStopIntentGeneration() (r int64, exists bool) {
+	v := m.addstop_intent_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetStopIntentGeneration resets all changes to the "stop_intent_generation" field.
+func (m *ModelDevAcceptanceMutation) ResetStopIntentGeneration() {
+	m.stop_intent_generation = nil
+	m.addstop_intent_generation = nil
+}
+
+// SetStopRequestedAt sets the "stop_requested_at" field.
+func (m *ModelDevAcceptanceMutation) SetStopRequestedAt(t time.Time) {
+	m.stop_requested_at = &t
+}
+
+// StopRequestedAt returns the value of the "stop_requested_at" field in the mutation.
+func (m *ModelDevAcceptanceMutation) StopRequestedAt() (r time.Time, exists bool) {
+	v := m.stop_requested_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStopRequestedAt returns the old "stop_requested_at" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldStopRequestedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStopRequestedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStopRequestedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStopRequestedAt: %w", err)
+	}
+	return oldValue.StopRequestedAt, nil
+}
+
+// ClearStopRequestedAt clears the value of the "stop_requested_at" field.
+func (m *ModelDevAcceptanceMutation) ClearStopRequestedAt() {
+	m.stop_requested_at = nil
+	m.clearedFields[modeldevacceptance.FieldStopRequestedAt] = struct{}{}
+}
+
+// StopRequestedAtCleared returns if the "stop_requested_at" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) StopRequestedAtCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldStopRequestedAt]
+	return ok
+}
+
+// ResetStopRequestedAt resets all changes to the "stop_requested_at" field.
+func (m *ModelDevAcceptanceMutation) ResetStopRequestedAt() {
+	m.stop_requested_at = nil
+	delete(m.clearedFields, modeldevacceptance.FieldStopRequestedAt)
+}
+
+// SetStopRequestedActor sets the "stop_requested_actor" field.
+func (m *ModelDevAcceptanceMutation) SetStopRequestedActor(s string) {
+	m.stop_requested_actor = &s
+}
+
+// StopRequestedActor returns the value of the "stop_requested_actor" field in the mutation.
+func (m *ModelDevAcceptanceMutation) StopRequestedActor() (r string, exists bool) {
+	v := m.stop_requested_actor
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStopRequestedActor returns the old "stop_requested_actor" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldStopRequestedActor(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStopRequestedActor is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStopRequestedActor requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStopRequestedActor: %w", err)
+	}
+	return oldValue.StopRequestedActor, nil
+}
+
+// ClearStopRequestedActor clears the value of the "stop_requested_actor" field.
+func (m *ModelDevAcceptanceMutation) ClearStopRequestedActor() {
+	m.stop_requested_actor = nil
+	m.clearedFields[modeldevacceptance.FieldStopRequestedActor] = struct{}{}
+}
+
+// StopRequestedActorCleared returns if the "stop_requested_actor" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) StopRequestedActorCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldStopRequestedActor]
+	return ok
+}
+
+// ResetStopRequestedActor resets all changes to the "stop_requested_actor" field.
+func (m *ModelDevAcceptanceMutation) ResetStopRequestedActor() {
+	m.stop_requested_actor = nil
+	delete(m.clearedFields, modeldevacceptance.FieldStopRequestedActor)
+}
+
+// SetCloseDispatchState sets the "close_dispatch_state" field.
+func (m *ModelDevAcceptanceMutation) SetCloseDispatchState(mds modeldevacceptance.CloseDispatchState) {
+	m.close_dispatch_state = &mds
+}
+
+// CloseDispatchState returns the value of the "close_dispatch_state" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseDispatchState() (r modeldevacceptance.CloseDispatchState, exists bool) {
+	v := m.close_dispatch_state
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseDispatchState returns the old "close_dispatch_state" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseDispatchState(ctx context.Context) (v modeldevacceptance.CloseDispatchState, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseDispatchState is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseDispatchState requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseDispatchState: %w", err)
+	}
+	return oldValue.CloseDispatchState, nil
+}
+
+// ResetCloseDispatchState resets all changes to the "close_dispatch_state" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseDispatchState() {
+	m.close_dispatch_state = nil
+}
+
+// SetCloseAttemptCount sets the "close_attempt_count" field.
+func (m *ModelDevAcceptanceMutation) SetCloseAttemptCount(i int64) {
+	m.close_attempt_count = &i
+	m.addclose_attempt_count = nil
+}
+
+// CloseAttemptCount returns the value of the "close_attempt_count" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseAttemptCount() (r int64, exists bool) {
+	v := m.close_attempt_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseAttemptCount returns the old "close_attempt_count" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseAttemptCount(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseAttemptCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseAttemptCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseAttemptCount: %w", err)
+	}
+	return oldValue.CloseAttemptCount, nil
+}
+
+// AddCloseAttemptCount adds i to the "close_attempt_count" field.
+func (m *ModelDevAcceptanceMutation) AddCloseAttemptCount(i int64) {
+	if m.addclose_attempt_count != nil {
+		*m.addclose_attempt_count += i
+	} else {
+		m.addclose_attempt_count = &i
+	}
+}
+
+// AddedCloseAttemptCount returns the value that was added to the "close_attempt_count" field in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedCloseAttemptCount() (r int64, exists bool) {
+	v := m.addclose_attempt_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCloseAttemptCount resets all changes to the "close_attempt_count" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseAttemptCount() {
+	m.close_attempt_count = nil
+	m.addclose_attempt_count = nil
+}
+
+// SetCloseLeaseGeneration sets the "close_lease_generation" field.
+func (m *ModelDevAcceptanceMutation) SetCloseLeaseGeneration(i int64) {
+	m.close_lease_generation = &i
+	m.addclose_lease_generation = nil
+}
+
+// CloseLeaseGeneration returns the value of the "close_lease_generation" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseLeaseGeneration() (r int64, exists bool) {
+	v := m.close_lease_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseLeaseGeneration returns the old "close_lease_generation" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseLeaseGeneration(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseLeaseGeneration is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseLeaseGeneration requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseLeaseGeneration: %w", err)
+	}
+	return oldValue.CloseLeaseGeneration, nil
+}
+
+// AddCloseLeaseGeneration adds i to the "close_lease_generation" field.
+func (m *ModelDevAcceptanceMutation) AddCloseLeaseGeneration(i int64) {
+	if m.addclose_lease_generation != nil {
+		*m.addclose_lease_generation += i
+	} else {
+		m.addclose_lease_generation = &i
+	}
+}
+
+// AddedCloseLeaseGeneration returns the value that was added to the "close_lease_generation" field in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedCloseLeaseGeneration() (r int64, exists bool) {
+	v := m.addclose_lease_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCloseLeaseGeneration resets all changes to the "close_lease_generation" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseLeaseGeneration() {
+	m.close_lease_generation = nil
+	m.addclose_lease_generation = nil
+}
+
+// SetCloseLeaseOwner sets the "close_lease_owner" field.
+func (m *ModelDevAcceptanceMutation) SetCloseLeaseOwner(s string) {
+	m.close_lease_owner = &s
+}
+
+// CloseLeaseOwner returns the value of the "close_lease_owner" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseLeaseOwner() (r string, exists bool) {
+	v := m.close_lease_owner
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseLeaseOwner returns the old "close_lease_owner" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseLeaseOwner(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseLeaseOwner is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseLeaseOwner requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseLeaseOwner: %w", err)
+	}
+	return oldValue.CloseLeaseOwner, nil
+}
+
+// ClearCloseLeaseOwner clears the value of the "close_lease_owner" field.
+func (m *ModelDevAcceptanceMutation) ClearCloseLeaseOwner() {
+	m.close_lease_owner = nil
+	m.clearedFields[modeldevacceptance.FieldCloseLeaseOwner] = struct{}{}
+}
+
+// CloseLeaseOwnerCleared returns if the "close_lease_owner" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) CloseLeaseOwnerCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldCloseLeaseOwner]
+	return ok
+}
+
+// ResetCloseLeaseOwner resets all changes to the "close_lease_owner" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseLeaseOwner() {
+	m.close_lease_owner = nil
+	delete(m.clearedFields, modeldevacceptance.FieldCloseLeaseOwner)
+}
+
+// SetCloseLeaseUntil sets the "close_lease_until" field.
+func (m *ModelDevAcceptanceMutation) SetCloseLeaseUntil(t time.Time) {
+	m.close_lease_until = &t
+}
+
+// CloseLeaseUntil returns the value of the "close_lease_until" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseLeaseUntil() (r time.Time, exists bool) {
+	v := m.close_lease_until
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseLeaseUntil returns the old "close_lease_until" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseLeaseUntil(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseLeaseUntil is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseLeaseUntil requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseLeaseUntil: %w", err)
+	}
+	return oldValue.CloseLeaseUntil, nil
+}
+
+// ClearCloseLeaseUntil clears the value of the "close_lease_until" field.
+func (m *ModelDevAcceptanceMutation) ClearCloseLeaseUntil() {
+	m.close_lease_until = nil
+	m.clearedFields[modeldevacceptance.FieldCloseLeaseUntil] = struct{}{}
+}
+
+// CloseLeaseUntilCleared returns if the "close_lease_until" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) CloseLeaseUntilCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldCloseLeaseUntil]
+	return ok
+}
+
+// ResetCloseLeaseUntil resets all changes to the "close_lease_until" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseLeaseUntil() {
+	m.close_lease_until = nil
+	delete(m.clearedFields, modeldevacceptance.FieldCloseLeaseUntil)
+}
+
+// SetCloseNextAttemptAt sets the "close_next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) SetCloseNextAttemptAt(t time.Time) {
+	m.close_next_attempt_at = &t
+}
+
+// CloseNextAttemptAt returns the value of the "close_next_attempt_at" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseNextAttemptAt() (r time.Time, exists bool) {
+	v := m.close_next_attempt_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseNextAttemptAt returns the old "close_next_attempt_at" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseNextAttemptAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseNextAttemptAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseNextAttemptAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseNextAttemptAt: %w", err)
+	}
+	return oldValue.CloseNextAttemptAt, nil
+}
+
+// ClearCloseNextAttemptAt clears the value of the "close_next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) ClearCloseNextAttemptAt() {
+	m.close_next_attempt_at = nil
+	m.clearedFields[modeldevacceptance.FieldCloseNextAttemptAt] = struct{}{}
+}
+
+// CloseNextAttemptAtCleared returns if the "close_next_attempt_at" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) CloseNextAttemptAtCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldCloseNextAttemptAt]
+	return ok
+}
+
+// ResetCloseNextAttemptAt resets all changes to the "close_next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseNextAttemptAt() {
+	m.close_next_attempt_at = nil
+	delete(m.clearedFields, modeldevacceptance.FieldCloseNextAttemptAt)
+}
+
+// SetCloseRetryBlocked sets the "close_retry_blocked" field.
+func (m *ModelDevAcceptanceMutation) SetCloseRetryBlocked(b bool) {
+	m.close_retry_blocked = &b
+}
+
+// CloseRetryBlocked returns the value of the "close_retry_blocked" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseRetryBlocked() (r bool, exists bool) {
+	v := m.close_retry_blocked
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseRetryBlocked returns the old "close_retry_blocked" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseRetryBlocked(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseRetryBlocked is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseRetryBlocked requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseRetryBlocked: %w", err)
+	}
+	return oldValue.CloseRetryBlocked, nil
+}
+
+// ResetCloseRetryBlocked resets all changes to the "close_retry_blocked" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseRetryBlocked() {
+	m.close_retry_blocked = nil
+}
+
+// SetCloseLastErrorCode sets the "close_last_error_code" field.
+func (m *ModelDevAcceptanceMutation) SetCloseLastErrorCode(s string) {
+	m.close_last_error_code = &s
+}
+
+// CloseLastErrorCode returns the value of the "close_last_error_code" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseLastErrorCode() (r string, exists bool) {
+	v := m.close_last_error_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseLastErrorCode returns the old "close_last_error_code" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseLastErrorCode(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseLastErrorCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseLastErrorCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseLastErrorCode: %w", err)
+	}
+	return oldValue.CloseLastErrorCode, nil
+}
+
+// ClearCloseLastErrorCode clears the value of the "close_last_error_code" field.
+func (m *ModelDevAcceptanceMutation) ClearCloseLastErrorCode() {
+	m.close_last_error_code = nil
+	m.clearedFields[modeldevacceptance.FieldCloseLastErrorCode] = struct{}{}
+}
+
+// CloseLastErrorCodeCleared returns if the "close_last_error_code" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) CloseLastErrorCodeCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldCloseLastErrorCode]
+	return ok
+}
+
+// ResetCloseLastErrorCode resets all changes to the "close_last_error_code" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseLastErrorCode() {
+	m.close_last_error_code = nil
+	delete(m.clearedFields, modeldevacceptance.FieldCloseLastErrorCode)
+}
+
+// SetCloseReceiptCanonical sets the "close_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) SetCloseReceiptCanonical(b []byte) {
+	m.close_receipt_canonical = &b
+}
+
+// CloseReceiptCanonical returns the value of the "close_receipt_canonical" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseReceiptCanonical() (r []byte, exists bool) {
+	v := m.close_receipt_canonical
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseReceiptCanonical returns the old "close_receipt_canonical" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseReceiptCanonical(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseReceiptCanonical is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseReceiptCanonical requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseReceiptCanonical: %w", err)
+	}
+	return oldValue.CloseReceiptCanonical, nil
+}
+
+// ClearCloseReceiptCanonical clears the value of the "close_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) ClearCloseReceiptCanonical() {
+	m.close_receipt_canonical = nil
+	m.clearedFields[modeldevacceptance.FieldCloseReceiptCanonical] = struct{}{}
+}
+
+// CloseReceiptCanonicalCleared returns if the "close_receipt_canonical" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) CloseReceiptCanonicalCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldCloseReceiptCanonical]
+	return ok
+}
+
+// ResetCloseReceiptCanonical resets all changes to the "close_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseReceiptCanonical() {
+	m.close_receipt_canonical = nil
+	delete(m.clearedFields, modeldevacceptance.FieldCloseReceiptCanonical)
+}
+
 // Where appends a list predicates to the ModelDevAcceptanceMutation builder.
 func (m *ModelDevAcceptanceMutation) Where(ps ...predicate.ModelDevAcceptance) {
 	m.predicates = append(m.predicates, ps...)
@@ -32432,7 +33030,7 @@ func (m *ModelDevAcceptanceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ModelDevAcceptanceMutation) Fields() []string {
-	fields := make([]string, 0, 21)
+	fields := make([]string, 0, 33)
 	if m.tenant_id != nil {
 		fields = append(fields, modeldevacceptance.FieldTenantID)
 	}
@@ -32496,6 +33094,42 @@ func (m *ModelDevAcceptanceMutation) Fields() []string {
 	if m.owner_receipt_canonical != nil {
 		fields = append(fields, modeldevacceptance.FieldOwnerReceiptCanonical)
 	}
+	if m.stop_intent_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldStopIntentGeneration)
+	}
+	if m.stop_requested_at != nil {
+		fields = append(fields, modeldevacceptance.FieldStopRequestedAt)
+	}
+	if m.stop_requested_actor != nil {
+		fields = append(fields, modeldevacceptance.FieldStopRequestedActor)
+	}
+	if m.close_dispatch_state != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseDispatchState)
+	}
+	if m.close_attempt_count != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseAttemptCount)
+	}
+	if m.close_lease_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseGeneration)
+	}
+	if m.close_lease_owner != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseOwner)
+	}
+	if m.close_lease_until != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseUntil)
+	}
+	if m.close_next_attempt_at != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseNextAttemptAt)
+	}
+	if m.close_retry_blocked != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseRetryBlocked)
+	}
+	if m.close_last_error_code != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseLastErrorCode)
+	}
+	if m.close_receipt_canonical != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseReceiptCanonical)
+	}
 	return fields
 }
 
@@ -32546,6 +33180,30 @@ func (m *ModelDevAcceptanceMutation) Field(name string) (ent.Value, bool) {
 		return m.LastErrorCode()
 	case modeldevacceptance.FieldOwnerReceiptCanonical:
 		return m.OwnerReceiptCanonical()
+	case modeldevacceptance.FieldStopIntentGeneration:
+		return m.StopIntentGeneration()
+	case modeldevacceptance.FieldStopRequestedAt:
+		return m.StopRequestedAt()
+	case modeldevacceptance.FieldStopRequestedActor:
+		return m.StopRequestedActor()
+	case modeldevacceptance.FieldCloseDispatchState:
+		return m.CloseDispatchState()
+	case modeldevacceptance.FieldCloseAttemptCount:
+		return m.CloseAttemptCount()
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		return m.CloseLeaseGeneration()
+	case modeldevacceptance.FieldCloseLeaseOwner:
+		return m.CloseLeaseOwner()
+	case modeldevacceptance.FieldCloseLeaseUntil:
+		return m.CloseLeaseUntil()
+	case modeldevacceptance.FieldCloseNextAttemptAt:
+		return m.CloseNextAttemptAt()
+	case modeldevacceptance.FieldCloseRetryBlocked:
+		return m.CloseRetryBlocked()
+	case modeldevacceptance.FieldCloseLastErrorCode:
+		return m.CloseLastErrorCode()
+	case modeldevacceptance.FieldCloseReceiptCanonical:
+		return m.CloseReceiptCanonical()
 	}
 	return nil, false
 }
@@ -32597,6 +33255,30 @@ func (m *ModelDevAcceptanceMutation) OldField(ctx context.Context, name string) 
 		return m.OldLastErrorCode(ctx)
 	case modeldevacceptance.FieldOwnerReceiptCanonical:
 		return m.OldOwnerReceiptCanonical(ctx)
+	case modeldevacceptance.FieldStopIntentGeneration:
+		return m.OldStopIntentGeneration(ctx)
+	case modeldevacceptance.FieldStopRequestedAt:
+		return m.OldStopRequestedAt(ctx)
+	case modeldevacceptance.FieldStopRequestedActor:
+		return m.OldStopRequestedActor(ctx)
+	case modeldevacceptance.FieldCloseDispatchState:
+		return m.OldCloseDispatchState(ctx)
+	case modeldevacceptance.FieldCloseAttemptCount:
+		return m.OldCloseAttemptCount(ctx)
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		return m.OldCloseLeaseGeneration(ctx)
+	case modeldevacceptance.FieldCloseLeaseOwner:
+		return m.OldCloseLeaseOwner(ctx)
+	case modeldevacceptance.FieldCloseLeaseUntil:
+		return m.OldCloseLeaseUntil(ctx)
+	case modeldevacceptance.FieldCloseNextAttemptAt:
+		return m.OldCloseNextAttemptAt(ctx)
+	case modeldevacceptance.FieldCloseRetryBlocked:
+		return m.OldCloseRetryBlocked(ctx)
+	case modeldevacceptance.FieldCloseLastErrorCode:
+		return m.OldCloseLastErrorCode(ctx)
+	case modeldevacceptance.FieldCloseReceiptCanonical:
+		return m.OldCloseReceiptCanonical(ctx)
 	}
 	return nil, fmt.Errorf("unknown ModelDevAcceptance field %s", name)
 }
@@ -32753,6 +33435,90 @@ func (m *ModelDevAcceptanceMutation) SetField(name string, value ent.Value) erro
 		}
 		m.SetOwnerReceiptCanonical(v)
 		return nil
+	case modeldevacceptance.FieldStopIntentGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStopIntentGeneration(v)
+		return nil
+	case modeldevacceptance.FieldStopRequestedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStopRequestedAt(v)
+		return nil
+	case modeldevacceptance.FieldStopRequestedActor:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStopRequestedActor(v)
+		return nil
+	case modeldevacceptance.FieldCloseDispatchState:
+		v, ok := value.(modeldevacceptance.CloseDispatchState)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseDispatchState(v)
+		return nil
+	case modeldevacceptance.FieldCloseAttemptCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseAttemptCount(v)
+		return nil
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseLeaseGeneration(v)
+		return nil
+	case modeldevacceptance.FieldCloseLeaseOwner:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseLeaseOwner(v)
+		return nil
+	case modeldevacceptance.FieldCloseLeaseUntil:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseLeaseUntil(v)
+		return nil
+	case modeldevacceptance.FieldCloseNextAttemptAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseNextAttemptAt(v)
+		return nil
+	case modeldevacceptance.FieldCloseRetryBlocked:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseRetryBlocked(v)
+		return nil
+	case modeldevacceptance.FieldCloseLastErrorCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseLastErrorCode(v)
+		return nil
+	case modeldevacceptance.FieldCloseReceiptCanonical:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseReceiptCanonical(v)
+		return nil
 	}
 	return fmt.Errorf("unknown ModelDevAcceptance field %s", name)
 }
@@ -32770,6 +33536,15 @@ func (m *ModelDevAcceptanceMutation) AddedFields() []string {
 	if m.addlease_generation != nil {
 		fields = append(fields, modeldevacceptance.FieldLeaseGeneration)
 	}
+	if m.addstop_intent_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldStopIntentGeneration)
+	}
+	if m.addclose_attempt_count != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseAttemptCount)
+	}
+	if m.addclose_lease_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseGeneration)
+	}
 	return fields
 }
 
@@ -32784,6 +33559,12 @@ func (m *ModelDevAcceptanceMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedAttemptCount()
 	case modeldevacceptance.FieldLeaseGeneration:
 		return m.AddedLeaseGeneration()
+	case modeldevacceptance.FieldStopIntentGeneration:
+		return m.AddedStopIntentGeneration()
+	case modeldevacceptance.FieldCloseAttemptCount:
+		return m.AddedCloseAttemptCount()
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		return m.AddedCloseLeaseGeneration()
 	}
 	return nil, false
 }
@@ -32814,6 +33595,27 @@ func (m *ModelDevAcceptanceMutation) AddField(name string, value ent.Value) erro
 		}
 		m.AddLeaseGeneration(v)
 		return nil
+	case modeldevacceptance.FieldStopIntentGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddStopIntentGeneration(v)
+		return nil
+	case modeldevacceptance.FieldCloseAttemptCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCloseAttemptCount(v)
+		return nil
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCloseLeaseGeneration(v)
+		return nil
 	}
 	return fmt.Errorf("unknown ModelDevAcceptance numeric field %s", name)
 }
@@ -32836,6 +33638,27 @@ func (m *ModelDevAcceptanceMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(modeldevacceptance.FieldOwnerReceiptCanonical) {
 		fields = append(fields, modeldevacceptance.FieldOwnerReceiptCanonical)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldStopRequestedAt) {
+		fields = append(fields, modeldevacceptance.FieldStopRequestedAt)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldStopRequestedActor) {
+		fields = append(fields, modeldevacceptance.FieldStopRequestedActor)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldCloseLeaseOwner) {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseOwner)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldCloseLeaseUntil) {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseUntil)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldCloseNextAttemptAt) {
+		fields = append(fields, modeldevacceptance.FieldCloseNextAttemptAt)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldCloseLastErrorCode) {
+		fields = append(fields, modeldevacceptance.FieldCloseLastErrorCode)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldCloseReceiptCanonical) {
+		fields = append(fields, modeldevacceptance.FieldCloseReceiptCanonical)
 	}
 	return fields
 }
@@ -32865,6 +33688,27 @@ func (m *ModelDevAcceptanceMutation) ClearField(name string) error {
 		return nil
 	case modeldevacceptance.FieldOwnerReceiptCanonical:
 		m.ClearOwnerReceiptCanonical()
+		return nil
+	case modeldevacceptance.FieldStopRequestedAt:
+		m.ClearStopRequestedAt()
+		return nil
+	case modeldevacceptance.FieldStopRequestedActor:
+		m.ClearStopRequestedActor()
+		return nil
+	case modeldevacceptance.FieldCloseLeaseOwner:
+		m.ClearCloseLeaseOwner()
+		return nil
+	case modeldevacceptance.FieldCloseLeaseUntil:
+		m.ClearCloseLeaseUntil()
+		return nil
+	case modeldevacceptance.FieldCloseNextAttemptAt:
+		m.ClearCloseNextAttemptAt()
+		return nil
+	case modeldevacceptance.FieldCloseLastErrorCode:
+		m.ClearCloseLastErrorCode()
+		return nil
+	case modeldevacceptance.FieldCloseReceiptCanonical:
+		m.ClearCloseReceiptCanonical()
 		return nil
 	}
 	return fmt.Errorf("unknown ModelDevAcceptance nullable field %s", name)
@@ -32936,6 +33780,42 @@ func (m *ModelDevAcceptanceMutation) ResetField(name string) error {
 		return nil
 	case modeldevacceptance.FieldOwnerReceiptCanonical:
 		m.ResetOwnerReceiptCanonical()
+		return nil
+	case modeldevacceptance.FieldStopIntentGeneration:
+		m.ResetStopIntentGeneration()
+		return nil
+	case modeldevacceptance.FieldStopRequestedAt:
+		m.ResetStopRequestedAt()
+		return nil
+	case modeldevacceptance.FieldStopRequestedActor:
+		m.ResetStopRequestedActor()
+		return nil
+	case modeldevacceptance.FieldCloseDispatchState:
+		m.ResetCloseDispatchState()
+		return nil
+	case modeldevacceptance.FieldCloseAttemptCount:
+		m.ResetCloseAttemptCount()
+		return nil
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		m.ResetCloseLeaseGeneration()
+		return nil
+	case modeldevacceptance.FieldCloseLeaseOwner:
+		m.ResetCloseLeaseOwner()
+		return nil
+	case modeldevacceptance.FieldCloseLeaseUntil:
+		m.ResetCloseLeaseUntil()
+		return nil
+	case modeldevacceptance.FieldCloseNextAttemptAt:
+		m.ResetCloseNextAttemptAt()
+		return nil
+	case modeldevacceptance.FieldCloseRetryBlocked:
+		m.ResetCloseRetryBlocked()
+		return nil
+	case modeldevacceptance.FieldCloseLastErrorCode:
+		m.ResetCloseLastErrorCode()
+		return nil
+	case modeldevacceptance.FieldCloseReceiptCanonical:
+		m.ResetCloseReceiptCanonical()
 		return nil
 	}
 	return fmt.Errorf("unknown ModelDevAcceptance field %s", name)

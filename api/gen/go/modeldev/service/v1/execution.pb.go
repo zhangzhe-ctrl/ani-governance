@@ -288,6 +288,128 @@ func (x *CreateExecutionResponse) GetResourceState() string {
 	return ""
 }
 
+// No public body or caller-supplied tenant, actor, generation or state.
+type StopExecutionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ExecutionId   string                 `protobuf:"bytes,1,opt,name=execution_id,proto3" json:"execution_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StopExecutionRequest) Reset() {
+	*x = StopExecutionRequest{}
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopExecutionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopExecutionRequest) ProtoMessage() {}
+
+func (x *StopExecutionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopExecutionRequest.ProtoReflect.Descriptor instead.
+func (*StopExecutionRequest) Descriptor() ([]byte, []int) {
+	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *StopExecutionRequest) GetExecutionId() string {
+	if x != nil {
+		return x.ExecutionId
+	}
+	return ""
+}
+
+// Governance acceptance only. ModelDev owns the creation fence and CLOSED.
+type StopExecutionResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	OperationId      string                 `protobuf:"bytes,1,opt,name=operation_id,proto3" json:"operation_id,omitempty"`
+	ExecutionId      string                 `protobuf:"bytes,2,opt,name=execution_id,proto3" json:"execution_id,omitempty"`
+	StopRequested    bool                   `protobuf:"varint,3,opt,name=stop_requested,proto3" json:"stop_requested,omitempty"`
+	IntentGeneration uint64                 `protobuf:"varint,4,opt,name=intent_generation,proto3" json:"intent_generation,omitempty"`
+	Replayed         bool                   `protobuf:"varint,5,opt,name=replayed,proto3" json:"replayed,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *StopExecutionResponse) Reset() {
+	*x = StopExecutionResponse{}
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopExecutionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopExecutionResponse) ProtoMessage() {}
+
+func (x *StopExecutionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopExecutionResponse.ProtoReflect.Descriptor instead.
+func (*StopExecutionResponse) Descriptor() ([]byte, []int) {
+	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *StopExecutionResponse) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
+func (x *StopExecutionResponse) GetExecutionId() string {
+	if x != nil {
+		return x.ExecutionId
+	}
+	return ""
+}
+
+func (x *StopExecutionResponse) GetStopRequested() bool {
+	if x != nil {
+		return x.StopRequested
+	}
+	return false
+}
+
+func (x *StopExecutionResponse) GetIntentGeneration() uint64 {
+	if x != nil {
+		return x.IntentGeneration
+	}
+	return 0
+}
+
+func (x *StopExecutionResponse) GetReplayed() bool {
+	if x != nil {
+		return x.Replayed
+	}
+	return false
+}
+
 // Public query selectors never accept tenant, Pod, namespace or object keys.
 type GetExecutionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -298,7 +420,7 @@ type GetExecutionRequest struct {
 
 func (x *GetExecutionRequest) Reset() {
 	*x = GetExecutionRequest{}
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[3]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -310,7 +432,7 @@ func (x *GetExecutionRequest) String() string {
 func (*GetExecutionRequest) ProtoMessage() {}
 
 func (x *GetExecutionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[3]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -323,7 +445,7 @@ func (x *GetExecutionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetExecutionRequest.ProtoReflect.Descriptor instead.
 func (*GetExecutionRequest) Descriptor() ([]byte, []int) {
-	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{3}
+	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetExecutionRequest) GetExecutionId() string {
@@ -342,7 +464,7 @@ type GetExecutionResponse struct {
 
 func (x *GetExecutionResponse) Reset() {
 	*x = GetExecutionResponse{}
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[4]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -354,7 +476,7 @@ func (x *GetExecutionResponse) String() string {
 func (*GetExecutionResponse) ProtoMessage() {}
 
 func (x *GetExecutionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[4]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -367,7 +489,7 @@ func (x *GetExecutionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetExecutionResponse.ProtoReflect.Descriptor instead.
 func (*GetExecutionResponse) Descriptor() ([]byte, []int) {
-	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{4}
+	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetExecutionResponse) GetExecution() *ExecutionView {
@@ -403,7 +525,7 @@ type ExecutionView struct {
 
 func (x *ExecutionView) Reset() {
 	*x = ExecutionView{}
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[5]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -415,7 +537,7 @@ func (x *ExecutionView) String() string {
 func (*ExecutionView) ProtoMessage() {}
 
 func (x *ExecutionView) ProtoReflect() protoreflect.Message {
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[5]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -428,7 +550,7 @@ func (x *ExecutionView) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecutionView.ProtoReflect.Descriptor instead.
 func (*ExecutionView) Descriptor() ([]byte, []int) {
-	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{5}
+	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ExecutionView) GetOperationId() string {
@@ -568,7 +690,7 @@ type ListExecutionArtifactsRequest struct {
 
 func (x *ListExecutionArtifactsRequest) Reset() {
 	*x = ListExecutionArtifactsRequest{}
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[6]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -580,7 +702,7 @@ func (x *ListExecutionArtifactsRequest) String() string {
 func (*ListExecutionArtifactsRequest) ProtoMessage() {}
 
 func (x *ListExecutionArtifactsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[6]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -593,7 +715,7 @@ func (x *ListExecutionArtifactsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListExecutionArtifactsRequest.ProtoReflect.Descriptor instead.
 func (*ListExecutionArtifactsRequest) Descriptor() ([]byte, []int) {
-	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{6}
+	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListExecutionArtifactsRequest) GetExecutionId() string {
@@ -627,7 +749,7 @@ type ListExecutionArtifactsResponse struct {
 
 func (x *ListExecutionArtifactsResponse) Reset() {
 	*x = ListExecutionArtifactsResponse{}
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[7]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -639,7 +761,7 @@ func (x *ListExecutionArtifactsResponse) String() string {
 func (*ListExecutionArtifactsResponse) ProtoMessage() {}
 
 func (x *ListExecutionArtifactsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[7]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -652,7 +774,7 @@ func (x *ListExecutionArtifactsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListExecutionArtifactsResponse.ProtoReflect.Descriptor instead.
 func (*ListExecutionArtifactsResponse) Descriptor() ([]byte, []int) {
-	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{7}
+	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListExecutionArtifactsResponse) GetArtifacts() []*ArtifactView {
@@ -685,7 +807,7 @@ type ArtifactView struct {
 
 func (x *ArtifactView) Reset() {
 	*x = ArtifactView{}
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[8]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -697,7 +819,7 @@ func (x *ArtifactView) String() string {
 func (*ArtifactView) ProtoMessage() {}
 
 func (x *ArtifactView) ProtoReflect() protoreflect.Message {
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[8]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -710,7 +832,7 @@ func (x *ArtifactView) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArtifactView.ProtoReflect.Descriptor instead.
 func (*ArtifactView) Descriptor() ([]byte, []int) {
-	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{8}
+	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ArtifactView) GetArtifactId() string {
@@ -778,7 +900,7 @@ type AuthorizeArtifactDownloadRequest struct {
 
 func (x *AuthorizeArtifactDownloadRequest) Reset() {
 	*x = AuthorizeArtifactDownloadRequest{}
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[9]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -790,7 +912,7 @@ func (x *AuthorizeArtifactDownloadRequest) String() string {
 func (*AuthorizeArtifactDownloadRequest) ProtoMessage() {}
 
 func (x *AuthorizeArtifactDownloadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[9]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -803,7 +925,7 @@ func (x *AuthorizeArtifactDownloadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthorizeArtifactDownloadRequest.ProtoReflect.Descriptor instead.
 func (*AuthorizeArtifactDownloadRequest) Descriptor() ([]byte, []int) {
-	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{9}
+	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *AuthorizeArtifactDownloadRequest) GetArtifactId() string {
@@ -825,7 +947,7 @@ type AuthorizeArtifactDownloadResponse struct {
 
 func (x *AuthorizeArtifactDownloadResponse) Reset() {
 	*x = AuthorizeArtifactDownloadResponse{}
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[10]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -837,7 +959,7 @@ func (x *AuthorizeArtifactDownloadResponse) String() string {
 func (*AuthorizeArtifactDownloadResponse) ProtoMessage() {}
 
 func (x *AuthorizeArtifactDownloadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_modeldev_service_v1_execution_proto_msgTypes[10]
+	mi := &file_modeldev_service_v1_execution_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -850,7 +972,7 @@ func (x *AuthorizeArtifactDownloadResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use AuthorizeArtifactDownloadResponse.ProtoReflect.Descriptor instead.
 func (*AuthorizeArtifactDownloadResponse) Descriptor() ([]byte, []int) {
-	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{10}
+	return file_modeldev_service_v1_execution_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *AuthorizeArtifactDownloadResponse) GetArtifact() *ArtifactView {
@@ -902,7 +1024,15 @@ const file_modeldev_service_v1_execution_proto_rawDesc = "" +
 	"\rcompute_state\x18\x05 \x01(\tR\rcompute_state\x12&\n" +
 	"\x0edelivery_state\x18\x06 \x01(\tR\x0edelivery_state\x12 \n" +
 	"\vclose_state\x18\a \x01(\tR\vclose_state\x12&\n" +
-	"\x0eresource_state\x18\b \x01(\tR\x0eresource_state\"9\n" +
+	"\x0eresource_state\x18\b \x01(\tR\x0eresource_state\":\n" +
+	"\x14StopExecutionRequest\x12\"\n" +
+	"\fexecution_id\x18\x01 \x01(\tR\fexecution_id\"\xd1\x01\n" +
+	"\x15StopExecutionResponse\x12\"\n" +
+	"\foperation_id\x18\x01 \x01(\tR\foperation_id\x12\"\n" +
+	"\fexecution_id\x18\x02 \x01(\tR\fexecution_id\x12&\n" +
+	"\x0estop_requested\x18\x03 \x01(\bR\x0estop_requested\x12,\n" +
+	"\x11intent_generation\x18\x04 \x01(\x04R\x11intent_generation\x12\x1a\n" +
+	"\breplayed\x18\x05 \x01(\bR\breplayed\"9\n" +
 	"\x13GetExecutionRequest\x12\"\n" +
 	"\fexecution_id\x18\x01 \x01(\tR\fexecution_id\"X\n" +
 	"\x14GetExecutionResponse\x12@\n" +
@@ -971,30 +1101,32 @@ func file_modeldev_service_v1_execution_proto_rawDescGZIP() []byte {
 	return file_modeldev_service_v1_execution_proto_rawDescData
 }
 
-var file_modeldev_service_v1_execution_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_modeldev_service_v1_execution_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_modeldev_service_v1_execution_proto_goTypes = []any{
 	(*CreateExecutionRequest)(nil),            // 0: modeldev.service.v1.CreateExecutionRequest
 	(*GeneralParameter)(nil),                  // 1: modeldev.service.v1.GeneralParameter
 	(*CreateExecutionResponse)(nil),           // 2: modeldev.service.v1.CreateExecutionResponse
-	(*GetExecutionRequest)(nil),               // 3: modeldev.service.v1.GetExecutionRequest
-	(*GetExecutionResponse)(nil),              // 4: modeldev.service.v1.GetExecutionResponse
-	(*ExecutionView)(nil),                     // 5: modeldev.service.v1.ExecutionView
-	(*ListExecutionArtifactsRequest)(nil),     // 6: modeldev.service.v1.ListExecutionArtifactsRequest
-	(*ListExecutionArtifactsResponse)(nil),    // 7: modeldev.service.v1.ListExecutionArtifactsResponse
-	(*ArtifactView)(nil),                      // 8: modeldev.service.v1.ArtifactView
-	(*AuthorizeArtifactDownloadRequest)(nil),  // 9: modeldev.service.v1.AuthorizeArtifactDownloadRequest
-	(*AuthorizeArtifactDownloadResponse)(nil), // 10: modeldev.service.v1.AuthorizeArtifactDownloadResponse
+	(*StopExecutionRequest)(nil),              // 3: modeldev.service.v1.StopExecutionRequest
+	(*StopExecutionResponse)(nil),             // 4: modeldev.service.v1.StopExecutionResponse
+	(*GetExecutionRequest)(nil),               // 5: modeldev.service.v1.GetExecutionRequest
+	(*GetExecutionResponse)(nil),              // 6: modeldev.service.v1.GetExecutionResponse
+	(*ExecutionView)(nil),                     // 7: modeldev.service.v1.ExecutionView
+	(*ListExecutionArtifactsRequest)(nil),     // 8: modeldev.service.v1.ListExecutionArtifactsRequest
+	(*ListExecutionArtifactsResponse)(nil),    // 9: modeldev.service.v1.ListExecutionArtifactsResponse
+	(*ArtifactView)(nil),                      // 10: modeldev.service.v1.ArtifactView
+	(*AuthorizeArtifactDownloadRequest)(nil),  // 11: modeldev.service.v1.AuthorizeArtifactDownloadRequest
+	(*AuthorizeArtifactDownloadResponse)(nil), // 12: modeldev.service.v1.AuthorizeArtifactDownloadResponse
 }
 var file_modeldev_service_v1_execution_proto_depIdxs = []int32{
-	1, // 0: modeldev.service.v1.CreateExecutionRequest.general_parameters:type_name -> modeldev.service.v1.GeneralParameter
-	5, // 1: modeldev.service.v1.GetExecutionResponse.execution:type_name -> modeldev.service.v1.ExecutionView
-	8, // 2: modeldev.service.v1.ListExecutionArtifactsResponse.artifacts:type_name -> modeldev.service.v1.ArtifactView
-	8, // 3: modeldev.service.v1.AuthorizeArtifactDownloadResponse.artifact:type_name -> modeldev.service.v1.ArtifactView
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	1,  // 0: modeldev.service.v1.CreateExecutionRequest.general_parameters:type_name -> modeldev.service.v1.GeneralParameter
+	7,  // 1: modeldev.service.v1.GetExecutionResponse.execution:type_name -> modeldev.service.v1.ExecutionView
+	10, // 2: modeldev.service.v1.ListExecutionArtifactsResponse.artifacts:type_name -> modeldev.service.v1.ArtifactView
+	10, // 3: modeldev.service.v1.AuthorizeArtifactDownloadResponse.artifact:type_name -> modeldev.service.v1.ArtifactView
+	4,  // [4:4] is the sub-list for method output_type
+	4,  // [4:4] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_modeldev_service_v1_execution_proto_init() }
@@ -1009,7 +1141,7 @@ func file_modeldev_service_v1_execution_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_modeldev_service_v1_execution_proto_rawDesc), len(file_modeldev_service_v1_execution_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -56,6 +56,30 @@ const (
 	FieldLastErrorCode = "last_error_code"
 	// FieldOwnerReceiptCanonical holds the string denoting the owner_receipt_canonical field in the database.
 	FieldOwnerReceiptCanonical = "owner_receipt_canonical"
+	// FieldStopIntentGeneration holds the string denoting the stop_intent_generation field in the database.
+	FieldStopIntentGeneration = "stop_intent_generation"
+	// FieldStopRequestedAt holds the string denoting the stop_requested_at field in the database.
+	FieldStopRequestedAt = "stop_requested_at"
+	// FieldStopRequestedActor holds the string denoting the stop_requested_actor field in the database.
+	FieldStopRequestedActor = "stop_requested_actor"
+	// FieldCloseDispatchState holds the string denoting the close_dispatch_state field in the database.
+	FieldCloseDispatchState = "close_dispatch_state"
+	// FieldCloseAttemptCount holds the string denoting the close_attempt_count field in the database.
+	FieldCloseAttemptCount = "close_attempt_count"
+	// FieldCloseLeaseGeneration holds the string denoting the close_lease_generation field in the database.
+	FieldCloseLeaseGeneration = "close_lease_generation"
+	// FieldCloseLeaseOwner holds the string denoting the close_lease_owner field in the database.
+	FieldCloseLeaseOwner = "close_lease_owner"
+	// FieldCloseLeaseUntil holds the string denoting the close_lease_until field in the database.
+	FieldCloseLeaseUntil = "close_lease_until"
+	// FieldCloseNextAttemptAt holds the string denoting the close_next_attempt_at field in the database.
+	FieldCloseNextAttemptAt = "close_next_attempt_at"
+	// FieldCloseRetryBlocked holds the string denoting the close_retry_blocked field in the database.
+	FieldCloseRetryBlocked = "close_retry_blocked"
+	// FieldCloseLastErrorCode holds the string denoting the close_last_error_code field in the database.
+	FieldCloseLastErrorCode = "close_last_error_code"
+	// FieldCloseReceiptCanonical holds the string denoting the close_receipt_canonical field in the database.
+	FieldCloseReceiptCanonical = "close_receipt_canonical"
 	// Table holds the table name of the modeldevacceptance in the database.
 	Table = "sys_modeldev_acceptances"
 )
@@ -84,6 +108,18 @@ var Columns = []string{
 	FieldRetryBlocked,
 	FieldLastErrorCode,
 	FieldOwnerReceiptCanonical,
+	FieldStopIntentGeneration,
+	FieldStopRequestedAt,
+	FieldStopRequestedActor,
+	FieldCloseDispatchState,
+	FieldCloseAttemptCount,
+	FieldCloseLeaseGeneration,
+	FieldCloseLeaseOwner,
+	FieldCloseLeaseUntil,
+	FieldCloseNextAttemptAt,
+	FieldCloseRetryBlocked,
+	FieldCloseLastErrorCode,
+	FieldCloseReceiptCanonical,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -138,6 +174,24 @@ var (
 	LeaseOwnerValidator func(string) error
 	// DefaultRetryBlocked holds the default value on creation for the "retry_blocked" field.
 	DefaultRetryBlocked bool
+	// DefaultStopIntentGeneration holds the default value on creation for the "stop_intent_generation" field.
+	DefaultStopIntentGeneration int64
+	// StopIntentGenerationValidator is a validator for the "stop_intent_generation" field. It is called by the builders before save.
+	StopIntentGenerationValidator func(int64) error
+	// StopRequestedActorValidator is a validator for the "stop_requested_actor" field. It is called by the builders before save.
+	StopRequestedActorValidator func(string) error
+	// DefaultCloseAttemptCount holds the default value on creation for the "close_attempt_count" field.
+	DefaultCloseAttemptCount int64
+	// CloseAttemptCountValidator is a validator for the "close_attempt_count" field. It is called by the builders before save.
+	CloseAttemptCountValidator func(int64) error
+	// DefaultCloseLeaseGeneration holds the default value on creation for the "close_lease_generation" field.
+	DefaultCloseLeaseGeneration int64
+	// CloseLeaseGenerationValidator is a validator for the "close_lease_generation" field. It is called by the builders before save.
+	CloseLeaseGenerationValidator func(int64) error
+	// CloseLeaseOwnerValidator is a validator for the "close_lease_owner" field. It is called by the builders before save.
+	CloseLeaseOwnerValidator func(string) error
+	// DefaultCloseRetryBlocked holds the default value on creation for the "close_retry_blocked" field.
+	DefaultCloseRetryBlocked bool
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(uint32) error
 )
@@ -167,6 +221,35 @@ func DispatchStateValidator(ds DispatchState) error {
 		return nil
 	default:
 		return fmt.Errorf("modeldevacceptance: invalid enum value for dispatch_state field: %q", ds)
+	}
+}
+
+// CloseDispatchState defines the type for the "close_dispatch_state" enum field.
+type CloseDispatchState string
+
+// CloseDispatchStateIDLE is the default value of the CloseDispatchState enum.
+const DefaultCloseDispatchState = CloseDispatchStateIDLE
+
+// CloseDispatchState values.
+const (
+	CloseDispatchStateIDLE        CloseDispatchState = "IDLE"
+	CloseDispatchStateQUEUED      CloseDispatchState = "QUEUED"
+	CloseDispatchStateDISPATCHING CloseDispatchState = "DISPATCHING"
+	CloseDispatchStateUNKNOWN     CloseDispatchState = "UNKNOWN"
+	CloseDispatchStateACKED       CloseDispatchState = "ACKED"
+)
+
+func (cds CloseDispatchState) String() string {
+	return string(cds)
+}
+
+// CloseDispatchStateValidator is a validator for the "close_dispatch_state" field enum values. It is called by the builders before save.
+func CloseDispatchStateValidator(cds CloseDispatchState) error {
+	switch cds {
+	case CloseDispatchStateIDLE, CloseDispatchStateQUEUED, CloseDispatchStateDISPATCHING, CloseDispatchStateUNKNOWN, CloseDispatchStateACKED:
+		return nil
+	default:
+		return fmt.Errorf("modeldevacceptance: invalid enum value for close_dispatch_state field: %q", cds)
 	}
 }
 
@@ -266,4 +349,59 @@ func ByRetryBlocked(opts ...sql.OrderTermOption) OrderOption {
 // ByLastErrorCode orders the results by the last_error_code field.
 func ByLastErrorCode(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLastErrorCode, opts...).ToFunc()
+}
+
+// ByStopIntentGeneration orders the results by the stop_intent_generation field.
+func ByStopIntentGeneration(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStopIntentGeneration, opts...).ToFunc()
+}
+
+// ByStopRequestedAt orders the results by the stop_requested_at field.
+func ByStopRequestedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStopRequestedAt, opts...).ToFunc()
+}
+
+// ByStopRequestedActor orders the results by the stop_requested_actor field.
+func ByStopRequestedActor(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStopRequestedActor, opts...).ToFunc()
+}
+
+// ByCloseDispatchState orders the results by the close_dispatch_state field.
+func ByCloseDispatchState(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCloseDispatchState, opts...).ToFunc()
+}
+
+// ByCloseAttemptCount orders the results by the close_attempt_count field.
+func ByCloseAttemptCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCloseAttemptCount, opts...).ToFunc()
+}
+
+// ByCloseLeaseGeneration orders the results by the close_lease_generation field.
+func ByCloseLeaseGeneration(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCloseLeaseGeneration, opts...).ToFunc()
+}
+
+// ByCloseLeaseOwner orders the results by the close_lease_owner field.
+func ByCloseLeaseOwner(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCloseLeaseOwner, opts...).ToFunc()
+}
+
+// ByCloseLeaseUntil orders the results by the close_lease_until field.
+func ByCloseLeaseUntil(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCloseLeaseUntil, opts...).ToFunc()
+}
+
+// ByCloseNextAttemptAt orders the results by the close_next_attempt_at field.
+func ByCloseNextAttemptAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCloseNextAttemptAt, opts...).ToFunc()
+}
+
+// ByCloseRetryBlocked orders the results by the close_retry_blocked field.
+func ByCloseRetryBlocked(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCloseRetryBlocked, opts...).ToFunc()
+}
+
+// ByCloseLastErrorCode orders the results by the close_last_error_code field.
+func ByCloseLastErrorCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCloseLastErrorCode, opts...).ToFunc()
 }

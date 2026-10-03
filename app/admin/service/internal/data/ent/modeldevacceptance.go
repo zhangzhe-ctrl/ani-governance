@@ -60,6 +60,30 @@ type ModelDevAcceptance struct {
 	LastErrorCode *string `json:"last_error_code,omitempty"`
 	// OwnerReceiptCanonical holds the value of the "owner_receipt_canonical" field.
 	OwnerReceiptCanonical []byte `json:"owner_receipt_canonical,omitempty"`
+	// StopIntentGeneration holds the value of the "stop_intent_generation" field.
+	StopIntentGeneration int64 `json:"stop_intent_generation,omitempty"`
+	// StopRequestedAt holds the value of the "stop_requested_at" field.
+	StopRequestedAt *time.Time `json:"stop_requested_at,omitempty"`
+	// StopRequestedActor holds the value of the "stop_requested_actor" field.
+	StopRequestedActor *string `json:"stop_requested_actor,omitempty"`
+	// CloseDispatchState holds the value of the "close_dispatch_state" field.
+	CloseDispatchState modeldevacceptance.CloseDispatchState `json:"close_dispatch_state,omitempty"`
+	// CloseAttemptCount holds the value of the "close_attempt_count" field.
+	CloseAttemptCount int64 `json:"close_attempt_count,omitempty"`
+	// CloseLeaseGeneration holds the value of the "close_lease_generation" field.
+	CloseLeaseGeneration int64 `json:"close_lease_generation,omitempty"`
+	// CloseLeaseOwner holds the value of the "close_lease_owner" field.
+	CloseLeaseOwner *string `json:"close_lease_owner,omitempty"`
+	// CloseLeaseUntil holds the value of the "close_lease_until" field.
+	CloseLeaseUntil *time.Time `json:"close_lease_until,omitempty"`
+	// CloseNextAttemptAt holds the value of the "close_next_attempt_at" field.
+	CloseNextAttemptAt *time.Time `json:"close_next_attempt_at,omitempty"`
+	// CloseRetryBlocked holds the value of the "close_retry_blocked" field.
+	CloseRetryBlocked bool `json:"close_retry_blocked,omitempty"`
+	// CloseLastErrorCode holds the value of the "close_last_error_code" field.
+	CloseLastErrorCode *string `json:"close_last_error_code,omitempty"`
+	// CloseReceiptCanonical holds the value of the "close_receipt_canonical" field.
+	CloseReceiptCanonical []byte `json:"close_receipt_canonical,omitempty"`
 	selectValues          sql.SelectValues
 }
 
@@ -68,15 +92,15 @@ func (*ModelDevAcceptance) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case modeldevacceptance.FieldIntentCanonical, modeldevacceptance.FieldSnapshotCanonical, modeldevacceptance.FieldOwnerReceiptCanonical:
+		case modeldevacceptance.FieldIntentCanonical, modeldevacceptance.FieldSnapshotCanonical, modeldevacceptance.FieldOwnerReceiptCanonical, modeldevacceptance.FieldCloseReceiptCanonical:
 			values[i] = new([]byte)
-		case modeldevacceptance.FieldRetryBlocked:
+		case modeldevacceptance.FieldRetryBlocked, modeldevacceptance.FieldCloseRetryBlocked:
 			values[i] = new(sql.NullBool)
-		case modeldevacceptance.FieldID, modeldevacceptance.FieldTenantID, modeldevacceptance.FieldAttemptCount, modeldevacceptance.FieldLeaseGeneration:
+		case modeldevacceptance.FieldID, modeldevacceptance.FieldTenantID, modeldevacceptance.FieldAttemptCount, modeldevacceptance.FieldLeaseGeneration, modeldevacceptance.FieldStopIntentGeneration, modeldevacceptance.FieldCloseAttemptCount, modeldevacceptance.FieldCloseLeaseGeneration:
 			values[i] = new(sql.NullInt64)
-		case modeldevacceptance.FieldResourceTenantID, modeldevacceptance.FieldActor, modeldevacceptance.FieldAction, modeldevacceptance.FieldIdempotencyKey, modeldevacceptance.FieldOperationID, modeldevacceptance.FieldExecutionID, modeldevacceptance.FieldIntentHash, modeldevacceptance.FieldExecutionSpecHash, modeldevacceptance.FieldDispatchState, modeldevacceptance.FieldLeaseOwner, modeldevacceptance.FieldLastErrorCode:
+		case modeldevacceptance.FieldResourceTenantID, modeldevacceptance.FieldActor, modeldevacceptance.FieldAction, modeldevacceptance.FieldIdempotencyKey, modeldevacceptance.FieldOperationID, modeldevacceptance.FieldExecutionID, modeldevacceptance.FieldIntentHash, modeldevacceptance.FieldExecutionSpecHash, modeldevacceptance.FieldDispatchState, modeldevacceptance.FieldLeaseOwner, modeldevacceptance.FieldLastErrorCode, modeldevacceptance.FieldStopRequestedActor, modeldevacceptance.FieldCloseDispatchState, modeldevacceptance.FieldCloseLeaseOwner, modeldevacceptance.FieldCloseLastErrorCode:
 			values[i] = new(sql.NullString)
-		case modeldevacceptance.FieldAcceptedAt, modeldevacceptance.FieldLeaseUntil, modeldevacceptance.FieldNextAttemptAt:
+		case modeldevacceptance.FieldAcceptedAt, modeldevacceptance.FieldLeaseUntil, modeldevacceptance.FieldNextAttemptAt, modeldevacceptance.FieldStopRequestedAt, modeldevacceptance.FieldCloseLeaseUntil, modeldevacceptance.FieldCloseNextAttemptAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -230,6 +254,84 @@ func (_m *ModelDevAcceptance) assignValues(columns []string, values []any) error
 			} else if value != nil {
 				_m.OwnerReceiptCanonical = *value
 			}
+		case modeldevacceptance.FieldStopIntentGeneration:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field stop_intent_generation", values[i])
+			} else if value.Valid {
+				_m.StopIntentGeneration = value.Int64
+			}
+		case modeldevacceptance.FieldStopRequestedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field stop_requested_at", values[i])
+			} else if value.Valid {
+				_m.StopRequestedAt = new(time.Time)
+				*_m.StopRequestedAt = value.Time
+			}
+		case modeldevacceptance.FieldStopRequestedActor:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field stop_requested_actor", values[i])
+			} else if value.Valid {
+				_m.StopRequestedActor = new(string)
+				*_m.StopRequestedActor = value.String
+			}
+		case modeldevacceptance.FieldCloseDispatchState:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field close_dispatch_state", values[i])
+			} else if value.Valid {
+				_m.CloseDispatchState = modeldevacceptance.CloseDispatchState(value.String)
+			}
+		case modeldevacceptance.FieldCloseAttemptCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field close_attempt_count", values[i])
+			} else if value.Valid {
+				_m.CloseAttemptCount = value.Int64
+			}
+		case modeldevacceptance.FieldCloseLeaseGeneration:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field close_lease_generation", values[i])
+			} else if value.Valid {
+				_m.CloseLeaseGeneration = value.Int64
+			}
+		case modeldevacceptance.FieldCloseLeaseOwner:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field close_lease_owner", values[i])
+			} else if value.Valid {
+				_m.CloseLeaseOwner = new(string)
+				*_m.CloseLeaseOwner = value.String
+			}
+		case modeldevacceptance.FieldCloseLeaseUntil:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field close_lease_until", values[i])
+			} else if value.Valid {
+				_m.CloseLeaseUntil = new(time.Time)
+				*_m.CloseLeaseUntil = value.Time
+			}
+		case modeldevacceptance.FieldCloseNextAttemptAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field close_next_attempt_at", values[i])
+			} else if value.Valid {
+				_m.CloseNextAttemptAt = new(time.Time)
+				*_m.CloseNextAttemptAt = value.Time
+			}
+		case modeldevacceptance.FieldCloseRetryBlocked:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field close_retry_blocked", values[i])
+			} else if value.Valid {
+				_m.CloseRetryBlocked = value.Bool
+			}
+		case modeldevacceptance.FieldCloseLastErrorCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field close_last_error_code", values[i])
+			} else if value.Valid {
+				_m.CloseLastErrorCode = new(string)
+				*_m.CloseLastErrorCode = value.String
+			}
+		case modeldevacceptance.FieldCloseReceiptCanonical:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field close_receipt_canonical", values[i])
+			} else if value != nil {
+				_m.CloseReceiptCanonical = *value
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -338,6 +440,54 @@ func (_m *ModelDevAcceptance) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("owner_receipt_canonical=")
 	builder.WriteString(fmt.Sprintf("%v", _m.OwnerReceiptCanonical))
+	builder.WriteString(", ")
+	builder.WriteString("stop_intent_generation=")
+	builder.WriteString(fmt.Sprintf("%v", _m.StopIntentGeneration))
+	builder.WriteString(", ")
+	if v := _m.StopRequestedAt; v != nil {
+		builder.WriteString("stop_requested_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.StopRequestedActor; v != nil {
+		builder.WriteString("stop_requested_actor=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	builder.WriteString("close_dispatch_state=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CloseDispatchState))
+	builder.WriteString(", ")
+	builder.WriteString("close_attempt_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CloseAttemptCount))
+	builder.WriteString(", ")
+	builder.WriteString("close_lease_generation=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CloseLeaseGeneration))
+	builder.WriteString(", ")
+	if v := _m.CloseLeaseOwner; v != nil {
+		builder.WriteString("close_lease_owner=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.CloseLeaseUntil; v != nil {
+		builder.WriteString("close_lease_until=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.CloseNextAttemptAt; v != nil {
+		builder.WriteString("close_next_attempt_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("close_retry_blocked=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CloseRetryBlocked))
+	builder.WriteString(", ")
+	if v := _m.CloseLastErrorCode; v != nil {
+		builder.WriteString("close_last_error_code=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	builder.WriteString("close_receipt_canonical=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CloseReceiptCanonical))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -2757,6 +2757,26 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListExecutionArtifactsResponse'
+    /admin/v1/modeldev/executions/{execution_id}:stop:
+        post:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_StopExecution
+            parameters:
+                - name: execution_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "202":
+                    description: Durable stop intent accepted; resources are not yet confirmed closed
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/StopExecutionResponse'
+            security:
+                - BearerAuth: []
     /admin/v1/notification-channels:
         get:
             tags:
@@ -11687,6 +11707,20 @@ components:
                     items:
                         $ref: '#/components/schemas/DistributionItem'
             description: 登录状态分布 - 回应
+        StopExecutionResponse:
+            type: object
+            properties:
+                operation_id:
+                    type: string
+                execution_id:
+                    type: string
+                stop_requested:
+                    type: boolean
+                intent_generation:
+                    type: string
+                replayed:
+                    type: boolean
+            description: Governance acceptance only. ModelDev owns the creation fence and CLOSED.
         StringArray:
             type: object
             properties:

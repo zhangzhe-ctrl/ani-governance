@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ModelDevService_StopExecution_FullMethodName             = "/admin.service.v1.ModelDevService/StopExecution"
 	ModelDevService_GetExecution_FullMethodName              = "/admin.service.v1.ModelDevService/GetExecution"
 	ModelDevService_ListExecutionArtifacts_FullMethodName    = "/admin.service.v1.ModelDevService/ListExecutionArtifacts"
 	ModelDevService_AuthorizeArtifactDownload_FullMethodName = "/admin.service.v1.ModelDevService/AuthorizeArtifactDownload"
@@ -32,6 +33,7 @@ const (
 //
 // CPU-P01 entry in the existing Governance BFF.
 type ModelDevServiceClient interface {
+	StopExecution(ctx context.Context, in *v1.StopExecutionRequest, opts ...grpc.CallOption) (*v1.StopExecutionResponse, error)
 	GetExecution(ctx context.Context, in *v1.GetExecutionRequest, opts ...grpc.CallOption) (*v1.GetExecutionResponse, error)
 	ListExecutionArtifacts(ctx context.Context, in *v1.ListExecutionArtifactsRequest, opts ...grpc.CallOption) (*v1.ListExecutionArtifactsResponse, error)
 	AuthorizeArtifactDownload(ctx context.Context, in *v1.AuthorizeArtifactDownloadRequest, opts ...grpc.CallOption) (*v1.AuthorizeArtifactDownloadResponse, error)
@@ -44,6 +46,16 @@ type modelDevServiceClient struct {
 
 func NewModelDevServiceClient(cc grpc.ClientConnInterface) ModelDevServiceClient {
 	return &modelDevServiceClient{cc}
+}
+
+func (c *modelDevServiceClient) StopExecution(ctx context.Context, in *v1.StopExecutionRequest, opts ...grpc.CallOption) (*v1.StopExecutionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.StopExecutionResponse)
+	err := c.cc.Invoke(ctx, ModelDevService_StopExecution_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *modelDevServiceClient) GetExecution(ctx context.Context, in *v1.GetExecutionRequest, opts ...grpc.CallOption) (*v1.GetExecutionResponse, error) {
@@ -92,6 +104,7 @@ func (c *modelDevServiceClient) CreateExecution(ctx context.Context, in *v1.Crea
 //
 // CPU-P01 entry in the existing Governance BFF.
 type ModelDevServiceServer interface {
+	StopExecution(context.Context, *v1.StopExecutionRequest) (*v1.StopExecutionResponse, error)
 	GetExecution(context.Context, *v1.GetExecutionRequest) (*v1.GetExecutionResponse, error)
 	ListExecutionArtifacts(context.Context, *v1.ListExecutionArtifactsRequest) (*v1.ListExecutionArtifactsResponse, error)
 	AuthorizeArtifactDownload(context.Context, *v1.AuthorizeArtifactDownloadRequest) (*v1.AuthorizeArtifactDownloadResponse, error)
@@ -106,6 +119,9 @@ type ModelDevServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedModelDevServiceServer struct{}
 
+func (UnimplementedModelDevServiceServer) StopExecution(context.Context, *v1.StopExecutionRequest) (*v1.StopExecutionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method StopExecution not implemented")
+}
 func (UnimplementedModelDevServiceServer) GetExecution(context.Context, *v1.GetExecutionRequest) (*v1.GetExecutionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetExecution not implemented")
 }
@@ -137,6 +153,24 @@ func RegisterModelDevServiceServer(s grpc.ServiceRegistrar, srv ModelDevServiceS
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ModelDevService_ServiceDesc, srv)
+}
+
+func _ModelDevService_StopExecution_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.StopExecutionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelDevServiceServer).StopExecution(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelDevService_StopExecution_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelDevServiceServer).StopExecution(ctx, req.(*v1.StopExecutionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ModelDevService_GetExecution_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -218,6 +252,10 @@ var ModelDevService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "admin.service.v1.ModelDevService",
 	HandlerType: (*ModelDevServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "StopExecution",
+			Handler:    _ModelDevService_StopExecution_Handler,
+		},
 		{
 			MethodName: "GetExecution",
 			Handler:    _ModelDevService_GetExecution_Handler,

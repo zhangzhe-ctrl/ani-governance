@@ -669,6 +669,18 @@ var schemaGraph = func() *sqlgraph.Schema {
 			modeldevacceptance.FieldRetryBlocked:          {Type: field.TypeBool, Column: modeldevacceptance.FieldRetryBlocked},
 			modeldevacceptance.FieldLastErrorCode:         {Type: field.TypeString, Column: modeldevacceptance.FieldLastErrorCode},
 			modeldevacceptance.FieldOwnerReceiptCanonical: {Type: field.TypeBytes, Column: modeldevacceptance.FieldOwnerReceiptCanonical},
+			modeldevacceptance.FieldStopIntentGeneration:  {Type: field.TypeInt64, Column: modeldevacceptance.FieldStopIntentGeneration},
+			modeldevacceptance.FieldStopRequestedAt:       {Type: field.TypeTime, Column: modeldevacceptance.FieldStopRequestedAt},
+			modeldevacceptance.FieldStopRequestedActor:    {Type: field.TypeString, Column: modeldevacceptance.FieldStopRequestedActor},
+			modeldevacceptance.FieldCloseDispatchState:    {Type: field.TypeEnum, Column: modeldevacceptance.FieldCloseDispatchState},
+			modeldevacceptance.FieldCloseAttemptCount:     {Type: field.TypeInt64, Column: modeldevacceptance.FieldCloseAttemptCount},
+			modeldevacceptance.FieldCloseLeaseGeneration:  {Type: field.TypeInt64, Column: modeldevacceptance.FieldCloseLeaseGeneration},
+			modeldevacceptance.FieldCloseLeaseOwner:       {Type: field.TypeString, Column: modeldevacceptance.FieldCloseLeaseOwner},
+			modeldevacceptance.FieldCloseLeaseUntil:       {Type: field.TypeTime, Column: modeldevacceptance.FieldCloseLeaseUntil},
+			modeldevacceptance.FieldCloseNextAttemptAt:    {Type: field.TypeTime, Column: modeldevacceptance.FieldCloseNextAttemptAt},
+			modeldevacceptance.FieldCloseRetryBlocked:     {Type: field.TypeBool, Column: modeldevacceptance.FieldCloseRetryBlocked},
+			modeldevacceptance.FieldCloseLastErrorCode:    {Type: field.TypeString, Column: modeldevacceptance.FieldCloseLastErrorCode},
+			modeldevacceptance.FieldCloseReceiptCanonical: {Type: field.TypeBytes, Column: modeldevacceptance.FieldCloseReceiptCanonical},
 		},
 	}
 	graph.Nodes[21] = &sqlgraph.Node{
@@ -4357,6 +4369,66 @@ func (f *ModelDevAcceptanceFilter) WhereLastErrorCode(p entql.StringP) {
 // WhereOwnerReceiptCanonical applies the entql []byte predicate on the owner_receipt_canonical field.
 func (f *ModelDevAcceptanceFilter) WhereOwnerReceiptCanonical(p entql.BytesP) {
 	f.Where(p.Field(modeldevacceptance.FieldOwnerReceiptCanonical))
+}
+
+// WhereStopIntentGeneration applies the entql int64 predicate on the stop_intent_generation field.
+func (f *ModelDevAcceptanceFilter) WhereStopIntentGeneration(p entql.Int64P) {
+	f.Where(p.Field(modeldevacceptance.FieldStopIntentGeneration))
+}
+
+// WhereStopRequestedAt applies the entql time.Time predicate on the stop_requested_at field.
+func (f *ModelDevAcceptanceFilter) WhereStopRequestedAt(p entql.TimeP) {
+	f.Where(p.Field(modeldevacceptance.FieldStopRequestedAt))
+}
+
+// WhereStopRequestedActor applies the entql string predicate on the stop_requested_actor field.
+func (f *ModelDevAcceptanceFilter) WhereStopRequestedActor(p entql.StringP) {
+	f.Where(p.Field(modeldevacceptance.FieldStopRequestedActor))
+}
+
+// WhereCloseDispatchState applies the entql string predicate on the close_dispatch_state field.
+func (f *ModelDevAcceptanceFilter) WhereCloseDispatchState(p entql.StringP) {
+	f.Where(p.Field(modeldevacceptance.FieldCloseDispatchState))
+}
+
+// WhereCloseAttemptCount applies the entql int64 predicate on the close_attempt_count field.
+func (f *ModelDevAcceptanceFilter) WhereCloseAttemptCount(p entql.Int64P) {
+	f.Where(p.Field(modeldevacceptance.FieldCloseAttemptCount))
+}
+
+// WhereCloseLeaseGeneration applies the entql int64 predicate on the close_lease_generation field.
+func (f *ModelDevAcceptanceFilter) WhereCloseLeaseGeneration(p entql.Int64P) {
+	f.Where(p.Field(modeldevacceptance.FieldCloseLeaseGeneration))
+}
+
+// WhereCloseLeaseOwner applies the entql string predicate on the close_lease_owner field.
+func (f *ModelDevAcceptanceFilter) WhereCloseLeaseOwner(p entql.StringP) {
+	f.Where(p.Field(modeldevacceptance.FieldCloseLeaseOwner))
+}
+
+// WhereCloseLeaseUntil applies the entql time.Time predicate on the close_lease_until field.
+func (f *ModelDevAcceptanceFilter) WhereCloseLeaseUntil(p entql.TimeP) {
+	f.Where(p.Field(modeldevacceptance.FieldCloseLeaseUntil))
+}
+
+// WhereCloseNextAttemptAt applies the entql time.Time predicate on the close_next_attempt_at field.
+func (f *ModelDevAcceptanceFilter) WhereCloseNextAttemptAt(p entql.TimeP) {
+	f.Where(p.Field(modeldevacceptance.FieldCloseNextAttemptAt))
+}
+
+// WhereCloseRetryBlocked applies the entql bool predicate on the close_retry_blocked field.
+func (f *ModelDevAcceptanceFilter) WhereCloseRetryBlocked(p entql.BoolP) {
+	f.Where(p.Field(modeldevacceptance.FieldCloseRetryBlocked))
+}
+
+// WhereCloseLastErrorCode applies the entql string predicate on the close_last_error_code field.
+func (f *ModelDevAcceptanceFilter) WhereCloseLastErrorCode(p entql.StringP) {
+	f.Where(p.Field(modeldevacceptance.FieldCloseLastErrorCode))
+}
+
+// WhereCloseReceiptCanonical applies the entql []byte predicate on the close_receipt_canonical field.
+func (f *ModelDevAcceptanceFilter) WhereCloseReceiptCanonical(p entql.BytesP) {
+	f.Where(p.Field(modeldevacceptance.FieldCloseReceiptCanonical))
 }
 
 // addPredicate implements the predicateAdder interface.

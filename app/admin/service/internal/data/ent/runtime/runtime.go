@@ -805,6 +805,36 @@ func init() {
 	modeldevacceptanceDescRetryBlocked := modeldevacceptanceFields[17].Descriptor()
 	// modeldevacceptance.DefaultRetryBlocked holds the default value on creation for the retry_blocked field.
 	modeldevacceptance.DefaultRetryBlocked = modeldevacceptanceDescRetryBlocked.Default.(bool)
+	// modeldevacceptanceDescStopIntentGeneration is the schema descriptor for stop_intent_generation field.
+	modeldevacceptanceDescStopIntentGeneration := modeldevacceptanceFields[20].Descriptor()
+	// modeldevacceptance.DefaultStopIntentGeneration holds the default value on creation for the stop_intent_generation field.
+	modeldevacceptance.DefaultStopIntentGeneration = modeldevacceptanceDescStopIntentGeneration.Default.(int64)
+	// modeldevacceptance.StopIntentGenerationValidator is a validator for the "stop_intent_generation" field. It is called by the builders before save.
+	modeldevacceptance.StopIntentGenerationValidator = modeldevacceptanceDescStopIntentGeneration.Validators[0].(func(int64) error)
+	// modeldevacceptanceDescStopRequestedActor is the schema descriptor for stop_requested_actor field.
+	modeldevacceptanceDescStopRequestedActor := modeldevacceptanceFields[22].Descriptor()
+	// modeldevacceptance.StopRequestedActorValidator is a validator for the "stop_requested_actor" field. It is called by the builders before save.
+	modeldevacceptance.StopRequestedActorValidator = modeldevacceptanceDescStopRequestedActor.Validators[0].(func(string) error)
+	// modeldevacceptanceDescCloseAttemptCount is the schema descriptor for close_attempt_count field.
+	modeldevacceptanceDescCloseAttemptCount := modeldevacceptanceFields[24].Descriptor()
+	// modeldevacceptance.DefaultCloseAttemptCount holds the default value on creation for the close_attempt_count field.
+	modeldevacceptance.DefaultCloseAttemptCount = modeldevacceptanceDescCloseAttemptCount.Default.(int64)
+	// modeldevacceptance.CloseAttemptCountValidator is a validator for the "close_attempt_count" field. It is called by the builders before save.
+	modeldevacceptance.CloseAttemptCountValidator = modeldevacceptanceDescCloseAttemptCount.Validators[0].(func(int64) error)
+	// modeldevacceptanceDescCloseLeaseGeneration is the schema descriptor for close_lease_generation field.
+	modeldevacceptanceDescCloseLeaseGeneration := modeldevacceptanceFields[25].Descriptor()
+	// modeldevacceptance.DefaultCloseLeaseGeneration holds the default value on creation for the close_lease_generation field.
+	modeldevacceptance.DefaultCloseLeaseGeneration = modeldevacceptanceDescCloseLeaseGeneration.Default.(int64)
+	// modeldevacceptance.CloseLeaseGenerationValidator is a validator for the "close_lease_generation" field. It is called by the builders before save.
+	modeldevacceptance.CloseLeaseGenerationValidator = modeldevacceptanceDescCloseLeaseGeneration.Validators[0].(func(int64) error)
+	// modeldevacceptanceDescCloseLeaseOwner is the schema descriptor for close_lease_owner field.
+	modeldevacceptanceDescCloseLeaseOwner := modeldevacceptanceFields[26].Descriptor()
+	// modeldevacceptance.CloseLeaseOwnerValidator is a validator for the "close_lease_owner" field. It is called by the builders before save.
+	modeldevacceptance.CloseLeaseOwnerValidator = modeldevacceptanceDescCloseLeaseOwner.Validators[0].(func(string) error)
+	// modeldevacceptanceDescCloseRetryBlocked is the schema descriptor for close_retry_blocked field.
+	modeldevacceptanceDescCloseRetryBlocked := modeldevacceptanceFields[29].Descriptor()
+	// modeldevacceptance.DefaultCloseRetryBlocked holds the default value on creation for the close_retry_blocked field.
+	modeldevacceptance.DefaultCloseRetryBlocked = modeldevacceptanceDescCloseRetryBlocked.Default.(bool)
 	// modeldevacceptanceDescID is the schema descriptor for id field.
 	modeldevacceptanceDescID := modeldevacceptanceMixinFields0[0].Descriptor()
 	// modeldevacceptance.IDValidator is a validator for the "id" field. It is called by the builders before save.
