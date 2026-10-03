@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package modeldev.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+// CPU-P01 public intent. Shared canonicalization and immutable execution
+// contracts are maintained by ani-modeldev-service/contract/cpup01.
+// The HTTP adapter preserves omitted versus explicitly empty parameters.
+message CreateExecutionRequest {
+  option (gnostic.openapi.v3.schema) = {
+    required: ["name", "kind", "preset_id", "dataset_version_id", "idempotency_key"]
+  };
+  string name = 1;
+  string kind = 2 [(gnostic.openapi.v3.property) = {
+    description: "CPU-P01 supports GENERAL_TRAINING only"
+  }];
+  string preset_id = 3 [json_name = "preset_id"];
+  string dataset_version_id = 4 [json_name = "dataset_version_id"];
+  string idempotency_key = 5 [json_name = "idempotency_key"];
+  optional string image_version_id = 6 [json_name = "image_version_id"];
+  repeated GeneralParameter general_parameters = 7 [
+    json_name = "general_parameters",
+    (gnostic.openapi.v3.property) = {
+      description: "Optional registered parameters; omitted and [] are distinct intents. Null is rejected."
+    }
+  ];
+  optional string source_execution_id = 8 [json_name = "source_execution_id"];
+}
+
+message GeneralParameter {
+  string name = 1;
+  string type = 2;
+  // Values are strings, including INTEGER and DECIMAL parameters.
+  string value = 3;
+}
+
+// Returned only after Governance has durably accepted the frozen intent.
+// Acceptance does not establish a KFP Run or successful training.
+message CreateExecutionResponse {
+  string operation_id = 1 [json_name = "operation_id"];
+  string execution_id = 2 [json_name = "execution_id"];
+  string resolved_release_id = 3 [json_name = "resolved_release_id"];
+  bool replayed = 4;
+  string compute_state = 5 [json_name = "compute_state"];
+  string delivery_state = 6 [json_name = "delivery_state"];
+  string close_state = 7 [json_name = "close_state"];
+  string resource_state = 8 [json_name = "resource_state"];
+}

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package admin.service.v1;
+
+import "google/api/annotations.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "modeldev/service/v1/execution.proto";
+
+// CPU-P01 entry in the existing Governance BFF.
+service ModelDevService {
+  rpc CreateExecution (modeldev.service.v1.CreateExecutionRequest) returns (modeldev.service.v1.CreateExecutionResponse) {
+    option (gnostic.openapi.v3.operation) = {
+      security: { additional_properties: { name: "BearerAuth" value: {} } }
+      responses: { response_or_reference: [{ name: "202" value: { response: {
+        description: "Accepted; the frozen request and CPU delivery intent are durable"
+        content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/CreateExecutionResponse" } } } }] }
+      } } }] }
+    };
+    option (google.api.http) = {
+      post: "/admin/v1/modeldev/executions"
+      body: "*"
+    };
+  }
+}
