@@ -53,8 +53,33 @@ func (s *ModelDevService) GetExecution(ctx context.Context, in *modeldevv1.GetEx
 	if err != nil {
 		return nil, modelDevQueryFailure(err)
 	}
-	execution := out.Execution
-	return &modeldevv1.GetExecutionResponse{Execution: &modeldevv1.ExecutionView{
+	return &modeldevv1.GetExecutionResponse{Execution: modelDevPublicExecution(out.Execution)}, nil
+}
+
+func (s *ModelDevService) ListExecutions(ctx context.Context, in *modeldevv1.ListExecutionsRequest) (*modeldevv1.ListExecutionsResponse, error) {
+	scope, err := s.modelDevQueryScope(ctx, data.ModelDevListExecutionsPath)
+	if err != nil { return nil, err }
+	if in == nil || in.PageSize > 100 || len(in.PageToken) > 2048 { return nil, modelDevQueryInvalid() }
+	out, err := s.resolver.ListExecutions(ctx, scope, in.PageSize, in.PageToken)
+	if err != nil { return nil, modelDevQueryFailure(err) }
+	reply := &modeldevv1.ListExecutionsResponse{NextPageToken: out.NextPageToken}
+	for _, execution := range out.Executions { reply.Executions = append(reply.Executions, modelDevPublicExecution(execution)) }
+	return reply, nil
+}
+
+func (s *ModelDevService) GetExecutionLogs(ctx context.Context, in *modeldevv1.GetExecutionLogsRequest) (*modeldevv1.GetExecutionLogsResponse, error) {
+	scope, err := s.modelDevQueryScope(ctx, data.ModelDevGetExecutionLogsPath)
+	if err != nil { return nil, err }
+	if in == nil || !modelDevQueryUUID(in.ExecutionId) || in.TailLines > 1000 || in.MaxBytes > 65536 { return nil, modelDevQueryInvalid() }
+	out, err := s.resolver.GetExecutionLogs(ctx, scope, in.ExecutionId, in.TailLines, in.MaxBytes)
+	if err != nil { return nil, modelDevQueryFailure(err) }
+	reply := &modeldevv1.GetExecutionLogsResponse{LogId: out.Source.LogId, Truncated: out.Truncated, ObservedAt: out.ObservedAt.AsTime().UTC().Format(time.RFC3339Nano)}
+	for _, line := range out.Lines { reply.Lines = append(reply.Lines, &modeldevv1.ExecutionLogLine{Timestamp: line.Timestamp.AsTime().UTC().Format(time.RFC3339Nano), Text: line.Text}) }
+	return reply, nil
+}
+
+func modelDevPublicExecution(execution *modeldevcontractv1.ExecutionView) *modeldevv1.ExecutionView {
+	return &modeldevv1.ExecutionView{
 		OperationId: execution.Identity.OperationId, ExecutionId: execution.Identity.ExecutionId, Name: execution.Name,
 		Kind: strings.TrimPrefix(execution.Kind.String(), "EXECUTION_KIND_"), PresetId: execution.PresetId, ReleaseId: execution.ReleaseId,
 		InputVersionId: execution.InputVersionId, ImageVersionId: execution.ImageVersionId,
@@ -65,7 +90,7 @@ func (s *ModelDevService) GetExecution(ctx context.Context, in *modeldevv1.GetEx
 		CurrentStep:   strings.TrimPrefix(execution.CurrentStep.String(), "PIPELINE_STEP_"), StopRequested: execution.StopRequested, CloseGeneration: execution.CloseGeneration,
 		AcceptedAt: execution.AcceptedAt.AsTime().UTC().Format(time.RFC3339Nano), DeadlineAt: execution.DeadlineAt.AsTime().UTC().Format(time.RFC3339Nano),
 		ObservedAt: execution.ObservedAt.AsTime().UTC().Format(time.RFC3339Nano),
-	}}, nil
+	}
 }
 
 func (s *ModelDevService) ListExecutionArtifacts(ctx context.Context, in *modeldevv1.ListExecutionArtifactsRequest) (*modeldevv1.ListExecutionArtifactsResponse, error) {

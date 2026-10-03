@@ -44,14 +44,18 @@ func (c *ModelDevClient) GetExecution(ctx context.Context, scope ModelDevResolve
 	if err != nil {
 		return nil, modelDevQueryError(err)
 	}
-	if out == nil || modelDevUnknownFields(out.ProtoReflect()) || out.Execution == nil || out.Execution.Identity == nil || out.Execution.Identity.ExecutionId != id ||
-		!modelDevCanonicalUUID(out.Execution.Identity.OperationId) || !modelDevDigest(out.Execution.Identity.ExecutionSpecHash) || out.Execution.States == nil ||
-		out.Execution.Kind != trainingv1.ExecutionKind_EXECUTION_KIND_GENERAL_TRAINING ||
-		!modelDevValidTimestamp(out.Execution.AcceptedAt) || !modelDevValidTimestamp(out.Execution.DeadlineAt) || !modelDevValidTimestamp(out.Execution.ObservedAt) ||
-		out.Execution.States.ComputeState == 0 || out.Execution.States.DeliveryState == 0 || out.Execution.States.CloseState == 0 || out.Execution.States.ResourceState == 0 {
+	if out == nil || modelDevUnknownFields(out.ProtoReflect()) || !modelDevValidExecution(out.Execution) || out.Execution.Identity.ExecutionId != id {
 		return nil, modelDevQueryUnavailable()
 	}
 	return out, nil
+}
+
+func modelDevValidExecution(in *modeldevv1.ExecutionView) bool {
+	return in != nil && in.Identity != nil && modelDevCanonicalUUID(in.Identity.ExecutionId) &&
+		modelDevCanonicalUUID(in.Identity.OperationId) && modelDevDigest(in.Identity.ExecutionSpecHash) && in.States != nil &&
+		in.Kind == trainingv1.ExecutionKind_EXECUTION_KIND_GENERAL_TRAINING &&
+		modelDevValidTimestamp(in.AcceptedAt) && modelDevValidTimestamp(in.DeadlineAt) && modelDevValidTimestamp(in.ObservedAt) &&
+		in.States.ComputeState != 0 && in.States.DeliveryState != 0 && in.States.CloseState != 0 && in.States.ResourceState != 0
 }
 
 func (c *ModelDevClient) ListExecutionArtifacts(ctx context.Context, scope ModelDevResolveScope, id string, size uint32, token string) (*modeldevv1.ListExecutionArtifactsResponse, error) {

@@ -195,14 +195,18 @@ func readModelDevMainFlowStartup(t *testing.T) *modelDevMainFlowStartup {
 // This test calls the real ModelDev query service on its real PG publication.
 // Only the KFP/Kubernetes/S3 boundaries in the provider remain explicit fixtures.
 func TestModelDevQueryCurrentAuthorizationDownloadsPublishedArtifacts(t *testing.T) {
-	testModelDevBFFMainFlow(t, false)
+	testModelDevBFFMainFlow(t, false, false)
 }
 
 func TestModelDevStopDuringActualTrainingAndObserveClosed(t *testing.T) {
-	testModelDevBFFMainFlow(t, true)
+	testModelDevBFFMainFlow(t, true, false)
 }
 
-func testModelDevBFFMainFlow(t *testing.T, stopping bool) {
+func TestModelDevListAndRealTrainingLogsThroughBFF(t *testing.T) {
+	testModelDevBFFMainFlow(t, false, true)
+}
+
+func testModelDevBFFMainFlow(t *testing.T, stopping, listLogs bool) {
 	startup := readModelDevMainFlowStartup(t)
 	if stopping {
 		require.NotNil(t, startup, "CPU10_STOP_PREFLIGHT: actual create provider required")
@@ -231,22 +235,22 @@ func testModelDevBFFMainFlow(t *testing.T, stopping bool) {
 	module, err := writer.Client().PlanModule.Create().SetPlanID(plan.ID).SetModule(planmodule.ModuleModel).Save(sys)
 	require.NoError(t, err)
 	cleanup(func(c context.Context) error { return writer.Client().PlanModule.DeleteOneID(module.ID).Exec(c) })
-	paths := []string{data.ModelDevGetExecutionPath, data.ModelDevListArtifactsPath, data.ModelDevDownloadArtifactPath}
+	type apiRoute struct { path, method string }
+	routes := []apiRoute{{data.ModelDevGetExecutionPath,"GET"},{data.ModelDevListArtifactsPath,"GET"},{data.ModelDevDownloadArtifactPath,"GET"}}
 	if startup != nil {
-		paths = append(paths, "/admin/v1/modeldev/executions")
+		routes = append(routes, apiRoute{"/admin/v1/modeldev/executions","POST"})
 	}
 	if stopping {
-		paths = append(paths, data.ModelDevStopExecutionPath)
+		routes = append(routes, apiRoute{data.ModelDevStopExecutionPath,"POST"})
 	}
+	if listLogs { routes = append(routes, apiRoute{data.ModelDevListExecutionsPath,"GET"},apiRoute{data.ModelDevGetExecutionLogsPath,"GET"}) }
 	var apiIDs []uint32
-	for _, path := range paths {
-		method := "GET"
-		if path == "/admin/v1/modeldev/executions" || path == data.ModelDevStopExecutionPath {
-			method = "POST"
-		}
-		row, e := writer.Client().Api.Create().SetModule("ModelDevService").SetScope(api.ScopeAdmin).SetPath(path).SetMethod(method).SetBusinessModule(api.BusinessModuleModel).SetStatus(api.StatusOn).Save(sys)
+	queryAPI := map[string]uint32{}
+	for _, route := range routes {
+		row, e := writer.Client().Api.Create().SetModule("ModelDevService").SetScope(api.ScopeAdmin).SetPath(route.path).SetMethod(route.method).SetBusinessModule(api.BusinessModuleModel).SetStatus(api.StatusOn).Save(sys)
 		require.NoError(t, e)
 		apiIDs = append(apiIDs, row.ID)
+		if route.method == "GET" { queryAPI[route.path] = row.ID }
 		cleanup(func(c context.Context) error { return writer.Client().Api.DeleteOneID(row.ID).Exec(c) })
 	}
 	type identity struct {
@@ -442,6 +446,62 @@ func testModelDevBFFMainFlow(t *testing.T, stopping bool) {
 	detailPath := "/admin/v1/modeldev/executions/" + provider.ExecutionID
 	artifactsPath := detailPath + "/artifacts"
 	downloadPath := "/admin/v1/modeldev/artifacts/" + provider.Artifact.ID + "/content"
+	logsPath := detailPath + "/logs"
+	if listLogs {
+		for _, path := range []string{data.ModelDevListExecutionsPath, logsPath} {
+			code, _ := get(path, "")
+			require.Equal(t,http.StatusUnauthorized,code)
+			code, _ = get(path,deniedToken)
+			require.Equal(t,http.StatusForbidden,code)
+		}
+		code,body := get(data.ModelDevListExecutionsPath+"?page_size=1",token)
+		require.Equal(t,http.StatusOK,code,"CPU09_BFF_LIST_NOT_IMPLEMENTED")
+		var executions modeldevv1.ListExecutionsResponse
+		require.NoError(t,protojson.Unmarshal(body,&executions))
+		require.Len(t,executions.Executions,1)
+		require.Equal(t,provider.ExecutionID,executions.Executions[0].ExecutionId)
+		require.Equal(t,"PUBLISHED",executions.Executions[0].DeliveryState)
+		require.Empty(t,executions.NextPageToken)
+		code,body=get(data.ModelDevListExecutionsPath,otherToken)
+		require.Equal(t,http.StatusOK,code)
+		executions.Reset()
+		require.NoError(t,protojson.Unmarshal(body,&executions))
+		require.Empty(t,executions.Executions)
+		require.Empty(t,executions.NextPageToken)
+		code,_=get(logsPath,otherToken)
+		require.Equal(t,http.StatusNotFound,code)
+		code,body=get(logsPath,token)
+		require.Equal(t,http.StatusOK,code,"CPU09_BFF_LOGS_NOT_IMPLEMENTED")
+		var logs modeldevv1.GetExecutionLogsResponse
+		require.NoError(t,protojson.Unmarshal(body,&logs))
+		_,err=uuid.Parse(logs.LogId);require.NoError(t,err)
+		require.NotEmpty(t,logs.Lines)
+		require.LessOrEqual(t,len(logs.Lines),200)
+		_,err=time.Parse(time.RFC3339Nano,logs.ObservedAt);require.NoError(t,err)
+		foundLoss,bytes:=false,0
+		for _,line:=range logs.Lines {
+			_,err=time.Parse(time.RFC3339Nano,line.Timestamp);require.NoError(t,err)
+			bytes+=len(line.Text)
+			if strings.Contains(line.Text,`"schema": "ani.metric.v1"`) && strings.Contains(line.Text,`"name": "train.loss"`) && strings.Contains(line.Text,`"step": 48`) { foundLoss=true }
+		}
+		require.True(t,foundLoss,"CPU09_REAL_TRAINING_OUTPUT_NOT_OBSERVED")
+		require.LessOrEqual(t,bytes,16384)
+		require.NotContains(t,string(body),"resource_uid")
+		require.NotContains(t,string(body),"container_name")
+		// Save the actual BFF response for user-visible evidence, not private selectors.
+		require.NoError(t,os.WriteFile(filepath.Join(filepath.Dir(os.Getenv("ANI_MODELDEV_QUERY_OUTPUT_DIR")),"bff-training-logs.json"),body,0600))
+		code,body=get(logsPath+"?tail_lines=1&max_bytes=512",token)
+		require.Equal(t,http.StatusOK,code)
+		logs.Reset();require.NoError(t,protojson.Unmarshal(body,&logs));require.LessOrEqual(t,len(logs.Lines),1)
+		for _,line:=range logs.Lines { require.LessOrEqual(t,len(line.Text),512) }
+		for path,route:=range map[string]string{data.ModelDevListExecutionsPath:data.ModelDevListExecutionsPath,logsPath:data.ModelDevGetExecutionLogsPath} {
+			require.NoError(t,writer.Client().Api.UpdateOneID(queryAPI[route]).SetStatus(api.StatusOff).Exec(sys))
+			code,_=get(path,token);require.Equal(t,http.StatusForbidden,code)
+			code,_=get(detailPath,token);require.Equal(t,http.StatusOK,code)
+			require.NoError(t,writer.Client().Api.UpdateOneID(queryAPI[route]).SetStatus(api.StatusOn).Exec(sys))
+		}
+		t.Log("same BFF-created execution listed under trusted tenant; actual train.loss step 48 retrieved through current-authorized BFF logs")
+	}
 	for _, path := range []string{detailPath, artifactsPath, downloadPath} {
 		code, body := get(path, "")
 		require.Equal(t, http.StatusUnauthorized, code)
@@ -527,7 +587,9 @@ func testModelDevBFFMainFlow(t *testing.T, stopping bool) {
 	require.NoError(t, writer.Client().Api.UpdateOneID(apiIDs[2]).SetStatus(api.StatusOn).Exec(sys))
 	// Current grant revocation wins over the still-valid JWT and cached Casbin policy.
 	require.NoError(t, writer.Client().Permission.UpdateOneID(owner.permission).SetStatus(permission.StatusOff).Exec(sys))
-	for _, path := range []string{detailPath, artifactsPath, downloadPath} {
+	revokedPaths := []string{detailPath, artifactsPath, downloadPath}
+	if listLogs { revokedPaths = append(revokedPaths, data.ModelDevListExecutionsPath, logsPath) }
+	for _, path := range revokedPaths {
 		code, body = get(path, token)
 		require.Equal(t, http.StatusForbidden, code)
 		require.NotContains(t, string(body), "download_url")
@@ -537,5 +599,8 @@ func testModelDevBFFMainFlow(t *testing.T, stopping bool) {
 	code, body = get(downloadPath, token)
 	require.Equal(t, http.StatusForbidden, code)
 	require.NotContains(t, string(body), "download_url")
+	if listLogs {
+		for _,path:=range []string{data.ModelDevListExecutionsPath,logsPath} { code,_=get(path,token);require.Equal(t,http.StatusForbidden,code) }
+	}
 	t.Log("real JWT/Redis, Casbin, current PG grants, tenant-isolated ModelDev mTLS query and authorized HTTPS downloads passed; output ready for independent CPU forward")
 }

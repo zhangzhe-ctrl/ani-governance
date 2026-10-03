@@ -67,6 +67,30 @@ message StopExecutionResponse {
 // Public query selectors never accept tenant, Pod, namespace or object keys.
 message GetExecutionRequest { string execution_id = 1 [json_name = "execution_id"]; }
 message GetExecutionResponse { ExecutionView execution = 1; }
+message ListExecutionsRequest {
+  uint32 page_size = 1 [json_name = "page_size"];
+  string page_token = 2 [json_name = "page_token"];
+}
+message ListExecutionsResponse {
+  repeated ExecutionView executions = 1;
+  string next_page_token = 2 [json_name = "next_page_token"];
+}
+message GetExecutionLogsRequest {
+  string execution_id = 1 [json_name = "execution_id"];
+  uint32 tail_lines = 2 [json_name = "tail_lines"];
+  uint32 max_bytes = 3 [json_name = "max_bytes"];
+}
+// Bounded actual training output. Pod identity and selectors remain internal.
+message GetExecutionLogsResponse {
+  string log_id = 1 [json_name = "log_id"];
+  repeated ExecutionLogLine lines = 2;
+  bool truncated = 3;
+  string observed_at = 4 [json_name = "observed_at"];
+}
+message ExecutionLogLine {
+  string timestamp = 1;
+  string text = 2;
+}
 message ExecutionView {
   string operation_id = 1 [json_name = "operation_id"];
   string execution_id = 2 [json_name = "execution_id"];

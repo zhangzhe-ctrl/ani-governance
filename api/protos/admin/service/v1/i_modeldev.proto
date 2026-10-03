@@ -8,6 +8,12 @@ import "modeldev/service/v1/execution.proto";
 
 // CPU-P01 entry in the existing Governance BFF.
 service ModelDevService {
+  rpc ListExecutions (modeldev.service.v1.ListExecutionsRequest) returns (modeldev.service.v1.ListExecutionsResponse) {
+    option (google.api.http) = { get: "/admin/v1/modeldev/executions" };
+  }
+  rpc GetExecutionLogs (modeldev.service.v1.GetExecutionLogsRequest) returns (modeldev.service.v1.GetExecutionLogsResponse) {
+    option (google.api.http) = { get: "/admin/v1/modeldev/executions/{execution_id}/logs" };
+  }
   rpc StopExecution (modeldev.service.v1.StopExecutionRequest) returns (modeldev.service.v1.StopExecutionResponse) {
     option (google.api.http) = { post: "/admin/v1/modeldev/executions/{execution_id}:stop" };
     option (gnostic.openapi.v3.operation) = {
