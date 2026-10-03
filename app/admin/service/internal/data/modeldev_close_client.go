@@ -80,7 +80,7 @@ func modelDevCloseRequest(intent ModelDevStopIntent) (*modeldevv1.ApplyCloseInte
 		return nil, &ModelDevDeliveryFailure{Code: "INVALID_COMMAND", Permanent: true}
 	}
 	return &modeldevv1.ApplyCloseIntentRequest{
-		Identity: &trainingv1.ExecutionIdentity{OperationId: intent.OperationID, ExecutionId: intent.ExecutionID, ExecutionSpecHash: intent.ExecutionSpecHash},
+		Identity:         &trainingv1.ExecutionIdentity{OperationId: intent.OperationID, ExecutionId: intent.ExecutionID, ExecutionSpecHash: intent.ExecutionSpecHash},
 		ResourceTenantId: intent.ResourceTenantID, IntentGeneration: intent.Generation, Reason: modeldevv1.CloseReason_CLOSE_REASON_USER_STOP,
 		RequestedAt: requestedAt, RequestedActorId: intent.RequestedActor,
 	}, nil

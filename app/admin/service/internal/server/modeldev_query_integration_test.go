@@ -204,7 +204,9 @@ func TestModelDevStopDuringActualTrainingAndObserveClosed(t *testing.T) {
 
 func testModelDevBFFMainFlow(t *testing.T, stopping bool) {
 	startup := readModelDevMainFlowStartup(t)
-	if stopping { require.NotNil(t, startup, "CPU10_STOP_PREFLIGHT: actual create provider required") }
+	if stopping {
+		require.NotNil(t, startup, "CPU10_STOP_PREFLIGHT: actual create provider required")
+	}
 	var provider modelDevQueryFixture
 	if startup == nil {
 		provider = readModelDevQueryFixture(t)
@@ -233,7 +235,9 @@ func testModelDevBFFMainFlow(t *testing.T, stopping bool) {
 	if startup != nil {
 		paths = append(paths, "/admin/v1/modeldev/executions")
 	}
-	if stopping { paths = append(paths, data.ModelDevStopExecutionPath) }
+	if stopping {
+		paths = append(paths, data.ModelDevStopExecutionPath)
+	}
 	var apiIDs []uint32
 	for _, path := range paths {
 		method := "GET"

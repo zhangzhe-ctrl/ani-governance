@@ -28,7 +28,7 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 	readMarker := func(name string, out any) {
 		t.Helper()
 		path := filepath.Join(filepath.Dir(os.Getenv("ANI_MODELDEV_MAINFLOW_STARTUP")), name)
-		ticker := time.NewTicker(100*time.Millisecond)
+		ticker := time.NewTicker(100 * time.Millisecond)
 		defer ticker.Stop()
 		for {
 			info, err := os.Lstat(path)
@@ -43,10 +43,17 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 				return
 			}
 			require.True(t, os.IsNotExist(err), "provider marker must be accessible")
-			select { case <-ctx.Done(): t.Fatal("CPU10_STOP_MAIN_FLOW: provider did not reach "+name); case <-ticker.C: }
+			select {
+			case <-ctx.Done():
+				t.Fatal("CPU10_STOP_MAIN_FLOW: provider did not reach " + name)
+			case <-ticker.C:
+			}
 		}
 	}
-	var started struct { OperationID string `json:"operation_id"`; ExecutionID string `json:"execution_id"` }
+	var started struct {
+		OperationID string `json:"operation_id"`
+		ExecutionID string `json:"execution_id"`
+	}
 	readMarker("training-started.json", &started)
 	require.Equal(t, operationID, started.OperationID)
 	require.Equal(t, executionID, started.ExecutionID)
@@ -65,7 +72,7 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 		require.Equal(t, "no-store", res.Header.Get("Cache-Control"))
 		return res.StatusCode, raw
 	}
-	path := "/admin/v1/modeldev/executions/"+executionID
+	path := "/admin/v1/modeldev/executions/" + executionID
 	status, _ := request("POST", path+":stop", otherToken)
 	require.Equal(t, http.StatusNotFound, status)
 	status, _ = request("POST", path+":stop", deniedToken)
@@ -88,7 +95,11 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 	require.NoError(t, protojson.Unmarshal(raw, &replay))
 	require.Equal(t, first.IntentGeneration, replay.IntentGeneration)
 	require.True(t, replay.Replayed)
-	var closed struct { OperationID string `json:"operation_id"`; ExecutionID string `json:"execution_id"`; CloseGeneration uint64 `json:"close_generation"` }
+	var closed struct {
+		OperationID     string `json:"operation_id"`
+		ExecutionID     string `json:"execution_id"`
+		CloseGeneration uint64 `json:"close_generation"`
+	}
 	readMarker("closed.json", &closed)
 	require.Equal(t, operationID, closed.OperationID)
 	require.Equal(t, executionID, closed.ExecutionID)
