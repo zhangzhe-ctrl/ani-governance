@@ -8,6 +8,16 @@ import "modeldev/service/v1/execution.proto";
 
 // CPU-P01 entry in the existing Governance BFF.
 service ModelDevService {
+  rpc StopExecution (modeldev.service.v1.StopExecutionRequest) returns (modeldev.service.v1.StopExecutionResponse) {
+    option (google.api.http) = { post: "/admin/v1/modeldev/executions/{execution_id}:stop" };
+    option (gnostic.openapi.v3.operation) = {
+      security: { additional_properties: { name: "BearerAuth" value: {} } }
+      responses: { response_or_reference: [{ name: "202" value: { response: {
+        description: "Durable stop intent accepted; resources are not yet confirmed closed"
+        content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/StopExecutionResponse" } } } }] }
+      } } }] }
+    };
+  }
   rpc GetExecution (modeldev.service.v1.GetExecutionRequest) returns (modeldev.service.v1.GetExecutionResponse) {
     option (google.api.http) = { get: "/admin/v1/modeldev/executions/{execution_id}" };
   }

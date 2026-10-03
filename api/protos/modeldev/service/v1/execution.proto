@@ -53,6 +53,17 @@ message CreateExecutionResponse {
   string resource_state = 8 [json_name = "resource_state"];
 }
 
+// No public body or caller-supplied tenant, actor, generation or state.
+message StopExecutionRequest { string execution_id = 1 [json_name = "execution_id"]; }
+// Governance acceptance only. ModelDev owns the creation fence and CLOSED.
+message StopExecutionResponse {
+  string operation_id = 1 [json_name = "operation_id"];
+  string execution_id = 2 [json_name = "execution_id"];
+  bool stop_requested = 3 [json_name = "stop_requested"];
+  uint64 intent_generation = 4 [json_name = "intent_generation"];
+  bool replayed = 5;
+}
+
 // Public query selectors never accept tenant, Pod, namespace or object keys.
 message GetExecutionRequest { string execution_id = 1 [json_name = "execution_id"]; }
 message GetExecutionResponse { ExecutionView execution = 1; }

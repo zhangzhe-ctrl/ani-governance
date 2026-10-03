@@ -29,4 +29,5 @@ text = remove_synthetic_200(path.read_text(), "/api/v1/auth/api-keys", "201")
 # separately requires this path in the complete service document.
 if "    /admin/v1/modeldev/executions:\n" in text:
     text = remove_synthetic_200(text, "/admin/v1/modeldev/executions", "202")
+    text = remove_synthetic_200(text, "/admin/v1/modeldev/executions/{execution_id}:stop", "202")
 path.write_text(text)

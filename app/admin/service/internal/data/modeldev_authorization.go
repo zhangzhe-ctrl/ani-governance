@@ -34,6 +34,7 @@ const (
 	modelDevGetExecutionAction
 	modelDevListArtifactsAction
 	modelDevDownloadArtifactAction
+	modelDevStopAction
 )
 
 const (
@@ -75,6 +76,12 @@ func NewModelDevAuthorizationRepo(client *entCrud.EntClient[*ent.Client]) *Model
 // It must run before FindAccepted for both new requests and original-key replay.
 func (r *ModelDevAuthorizationRepo) AuthorizeCreate(ctx context.Context, tenantID, userID uint32) error {
 	return r.authorizeCurrent(ctx, tenantID, userID, modelDevCreateAction)
+}
+
+const ModelDevStopExecutionPath = "/admin/v1/modeldev/executions/{execution_id}:stop"
+
+func (r *ModelDevAuthorizationRepo) AuthorizeStop(ctx context.Context, tenantID, userID uint32) error {
+	return r.authorizeCurrent(ctx, tenantID, userID, modelDevStopAction)
 }
 
 // AuthorizeManageReleaseBinding requires trusted tenant/user IDs from the
@@ -184,7 +191,7 @@ func (r *ModelDevAuthorizationRepo) authorizeCurrent(ctx context.Context, tenant
 		permission.IDIn(permissionIDs...), permission.StatusEQ(permission.StatusOn), permission.DeletedAtIsNil(),
 	)
 	switch action {
-	case modelDevCreateAction, modelDevGetExecutionAction, modelDevListArtifactsAction, modelDevDownloadArtifactAction:
+	case modelDevCreateAction, modelDevGetExecutionAction, modelDevListArtifactsAction, modelDevDownloadArtifactAction, modelDevStopAction:
 		// Create retains its permission-to-API check below.
 	case modelDevManageReleaseBindingAction:
 		permissionQuery.Where(permission.CodeEQ(ModelDevManageReleaseBindingPermissionCode))
@@ -201,6 +208,8 @@ func (r *ModelDevAuthorizationRepo) authorizeCurrent(ctx context.Context, tenant
 	if action != modelDevManageReleaseBindingAction {
 		path, method := "/admin/v1/modeldev/executions", "POST"
 		switch action {
+		case modelDevStopAction:
+			path = ModelDevStopExecutionPath
 		case modelDevGetExecutionAction:
 			path, method = ModelDevGetExecutionPath, "GET"
 		case modelDevListArtifactsAction:

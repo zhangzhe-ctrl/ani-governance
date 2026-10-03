@@ -77,7 +77,10 @@ func TestModelDevStopPersistsBefore202AndReplaysOriginal(t *testing.T) {
 	cleanup(func(c context.Context) error { return writer.Client().Role.DeleteOneID(currentRole.ID).Exec(c) })
 	membership, err := writer.Client().UserRole.Create().SetTenantID(owner.ID).SetUserID(operator.ID).SetRoleID(currentRole.ID).SetStatus(userrole.StatusActive).Save(sys)
 	require.NoError(t, err)
-	cleanup(func(c context.Context) error { _, e := writer.Client().UserRole.Delete().Where(userrole.IDEQ(membership.ID)).Exec(c); return e })
+	cleanup(func(c context.Context) error {
+		_, e := writer.Client().UserRole.Delete().Where(userrole.IDEQ(membership.ID)).Exec(c)
+		return e
+	})
 	perm, err := writer.Client().Permission.Create().SetName("stop " + id).SetCode("stop." + id).SetStatus(permission.StatusOn).Save(sys)
 	require.NoError(t, err)
 	cleanup(func(c context.Context) error { return writer.Client().Permission.DeleteOneID(perm.ID).Exec(c) })
@@ -94,7 +97,9 @@ func TestModelDevStopPersistsBefore202AndReplaysOriginal(t *testing.T) {
 	key := make([]byte, 32)
 	_, err = rand.Read(key)
 	require.NoError(t, err)
-	for _, name := range []string{"GWA_AUTH_JWT_PRIVATE_KEY", "GWA_AUTH_JWT_PUBLIC_KEY", "GWA_AUTH_JWT_KEY"} { t.Setenv(name, "") }
+	for _, name := range []string{"GWA_AUTH_JWT_PRIVATE_KEY", "GWA_AUTH_JWT_PUBLIC_KEY", "GWA_AUTH_JWT_KEY"} {
+		t.Setenv(name, "")
+	}
 	bctx := testutil.NewBootstrapContext(&conf.Bootstrap{Authz: &conf.Authorization{Type: "casbin"}, Authn: &conf.Authentication{Jwt: &conf.Authentication_Jwt{Method: "HS256", Key: hex.EncodeToString(key)}}})
 	address := os.Getenv("ANI_MODELDEV_REDIS_ADDR")
 	host, port, addressErr := net.SplitHostPort(address)
@@ -115,10 +120,18 @@ func TestModelDevStopPersistsBefore202AndReplaysOriginal(t *testing.T) {
 	payload := &authv1.UserTokenPayload{UserId: operator.ID, TenantId: trans.Ptr(owner.ID), Roles: []string{*currentRole.Code}, DataScopes: []identityv1.DataScope{identityv1.DataScope_ALL}}
 	token, _, err := authenticator.CreateUserToken(ctx, authv1.ClientType_admin, payload)
 	require.NoError(t, err)
-	cleanup(func(c context.Context) error { return cache.RevokeTokenByJti(c, authv1.ClientType_admin, operator.ID, payload.GetJti()) })
+	cleanup(func(c context.Context) error {
+		return cache.RevokeTokenByJti(c, authv1.ClientType_admin, operator.ID, payload.GetJti())
+	})
 	acceptances, bindings := data.NewModelDevAcceptanceRepo(runtime), data.NewModelDevReleaseBindingRepo(runtime)
-	cleanup(func(c context.Context) error { _, e := writer.Client().ModelDevReleaseBinding.Delete().Where(modeldevreleasebinding.TenantIDEQ(owner.ID)).Exec(c); return e })
-	cleanup(func(c context.Context) error { _, e := writer.Client().ModelDevAcceptance.Delete().Where(modeldevacceptance.TenantIDEQ(owner.ID)).Exec(c); return e })
+	cleanup(func(c context.Context) error {
+		_, e := writer.Client().ModelDevReleaseBinding.Delete().Where(modeldevreleasebinding.TenantIDEQ(owner.ID)).Exec(c)
+		return e
+	})
+	cleanup(func(c context.Context) error {
+		_, e := writer.Client().ModelDevAcceptance.Delete().Where(modeldevacceptance.TenantIDEQ(owner.ID)).Exec(c)
+		return e
+	})
 	snapshot, intent := conformance.SnapshotV1(), conformance.IntentV1()
 	snapshot.Release.AcceptedBindingGeneration = 1
 	intent.PresetID, intent.DatasetVersionID = snapshot.Release.PresetID, snapshot.Input.InputVersionID
@@ -148,7 +161,9 @@ func TestModelDevStopPersistsBefore202AndReplaysOriginal(t *testing.T) {
 		raw, e := io.ReadAll(io.LimitReader(resp.Body, 16385))
 		require.NoError(t, e)
 		var out map[string]any
-		if resp.StatusCode != http.StatusNotFound { require.NoError(t, json.Unmarshal(raw, &out)) }
+		if resp.StatusCode != http.StatusNotFound {
+			require.NoError(t, json.Unmarshal(raw, &out))
+		}
 		return resp.StatusCode, out
 	}
 	before := time.Now().UTC()
