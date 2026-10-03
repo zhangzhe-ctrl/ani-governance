@@ -120,6 +120,7 @@ func TestModelDevStopPersistsBefore202AndReplaysOriginal(t *testing.T) {
 	cleanup(func(c context.Context) error { _, e := writer.Client().ModelDevReleaseBinding.Delete().Where(modeldevreleasebinding.TenantIDEQ(owner.ID)).Exec(c); return e })
 	cleanup(func(c context.Context) error { _, e := writer.Client().ModelDevAcceptance.Delete().Where(modeldevacceptance.TenantIDEQ(owner.ID)).Exec(c); return e })
 	snapshot, intent := conformance.SnapshotV1(), conformance.IntentV1()
+	snapshot.Release.AcceptedBindingGeneration = 1
 	intent.PresetID, intent.DatasetVersionID = snapshot.Release.PresetID, snapshot.Input.InputVersionID
 	_, err = bindings.CompareAndSwap(sys, data.ModelDevReleaseBindingScope{TenantID: owner.ID, ResourceTenantID: owner.ResourceTenantID, PresetID: intent.PresetID}, data.ModelDevReleaseBindingUpdate{Target: data.ModelDevReleaseBindingTarget{ReleaseID: snapshot.Release.ReleaseID, ReleaseDigest: snapshot.Release.ReleaseDigest, NewSubmissionsEnabled: true}, Actor: "governance:user:7", RequestedAt: time.Now().UTC().Truncate(time.Microsecond), Reason: "owned Stop fixture", EvidenceReference: "contract:cpu-p01:stop"})
 	require.NoError(t, err)
