@@ -173,7 +173,7 @@ func TestModelDevStopPersistsBefore202AndReplaysOriginal(t *testing.T) {
 	require.Equal(t, http.StatusBadRequest, status)
 	status, _ = post(uuid.NewString(), "", token)
 	require.Equal(t, http.StatusNotFound, status)
-	require.NoError(t, writer.Client().UserRole.UpdateOneID(membership.ID).SetStatus(userrole.StatusInactive).Exec(sys))
+	require.NoError(t, writer.Client().UserRole.UpdateOneID(membership.ID).SetStatus(userrole.StatusDisabled).Exec(sys))
 	status, _ = post(accepted.ExecutionID, "", token)
 	require.Equal(t, http.StatusForbidden, status, "current authorization is checked even on Stop replay")
 	t.Log("CPU10_BFF_STOP_ACCEPTED: current auth, durable queued intent, reconstructed BFF replay; no owner closure claim")
