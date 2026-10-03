@@ -3,6 +3,7 @@
 package data
 
 import (
+	"context"
 	"encoding/json"
 	"testing"
 	"time"
@@ -94,12 +95,23 @@ func TestModelDevCloseDeliveryRetainsUnknownAndRetriesAfterRestart(t *testing.T)
 	require.True(t, written)
 	restarted := NewModelDevAcceptanceRepo(newModelDevPGClient(t))
 	var retry *ModelDevCloseDeliveryClaim
-	require.Eventually(t, func() bool {
+	retryContext, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+	ticker := time.NewTicker(50 * time.Millisecond)
+	defer ticker.Stop()
+	for {
 		var e error
-		retry, e = restarted.ClaimCloseDelivery(ctx, "close-retry", time.Minute)
+		retry, e = restarted.ClaimCloseDelivery(retryContext, "close-retry", time.Minute)
 		require.NoError(t, e)
-		return retry != nil
-	}, 3*time.Second, 50*time.Millisecond)
+		if retry != nil {
+			break
+		}
+		select {
+		case <-retryContext.Done():
+			t.Fatal("persisted close retry did not become due")
+		case <-ticker.C:
+		}
+	}
 	require.Equal(t, intent, retry.Intent)
 	require.Equal(t, int64(2), retry.AttemptCount)
 	written, err = restarted.DeferCloseDelivery(ctx, retry, ModelDevDeliveryFailure{Code: "COMMAND_CONFLICT", Permanent: true})

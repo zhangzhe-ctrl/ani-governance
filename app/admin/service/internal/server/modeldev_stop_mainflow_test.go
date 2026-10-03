@@ -113,11 +113,22 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 	require.Equal(t, closed.CloseGeneration, detail.GetExecution().GetCloseGeneration())
 	require.Equal(t, "CLOSED", detail.GetExecution().GetCloseState())
 	observer := openModelDevHTTPPG(t, os.Getenv("ANI_TEST_DATABASE_DSN"))
-	require.Eventually(t, func() bool {
+	ackContext, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	ticker := time.NewTicker(50 * time.Millisecond)
+	defer ticker.Stop()
+	for {
 		var state string
-		err := observer.DB().QueryRowContext(appViewer.NewSystemViewerContext(ctx), `SELECT close_dispatch_state FROM sys_modeldev_acceptances WHERE tenant_id=$1 AND operation_id=$2 AND execution_id=$3`, tenantID, operationID, executionID).Scan(&state)
+		err := observer.DB().QueryRowContext(appViewer.NewSystemViewerContext(ackContext), `SELECT close_dispatch_state FROM sys_modeldev_acceptances WHERE tenant_id=$1 AND operation_id=$2 AND execution_id=$3`, tenantID, operationID, executionID).Scan(&state)
 		require.NoError(t, err)
-		return state == "ACKED"
-	}, 5*time.Second, 50*time.Millisecond)
+		if state == "ACKED" {
+			break
+		}
+		select {
+		case <-ackContext.Done():
+			t.Fatal("close delivery ACK did not become durable")
+		case <-ticker.C:
+		}
+	}
 	t.Logf("BFF_STOP_CLOSED execution=%s at=%s close_generation=%d; real current-authorized query and independent close ACKED", executionID, time.Now().UTC().Format(time.RFC3339Nano), closed.CloseGeneration)
 }
