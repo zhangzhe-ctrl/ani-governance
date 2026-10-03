@@ -1,6 +1,6 @@
 //go:build modeldev_pg && modeldev_contract
 
-package service
+package modeldev_test
 
 import (
 	"bytes"
@@ -32,6 +32,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/app/admin/service/internal/data/ent/modeldevacceptance"
 	"go-wind-admin/app/admin/service/internal/data/ent/modeldevreleasebinding"
+	"go-wind-admin/app/admin/service/internal/service"
 	"go-wind-admin/app/admin/service/tests/testutil"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
@@ -97,7 +98,7 @@ func TestModelDevWorkerDeliversFrozenAcceptanceAfterRestart(t *testing.T) {
 	})
 	require.NoError(t, err, "MODELDEV_DELIVERY_PREFLIGHT: real fixed-identity client must construct")
 	t.Cleanup(closeClient)
-	worker := NewModelDevDispatchWorker(testutil.NewBootstrapContext(nil), data.NewModelDevAcceptanceRepo(workerConnection), client)
+	worker := service.NewModelDevDispatchWorker(testutil.NewBootstrapContext(nil), data.NewModelDevAcceptanceRepo(workerConnection), client)
 	t.Cleanup(func() {
 		cleanup, stop := context.WithTimeout(context.Background(), 5*time.Second)
 		defer stop()
