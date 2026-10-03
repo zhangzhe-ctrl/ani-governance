@@ -270,11 +270,11 @@ func requestModelDevDeliveryOwnerObservation(t *testing.T, ctx context.Context, 
 			require.NoError(t, err)
 			require.LessOrEqual(t, len(raw), 1024)
 			var observed struct {
-				Schema string `json:"schema"`
-				OperationID string `json:"operation_id"`
-				ExecutionID string `json:"execution_id"`
+				Schema            string `json:"schema"`
+				OperationID       string `json:"operation_id"`
+				ExecutionID       string `json:"execution_id"`
 				ExecutionSpecHash string `json:"execution_spec_hash"`
-				Revision uint64 `json:"revision"`
+				Revision          uint64 `json:"revision"`
 			}
 			decoder := json.NewDecoder(bytes.NewReader(raw))
 			decoder.DisallowUnknownFields()
