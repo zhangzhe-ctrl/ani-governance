@@ -138,6 +138,8 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 		case <-ticker.C:
 		}
 	}
-	if startAfterStop != nil { t.Log("BFF_STOP_BEFORE_CLOSED: close and late create both durably ACKED; real BFF Query observed CLOSED") }
+	if startAfterStop != nil {
+		t.Log("BFF_STOP_BEFORE_CLOSED: close and late create both durably ACKED; real BFF Query observed CLOSED")
+	}
 	t.Logf("BFF_STOP_CLOSED execution=%s at=%s close_generation=%d; real current-authorized query and independent close ACKED", executionID, time.Now().UTC().Format(time.RFC3339Nano), closed.CloseGeneration)
 }

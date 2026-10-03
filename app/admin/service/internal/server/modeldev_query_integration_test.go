@@ -397,7 +397,9 @@ func testModelDevBFFMainFlow(t *testing.T, stopping, listLogs, stopBefore bool) 
 			require.NoError(t, worker.Start(ctx))
 			cleanup(worker.Stop)
 		}
-		if !stopBefore { startWorker() }
+		if !stopBefore {
+			startWorker()
+		}
 		created, e := json.Marshal(map[string]string{"execution_id": accepted.ExecutionId, "operation_id": accepted.OperationId})
 		require.NoError(t, e)
 		createdPath := filepath.Join(filepath.Dir(os.Getenv("ANI_MODELDEV_MAINFLOW_STARTUP")), "created.json")
@@ -411,7 +413,9 @@ func testModelDevBFFMainFlow(t *testing.T, stopping, listLogs, stopBefore bool) 
 		t.Log("BFF_MAIN_FLOW_CREATED: real authenticated HTTP202 committed before actual delivery worker")
 		if stopping {
 			var startAfterStop func()
-			if stopBefore { startAfterStop = startWorker }
+			if stopBefore {
+				startAfterStop = startWorker
+			}
 			verifyModelDevBFFStopMainFlow(t, ctx, web, token, otherToken, deniedToken, accepted.OperationId, accepted.ExecutionId, owner.tenant, startAfterStop)
 			return
 		}
