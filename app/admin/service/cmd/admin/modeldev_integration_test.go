@@ -391,8 +391,8 @@ func TestModelDevPauseCommandPersistsGateAndReplays(t *testing.T) {
 	})
 
 	for _, rejection := range []struct {
-		name string
-		releaseID string
+		name       string
+		releaseID  string
 		generation uint64
 	}{
 		{"different fixed release cannot be reinterpreted", uuid.NewString(), 1},
