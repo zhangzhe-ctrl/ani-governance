@@ -66,8 +66,8 @@ func TestModelDevResolveUsesRealManagedAdmissionProvider(t *testing.T) {
 		"x-ani-tenant-id", fixture.Scope.ResourceTenantID, "x-ani-actor", fixture.Scope.Actor, "x-ani-request-id", uuid.NewString(),
 	))
 	direct, err := modeldevv1.NewModelDevAdmissionServiceClient(connection).ResolveAdmission(directContext, &modeldevv1.ResolveAdmissionRequest{
-		Intent: intent,
-		Release: &modeldevv1.AdmissionReleaseSelection{ReleaseId: fixture.Release.ReleaseID, ReleaseDigest: fixture.Release.ReleaseDigest, BindingGeneration: fixture.Release.BindingGeneration},
+		Intent:     intent,
+		Release:    &modeldevv1.AdmissionReleaseSelection{ReleaseId: fixture.Release.ReleaseID, ReleaseDigest: fixture.Release.ReleaseDigest, BindingGeneration: fixture.Release.BindingGeneration},
 		AcceptedAt: timestamppb.New(fixture.AcceptedAt),
 	}, grpc.WaitForReady(true))
 	if err != nil || direct == nil {
@@ -84,7 +84,7 @@ func TestModelDevResolveUsesRealManagedAdmissionProvider(t *testing.T) {
 	t.Log("MODELDEV_CLIENT_PREFLIGHT PASS: generated direct RPC over real mTLS to ModelDev buildApp with pinned files and durable READY input")
 
 	client, closeClient, err := NewModelDevClient(ModelDevClientConfig{
-		Address: fixture.Address, CAFile: fixture.TLS.CAFile, CertFile: fixture.TLS.CertFile, KeyFile: fixture.TLS.KeyFile, Timeout: 3*time.Second,
+		Address: fixture.Address, CAFile: fixture.TLS.CAFile, CertFile: fixture.TLS.CertFile, KeyFile: fixture.TLS.KeyFile, Timeout: 3 * time.Second,
 	})
 	if err != nil || client == nil || closeClient == nil {
 		t.Fatal("MODELDEV_CLIENT_BEHAVIOR: valid client configuration rejected")
@@ -109,21 +109,21 @@ func TestModelDevResolveUsesRealManagedAdmissionProvider(t *testing.T) {
 }
 
 type modelDevContractFixture struct {
-	Schema string `json:"schema"`
+	Schema  string `json:"schema"`
 	Address string `json:"address"`
-	TLS struct {
-		CAFile string `json:"ca_file"`
+	TLS     struct {
+		CAFile   string `json:"ca_file"`
 		CertFile string `json:"cert_file"`
-		KeyFile string `json:"key_file"`
+		KeyFile  string `json:"key_file"`
 	} `json:"tls"`
 	Scope struct {
 		ResourceTenantID string `json:"resource_tenant_id"`
-		Actor string `json:"actor"`
+		Actor            string `json:"actor"`
 	} `json:"scope"`
-	Intent cpup01.Intent `json:"intent"`
+	Intent  cpup01.Intent `json:"intent"`
 	Release struct {
-		ReleaseID string `json:"release_id"`
-		ReleaseDigest string `json:"release_digest"`
+		ReleaseID         string `json:"release_id"`
+		ReleaseDigest     string `json:"release_digest"`
 		BindingGeneration uint64 `json:"binding_generation"`
 	} `json:"release"`
 	AcceptedAt time.Time `json:"accepted_at"`
@@ -201,7 +201,7 @@ func expectedModelDevContractSnapshot(t *testing.T) ([]byte, string) {
 		Input: seed.Input,
 		Program: cpup01.ProgramRef{
 			ImageVersionID: release.Program.ImageVersionID, ImageDigest: release.Program.ImageDigest, Command: release.Program.Command,
-			ResolvedArgs: []string{"--data", "/startup-input/data.csv", "--output", "/startup-output", "--expected-input-sha256", "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "--expected-input-bytes", "192456", "--learning-rate", "0.02"},
+			ResolvedArgs:       []string{"--data", "/startup-input/data.csv", "--output", "/startup-output", "--expected-input-sha256", "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "--expected-input-bytes", "192456", "--learning-rate", "0.02"},
 			ResolvedParameters: []cpup01.Parameter{{Name: "batch_size", Type: "INTEGER", Value: "64"}, {Name: "epochs", Type: "INTEGER", Value: "3"}, {Name: "learning_rate", Type: "DECIMAL", Value: "0.02"}},
 		},
 		Resources: release.Resources, Environment: seed.Environment, Workspace: release.Workspace,
