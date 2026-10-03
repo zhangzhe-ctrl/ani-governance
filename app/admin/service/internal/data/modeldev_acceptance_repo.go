@@ -55,6 +55,7 @@ type ModelDevAcceptance struct {
 	ExecutionSpecHash string
 	AcceptedAt        time.Time
 	DispatchState     string
+	OwnerReceipt      *ModelDevOwnerReceipt
 }
 
 // ModelDevAcceptanceRepo persists CPU admission and its queued delivery intent.
