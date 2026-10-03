@@ -3,6 +3,7 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
@@ -25,11 +26,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
+	"github.com/zhangzhe-ctrl/ani-modeldev-service/contract/cpup01"
 	authv1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	identityv1 "go-wind-admin/api/gen/go/identity/service/v1"
 	modeldevv1 "go-wind-admin/api/gen/go/modeldev/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent/api"
+	"go-wind-admin/app/admin/service/internal/data/ent/modeldevacceptance"
+	"go-wind-admin/app/admin/service/internal/data/ent/modeldevreleasebinding"
 	"go-wind-admin/app/admin/service/internal/data/ent/permission"
 	"go-wind-admin/app/admin/service/internal/data/ent/planmodule"
 	"go-wind-admin/app/admin/service/internal/data/ent/role"
@@ -42,20 +46,35 @@ import (
 	"go-wind-admin/pkg/authorizer"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
+	"go-wind-admin/pkg/localdeps/go-crud/viewer"
 	authzMiddleware "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
 	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 	"go-wind-admin/pkg/middleware/auth"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+type modelDevFixtureTLS struct {
+	CAFile string `json:"ca_file"`
+	CertFile string `json:"cert_file"`
+	KeyFile string `json:"key_file"`
+}
+
+type modelDevMainFlowStartup struct {
+	Schema string `json:"schema"`
+	Address string `json:"address"`
+	TLS modelDevFixtureTLS `json:"tls"`
+	ResourceTenantID string `json:"resource_tenant_id"`
+	Intent cpup01.Intent `json:"intent"`
+	Release struct {
+		ID string `json:"release_id"`
+		Digest string `json:"release_digest"`
+	} `json:"release"`
+}
+
 type modelDevQueryFixture struct {
 	Schema  string `json:"schema"`
 	Address string `json:"address"`
-	TLS     struct {
-		CAFile   string `json:"ca_file"`
-		CertFile string `json:"cert_file"`
-		KeyFile  string `json:"key_file"`
-	} `json:"tls"`
+	TLS modelDevFixtureTLS `json:"tls"`
 	ResourceTenantID string `json:"resource_tenant_id"`
 	ExecutionID      string `json:"execution_id"`
 	Artifact         struct {
@@ -77,13 +96,7 @@ func readModelDevQueryFixture(t *testing.T) modelDevQueryFixture {
 	if err != nil || !info.IsDir() || info.Mode().Perm() != 0700 {
 		t.Fatal("CPU09_QUERY_PREFLIGHT: private provider directory required")
 	}
-	t.Cleanup(func() {
-		stop, err := os.OpenFile(filepath.Join(filepath.Dir(file), "stop"), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
-		require.NoError(t, err)
-		if err == nil {
-			require.NoError(t, stop.Close())
-		}
-	})
+	if os.Getenv("ANI_MODELDEV_MAINFLOW_STARTUP") == "" { stopModelDevFixtureAfter(t, file) }
 	info, err = os.Lstat(file)
 	if err != nil || !info.Mode().IsRegular() || info.Mode().Perm() != 0600 || info.Size() > 16384 {
 		t.Fatal("CPU09_QUERY_PREFLIGHT: bounded private handshake required")
@@ -115,11 +128,49 @@ func readModelDevQueryFixture(t *testing.T) modelDevQueryFixture {
 	return fixture
 }
 
+func stopModelDevFixtureAfter(t *testing.T, file string) {
+	t.Helper()
+	t.Cleanup(func() {
+		stop, err := os.OpenFile(filepath.Join(filepath.Dir(file), "stop"), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
+		require.NoError(t, err)
+		if err == nil { require.NoError(t, stop.Close()) }
+	})
+}
+
+func readModelDevMainFlowStartup(t *testing.T) *modelDevMainFlowStartup {
+	t.Helper()
+	file := os.Getenv("ANI_MODELDEV_MAINFLOW_STARTUP")
+	if file == "" { return nil }
+	if !filepath.IsAbs(file) || filepath.Base(file) != "startup.json" || filepath.Dir(file) != filepath.Dir(os.Getenv("ANI_MODELDEV_QUERY_HANDSHAKE")) { t.Fatal("CPU09_BFF_PREFLIGHT: explicit private startup required") }
+	info, err := os.Lstat(filepath.Dir(file))
+	if err != nil || !info.IsDir() || info.Mode().Perm() != 0700 { t.Fatal("CPU09_BFF_PREFLIGHT: private startup directory required") }
+	stopModelDevFixtureAfter(t, file)
+	info, err = os.Lstat(file)
+	if err != nil || !info.Mode().IsRegular() || info.Mode().Perm() != 0600 || info.Size() > 16384 { t.Fatal("CPU09_BFF_PREFLIGHT: bounded private startup required") }
+	raw, err := os.ReadFile(file); require.NoError(t, err)
+	decoder := json.NewDecoder(bytes.NewReader(raw)); decoder.DisallowUnknownFields()
+	var startup modelDevMainFlowStartup
+	require.NoError(t, decoder.Decode(&startup)); require.Equal(t, io.EOF, decoder.Decode(new(any)))
+	host, port, err := net.SplitHostPort(startup.Address); n, portErr := strconv.ParseUint(port, 10, 16)
+	if err != nil || host != "127.0.0.1" || portErr != nil || n == 0 || startup.Schema != "ani.cpu-p01.governance-main-flow-fixture.v1" { t.Fatal("CPU09_BFF_PREFLIGHT: invalid startup connection") }
+	for _, name := range []string{startup.TLS.CAFile, startup.TLS.CertFile, startup.TLS.KeyFile} {
+		info, err := os.Lstat(name)
+		if !filepath.IsAbs(name) || err != nil || !info.Mode().IsRegular() || info.Mode().Perm() != 0600 || info.Size() > 16384 { t.Fatal("CPU09_BFF_PREFLIGHT: private TLS file references required") }
+	}
+	for _, value := range []string{startup.ResourceTenantID, startup.Release.ID} { id, err := uuid.Parse(value); if err != nil || id == uuid.Nil || id.String() != value { t.Fatal("CPU09_BFF_PREFLIGHT: invalid startup identity") } }
+	digest, err := hex.DecodeString(startup.Release.Digest)
+	if err != nil || len(digest) != 32 || startup.Release.Digest != strings.ToLower(startup.Release.Digest) { t.Fatal("CPU09_BFF_PREFLIGHT: invalid Release digest") }
+	_, _, err = cpup01.CanonicalIntent(startup.Intent); require.NoError(t, err, "CPU09_BFF_PREFLIGHT: registered intent required")
+	return &startup
+}
+
 // This test calls the real ModelDev query service on its real PG publication.
 // Only the KFP/Kubernetes/S3 boundaries in the provider remain explicit fixtures.
 func TestModelDevQueryCurrentAuthorizationDownloadsPublishedArtifacts(t *testing.T) {
-	provider := readModelDevQueryFixture(t)
-	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+	startup := readModelDevMainFlowStartup(t)
+	var provider modelDevQueryFixture
+	if startup == nil { provider = readModelDevQueryFixture(t) } else { provider.Address, provider.TLS, provider.ResourceTenantID = startup.Address, startup.TLS, startup.ResourceTenantID }
+	ctx, cancel := context.WithTimeout(context.Background(), 150*time.Second)
 	t.Cleanup(cancel)
 	sys := appViewer.NewSystemViewerContext(ctx)
 	runtime, writer := prepareModelDevHTTPDatabase(t, ctx)
@@ -138,9 +189,12 @@ func TestModelDevQueryCurrentAuthorizationDownloadsPublishedArtifacts(t *testing
 	require.NoError(t, err)
 	cleanup(func(c context.Context) error { return writer.Client().PlanModule.DeleteOneID(module.ID).Exec(c) })
 	paths := []string{data.ModelDevGetExecutionPath, data.ModelDevListArtifactsPath, data.ModelDevDownloadArtifactPath}
+	if startup != nil { paths = append(paths, "/admin/v1/modeldev/executions") }
 	var apiIDs []uint32
 	for _, path := range paths {
-		row, e := writer.Client().Api.Create().SetModule("ModelDevService").SetScope(api.ScopeAdmin).SetPath(path).SetMethod("GET").SetBusinessModule(api.BusinessModuleModel).SetStatus(api.StatusOn).Save(sys)
+		method := "GET"
+		if path == "/admin/v1/modeldev/executions" { method = "POST" }
+		row, e := writer.Client().Api.Create().SetModule("ModelDevService").SetScope(api.ScopeAdmin).SetPath(path).SetMethod(method).SetBusinessModule(api.BusinessModuleModel).SetStatus(api.StatusOn).Save(sys)
 		require.NoError(t, e)
 		apiIDs = append(apiIDs, row.ID)
 		cleanup(func(c context.Context) error { return writer.Client().Api.DeleteOneID(row.ID).Exec(c) })
@@ -226,11 +280,47 @@ func TestModelDevQueryCurrentAuthorizationDownloadsPublishedArtifacts(t *testing
 	resolver, closeResolver, err := data.NewModelDevClient(data.ModelDevClientConfig{Address: provider.Address, CAFile: provider.TLS.CAFile, CertFile: provider.TLS.CertFile, KeyFile: provider.TLS.KeyFile, Timeout: 5 * time.Second})
 	require.NoError(t, err)
 	t.Cleanup(closeResolver)
-	bff := service.NewModelDevService(data.NewModelDevAuthorizationRepo(runtime), data.NewTenantRepo(bctx, runtime), nil, nil, resolver)
+	acceptances, bindings := data.NewModelDevAcceptanceRepo(runtime), data.NewModelDevReleaseBindingRepo(runtime)
+	bff := service.NewModelDevService(data.NewModelDevAuthorizationRepo(runtime), data.NewTenantRepo(bctx, runtime), acceptances, bindings, resolver)
 	server := khttp.NewServer(khttp.Middleware(auth.CredentialHeaders(), auth.Server(auth.WithAccessTokenChecker(checker), auth.WithTenantAccessChecker(tenantChecker), auth.WithInjectMetadata(false), auth.WithInjectEnt(true)), authzMiddleware.Server(policy.Engine())))
 	registerModelDevHTTP(server, bff)
 	web := httptest.NewServer(server)
 	t.Cleanup(web.Close)
+	if startup != nil {
+		valid, verified := checker.IsValidAccessToken(ctx, token, false); require.True(t, valid)
+		requestCtx := viewer.WithContext(auth.NewContext(ctx, verified), appViewer.NewUserViewer(uint64(owner.user), uint64(owner.tenant), 0, "", appViewer.BuildDataScopes(verified.GetDataScopes(), verified.GetDataScopeUnitIds(), verified.GetDataScope())))
+		principal, e := auth.PrincipalFromContext(requestCtx); require.NoError(t, e)
+		actor, e := principal.Actor(); require.NoError(t, e)
+		cleanup(func(c context.Context) error { _, e := writer.Client().ModelDevReleaseBinding.Delete().Where(modeldevreleasebinding.TenantIDEQ(owner.tenant)).Exec(c); return e })
+		cleanup(func(c context.Context) error { _, e := writer.Client().ModelDevAcceptance.Delete().Where(modeldevacceptance.TenantIDEQ(owner.tenant)).Exec(c); return e })
+		binding, e := bindings.CompareAndSwap(requestCtx, data.ModelDevReleaseBindingScope{TenantID: owner.tenant, ResourceTenantID: provider.ResourceTenantID, PresetID: startup.Intent.PresetID}, data.ModelDevReleaseBindingUpdate{
+			Target: data.ModelDevReleaseBindingTarget{ReleaseID: startup.Release.ID, ReleaseDigest: startup.Release.Digest, NewSubmissionsEnabled: true},
+			Actor: actor, RequestedAt: time.Now().UTC().Truncate(time.Microsecond), Reason: "owned BFF main-flow fixture", EvidenceReference: "contract:cpu-p01:bff-main-flow",
+		}); require.NoError(t, e); require.Equal(t, uint64(1), binding.After.Generation)
+		key := uuid.NewString()
+		body, e := json.Marshal(struct { cpup01.Intent; IdempotencyKey string `json:"idempotency_key"` }{startup.Intent, key}); require.NoError(t, e)
+		request, e := http.NewRequestWithContext(ctx, "POST", web.URL+"/admin/v1/modeldev/executions", bytes.NewReader(body)); require.NoError(t, e)
+		request.Header.Set("Content-Type", "application/json"); request.Header.Set("Authorization", "Bearer "+token)
+		response, e := web.Client().Do(request); require.NoError(t, e)
+		replyBody, e := io.ReadAll(io.LimitReader(response.Body, 16385)); require.NoError(t, response.Body.Close()); require.NoError(t, e)
+		require.Equal(t, http.StatusAccepted, response.StatusCode, "CPU09_BFF_CREATE_NOT_IMPLEMENTED: real authorized POST did not durably accept; safe response=%s", replyBody)
+		var accepted modeldevv1.CreateExecutionResponse; require.NoError(t, protojson.Unmarshal(replyBody, &accepted))
+		stored, e := acceptances.FindAccepted(requestCtx, data.ModelDevAdmissionScope{TenantID: owner.tenant, ResourceTenantID: provider.ResourceTenantID, Actor: actor, Action: data.ModelDevCreateAction, IdempotencyKey: key}, startup.Intent); require.NoError(t, e)
+		require.Equal(t, stored.ExecutionID, accepted.ExecutionId); require.Equal(t, stored.OperationID, accepted.OperationId)
+		worker := service.NewModelDevDispatchWorker(bctx, acceptances, resolver)
+		require.NoError(t, worker.Start(ctx)); cleanup(worker.Stop)
+		created, e := json.Marshal(map[string]string{"execution_id": accepted.ExecutionId, "operation_id": accepted.OperationId}); require.NoError(t, e)
+		file, e := os.OpenFile(filepath.Join(filepath.Dir(os.Getenv("ANI_MODELDEV_MAINFLOW_STARTUP")), "created.json"), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600); require.NoError(t, e)
+		_, e = file.Write(created); require.NoError(t, e); require.NoError(t, file.Close())
+		t.Log("BFF_MAIN_FLOW_CREATED: real authenticated HTTP202 committed before actual delivery worker")
+		ticker := time.NewTicker(100*time.Millisecond); defer ticker.Stop()
+		for { if _, e = os.Stat(os.Getenv("ANI_MODELDEV_QUERY_HANDSHAKE")); e == nil { break }; select { case <-ctx.Done(): t.Fatal("BFF main flow did not publish before timeout"); case <-ticker.C: } }
+		provider = readModelDevQueryFixture(t)
+		require.Equal(t, startup.ResourceTenantID, provider.ResourceTenantID); require.Equal(t, accepted.ExecutionId, provider.ExecutionID)
+		require.Equal(t, startup.Address, provider.Address)
+		stored, e = acceptances.FindAccepted(requestCtx, data.ModelDevAdmissionScope{TenantID: owner.tenant, ResourceTenantID: provider.ResourceTenantID, Actor: actor, Action: data.ModelDevCreateAction, IdempotencyKey: key}, startup.Intent); require.NoError(t, e)
+		require.Equal(t, "ACKED", stored.DispatchState); require.NotNil(t, stored.OwnerReceipt)
+	}
 	get := func(path, accessToken string) (int, []byte) {
 		t.Helper()
 		request, e := http.NewRequestWithContext(ctx, "GET", web.URL+path, nil)
