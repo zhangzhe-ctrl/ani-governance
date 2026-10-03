@@ -31,7 +31,29 @@ type modelDevAuthorizationAction uint8
 const (
 	modelDevCreateAction modelDevAuthorizationAction = iota + 1
 	modelDevManageReleaseBindingAction
+	modelDevGetExecutionAction
+	modelDevListArtifactsAction
+	modelDevDownloadArtifactAction
 )
+
+const (
+ ModelDevGetExecutionPath = "/admin/v1/modeldev/executions/{execution_id}"
+ ModelDevListArtifactsPath = "/admin/v1/modeldev/executions/{execution_id}/artifacts"
+ ModelDevDownloadArtifactPath = "/admin/v1/modeldev/artifacts/{artifact_id}/content"
+)
+
+// AuthorizeQuery checks the current independent GET grant and ALL data scope.
+// Only these fixed route templates can produce downstream query delegation.
+func (r *ModelDevAuthorizationRepo) AuthorizeQuery(ctx context.Context, tenantID, userID uint32, path string) error {
+ var action modelDevAuthorizationAction
+ switch path {
+ case ModelDevGetExecutionPath: action = modelDevGetExecutionAction
+ case ModelDevListArtifactsPath: action = modelDevListArtifactsAction
+ case ModelDevDownloadArtifactPath: action = modelDevDownloadArtifactAction
+ default: return ErrModelDevAuthorizationDenied
+ }
+ return r.authorizeCurrent(ctx, tenantID, userID, action)
+}
 
 // ModelDevAuthorizationRepo checks current database grants for the fixed
 // CPU-P01 create and release-binding management actions. It does not
@@ -158,7 +180,7 @@ func (r *ModelDevAuthorizationRepo) authorizeCurrent(ctx context.Context, tenant
 		permission.IDIn(permissionIDs...), permission.StatusEQ(permission.StatusOn), permission.DeletedAtIsNil(),
 	)
 	switch action {
-	case modelDevCreateAction:
+	case modelDevCreateAction, modelDevGetExecutionAction, modelDevListArtifactsAction, modelDevDownloadArtifactAction:
 		// Create retains its permission-to-API check below.
 	case modelDevManageReleaseBindingAction:
 		permissionQuery.Where(permission.CodeEQ(ModelDevManageReleaseBindingPermissionCode))
@@ -172,8 +194,14 @@ func (r *ModelDevAuthorizationRepo) authorizeCurrent(ctx context.Context, tenant
 	if len(permissionIDs) == 0 {
 		return ErrModelDevAuthorizationDenied
 	}
-	if action == modelDevCreateAction {
-		if err := authorizeModelDevCreateAPI(ctx, tx, permissionIDs); err != nil {
+	if action != modelDevManageReleaseBindingAction {
+		path, method := "/admin/v1/modeldev/executions", "POST"
+		switch action {
+		case modelDevGetExecutionAction: path, method = ModelDevGetExecutionPath, "GET"
+		case modelDevListArtifactsAction: path, method = ModelDevListArtifactsPath, "GET"
+		case modelDevDownloadArtifactAction: path, method = ModelDevDownloadArtifactPath, "GET"
+		}
+		if err := authorizeModelDevAPI(ctx, tx, permissionIDs, path, method); err != nil {
 			return err
 		}
 	}
@@ -183,7 +211,7 @@ func (r *ModelDevAuthorizationRepo) authorizeCurrent(ctx context.Context, tenant
 	return nil
 }
 
-func authorizeModelDevCreateAPI(ctx context.Context, tx *ent.Tx, permissionIDs []uint32) error {
+func authorizeModelDevAPI(ctx context.Context, tx *ent.Tx, permissionIDs []uint32, path, method string) error {
 	var apiIDs []uint32
 	err := tx.PermissionApi.Query().Where(
 		permissionapi.PermissionIDIn(permissionIDs...), permissionapi.APIIDGT(0), permissionapi.DeletedAtIsNil(),
@@ -197,7 +225,7 @@ func authorizeModelDevCreateAPI(ctx context.Context, tx *ent.Tx, permissionIDs [
 	allowed, err := tx.Api.Query().Where(
 		api.IDIn(apiIDs...), api.StatusEQ(api.StatusOn), api.DeletedAtIsNil(),
 		api.ScopeEQ(api.ScopeAdmin), api.BusinessModuleEQ(api.BusinessModuleModel),
-		api.PathEQ("/admin/v1/modeldev/executions"), api.MethodEQ("POST"),
+		api.PathEQ(path), api.MethodEQ(method),
 	).Exist(ctx)
 	if err != nil {
 		return ErrModelDevAuthorizationUnavailable

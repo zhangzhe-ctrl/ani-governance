@@ -52,3 +52,53 @@ message CreateExecutionResponse {
   string close_state = 7 [json_name = "close_state"];
   string resource_state = 8 [json_name = "resource_state"];
 }
+
+// Public query selectors never accept tenant, Pod, namespace or object keys.
+message GetExecutionRequest { string execution_id = 1 [json_name = "execution_id"]; }
+message GetExecutionResponse { ExecutionView execution = 1; }
+message ExecutionView {
+  string operation_id = 1 [json_name = "operation_id"];
+  string execution_id = 2 [json_name = "execution_id"];
+  string name = 3;
+  string kind = 4;
+  string preset_id = 5 [json_name = "preset_id"];
+  string release_id = 6 [json_name = "release_id"];
+  string input_version_id = 7 [json_name = "input_version_id"];
+  string image_version_id = 8 [json_name = "image_version_id"];
+  string compute_state = 9 [json_name = "compute_state"];
+  string delivery_state = 10 [json_name = "delivery_state"];
+  string close_state = 11 [json_name = "close_state"];
+  string resource_state = 12 [json_name = "resource_state"];
+  string current_step = 13 [json_name = "current_step"];
+  bool stop_requested = 14 [json_name = "stop_requested"];
+  uint64 close_generation = 15 [json_name = "close_generation"];
+  string accepted_at = 16 [json_name = "accepted_at"];
+  string deadline_at = 17 [json_name = "deadline_at"];
+  string observed_at = 18 [json_name = "observed_at"];
+}
+message ListExecutionArtifactsRequest {
+  string execution_id = 1 [json_name = "execution_id"];
+  uint32 page_size = 2 [json_name = "page_size"];
+  string page_token = 3 [json_name = "page_token"];
+}
+message ListExecutionArtifactsResponse {
+  repeated ArtifactView artifacts = 1;
+  string next_page_token = 2 [json_name = "next_page_token"];
+}
+message ArtifactView {
+  string artifact_id = 1 [json_name = "artifact_id"];
+  string execution_id = 2 [json_name = "execution_id"];
+  string filename = 3;
+  string role = 4;
+  int64 size_bytes = 5 [json_name = "size_bytes"];
+  string sha256 = 6;
+  string delivery_state = 7 [json_name = "delivery_state"];
+  string verified_at = 8 [json_name = "verified_at"];
+}
+message AuthorizeArtifactDownloadRequest { string artifact_id = 1 [json_name = "artifact_id"]; }
+message AuthorizeArtifactDownloadResponse {
+  ArtifactView artifact = 1;
+  // Short-lived secret: served only with Cache-Control: no-store.
+  string download_url = 2 [json_name = "download_url"];
+  string expires_at = 3 [json_name = "expires_at"];
+}

@@ -23,6 +23,7 @@ import (
 // The generated request describes the public schema. This route preserves
 // JSON array presence by passing the shared parsed Intent directly to service.
 func registerModelDevHTTP(server *http.Server, modeldev *service.ModelDevService) {
+ registerModelDevQueryHTTP(server, modeldev)
 	server.Route("/").POST("/admin/v1/modeldev/executions", func(ctx http.Context) error {
 		http.SetOperation(ctx, adminV1.OperationModelDevServiceCreateExecution)
 		request := ctx.Request()
