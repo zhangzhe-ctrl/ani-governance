@@ -25,6 +25,7 @@ var (
 )
 
 const ModelDevManageReleaseBindingPermissionCode = "modeldev:manage_release_binding"
+const ModelDevManageExecutionPermissionCode = "modeldev:manage_execution"
 
 type modelDevAuthorizationAction uint8
 
@@ -37,14 +38,21 @@ const (
 	modelDevStopAction
 	modelDevListExecutionsAction
 	modelDevGetExecutionLogsAction
+	modelDevListPresetsAction
+	modelDevGetInputVersionAction
+	modelDevListInputVersionsAction
+	modelDevManageExecutionAction
 )
 
 const (
-	ModelDevGetExecutionPath     = "/admin/v1/modeldev/executions/{execution_id}"
-	ModelDevListArtifactsPath    = "/admin/v1/modeldev/executions/{execution_id}/artifacts"
-	ModelDevDownloadArtifactPath = "/admin/v1/modeldev/artifacts/{artifact_id}/content"
-	ModelDevListExecutionsPath   = "/admin/v1/modeldev/executions"
-	ModelDevGetExecutionLogsPath = "/admin/v1/modeldev/executions/{execution_id}/logs"
+	ModelDevGetExecutionPath      = "/admin/v1/modeldev/executions/{execution_id}"
+	ModelDevListArtifactsPath     = "/admin/v1/modeldev/executions/{execution_id}/artifacts"
+	ModelDevDownloadArtifactPath  = "/admin/v1/modeldev/artifacts/{artifact_id}/content"
+	ModelDevListExecutionsPath    = "/admin/v1/modeldev/executions"
+	ModelDevGetExecutionLogsPath  = "/admin/v1/modeldev/executions/{execution_id}/logs"
+	ModelDevListPresetsPath       = "/admin/v1/modeldev/presets"
+	ModelDevGetInputVersionPath   = "/admin/v1/modeldev/input-versions/{input_version_id}"
+	ModelDevListInputVersionsPath = "/admin/v1/modeldev/input-versions"
 )
 
 // AuthorizeQuery checks the current independent GET grant and ALL data scope.
@@ -62,6 +70,12 @@ func (r *ModelDevAuthorizationRepo) AuthorizeQuery(ctx context.Context, tenantID
 		action = modelDevListExecutionsAction
 	case ModelDevGetExecutionLogsPath:
 		action = modelDevGetExecutionLogsAction
+	case ModelDevListPresetsPath:
+		action = modelDevListPresetsAction
+	case ModelDevGetInputVersionPath:
+		action = modelDevGetInputVersionAction
+	case ModelDevListInputVersionsPath:
+		action = modelDevListInputVersionsAction
 	default:
 		return ErrModelDevAuthorizationDenied
 	}
@@ -97,6 +111,10 @@ func (r *ModelDevAuthorizationRepo) AuthorizeStop(ctx context.Context, tenantID,
 // API grant or a JWT's cached roles cannot authorize this action.
 func (r *ModelDevAuthorizationRepo) AuthorizeManageReleaseBinding(ctx context.Context, tenantID, userID uint32) error {
 	return r.authorizeCurrent(ctx, tenantID, userID, modelDevManageReleaseBindingAction)
+}
+
+func (r *ModelDevAuthorizationRepo) AuthorizeManageExecution(ctx context.Context, tenantID, userID uint32) error {
+	return r.authorizeCurrent(ctx, tenantID, userID, modelDevManageExecutionAction)
 }
 
 func (r *ModelDevAuthorizationRepo) authorizeCurrent(ctx context.Context, tenantID, userID uint32, action modelDevAuthorizationAction) (result error) {
@@ -199,10 +217,12 @@ func (r *ModelDevAuthorizationRepo) authorizeCurrent(ctx context.Context, tenant
 		permission.IDIn(permissionIDs...), permission.StatusEQ(permission.StatusOn), permission.DeletedAtIsNil(),
 	)
 	switch action {
-	case modelDevCreateAction, modelDevGetExecutionAction, modelDevListArtifactsAction, modelDevDownloadArtifactAction, modelDevStopAction, modelDevListExecutionsAction, modelDevGetExecutionLogsAction:
+	case modelDevCreateAction, modelDevGetExecutionAction, modelDevListArtifactsAction, modelDevDownloadArtifactAction, modelDevStopAction, modelDevListExecutionsAction, modelDevGetExecutionLogsAction, modelDevListPresetsAction, modelDevGetInputVersionAction, modelDevListInputVersionsAction:
 		// Create retains its permission-to-API check below.
 	case modelDevManageReleaseBindingAction:
 		permissionQuery.Where(permission.CodeEQ(ModelDevManageReleaseBindingPermissionCode))
+	case modelDevManageExecutionAction:
+		permissionQuery.Where(permission.CodeEQ(ModelDevManageExecutionPermissionCode))
 	default:
 		return ErrModelDevAuthorizationDenied
 	}
@@ -213,7 +233,7 @@ func (r *ModelDevAuthorizationRepo) authorizeCurrent(ctx context.Context, tenant
 	if len(permissionIDs) == 0 {
 		return ErrModelDevAuthorizationDenied
 	}
-	if action != modelDevManageReleaseBindingAction {
+	if action != modelDevManageReleaseBindingAction && action != modelDevManageExecutionAction {
 		path, method := "/admin/v1/modeldev/executions", "POST"
 		switch action {
 		case modelDevStopAction:
@@ -228,6 +248,12 @@ func (r *ModelDevAuthorizationRepo) authorizeCurrent(ctx context.Context, tenant
 			path, method = ModelDevListExecutionsPath, "GET"
 		case modelDevGetExecutionLogsAction:
 			path, method = ModelDevGetExecutionLogsPath, "GET"
+		case modelDevListPresetsAction:
+			path, method = ModelDevListPresetsPath, "GET"
+		case modelDevGetInputVersionAction:
+			path, method = ModelDevGetInputVersionPath, "GET"
+		case modelDevListInputVersionsAction:
+			path, method = ModelDevListInputVersionsPath, "GET"
 		}
 		if err := authorizeModelDevAPI(ctx, tx, permissionIDs, path, method); err != nil {
 			return err

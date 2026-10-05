@@ -40,6 +40,47 @@ message GeneralParameter {
   string value = 3;
 }
 
+// Catalogue metadata exposes selection and registered parameters only.
+message ListPresetsRequest { uint32 page_size = 1 [json_name = "page_size"]; string page_token = 2 [json_name = "page_token"]; }
+message ListPresetsResponse { repeated PresetView presets = 1; string next_page_token = 2 [json_name = "next_page_token"]; }
+message PresetView {
+  string preset_id = 1 [json_name = "preset_id"];
+  string name = 2;
+  string kind = 3;
+  string active_release_id = 4 [json_name = "active_release_id"];
+  repeated string image_version_ids = 5 [json_name = "image_version_ids"];
+  repeated ParameterRule parameter_rules = 6 [json_name = "parameter_rules"];
+  uint64 binding_generation = 7 [json_name = "binding_generation"];
+  bool new_submissions_enabled = 8 [json_name = "new_submissions_enabled"];
+}
+message ParameterRule {
+  string name = 1;
+  string type = 2;
+  bool required = 3;
+  GeneralParameter default_value = 4 [json_name = "default_value"];
+  repeated GeneralParameter allowed_values = 5 [json_name = "allowed_values"];
+  GeneralParameter minimum = 6;
+  GeneralParameter maximum = 7;
+}
+message GetInputVersionRequest { string input_version_id = 1 [json_name = "input_version_id"]; }
+message GetInputVersionResponse { InputVersionView input_version = 1 [json_name = "input_version"]; }
+message ListInputVersionsRequest {
+  uint32 page_size = 1 [json_name = "page_size"];
+  string page_token = 2 [json_name = "page_token"];
+  optional string state = 3;
+}
+message ListInputVersionsResponse { repeated InputVersionView input_versions = 1 [json_name = "input_versions"]; string next_page_token = 2 [json_name = "next_page_token"]; }
+message InputVersionView {
+  string input_version_id = 1 [json_name = "input_version_id"];
+  string state = 2;
+  string format = 3;
+  int64 size_bytes = 4 [json_name = "size_bytes"];
+  string sha256 = 5;
+  uint32 row_count = 6 [json_name = "row_count"];
+  uint32 feature_count = 7 [json_name = "feature_count"];
+  string created_at = 8 [json_name = "created_at"];
+}
+
 // Returned only after Governance has durably accepted the frozen intent.
 // Acceptance does not establish a KFP Run or successful training.
 message CreateExecutionResponse {

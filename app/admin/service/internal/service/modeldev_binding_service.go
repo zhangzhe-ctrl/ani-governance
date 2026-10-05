@@ -4,6 +4,7 @@ import (
 	"context"
 	stderrors "errors"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/errors"
@@ -28,10 +29,71 @@ type ModelDevBindingService struct {
 	authorization *data.ModelDevAuthorizationRepo
 	tenants       ResourceTenantResolver
 	bindings      *data.ModelDevReleaseBindingRepo
+	validator     ModelDevReleaseValidator
 }
 
-func NewModelDevBindingService(authorization *data.ModelDevAuthorizationRepo, tenants ResourceTenantResolver, bindings *data.ModelDevReleaseBindingRepo) *ModelDevBindingService {
-	return &ModelDevBindingService{authorization: authorization, tenants: tenants, bindings: bindings}
+// Validation reads the immutable ModelDev catalogue and its current tenant
+// environment. Client-supplied Release bytes are never a verification receipt.
+type ModelDevReleaseValidator interface {
+	ValidateRelease(context.Context, data.ModelDevResolveScope, string, string, string) error
+}
+
+func NewModelDevBindingService(authorization *data.ModelDevAuthorizationRepo, tenants ResourceTenantResolver, bindings *data.ModelDevReleaseBindingRepo, validator ...ModelDevReleaseValidator) *ModelDevBindingService {
+	s := &ModelDevBindingService{authorization: authorization, tenants: tenants, bindings: bindings}
+	if len(validator) == 1 {
+		s.validator = validator[0]
+	}
+	return s
+}
+
+// Enable creates the sole binding or changes it with CAS. Rollback names a
+// previously imported immutable Release and follows exactly this same path.
+func (s *ModelDevBindingService) Enable(ctx context.Context, in ModelDevPauseInput) (*data.ModelDevReleaseBindingChange, error) {
+	principal, err := auth.PrincipalFromContext(ctx)
+	if err != nil || principal == nil || principal.ID == 0 {
+		return nil, errors.Unauthorized("INVALID_LOGIN", "user login required")
+	}
+	if principal.Type != auth.SubjectUser || principal.TenantID == 0 {
+		return nil, errors.Forbidden("FORBIDDEN", "tenant user required")
+	}
+	if s == nil || s.authorization == nil || s.tenants == nil || s.bindings == nil || s.validator == nil {
+		return nil, modelDevPauseUnavailable()
+	}
+	if err := s.authorization.AuthorizeManageReleaseBinding(ctx, principal.TenantID, principal.ID); err != nil {
+		return nil, modelDevPauseFailure(err)
+	}
+	tenant, err := s.tenants.ResourceTenantID(ctx, principal.TenantID)
+	if err != nil || !modelDevQueryUUID(tenant) {
+		return nil, modelDevPauseFailure(err)
+	}
+	actor, err := principal.Actor()
+	if err != nil {
+		return nil, errors.Forbidden("FORBIDDEN", "tenant user required")
+	}
+	if !modelDevQueryUUID(in.PresetID) || !modelDevQueryUUID(in.ReleaseID) || len(in.ReleaseDigest) != 64 || strings.Trim(in.ReleaseDigest, "0123456789abcdef") != "" || in.ExpectedGeneration > math.MaxInt64 {
+		return nil, modelDevPauseFailure(cpup01.ErrInvalidArgument)
+	}
+	scope := data.ModelDevReleaseBindingScope{TenantID: principal.TenantID, ResourceTenantID: tenant, PresetID: in.PresetID}
+	current, err := s.bindings.Get(ctx, scope)
+	if err != nil && !stderrors.Is(err, data.ErrModelDevBindingNotFound) {
+		return nil, modelDevPauseFailure(err)
+	}
+	if (current == nil && in.ExpectedGeneration != 0) || (current != nil && in.ExpectedGeneration > current.Generation) {
+		return nil, modelDevPauseFailure(data.ErrModelDevBindingGenerationConflict)
+	}
+	if err := s.validator.ValidateRelease(ctx, data.ModelDevResolveScope{ResourceTenantID: tenant, Actor: actor}, in.PresetID, in.ReleaseID, in.ReleaseDigest); err != nil {
+		return nil, modelDevQueryFailure(err)
+	}
+	// The remote check happens outside the transaction. Recheck the current
+	// grant before mutating, then let the existing binding CAS arbitrate races.
+	if err := s.authorization.AuthorizeManageReleaseBinding(ctx, principal.TenantID, principal.ID); err != nil {
+		return nil, modelDevPauseFailure(err)
+	}
+	change, err := s.bindings.CompareAndSwap(ctx, scope, data.ModelDevReleaseBindingUpdate{ExpectedGeneration: in.ExpectedGeneration, Target: data.ModelDevReleaseBindingTarget{ReleaseID: in.ReleaseID, ReleaseDigest: in.ReleaseDigest, NewSubmissionsEnabled: true}, Actor: actor, RequestedAt: time.Now().UTC().Truncate(time.Microsecond), Reason: in.Reason, EvidenceReference: in.EvidenceReference})
+	if err != nil {
+		return nil, modelDevPauseFailure(err)
+	}
+	return change, nil
 }
 
 // Pause changes only the gate of the requested current target. A replay means

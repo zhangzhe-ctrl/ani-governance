@@ -19,7 +19,7 @@ import (
 )
 
 func main() {
-	if len(os.Args) > 1 && os.Args[1] == "modeldev-pause" {
+	if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "modeldev-") {
 		// Kratos's config reader logs raw source bytes on decode failures. This
 		// standalone management process reports only the command's bounded
 		// errors and persisted audit result, even before bootstrap is available.
@@ -42,6 +42,10 @@ func runAdmin(ctx context.Context, args []string, stdout io.Writer) error {
 	command := args[0]
 	if command == "modeldev-pause" {
 		return runModelDevPause(ctx, args[1:], stdout)
+	}
+	switch command {
+	case "modeldev-enable", "modeldev-import-release", "modeldev-import-csv", "modeldev-inspect", "modeldev-reconcile", "modeldev-cleanup-plan", "modeldev-cleanup-apply":
+		return runModelDevManagement(ctx, command, args[1:], stdout)
 	}
 	flags := flag.NewFlagSet(command, flag.ContinueOnError)
 	username := flags.String("username", "admin", "first platform administrator username (init only)")

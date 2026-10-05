@@ -451,6 +451,12 @@ func TestModelDevPauseCommandPersistsGateAndReplays(t *testing.T) {
 		require.Equal(t, stored, afterDenied, "denial preserves gate, generation and all audit fields")
 		t.Log("MODELDEV_PAUSE_BLACKLIST_BEHAVIOR PASS: unavailable blacklist rejected with zero binding mutation")
 	})
+	t.Run("enable and rollback share the authenticated current binding", func(t *testing.T) {
+		runModelDevEnableVerticalCase(t, ctx, configDirectory, tokenFile, resourceTenantID, actor, scope, target)
+	})
+	t.Run("CSV import replays through fresh authenticated clients", func(t *testing.T) {
+		runModelDevCSVReplayVerticalCase(t, ctx, configDirectory, tokenFile, resourceTenantID, actor)
+	})
 }
 
 type modelDevPauseBindingOutput struct {

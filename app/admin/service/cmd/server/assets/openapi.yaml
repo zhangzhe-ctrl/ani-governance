@@ -2826,6 +2826,72 @@ paths:
                                 $ref: '#/components/schemas/StopExecutionResponse'
             security:
                 - BearerAuth: []
+    /admin/v1/modeldev/input-versions:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_ListInputVersions
+            parameters:
+                - name: page_size
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: page_token
+                  in: query
+                  schema:
+                    type: string
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListInputVersionsResponse'
+    /admin/v1/modeldev/input-versions/{input_version_id}:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_GetInputVersion
+            parameters:
+                - name: input_version_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetInputVersionResponse'
+    /admin/v1/modeldev/presets:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_ListPresets
+            parameters:
+                - name: page_size
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: page_token
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListPresetsResponse'
     /admin/v1/notification-channels:
         get:
             tags:
@@ -8513,6 +8579,11 @@ components:
             properties:
                 execution:
                     $ref: '#/components/schemas/ExecutionView'
+        GetInputVersionResponse:
+            type: object
+            properties:
+                input_version:
+                    $ref: '#/components/schemas/InputVersionView'
         GetMFAStatusResponse:
             type: object
             properties:
@@ -8694,6 +8765,27 @@ components:
                     type: array
                     items:
                         type: string
+        InputVersionView:
+            type: object
+            properties:
+                input_version_id:
+                    type: string
+                state:
+                    type: string
+                format:
+                    type: string
+                size_bytes:
+                    type: string
+                sha256:
+                    type: string
+                row_count:
+                    type: integer
+                    format: uint32
+                feature_count:
+                    type: integer
+                    format: uint32
+                created_at:
+                    type: string
         InternalMessage:
             type: object
             properties:
@@ -9117,6 +9209,15 @@ components:
                         $ref: '#/components/schemas/ExecutionView'
                 next_page_token:
                     type: string
+        ListInputVersionsResponse:
+            type: object
+            properties:
+                input_versions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/InputVersionView'
+                next_page_token:
+                    type: string
         ListInternalMessageCategoryResponse:
             type: object
             properties:
@@ -9309,6 +9410,15 @@ components:
                 total:
                     type: string
             description: 获取职位列表 - 答复
+        ListPresetsResponse:
+            type: object
+            properties:
+                presets:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/PresetView'
+                next_page_token:
+                    type: string
         ListQuotaDefinitionsResponse:
             type: object
             properties:
@@ -10456,6 +10566,25 @@ components:
                     $ref: '#/components/schemas/Parameter'
                 reference:
                     $ref: '#/components/schemas/Reference'
+        ParameterRule:
+            type: object
+            properties:
+                name:
+                    type: string
+                type:
+                    type: string
+                required:
+                    type: boolean
+                default_value:
+                    $ref: '#/components/schemas/GeneralParameter'
+                allowed_values:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GeneralParameter'
+                minimum:
+                    $ref: '#/components/schemas/GeneralParameter'
+                maximum:
+                    $ref: '#/components/schemas/GeneralParameter'
         PasswordLoginRequest:
             type: object
             properties:
@@ -11083,6 +11212,29 @@ components:
                     description: 删除时间
                     format: date-time
             description: 职位
+        PresetView:
+            type: object
+            properties:
+                preset_id:
+                    type: string
+                name:
+                    type: string
+                kind:
+                    type: string
+                active_release_id:
+                    type: string
+                image_version_ids:
+                    type: array
+                    items:
+                        type: string
+                parameter_rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParameterRule'
+                binding_generation:
+                    type: string
+                new_submissions_enabled:
+                    type: boolean
         Properties:
             type: object
             properties:

@@ -20,6 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ModelDevService_ListPresets_FullMethodName               = "/admin.service.v1.ModelDevService/ListPresets"
+	ModelDevService_GetInputVersion_FullMethodName           = "/admin.service.v1.ModelDevService/GetInputVersion"
+	ModelDevService_ListInputVersions_FullMethodName         = "/admin.service.v1.ModelDevService/ListInputVersions"
 	ModelDevService_ListExecutions_FullMethodName            = "/admin.service.v1.ModelDevService/ListExecutions"
 	ModelDevService_GetExecutionLogs_FullMethodName          = "/admin.service.v1.ModelDevService/GetExecutionLogs"
 	ModelDevService_StopExecution_FullMethodName             = "/admin.service.v1.ModelDevService/StopExecution"
@@ -35,6 +38,9 @@ const (
 //
 // CPU-P01 entry in the existing Governance BFF.
 type ModelDevServiceClient interface {
+	ListPresets(ctx context.Context, in *v1.ListPresetsRequest, opts ...grpc.CallOption) (*v1.ListPresetsResponse, error)
+	GetInputVersion(ctx context.Context, in *v1.GetInputVersionRequest, opts ...grpc.CallOption) (*v1.GetInputVersionResponse, error)
+	ListInputVersions(ctx context.Context, in *v1.ListInputVersionsRequest, opts ...grpc.CallOption) (*v1.ListInputVersionsResponse, error)
 	ListExecutions(ctx context.Context, in *v1.ListExecutionsRequest, opts ...grpc.CallOption) (*v1.ListExecutionsResponse, error)
 	GetExecutionLogs(ctx context.Context, in *v1.GetExecutionLogsRequest, opts ...grpc.CallOption) (*v1.GetExecutionLogsResponse, error)
 	StopExecution(ctx context.Context, in *v1.StopExecutionRequest, opts ...grpc.CallOption) (*v1.StopExecutionResponse, error)
@@ -50,6 +56,36 @@ type modelDevServiceClient struct {
 
 func NewModelDevServiceClient(cc grpc.ClientConnInterface) ModelDevServiceClient {
 	return &modelDevServiceClient{cc}
+}
+
+func (c *modelDevServiceClient) ListPresets(ctx context.Context, in *v1.ListPresetsRequest, opts ...grpc.CallOption) (*v1.ListPresetsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ListPresetsResponse)
+	err := c.cc.Invoke(ctx, ModelDevService_ListPresets_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelDevServiceClient) GetInputVersion(ctx context.Context, in *v1.GetInputVersionRequest, opts ...grpc.CallOption) (*v1.GetInputVersionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.GetInputVersionResponse)
+	err := c.cc.Invoke(ctx, ModelDevService_GetInputVersion_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelDevServiceClient) ListInputVersions(ctx context.Context, in *v1.ListInputVersionsRequest, opts ...grpc.CallOption) (*v1.ListInputVersionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ListInputVersionsResponse)
+	err := c.cc.Invoke(ctx, ModelDevService_ListInputVersions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *modelDevServiceClient) ListExecutions(ctx context.Context, in *v1.ListExecutionsRequest, opts ...grpc.CallOption) (*v1.ListExecutionsResponse, error) {
@@ -128,6 +164,9 @@ func (c *modelDevServiceClient) CreateExecution(ctx context.Context, in *v1.Crea
 //
 // CPU-P01 entry in the existing Governance BFF.
 type ModelDevServiceServer interface {
+	ListPresets(context.Context, *v1.ListPresetsRequest) (*v1.ListPresetsResponse, error)
+	GetInputVersion(context.Context, *v1.GetInputVersionRequest) (*v1.GetInputVersionResponse, error)
+	ListInputVersions(context.Context, *v1.ListInputVersionsRequest) (*v1.ListInputVersionsResponse, error)
 	ListExecutions(context.Context, *v1.ListExecutionsRequest) (*v1.ListExecutionsResponse, error)
 	GetExecutionLogs(context.Context, *v1.GetExecutionLogsRequest) (*v1.GetExecutionLogsResponse, error)
 	StopExecution(context.Context, *v1.StopExecutionRequest) (*v1.StopExecutionResponse, error)
@@ -145,6 +184,15 @@ type ModelDevServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedModelDevServiceServer struct{}
 
+func (UnimplementedModelDevServiceServer) ListPresets(context.Context, *v1.ListPresetsRequest) (*v1.ListPresetsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListPresets not implemented")
+}
+func (UnimplementedModelDevServiceServer) GetInputVersion(context.Context, *v1.GetInputVersionRequest) (*v1.GetInputVersionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetInputVersion not implemented")
+}
+func (UnimplementedModelDevServiceServer) ListInputVersions(context.Context, *v1.ListInputVersionsRequest) (*v1.ListInputVersionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListInputVersions not implemented")
+}
 func (UnimplementedModelDevServiceServer) ListExecutions(context.Context, *v1.ListExecutionsRequest) (*v1.ListExecutionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListExecutions not implemented")
 }
@@ -185,6 +233,60 @@ func RegisterModelDevServiceServer(s grpc.ServiceRegistrar, srv ModelDevServiceS
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ModelDevService_ServiceDesc, srv)
+}
+
+func _ModelDevService_ListPresets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ListPresetsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelDevServiceServer).ListPresets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelDevService_ListPresets_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelDevServiceServer).ListPresets(ctx, req.(*v1.ListPresetsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelDevService_GetInputVersion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.GetInputVersionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelDevServiceServer).GetInputVersion(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelDevService_GetInputVersion_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelDevServiceServer).GetInputVersion(ctx, req.(*v1.GetInputVersionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelDevService_ListInputVersions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ListInputVersionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelDevServiceServer).ListInputVersions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelDevService_ListInputVersions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelDevServiceServer).ListInputVersions(ctx, req.(*v1.ListInputVersionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ModelDevService_ListExecutions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -320,6 +422,18 @@ var ModelDevService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "admin.service.v1.ModelDevService",
 	HandlerType: (*ModelDevServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListPresets",
+			Handler:    _ModelDevService_ListPresets_Handler,
+		},
+		{
+			MethodName: "GetInputVersion",
+			Handler:    _ModelDevService_GetInputVersion_Handler,
+		},
+		{
+			MethodName: "ListInputVersions",
+			Handler:    _ModelDevService_ListInputVersions_Handler,
+		},
 		{
 			MethodName: "ListExecutions",
 			Handler:    _ModelDevService_ListExecutions_Handler,

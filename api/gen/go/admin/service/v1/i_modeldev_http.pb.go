@@ -24,8 +24,11 @@ const OperationModelDevServiceAuthorizeArtifactDownload = "/admin.service.v1.Mod
 const OperationModelDevServiceCreateExecution = "/admin.service.v1.ModelDevService/CreateExecution"
 const OperationModelDevServiceGetExecution = "/admin.service.v1.ModelDevService/GetExecution"
 const OperationModelDevServiceGetExecutionLogs = "/admin.service.v1.ModelDevService/GetExecutionLogs"
+const OperationModelDevServiceGetInputVersion = "/admin.service.v1.ModelDevService/GetInputVersion"
 const OperationModelDevServiceListExecutionArtifacts = "/admin.service.v1.ModelDevService/ListExecutionArtifacts"
 const OperationModelDevServiceListExecutions = "/admin.service.v1.ModelDevService/ListExecutions"
+const OperationModelDevServiceListInputVersions = "/admin.service.v1.ModelDevService/ListInputVersions"
+const OperationModelDevServiceListPresets = "/admin.service.v1.ModelDevService/ListPresets"
 const OperationModelDevServiceStopExecution = "/admin.service.v1.ModelDevService/StopExecution"
 
 type ModelDevServiceHTTPServer interface {
@@ -33,13 +36,19 @@ type ModelDevServiceHTTPServer interface {
 	CreateExecution(context.Context, *v1.CreateExecutionRequest) (*v1.CreateExecutionResponse, error)
 	GetExecution(context.Context, *v1.GetExecutionRequest) (*v1.GetExecutionResponse, error)
 	GetExecutionLogs(context.Context, *v1.GetExecutionLogsRequest) (*v1.GetExecutionLogsResponse, error)
+	GetInputVersion(context.Context, *v1.GetInputVersionRequest) (*v1.GetInputVersionResponse, error)
 	ListExecutionArtifacts(context.Context, *v1.ListExecutionArtifactsRequest) (*v1.ListExecutionArtifactsResponse, error)
 	ListExecutions(context.Context, *v1.ListExecutionsRequest) (*v1.ListExecutionsResponse, error)
+	ListInputVersions(context.Context, *v1.ListInputVersionsRequest) (*v1.ListInputVersionsResponse, error)
+	ListPresets(context.Context, *v1.ListPresetsRequest) (*v1.ListPresetsResponse, error)
 	StopExecution(context.Context, *v1.StopExecutionRequest) (*v1.StopExecutionResponse, error)
 }
 
 func RegisterModelDevServiceHTTPServer(s *http.Server, srv ModelDevServiceHTTPServer) {
 	r := s.Route("/")
+	r.GET("/admin/v1/modeldev/presets", _ModelDevService_ListPresets0_HTTP_Handler(srv))
+	r.GET("/admin/v1/modeldev/input-versions/{input_version_id}", _ModelDevService_GetInputVersion0_HTTP_Handler(srv))
+	r.GET("/admin/v1/modeldev/input-versions", _ModelDevService_ListInputVersions0_HTTP_Handler(srv))
 	r.GET("/admin/v1/modeldev/executions", _ModelDevService_ListExecutions0_HTTP_Handler(srv))
 	r.GET("/admin/v1/modeldev/executions/{execution_id}/logs", _ModelDevService_GetExecutionLogs0_HTTP_Handler(srv))
 	r.POST("/admin/v1/modeldev/executions/{execution_id}:stop", _ModelDevService_StopExecution0_HTTP_Handler(srv))
@@ -47,6 +56,66 @@ func RegisterModelDevServiceHTTPServer(s *http.Server, srv ModelDevServiceHTTPSe
 	r.GET("/admin/v1/modeldev/executions/{execution_id}/artifacts", _ModelDevService_ListExecutionArtifacts0_HTTP_Handler(srv))
 	r.GET("/admin/v1/modeldev/artifacts/{artifact_id}/content", _ModelDevService_AuthorizeArtifactDownload0_HTTP_Handler(srv))
 	r.POST("/admin/v1/modeldev/executions", _ModelDevService_CreateExecution0_HTTP_Handler(srv))
+}
+
+func _ModelDevService_ListPresets0_HTTP_Handler(srv ModelDevServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.ListPresetsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationModelDevServiceListPresets)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListPresets(ctx, req.(*v1.ListPresetsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.ListPresetsResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ModelDevService_GetInputVersion0_HTTP_Handler(srv ModelDevServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.GetInputVersionRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationModelDevServiceGetInputVersion)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetInputVersion(ctx, req.(*v1.GetInputVersionRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.GetInputVersionResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ModelDevService_ListInputVersions0_HTTP_Handler(srv ModelDevServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.ListInputVersionsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationModelDevServiceListInputVersions)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListInputVersions(ctx, req.(*v1.ListInputVersionsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.ListInputVersionsResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _ModelDevService_ListExecutions0_HTTP_Handler(srv ModelDevServiceHTTPServer) func(ctx http.Context) error {
@@ -205,8 +274,11 @@ type ModelDevServiceHTTPClient interface {
 	CreateExecution(ctx context.Context, req *v1.CreateExecutionRequest, opts ...http.CallOption) (rsp *v1.CreateExecutionResponse, err error)
 	GetExecution(ctx context.Context, req *v1.GetExecutionRequest, opts ...http.CallOption) (rsp *v1.GetExecutionResponse, err error)
 	GetExecutionLogs(ctx context.Context, req *v1.GetExecutionLogsRequest, opts ...http.CallOption) (rsp *v1.GetExecutionLogsResponse, err error)
+	GetInputVersion(ctx context.Context, req *v1.GetInputVersionRequest, opts ...http.CallOption) (rsp *v1.GetInputVersionResponse, err error)
 	ListExecutionArtifacts(ctx context.Context, req *v1.ListExecutionArtifactsRequest, opts ...http.CallOption) (rsp *v1.ListExecutionArtifactsResponse, err error)
 	ListExecutions(ctx context.Context, req *v1.ListExecutionsRequest, opts ...http.CallOption) (rsp *v1.ListExecutionsResponse, err error)
+	ListInputVersions(ctx context.Context, req *v1.ListInputVersionsRequest, opts ...http.CallOption) (rsp *v1.ListInputVersionsResponse, err error)
+	ListPresets(ctx context.Context, req *v1.ListPresetsRequest, opts ...http.CallOption) (rsp *v1.ListPresetsResponse, err error)
 	StopExecution(ctx context.Context, req *v1.StopExecutionRequest, opts ...http.CallOption) (rsp *v1.StopExecutionResponse, err error)
 }
 
@@ -270,6 +342,19 @@ func (c *ModelDevServiceHTTPClientImpl) GetExecutionLogs(ctx context.Context, in
 	return &out, nil
 }
 
+func (c *ModelDevServiceHTTPClientImpl) GetInputVersion(ctx context.Context, in *v1.GetInputVersionRequest, opts ...http.CallOption) (*v1.GetInputVersionResponse, error) {
+	var out v1.GetInputVersionResponse
+	pattern := "/admin/v1/modeldev/input-versions/{input_version_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationModelDevServiceGetInputVersion))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *ModelDevServiceHTTPClientImpl) ListExecutionArtifacts(ctx context.Context, in *v1.ListExecutionArtifactsRequest, opts ...http.CallOption) (*v1.ListExecutionArtifactsResponse, error) {
 	var out v1.ListExecutionArtifactsResponse
 	pattern := "/admin/v1/modeldev/executions/{execution_id}/artifacts"
@@ -288,6 +373,32 @@ func (c *ModelDevServiceHTTPClientImpl) ListExecutions(ctx context.Context, in *
 	pattern := "/admin/v1/modeldev/executions"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationModelDevServiceListExecutions))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *ModelDevServiceHTTPClientImpl) ListInputVersions(ctx context.Context, in *v1.ListInputVersionsRequest, opts ...http.CallOption) (*v1.ListInputVersionsResponse, error) {
+	var out v1.ListInputVersionsResponse
+	pattern := "/admin/v1/modeldev/input-versions"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationModelDevServiceListInputVersions))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *ModelDevServiceHTTPClientImpl) ListPresets(ctx context.Context, in *v1.ListPresetsRequest, opts ...http.CallOption) (*v1.ListPresetsResponse, error) {
+	var out v1.ListPresetsResponse
+	pattern := "/admin/v1/modeldev/presets"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationModelDevServiceListPresets))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
