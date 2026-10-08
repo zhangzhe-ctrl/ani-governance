@@ -1,5 +1,5 @@
-// admin performs explicit deployment data operations. It needs PostgreSQL only;
-// it never starts HTTP, connects Redis, or changes the database schema.
+// admin performs explicit deployment and management operations without starting
+// HTTP or changing the schema. ModelDev management also verifies Redis sessions.
 package main
 
 import (
@@ -7,16 +7,24 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
 
+	klog "github.com/go-kratos/kratos/v2/log"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go-wind-admin/app/admin/service/cmd/server/assets"
 	dbbootstrap "go-wind-admin/sql/bootstrap"
 )
 
 func main() {
+	if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "modeldev-") {
+		// Kratos's config reader logs raw source bytes on decode failures. This
+		// standalone management process reports only the command's bounded
+		// errors and persisted audit result, even before bootstrap is available.
+		klog.SetLogger(klog.NewStdLogger(io.Discard))
+	}
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -24,15 +32,26 @@ func main() {
 }
 
 func run() error {
-	if len(os.Args) < 2 {
-		return fmt.Errorf("usage: admin <init|check|sync-apis> [--username admin] [--password-file PATH] [--dry-run]; connection: ANI_DATABASE_DSN")
+	return runAdmin(context.Background(), os.Args[1:], os.Stdout)
+}
+
+func runAdmin(ctx context.Context, args []string, stdout io.Writer) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: admin <init|check|sync-apis|modeldev-pause> [--username admin] [--password-file PATH] [--dry-run]; connection: ANI_DATABASE_DSN")
 	}
-	command := os.Args[1]
+	command := args[0]
+	if command == "modeldev-pause" {
+		return runModelDevPause(ctx, args[1:], stdout)
+	}
+	switch command {
+	case "modeldev-enable", "modeldev-import-release", "modeldev-import-csv", "modeldev-inspect", "modeldev-reconcile", "modeldev-cleanup-plan", "modeldev-cleanup-apply":
+		return runModelDevManagement(ctx, command, args[1:], stdout)
+	}
 	flags := flag.NewFlagSet(command, flag.ContinueOnError)
 	username := flags.String("username", "admin", "first platform administrator username (init only)")
 	passwordFile := flags.String("password-file", "", "file containing the first administrator password (init only)")
 	dryRun := flags.Bool("dry-run", false, "show API changes and roll back (sync-apis only)")
-	if err := flags.Parse(os.Args[2:]); err != nil {
+	if err := flags.Parse(args[1:]); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 {
@@ -62,7 +81,7 @@ func run() error {
 		return fmt.Errorf("invalid database connection configuration")
 	}
 	defer db.Close()
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 	defer cancel()
 	if err = db.PingContext(ctx); err != nil {
 		return fmt.Errorf("database connection failed; check ANI_DATABASE_DSN and PostgreSQL availability")
@@ -71,7 +90,7 @@ func run() error {
 		if err = dbbootstrap.Check(ctx, db); err != nil {
 			return err
 		}
-		fmt.Println("PASS: platform administrator and required API grants are present")
+		fmt.Fprintln(stdout, "PASS: platform administrator and required API grants are present")
 		return nil
 	}
 	catalog, err := dbbootstrap.Catalog(assets.OpenApiData)
@@ -95,9 +114,9 @@ func run() error {
 			return e
 		}
 		if created {
-			fmt.Println("PASS: initial seed and administrator committed")
+			fmt.Fprintln(stdout, "PASS: initial seed and administrator committed")
 		} else {
-			fmt.Println("UNCHANGED: initialization already completed; existing data preserved")
+			fmt.Fprintln(stdout, "UNCHANGED: initialization already completed; existing data preserved")
 		}
 		return nil
 	}
@@ -111,15 +130,15 @@ func run() error {
 		return err
 	}
 	for _, change := range changes {
-		fmt.Println(change)
+		fmt.Fprintln(stdout, change)
 	}
 	if *dryRun {
-		fmt.Println("DRY RUN: no changes written")
+		fmt.Fprintln(stdout, "DRY RUN: no changes written")
 		return nil
 	}
 	if err = tx.Commit(); err != nil {
 		return err
 	}
-	fmt.Println("PASS: API catalog synchronized; permissions unchanged. Reload running instances to refresh authorization policies.")
+	fmt.Fprintln(stdout, "PASS: API catalog synchronized; permissions unchanged. Reload running instances to refresh authorization policies.")
 	return nil
 }

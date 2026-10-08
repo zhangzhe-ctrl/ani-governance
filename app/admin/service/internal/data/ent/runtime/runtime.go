@@ -25,6 +25,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/membershipposition"
 	"go-wind-admin/app/admin/service/internal/data/ent/membershiprole"
 	"go-wind-admin/app/admin/service/internal/data/ent/menu"
+	"go-wind-admin/app/admin/service/internal/data/ent/modeldevacceptance"
+	"go-wind-admin/app/admin/service/internal/data/ent/modeldevreleasebinding"
 	"go-wind-admin/app/admin/service/internal/data/ent/notificationchannel"
 	"go-wind-admin/app/admin/service/internal/data/ent/operationauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/orgunit"
@@ -723,6 +725,180 @@ func init() {
 	menuDescID := menuMixinFields0[0].Descriptor()
 	// menu.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	menu.IDValidator = menuDescID.Validators[0].(func(uint32) error)
+	modeldevacceptanceMixin := schema.ModelDevAcceptance{}.Mixin()
+	modeldevacceptance.Policy = privacy.NewPolicies(modeldevacceptanceMixin[1], schema.ModelDevAcceptance{})
+	modeldevacceptance.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := modeldevacceptance.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	modeldevacceptanceMixinFields0 := modeldevacceptanceMixin[0].Fields()
+	_ = modeldevacceptanceMixinFields0
+	modeldevacceptanceMixinFields1 := modeldevacceptanceMixin[1].Fields()
+	_ = modeldevacceptanceMixinFields1
+	modeldevacceptanceFields := schema.ModelDevAcceptance{}.Fields()
+	_ = modeldevacceptanceFields
+	// modeldevacceptanceDescTenantID is the schema descriptor for tenant_id field.
+	modeldevacceptanceDescTenantID := modeldevacceptanceMixinFields1[0].Descriptor()
+	// modeldevacceptance.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	modeldevacceptance.TenantIDValidator = modeldevacceptanceDescTenantID.Validators[0].(func(uint32) error)
+	// modeldevacceptanceDescResourceTenantID is the schema descriptor for resource_tenant_id field.
+	modeldevacceptanceDescResourceTenantID := modeldevacceptanceFields[0].Descriptor()
+	// modeldevacceptance.ResourceTenantIDValidator is a validator for the "resource_tenant_id" field. It is called by the builders before save.
+	modeldevacceptance.ResourceTenantIDValidator = modeldevacceptanceDescResourceTenantID.Validators[0].(func(string) error)
+	// modeldevacceptanceDescActor is the schema descriptor for actor field.
+	modeldevacceptanceDescActor := modeldevacceptanceFields[1].Descriptor()
+	// modeldevacceptance.ActorValidator is a validator for the "actor" field. It is called by the builders before save.
+	modeldevacceptance.ActorValidator = modeldevacceptanceDescActor.Validators[0].(func(string) error)
+	// modeldevacceptanceDescAction is the schema descriptor for action field.
+	modeldevacceptanceDescAction := modeldevacceptanceFields[2].Descriptor()
+	// modeldevacceptance.ActionValidator is a validator for the "action" field. It is called by the builders before save.
+	modeldevacceptance.ActionValidator = modeldevacceptanceDescAction.Validators[0].(func(string) error)
+	// modeldevacceptanceDescIdempotencyKey is the schema descriptor for idempotency_key field.
+	modeldevacceptanceDescIdempotencyKey := modeldevacceptanceFields[3].Descriptor()
+	// modeldevacceptance.IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
+	modeldevacceptance.IdempotencyKeyValidator = modeldevacceptanceDescIdempotencyKey.Validators[0].(func(string) error)
+	// modeldevacceptanceDescOperationID is the schema descriptor for operation_id field.
+	modeldevacceptanceDescOperationID := modeldevacceptanceFields[4].Descriptor()
+	// modeldevacceptance.OperationIDValidator is a validator for the "operation_id" field. It is called by the builders before save.
+	modeldevacceptance.OperationIDValidator = modeldevacceptanceDescOperationID.Validators[0].(func(string) error)
+	// modeldevacceptanceDescExecutionID is the schema descriptor for execution_id field.
+	modeldevacceptanceDescExecutionID := modeldevacceptanceFields[5].Descriptor()
+	// modeldevacceptance.ExecutionIDValidator is a validator for the "execution_id" field. It is called by the builders before save.
+	modeldevacceptance.ExecutionIDValidator = modeldevacceptanceDescExecutionID.Validators[0].(func(string) error)
+	// modeldevacceptanceDescIntentHash is the schema descriptor for intent_hash field.
+	modeldevacceptanceDescIntentHash := modeldevacceptanceFields[6].Descriptor()
+	// modeldevacceptance.IntentHashValidator is a validator for the "intent_hash" field. It is called by the builders before save.
+	modeldevacceptance.IntentHashValidator = modeldevacceptanceDescIntentHash.Validators[0].(func(string) error)
+	// modeldevacceptanceDescIntentCanonical is the schema descriptor for intent_canonical field.
+	modeldevacceptanceDescIntentCanonical := modeldevacceptanceFields[7].Descriptor()
+	// modeldevacceptance.IntentCanonicalValidator is a validator for the "intent_canonical" field. It is called by the builders before save.
+	modeldevacceptance.IntentCanonicalValidator = modeldevacceptanceDescIntentCanonical.Validators[0].(func([]byte) error)
+	// modeldevacceptanceDescExecutionSpecHash is the schema descriptor for execution_spec_hash field.
+	modeldevacceptanceDescExecutionSpecHash := modeldevacceptanceFields[8].Descriptor()
+	// modeldevacceptance.ExecutionSpecHashValidator is a validator for the "execution_spec_hash" field. It is called by the builders before save.
+	modeldevacceptance.ExecutionSpecHashValidator = modeldevacceptanceDescExecutionSpecHash.Validators[0].(func(string) error)
+	// modeldevacceptanceDescSnapshotCanonical is the schema descriptor for snapshot_canonical field.
+	modeldevacceptanceDescSnapshotCanonical := modeldevacceptanceFields[9].Descriptor()
+	// modeldevacceptance.SnapshotCanonicalValidator is a validator for the "snapshot_canonical" field. It is called by the builders before save.
+	modeldevacceptance.SnapshotCanonicalValidator = modeldevacceptanceDescSnapshotCanonical.Validators[0].(func([]byte) error)
+	// modeldevacceptanceDescAttemptCount is the schema descriptor for attempt_count field.
+	modeldevacceptanceDescAttemptCount := modeldevacceptanceFields[12].Descriptor()
+	// modeldevacceptance.DefaultAttemptCount holds the default value on creation for the attempt_count field.
+	modeldevacceptance.DefaultAttemptCount = modeldevacceptanceDescAttemptCount.Default.(int64)
+	// modeldevacceptance.AttemptCountValidator is a validator for the "attempt_count" field. It is called by the builders before save.
+	modeldevacceptance.AttemptCountValidator = modeldevacceptanceDescAttemptCount.Validators[0].(func(int64) error)
+	// modeldevacceptanceDescLeaseGeneration is the schema descriptor for lease_generation field.
+	modeldevacceptanceDescLeaseGeneration := modeldevacceptanceFields[13].Descriptor()
+	// modeldevacceptance.DefaultLeaseGeneration holds the default value on creation for the lease_generation field.
+	modeldevacceptance.DefaultLeaseGeneration = modeldevacceptanceDescLeaseGeneration.Default.(int64)
+	// modeldevacceptance.LeaseGenerationValidator is a validator for the "lease_generation" field. It is called by the builders before save.
+	modeldevacceptance.LeaseGenerationValidator = modeldevacceptanceDescLeaseGeneration.Validators[0].(func(int64) error)
+	// modeldevacceptanceDescLeaseOwner is the schema descriptor for lease_owner field.
+	modeldevacceptanceDescLeaseOwner := modeldevacceptanceFields[14].Descriptor()
+	// modeldevacceptance.LeaseOwnerValidator is a validator for the "lease_owner" field. It is called by the builders before save.
+	modeldevacceptance.LeaseOwnerValidator = modeldevacceptanceDescLeaseOwner.Validators[0].(func(string) error)
+	// modeldevacceptanceDescRetryBlocked is the schema descriptor for retry_blocked field.
+	modeldevacceptanceDescRetryBlocked := modeldevacceptanceFields[17].Descriptor()
+	// modeldevacceptance.DefaultRetryBlocked holds the default value on creation for the retry_blocked field.
+	modeldevacceptance.DefaultRetryBlocked = modeldevacceptanceDescRetryBlocked.Default.(bool)
+	// modeldevacceptanceDescStopIntentGeneration is the schema descriptor for stop_intent_generation field.
+	modeldevacceptanceDescStopIntentGeneration := modeldevacceptanceFields[20].Descriptor()
+	// modeldevacceptance.DefaultStopIntentGeneration holds the default value on creation for the stop_intent_generation field.
+	modeldevacceptance.DefaultStopIntentGeneration = modeldevacceptanceDescStopIntentGeneration.Default.(int64)
+	// modeldevacceptance.StopIntentGenerationValidator is a validator for the "stop_intent_generation" field. It is called by the builders before save.
+	modeldevacceptance.StopIntentGenerationValidator = modeldevacceptanceDescStopIntentGeneration.Validators[0].(func(int64) error)
+	// modeldevacceptanceDescStopRequestedActor is the schema descriptor for stop_requested_actor field.
+	modeldevacceptanceDescStopRequestedActor := modeldevacceptanceFields[22].Descriptor()
+	// modeldevacceptance.StopRequestedActorValidator is a validator for the "stop_requested_actor" field. It is called by the builders before save.
+	modeldevacceptance.StopRequestedActorValidator = modeldevacceptanceDescStopRequestedActor.Validators[0].(func(string) error)
+	// modeldevacceptanceDescCloseAttemptCount is the schema descriptor for close_attempt_count field.
+	modeldevacceptanceDescCloseAttemptCount := modeldevacceptanceFields[24].Descriptor()
+	// modeldevacceptance.DefaultCloseAttemptCount holds the default value on creation for the close_attempt_count field.
+	modeldevacceptance.DefaultCloseAttemptCount = modeldevacceptanceDescCloseAttemptCount.Default.(int64)
+	// modeldevacceptance.CloseAttemptCountValidator is a validator for the "close_attempt_count" field. It is called by the builders before save.
+	modeldevacceptance.CloseAttemptCountValidator = modeldevacceptanceDescCloseAttemptCount.Validators[0].(func(int64) error)
+	// modeldevacceptanceDescCloseLeaseGeneration is the schema descriptor for close_lease_generation field.
+	modeldevacceptanceDescCloseLeaseGeneration := modeldevacceptanceFields[25].Descriptor()
+	// modeldevacceptance.DefaultCloseLeaseGeneration holds the default value on creation for the close_lease_generation field.
+	modeldevacceptance.DefaultCloseLeaseGeneration = modeldevacceptanceDescCloseLeaseGeneration.Default.(int64)
+	// modeldevacceptance.CloseLeaseGenerationValidator is a validator for the "close_lease_generation" field. It is called by the builders before save.
+	modeldevacceptance.CloseLeaseGenerationValidator = modeldevacceptanceDescCloseLeaseGeneration.Validators[0].(func(int64) error)
+	// modeldevacceptanceDescCloseLeaseOwner is the schema descriptor for close_lease_owner field.
+	modeldevacceptanceDescCloseLeaseOwner := modeldevacceptanceFields[26].Descriptor()
+	// modeldevacceptance.CloseLeaseOwnerValidator is a validator for the "close_lease_owner" field. It is called by the builders before save.
+	modeldevacceptance.CloseLeaseOwnerValidator = modeldevacceptanceDescCloseLeaseOwner.Validators[0].(func(string) error)
+	// modeldevacceptanceDescCloseRetryBlocked is the schema descriptor for close_retry_blocked field.
+	modeldevacceptanceDescCloseRetryBlocked := modeldevacceptanceFields[29].Descriptor()
+	// modeldevacceptance.DefaultCloseRetryBlocked holds the default value on creation for the close_retry_blocked field.
+	modeldevacceptance.DefaultCloseRetryBlocked = modeldevacceptanceDescCloseRetryBlocked.Default.(bool)
+	// modeldevacceptanceDescID is the schema descriptor for id field.
+	modeldevacceptanceDescID := modeldevacceptanceMixinFields0[0].Descriptor()
+	// modeldevacceptance.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	modeldevacceptance.IDValidator = modeldevacceptanceDescID.Validators[0].(func(uint32) error)
+	modeldevreleasebindingMixin := schema.ModelDevReleaseBinding{}.Mixin()
+	modeldevreleasebinding.Policy = privacy.NewPolicies(modeldevreleasebindingMixin[1], schema.ModelDevReleaseBinding{})
+	modeldevreleasebinding.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := modeldevreleasebinding.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	modeldevreleasebindingMixinFields0 := modeldevreleasebindingMixin[0].Fields()
+	_ = modeldevreleasebindingMixinFields0
+	modeldevreleasebindingMixinFields1 := modeldevreleasebindingMixin[1].Fields()
+	_ = modeldevreleasebindingMixinFields1
+	modeldevreleasebindingFields := schema.ModelDevReleaseBinding{}.Fields()
+	_ = modeldevreleasebindingFields
+	// modeldevreleasebindingDescTenantID is the schema descriptor for tenant_id field.
+	modeldevreleasebindingDescTenantID := modeldevreleasebindingMixinFields1[0].Descriptor()
+	// modeldevreleasebinding.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	modeldevreleasebinding.TenantIDValidator = modeldevreleasebindingDescTenantID.Validators[0].(func(uint32) error)
+	// modeldevreleasebindingDescResourceTenantID is the schema descriptor for resource_tenant_id field.
+	modeldevreleasebindingDescResourceTenantID := modeldevreleasebindingFields[0].Descriptor()
+	// modeldevreleasebinding.ResourceTenantIDValidator is a validator for the "resource_tenant_id" field. It is called by the builders before save.
+	modeldevreleasebinding.ResourceTenantIDValidator = modeldevreleasebindingDescResourceTenantID.Validators[0].(func(string) error)
+	// modeldevreleasebindingDescPresetID is the schema descriptor for preset_id field.
+	modeldevreleasebindingDescPresetID := modeldevreleasebindingFields[1].Descriptor()
+	// modeldevreleasebinding.PresetIDValidator is a validator for the "preset_id" field. It is called by the builders before save.
+	modeldevreleasebinding.PresetIDValidator = modeldevreleasebindingDescPresetID.Validators[0].(func(string) error)
+	// modeldevreleasebindingDescReleaseID is the schema descriptor for release_id field.
+	modeldevreleasebindingDescReleaseID := modeldevreleasebindingFields[2].Descriptor()
+	// modeldevreleasebinding.ReleaseIDValidator is a validator for the "release_id" field. It is called by the builders before save.
+	modeldevreleasebinding.ReleaseIDValidator = modeldevreleasebindingDescReleaseID.Validators[0].(func(string) error)
+	// modeldevreleasebindingDescReleaseDigest is the schema descriptor for release_digest field.
+	modeldevreleasebindingDescReleaseDigest := modeldevreleasebindingFields[3].Descriptor()
+	// modeldevreleasebinding.ReleaseDigestValidator is a validator for the "release_digest" field. It is called by the builders before save.
+	modeldevreleasebinding.ReleaseDigestValidator = modeldevreleasebindingDescReleaseDigest.Validators[0].(func(string) error)
+	// modeldevreleasebindingDescGeneration is the schema descriptor for generation field.
+	modeldevreleasebindingDescGeneration := modeldevreleasebindingFields[4].Descriptor()
+	// modeldevreleasebinding.GenerationValidator is a validator for the "generation" field. It is called by the builders before save.
+	modeldevreleasebinding.GenerationValidator = modeldevreleasebindingDescGeneration.Validators[0].(func(uint64) error)
+	// modeldevreleasebindingDescNewSubmissionsEnabled is the schema descriptor for new_submissions_enabled field.
+	modeldevreleasebindingDescNewSubmissionsEnabled := modeldevreleasebindingFields[5].Descriptor()
+	// modeldevreleasebinding.DefaultNewSubmissionsEnabled holds the default value on creation for the new_submissions_enabled field.
+	modeldevreleasebinding.DefaultNewSubmissionsEnabled = modeldevreleasebindingDescNewSubmissionsEnabled.Default.(bool)
+	// modeldevreleasebindingDescUpdatedBy is the schema descriptor for updated_by field.
+	modeldevreleasebindingDescUpdatedBy := modeldevreleasebindingFields[6].Descriptor()
+	// modeldevreleasebinding.UpdatedByValidator is a validator for the "updated_by" field. It is called by the builders before save.
+	modeldevreleasebinding.UpdatedByValidator = modeldevreleasebindingDescUpdatedBy.Validators[0].(func(string) error)
+	// modeldevreleasebindingDescReason is the schema descriptor for reason field.
+	modeldevreleasebindingDescReason := modeldevreleasebindingFields[8].Descriptor()
+	// modeldevreleasebinding.ReasonValidator is a validator for the "reason" field. It is called by the builders before save.
+	modeldevreleasebinding.ReasonValidator = modeldevreleasebindingDescReason.Validators[0].(func(string) error)
+	// modeldevreleasebindingDescEvidenceReference is the schema descriptor for evidence_reference field.
+	modeldevreleasebindingDescEvidenceReference := modeldevreleasebindingFields[9].Descriptor()
+	// modeldevreleasebinding.EvidenceReferenceValidator is a validator for the "evidence_reference" field. It is called by the builders before save.
+	modeldevreleasebinding.EvidenceReferenceValidator = modeldevreleasebindingDescEvidenceReference.Validators[0].(func(string) error)
+	// modeldevreleasebindingDescID is the schema descriptor for id field.
+	modeldevreleasebindingDescID := modeldevreleasebindingMixinFields0[0].Descriptor()
+	// modeldevreleasebinding.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	modeldevreleasebinding.IDValidator = modeldevreleasebindingDescID.Validators[0].(func(uint32) error)
 	notificationchannelMixin := schema.NotificationChannel{}.Mixin()
 	notificationchannelMixinFields0 := notificationchannelMixin[0].Fields()
 	_ = notificationchannelMixinFields0

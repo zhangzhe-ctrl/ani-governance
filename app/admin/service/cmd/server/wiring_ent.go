@@ -70,6 +70,21 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		rollback()
 		return nil, nil, err
 	}
+	modeldevConfig, err := data.ModelDevConfigFromEnv()
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	var modeldevClient *data.ModelDevClient
+	if modeldevConfig.Address != "" {
+		client, closeModelDev, err := data.NewModelDevClient(modeldevConfig)
+		if err != nil {
+			rollback()
+			return nil, nil, err
+		}
+		cleanups = append(cleanups, closeModelDev)
+		modeldevClient = client
+	}
 
 	// 认证基建:令牌缓存 → 认证器 → 访问令牌校验器。
 	clientType := data.NewClientType()
@@ -104,6 +119,9 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	positionRepo := data.NewPositionRepo(ctx, entClient)
 	tenantRepo := data.NewTenantRepo(ctx, entClient)
 	tenantUsageRepo := data.NewTenantUsageRepo(ctx, entClient, authenticator)
+	modeldevAuthorizationRepo := data.NewModelDevAuthorizationRepo(entClient)
+	modeldevAcceptanceRepo := data.NewModelDevAcceptanceRepo(entClient)
+	modeldevBindingRepo := data.NewModelDevReleaseBindingRepo(entClient)
 
 	// RBAC:权限 → 角色(聚合权限),Api/Menu 为权限挂载点
 	permissionApiRepo := data.NewPermissionApiRepo(ctx, entClient)
@@ -274,6 +292,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	gpuBffLedger := service.NewGpuBffLedgerBridge(quotaLedgerRepo, quotaAdminRepo)
 	acceleratorService := service.NewAcceleratorService(acceleratorClient, tenantRepo, gpuBffLedger, gpuBffLedger, quotaAdminRepo, quotaRegistry)
+	modeldevService := service.NewModelDevService(modeldevAuthorizationRepo, tenantRepo, modeldevAcceptanceRepo, modeldevBindingRepo, modeldevClient)
 
 	// ═══════════════════════ 五、传输层(internal/server) ═══════════════════════
 
@@ -311,6 +330,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		networkService,
 		acceleratorService,
 		imageService,
+		modeldevService,
 	)
 	if err != nil {
 		rollback()
@@ -328,6 +348,9 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	// disabled 时 quotaInternalServer 为 nil：typed-nil 不能进入 transport.Server
 	// 接口切片，否则 Start 空指针崩溃。
 	extraServers := []transport.Server{quotaWorker}
+	if modeldevClient != nil {
+		extraServers = append(extraServers, service.NewModelDevDispatchWorker(ctx, modeldevAcceptanceRepo, modeldevClient))
+	}
 	if acceleratorClient != nil {
 		gpuSyncLog := ctx.NewLoggerHelper("gpu-usage-sync")
 		gpuSync := service.NewGpuUsageSyncWorker(quotaLedgerRepo, acceleratorClient, func(err error) {

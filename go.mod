@@ -22,6 +22,7 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/xiaoqidun/entps v1.50.1
 	github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9173
+	github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261005092412-218f5e5efedf
 	github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20260929185545-71aa986078df
 	go.opentelemetry.io/otel/trace v1.46.0
 	golang.org/x/net v0.58.0

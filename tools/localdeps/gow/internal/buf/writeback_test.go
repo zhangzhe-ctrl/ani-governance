@@ -593,6 +593,7 @@ func TestGeneratedArtifactClasses(t *testing.T) {
 		"pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/generator_test.go",
 		"pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact/v1/redact.proto",
 		"app/admin/service/cmd/server/assets/assets.go",
+		"app/admin/service/cmd/server/assets/modeldev_openapi_test.go",
 		"app/admin/service/cmd/server/assets/go.mod",
 		"api/gen/go/notes.md",
 	}
@@ -618,7 +619,7 @@ func TestEveryCommittedArtifactUnderAManagedRootIsClassified(t *testing.T) {
 		"api/gen/go":                                         0,
 		"pkg/localdeps/go-crud/api/gen/go":                   0,
 		"pkg/localdeps/kratos-bootstrap/api/gen/go":          0,
-		"app/admin/service/cmd/server/assets":                1,  // the go:embed assets.go
+		"app/admin/service/cmd/server/assets":                2,  // assets.go and the hand-written modeldev_openapi_test.go
 		"pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact": 28, // the takeover package around redact/v1/redact.pb.go
 	}
 

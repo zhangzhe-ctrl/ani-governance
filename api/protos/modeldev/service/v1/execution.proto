@@ -1,0 +1,180 @@
+syntax = "proto3";
+
+package modeldev.service.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+// CPU-P01 public intent. Shared canonicalization and immutable execution
+// contracts are maintained by ani-modeldev-service/contract/cpup01.
+// The HTTP adapter preserves omitted versus explicitly empty parameters.
+message CreateExecutionRequest {
+  option (gnostic.openapi.v3.schema) = {
+    required: ["name", "kind", "preset_id", "dataset_version_id", "idempotency_key"]
+  };
+  string name = 1;
+  string kind = 2 [(gnostic.openapi.v3.property) = {
+    description: "CPU-P01 supports GENERAL_TRAINING only"
+  }];
+  string preset_id = 3 [json_name = "preset_id"];
+  string dataset_version_id = 4 [json_name = "dataset_version_id"];
+  string idempotency_key = 5 [json_name = "idempotency_key"];
+  optional string image_version_id = 6 [json_name = "image_version_id"];
+  repeated GeneralParameter general_parameters = 7 [
+    json_name = "general_parameters",
+    (gnostic.openapi.v3.property) = {
+      description: "Optional registered parameters; omitted and [] are distinct intents. Null is rejected."
+    }
+  ];
+  optional string source_execution_id = 8 [
+    json_name = "source_execution_id",
+    (gnostic.openapi.v3.property) = {
+      description: "Reserved optional association. Currently rejected with 403 SOURCE_EXECUTION_UNAVAILABLE until source execution access can be verified. Omit this field."
+    }
+  ];
+}
+
+message GeneralParameter {
+  string name = 1;
+  string type = 2;
+  // Values are strings, including INTEGER and DECIMAL parameters.
+  string value = 3;
+}
+
+// Catalogue metadata exposes selection and registered parameters only.
+message ListPresetsRequest { uint32 page_size = 1 [json_name = "page_size"]; string page_token = 2 [json_name = "page_token"]; }
+message ListPresetsResponse { repeated PresetView presets = 1; string next_page_token = 2 [json_name = "next_page_token"]; }
+message PresetView {
+  string preset_id = 1 [json_name = "preset_id"];
+  string name = 2;
+  string kind = 3;
+  string active_release_id = 4 [json_name = "active_release_id"];
+  repeated string image_version_ids = 5 [json_name = "image_version_ids"];
+  repeated ParameterRule parameter_rules = 6 [json_name = "parameter_rules"];
+  uint64 binding_generation = 7 [json_name = "binding_generation"];
+  bool new_submissions_enabled = 8 [json_name = "new_submissions_enabled"];
+}
+message ParameterRule {
+  string name = 1;
+  string type = 2;
+  bool required = 3;
+  GeneralParameter default_value = 4 [json_name = "default_value"];
+  repeated GeneralParameter allowed_values = 5 [json_name = "allowed_values"];
+  GeneralParameter minimum = 6;
+  GeneralParameter maximum = 7;
+}
+message GetInputVersionRequest { string input_version_id = 1 [json_name = "input_version_id"]; }
+message GetInputVersionResponse { InputVersionView input_version = 1 [json_name = "input_version"]; }
+message ListInputVersionsRequest {
+  uint32 page_size = 1 [json_name = "page_size"];
+  string page_token = 2 [json_name = "page_token"];
+  optional string state = 3;
+}
+message ListInputVersionsResponse { repeated InputVersionView input_versions = 1 [json_name = "input_versions"]; string next_page_token = 2 [json_name = "next_page_token"]; }
+message InputVersionView {
+  string input_version_id = 1 [json_name = "input_version_id"];
+  string state = 2;
+  string format = 3;
+  int64 size_bytes = 4 [json_name = "size_bytes"];
+  string sha256 = 5;
+  uint32 row_count = 6 [json_name = "row_count"];
+  uint32 feature_count = 7 [json_name = "feature_count"];
+  string created_at = 8 [json_name = "created_at"];
+}
+
+// Returned only after Governance has durably accepted the frozen intent.
+// Acceptance does not establish a KFP Run or successful training.
+message CreateExecutionResponse {
+  string operation_id = 1 [json_name = "operation_id"];
+  string execution_id = 2 [json_name = "execution_id"];
+  string resolved_release_id = 3 [json_name = "resolved_release_id"];
+  bool replayed = 4;
+  string compute_state = 5 [json_name = "compute_state"];
+  string delivery_state = 6 [json_name = "delivery_state"];
+  string close_state = 7 [json_name = "close_state"];
+  string resource_state = 8 [json_name = "resource_state"];
+}
+
+// No public body or caller-supplied tenant, actor, generation or state.
+message StopExecutionRequest { string execution_id = 1 [json_name = "execution_id"]; }
+// Governance acceptance only. ModelDev owns the creation fence and CLOSED.
+message StopExecutionResponse {
+  string operation_id = 1 [json_name = "operation_id"];
+  string execution_id = 2 [json_name = "execution_id"];
+  bool stop_requested = 3 [json_name = "stop_requested"];
+  uint64 intent_generation = 4 [json_name = "intent_generation"];
+  bool replayed = 5;
+}
+
+// Public query selectors never accept tenant, Pod, namespace or object keys.
+message GetExecutionRequest { string execution_id = 1 [json_name = "execution_id"]; }
+message GetExecutionResponse { ExecutionView execution = 1; }
+message ListExecutionsRequest {
+  uint32 page_size = 1 [json_name = "page_size"];
+  string page_token = 2 [json_name = "page_token"];
+}
+message ListExecutionsResponse {
+  repeated ExecutionView executions = 1;
+  string next_page_token = 2 [json_name = "next_page_token"];
+}
+message GetExecutionLogsRequest {
+  string execution_id = 1 [json_name = "execution_id"];
+  uint32 tail_lines = 2 [json_name = "tail_lines"];
+  uint32 max_bytes = 3 [json_name = "max_bytes"];
+}
+// Bounded actual training output. Pod identity and selectors remain internal.
+message GetExecutionLogsResponse {
+  string log_id = 1 [json_name = "log_id"];
+  repeated ExecutionLogLine lines = 2;
+  bool truncated = 3;
+  string observed_at = 4 [json_name = "observed_at"];
+}
+message ExecutionLogLine {
+  string timestamp = 1;
+  string text = 2;
+}
+message ExecutionView {
+  string operation_id = 1 [json_name = "operation_id"];
+  string execution_id = 2 [json_name = "execution_id"];
+  string name = 3;
+  string kind = 4;
+  string preset_id = 5 [json_name = "preset_id"];
+  string release_id = 6 [json_name = "release_id"];
+  string input_version_id = 7 [json_name = "input_version_id"];
+  string image_version_id = 8 [json_name = "image_version_id"];
+  string compute_state = 9 [json_name = "compute_state"];
+  string delivery_state = 10 [json_name = "delivery_state"];
+  string close_state = 11 [json_name = "close_state"];
+  string resource_state = 12 [json_name = "resource_state"];
+  string current_step = 13 [json_name = "current_step"];
+  bool stop_requested = 14 [json_name = "stop_requested"];
+  uint64 close_generation = 15 [json_name = "close_generation"];
+  string accepted_at = 16 [json_name = "accepted_at"];
+  string deadline_at = 17 [json_name = "deadline_at"];
+  string observed_at = 18 [json_name = "observed_at"];
+}
+message ListExecutionArtifactsRequest {
+  string execution_id = 1 [json_name = "execution_id"];
+  uint32 page_size = 2 [json_name = "page_size"];
+  string page_token = 3 [json_name = "page_token"];
+}
+message ListExecutionArtifactsResponse {
+  repeated ArtifactView artifacts = 1;
+  string next_page_token = 2 [json_name = "next_page_token"];
+}
+message ArtifactView {
+  string artifact_id = 1 [json_name = "artifact_id"];
+  string execution_id = 2 [json_name = "execution_id"];
+  string filename = 3;
+  string role = 4;
+  int64 size_bytes = 5 [json_name = "size_bytes"];
+  string sha256 = 6;
+  string delivery_state = 7 [json_name = "delivery_state"];
+  string verified_at = 8 [json_name = "verified_at"];
+}
+message AuthorizeArtifactDownloadRequest { string artifact_id = 1 [json_name = "artifact_id"]; }
+message AuthorizeArtifactDownloadResponse {
+  ArtifactView artifact = 1;
+  // Short-lived secret: served only with Cache-Control: no-store.
+  string download_url = 2 [json_name = "download_url"];
+  string expires_at = 3 [json_name = "expires_at"];
+}

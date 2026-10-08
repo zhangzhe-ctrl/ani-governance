@@ -29,6 +29,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/membershipposition"
 	"go-wind-admin/app/admin/service/internal/data/ent/membershiprole"
 	"go-wind-admin/app/admin/service/internal/data/ent/menu"
+	"go-wind-admin/app/admin/service/internal/data/ent/modeldevacceptance"
+	"go-wind-admin/app/admin/service/internal/data/ent/modeldevreleasebinding"
 	"go-wind-admin/app/admin/service/internal/data/ent/notificationchannel"
 	"go-wind-admin/app/admin/service/internal/data/ent/operationauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/orgunit"
@@ -99,6 +101,8 @@ const (
 	TypeMembershipPosition       = "MembershipPosition"
 	TypeMembershipRole           = "MembershipRole"
 	TypeMenu                     = "Menu"
+	TypeModelDevAcceptance       = "ModelDevAcceptance"
+	TypeModelDevReleaseBinding   = "ModelDevReleaseBinding"
 	TypeNotificationChannel      = "NotificationChannel"
 	TypeOperationAuditLog        = "OperationAuditLog"
 	TypeOrgUnit                  = "OrgUnit"
@@ -31371,6 +31375,3439 @@ func (m *MenuMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown Menu edge %s", name)
+}
+
+// ModelDevAcceptanceMutation represents an operation that mutates the ModelDevAcceptance nodes in the graph.
+type ModelDevAcceptanceMutation struct {
+	config
+	op                        Op
+	typ                       string
+	id                        *uint32
+	tenant_id                 *uint32
+	addtenant_id              *int32
+	resource_tenant_id        *string
+	actor                     *string
+	action                    *string
+	idempotency_key           *string
+	operation_id              *string
+	execution_id              *string
+	intent_hash               *string
+	intent_canonical          *[]byte
+	execution_spec_hash       *string
+	snapshot_canonical        *[]byte
+	accepted_at               *time.Time
+	dispatch_state            *modeldevacceptance.DispatchState
+	attempt_count             *int64
+	addattempt_count          *int64
+	lease_generation          *int64
+	addlease_generation       *int64
+	lease_owner               *string
+	lease_until               *time.Time
+	next_attempt_at           *time.Time
+	retry_blocked             *bool
+	last_error_code           *string
+	owner_receipt_canonical   *[]byte
+	stop_intent_generation    *int64
+	addstop_intent_generation *int64
+	stop_requested_at         *time.Time
+	stop_requested_actor      *string
+	close_dispatch_state      *modeldevacceptance.CloseDispatchState
+	close_attempt_count       *int64
+	addclose_attempt_count    *int64
+	close_lease_generation    *int64
+	addclose_lease_generation *int64
+	close_lease_owner         *string
+	close_lease_until         *time.Time
+	close_next_attempt_at     *time.Time
+	close_retry_blocked       *bool
+	close_last_error_code     *string
+	close_receipt_canonical   *[]byte
+	clearedFields             map[string]struct{}
+	done                      bool
+	oldValue                  func(context.Context) (*ModelDevAcceptance, error)
+	predicates                []predicate.ModelDevAcceptance
+}
+
+var _ ent.Mutation = (*ModelDevAcceptanceMutation)(nil)
+
+// modeldevacceptanceOption allows management of the mutation configuration using functional options.
+type modeldevacceptanceOption func(*ModelDevAcceptanceMutation)
+
+// newModelDevAcceptanceMutation creates new mutation for the ModelDevAcceptance entity.
+func newModelDevAcceptanceMutation(c config, op Op, opts ...modeldevacceptanceOption) *ModelDevAcceptanceMutation {
+	m := &ModelDevAcceptanceMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeModelDevAcceptance,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withModelDevAcceptanceID sets the ID field of the mutation.
+func withModelDevAcceptanceID(id uint32) modeldevacceptanceOption {
+	return func(m *ModelDevAcceptanceMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ModelDevAcceptance
+		)
+		m.oldValue = func(ctx context.Context) (*ModelDevAcceptance, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ModelDevAcceptance.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withModelDevAcceptance sets the old ModelDevAcceptance of the mutation.
+func withModelDevAcceptance(node *ModelDevAcceptance) modeldevacceptanceOption {
+	return func(m *ModelDevAcceptanceMutation) {
+		m.oldValue = func(context.Context) (*ModelDevAcceptance, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ModelDevAcceptanceMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ModelDevAcceptanceMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of ModelDevAcceptance entities.
+func (m *ModelDevAcceptanceMutation) SetID(id uint32) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ModelDevAcceptanceMutation) ID() (id uint32, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ModelDevAcceptanceMutation) IDs(ctx context.Context) ([]uint32, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint32{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ModelDevAcceptance.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *ModelDevAcceptanceMutation) SetTenantID(u uint32) {
+	m.tenant_id = &u
+	m.addtenant_id = nil
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *ModelDevAcceptanceMutation) TenantID() (r uint32, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldTenantID(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// AddTenantID adds u to the "tenant_id" field.
+func (m *ModelDevAcceptanceMutation) AddTenantID(u int32) {
+	if m.addtenant_id != nil {
+		*m.addtenant_id += u
+	} else {
+		m.addtenant_id = &u
+	}
+}
+
+// AddedTenantID returns the value that was added to the "tenant_id" field in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedTenantID() (r int32, exists bool) {
+	v := m.addtenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *ModelDevAcceptanceMutation) ResetTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+}
+
+// SetResourceTenantID sets the "resource_tenant_id" field.
+func (m *ModelDevAcceptanceMutation) SetResourceTenantID(s string) {
+	m.resource_tenant_id = &s
+}
+
+// ResourceTenantID returns the value of the "resource_tenant_id" field in the mutation.
+func (m *ModelDevAcceptanceMutation) ResourceTenantID() (r string, exists bool) {
+	v := m.resource_tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldResourceTenantID returns the old "resource_tenant_id" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldResourceTenantID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldResourceTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldResourceTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldResourceTenantID: %w", err)
+	}
+	return oldValue.ResourceTenantID, nil
+}
+
+// ResetResourceTenantID resets all changes to the "resource_tenant_id" field.
+func (m *ModelDevAcceptanceMutation) ResetResourceTenantID() {
+	m.resource_tenant_id = nil
+}
+
+// SetActor sets the "actor" field.
+func (m *ModelDevAcceptanceMutation) SetActor(s string) {
+	m.actor = &s
+}
+
+// Actor returns the value of the "actor" field in the mutation.
+func (m *ModelDevAcceptanceMutation) Actor() (r string, exists bool) {
+	v := m.actor
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldActor returns the old "actor" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldActor(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldActor is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldActor requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldActor: %w", err)
+	}
+	return oldValue.Actor, nil
+}
+
+// ResetActor resets all changes to the "actor" field.
+func (m *ModelDevAcceptanceMutation) ResetActor() {
+	m.actor = nil
+}
+
+// SetAction sets the "action" field.
+func (m *ModelDevAcceptanceMutation) SetAction(s string) {
+	m.action = &s
+}
+
+// Action returns the value of the "action" field in the mutation.
+func (m *ModelDevAcceptanceMutation) Action() (r string, exists bool) {
+	v := m.action
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAction returns the old "action" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldAction(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAction is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAction requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAction: %w", err)
+	}
+	return oldValue.Action, nil
+}
+
+// ResetAction resets all changes to the "action" field.
+func (m *ModelDevAcceptanceMutation) ResetAction() {
+	m.action = nil
+}
+
+// SetIdempotencyKey sets the "idempotency_key" field.
+func (m *ModelDevAcceptanceMutation) SetIdempotencyKey(s string) {
+	m.idempotency_key = &s
+}
+
+// IdempotencyKey returns the value of the "idempotency_key" field in the mutation.
+func (m *ModelDevAcceptanceMutation) IdempotencyKey() (r string, exists bool) {
+	v := m.idempotency_key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIdempotencyKey returns the old "idempotency_key" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldIdempotencyKey(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIdempotencyKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIdempotencyKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIdempotencyKey: %w", err)
+	}
+	return oldValue.IdempotencyKey, nil
+}
+
+// ResetIdempotencyKey resets all changes to the "idempotency_key" field.
+func (m *ModelDevAcceptanceMutation) ResetIdempotencyKey() {
+	m.idempotency_key = nil
+}
+
+// SetOperationID sets the "operation_id" field.
+func (m *ModelDevAcceptanceMutation) SetOperationID(s string) {
+	m.operation_id = &s
+}
+
+// OperationID returns the value of the "operation_id" field in the mutation.
+func (m *ModelDevAcceptanceMutation) OperationID() (r string, exists bool) {
+	v := m.operation_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOperationID returns the old "operation_id" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldOperationID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOperationID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOperationID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOperationID: %w", err)
+	}
+	return oldValue.OperationID, nil
+}
+
+// ResetOperationID resets all changes to the "operation_id" field.
+func (m *ModelDevAcceptanceMutation) ResetOperationID() {
+	m.operation_id = nil
+}
+
+// SetExecutionID sets the "execution_id" field.
+func (m *ModelDevAcceptanceMutation) SetExecutionID(s string) {
+	m.execution_id = &s
+}
+
+// ExecutionID returns the value of the "execution_id" field in the mutation.
+func (m *ModelDevAcceptanceMutation) ExecutionID() (r string, exists bool) {
+	v := m.execution_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExecutionID returns the old "execution_id" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldExecutionID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExecutionID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExecutionID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExecutionID: %w", err)
+	}
+	return oldValue.ExecutionID, nil
+}
+
+// ResetExecutionID resets all changes to the "execution_id" field.
+func (m *ModelDevAcceptanceMutation) ResetExecutionID() {
+	m.execution_id = nil
+}
+
+// SetIntentHash sets the "intent_hash" field.
+func (m *ModelDevAcceptanceMutation) SetIntentHash(s string) {
+	m.intent_hash = &s
+}
+
+// IntentHash returns the value of the "intent_hash" field in the mutation.
+func (m *ModelDevAcceptanceMutation) IntentHash() (r string, exists bool) {
+	v := m.intent_hash
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIntentHash returns the old "intent_hash" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldIntentHash(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIntentHash is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIntentHash requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIntentHash: %w", err)
+	}
+	return oldValue.IntentHash, nil
+}
+
+// ResetIntentHash resets all changes to the "intent_hash" field.
+func (m *ModelDevAcceptanceMutation) ResetIntentHash() {
+	m.intent_hash = nil
+}
+
+// SetIntentCanonical sets the "intent_canonical" field.
+func (m *ModelDevAcceptanceMutation) SetIntentCanonical(b []byte) {
+	m.intent_canonical = &b
+}
+
+// IntentCanonical returns the value of the "intent_canonical" field in the mutation.
+func (m *ModelDevAcceptanceMutation) IntentCanonical() (r []byte, exists bool) {
+	v := m.intent_canonical
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIntentCanonical returns the old "intent_canonical" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldIntentCanonical(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIntentCanonical is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIntentCanonical requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIntentCanonical: %w", err)
+	}
+	return oldValue.IntentCanonical, nil
+}
+
+// ResetIntentCanonical resets all changes to the "intent_canonical" field.
+func (m *ModelDevAcceptanceMutation) ResetIntentCanonical() {
+	m.intent_canonical = nil
+}
+
+// SetExecutionSpecHash sets the "execution_spec_hash" field.
+func (m *ModelDevAcceptanceMutation) SetExecutionSpecHash(s string) {
+	m.execution_spec_hash = &s
+}
+
+// ExecutionSpecHash returns the value of the "execution_spec_hash" field in the mutation.
+func (m *ModelDevAcceptanceMutation) ExecutionSpecHash() (r string, exists bool) {
+	v := m.execution_spec_hash
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExecutionSpecHash returns the old "execution_spec_hash" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldExecutionSpecHash(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExecutionSpecHash is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExecutionSpecHash requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExecutionSpecHash: %w", err)
+	}
+	return oldValue.ExecutionSpecHash, nil
+}
+
+// ResetExecutionSpecHash resets all changes to the "execution_spec_hash" field.
+func (m *ModelDevAcceptanceMutation) ResetExecutionSpecHash() {
+	m.execution_spec_hash = nil
+}
+
+// SetSnapshotCanonical sets the "snapshot_canonical" field.
+func (m *ModelDevAcceptanceMutation) SetSnapshotCanonical(b []byte) {
+	m.snapshot_canonical = &b
+}
+
+// SnapshotCanonical returns the value of the "snapshot_canonical" field in the mutation.
+func (m *ModelDevAcceptanceMutation) SnapshotCanonical() (r []byte, exists bool) {
+	v := m.snapshot_canonical
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSnapshotCanonical returns the old "snapshot_canonical" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldSnapshotCanonical(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSnapshotCanonical is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSnapshotCanonical requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSnapshotCanonical: %w", err)
+	}
+	return oldValue.SnapshotCanonical, nil
+}
+
+// ResetSnapshotCanonical resets all changes to the "snapshot_canonical" field.
+func (m *ModelDevAcceptanceMutation) ResetSnapshotCanonical() {
+	m.snapshot_canonical = nil
+}
+
+// SetAcceptedAt sets the "accepted_at" field.
+func (m *ModelDevAcceptanceMutation) SetAcceptedAt(t time.Time) {
+	m.accepted_at = &t
+}
+
+// AcceptedAt returns the value of the "accepted_at" field in the mutation.
+func (m *ModelDevAcceptanceMutation) AcceptedAt() (r time.Time, exists bool) {
+	v := m.accepted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAcceptedAt returns the old "accepted_at" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldAcceptedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAcceptedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAcceptedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAcceptedAt: %w", err)
+	}
+	return oldValue.AcceptedAt, nil
+}
+
+// ResetAcceptedAt resets all changes to the "accepted_at" field.
+func (m *ModelDevAcceptanceMutation) ResetAcceptedAt() {
+	m.accepted_at = nil
+}
+
+// SetDispatchState sets the "dispatch_state" field.
+func (m *ModelDevAcceptanceMutation) SetDispatchState(ms modeldevacceptance.DispatchState) {
+	m.dispatch_state = &ms
+}
+
+// DispatchState returns the value of the "dispatch_state" field in the mutation.
+func (m *ModelDevAcceptanceMutation) DispatchState() (r modeldevacceptance.DispatchState, exists bool) {
+	v := m.dispatch_state
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDispatchState returns the old "dispatch_state" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldDispatchState(ctx context.Context) (v modeldevacceptance.DispatchState, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDispatchState is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDispatchState requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDispatchState: %w", err)
+	}
+	return oldValue.DispatchState, nil
+}
+
+// ResetDispatchState resets all changes to the "dispatch_state" field.
+func (m *ModelDevAcceptanceMutation) ResetDispatchState() {
+	m.dispatch_state = nil
+}
+
+// SetAttemptCount sets the "attempt_count" field.
+func (m *ModelDevAcceptanceMutation) SetAttemptCount(i int64) {
+	m.attempt_count = &i
+	m.addattempt_count = nil
+}
+
+// AttemptCount returns the value of the "attempt_count" field in the mutation.
+func (m *ModelDevAcceptanceMutation) AttemptCount() (r int64, exists bool) {
+	v := m.attempt_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAttemptCount returns the old "attempt_count" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldAttemptCount(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAttemptCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAttemptCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAttemptCount: %w", err)
+	}
+	return oldValue.AttemptCount, nil
+}
+
+// AddAttemptCount adds i to the "attempt_count" field.
+func (m *ModelDevAcceptanceMutation) AddAttemptCount(i int64) {
+	if m.addattempt_count != nil {
+		*m.addattempt_count += i
+	} else {
+		m.addattempt_count = &i
+	}
+}
+
+// AddedAttemptCount returns the value that was added to the "attempt_count" field in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedAttemptCount() (r int64, exists bool) {
+	v := m.addattempt_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAttemptCount resets all changes to the "attempt_count" field.
+func (m *ModelDevAcceptanceMutation) ResetAttemptCount() {
+	m.attempt_count = nil
+	m.addattempt_count = nil
+}
+
+// SetLeaseGeneration sets the "lease_generation" field.
+func (m *ModelDevAcceptanceMutation) SetLeaseGeneration(i int64) {
+	m.lease_generation = &i
+	m.addlease_generation = nil
+}
+
+// LeaseGeneration returns the value of the "lease_generation" field in the mutation.
+func (m *ModelDevAcceptanceMutation) LeaseGeneration() (r int64, exists bool) {
+	v := m.lease_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLeaseGeneration returns the old "lease_generation" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldLeaseGeneration(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLeaseGeneration is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLeaseGeneration requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLeaseGeneration: %w", err)
+	}
+	return oldValue.LeaseGeneration, nil
+}
+
+// AddLeaseGeneration adds i to the "lease_generation" field.
+func (m *ModelDevAcceptanceMutation) AddLeaseGeneration(i int64) {
+	if m.addlease_generation != nil {
+		*m.addlease_generation += i
+	} else {
+		m.addlease_generation = &i
+	}
+}
+
+// AddedLeaseGeneration returns the value that was added to the "lease_generation" field in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedLeaseGeneration() (r int64, exists bool) {
+	v := m.addlease_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetLeaseGeneration resets all changes to the "lease_generation" field.
+func (m *ModelDevAcceptanceMutation) ResetLeaseGeneration() {
+	m.lease_generation = nil
+	m.addlease_generation = nil
+}
+
+// SetLeaseOwner sets the "lease_owner" field.
+func (m *ModelDevAcceptanceMutation) SetLeaseOwner(s string) {
+	m.lease_owner = &s
+}
+
+// LeaseOwner returns the value of the "lease_owner" field in the mutation.
+func (m *ModelDevAcceptanceMutation) LeaseOwner() (r string, exists bool) {
+	v := m.lease_owner
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLeaseOwner returns the old "lease_owner" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldLeaseOwner(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLeaseOwner is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLeaseOwner requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLeaseOwner: %w", err)
+	}
+	return oldValue.LeaseOwner, nil
+}
+
+// ClearLeaseOwner clears the value of the "lease_owner" field.
+func (m *ModelDevAcceptanceMutation) ClearLeaseOwner() {
+	m.lease_owner = nil
+	m.clearedFields[modeldevacceptance.FieldLeaseOwner] = struct{}{}
+}
+
+// LeaseOwnerCleared returns if the "lease_owner" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) LeaseOwnerCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldLeaseOwner]
+	return ok
+}
+
+// ResetLeaseOwner resets all changes to the "lease_owner" field.
+func (m *ModelDevAcceptanceMutation) ResetLeaseOwner() {
+	m.lease_owner = nil
+	delete(m.clearedFields, modeldevacceptance.FieldLeaseOwner)
+}
+
+// SetLeaseUntil sets the "lease_until" field.
+func (m *ModelDevAcceptanceMutation) SetLeaseUntil(t time.Time) {
+	m.lease_until = &t
+}
+
+// LeaseUntil returns the value of the "lease_until" field in the mutation.
+func (m *ModelDevAcceptanceMutation) LeaseUntil() (r time.Time, exists bool) {
+	v := m.lease_until
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLeaseUntil returns the old "lease_until" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldLeaseUntil(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLeaseUntil is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLeaseUntil requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLeaseUntil: %w", err)
+	}
+	return oldValue.LeaseUntil, nil
+}
+
+// ClearLeaseUntil clears the value of the "lease_until" field.
+func (m *ModelDevAcceptanceMutation) ClearLeaseUntil() {
+	m.lease_until = nil
+	m.clearedFields[modeldevacceptance.FieldLeaseUntil] = struct{}{}
+}
+
+// LeaseUntilCleared returns if the "lease_until" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) LeaseUntilCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldLeaseUntil]
+	return ok
+}
+
+// ResetLeaseUntil resets all changes to the "lease_until" field.
+func (m *ModelDevAcceptanceMutation) ResetLeaseUntil() {
+	m.lease_until = nil
+	delete(m.clearedFields, modeldevacceptance.FieldLeaseUntil)
+}
+
+// SetNextAttemptAt sets the "next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) SetNextAttemptAt(t time.Time) {
+	m.next_attempt_at = &t
+}
+
+// NextAttemptAt returns the value of the "next_attempt_at" field in the mutation.
+func (m *ModelDevAcceptanceMutation) NextAttemptAt() (r time.Time, exists bool) {
+	v := m.next_attempt_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNextAttemptAt returns the old "next_attempt_at" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldNextAttemptAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNextAttemptAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNextAttemptAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNextAttemptAt: %w", err)
+	}
+	return oldValue.NextAttemptAt, nil
+}
+
+// ClearNextAttemptAt clears the value of the "next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) ClearNextAttemptAt() {
+	m.next_attempt_at = nil
+	m.clearedFields[modeldevacceptance.FieldNextAttemptAt] = struct{}{}
+}
+
+// NextAttemptAtCleared returns if the "next_attempt_at" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) NextAttemptAtCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldNextAttemptAt]
+	return ok
+}
+
+// ResetNextAttemptAt resets all changes to the "next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) ResetNextAttemptAt() {
+	m.next_attempt_at = nil
+	delete(m.clearedFields, modeldevacceptance.FieldNextAttemptAt)
+}
+
+// SetRetryBlocked sets the "retry_blocked" field.
+func (m *ModelDevAcceptanceMutation) SetRetryBlocked(b bool) {
+	m.retry_blocked = &b
+}
+
+// RetryBlocked returns the value of the "retry_blocked" field in the mutation.
+func (m *ModelDevAcceptanceMutation) RetryBlocked() (r bool, exists bool) {
+	v := m.retry_blocked
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRetryBlocked returns the old "retry_blocked" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldRetryBlocked(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRetryBlocked is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRetryBlocked requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRetryBlocked: %w", err)
+	}
+	return oldValue.RetryBlocked, nil
+}
+
+// ResetRetryBlocked resets all changes to the "retry_blocked" field.
+func (m *ModelDevAcceptanceMutation) ResetRetryBlocked() {
+	m.retry_blocked = nil
+}
+
+// SetLastErrorCode sets the "last_error_code" field.
+func (m *ModelDevAcceptanceMutation) SetLastErrorCode(s string) {
+	m.last_error_code = &s
+}
+
+// LastErrorCode returns the value of the "last_error_code" field in the mutation.
+func (m *ModelDevAcceptanceMutation) LastErrorCode() (r string, exists bool) {
+	v := m.last_error_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastErrorCode returns the old "last_error_code" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldLastErrorCode(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastErrorCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastErrorCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastErrorCode: %w", err)
+	}
+	return oldValue.LastErrorCode, nil
+}
+
+// ClearLastErrorCode clears the value of the "last_error_code" field.
+func (m *ModelDevAcceptanceMutation) ClearLastErrorCode() {
+	m.last_error_code = nil
+	m.clearedFields[modeldevacceptance.FieldLastErrorCode] = struct{}{}
+}
+
+// LastErrorCodeCleared returns if the "last_error_code" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) LastErrorCodeCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldLastErrorCode]
+	return ok
+}
+
+// ResetLastErrorCode resets all changes to the "last_error_code" field.
+func (m *ModelDevAcceptanceMutation) ResetLastErrorCode() {
+	m.last_error_code = nil
+	delete(m.clearedFields, modeldevacceptance.FieldLastErrorCode)
+}
+
+// SetOwnerReceiptCanonical sets the "owner_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) SetOwnerReceiptCanonical(b []byte) {
+	m.owner_receipt_canonical = &b
+}
+
+// OwnerReceiptCanonical returns the value of the "owner_receipt_canonical" field in the mutation.
+func (m *ModelDevAcceptanceMutation) OwnerReceiptCanonical() (r []byte, exists bool) {
+	v := m.owner_receipt_canonical
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOwnerReceiptCanonical returns the old "owner_receipt_canonical" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldOwnerReceiptCanonical(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOwnerReceiptCanonical is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOwnerReceiptCanonical requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOwnerReceiptCanonical: %w", err)
+	}
+	return oldValue.OwnerReceiptCanonical, nil
+}
+
+// ClearOwnerReceiptCanonical clears the value of the "owner_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) ClearOwnerReceiptCanonical() {
+	m.owner_receipt_canonical = nil
+	m.clearedFields[modeldevacceptance.FieldOwnerReceiptCanonical] = struct{}{}
+}
+
+// OwnerReceiptCanonicalCleared returns if the "owner_receipt_canonical" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) OwnerReceiptCanonicalCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldOwnerReceiptCanonical]
+	return ok
+}
+
+// ResetOwnerReceiptCanonical resets all changes to the "owner_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) ResetOwnerReceiptCanonical() {
+	m.owner_receipt_canonical = nil
+	delete(m.clearedFields, modeldevacceptance.FieldOwnerReceiptCanonical)
+}
+
+// SetStopIntentGeneration sets the "stop_intent_generation" field.
+func (m *ModelDevAcceptanceMutation) SetStopIntentGeneration(i int64) {
+	m.stop_intent_generation = &i
+	m.addstop_intent_generation = nil
+}
+
+// StopIntentGeneration returns the value of the "stop_intent_generation" field in the mutation.
+func (m *ModelDevAcceptanceMutation) StopIntentGeneration() (r int64, exists bool) {
+	v := m.stop_intent_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStopIntentGeneration returns the old "stop_intent_generation" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldStopIntentGeneration(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStopIntentGeneration is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStopIntentGeneration requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStopIntentGeneration: %w", err)
+	}
+	return oldValue.StopIntentGeneration, nil
+}
+
+// AddStopIntentGeneration adds i to the "stop_intent_generation" field.
+func (m *ModelDevAcceptanceMutation) AddStopIntentGeneration(i int64) {
+	if m.addstop_intent_generation != nil {
+		*m.addstop_intent_generation += i
+	} else {
+		m.addstop_intent_generation = &i
+	}
+}
+
+// AddedStopIntentGeneration returns the value that was added to the "stop_intent_generation" field in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedStopIntentGeneration() (r int64, exists bool) {
+	v := m.addstop_intent_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetStopIntentGeneration resets all changes to the "stop_intent_generation" field.
+func (m *ModelDevAcceptanceMutation) ResetStopIntentGeneration() {
+	m.stop_intent_generation = nil
+	m.addstop_intent_generation = nil
+}
+
+// SetStopRequestedAt sets the "stop_requested_at" field.
+func (m *ModelDevAcceptanceMutation) SetStopRequestedAt(t time.Time) {
+	m.stop_requested_at = &t
+}
+
+// StopRequestedAt returns the value of the "stop_requested_at" field in the mutation.
+func (m *ModelDevAcceptanceMutation) StopRequestedAt() (r time.Time, exists bool) {
+	v := m.stop_requested_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStopRequestedAt returns the old "stop_requested_at" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldStopRequestedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStopRequestedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStopRequestedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStopRequestedAt: %w", err)
+	}
+	return oldValue.StopRequestedAt, nil
+}
+
+// ClearStopRequestedAt clears the value of the "stop_requested_at" field.
+func (m *ModelDevAcceptanceMutation) ClearStopRequestedAt() {
+	m.stop_requested_at = nil
+	m.clearedFields[modeldevacceptance.FieldStopRequestedAt] = struct{}{}
+}
+
+// StopRequestedAtCleared returns if the "stop_requested_at" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) StopRequestedAtCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldStopRequestedAt]
+	return ok
+}
+
+// ResetStopRequestedAt resets all changes to the "stop_requested_at" field.
+func (m *ModelDevAcceptanceMutation) ResetStopRequestedAt() {
+	m.stop_requested_at = nil
+	delete(m.clearedFields, modeldevacceptance.FieldStopRequestedAt)
+}
+
+// SetStopRequestedActor sets the "stop_requested_actor" field.
+func (m *ModelDevAcceptanceMutation) SetStopRequestedActor(s string) {
+	m.stop_requested_actor = &s
+}
+
+// StopRequestedActor returns the value of the "stop_requested_actor" field in the mutation.
+func (m *ModelDevAcceptanceMutation) StopRequestedActor() (r string, exists bool) {
+	v := m.stop_requested_actor
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStopRequestedActor returns the old "stop_requested_actor" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldStopRequestedActor(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStopRequestedActor is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStopRequestedActor requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStopRequestedActor: %w", err)
+	}
+	return oldValue.StopRequestedActor, nil
+}
+
+// ClearStopRequestedActor clears the value of the "stop_requested_actor" field.
+func (m *ModelDevAcceptanceMutation) ClearStopRequestedActor() {
+	m.stop_requested_actor = nil
+	m.clearedFields[modeldevacceptance.FieldStopRequestedActor] = struct{}{}
+}
+
+// StopRequestedActorCleared returns if the "stop_requested_actor" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) StopRequestedActorCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldStopRequestedActor]
+	return ok
+}
+
+// ResetStopRequestedActor resets all changes to the "stop_requested_actor" field.
+func (m *ModelDevAcceptanceMutation) ResetStopRequestedActor() {
+	m.stop_requested_actor = nil
+	delete(m.clearedFields, modeldevacceptance.FieldStopRequestedActor)
+}
+
+// SetCloseDispatchState sets the "close_dispatch_state" field.
+func (m *ModelDevAcceptanceMutation) SetCloseDispatchState(mds modeldevacceptance.CloseDispatchState) {
+	m.close_dispatch_state = &mds
+}
+
+// CloseDispatchState returns the value of the "close_dispatch_state" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseDispatchState() (r modeldevacceptance.CloseDispatchState, exists bool) {
+	v := m.close_dispatch_state
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseDispatchState returns the old "close_dispatch_state" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseDispatchState(ctx context.Context) (v modeldevacceptance.CloseDispatchState, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseDispatchState is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseDispatchState requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseDispatchState: %w", err)
+	}
+	return oldValue.CloseDispatchState, nil
+}
+
+// ResetCloseDispatchState resets all changes to the "close_dispatch_state" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseDispatchState() {
+	m.close_dispatch_state = nil
+}
+
+// SetCloseAttemptCount sets the "close_attempt_count" field.
+func (m *ModelDevAcceptanceMutation) SetCloseAttemptCount(i int64) {
+	m.close_attempt_count = &i
+	m.addclose_attempt_count = nil
+}
+
+// CloseAttemptCount returns the value of the "close_attempt_count" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseAttemptCount() (r int64, exists bool) {
+	v := m.close_attempt_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseAttemptCount returns the old "close_attempt_count" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseAttemptCount(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseAttemptCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseAttemptCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseAttemptCount: %w", err)
+	}
+	return oldValue.CloseAttemptCount, nil
+}
+
+// AddCloseAttemptCount adds i to the "close_attempt_count" field.
+func (m *ModelDevAcceptanceMutation) AddCloseAttemptCount(i int64) {
+	if m.addclose_attempt_count != nil {
+		*m.addclose_attempt_count += i
+	} else {
+		m.addclose_attempt_count = &i
+	}
+}
+
+// AddedCloseAttemptCount returns the value that was added to the "close_attempt_count" field in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedCloseAttemptCount() (r int64, exists bool) {
+	v := m.addclose_attempt_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCloseAttemptCount resets all changes to the "close_attempt_count" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseAttemptCount() {
+	m.close_attempt_count = nil
+	m.addclose_attempt_count = nil
+}
+
+// SetCloseLeaseGeneration sets the "close_lease_generation" field.
+func (m *ModelDevAcceptanceMutation) SetCloseLeaseGeneration(i int64) {
+	m.close_lease_generation = &i
+	m.addclose_lease_generation = nil
+}
+
+// CloseLeaseGeneration returns the value of the "close_lease_generation" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseLeaseGeneration() (r int64, exists bool) {
+	v := m.close_lease_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseLeaseGeneration returns the old "close_lease_generation" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseLeaseGeneration(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseLeaseGeneration is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseLeaseGeneration requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseLeaseGeneration: %w", err)
+	}
+	return oldValue.CloseLeaseGeneration, nil
+}
+
+// AddCloseLeaseGeneration adds i to the "close_lease_generation" field.
+func (m *ModelDevAcceptanceMutation) AddCloseLeaseGeneration(i int64) {
+	if m.addclose_lease_generation != nil {
+		*m.addclose_lease_generation += i
+	} else {
+		m.addclose_lease_generation = &i
+	}
+}
+
+// AddedCloseLeaseGeneration returns the value that was added to the "close_lease_generation" field in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedCloseLeaseGeneration() (r int64, exists bool) {
+	v := m.addclose_lease_generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCloseLeaseGeneration resets all changes to the "close_lease_generation" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseLeaseGeneration() {
+	m.close_lease_generation = nil
+	m.addclose_lease_generation = nil
+}
+
+// SetCloseLeaseOwner sets the "close_lease_owner" field.
+func (m *ModelDevAcceptanceMutation) SetCloseLeaseOwner(s string) {
+	m.close_lease_owner = &s
+}
+
+// CloseLeaseOwner returns the value of the "close_lease_owner" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseLeaseOwner() (r string, exists bool) {
+	v := m.close_lease_owner
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseLeaseOwner returns the old "close_lease_owner" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseLeaseOwner(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseLeaseOwner is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseLeaseOwner requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseLeaseOwner: %w", err)
+	}
+	return oldValue.CloseLeaseOwner, nil
+}
+
+// ClearCloseLeaseOwner clears the value of the "close_lease_owner" field.
+func (m *ModelDevAcceptanceMutation) ClearCloseLeaseOwner() {
+	m.close_lease_owner = nil
+	m.clearedFields[modeldevacceptance.FieldCloseLeaseOwner] = struct{}{}
+}
+
+// CloseLeaseOwnerCleared returns if the "close_lease_owner" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) CloseLeaseOwnerCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldCloseLeaseOwner]
+	return ok
+}
+
+// ResetCloseLeaseOwner resets all changes to the "close_lease_owner" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseLeaseOwner() {
+	m.close_lease_owner = nil
+	delete(m.clearedFields, modeldevacceptance.FieldCloseLeaseOwner)
+}
+
+// SetCloseLeaseUntil sets the "close_lease_until" field.
+func (m *ModelDevAcceptanceMutation) SetCloseLeaseUntil(t time.Time) {
+	m.close_lease_until = &t
+}
+
+// CloseLeaseUntil returns the value of the "close_lease_until" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseLeaseUntil() (r time.Time, exists bool) {
+	v := m.close_lease_until
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseLeaseUntil returns the old "close_lease_until" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseLeaseUntil(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseLeaseUntil is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseLeaseUntil requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseLeaseUntil: %w", err)
+	}
+	return oldValue.CloseLeaseUntil, nil
+}
+
+// ClearCloseLeaseUntil clears the value of the "close_lease_until" field.
+func (m *ModelDevAcceptanceMutation) ClearCloseLeaseUntil() {
+	m.close_lease_until = nil
+	m.clearedFields[modeldevacceptance.FieldCloseLeaseUntil] = struct{}{}
+}
+
+// CloseLeaseUntilCleared returns if the "close_lease_until" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) CloseLeaseUntilCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldCloseLeaseUntil]
+	return ok
+}
+
+// ResetCloseLeaseUntil resets all changes to the "close_lease_until" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseLeaseUntil() {
+	m.close_lease_until = nil
+	delete(m.clearedFields, modeldevacceptance.FieldCloseLeaseUntil)
+}
+
+// SetCloseNextAttemptAt sets the "close_next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) SetCloseNextAttemptAt(t time.Time) {
+	m.close_next_attempt_at = &t
+}
+
+// CloseNextAttemptAt returns the value of the "close_next_attempt_at" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseNextAttemptAt() (r time.Time, exists bool) {
+	v := m.close_next_attempt_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseNextAttemptAt returns the old "close_next_attempt_at" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseNextAttemptAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseNextAttemptAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseNextAttemptAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseNextAttemptAt: %w", err)
+	}
+	return oldValue.CloseNextAttemptAt, nil
+}
+
+// ClearCloseNextAttemptAt clears the value of the "close_next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) ClearCloseNextAttemptAt() {
+	m.close_next_attempt_at = nil
+	m.clearedFields[modeldevacceptance.FieldCloseNextAttemptAt] = struct{}{}
+}
+
+// CloseNextAttemptAtCleared returns if the "close_next_attempt_at" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) CloseNextAttemptAtCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldCloseNextAttemptAt]
+	return ok
+}
+
+// ResetCloseNextAttemptAt resets all changes to the "close_next_attempt_at" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseNextAttemptAt() {
+	m.close_next_attempt_at = nil
+	delete(m.clearedFields, modeldevacceptance.FieldCloseNextAttemptAt)
+}
+
+// SetCloseRetryBlocked sets the "close_retry_blocked" field.
+func (m *ModelDevAcceptanceMutation) SetCloseRetryBlocked(b bool) {
+	m.close_retry_blocked = &b
+}
+
+// CloseRetryBlocked returns the value of the "close_retry_blocked" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseRetryBlocked() (r bool, exists bool) {
+	v := m.close_retry_blocked
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseRetryBlocked returns the old "close_retry_blocked" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseRetryBlocked(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseRetryBlocked is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseRetryBlocked requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseRetryBlocked: %w", err)
+	}
+	return oldValue.CloseRetryBlocked, nil
+}
+
+// ResetCloseRetryBlocked resets all changes to the "close_retry_blocked" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseRetryBlocked() {
+	m.close_retry_blocked = nil
+}
+
+// SetCloseLastErrorCode sets the "close_last_error_code" field.
+func (m *ModelDevAcceptanceMutation) SetCloseLastErrorCode(s string) {
+	m.close_last_error_code = &s
+}
+
+// CloseLastErrorCode returns the value of the "close_last_error_code" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseLastErrorCode() (r string, exists bool) {
+	v := m.close_last_error_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseLastErrorCode returns the old "close_last_error_code" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseLastErrorCode(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseLastErrorCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseLastErrorCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseLastErrorCode: %w", err)
+	}
+	return oldValue.CloseLastErrorCode, nil
+}
+
+// ClearCloseLastErrorCode clears the value of the "close_last_error_code" field.
+func (m *ModelDevAcceptanceMutation) ClearCloseLastErrorCode() {
+	m.close_last_error_code = nil
+	m.clearedFields[modeldevacceptance.FieldCloseLastErrorCode] = struct{}{}
+}
+
+// CloseLastErrorCodeCleared returns if the "close_last_error_code" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) CloseLastErrorCodeCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldCloseLastErrorCode]
+	return ok
+}
+
+// ResetCloseLastErrorCode resets all changes to the "close_last_error_code" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseLastErrorCode() {
+	m.close_last_error_code = nil
+	delete(m.clearedFields, modeldevacceptance.FieldCloseLastErrorCode)
+}
+
+// SetCloseReceiptCanonical sets the "close_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) SetCloseReceiptCanonical(b []byte) {
+	m.close_receipt_canonical = &b
+}
+
+// CloseReceiptCanonical returns the value of the "close_receipt_canonical" field in the mutation.
+func (m *ModelDevAcceptanceMutation) CloseReceiptCanonical() (r []byte, exists bool) {
+	v := m.close_receipt_canonical
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCloseReceiptCanonical returns the old "close_receipt_canonical" field's value of the ModelDevAcceptance entity.
+// If the ModelDevAcceptance object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevAcceptanceMutation) OldCloseReceiptCanonical(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCloseReceiptCanonical is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCloseReceiptCanonical requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCloseReceiptCanonical: %w", err)
+	}
+	return oldValue.CloseReceiptCanonical, nil
+}
+
+// ClearCloseReceiptCanonical clears the value of the "close_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) ClearCloseReceiptCanonical() {
+	m.close_receipt_canonical = nil
+	m.clearedFields[modeldevacceptance.FieldCloseReceiptCanonical] = struct{}{}
+}
+
+// CloseReceiptCanonicalCleared returns if the "close_receipt_canonical" field was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) CloseReceiptCanonicalCleared() bool {
+	_, ok := m.clearedFields[modeldevacceptance.FieldCloseReceiptCanonical]
+	return ok
+}
+
+// ResetCloseReceiptCanonical resets all changes to the "close_receipt_canonical" field.
+func (m *ModelDevAcceptanceMutation) ResetCloseReceiptCanonical() {
+	m.close_receipt_canonical = nil
+	delete(m.clearedFields, modeldevacceptance.FieldCloseReceiptCanonical)
+}
+
+// Where appends a list predicates to the ModelDevAcceptanceMutation builder.
+func (m *ModelDevAcceptanceMutation) Where(ps ...predicate.ModelDevAcceptance) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ModelDevAcceptanceMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ModelDevAcceptanceMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ModelDevAcceptance, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ModelDevAcceptanceMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ModelDevAcceptanceMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (ModelDevAcceptance).
+func (m *ModelDevAcceptanceMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ModelDevAcceptanceMutation) Fields() []string {
+	fields := make([]string, 0, 33)
+	if m.tenant_id != nil {
+		fields = append(fields, modeldevacceptance.FieldTenantID)
+	}
+	if m.resource_tenant_id != nil {
+		fields = append(fields, modeldevacceptance.FieldResourceTenantID)
+	}
+	if m.actor != nil {
+		fields = append(fields, modeldevacceptance.FieldActor)
+	}
+	if m.action != nil {
+		fields = append(fields, modeldevacceptance.FieldAction)
+	}
+	if m.idempotency_key != nil {
+		fields = append(fields, modeldevacceptance.FieldIdempotencyKey)
+	}
+	if m.operation_id != nil {
+		fields = append(fields, modeldevacceptance.FieldOperationID)
+	}
+	if m.execution_id != nil {
+		fields = append(fields, modeldevacceptance.FieldExecutionID)
+	}
+	if m.intent_hash != nil {
+		fields = append(fields, modeldevacceptance.FieldIntentHash)
+	}
+	if m.intent_canonical != nil {
+		fields = append(fields, modeldevacceptance.FieldIntentCanonical)
+	}
+	if m.execution_spec_hash != nil {
+		fields = append(fields, modeldevacceptance.FieldExecutionSpecHash)
+	}
+	if m.snapshot_canonical != nil {
+		fields = append(fields, modeldevacceptance.FieldSnapshotCanonical)
+	}
+	if m.accepted_at != nil {
+		fields = append(fields, modeldevacceptance.FieldAcceptedAt)
+	}
+	if m.dispatch_state != nil {
+		fields = append(fields, modeldevacceptance.FieldDispatchState)
+	}
+	if m.attempt_count != nil {
+		fields = append(fields, modeldevacceptance.FieldAttemptCount)
+	}
+	if m.lease_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldLeaseGeneration)
+	}
+	if m.lease_owner != nil {
+		fields = append(fields, modeldevacceptance.FieldLeaseOwner)
+	}
+	if m.lease_until != nil {
+		fields = append(fields, modeldevacceptance.FieldLeaseUntil)
+	}
+	if m.next_attempt_at != nil {
+		fields = append(fields, modeldevacceptance.FieldNextAttemptAt)
+	}
+	if m.retry_blocked != nil {
+		fields = append(fields, modeldevacceptance.FieldRetryBlocked)
+	}
+	if m.last_error_code != nil {
+		fields = append(fields, modeldevacceptance.FieldLastErrorCode)
+	}
+	if m.owner_receipt_canonical != nil {
+		fields = append(fields, modeldevacceptance.FieldOwnerReceiptCanonical)
+	}
+	if m.stop_intent_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldStopIntentGeneration)
+	}
+	if m.stop_requested_at != nil {
+		fields = append(fields, modeldevacceptance.FieldStopRequestedAt)
+	}
+	if m.stop_requested_actor != nil {
+		fields = append(fields, modeldevacceptance.FieldStopRequestedActor)
+	}
+	if m.close_dispatch_state != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseDispatchState)
+	}
+	if m.close_attempt_count != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseAttemptCount)
+	}
+	if m.close_lease_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseGeneration)
+	}
+	if m.close_lease_owner != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseOwner)
+	}
+	if m.close_lease_until != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseUntil)
+	}
+	if m.close_next_attempt_at != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseNextAttemptAt)
+	}
+	if m.close_retry_blocked != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseRetryBlocked)
+	}
+	if m.close_last_error_code != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseLastErrorCode)
+	}
+	if m.close_receipt_canonical != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseReceiptCanonical)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ModelDevAcceptanceMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case modeldevacceptance.FieldTenantID:
+		return m.TenantID()
+	case modeldevacceptance.FieldResourceTenantID:
+		return m.ResourceTenantID()
+	case modeldevacceptance.FieldActor:
+		return m.Actor()
+	case modeldevacceptance.FieldAction:
+		return m.Action()
+	case modeldevacceptance.FieldIdempotencyKey:
+		return m.IdempotencyKey()
+	case modeldevacceptance.FieldOperationID:
+		return m.OperationID()
+	case modeldevacceptance.FieldExecutionID:
+		return m.ExecutionID()
+	case modeldevacceptance.FieldIntentHash:
+		return m.IntentHash()
+	case modeldevacceptance.FieldIntentCanonical:
+		return m.IntentCanonical()
+	case modeldevacceptance.FieldExecutionSpecHash:
+		return m.ExecutionSpecHash()
+	case modeldevacceptance.FieldSnapshotCanonical:
+		return m.SnapshotCanonical()
+	case modeldevacceptance.FieldAcceptedAt:
+		return m.AcceptedAt()
+	case modeldevacceptance.FieldDispatchState:
+		return m.DispatchState()
+	case modeldevacceptance.FieldAttemptCount:
+		return m.AttemptCount()
+	case modeldevacceptance.FieldLeaseGeneration:
+		return m.LeaseGeneration()
+	case modeldevacceptance.FieldLeaseOwner:
+		return m.LeaseOwner()
+	case modeldevacceptance.FieldLeaseUntil:
+		return m.LeaseUntil()
+	case modeldevacceptance.FieldNextAttemptAt:
+		return m.NextAttemptAt()
+	case modeldevacceptance.FieldRetryBlocked:
+		return m.RetryBlocked()
+	case modeldevacceptance.FieldLastErrorCode:
+		return m.LastErrorCode()
+	case modeldevacceptance.FieldOwnerReceiptCanonical:
+		return m.OwnerReceiptCanonical()
+	case modeldevacceptance.FieldStopIntentGeneration:
+		return m.StopIntentGeneration()
+	case modeldevacceptance.FieldStopRequestedAt:
+		return m.StopRequestedAt()
+	case modeldevacceptance.FieldStopRequestedActor:
+		return m.StopRequestedActor()
+	case modeldevacceptance.FieldCloseDispatchState:
+		return m.CloseDispatchState()
+	case modeldevacceptance.FieldCloseAttemptCount:
+		return m.CloseAttemptCount()
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		return m.CloseLeaseGeneration()
+	case modeldevacceptance.FieldCloseLeaseOwner:
+		return m.CloseLeaseOwner()
+	case modeldevacceptance.FieldCloseLeaseUntil:
+		return m.CloseLeaseUntil()
+	case modeldevacceptance.FieldCloseNextAttemptAt:
+		return m.CloseNextAttemptAt()
+	case modeldevacceptance.FieldCloseRetryBlocked:
+		return m.CloseRetryBlocked()
+	case modeldevacceptance.FieldCloseLastErrorCode:
+		return m.CloseLastErrorCode()
+	case modeldevacceptance.FieldCloseReceiptCanonical:
+		return m.CloseReceiptCanonical()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ModelDevAcceptanceMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case modeldevacceptance.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case modeldevacceptance.FieldResourceTenantID:
+		return m.OldResourceTenantID(ctx)
+	case modeldevacceptance.FieldActor:
+		return m.OldActor(ctx)
+	case modeldevacceptance.FieldAction:
+		return m.OldAction(ctx)
+	case modeldevacceptance.FieldIdempotencyKey:
+		return m.OldIdempotencyKey(ctx)
+	case modeldevacceptance.FieldOperationID:
+		return m.OldOperationID(ctx)
+	case modeldevacceptance.FieldExecutionID:
+		return m.OldExecutionID(ctx)
+	case modeldevacceptance.FieldIntentHash:
+		return m.OldIntentHash(ctx)
+	case modeldevacceptance.FieldIntentCanonical:
+		return m.OldIntentCanonical(ctx)
+	case modeldevacceptance.FieldExecutionSpecHash:
+		return m.OldExecutionSpecHash(ctx)
+	case modeldevacceptance.FieldSnapshotCanonical:
+		return m.OldSnapshotCanonical(ctx)
+	case modeldevacceptance.FieldAcceptedAt:
+		return m.OldAcceptedAt(ctx)
+	case modeldevacceptance.FieldDispatchState:
+		return m.OldDispatchState(ctx)
+	case modeldevacceptance.FieldAttemptCount:
+		return m.OldAttemptCount(ctx)
+	case modeldevacceptance.FieldLeaseGeneration:
+		return m.OldLeaseGeneration(ctx)
+	case modeldevacceptance.FieldLeaseOwner:
+		return m.OldLeaseOwner(ctx)
+	case modeldevacceptance.FieldLeaseUntil:
+		return m.OldLeaseUntil(ctx)
+	case modeldevacceptance.FieldNextAttemptAt:
+		return m.OldNextAttemptAt(ctx)
+	case modeldevacceptance.FieldRetryBlocked:
+		return m.OldRetryBlocked(ctx)
+	case modeldevacceptance.FieldLastErrorCode:
+		return m.OldLastErrorCode(ctx)
+	case modeldevacceptance.FieldOwnerReceiptCanonical:
+		return m.OldOwnerReceiptCanonical(ctx)
+	case modeldevacceptance.FieldStopIntentGeneration:
+		return m.OldStopIntentGeneration(ctx)
+	case modeldevacceptance.FieldStopRequestedAt:
+		return m.OldStopRequestedAt(ctx)
+	case modeldevacceptance.FieldStopRequestedActor:
+		return m.OldStopRequestedActor(ctx)
+	case modeldevacceptance.FieldCloseDispatchState:
+		return m.OldCloseDispatchState(ctx)
+	case modeldevacceptance.FieldCloseAttemptCount:
+		return m.OldCloseAttemptCount(ctx)
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		return m.OldCloseLeaseGeneration(ctx)
+	case modeldevacceptance.FieldCloseLeaseOwner:
+		return m.OldCloseLeaseOwner(ctx)
+	case modeldevacceptance.FieldCloseLeaseUntil:
+		return m.OldCloseLeaseUntil(ctx)
+	case modeldevacceptance.FieldCloseNextAttemptAt:
+		return m.OldCloseNextAttemptAt(ctx)
+	case modeldevacceptance.FieldCloseRetryBlocked:
+		return m.OldCloseRetryBlocked(ctx)
+	case modeldevacceptance.FieldCloseLastErrorCode:
+		return m.OldCloseLastErrorCode(ctx)
+	case modeldevacceptance.FieldCloseReceiptCanonical:
+		return m.OldCloseReceiptCanonical(ctx)
+	}
+	return nil, fmt.Errorf("unknown ModelDevAcceptance field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ModelDevAcceptanceMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case modeldevacceptance.FieldTenantID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case modeldevacceptance.FieldResourceTenantID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetResourceTenantID(v)
+		return nil
+	case modeldevacceptance.FieldActor:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetActor(v)
+		return nil
+	case modeldevacceptance.FieldAction:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAction(v)
+		return nil
+	case modeldevacceptance.FieldIdempotencyKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIdempotencyKey(v)
+		return nil
+	case modeldevacceptance.FieldOperationID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOperationID(v)
+		return nil
+	case modeldevacceptance.FieldExecutionID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExecutionID(v)
+		return nil
+	case modeldevacceptance.FieldIntentHash:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIntentHash(v)
+		return nil
+	case modeldevacceptance.FieldIntentCanonical:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIntentCanonical(v)
+		return nil
+	case modeldevacceptance.FieldExecutionSpecHash:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExecutionSpecHash(v)
+		return nil
+	case modeldevacceptance.FieldSnapshotCanonical:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSnapshotCanonical(v)
+		return nil
+	case modeldevacceptance.FieldAcceptedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAcceptedAt(v)
+		return nil
+	case modeldevacceptance.FieldDispatchState:
+		v, ok := value.(modeldevacceptance.DispatchState)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDispatchState(v)
+		return nil
+	case modeldevacceptance.FieldAttemptCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAttemptCount(v)
+		return nil
+	case modeldevacceptance.FieldLeaseGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLeaseGeneration(v)
+		return nil
+	case modeldevacceptance.FieldLeaseOwner:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLeaseOwner(v)
+		return nil
+	case modeldevacceptance.FieldLeaseUntil:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLeaseUntil(v)
+		return nil
+	case modeldevacceptance.FieldNextAttemptAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNextAttemptAt(v)
+		return nil
+	case modeldevacceptance.FieldRetryBlocked:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRetryBlocked(v)
+		return nil
+	case modeldevacceptance.FieldLastErrorCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastErrorCode(v)
+		return nil
+	case modeldevacceptance.FieldOwnerReceiptCanonical:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOwnerReceiptCanonical(v)
+		return nil
+	case modeldevacceptance.FieldStopIntentGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStopIntentGeneration(v)
+		return nil
+	case modeldevacceptance.FieldStopRequestedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStopRequestedAt(v)
+		return nil
+	case modeldevacceptance.FieldStopRequestedActor:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStopRequestedActor(v)
+		return nil
+	case modeldevacceptance.FieldCloseDispatchState:
+		v, ok := value.(modeldevacceptance.CloseDispatchState)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseDispatchState(v)
+		return nil
+	case modeldevacceptance.FieldCloseAttemptCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseAttemptCount(v)
+		return nil
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseLeaseGeneration(v)
+		return nil
+	case modeldevacceptance.FieldCloseLeaseOwner:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseLeaseOwner(v)
+		return nil
+	case modeldevacceptance.FieldCloseLeaseUntil:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseLeaseUntil(v)
+		return nil
+	case modeldevacceptance.FieldCloseNextAttemptAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseNextAttemptAt(v)
+		return nil
+	case modeldevacceptance.FieldCloseRetryBlocked:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseRetryBlocked(v)
+		return nil
+	case modeldevacceptance.FieldCloseLastErrorCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseLastErrorCode(v)
+		return nil
+	case modeldevacceptance.FieldCloseReceiptCanonical:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseReceiptCanonical(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ModelDevAcceptance field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ModelDevAcceptanceMutation) AddedFields() []string {
+	var fields []string
+	if m.addtenant_id != nil {
+		fields = append(fields, modeldevacceptance.FieldTenantID)
+	}
+	if m.addattempt_count != nil {
+		fields = append(fields, modeldevacceptance.FieldAttemptCount)
+	}
+	if m.addlease_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldLeaseGeneration)
+	}
+	if m.addstop_intent_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldStopIntentGeneration)
+	}
+	if m.addclose_attempt_count != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseAttemptCount)
+	}
+	if m.addclose_lease_generation != nil {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseGeneration)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ModelDevAcceptanceMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case modeldevacceptance.FieldTenantID:
+		return m.AddedTenantID()
+	case modeldevacceptance.FieldAttemptCount:
+		return m.AddedAttemptCount()
+	case modeldevacceptance.FieldLeaseGeneration:
+		return m.AddedLeaseGeneration()
+	case modeldevacceptance.FieldStopIntentGeneration:
+		return m.AddedStopIntentGeneration()
+	case modeldevacceptance.FieldCloseAttemptCount:
+		return m.AddedCloseAttemptCount()
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		return m.AddedCloseLeaseGeneration()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ModelDevAcceptanceMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case modeldevacceptance.FieldTenantID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTenantID(v)
+		return nil
+	case modeldevacceptance.FieldAttemptCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAttemptCount(v)
+		return nil
+	case modeldevacceptance.FieldLeaseGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLeaseGeneration(v)
+		return nil
+	case modeldevacceptance.FieldStopIntentGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddStopIntentGeneration(v)
+		return nil
+	case modeldevacceptance.FieldCloseAttemptCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCloseAttemptCount(v)
+		return nil
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCloseLeaseGeneration(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ModelDevAcceptance numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ModelDevAcceptanceMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(modeldevacceptance.FieldLeaseOwner) {
+		fields = append(fields, modeldevacceptance.FieldLeaseOwner)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldLeaseUntil) {
+		fields = append(fields, modeldevacceptance.FieldLeaseUntil)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldNextAttemptAt) {
+		fields = append(fields, modeldevacceptance.FieldNextAttemptAt)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldLastErrorCode) {
+		fields = append(fields, modeldevacceptance.FieldLastErrorCode)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldOwnerReceiptCanonical) {
+		fields = append(fields, modeldevacceptance.FieldOwnerReceiptCanonical)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldStopRequestedAt) {
+		fields = append(fields, modeldevacceptance.FieldStopRequestedAt)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldStopRequestedActor) {
+		fields = append(fields, modeldevacceptance.FieldStopRequestedActor)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldCloseLeaseOwner) {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseOwner)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldCloseLeaseUntil) {
+		fields = append(fields, modeldevacceptance.FieldCloseLeaseUntil)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldCloseNextAttemptAt) {
+		fields = append(fields, modeldevacceptance.FieldCloseNextAttemptAt)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldCloseLastErrorCode) {
+		fields = append(fields, modeldevacceptance.FieldCloseLastErrorCode)
+	}
+	if m.FieldCleared(modeldevacceptance.FieldCloseReceiptCanonical) {
+		fields = append(fields, modeldevacceptance.FieldCloseReceiptCanonical)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ModelDevAcceptanceMutation) ClearField(name string) error {
+	switch name {
+	case modeldevacceptance.FieldLeaseOwner:
+		m.ClearLeaseOwner()
+		return nil
+	case modeldevacceptance.FieldLeaseUntil:
+		m.ClearLeaseUntil()
+		return nil
+	case modeldevacceptance.FieldNextAttemptAt:
+		m.ClearNextAttemptAt()
+		return nil
+	case modeldevacceptance.FieldLastErrorCode:
+		m.ClearLastErrorCode()
+		return nil
+	case modeldevacceptance.FieldOwnerReceiptCanonical:
+		m.ClearOwnerReceiptCanonical()
+		return nil
+	case modeldevacceptance.FieldStopRequestedAt:
+		m.ClearStopRequestedAt()
+		return nil
+	case modeldevacceptance.FieldStopRequestedActor:
+		m.ClearStopRequestedActor()
+		return nil
+	case modeldevacceptance.FieldCloseLeaseOwner:
+		m.ClearCloseLeaseOwner()
+		return nil
+	case modeldevacceptance.FieldCloseLeaseUntil:
+		m.ClearCloseLeaseUntil()
+		return nil
+	case modeldevacceptance.FieldCloseNextAttemptAt:
+		m.ClearCloseNextAttemptAt()
+		return nil
+	case modeldevacceptance.FieldCloseLastErrorCode:
+		m.ClearCloseLastErrorCode()
+		return nil
+	case modeldevacceptance.FieldCloseReceiptCanonical:
+		m.ClearCloseReceiptCanonical()
+		return nil
+	}
+	return fmt.Errorf("unknown ModelDevAcceptance nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ModelDevAcceptanceMutation) ResetField(name string) error {
+	switch name {
+	case modeldevacceptance.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case modeldevacceptance.FieldResourceTenantID:
+		m.ResetResourceTenantID()
+		return nil
+	case modeldevacceptance.FieldActor:
+		m.ResetActor()
+		return nil
+	case modeldevacceptance.FieldAction:
+		m.ResetAction()
+		return nil
+	case modeldevacceptance.FieldIdempotencyKey:
+		m.ResetIdempotencyKey()
+		return nil
+	case modeldevacceptance.FieldOperationID:
+		m.ResetOperationID()
+		return nil
+	case modeldevacceptance.FieldExecutionID:
+		m.ResetExecutionID()
+		return nil
+	case modeldevacceptance.FieldIntentHash:
+		m.ResetIntentHash()
+		return nil
+	case modeldevacceptance.FieldIntentCanonical:
+		m.ResetIntentCanonical()
+		return nil
+	case modeldevacceptance.FieldExecutionSpecHash:
+		m.ResetExecutionSpecHash()
+		return nil
+	case modeldevacceptance.FieldSnapshotCanonical:
+		m.ResetSnapshotCanonical()
+		return nil
+	case modeldevacceptance.FieldAcceptedAt:
+		m.ResetAcceptedAt()
+		return nil
+	case modeldevacceptance.FieldDispatchState:
+		m.ResetDispatchState()
+		return nil
+	case modeldevacceptance.FieldAttemptCount:
+		m.ResetAttemptCount()
+		return nil
+	case modeldevacceptance.FieldLeaseGeneration:
+		m.ResetLeaseGeneration()
+		return nil
+	case modeldevacceptance.FieldLeaseOwner:
+		m.ResetLeaseOwner()
+		return nil
+	case modeldevacceptance.FieldLeaseUntil:
+		m.ResetLeaseUntil()
+		return nil
+	case modeldevacceptance.FieldNextAttemptAt:
+		m.ResetNextAttemptAt()
+		return nil
+	case modeldevacceptance.FieldRetryBlocked:
+		m.ResetRetryBlocked()
+		return nil
+	case modeldevacceptance.FieldLastErrorCode:
+		m.ResetLastErrorCode()
+		return nil
+	case modeldevacceptance.FieldOwnerReceiptCanonical:
+		m.ResetOwnerReceiptCanonical()
+		return nil
+	case modeldevacceptance.FieldStopIntentGeneration:
+		m.ResetStopIntentGeneration()
+		return nil
+	case modeldevacceptance.FieldStopRequestedAt:
+		m.ResetStopRequestedAt()
+		return nil
+	case modeldevacceptance.FieldStopRequestedActor:
+		m.ResetStopRequestedActor()
+		return nil
+	case modeldevacceptance.FieldCloseDispatchState:
+		m.ResetCloseDispatchState()
+		return nil
+	case modeldevacceptance.FieldCloseAttemptCount:
+		m.ResetCloseAttemptCount()
+		return nil
+	case modeldevacceptance.FieldCloseLeaseGeneration:
+		m.ResetCloseLeaseGeneration()
+		return nil
+	case modeldevacceptance.FieldCloseLeaseOwner:
+		m.ResetCloseLeaseOwner()
+		return nil
+	case modeldevacceptance.FieldCloseLeaseUntil:
+		m.ResetCloseLeaseUntil()
+		return nil
+	case modeldevacceptance.FieldCloseNextAttemptAt:
+		m.ResetCloseNextAttemptAt()
+		return nil
+	case modeldevacceptance.FieldCloseRetryBlocked:
+		m.ResetCloseRetryBlocked()
+		return nil
+	case modeldevacceptance.FieldCloseLastErrorCode:
+		m.ResetCloseLastErrorCode()
+		return nil
+	case modeldevacceptance.FieldCloseReceiptCanonical:
+		m.ResetCloseReceiptCanonical()
+		return nil
+	}
+	return fmt.Errorf("unknown ModelDevAcceptance field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ModelDevAcceptanceMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ModelDevAcceptanceMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ModelDevAcceptanceMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ModelDevAcceptanceMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ModelDevAcceptanceMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ModelDevAcceptance unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ModelDevAcceptanceMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ModelDevAcceptance edge %s", name)
+}
+
+// ModelDevReleaseBindingMutation represents an operation that mutates the ModelDevReleaseBinding nodes in the graph.
+type ModelDevReleaseBindingMutation struct {
+	config
+	op                      Op
+	typ                     string
+	id                      *uint32
+	tenant_id               *uint32
+	addtenant_id            *int32
+	resource_tenant_id      *string
+	preset_id               *string
+	release_id              *string
+	release_digest          *string
+	generation              *uint64
+	addgeneration           *int64
+	new_submissions_enabled *bool
+	updated_by              *string
+	updated_at              *time.Time
+	reason                  *string
+	evidence_reference      *string
+	clearedFields           map[string]struct{}
+	done                    bool
+	oldValue                func(context.Context) (*ModelDevReleaseBinding, error)
+	predicates              []predicate.ModelDevReleaseBinding
+}
+
+var _ ent.Mutation = (*ModelDevReleaseBindingMutation)(nil)
+
+// modeldevreleasebindingOption allows management of the mutation configuration using functional options.
+type modeldevreleasebindingOption func(*ModelDevReleaseBindingMutation)
+
+// newModelDevReleaseBindingMutation creates new mutation for the ModelDevReleaseBinding entity.
+func newModelDevReleaseBindingMutation(c config, op Op, opts ...modeldevreleasebindingOption) *ModelDevReleaseBindingMutation {
+	m := &ModelDevReleaseBindingMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeModelDevReleaseBinding,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withModelDevReleaseBindingID sets the ID field of the mutation.
+func withModelDevReleaseBindingID(id uint32) modeldevreleasebindingOption {
+	return func(m *ModelDevReleaseBindingMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ModelDevReleaseBinding
+		)
+		m.oldValue = func(ctx context.Context) (*ModelDevReleaseBinding, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ModelDevReleaseBinding.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withModelDevReleaseBinding sets the old ModelDevReleaseBinding of the mutation.
+func withModelDevReleaseBinding(node *ModelDevReleaseBinding) modeldevreleasebindingOption {
+	return func(m *ModelDevReleaseBindingMutation) {
+		m.oldValue = func(context.Context) (*ModelDevReleaseBinding, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ModelDevReleaseBindingMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ModelDevReleaseBindingMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of ModelDevReleaseBinding entities.
+func (m *ModelDevReleaseBindingMutation) SetID(id uint32) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ModelDevReleaseBindingMutation) ID() (id uint32, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ModelDevReleaseBindingMutation) IDs(ctx context.Context) ([]uint32, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint32{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ModelDevReleaseBinding.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *ModelDevReleaseBindingMutation) SetTenantID(u uint32) {
+	m.tenant_id = &u
+	m.addtenant_id = nil
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *ModelDevReleaseBindingMutation) TenantID() (r uint32, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the ModelDevReleaseBinding entity.
+// If the ModelDevReleaseBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevReleaseBindingMutation) OldTenantID(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// AddTenantID adds u to the "tenant_id" field.
+func (m *ModelDevReleaseBindingMutation) AddTenantID(u int32) {
+	if m.addtenant_id != nil {
+		*m.addtenant_id += u
+	} else {
+		m.addtenant_id = &u
+	}
+}
+
+// AddedTenantID returns the value that was added to the "tenant_id" field in this mutation.
+func (m *ModelDevReleaseBindingMutation) AddedTenantID() (r int32, exists bool) {
+	v := m.addtenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *ModelDevReleaseBindingMutation) ResetTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+}
+
+// SetResourceTenantID sets the "resource_tenant_id" field.
+func (m *ModelDevReleaseBindingMutation) SetResourceTenantID(s string) {
+	m.resource_tenant_id = &s
+}
+
+// ResourceTenantID returns the value of the "resource_tenant_id" field in the mutation.
+func (m *ModelDevReleaseBindingMutation) ResourceTenantID() (r string, exists bool) {
+	v := m.resource_tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldResourceTenantID returns the old "resource_tenant_id" field's value of the ModelDevReleaseBinding entity.
+// If the ModelDevReleaseBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevReleaseBindingMutation) OldResourceTenantID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldResourceTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldResourceTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldResourceTenantID: %w", err)
+	}
+	return oldValue.ResourceTenantID, nil
+}
+
+// ResetResourceTenantID resets all changes to the "resource_tenant_id" field.
+func (m *ModelDevReleaseBindingMutation) ResetResourceTenantID() {
+	m.resource_tenant_id = nil
+}
+
+// SetPresetID sets the "preset_id" field.
+func (m *ModelDevReleaseBindingMutation) SetPresetID(s string) {
+	m.preset_id = &s
+}
+
+// PresetID returns the value of the "preset_id" field in the mutation.
+func (m *ModelDevReleaseBindingMutation) PresetID() (r string, exists bool) {
+	v := m.preset_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPresetID returns the old "preset_id" field's value of the ModelDevReleaseBinding entity.
+// If the ModelDevReleaseBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevReleaseBindingMutation) OldPresetID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPresetID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPresetID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPresetID: %w", err)
+	}
+	return oldValue.PresetID, nil
+}
+
+// ResetPresetID resets all changes to the "preset_id" field.
+func (m *ModelDevReleaseBindingMutation) ResetPresetID() {
+	m.preset_id = nil
+}
+
+// SetReleaseID sets the "release_id" field.
+func (m *ModelDevReleaseBindingMutation) SetReleaseID(s string) {
+	m.release_id = &s
+}
+
+// ReleaseID returns the value of the "release_id" field in the mutation.
+func (m *ModelDevReleaseBindingMutation) ReleaseID() (r string, exists bool) {
+	v := m.release_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReleaseID returns the old "release_id" field's value of the ModelDevReleaseBinding entity.
+// If the ModelDevReleaseBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevReleaseBindingMutation) OldReleaseID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReleaseID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReleaseID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReleaseID: %w", err)
+	}
+	return oldValue.ReleaseID, nil
+}
+
+// ResetReleaseID resets all changes to the "release_id" field.
+func (m *ModelDevReleaseBindingMutation) ResetReleaseID() {
+	m.release_id = nil
+}
+
+// SetReleaseDigest sets the "release_digest" field.
+func (m *ModelDevReleaseBindingMutation) SetReleaseDigest(s string) {
+	m.release_digest = &s
+}
+
+// ReleaseDigest returns the value of the "release_digest" field in the mutation.
+func (m *ModelDevReleaseBindingMutation) ReleaseDigest() (r string, exists bool) {
+	v := m.release_digest
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReleaseDigest returns the old "release_digest" field's value of the ModelDevReleaseBinding entity.
+// If the ModelDevReleaseBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevReleaseBindingMutation) OldReleaseDigest(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReleaseDigest is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReleaseDigest requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReleaseDigest: %w", err)
+	}
+	return oldValue.ReleaseDigest, nil
+}
+
+// ResetReleaseDigest resets all changes to the "release_digest" field.
+func (m *ModelDevReleaseBindingMutation) ResetReleaseDigest() {
+	m.release_digest = nil
+}
+
+// SetGeneration sets the "generation" field.
+func (m *ModelDevReleaseBindingMutation) SetGeneration(u uint64) {
+	m.generation = &u
+	m.addgeneration = nil
+}
+
+// Generation returns the value of the "generation" field in the mutation.
+func (m *ModelDevReleaseBindingMutation) Generation() (r uint64, exists bool) {
+	v := m.generation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGeneration returns the old "generation" field's value of the ModelDevReleaseBinding entity.
+// If the ModelDevReleaseBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevReleaseBindingMutation) OldGeneration(ctx context.Context) (v uint64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGeneration is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGeneration requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGeneration: %w", err)
+	}
+	return oldValue.Generation, nil
+}
+
+// AddGeneration adds u to the "generation" field.
+func (m *ModelDevReleaseBindingMutation) AddGeneration(u int64) {
+	if m.addgeneration != nil {
+		*m.addgeneration += u
+	} else {
+		m.addgeneration = &u
+	}
+}
+
+// AddedGeneration returns the value that was added to the "generation" field in this mutation.
+func (m *ModelDevReleaseBindingMutation) AddedGeneration() (r int64, exists bool) {
+	v := m.addgeneration
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGeneration resets all changes to the "generation" field.
+func (m *ModelDevReleaseBindingMutation) ResetGeneration() {
+	m.generation = nil
+	m.addgeneration = nil
+}
+
+// SetNewSubmissionsEnabled sets the "new_submissions_enabled" field.
+func (m *ModelDevReleaseBindingMutation) SetNewSubmissionsEnabled(b bool) {
+	m.new_submissions_enabled = &b
+}
+
+// NewSubmissionsEnabled returns the value of the "new_submissions_enabled" field in the mutation.
+func (m *ModelDevReleaseBindingMutation) NewSubmissionsEnabled() (r bool, exists bool) {
+	v := m.new_submissions_enabled
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNewSubmissionsEnabled returns the old "new_submissions_enabled" field's value of the ModelDevReleaseBinding entity.
+// If the ModelDevReleaseBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevReleaseBindingMutation) OldNewSubmissionsEnabled(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNewSubmissionsEnabled is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNewSubmissionsEnabled requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNewSubmissionsEnabled: %w", err)
+	}
+	return oldValue.NewSubmissionsEnabled, nil
+}
+
+// ResetNewSubmissionsEnabled resets all changes to the "new_submissions_enabled" field.
+func (m *ModelDevReleaseBindingMutation) ResetNewSubmissionsEnabled() {
+	m.new_submissions_enabled = nil
+}
+
+// SetUpdatedBy sets the "updated_by" field.
+func (m *ModelDevReleaseBindingMutation) SetUpdatedBy(s string) {
+	m.updated_by = &s
+}
+
+// UpdatedBy returns the value of the "updated_by" field in the mutation.
+func (m *ModelDevReleaseBindingMutation) UpdatedBy() (r string, exists bool) {
+	v := m.updated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedBy returns the old "updated_by" field's value of the ModelDevReleaseBinding entity.
+// If the ModelDevReleaseBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevReleaseBindingMutation) OldUpdatedBy(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedBy: %w", err)
+	}
+	return oldValue.UpdatedBy, nil
+}
+
+// ResetUpdatedBy resets all changes to the "updated_by" field.
+func (m *ModelDevReleaseBindingMutation) ResetUpdatedBy() {
+	m.updated_by = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *ModelDevReleaseBindingMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *ModelDevReleaseBindingMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the ModelDevReleaseBinding entity.
+// If the ModelDevReleaseBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevReleaseBindingMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *ModelDevReleaseBindingMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetReason sets the "reason" field.
+func (m *ModelDevReleaseBindingMutation) SetReason(s string) {
+	m.reason = &s
+}
+
+// Reason returns the value of the "reason" field in the mutation.
+func (m *ModelDevReleaseBindingMutation) Reason() (r string, exists bool) {
+	v := m.reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReason returns the old "reason" field's value of the ModelDevReleaseBinding entity.
+// If the ModelDevReleaseBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevReleaseBindingMutation) OldReason(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReason is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReason: %w", err)
+	}
+	return oldValue.Reason, nil
+}
+
+// ResetReason resets all changes to the "reason" field.
+func (m *ModelDevReleaseBindingMutation) ResetReason() {
+	m.reason = nil
+}
+
+// SetEvidenceReference sets the "evidence_reference" field.
+func (m *ModelDevReleaseBindingMutation) SetEvidenceReference(s string) {
+	m.evidence_reference = &s
+}
+
+// EvidenceReference returns the value of the "evidence_reference" field in the mutation.
+func (m *ModelDevReleaseBindingMutation) EvidenceReference() (r string, exists bool) {
+	v := m.evidence_reference
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEvidenceReference returns the old "evidence_reference" field's value of the ModelDevReleaseBinding entity.
+// If the ModelDevReleaseBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ModelDevReleaseBindingMutation) OldEvidenceReference(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEvidenceReference is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEvidenceReference requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEvidenceReference: %w", err)
+	}
+	return oldValue.EvidenceReference, nil
+}
+
+// ResetEvidenceReference resets all changes to the "evidence_reference" field.
+func (m *ModelDevReleaseBindingMutation) ResetEvidenceReference() {
+	m.evidence_reference = nil
+}
+
+// Where appends a list predicates to the ModelDevReleaseBindingMutation builder.
+func (m *ModelDevReleaseBindingMutation) Where(ps ...predicate.ModelDevReleaseBinding) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ModelDevReleaseBindingMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ModelDevReleaseBindingMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ModelDevReleaseBinding, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ModelDevReleaseBindingMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ModelDevReleaseBindingMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (ModelDevReleaseBinding).
+func (m *ModelDevReleaseBindingMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ModelDevReleaseBindingMutation) Fields() []string {
+	fields := make([]string, 0, 11)
+	if m.tenant_id != nil {
+		fields = append(fields, modeldevreleasebinding.FieldTenantID)
+	}
+	if m.resource_tenant_id != nil {
+		fields = append(fields, modeldevreleasebinding.FieldResourceTenantID)
+	}
+	if m.preset_id != nil {
+		fields = append(fields, modeldevreleasebinding.FieldPresetID)
+	}
+	if m.release_id != nil {
+		fields = append(fields, modeldevreleasebinding.FieldReleaseID)
+	}
+	if m.release_digest != nil {
+		fields = append(fields, modeldevreleasebinding.FieldReleaseDigest)
+	}
+	if m.generation != nil {
+		fields = append(fields, modeldevreleasebinding.FieldGeneration)
+	}
+	if m.new_submissions_enabled != nil {
+		fields = append(fields, modeldevreleasebinding.FieldNewSubmissionsEnabled)
+	}
+	if m.updated_by != nil {
+		fields = append(fields, modeldevreleasebinding.FieldUpdatedBy)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, modeldevreleasebinding.FieldUpdatedAt)
+	}
+	if m.reason != nil {
+		fields = append(fields, modeldevreleasebinding.FieldReason)
+	}
+	if m.evidence_reference != nil {
+		fields = append(fields, modeldevreleasebinding.FieldEvidenceReference)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ModelDevReleaseBindingMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case modeldevreleasebinding.FieldTenantID:
+		return m.TenantID()
+	case modeldevreleasebinding.FieldResourceTenantID:
+		return m.ResourceTenantID()
+	case modeldevreleasebinding.FieldPresetID:
+		return m.PresetID()
+	case modeldevreleasebinding.FieldReleaseID:
+		return m.ReleaseID()
+	case modeldevreleasebinding.FieldReleaseDigest:
+		return m.ReleaseDigest()
+	case modeldevreleasebinding.FieldGeneration:
+		return m.Generation()
+	case modeldevreleasebinding.FieldNewSubmissionsEnabled:
+		return m.NewSubmissionsEnabled()
+	case modeldevreleasebinding.FieldUpdatedBy:
+		return m.UpdatedBy()
+	case modeldevreleasebinding.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case modeldevreleasebinding.FieldReason:
+		return m.Reason()
+	case modeldevreleasebinding.FieldEvidenceReference:
+		return m.EvidenceReference()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ModelDevReleaseBindingMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case modeldevreleasebinding.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case modeldevreleasebinding.FieldResourceTenantID:
+		return m.OldResourceTenantID(ctx)
+	case modeldevreleasebinding.FieldPresetID:
+		return m.OldPresetID(ctx)
+	case modeldevreleasebinding.FieldReleaseID:
+		return m.OldReleaseID(ctx)
+	case modeldevreleasebinding.FieldReleaseDigest:
+		return m.OldReleaseDigest(ctx)
+	case modeldevreleasebinding.FieldGeneration:
+		return m.OldGeneration(ctx)
+	case modeldevreleasebinding.FieldNewSubmissionsEnabled:
+		return m.OldNewSubmissionsEnabled(ctx)
+	case modeldevreleasebinding.FieldUpdatedBy:
+		return m.OldUpdatedBy(ctx)
+	case modeldevreleasebinding.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case modeldevreleasebinding.FieldReason:
+		return m.OldReason(ctx)
+	case modeldevreleasebinding.FieldEvidenceReference:
+		return m.OldEvidenceReference(ctx)
+	}
+	return nil, fmt.Errorf("unknown ModelDevReleaseBinding field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ModelDevReleaseBindingMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case modeldevreleasebinding.FieldTenantID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case modeldevreleasebinding.FieldResourceTenantID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetResourceTenantID(v)
+		return nil
+	case modeldevreleasebinding.FieldPresetID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPresetID(v)
+		return nil
+	case modeldevreleasebinding.FieldReleaseID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReleaseID(v)
+		return nil
+	case modeldevreleasebinding.FieldReleaseDigest:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReleaseDigest(v)
+		return nil
+	case modeldevreleasebinding.FieldGeneration:
+		v, ok := value.(uint64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGeneration(v)
+		return nil
+	case modeldevreleasebinding.FieldNewSubmissionsEnabled:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNewSubmissionsEnabled(v)
+		return nil
+	case modeldevreleasebinding.FieldUpdatedBy:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedBy(v)
+		return nil
+	case modeldevreleasebinding.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case modeldevreleasebinding.FieldReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReason(v)
+		return nil
+	case modeldevreleasebinding.FieldEvidenceReference:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEvidenceReference(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ModelDevReleaseBinding field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ModelDevReleaseBindingMutation) AddedFields() []string {
+	var fields []string
+	if m.addtenant_id != nil {
+		fields = append(fields, modeldevreleasebinding.FieldTenantID)
+	}
+	if m.addgeneration != nil {
+		fields = append(fields, modeldevreleasebinding.FieldGeneration)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ModelDevReleaseBindingMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case modeldevreleasebinding.FieldTenantID:
+		return m.AddedTenantID()
+	case modeldevreleasebinding.FieldGeneration:
+		return m.AddedGeneration()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ModelDevReleaseBindingMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case modeldevreleasebinding.FieldTenantID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTenantID(v)
+		return nil
+	case modeldevreleasebinding.FieldGeneration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGeneration(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ModelDevReleaseBinding numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ModelDevReleaseBindingMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ModelDevReleaseBindingMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ModelDevReleaseBindingMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ModelDevReleaseBinding nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ModelDevReleaseBindingMutation) ResetField(name string) error {
+	switch name {
+	case modeldevreleasebinding.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case modeldevreleasebinding.FieldResourceTenantID:
+		m.ResetResourceTenantID()
+		return nil
+	case modeldevreleasebinding.FieldPresetID:
+		m.ResetPresetID()
+		return nil
+	case modeldevreleasebinding.FieldReleaseID:
+		m.ResetReleaseID()
+		return nil
+	case modeldevreleasebinding.FieldReleaseDigest:
+		m.ResetReleaseDigest()
+		return nil
+	case modeldevreleasebinding.FieldGeneration:
+		m.ResetGeneration()
+		return nil
+	case modeldevreleasebinding.FieldNewSubmissionsEnabled:
+		m.ResetNewSubmissionsEnabled()
+		return nil
+	case modeldevreleasebinding.FieldUpdatedBy:
+		m.ResetUpdatedBy()
+		return nil
+	case modeldevreleasebinding.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case modeldevreleasebinding.FieldReason:
+		m.ResetReason()
+		return nil
+	case modeldevreleasebinding.FieldEvidenceReference:
+		m.ResetEvidenceReference()
+		return nil
+	}
+	return fmt.Errorf("unknown ModelDevReleaseBinding field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ModelDevReleaseBindingMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ModelDevReleaseBindingMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ModelDevReleaseBindingMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ModelDevReleaseBindingMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ModelDevReleaseBindingMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ModelDevReleaseBindingMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ModelDevReleaseBindingMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ModelDevReleaseBinding unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ModelDevReleaseBindingMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ModelDevReleaseBinding edge %s", name)
 }
 
 // NotificationChannelMutation represents an operation that mutates the NotificationChannel nodes in the graph.

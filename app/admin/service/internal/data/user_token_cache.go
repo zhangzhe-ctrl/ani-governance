@@ -296,7 +296,14 @@ func (r *UserTokenCache) IsValidRefreshToken(
 // IsBlockedAccessToken 访问令牌是否被阻止
 func (r *UserTokenCache) IsBlockedAccessToken(ctx context.Context, jti string) bool {
 	key := r.makeBlacklistKey(jti)
-	return r.exists(ctx, key)
+	n, err := r.rdb.Exists(ctx, key).Result()
+	if err != nil {
+		// This boolean is an authorization decision: inability to check the
+		// blacklist must deny access, not establish that the token is unblocked.
+		r.log.Error(ctx, "access token blacklist lookup failed")
+		return true
+	}
+	return n > 0
 }
 
 // RevokeUserAllAccessToken 删除访问令牌
@@ -391,15 +398,6 @@ func (r *UserTokenCache) del(ctx context.Context, key string) error {
 		return err
 	}
 	return nil
-}
-
-func (r *UserTokenCache) exists(ctx context.Context, key string) bool {
-	n, err := r.rdb.Exists(ctx, key).Result()
-	if err != nil {
-		r.log.Errorf(ctx, "exists key[%s] failed: %v", key, err)
-		return false
-	}
-	return n > 0
 }
 
 // ==============================

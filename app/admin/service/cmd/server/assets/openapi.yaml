@@ -2674,6 +2674,224 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /admin/v1/modeldev/artifacts/{artifact_id}/content:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_AuthorizeArtifactDownload
+            parameters:
+                - name: artifact_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthorizeArtifactDownloadResponse'
+    /admin/v1/modeldev/executions:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_ListExecutions
+            parameters:
+                - name: page_size
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: page_token
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListExecutionsResponse'
+        post:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_CreateExecution
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateExecutionRequest'
+                required: true
+            responses:
+                "202":
+                    description: Accepted; the frozen request and CPU delivery intent are durable
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateExecutionResponse'
+            security:
+                - BearerAuth: []
+    /admin/v1/modeldev/executions/{execution_id}:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_GetExecution
+            parameters:
+                - name: execution_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetExecutionResponse'
+    /admin/v1/modeldev/executions/{execution_id}/artifacts:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_ListExecutionArtifacts
+            parameters:
+                - name: execution_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: page_token
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListExecutionArtifactsResponse'
+    /admin/v1/modeldev/executions/{execution_id}/logs:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_GetExecutionLogs
+            parameters:
+                - name: execution_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: tail_lines
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: max_bytes
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetExecutionLogsResponse'
+    /admin/v1/modeldev/executions/{execution_id}:stop:
+        post:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_StopExecution
+            parameters:
+                - name: execution_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "202":
+                    description: Durable stop intent accepted; resources are not yet confirmed closed
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/StopExecutionResponse'
+            security:
+                - BearerAuth: []
+    /admin/v1/modeldev/input-versions:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_ListInputVersions
+            parameters:
+                - name: page_size
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: page_token
+                  in: query
+                  schema:
+                    type: string
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListInputVersionsResponse'
+    /admin/v1/modeldev/input-versions/{input_version_id}:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_GetInputVersion
+            parameters:
+                - name: input_version_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetInputVersionResponse'
+    /admin/v1/modeldev/presets:
+        get:
+            tags:
+                - ModelDevService
+            operationId: ModelDevService_ListPresets
+            parameters:
+                - name: page_size
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: page_token
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListPresetsResponse'
     /admin/v1/notification-channels:
         get:
             tags:
@@ -6001,305 +6219,6 @@ paths:
                     content: {}
             security:
                 - {}
-    /api/v1/images/publisher-credential:
-        get:
-            tags:
-                - ImageService
-            summary: GetPublisherCredential
-            description: Requires active tenant, IMAGE module and image:credential:get. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
-            operationId: ImageService_GetPublisherCredential
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GetPublisherCredentialResponse'
-            security:
-                - BearerAuth: []
-                - AccessKeyAuth: []
-                  SignatureAuth: []
-                  SignatureTime: []
-    /api/v1/images/publisher-credential:disable:
-        post:
-            tags:
-                - ImageService
-            summary: DisablePublisherCredential
-            description: Requires active tenant, IMAGE module and image:credential:disable. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
-            operationId: ImageService_DisablePublisherCredential
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/DisablePublisherCredentialRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/DisablePublisherCredentialResponse'
-            security:
-                - BearerAuth: []
-                - AccessKeyAuth: []
-                  SignatureAuth: []
-                  SignatureTime: []
-    /api/v1/images/publisher-credential:issue:
-        post:
-            tags:
-                - ImageService
-            summary: IssuePublisherCredential
-            description: Requires active tenant, IMAGE module and image:credential:issue. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
-            operationId: ImageService_IssuePublisherCredential
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/IssuePublisherCredentialRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/IssuePublisherCredentialResponse'
-            security:
-                - BearerAuth: []
-                - AccessKeyAuth: []
-                  SignatureAuth: []
-                  SignatureTime: []
-    /api/v1/images/publisher-credential:reset:
-        post:
-            tags:
-                - ImageService
-            summary: ResetPublisherCredential
-            description: Requires active tenant, IMAGE module and image:credential:reset. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
-            operationId: ImageService_ResetPublisherCredential
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/ResetPublisherCredentialRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ResetPublisherCredentialResponse'
-            security:
-                - BearerAuth: []
-                - AccessKeyAuth: []
-                  SignatureAuth: []
-                  SignatureTime: []
-    /api/v1/images/registrations:
-        get:
-            tags:
-                - ImageService
-            summary: ListImages
-            description: Requires active tenant, IMAGE module and image:registration:list. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
-            operationId: ImageService_ListImages
-            parameters:
-                - name: scope
-                  in: query
-                  schema:
-                    type: string
-                - name: search
-                  in: query
-                  schema:
-                    type: string
-                - name: purposes
-                  in: query
-                  schema:
-                    type: array
-                    items:
-                        type: string
-                - name: accelerator
-                  in: query
-                  schema:
-                    type: string
-                - name: limit
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: cursor
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListImagesResponse'
-            security:
-                - BearerAuth: []
-                - AccessKeyAuth: []
-                  SignatureAuth: []
-                  SignatureTime: []
-        post:
-            tags:
-                - ImageService
-            summary: RegisterImage
-            description: Requires active tenant, IMAGE module and image:registration:create. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
-            operationId: ImageService_RegisterImage
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/RegisterImageRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/RegisterImageResponse'
-            security:
-                - BearerAuth: []
-                - AccessKeyAuth: []
-                  SignatureAuth: []
-                  SignatureTime: []
-    /api/v1/images/registrations/{image_id}:
-        get:
-            tags:
-                - ImageService
-            summary: GetImage
-            description: Requires active tenant, IMAGE module and image:registration:get. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
-            operationId: ImageService_GetImage
-            parameters:
-                - name: image_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: scope
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GetImageResponse'
-            security:
-                - BearerAuth: []
-                - AccessKeyAuth: []
-                  SignatureAuth: []
-                  SignatureTime: []
-        patch:
-            tags:
-                - ImageService
-            summary: UpdateImage
-            description: Requires active tenant, IMAGE module and image:registration:update. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
-            operationId: ImageService_UpdateImage
-            parameters:
-                - name: image_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UpdateImageRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/UpdateImageResponse'
-            security:
-                - BearerAuth: []
-                - AccessKeyAuth: []
-                  SignatureAuth: []
-                  SignatureTime: []
-    /api/v1/images/registrations/{image_id}:unregister:
-        post:
-            tags:
-                - ImageService
-            summary: UnregisterImage
-            description: Requires active tenant, IMAGE module and image:registration:unregister. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
-            operationId: ImageService_UnregisterImage
-            parameters:
-                - name: image_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UnregisterImageRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/UnregisterImageResponse'
-            security:
-                - BearerAuth: []
-                - AccessKeyAuth: []
-                  SignatureAuth: []
-                  SignatureTime: []
-    /api/v1/images/space:
-        get:
-            tags:
-                - ImageService
-            summary: GetImageSpace
-            description: Requires active tenant, IMAGE module and image:space:get. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
-            operationId: ImageService_GetImageSpace
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GetImageSpaceResponse'
-            security:
-                - BearerAuth: []
-                - AccessKeyAuth: []
-                  SignatureAuth: []
-                  SignatureTime: []
-    /api/v1/images/space:enable:
-        post:
-            tags:
-                - ImageService
-            summary: EnsureImageSpace
-            description: Requires active tenant, IMAGE module and image:space:enable. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.
-            operationId: ImageService_EnsureImageSpace
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/EnsureImageSpaceRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnsureImageSpaceResponse'
-            security:
-                - BearerAuth: []
-                - AccessKeyAuth: []
-                  SignatureAuth: []
-                  SignatureTime: []
     /api/v1/me/quota-accounts:
         get:
             tags:
@@ -7267,7 +7186,6 @@ components:
                         - NETWORK
                         - MODEL
                         - ACCELERATOR
-                        - IMAGE
                     type: string
                     description: 所属业务功能模块（用于套餐白名单过滤）
                     format: enum
@@ -7413,6 +7331,35 @@ components:
                     description: 日志创建时间
                     format: date-time
             description: 接口审计日志
+        ArtifactView:
+            type: object
+            properties:
+                artifact_id:
+                    type: string
+                execution_id:
+                    type: string
+                filename:
+                    type: string
+                role:
+                    type: string
+                size_bytes:
+                    type: string
+                sha256:
+                    type: string
+                delivery_state:
+                    type: string
+                verified_at:
+                    type: string
+        AuthorizeArtifactDownloadResponse:
+            type: object
+            properties:
+                artifact:
+                    $ref: '#/components/schemas/ArtifactView'
+                download_url:
+                    type: string
+                    description: 'Short-lived secret: served only with Cache-Control: no-store.'
+                expires_at:
+                    type: string
         BatchCreateLanguagesRequest:
             type: object
             properties:
@@ -7673,6 +7620,62 @@ components:
             properties:
                 eip:
                     $ref: '#/components/schemas/EIP'
+        CreateExecutionRequest:
+            required:
+                - name
+                - kind
+                - preset_id
+                - dataset_version_id
+                - idempotency_key
+            type: object
+            properties:
+                name:
+                    type: string
+                kind:
+                    type: string
+                    description: CPU-P01 supports GENERAL_TRAINING only
+                preset_id:
+                    type: string
+                dataset_version_id:
+                    type: string
+                idempotency_key:
+                    type: string
+                image_version_id:
+                    type: string
+                general_parameters:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GeneralParameter'
+                    description: Optional registered parameters; omitted and [] are distinct intents. Null is rejected.
+                source_execution_id:
+                    type: string
+                    description: Reserved optional association. Currently rejected with 403 SOURCE_EXECUTION_UNAVAILABLE until source execution access can be verified. Omit this field.
+            description: |-
+                CPU-P01 public intent. Shared canonicalization and immutable execution
+                 contracts are maintained by ani-modeldev-service/contract/cpup01.
+                 The HTTP adapter preserves omitted versus explicitly empty parameters.
+        CreateExecutionResponse:
+            type: object
+            properties:
+                operation_id:
+                    type: string
+                execution_id:
+                    type: string
+                resolved_release_id:
+                    type: string
+                replayed:
+                    type: boolean
+                compute_state:
+                    type: string
+                delivery_state:
+                    type: string
+                close_state:
+                    type: string
+                resource_state:
+                    type: string
+            description: |-
+                Returned only after Governance has durably accepted the frozen intent.
+                 Acceptance does not establish a KFP Run or successful training.
         CreateInternalMessageCategoryRequest:
             type: object
             properties:
@@ -8264,18 +8267,6 @@ components:
                          仅平台管理员可指定他人，用于用户认证器丢失时的救援解绑（按 method 清空该用户全部因子）。
                     format: uint32
             description: Disable / remove
-        DisablePublisherCredentialRequest:
-            type: object
-            properties:
-                expectedVersion:
-                    type: string
-                idempotencyKey:
-                    type: string
-        DisablePublisherCredentialResponse:
-            type: object
-            properties:
-                credential:
-                    $ref: '#/components/schemas/PublisherCredential'
         Discriminator:
             type: object
             properties:
@@ -8422,18 +8413,6 @@ components:
                 lastUsedAt:
                     type: string
                     format: date-time
-        EnsureImageSpaceRequest:
-            type: object
-            properties:
-                slug:
-                    type: string
-                idempotencyKey:
-                    type: string
-        EnsureImageSpaceResponse:
-            type: object
-            properties:
-                space:
-                    $ref: '#/components/schemas/ImageSpace'
         Example:
             type: object
             properties:
@@ -8463,6 +8442,52 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/NamedExampleOrReference'
+        ExecutionLogLine:
+            type: object
+            properties:
+                timestamp:
+                    type: string
+                text:
+                    type: string
+        ExecutionView:
+            type: object
+            properties:
+                operation_id:
+                    type: string
+                execution_id:
+                    type: string
+                name:
+                    type: string
+                kind:
+                    type: string
+                preset_id:
+                    type: string
+                release_id:
+                    type: string
+                input_version_id:
+                    type: string
+                image_version_id:
+                    type: string
+                compute_state:
+                    type: string
+                delivery_state:
+                    type: string
+                close_state:
+                    type: string
+                resource_state:
+                    type: string
+                current_step:
+                    type: string
+                stop_requested:
+                    type: boolean
+                close_generation:
+                    type: string
+                accepted_at:
+                    type: string
+                deadline_at:
+                    type: string
+                observed_at:
+                    type: string
         Expression:
             type: object
             properties:
@@ -8511,6 +8536,16 @@ components:
                     type: string
                     description: 登录账号或绑定邮箱
             description: 忘记密码 - 请求（identifier 为已绑定的邮箱）
+        GeneralParameter:
+            type: object
+            properties:
+                name:
+                    type: string
+                type:
+                    type: string
+                value:
+                    type: string
+                    description: Values are strings, including INTEGER and DECIMAL parameters.
         GenerateCaptchaResponse:
             type: object
             properties:
@@ -8525,16 +8560,30 @@ components:
             properties:
                 eip:
                     $ref: '#/components/schemas/EIP'
-        GetImageResponse:
+        GetExecutionLogsResponse:
             type: object
             properties:
-                image:
-                    $ref: '#/components/schemas/ImageRegistration'
-        GetImageSpaceResponse:
+                log_id:
+                    type: string
+                lines:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ExecutionLogLine'
+                truncated:
+                    type: boolean
+                observed_at:
+                    type: string
+            description: Bounded actual training output. Pod identity and selectors remain internal.
+        GetExecutionResponse:
             type: object
             properties:
-                space:
-                    $ref: '#/components/schemas/ImageSpace'
+                execution:
+                    $ref: '#/components/schemas/ExecutionView'
+        GetInputVersionResponse:
+            type: object
+            properties:
+                input_version:
+                    $ref: '#/components/schemas/InputVersionView'
         GetMFAStatusResponse:
             type: object
             properties:
@@ -8556,11 +8605,6 @@ components:
             properties:
                 operation:
                     $ref: '#/components/schemas/Operation'
-        GetPublisherCredentialResponse:
-            type: object
-            properties:
-                credential:
-                    $ref: '#/components/schemas/PublisherCredential'
         GetVPCResponse:
             type: object
             properties:
@@ -8688,80 +8732,6 @@ components:
                     type: string
                     description: 主机名
             description: 主机信息
-        ImagePlatform:
-            type: object
-            properties:
-                os:
-                    type: string
-                architecture:
-                    type: string
-                variant:
-                    type: string
-        ImageRegistration:
-            type: object
-            properties:
-                image_id:
-                    type: string
-                scope:
-                    type: string
-                spaceId:
-                    type: string
-                displayName:
-                    type: string
-                description:
-                    type: string
-                repository:
-                    type: string
-                sourceReference:
-                    type: string
-                digest:
-                    type: string
-                resolvedReference:
-                    type: string
-                platforms:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/ImagePlatform'
-                purposes:
-                    type: array
-                    items:
-                        type: string
-                accelerator:
-                    type: string
-                version:
-                    type: string
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-                unregisteredAt:
-                    type: string
-                    format: date-time
-        ImageSpace:
-            type: object
-            properties:
-                spaceId:
-                    type: string
-                projectName:
-                    type: string
-                registryAuthority:
-                    type: string
-                state:
-                    type: string
-                reason:
-                    type: string
-                version:
-                    type: string
-                pullCredentialGeneration:
-                    type: string
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
         InfoEntry:
             type: object
             properties:
@@ -8795,6 +8765,27 @@ components:
                     type: array
                     items:
                         type: string
+        InputVersionView:
+            type: object
+            properties:
+                input_version_id:
+                    type: string
+                state:
+                    type: string
+                format:
+                    type: string
+                size_bytes:
+                    type: string
+                sha256:
+                    type: string
+                row_count:
+                    type: integer
+                    format: uint32
+                feature_count:
+                    type: integer
+                    format: uint32
+                created_at:
+                    type: string
         InternalMessage:
             type: object
             properties:
@@ -8999,23 +8990,6 @@ components:
                     description: 删除时间
                     format: date-time
             description: 站内信消息用户接收信息
-        IssuePublisherCredentialRequest:
-            type: object
-            properties:
-                idempotencyKey:
-                    type: string
-                expectedVersion:
-                    type: string
-        IssuePublisherCredentialResponse:
-            type: object
-            properties:
-                credential:
-                    $ref: '#/components/schemas/PublisherCredential'
-                secret:
-                    type: string
-                replayUntil:
-                    type: string
-                    format: date-time
         ItemsItem:
             type: object
             properties:
@@ -9217,14 +9191,32 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/EnrolledMethod'
-        ListImagesResponse:
+        ListExecutionArtifactsResponse:
             type: object
             properties:
-                items:
+                artifacts:
                     type: array
                     items:
-                        $ref: '#/components/schemas/ImageRegistration'
-                nextCursor:
+                        $ref: '#/components/schemas/ArtifactView'
+                next_page_token:
+                    type: string
+        ListExecutionsResponse:
+            type: object
+            properties:
+                executions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ExecutionView'
+                next_page_token:
+                    type: string
+        ListInputVersionsResponse:
+            type: object
+            properties:
+                input_versions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/InputVersionView'
+                next_page_token:
                     type: string
         ListInternalMessageCategoryResponse:
             type: object
@@ -9418,6 +9410,15 @@ components:
                 total:
                     type: string
             description: 获取职位列表 - 答复
+        ListPresetsResponse:
+            type: object
+            properties:
+                presets:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/PresetView'
+                next_page_token:
+                    type: string
         ListQuotaDefinitionsResponse:
             type: object
             properties:
@@ -9841,7 +9842,6 @@ components:
                         - NETWORK
                         - MODEL
                         - ACCELERATOR
-                        - IMAGE
                     type: string
                     description: 所属业务功能模块
                     format: enum
@@ -10566,6 +10566,25 @@ components:
                     $ref: '#/components/schemas/Parameter'
                 reference:
                     $ref: '#/components/schemas/Reference'
+        ParameterRule:
+            type: object
+            properties:
+                name:
+                    type: string
+                type:
+                    type: string
+                required:
+                    type: boolean
+                default_value:
+                    $ref: '#/components/schemas/GeneralParameter'
+                allowed_values:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GeneralParameter'
+                minimum:
+                    $ref: '#/components/schemas/GeneralParameter'
+                maximum:
+                    $ref: '#/components/schemas/GeneralParameter'
         PasswordLoginRequest:
             type: object
             properties:
@@ -10924,7 +10943,6 @@ components:
                         - NETWORK
                         - MODEL
                         - ACCELERATOR
-                        - IMAGE
                     type: string
                     description: 功能模块
                     format: enum
@@ -11194,6 +11212,29 @@ components:
                     description: 删除时间
                     format: date-time
             description: 职位
+        PresetView:
+            type: object
+            properties:
+                preset_id:
+                    type: string
+                name:
+                    type: string
+                kind:
+                    type: string
+                active_release_id:
+                    type: string
+                image_version_ids:
+                    type: array
+                    items:
+                        type: string
+                parameter_rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParameterRule'
+                binding_generation:
+                    type: string
+                new_submissions_enabled:
+                    type: boolean
         Properties:
             type: object
             properties:
@@ -11219,25 +11260,6 @@ components:
             properties:
                 data:
                     $ref: '#/components/schemas/PublishAcceleratorProfileData'
-        PublisherCredential:
-            type: object
-            properties:
-                spaceId:
-                    type: string
-                generation:
-                    type: string
-                username:
-                    type: string
-                state:
-                    type: string
-                version:
-                    type: string
-                expiresAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
         QuotaAccountView:
             type: object
             properties:
@@ -11361,28 +11383,6 @@ components:
             properties:
                 data:
                     $ref: '#/components/schemas/RegisterAcceleratorClusterData'
-        RegisterImageRequest:
-            type: object
-            properties:
-                imageReference:
-                    type: string
-                displayName:
-                    type: string
-                description:
-                    type: string
-                purposes:
-                    type: array
-                    items:
-                        type: string
-                accelerator:
-                    type: string
-                idempotencyKey:
-                    type: string
-        RegisterImageResponse:
-            type: object
-            properties:
-                image:
-                    $ref: '#/components/schemas/ImageRegistration'
         RequestBody:
             type: object
             properties:
@@ -11423,23 +11423,6 @@ components:
                     type: string
                     description: 新密码
             description: 凭验证码重置密码 - 请求
-        ResetPublisherCredentialRequest:
-            type: object
-            properties:
-                idempotencyKey:
-                    type: string
-                expectedVersion:
-                    type: string
-        ResetPublisherCredentialResponse:
-            type: object
-            properties:
-                credential:
-                    $ref: '#/components/schemas/PublisherCredential'
-                secret:
-                    type: string
-                replayUntil:
-                    type: string
-                    format: date-time
         Response:
             type: object
             properties:
@@ -11955,6 +11938,20 @@ components:
                     items:
                         $ref: '#/components/schemas/DistributionItem'
             description: 登录状态分布 - 回应
+        StopExecutionResponse:
+            type: object
+            properties:
+                operation_id:
+                    type: string
+                execution_id:
+                    type: string
+                stop_requested:
+                    type: boolean
+                intent_generation:
+                    type: string
+                replayed:
+                    type: boolean
+            description: Governance acceptance only. ModelDev owns the creation fence and CLOSED.
         StringArray:
             type: object
             properties:
@@ -12271,20 +12268,6 @@ components:
                     type: integer
                     format: uint32
             description: 趋势数据点
-        UnregisterImageRequest:
-            type: object
-            properties:
-                image_id:
-                    type: string
-                expectedVersion:
-                    type: string
-                idempotencyKey:
-                    type: string
-        UnregisterImageResponse:
-            type: object
-            properties:
-                image:
-                    $ref: '#/components/schemas/ImageRegistration'
         UpdateAccessKeyRequest:
             type: object
             properties:
@@ -12365,30 +12348,6 @@ components:
                     type: boolean
                     description: 如果设置为true的时候，资源不存在则会新增(插入)，并且在这种情况下`updateMask`字段将会被忽略。
             description: 更新字典类型 - 请求
-        UpdateImageRequest:
-            type: object
-            properties:
-                image_id:
-                    type: string
-                displayName:
-                    type: string
-                description:
-                    type: string
-                purposes:
-                    type: array
-                    items:
-                        type: string
-                accelerator:
-                    type: string
-                expectedVersion:
-                    type: string
-                idempotencyKey:
-                    type: string
-        UpdateImageResponse:
-            type: object
-            properties:
-                image:
-                    $ref: '#/components/schemas/ImageRegistration'
         UpdateInternalMessageCategoryRequest:
             type: object
             properties:
@@ -13056,7 +13015,6 @@ tags:
       description: 数据字典条目管理服务
     - name: DictTypeService
       description: 数据字典分类管理服务
-    - name: ImageService
     - name: InternalMessageCategoryService
       description: 站内信消息分类管理服务
     - name: InternalMessageRecipientService
@@ -13077,6 +13035,8 @@ tags:
          管理侧 RPC（GetMFAStatus/ListEnrolledMethods/StartEnrollMethod/ConfirmEnrollMethod/
          DisableMFA/RevokeMFADevice）需登录态，走正常 auth+authz 中间件，不加 security:{}。
          登录挑战侧 RPC（VerifyMFAChallenge）免鉴权，加 security:{} 并加入 rest_server 白名单。
+    - name: ModelDevService
+      description: CPU-P01 entry in the existing Governance BFF.
     - name: NetworkService
     - name: NotificationChannelService
       description: 通知渠道管理服务（平台级配置）

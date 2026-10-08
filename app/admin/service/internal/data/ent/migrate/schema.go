@@ -1356,6 +1356,109 @@ var (
 			},
 		},
 	}
+	// SysModeldevAcceptancesColumns holds the columns for the "sys_modeldev_acceptances" table.
+	SysModeldevAcceptancesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true},
+		{Name: "tenant_id", Type: field.TypeUint32},
+		{Name: "resource_tenant_id", Type: field.TypeString},
+		{Name: "actor", Type: field.TypeString},
+		{Name: "action", Type: field.TypeString},
+		{Name: "idempotency_key", Type: field.TypeString},
+		{Name: "operation_id", Type: field.TypeString, Unique: true},
+		{Name: "execution_id", Type: field.TypeString, Unique: true},
+		{Name: "intent_hash", Type: field.TypeString},
+		{Name: "intent_canonical", Type: field.TypeBytes},
+		{Name: "execution_spec_hash", Type: field.TypeString},
+		{Name: "snapshot_canonical", Type: field.TypeBytes},
+		{Name: "accepted_at", Type: field.TypeTime},
+		{Name: "dispatch_state", Type: field.TypeEnum, Enums: []string{"QUEUED", "DISPATCHING", "UNKNOWN", "ACKED"}, Default: "QUEUED"},
+		{Name: "attempt_count", Type: field.TypeInt64, Default: 0},
+		{Name: "lease_generation", Type: field.TypeInt64, Default: 0},
+		{Name: "lease_owner", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "lease_until", Type: field.TypeTime, Nullable: true},
+		{Name: "next_attempt_at", Type: field.TypeTime, Nullable: true},
+		{Name: "retry_blocked", Type: field.TypeBool, Default: false},
+		{Name: "last_error_code", Type: field.TypeString, Nullable: true},
+		{Name: "owner_receipt_canonical", Type: field.TypeBytes, Nullable: true},
+		{Name: "stop_intent_generation", Type: field.TypeInt64, Default: 0},
+		{Name: "stop_requested_at", Type: field.TypeTime, Nullable: true},
+		{Name: "stop_requested_actor", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "close_dispatch_state", Type: field.TypeEnum, Enums: []string{"IDLE", "QUEUED", "DISPATCHING", "UNKNOWN", "ACKED"}, Default: "IDLE"},
+		{Name: "close_attempt_count", Type: field.TypeInt64, Default: 0},
+		{Name: "close_lease_generation", Type: field.TypeInt64, Default: 0},
+		{Name: "close_lease_owner", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "close_lease_until", Type: field.TypeTime, Nullable: true},
+		{Name: "close_next_attempt_at", Type: field.TypeTime, Nullable: true},
+		{Name: "close_retry_blocked", Type: field.TypeBool, Default: false},
+		{Name: "close_last_error_code", Type: field.TypeString, Nullable: true},
+		{Name: "close_receipt_canonical", Type: field.TypeBytes, Nullable: true},
+	}
+	// SysModeldevAcceptancesTable holds the schema information for the "sys_modeldev_acceptances" table.
+	SysModeldevAcceptancesTable = &schema.Table{
+		Name:       "sys_modeldev_acceptances",
+		Columns:    SysModeldevAcceptancesColumns,
+		PrimaryKey: []*schema.Column{SysModeldevAcceptancesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_modeldev_acceptances_idempotency",
+				Unique:  true,
+				Columns: []*schema.Column{SysModeldevAcceptancesColumns[2], SysModeldevAcceptancesColumns[3], SysModeldevAcceptancesColumns[4], SysModeldevAcceptancesColumns[5]},
+			},
+			{
+				Name:    "uix_sys_modeldev_acceptances_tenant_operation",
+				Unique:  true,
+				Columns: []*schema.Column{SysModeldevAcceptancesColumns[1], SysModeldevAcceptancesColumns[6]},
+			},
+			{
+				Name:    "uix_sys_modeldev_acceptances_tenant_execution",
+				Unique:  true,
+				Columns: []*schema.Column{SysModeldevAcceptancesColumns[1], SysModeldevAcceptancesColumns[7]},
+			},
+			{
+				Name:    "idx_sys_modeldev_acceptances_delivery_due",
+				Unique:  false,
+				Columns: []*schema.Column{SysModeldevAcceptancesColumns[19], SysModeldevAcceptancesColumns[13], SysModeldevAcceptancesColumns[18], SysModeldevAcceptancesColumns[17], SysModeldevAcceptancesColumns[0]},
+			},
+			{
+				Name:    "idx_sys_modeldev_acceptances_close_due",
+				Unique:  false,
+				Columns: []*schema.Column{SysModeldevAcceptancesColumns[31], SysModeldevAcceptancesColumns[25], SysModeldevAcceptancesColumns[30], SysModeldevAcceptancesColumns[29], SysModeldevAcceptancesColumns[0]},
+			},
+		},
+	}
+	// SysModeldevReleaseBindingsColumns holds the columns for the "sys_modeldev_release_bindings" table.
+	SysModeldevReleaseBindingsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true},
+		{Name: "tenant_id", Type: field.TypeUint32},
+		{Name: "resource_tenant_id", Type: field.TypeString},
+		{Name: "preset_id", Type: field.TypeString},
+		{Name: "release_id", Type: field.TypeString},
+		{Name: "release_digest", Type: field.TypeString},
+		{Name: "generation", Type: field.TypeUint64},
+		{Name: "new_submissions_enabled", Type: field.TypeBool, Default: false},
+		{Name: "updated_by", Type: field.TypeString},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "reason", Type: field.TypeString},
+		{Name: "evidence_reference", Type: field.TypeString},
+	}
+	// SysModeldevReleaseBindingsTable holds the schema information for the "sys_modeldev_release_bindings" table.
+	SysModeldevReleaseBindingsTable = &schema.Table{
+		Name:       "sys_modeldev_release_bindings",
+		Columns:    SysModeldevReleaseBindingsColumns,
+		PrimaryKey: []*schema.Column{SysModeldevReleaseBindingsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_modeldev_release_bindings_scope",
+				Unique:  true,
+				Columns: []*schema.Column{SysModeldevReleaseBindingsColumns[2], SysModeldevReleaseBindingsColumns[3]},
+			},
+			{
+				Name:    "uix_sys_modeldev_release_bindings_tenant_preset",
+				Unique:  true,
+				Columns: []*schema.Column{SysModeldevReleaseBindingsColumns[1], SysModeldevReleaseBindingsColumns[3]},
+			},
+		},
+	}
 	// SysNotificationChannelsColumns holds the columns for the "sys_notification_channels" table.
 	SysNotificationChannelsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
@@ -3332,6 +3435,8 @@ var (
 		SysMembershipPositionsTable,
 		SysMembershipRolesTable,
 		SysMenusTable,
+		SysModeldevAcceptancesTable,
+		SysModeldevReleaseBindingsTable,
 		SysNotificationChannelsTable,
 		SysOperationAuditLogsTable,
 		SysOrgUnitsTable,
@@ -3479,6 +3584,32 @@ func init() {
 		Table:     "sys_menus",
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
+	}
+	SysModeldevAcceptancesTable.Annotation = &entsql.Annotation{
+		Table: "sys_modeldev_acceptances",
+	}
+	SysModeldevAcceptancesTable.Annotation.Checks = map[string]string{
+		"sys_modeldev_acceptances_action_ck":            "action = 'modeldev.execution.create'",
+		"sys_modeldev_acceptances_close_counters_ck":    "close_attempt_count >= 0 AND close_lease_generation >= 0",
+		"sys_modeldev_acceptances_close_due_ck":         "close_dispatch_state = 'UNKNOWN' OR (close_next_attempt_at IS NULL AND close_retry_blocked = false)",
+		"sys_modeldev_acceptances_close_error_ck":       "close_last_error_code IS NULL OR close_last_error_code IN ('INVALID_COMMAND','COMMAND_CONFLICT','OWNER_UNAVAILABLE','INVALID_ACK','LEASE_EXHAUSTED','ATTEMPTS_EXHAUSTED')",
+		"sys_modeldev_acceptances_close_lease_ck":       "((close_dispatch_state = 'DISPATCHING' AND close_lease_owner IS NOT NULL AND length(close_lease_owner) BETWEEN 1 AND 128 AND close_lease_until IS NOT NULL AND close_lease_generation > 0) OR (close_dispatch_state <> 'DISPATCHING' AND close_lease_owner IS NULL AND close_lease_until IS NULL))",
+		"sys_modeldev_acceptances_close_receipt_ck":     "((close_dispatch_state = 'ACKED' AND close_receipt_canonical IS NOT NULL AND octet_length(close_receipt_canonical) BETWEEN 1 AND 4096) OR (close_dispatch_state <> 'ACKED' AND close_receipt_canonical IS NULL))",
+		"sys_modeldev_acceptances_delivery_counters_ck": "attempt_count >= 0 AND lease_generation >= 0",
+		"sys_modeldev_acceptances_delivery_due_ck":      "dispatch_state = 'UNKNOWN' OR (next_attempt_at IS NULL AND retry_blocked = false)",
+		"sys_modeldev_acceptances_delivery_error_ck":    "last_error_code IS NULL OR last_error_code IN ('INVALID_COMMAND','COMMAND_CONFLICT','OWNER_UNAVAILABLE','INVALID_ACK','LEASE_EXHAUSTED','ATTEMPTS_EXHAUSTED')",
+		"sys_modeldev_acceptances_delivery_lease_ck":    "((dispatch_state = 'DISPATCHING' AND lease_owner IS NOT NULL AND length(lease_owner) BETWEEN 1 AND 128 AND lease_until IS NOT NULL AND lease_generation > 0) OR (dispatch_state <> 'DISPATCHING' AND lease_owner IS NULL AND lease_until IS NULL))",
+		"sys_modeldev_acceptances_dispatch_state_ck":    "dispatch_state IN ('QUEUED','DISPATCHING','UNKNOWN','ACKED')",
+		"sys_modeldev_acceptances_owner_receipt_ck":     "((dispatch_state = 'ACKED' AND owner_receipt_canonical IS NOT NULL AND octet_length(owner_receipt_canonical) BETWEEN 1 AND 4096) OR (dispatch_state <> 'ACKED' AND owner_receipt_canonical IS NULL))",
+		"sys_modeldev_acceptances_stop_intent_ck":       "((stop_intent_generation = 0 AND stop_requested_at IS NULL AND stop_requested_actor IS NULL AND close_dispatch_state = 'IDLE') OR (stop_intent_generation > 0 AND stop_requested_at IS NOT NULL AND stop_requested_actor IS NOT NULL AND length(stop_requested_actor) BETWEEN 1 AND 128 AND close_dispatch_state IN ('QUEUED','DISPATCHING','UNKNOWN','ACKED')))",
+		"sys_modeldev_acceptances_tenant_positive_ck":   "tenant_id > 0",
+	}
+	SysModeldevReleaseBindingsTable.Annotation = &entsql.Annotation{
+		Table: "sys_modeldev_release_bindings",
+	}
+	SysModeldevReleaseBindingsTable.Annotation.Checks = map[string]string{
+		"sys_modeldev_release_bindings_generation_positive_ck": "generation > 0",
+		"sys_modeldev_release_bindings_tenant_positive_ck":     "tenant_id > 0",
 	}
 	SysNotificationChannelsTable.Annotation = &entsql.Annotation{
 		Table:     "sys_notification_channels",

@@ -591,6 +591,54 @@ func (f MenuMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) 
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.MenuMutation", m)
 }
 
+// The ModelDevAcceptanceQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type ModelDevAcceptanceQueryRuleFunc func(context.Context, *ent.ModelDevAcceptanceQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f ModelDevAcceptanceQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ModelDevAcceptanceQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.ModelDevAcceptanceQuery", q)
+}
+
+// The ModelDevAcceptanceMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type ModelDevAcceptanceMutationRuleFunc func(context.Context, *ent.ModelDevAcceptanceMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f ModelDevAcceptanceMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.ModelDevAcceptanceMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.ModelDevAcceptanceMutation", m)
+}
+
+// The ModelDevReleaseBindingQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type ModelDevReleaseBindingQueryRuleFunc func(context.Context, *ent.ModelDevReleaseBindingQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f ModelDevReleaseBindingQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ModelDevReleaseBindingQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.ModelDevReleaseBindingQuery", q)
+}
+
+// The ModelDevReleaseBindingMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type ModelDevReleaseBindingMutationRuleFunc func(context.Context, *ent.ModelDevReleaseBindingMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f ModelDevReleaseBindingMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.ModelDevReleaseBindingMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.ModelDevReleaseBindingMutation", m)
+}
+
 // The NotificationChannelQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type NotificationChannelQueryRuleFunc func(context.Context, *ent.NotificationChannelQuery) error
@@ -1458,6 +1506,10 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.MenuQuery:
 		return q.Filter(), nil
+	case *ent.ModelDevAcceptanceQuery:
+		return q.Filter(), nil
+	case *ent.ModelDevReleaseBindingQuery:
+		return q.Filter(), nil
 	case *ent.NotificationChannelQuery:
 		return q.Filter(), nil
 	case *ent.OperationAuditLogQuery:
@@ -1570,6 +1622,10 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.MembershipRoleMutation:
 		return m.Filter(), nil
 	case *ent.MenuMutation:
+		return m.Filter(), nil
+	case *ent.ModelDevAcceptanceMutation:
+		return m.Filter(), nil
+	case *ent.ModelDevReleaseBindingMutation:
 		return m.Filter(), nil
 	case *ent.NotificationChannelMutation:
 		return m.Filter(), nil
