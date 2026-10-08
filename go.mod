@@ -23,6 +23,7 @@ require (
 	github.com/xiaoqidun/entps v1.50.1
 	github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9173
 	github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261005092412-218f5e5efedf
+	github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20260929185545-71aa986078df
 	go.opentelemetry.io/otel/trace v1.46.0
 	golang.org/x/net v0.58.0
 	google.golang.org/genproto v0.0.0-20260908043556-f8649ddbbfe6
@@ -158,7 +159,7 @@ require (
 	golang.org/x/tools v0.49.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260908043556-f8649ddbbfe6
 	gopkg.in/cenkalti/backoff.v1 v1.1.0
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gopkg.in/yaml.v3 v3.0.1
 	modernc.org/libc v1.75.7 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect

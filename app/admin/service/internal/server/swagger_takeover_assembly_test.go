@@ -85,6 +85,7 @@ func newRestServerWithSwagger(t *testing.T, enableSwagger bool) http.Handler {
 		nil,        // configService
 		nil,        // networkService
 		nil,        // acceleratorService
+		nil,        // imageService
 		nil,        // modeldevService
 	)
 	require.NoError(t, err)

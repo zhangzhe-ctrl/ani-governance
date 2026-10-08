@@ -20,4 +20,5 @@ enum Module {
   NETWORK = 12;         // 网络资源
   MODEL = 11;           // 模型目录
   ACCELERATOR = 13;     // GPU supply and tenant read views
+  IMAGE = 14;           // Registered container images and restricted publishing
 }

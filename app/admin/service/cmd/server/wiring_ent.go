@@ -259,6 +259,22 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		networkClient = client
 	}
 	networkService := service.NewNetworkService(networkClient, tenantRepo)
+	imageConfig, err := data.ImageConfigFromEnv()
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	var imageClient *data.ImageClient
+	if imageConfig.Address != "" {
+		client, closeImage, err := data.NewImageClient(imageConfig)
+		if err != nil {
+			rollback()
+			return nil, nil, err
+		}
+		cleanups = append(cleanups, closeImage)
+		imageClient = client
+	}
+	imageService := service.NewImageService(imageClient, tenantRepo)
 	acceleratorConfig, err := data.AcceleratorConfigFromEnv()
 	if err != nil {
 		rollback()
@@ -313,6 +329,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		configService,
 		networkService,
 		acceleratorService,
+		imageService,
 		modeldevService,
 	)
 	if err != nil {

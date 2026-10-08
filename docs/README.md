@@ -10,6 +10,7 @@
 | [接口集成登记](interface-integration-register.md) | 现行接口与问题，不因归档自动结项 |
 | [API 权限运维](api-role-permission-ops.md) | 目录同步、权限、套餐和策略 |
 | [GPU owner 合同](contracts/gpu-owner-integration-guide.md) | 账本、释放、测试 owner 与真实接入界限 |
+| [Image publisher 停用合同](contracts/image-publisher-disable.md) | 未签发错误、版本/重放及真实跨仓 HTTP 回归入口 |
 | [Governance/Accelerator 运维](operations/governance-accelerator-v1.2.md) | 运行操作和恢复边界 |
 | [脚本导航](../scripts/README.md) | CI、运维和可选隔离实验 |
 | [版本数据步骤](../sql/data/README.md) | quota expand、数据回填、constraints 的显式顺序 |
