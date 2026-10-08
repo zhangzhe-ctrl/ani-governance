@@ -1,3 +1,5 @@
+# Auxiliary Image-only helper; canonical make api already covers these inputs
+# through buf.gen.yaml. Keep this subset out of the *.gen.yaml full-chain list.
 version: v2
 clean: false
 managed:

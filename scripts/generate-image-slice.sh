@@ -18,7 +18,7 @@ cp scripts/finalize-aksk-openapi.py "$stage/scripts/"
  # additive numbering with TestImageModulePreservesExistingContract.
  "$BUF" lint --path protos/admin/service/v1/i_image.proto --path protos/catalog/service/v1/image.proto
  "$BUF" build --path protos/admin/service/v1/i_image.proto --path protos/catalog/service/v1/image.proto --path protos/identity/service/v1/module.proto
- "$BUF" generate --template buf.image.gen.yaml
+ "$BUF" generate --template buf.image-slice.yaml
  "$BUF" generate --template buf.admin.openapi.gen.yaml
 )
 python3 "$stage/scripts/finalize-aksk-openapi.py"
