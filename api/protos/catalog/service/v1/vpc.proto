@@ -30,6 +30,7 @@ message ListVPCsRequest {
 message ListVPCsResponse {
  repeated VPC items = 1 [json_name = "items"];
  string next_cursor = 2 [json_name = "next_cursor"];
+ int64 total = 3 [json_name = "total"];
 }
 
 message CreateVPCRequest {
@@ -96,6 +97,7 @@ message ListEIPsRequest {
 message ListEIPsResponse {
  repeated EIP items = 1 [json_name = "items"];
  string next_cursor = 2 [json_name = "next_cursor"];
+ int64 total = 3 [json_name = "total"];
 }
 
 message CreateEIPRequest {

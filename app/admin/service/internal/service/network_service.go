@@ -6,7 +6,7 @@ import (
 	klog "github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
-	networkv1 "github.com/zhangzhe-ctrl/ani-network-service/api/network/v1"
+	networkv1 "github.com/zhangzhe-ctrl/ani-resource-service/api/network/v1"
 	adminv1 "go-wind-admin/api/gen/go/admin/service/v1"
 	catalogv1 "go-wind-admin/api/gen/go/catalog/service/v1"
 	"go-wind-admin/pkg/middleware/auth"
@@ -25,6 +25,7 @@ type ResourceTenantResolver interface {
 type VPCGetter interface {
 	GetVPC(context.Context, string, string, string) (*networkv1.GetVPCResponse, error)
 }
+
 // NetworkTenantClient is the tenant-scoped downstream surface the BFF may call.
 // Every method replays the resolved tenant UUID and verified actor; the BFF
 // never passes request-derived tenant identity downstream.
@@ -165,7 +166,7 @@ func (s *NetworkService) ListVPCs(ctx context.Context, req *catalogv1.ListVPCsRe
 	if reply == nil {
 		return nil, errors.ServiceUnavailable("NETWORK_INVALID_RESPONSE", "invalid network response")
 	}
-	out := &catalogv1.ListVPCsResponse{NextCursor: reply.GetNextCursor()}
+	out := &catalogv1.ListVPCsResponse{NextCursor: reply.GetNextCursor(), Total: reply.GetTotal()}
 	for _, v := range reply.GetItems() {
 		if v == nil || v.TenantId != tenant {
 			return nil, errors.ServiceUnavailable("NETWORK_INVALID_RESPONSE", "invalid network response")
@@ -276,7 +277,7 @@ func (s *NetworkService) ListEIPs(ctx context.Context, req *catalogv1.ListEIPsRe
 	if reply == nil {
 		return nil, errors.ServiceUnavailable("NETWORK_INVALID_RESPONSE", "invalid network response")
 	}
-	out := &catalogv1.ListEIPsResponse{NextCursor: reply.GetNextCursor()}
+	out := &catalogv1.ListEIPsResponse{NextCursor: reply.GetNextCursor(), Total: reply.GetTotal()}
 	for _, v := range reply.GetItems() {
 		if v == nil || v.TenantId != tenant {
 			return nil, errors.ServiceUnavailable("NETWORK_INVALID_RESPONSE", "invalid network response")

@@ -9614,6 +9614,8 @@ components:
                         $ref: '#/components/schemas/EIP'
                 next_cursor:
                     type: string
+                total:
+                    type: string
         ListEnrolledMethodsResponse:
             type: object
             properties:
@@ -9647,6 +9649,8 @@ components:
                     items:
                         $ref: '#/components/schemas/ImageRegistration'
                 nextCursor:
+                    type: string
+                total:
                     type: string
         ListInputVersionsResponse:
             type: object
@@ -9952,6 +9956,8 @@ components:
                     items:
                         $ref: '#/components/schemas/VPC'
                 next_cursor:
+                    type: string
+                total:
                     type: string
         LoginAuditLog:
             type: object

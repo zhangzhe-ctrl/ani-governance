@@ -637,6 +637,8 @@ func (m *ListVPCsResponse) validate(all bool) error {
 
 	// no validation rules for NextCursor
 
+	// no validation rules for Total
+
 	if len(errors) > 0 {
 		return ListVPCsResponseMultiError(errors)
 	}
@@ -2391,6 +2393,8 @@ func (m *ListEIPsResponse) validate(all bool) error {
 	}
 
 	// no validation rules for NextCursor
+
+	// no validation rules for Total
 
 	if len(errors) > 0 {
 		return ListEIPsResponseMultiError(errors)

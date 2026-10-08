@@ -323,6 +323,7 @@ type ListVPCsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Items         []*VPC                 `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
 	NextCursor    string                 `protobuf:"bytes,2,opt,name=next_cursor,proto3" json:"next_cursor,omitempty"`
+	Total         int64                  `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -369,6 +370,13 @@ func (x *ListVPCsResponse) GetNextCursor() string {
 		return x.NextCursor
 	}
 	return ""
+}
+
+func (x *ListVPCsResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
 }
 
 type CreateVPCRequest struct {
@@ -1169,6 +1177,7 @@ type ListEIPsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Items         []*EIP                 `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
 	NextCursor    string                 `protobuf:"bytes,2,opt,name=next_cursor,proto3" json:"next_cursor,omitempty"`
+	Total         int64                  `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1215,6 +1224,13 @@ func (x *ListEIPsResponse) GetNextCursor() string {
 		return x.NextCursor
 	}
 	return ""
+}
+
+func (x *ListEIPsResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
 }
 
 type CreateEIPRequest struct {
@@ -1758,10 +1774,11 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05state\x18\x02 \x01(\tR\x05state\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"c\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"y\n" +
 	"\x10ListVPCsResponse\x12-\n" +
 	"\x05items\x18\x01 \x03(\v2\x17.catalog.service.v1.VPCR\x05items\x12 \n" +
-	"\vnext_cursor\x18\x02 \x01(\tR\vnext_cursor\"\x86\x01\n" +
+	"\vnext_cursor\x18\x02 \x01(\tR\vnext_cursor\x12\x14\n" +
+	"\x05total\x18\x03 \x01(\x03R\x05total\"\x86\x01\n" +
 	"\x10CreateVPCRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04cidr\x18\x02 \x01(\tR\x04cidr\x12 \n" +
@@ -1832,10 +1849,11 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05state\x18\x02 \x01(\tR\x05state\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"c\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"y\n" +
 	"\x10ListEIPsResponse\x12-\n" +
 	"\x05items\x18\x01 \x03(\v2\x17.catalog.service.v1.EIPR\x05items\x12 \n" +
-	"\vnext_cursor\x18\x02 \x01(\tR\vnext_cursor\"r\n" +
+	"\vnext_cursor\x18\x02 \x01(\tR\vnext_cursor\x12\x14\n" +
+	"\x05total\x18\x03 \x01(\x03R\x05total\"r\n" +
 	"\x10CreateEIPRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12(\n" +

@@ -1114,3 +1114,18 @@ worker 仅在显式 ModelDev mTLS client 已配置时装配；构造不访问网
 只重建可信 tenant/actor/request-id 元数据，不携带用户 JWT。ACK 的 identity、四轴和
 完整 uint64 revision 同时验证并以私有版本化规范字节保存。此候选仍待固定版本
 生成、迁移、模块与真实 owner 软件集成验证，不代表目标集群运行或整卡完成。
+
+## LIST-TOTAL-01：Resource 列表总数（2026-10-08）
+
+本次增量保留既有路由、鉴权和 cursor/limit，给 `GET /api/v1/networks/vpcs`、`GET /api/v1/networks/eips`、`GET /api/v1/images/registrations` 的响应增加 `total`（Proto int64，HTTP JSON 十进制字符串）。总数是受信租户/scope 和相同筛选条件下的匹配数，不是本页 items 长度，且不应用 cursor/limit；空列表返回 `"0"`。本批不改变其他领域的分页协议。
+
+Network 客户端改用 Resource 拥有的 `network.v1` 生成类型，保持 mTLS SAN 和服务身份。Resource 已先发布到 main `73c41706653479b85c03a30505874acc41855505`；本仓锁定 `v0.0.0-20261008083036-73c417066534`，移除不再引用的旧 Network 模块。未加入 replace/go.work。发布前源码联编及数据库筛选证据见 [Resource LIST-TOTAL-20261008](https://github.com/zhangzhe-ctrl/ani-resource-service/blob/73c41706653479b85c03a30505874acc41855505/docs/execution/records/LIST-TOTAL-20261008/README.md)。
+
+发布依赖的独立验证在 `ssh ubuntu`（`i-8yg2l7u8`）、Go 1.26.7、`GOWORK=off` 下完成，目录为 `/home/ubuntu/workspace/ani-network-service-runs/list-totals-20261008/publication/governance`。以下命令均 pass：
+
+- `go test -mod=readonly -count=1 -run 'Test(Network|Image)' ./app/admin/service/internal/service ./app/admin/service/internal/data ./tests/imagecontract`
+- `go build -mod=readonly ./app/admin/service/cmd/...`
+- `go mod tidy -diff`、`go mod verify`；模块解析为上述已发布版本，无 Replace。
+- `scripts/image-joint-integration`，Resource contract test binary 从上述下载模块编译。HTTP 非零/零 total、权限拒绝和真实 mTLS → Resource Catalog → PG 空列表断言通过，独占 PG/Redis 均已清理。
+
+日志保留在执行任务目录外的本地 `/tmp/list-totals-governance-published-validation.log`；未纳入业务提交。部署和目标集群业务验收仍为 `not_verified`。

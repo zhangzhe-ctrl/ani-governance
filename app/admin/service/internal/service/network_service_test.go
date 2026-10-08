@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/errors"
-	networkv1 "github.com/zhangzhe-ctrl/ani-network-service/api/network/v1"
+	networkv1 "github.com/zhangzhe-ctrl/ani-resource-service/api/network/v1"
 	authv1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	catalogv1 "go-wind-admin/api/gen/go/catalog/service/v1"
 	"go-wind-admin/pkg/localdeps/go-utils/trans"
@@ -49,7 +49,7 @@ func panicTenant(tenant, actor string) {
 func (p *vpcProbe) ListVPCs(_ context.Context, tenant, actor string, _ string, _ string, _ int32, _ string) (*networkv1.ListVPCsResponse, error) {
 	p.calls++
 	panicTenant(tenant, actor)
-	return &networkv1.ListVPCsResponse{Items: []*networkv1.VPC{{Id: "vpc_11111111111111111111111111111111", TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}}, p.err
+	return &networkv1.ListVPCsResponse{Total: 37, Items: []*networkv1.VPC{{Id: "vpc_11111111111111111111111111111111", TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}}, p.err
 }
 
 func (p *vpcProbe) CreateVPC(_ context.Context, tenant, actor string, _, _, _, _ string) (*networkv1.CreateVPCResponse, error) {
@@ -79,7 +79,7 @@ func (p *vpcProbe) GetEIP(_ context.Context, tenant, actor, id string) (*network
 func (p *vpcProbe) ListEIPs(_ context.Context, tenant, actor string, _ string, _ string, _ int32, _ string) (*networkv1.ListEIPsResponse, error) {
 	p.calls++
 	panicTenant(tenant, actor)
-	return &networkv1.ListEIPsResponse{Items: []*networkv1.EIP{{Id: "eip_11111111111111111111111111111111", TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}}, p.err
+	return &networkv1.ListEIPsResponse{Total: 37, Items: []*networkv1.EIP{{Id: "eip_11111111111111111111111111111111", TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}}, p.err
 }
 
 func (p *vpcProbe) CreateEIP(_ context.Context, tenant, actor string, _, _, _ string) (*networkv1.CreateEIPResponse, error) {
@@ -165,5 +165,18 @@ func TestNetworkTrustedKeyPrincipal(t *testing.T) {
 	reply, err := service.GetVPC(ctx, &catalogv1.GetVPCRequest{VpcId: "vpc_11111111111111111111111111111111"})
 	if err != nil || reply.GetVpc().GetId() != "vpc_11111111111111111111111111111111" || probe.calls != 1 {
 		t.Fatalf("key query: %v", err)
+	}
+}
+
+func TestNetworkListTotalsPassThroughTrustedScope(t *testing.T) {
+	ctx := auth.NewContext(context.Background(), &authv1.UserTokenPayload{TenantId: trans.Ptr(uint32(5)), UserId: 7})
+	s := NewNetworkService(&vpcProbe{}, &tenantProbe{})
+	vpcs, err := s.ListVPCs(ctx, &catalogv1.ListVPCsRequest{Limit: 1})
+	if err != nil || vpcs.GetTotal() != 37 || len(vpcs.GetItems()) != 1 {
+		t.Fatalf("VPC total lost: %v %v", vpcs, err)
+	}
+	eips, err := s.ListEIPs(ctx, &catalogv1.ListEIPsRequest{Limit: 1})
+	if err != nil || eips.GetTotal() != 37 || len(eips.GetItems()) != 1 {
+		t.Fatalf("EIP total lost: %v %v", eips, err)
 	}
 }

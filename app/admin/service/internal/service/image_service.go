@@ -228,7 +228,7 @@ func (s *ImageService) ListImages(ctx context.Context, r *view.ListImagesRequest
 	if v == nil || len(v.GetItems()) > int(limit) || len(v.GetNextCursor()) > 4096 {
 		return nil, imageInvalidReply()
 	}
-	out := &view.ListImagesResponse{NextCursor: v.NextCursor, Items: make([]*view.ImageRegistration, 0, len(v.Items))}
+	out := &view.ListImagesResponse{NextCursor: v.NextCursor, Total: v.GetTotal(), Items: make([]*view.ImageRegistration, 0, len(v.Items))}
 	seen := map[string]bool{}
 	for _, item := range v.Items {
 		if err = validateImageReply(item, tenant, scope, ""); err != nil {

@@ -242,6 +242,8 @@ func TestImageJointHTTP(t *testing.T) {
 			return request(realHost, "POST", path, publisherToken, body, nil, "", nil, want)
 		}
 		post("/api/v1/images/space:enable", `{"slug":"contract","idempotencyKey":"contract-enable"}`, 200)
+ realEmpty:=request(realHost,"GET","/api/v1/images/registrations?scope=tenant",readerToken,"",nil,"",nil,200)
+ require.Equal(t,"0",realEmpty["total"],"real Resource PG count must reach authenticated HTTP")
 		const disablePath = "/api/v1/images/publisher-credential:disable"
 		unissued := post(disablePath, `{"expectedVersion":"0","idempotencyKey":"contract-empty"}`, 409)
 		require.Equal(t, "CREDENTIAL_NOT_ISSUED", unissued["reason"])
@@ -267,6 +269,9 @@ func TestImageJointHTTP(t *testing.T) {
 	require.Equal(t, "1", out["space"].(map[string]any)["version"])
 	get("/api/v1/images/publisher-credential", readerToken, nil, "", 200)
 	listed := get("/api/v1/images/registrations?scope=tenant", readerToken, nil, "", 200)
+ require.Equal(t,"37",listed["total"])
+ empty:=get("/api/v1/images/registrations?scope=tenant&search=empty-total",readerToken,nil,"",200)
+ require.Equal(t,"0",empty["total"])
 	require.Equal(t, "img_"+strings.Repeat("a", 32), listed["items"].([]any)[0].(map[string]any)["image_id"])
 	get("/api/v1/images/registrations?scope=platform", readerToken, nil, "", 200)
 	get("/api/v1/images/registrations/img_"+strings.Repeat("a", 32)+"?scope=tenant", readerToken, nil, "", 200)
