@@ -18,6 +18,7 @@ ENT_ROOT = "app/admin/service/internal/data/ent"
 ENT_SCHEMA_OUTPUT = "app/admin/service/schema.sql"
 REQUIRED_API_ROOTS = {
     "api/gen/go",
+    "api/quota/gen/go",
     "pkg/localdeps/go-crud/api/gen/go",
     "pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact",
     "pkg/localdeps/kratos-bootstrap/api/gen/go",
@@ -38,6 +39,8 @@ def generation_source(name: str) -> bool:
         return False
     if name.startswith("api/protos/") or name.startswith("api/localdeps/"):
         return path.suffix == ".proto"
+    if name.startswith("api/quota/"):
+        return path.suffix == ".go" or path.name in ("go.mod", "go.sum")
     if name.startswith("api/gen/go/"):
         return path.suffix == ".go"
     if name.startswith("app/admin/service/"):

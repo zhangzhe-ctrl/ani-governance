@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package quota.service.v1;
 
+option go_package = "github.com/zhangzhe-ctrl/ani-governance/api/quota/gen/go/quota/service/v1;quotapb";
+
 // 内部退额协议：资源 owner 只上报"对应数量已不再占用且不会迟到创建"的累计事实。
 // 不带 HTTP 注解、不进入 admin BFF、公共 Swagger 或登录白名单。
 // 请求不包含可作为身份依据的 tenant_id 或 owner_service：
