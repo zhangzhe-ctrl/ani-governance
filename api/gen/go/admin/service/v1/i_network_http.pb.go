@@ -79,7 +79,7 @@ func _NetworkService_GetVPC0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx
 			return err
 		}
 		reply := out.(*v1.GetVPCResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Vpc)
 	}
 }
 
@@ -164,7 +164,7 @@ func _NetworkService_GetOperation0_HTTP_Handler(srv NetworkServiceHTTPServer) fu
 			return err
 		}
 		reply := out.(*v1.GetOperationResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Operation)
 	}
 }
 
@@ -186,7 +186,7 @@ func _NetworkService_GetEIP0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx
 			return err
 		}
 		reply := out.(*v1.GetEIPResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Eip)
 	}
 }
 
@@ -271,7 +271,7 @@ func _NetworkService_GetVPCSnat0_HTTP_Handler(srv NetworkServiceHTTPServer) func
 			return err
 		}
 		reply := out.(*v1.GetVPCSnatResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Snat)
 	}
 }
 
@@ -393,7 +393,7 @@ func (c *NetworkServiceHTTPClientImpl) GetEIP(ctx context.Context, in *v1.GetEIP
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationNetworkServiceGetEIP))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Eip, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -406,7 +406,7 @@ func (c *NetworkServiceHTTPClientImpl) GetOperation(ctx context.Context, in *v1.
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationNetworkServiceGetOperation))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Operation, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -419,7 +419,7 @@ func (c *NetworkServiceHTTPClientImpl) GetVPC(ctx context.Context, in *v1.GetVPC
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationNetworkServiceGetVPC))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Vpc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -432,7 +432,7 @@ func (c *NetworkServiceHTTPClientImpl) GetVPCSnat(ctx context.Context, in *v1.Ge
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationNetworkServiceGetVPCSnat))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Snat, opts...)
 	if err != nil {
 		return nil, err
 	}

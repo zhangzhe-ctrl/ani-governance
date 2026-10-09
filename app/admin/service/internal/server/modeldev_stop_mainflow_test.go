@@ -114,12 +114,12 @@ func verifyModelDevBFFStopMainFlow(t *testing.T, ctx context.Context, web *httpt
 	require.Positive(t, closed.CloseGeneration)
 	status, raw = request("GET", path, token)
 	require.Equal(t, http.StatusOK, status)
-	var detail modeldevv1.GetExecutionResponse
+	var detail modeldevv1.ExecutionView
 	require.NoError(t, protojson.Unmarshal(raw, &detail))
-	require.Equal(t, executionID, detail.GetExecution().GetExecutionId())
-	require.True(t, detail.GetExecution().GetStopRequested())
-	require.Equal(t, closed.CloseGeneration, detail.GetExecution().GetCloseGeneration())
-	require.Equal(t, "CLOSED", detail.GetExecution().GetCloseState())
+	require.Equal(t, executionID, detail.GetExecutionId())
+	require.True(t, detail.GetStopRequested())
+	require.Equal(t, closed.CloseGeneration, detail.GetCloseGeneration())
+	require.Equal(t, "CLOSED", detail.GetCloseState())
 	observer := openModelDevHTTPPG(t, os.Getenv("ANI_TEST_DATABASE_DSN"))
 	ackContext, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()

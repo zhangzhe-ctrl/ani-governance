@@ -27,10 +27,17 @@ var File_admin_service_v1_i_modeldev_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_modeldev_proto_rawDesc = "" +
 	"\n" +
-	"!admin/service/v1/i_modeldev.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a#modeldev/service/v1/execution.proto2\xf5\x0f\n" +
+	"!admin/service/v1/i_modeldev.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a#modeldev/service/v1/execution.proto2\xbc\x11\n" +
 	"\x0fModelDevService\x12\x84\x01\n" +
-	"\vListPresets\x12'.modeldev.service.v1.ListPresetsRequest\x1a(.modeldev.service.v1.ListPresetsResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/admin/v1/modeldev/presets\x12\xaa\x01\n" +
-	"\x0fGetInputVersion\x12+.modeldev.service.v1.GetInputVersionRequest\x1a,.modeldev.service.v1.GetInputVersionResponse\"<\x82\xd3\xe4\x93\x026\x124/admin/v1/modeldev/input-versions/{input_version_id}\x12\x9d\x01\n" +
+	"\vListPresets\x12'.modeldev.service.v1.ListPresetsRequest\x1a(.modeldev.service.v1.ListPresetsResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/admin/v1/modeldev/presets\x12\x91\x02\n" +
+	"\x0fGetInputVersion\x12+.modeldev.service.v1.GetInputVersionRequest\x1a,.modeldev.service.v1.GetInputVersionResponse\"\xa2\x01\xbaGTBR\x12P\n" +
+	"\x03200\x12I\n" +
+	"G\n" +
+	"\x02OK\x1aA\n" +
+	"?\n" +
+	"\x10application/json\x12+\n" +
+	")\x12'\n" +
+	"%#/components/schemas/InputVersionView\x82\xd3\xe4\x93\x02Eb\rinput_version\x124/admin/v1/modeldev/input-versions/{input_version_id}\x12\x9d\x01\n" +
 	"\x11ListInputVersions\x12-.modeldev.service.v1.ListInputVersionsRequest\x1a..modeldev.service.v1.ListInputVersionsResponse\")\x82\xd3\xe4\x93\x02#\x12!/admin/v1/modeldev/input-versions\x12\x90\x01\n" +
 	"\x0eListExecutions\x12*.modeldev.service.v1.ListExecutionsRequest\x1a+.modeldev.service.v1.ListExecutionsResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/admin/v1/modeldev/executions\x12\xaa\x01\n" +
 	"\x10GetExecutionLogs\x12,.modeldev.service.v1.GetExecutionLogsRequest\x1a-.modeldev.service.v1.GetExecutionLogsResponse\"9\x82\xd3\xe4\x93\x023\x121/admin/v1/modeldev/executions/{execution_id}/logs\x12\xd7\x02\n" +
@@ -44,8 +51,15 @@ const file_admin_service_v1_i_modeldev_proto_rawDesc = "" +
 	"*#/components/schemas/StopExecutionResponseZ\x10\n" +
 	"\x0e\n" +
 	"\n" +
-	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x023\"1/admin/v1/modeldev/executions/{execution_id}:stop\x12\x99\x01\n" +
-	"\fGetExecution\x12(.modeldev.service.v1.GetExecutionRequest\x1a).modeldev.service.v1.GetExecutionResponse\"4\x82\xd3\xe4\x93\x02.\x12,/admin/v1/modeldev/executions/{execution_id}\x12\xc1\x01\n" +
+	"BearerAuth\x12\x00\x82\xd3\xe4\x93\x023\"1/admin/v1/modeldev/executions/{execution_id}:stop\x12\xf9\x01\n" +
+	"\fGetExecution\x12(.modeldev.service.v1.GetExecutionRequest\x1a).modeldev.service.v1.GetExecutionResponse\"\x93\x01\xbaGQBO\x12M\n" +
+	"\x03200\x12F\n" +
+	"D\n" +
+	"\x02OK\x1a>\n" +
+	"<\n" +
+	"\x10application/json\x12(\n" +
+	"&\x12$\n" +
+	"\"#/components/schemas/ExecutionView\x82\xd3\xe4\x93\x029b\texecution\x12,/admin/v1/modeldev/executions/{execution_id}\x12\xc1\x01\n" +
 	"\x16ListExecutionArtifacts\x122.modeldev.service.v1.ListExecutionArtifactsRequest\x1a3.modeldev.service.v1.ListExecutionArtifactsResponse\">\x82\xd3\xe4\x93\x028\x126/admin/v1/modeldev/executions/{execution_id}/artifacts\x12\xc6\x01\n" +
 	"\x19AuthorizeArtifactDownload\x125.modeldev.service.v1.AuthorizeArtifactDownloadRequest\x1a6.modeldev.service.v1.AuthorizeArtifactDownloadResponse\":\x82\xd3\xe4\x93\x024\x122/admin/v1/modeldev/artifacts/{artifact_id}/content\x12\xca\x02\n" +
 	"\x0fCreateExecution\x12+.modeldev.service.v1.CreateExecutionRequest\x1a,.modeldev.service.v1.CreateExecutionResponse\"\xdb\x01\xbaG\xaf\x01B\x9a\x01\x12\x97\x01\n" +

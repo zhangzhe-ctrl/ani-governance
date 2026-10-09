@@ -98,7 +98,7 @@ func _ImageService_GetImageSpace0_HTTP_Handler(srv ImageServiceHTTPServer) func(
 			return err
 		}
 		reply := out.(*v1.GetImageSpaceResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Space)
 	}
 }
 
@@ -117,7 +117,7 @@ func _ImageService_GetPublisherCredential0_HTTP_Handler(srv ImageServiceHTTPServ
 			return err
 		}
 		reply := out.(*v1.GetPublisherCredentialResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Credential)
 	}
 }
 
@@ -227,7 +227,7 @@ func _ImageService_GetImage0_HTTP_Handler(srv ImageServiceHTTPServer) func(ctx h
 			return err
 		}
 		reply := out.(*v1.GetImageResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Image)
 	}
 }
 
@@ -354,7 +354,7 @@ func (c *ImageServiceHTTPClientImpl) GetImage(ctx context.Context, in *v1.GetIma
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationImageServiceGetImage))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Image, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +367,7 @@ func (c *ImageServiceHTTPClientImpl) GetImageSpace(ctx context.Context, in *v1.G
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationImageServiceGetImageSpace))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Space, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -380,7 +380,7 @@ func (c *ImageServiceHTTPClientImpl) GetPublisherCredential(ctx context.Context,
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationImageServiceGetPublisherCredential))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Credential, opts...)
 	if err != nil {
 		return nil, err
 	}

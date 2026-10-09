@@ -95,7 +95,7 @@ func _ModelDevService_GetInputVersion0_HTTP_Handler(srv ModelDevServiceHTTPServe
 			return err
 		}
 		reply := out.(*v1.GetInputVersionResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.InputVersion)
 	}
 }
 
@@ -199,7 +199,7 @@ func _ModelDevService_GetExecution0_HTTP_Handler(srv ModelDevServiceHTTPServer) 
 			return err
 		}
 		reply := out.(*v1.GetExecutionResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Execution)
 	}
 }
 
@@ -322,7 +322,7 @@ func (c *ModelDevServiceHTTPClientImpl) GetExecution(ctx context.Context, in *v1
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationModelDevServiceGetExecution))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Execution, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -348,7 +348,7 @@ func (c *ModelDevServiceHTTPClientImpl) GetInputVersion(ctx context.Context, in 
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationModelDevServiceGetInputVersion))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.InputVersion, opts...)
 	if err != nil {
 		return nil, err
 	}

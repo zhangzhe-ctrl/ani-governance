@@ -29,7 +29,7 @@ var File_admin_service_v1_i_image_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_image_proto_rawDesc = "" +
 	"\n" +
-	"\x1eadmin/service/v1/i_image.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1ecatalog/service/v1/image.proto\x1a$gnostic/openapi/v3/annotations.proto2\xf9&\n" +
+	"\x1eadmin/service/v1/i_image.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1ecatalog/service/v1/image.proto\x1a$gnostic/openapi/v3/annotations.proto2\x8d)\n" +
 	"\fImageService\x12\xb3\x03\n" +
 	"\x10EnsureImageSpace\x12+.catalog.service.v1.EnsureImageSpaceRequest\x1a,.catalog.service.v1.EnsureImageSpaceResponse\"\xc3\x02\xbaG\x99\x02\x12\x10EnsureImageSpace\x1a\xb7\x01Requires active tenant, IMAGE module and image:space:enable. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.Z\x10\n" +
 	"\x0e\n" +
@@ -40,8 +40,15 @@ const file_admin_service_v1_i_image_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/api/v1/images/space:enable\x12\x9a\x03\n" +
-	"\rGetImageSpace\x12(.catalog.service.v1.GetImageSpaceRequest\x1a).catalog.service.v1.GetImageSpaceResponse\"\xb3\x02\xbaG\x93\x02\x12\rGetImageSpace\x1a\xb4\x01Requires active tenant, IMAGE module and image:space:get. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.Z\x10\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/api/v1/images/space:enable\x12\xef\x03\n" +
+	"\rGetImageSpace\x12(.catalog.service.v1.GetImageSpaceRequest\x1a).catalog.service.v1.GetImageSpaceResponse\"\x88\x03\xbaG\xe1\x02\x12\rGetImageSpace\x1a\xb4\x01Requires active tenant, IMAGE module and image:space:get. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.BL\x12J\n" +
+	"\x03200\x12C\n" +
+	"A\n" +
+	"\x02OK\x1a;\n" +
+	"9\n" +
+	"\x10application/json\x12%\n" +
+	"#\x12!\n" +
+	"\x1f#/components/schemas/ImageSpaceZ\x10\n" +
 	"\x0e\n" +
 	"\n" +
 	"BearerAuth\x12\x00Z9\n" +
@@ -50,8 +57,15 @@ const file_admin_service_v1_i_image_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02\x16\x12\x14/api/v1/images/space\x12\xd2\x03\n" +
-	"\x16GetPublisherCredential\x121.catalog.service.v1.GetPublisherCredentialRequest\x1a2.catalog.service.v1.GetPublisherCredentialResponse\"\xd0\x02\xbaG\xa1\x02\x12\x16GetPublisherCredential\x1a\xb9\x01Requires active tenant, IMAGE module and image:credential:get. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.Z\x10\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02\x1db\x05space\x12\x14/api/v1/images/space\x12\xb5\x04\n" +
+	"\x16GetPublisherCredential\x121.catalog.service.v1.GetPublisherCredentialRequest\x1a2.catalog.service.v1.GetPublisherCredentialResponse\"\xb3\x03\xbaG\xf8\x02\x12\x16GetPublisherCredential\x1a\xb9\x01Requires active tenant, IMAGE module and image:credential:get. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.BU\x12S\n" +
+	"\x03200\x12L\n" +
+	"J\n" +
+	"\x02OK\x1aD\n" +
+	"B\n" +
+	"\x10application/json\x12.\n" +
+	",\x12*\n" +
+	"(#/components/schemas/PublisherCredentialZ\x10\n" +
 	"\x0e\n" +
 	"\n" +
 	"BearerAuth\x12\x00Z9\n" +
@@ -60,7 +74,8 @@ const file_admin_service_v1_i_image_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02%\x12#/api/v1/images/publisher-credential\x12\xe5\x03\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x021b\n" +
+	"credential\x12#/api/v1/images/publisher-credential\x12\xe5\x03\n" +
 	"\x18IssuePublisherCredential\x123.catalog.service.v1.IssuePublisherCredentialRequest\x1a4.catalog.service.v1.IssuePublisherCredentialResponse\"\xdd\x02\xbaG\xa5\x02\x12\x18IssuePublisherCredential\x1a\xbb\x01Requires active tenant, IMAGE module and image:credential:issue. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.Z\x10\n" +
 	"\x0e\n" +
 	"\n" +
@@ -100,8 +115,15 @@ const file_admin_service_v1_i_image_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/api/v1/images/registrations\x12\xa0\x03\n" +
-	"\bGetImage\x12#.catalog.service.v1.GetImageRequest\x1a$.catalog.service.v1.GetImageResponse\"\xc8\x02\xbaG\x95\x02\x12\bGetImage\x1a\xbb\x01Requires active tenant, IMAGE module and image:registration:get. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.Z\x10\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/api/v1/images/registrations\x12\xfc\x03\n" +
+	"\bGetImage\x12#.catalog.service.v1.GetImageRequest\x1a$.catalog.service.v1.GetImageResponse\"\xa4\x03\xbaG\xea\x02\x12\bGetImage\x1a\xbb\x01Requires active tenant, IMAGE module and image:registration:get. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.BS\x12Q\n" +
+	"\x03200\x12J\n" +
+	"H\n" +
+	"\x02OK\x1aB\n" +
+	"@\n" +
+	"\x10application/json\x12,\n" +
+	"*\x12(\n" +
+	"&#/components/schemas/ImageRegistrationZ\x10\n" +
 	"\x0e\n" +
 	"\n" +
 	"BearerAuth\x12\x00Z9\n" +
@@ -110,7 +132,7 @@ const file_admin_service_v1_i_image_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02)\x12'/api/v1/images/registrations/{image_id}\x12\x9e\x03\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x020b\x05image\x12'/api/v1/images/registrations/{image_id}\x12\x9e\x03\n" +
 	"\n" +
 	"ListImages\x12%.catalog.service.v1.ListImagesRequest\x1a&.catalog.service.v1.ListImagesResponse\"\xc0\x02\xbaG\x98\x02\x12\n" +
 	"ListImages\x1a\xbc\x01Requires active tenant, IMAGE module and image:registration:list. Tenant identity comes only from the authenticated principal. See image-api.md for limits, idempotency and error semantics.Z\x10\n" +

@@ -27,9 +27,16 @@ var File_admin_service_v1_i_network_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"\n" +
-	" admin/service/v1/i_network.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1ccatalog/service/v1/vpc.proto\x1a$gnostic/openapi/v3/annotations.proto2\x83E\n" +
-	"\x0eNetworkService\x12\xe5\a\n" +
-	"\x06GetVPC\x12!.catalog.service.v1.GetVPCRequest\x1a\".catalog.service.v1.GetVPCResponse\"\x93\a\xbaG\xe9\x06\x12%Get a VPC in the authenticated tenant\x1a\xb7\x03Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters and body are rejected. Public identity headers are ignored. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed.B\xb8\x02\x12.\n" +
+	" admin/service/v1/i_network.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1ccatalog/service/v1/vpc.proto\x1a$gnostic/openapi/v3/annotations.proto2\xbcG\n" +
+	"\x0eNetworkService\x12\xaf\b\n" +
+	"\x06GetVPC\x12!.catalog.service.v1.GetVPCRequest\x1a\".catalog.service.v1.GetVPCResponse\"\xdd\a\xbaG\xae\a\x12%Get a VPC in the authenticated tenant\x1a\xb7\x03Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters and body are rejected. Public identity headers are ignored. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed.B\xfd\x02\x12C\n" +
+	"\x03200\x12<\n" +
+	":\n" +
+	"\x02OK\x1a4\n" +
+	"2\n" +
+	"\x10application/json\x12\x1e\n" +
+	"\x1c\x12\x1a\n" +
+	"\x18#/components/schemas/VPC\x12.\n" +
 	"\x03400\x12'\n" +
 	"%\n" +
 	"#Invalid VPC ID or unsupported query\x12;\n" +
@@ -56,7 +63,7 @@ const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/networks/vpcs/{vpc_id}\x12\xab\x06\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02%b\x03vpc\x12\x1e/api/v1/networks/vpcs/{vpc_id}\x12\xab\x06\n" +
 	"\bListVPCs\x12#.catalog.service.v1.ListVPCsRequest\x1a$.catalog.service.v1.ListVPCsResponse\"\xd3\x05\xbaG\xb2\x05\x12%List VPCs in the authenticated tenant\x1a\xa7\x02Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:list permission. Cursor pagination; limit is 1..100. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. System-managed Intranet resources are excluded downstream.B\x91\x02\x120\n" +
 	"\x03400\x12)\n" +
 	"'\n" +
@@ -134,8 +141,15 @@ const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 *\x1e/api/v1/networks/vpcs/{vpc_id}\x12\x98\x06\n" +
-	"\fGetOperation\x12'.catalog.service.v1.GetOperationRequest\x1a(.catalog.service.v1.GetOperationResponse\"\xb4\x05\xbaG\xfe\x04\x12\x1eGet a network operation result\x1a\xdc\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:operation:get permission. Returns the processing result of one tenant-owned operation; cross-tenant and missing operations both return 404.B\xaf\x02\x12\x1f\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 *\x1e/api/v1/networks/vpcs/{vpc_id}\x12\xee\x06\n" +
+	"\fGetOperation\x12'.catalog.service.v1.GetOperationRequest\x1a(.catalog.service.v1.GetOperationResponse\"\x8a\x06\xbaG\xc9\x05\x12\x1eGet a network operation result\x1a\xdc\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:operation:get permission. Returns the processing result of one tenant-owned operation; cross-tenant and missing operations both return 404.B\xfa\x02\x12I\n" +
+	"\x03200\x12B\n" +
+	"@\n" +
+	"\x02OK\x1a:\n" +
+	"8\n" +
+	"\x10application/json\x12$\n" +
+	"\"\x12 \n" +
+	"\x1e#/components/schemas/Operation\x12\x1f\n" +
 	"\x03400\x12\x18\n" +
 	"\x16\n" +
 	"\x14Invalid operation ID\x12;\n" +
@@ -162,8 +176,15 @@ const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02,\x12*/api/v1/networks/operations/{operation_id}\x12\xa0\x06\n" +
-	"\x06GetEIP\x12!.catalog.service.v1.GetEIPRequest\x1a\".catalog.service.v1.GetEIPResponse\"\xce\x05\xbaG\xa4\x05\x12&Get an EIP in the authenticated tenant\x1a\x86\x02Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:get permission. Only tenant-managed Public EIPs are visible; System-managed Intranet addresses are excluded including guessed IDs. Cross-tenant and missing EIPs both return 404.B\xa3\x02\x12\x19\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x027b\toperation\x12*/api/v1/networks/operations/{operation_id}\x12\xea\x06\n" +
+	"\x06GetEIP\x12!.catalog.service.v1.GetEIPRequest\x1a\".catalog.service.v1.GetEIPResponse\"\x98\x06\xbaG\xe9\x05\x12&Get an EIP in the authenticated tenant\x1a\x86\x02Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:get permission. Only tenant-managed Public EIPs are visible; System-managed Intranet addresses are excluded including guessed IDs. Cross-tenant and missing EIPs both return 404.B\xe8\x02\x12C\n" +
+	"\x03200\x12<\n" +
+	":\n" +
+	"\x02OK\x1a4\n" +
+	"2\n" +
+	"\x10application/json\x12\x1e\n" +
+	"\x1c\x12\x1a\n" +
+	"\x18#/components/schemas/EIP\x12\x19\n" +
 	"\x03400\x12\x12\n" +
 	"\x10\n" +
 	"\x0eInvalid EIP ID\x12;\n" +
@@ -190,7 +211,7 @@ const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/networks/eips/{eip_id}\x12\xb9\x05\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02%b\x03eip\x12\x1e/api/v1/networks/eips/{eip_id}\x12\xb9\x05\n" +
 	"\bListEIPs\x12#.catalog.service.v1.ListEIPsRequest\x1a$.catalog.service.v1.ListEIPsResponse\"\xe1\x04\xbaG\xc0\x04\x12%List EIPs in the authenticated tenant\x1a\xb5\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:list permission. Cursor pagination; limit is 1..100. Only tenant-managed Public EIPs are listed.B\x91\x02\x120\n" +
 	"\x03400\x12)\n" +
 	"'\n" +
@@ -268,9 +289,16 @@ const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 *\x1e/api/v1/networks/eips/{eip_id}\x12\xf2\x05\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02 *\x1e/api/v1/networks/eips/{eip_id}\x12\xc1\x06\n" +
 	"\n" +
-	"GetVPCSnat\x12%.catalog.service.v1.GetVPCSnatRequest\x1a&.catalog.service.v1.GetVPCSnatResponse\"\x94\x05\xbaG\xe5\x04\x12\x1dGet the SNAT binding of a VPC\x1a\xd0\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:snat:get permission. Returns the tenant-owned VPC's outbound SNAT binding state. Cross-tenant and missing VPCs both return 404.B\xa3\x02\x12\x19\n" +
+	"GetVPCSnat\x12%.catalog.service.v1.GetVPCSnatRequest\x1a&.catalog.service.v1.GetVPCSnatResponse\"\xe3\x05\xbaG\xae\x05\x12\x1dGet the SNAT binding of a VPC\x1a\xd0\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:snat:get permission. Returns the tenant-owned VPC's outbound SNAT binding state. Cross-tenant and missing VPCs both return 404.B\xec\x02\x12G\n" +
+	"\x03200\x12@\n" +
+	">\n" +
+	"\x02OK\x1a8\n" +
+	"6\n" +
+	"\x10application/json\x12\"\n" +
+	" \x12\x1e\n" +
+	"\x1c#/components/schemas/VPCSnat\x12\x19\n" +
 	"\x03400\x12\x12\n" +
 	"\x10\n" +
 	"\x0eInvalid VPC ID\x12;\n" +
@@ -297,7 +325,7 @@ const file_admin_service_v1_i_network_proto_rawDesc = "" +
 	"\x11\n" +
 	"\rSignatureAuth\x12\x00\n" +
 	"\x11\n" +
-	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02%\x12#/api/v1/networks/vpcs/{vpc_id}/snat\x12\x99\x06\n" +
+	"\rSignatureTime\x12\x00\x82\xd3\xe4\x93\x02+b\x04snat\x12#/api/v1/networks/vpcs/{vpc_id}/snat\x12\x99\x06\n" +
 	"\vBindVPCSnat\x12&.catalog.service.v1.BindVPCSnatRequest\x1a'.catalog.service.v1.BindVPCSnatResponse\"\xb8\x05\xbaG\xfd\x04\x12(Bind a public EIP as a VPC's SNAT egress\x1a\xcf\x01Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:snat:bind permission. Binding is asynchronous and exclusive; retries with the same idempotency_key replay the original result.B\xb1\x02\x12 \n" +
 	"\x03400\x12\x19\n" +
 	"\x17\n" +

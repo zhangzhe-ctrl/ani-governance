@@ -2750,7 +2750,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetExecutionResponse'
+                                $ref: '#/components/schemas/ExecutionView'
     /admin/v1/modeldev/executions/{execution_id}/artifacts:
         get:
             tags:
@@ -2869,7 +2869,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetInputVersionResponse'
+                                $ref: '#/components/schemas/InputVersionView'
     /admin/v1/modeldev/presets:
         get:
             tags:
@@ -6232,7 +6232,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetPublisherCredentialResponse'
+                                $ref: '#/components/schemas/PublisherCredential'
             security:
                 - BearerAuth: []
                 - AccessKeyAuth: []
@@ -6407,7 +6407,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetImageResponse'
+                                $ref: '#/components/schemas/ImageRegistration'
             security:
                 - BearerAuth: []
                 - AccessKeyAuth: []
@@ -6487,7 +6487,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetImageSpaceResponse'
+                                $ref: '#/components/schemas/ImageSpace'
             security:
                 - BearerAuth: []
                 - AccessKeyAuth: []
@@ -6630,7 +6630,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetEIPResponse'
+                                $ref: '#/components/schemas/EIP'
                 "400":
                     description: Invalid EIP ID
                 "401":
@@ -6703,7 +6703,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetOperationResponse'
+                                $ref: '#/components/schemas/Operation'
                 "400":
                     description: Invalid operation ID
                 "401":
@@ -6821,7 +6821,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetVPCResponse'
+                                $ref: '#/components/schemas/VPC'
                 "400":
                     description: Invalid VPC ID or unsupported query
                 "401":
@@ -6894,7 +6894,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetVPCSnatResponse'
+                                $ref: '#/components/schemas/VPCSnat'
                 "400":
                     description: Invalid VPC ID
                 "401":

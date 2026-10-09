@@ -1129,3 +1129,34 @@ Network 客户端改用 Resource 拥有的 `network.v1` 生成类型，保持 mT
 - `scripts/image-joint-integration`，Resource contract test binary 从上述下载模块编译。HTTP 非零/零 total、权限拒绝和真实 mTLS → Resource Catalog → PG 空列表断言通过，独占 PG/Redis 均已清理。
 
 日志保留在执行任务目录外的本地 `/tmp/list-totals-governance-published-validation.log`；未纳入业务提交。部署和目标集群业务验收仍为 `not_verified`。
+
+## DETAIL-FORMAT-01：公开详情直接返回资源对象（2026-10-09）
+
+基于最新 Resource main `73c4170`、Governance main `134686f`，扫描全部 HTTP GET 绑定，统一以下 9 个只有单资源对象的详情响应：
+
+| 方法 | HTTP 路径 | 直接返回 |
+|---|---|---|
+| GetVPC | `/api/v1/networks/vpcs/{vpc_id}` | VPC |
+| GetEIP | `/api/v1/networks/eips/{eip_id}` | EIP |
+| GetOperation | `/api/v1/networks/operations/{operation_id}` | Operation |
+| GetVPCSnat | `/api/v1/networks/vpcs/{vpc_id}/snat` | VPCSnat |
+| GetImageSpace | `/api/v1/images/space` | ImageSpace |
+| GetPublisherCredential | `/api/v1/images/publisher-credential` | PublisherCredential |
+| GetImage | `/api/v1/images/registrations/{image_id}` | ImageRegistration |
+| GetInputVersion | `/admin/v1/modeldev/input-versions/{input_version_id}` | InputVersionView |
+| GetExecution | `/admin/v1/modeldev/executions/{execution_id}` | ExecutionView |
+
+HTTP 绑定使用 `response_body`，ModelDev 的手写路由同步展开。字段名、权限、租户隔离和内部 gRPC 消息保留；普通 CRUD 详情已直接返回对象。列表、日志、导航、统计、MFA 状态及签发/创建等有多字段业务语义的响应保留原结构。固定生成链同时更新 HTTP 客户端与 OpenAPI；后处理移除 gnostic 在显式 200 前追加的推断 200，避免重复 YAML 键。没有手改生成物。
+
+Resource 仅提供内部 gRPC，本批同步公开 JSON 规格和 SBOM，已发布 main `60702b2bcfe441b8ef86991b95274d0da34773ea`；本仓锁定 `v0.0.0-20261009024544-60702b2bcfe4`，无 replace/go.work。
+
+验证主机为 `ssh ubuntu`（`i-8yg2l7u8`），Go 1.26.7，`GOWORK=off`，任务目录 `/home/ubuntu/workspace/ani-network-service-runs/flat-details-20261009`：
+
+- Resource `make verify BUF=<pinned-buf> SQLC=<pinned-sqlc>`、SBOM 生成及供应链结构检查：pass。
+- Governance `make api`：pass；9 个详情的 HTTP JSON、鉴权拒绝和 OpenAPI Schema 检查：pass。
+- `go test -mod=readonly -count=1 -run 'Test(DetailHTTP|DetailOpenAPI|ModelDevQueryRoutes|ModelDevListAndLog|Network|Image)' ./app/admin/service/internal/server ./app/admin/service/internal/service ./app/admin/service/internal/data ./tests/imagecontract`：pass。
+- `go build -mod=readonly ./app/admin/service/cmd/...`、`go mod tidy -diff`、`go mod verify`：pass。
+- `go test -mod=readonly -tags=modeldev_pg,modeldev_contract -run '^$' ./app/admin/service/internal/server`：pass，仅为受影响 ModelDev 集成用例的编译检查。
+- `scripts/image-joint-integration`：pass。Resource helper 从上述已发布模块编译；真实鉴权 HTTP → mTLS → Resource → PostgreSQL 的空间与未签发凭证 GET 返回展开字段，读取不隐式签发；镜像详情、列表总数和权限/缓存保护检查保留。独占 PG/Redis 和 helper 数据库均已清理。
+
+执行日志位于本地 `/tmp/flat-details-resource-verify.log`、`/tmp/flat-details-resource-sbom.log`、`/tmp/flat-details-governance-generate-test-3.log`、`/tmp/flat-details-governance-published-validation.log`、`/tmp/flat-details-governance-real-details.log`。首次注解重复和 OpenAPI 重复 200 的失败日志保留，未放宽断言。9 路由测试冻结传输结构；真实数据库链路的上述范围与 ModelDev 仅编译检查分别报告。部署和目标环境业务验收仍为 `not_verified`。

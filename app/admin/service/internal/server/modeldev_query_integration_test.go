@@ -543,11 +543,11 @@ func testModelDevBFFMainFlow(t *testing.T, stopping, listLogs, stopBefore bool) 
 	}
 	code, body := get(detailPath, token)
 	require.Equal(t, http.StatusOK, code)
-	var detail modeldevv1.GetExecutionResponse
+	var detail modeldevv1.ExecutionView
 	require.NoError(t, protojson.Unmarshal(body, &detail))
-	require.Equal(t, provider.ExecutionID, detail.GetExecution().GetExecutionId())
-	require.Equal(t, "PUBLISHED", detail.GetExecution().GetDeliveryState())
-	require.Equal(t, "CLOSED", detail.GetExecution().GetCloseState())
+	require.Equal(t, provider.ExecutionID, detail.GetExecutionId())
+	require.Equal(t, "PUBLISHED", detail.GetDeliveryState())
+	require.Equal(t, "CLOSED", detail.GetCloseState())
 	require.NotContains(t, string(body), "download_url")
 	require.NotContains(t, string(body), "bucket")
 	require.NotContains(t, string(body), "token")

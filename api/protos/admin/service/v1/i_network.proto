@@ -6,7 +6,7 @@ import "gnostic/openapi/v3/annotations.proto";
 
 service NetworkService {
  rpc GetVPC(catalog.service.v1.GetVPCRequest) returns (catalog.service.v1.GetVPCResponse) {
-   option (google.api.http) = { get: "/api/v1/networks/vpcs/{vpc_id}" };
+   option (google.api.http) = { get: "/api/v1/networks/vpcs/{vpc_id}" response_body: "vpc" };
    option (gnostic.openapi.v3.operation) = {
      security: [
        { additional_properties: [{ name: "BearerAuth" value: {} }] },
@@ -19,6 +19,7 @@ service NetworkService {
      summary: "Get a VPC in the authenticated tenant"
      description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:get permission. vpc_id must be vpc_ followed by 32 lowercase hex digits. Query parameters and body are rejected. Public identity headers are ignored. The persisted tenant UUID is looked up from the trusted operator's tenant and replayed downstream. Cross-tenant and missing VPCs both return 404. No network lifecycle or data-plane operation is performed."
      responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/VPC" } } } }] } } } },
        { name: "400" value: { response: { description: "Invalid VPC ID or unsupported query" } } },
        { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
        { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
@@ -96,7 +97,7 @@ service NetworkService {
    };
  }
  rpc GetOperation(catalog.service.v1.GetOperationRequest) returns (catalog.service.v1.GetOperationResponse) {
-   option (google.api.http) = { get: "/api/v1/networks/operations/{operation_id}" };
+   option (google.api.http) = { get: "/api/v1/networks/operations/{operation_id}" response_body: "operation" };
    option (gnostic.openapi.v3.operation) = {
      security: [
        { additional_properties: [{ name: "BearerAuth" value: {} }] },
@@ -109,6 +110,7 @@ service NetworkService {
      summary: "Get a network operation result"
      description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:operation:get permission. Returns the processing result of one tenant-owned operation; cross-tenant and missing operations both return 404."
      responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/Operation" } } } }] } } } },
        { name: "400" value: { response: { description: "Invalid operation ID" } } },
        { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
        { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
@@ -119,7 +121,7 @@ service NetworkService {
    };
  }
  rpc GetEIP(catalog.service.v1.GetEIPRequest) returns (catalog.service.v1.GetEIPResponse) {
-   option (google.api.http) = { get: "/api/v1/networks/eips/{eip_id}" };
+   option (google.api.http) = { get: "/api/v1/networks/eips/{eip_id}" response_body: "eip" };
    option (gnostic.openapi.v3.operation) = {
      security: [
        { additional_properties: [{ name: "BearerAuth" value: {} }] },
@@ -132,6 +134,7 @@ service NetworkService {
      summary: "Get an EIP in the authenticated tenant"
      description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:get permission. Only tenant-managed Public EIPs are visible; System-managed Intranet addresses are excluded including guessed IDs. Cross-tenant and missing EIPs both return 404."
      responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/EIP" } } } }] } } } },
        { name: "400" value: { response: { description: "Invalid EIP ID" } } },
        { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
        { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
@@ -209,7 +212,7 @@ service NetworkService {
    };
  }
  rpc GetVPCSnat(catalog.service.v1.GetVPCSnatRequest) returns (catalog.service.v1.GetVPCSnatResponse) {
-   option (google.api.http) = { get: "/api/v1/networks/vpcs/{vpc_id}/snat" };
+   option (google.api.http) = { get: "/api/v1/networks/vpcs/{vpc_id}/snat" response_body: "snat" };
    option (gnostic.openapi.v3.operation) = {
      security: [
        { additional_properties: [{ name: "BearerAuth" value: {} }] },
@@ -222,6 +225,7 @@ service NetworkService {
      summary: "Get the SNAT binding of a VPC"
      description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:snat:get permission. Returns the tenant-owned VPC's outbound SNAT binding state. Cross-tenant and missing VPCs both return 404."
      responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/VPCSnat" } } } }] } } } },
        { name: "400" value: { response: { description: "Invalid VPC ID" } } },
        { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
        { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },

@@ -22,8 +22,9 @@ service ImageService {
     };
   }
   rpc GetImageSpace(catalog.service.v1.GetImageSpaceRequest) returns (catalog.service.v1.GetImageSpaceResponse) {
-    option (google.api.http) = { get: "/api/v1/images/space" };
+    option (google.api.http) = { get: "/api/v1/images/space" response_body: "space" };
     option (gnostic.openapi.v3.operation) = {
+      responses: { response_or_reference: [{ name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/ImageSpace" } } } }] } } } }] }
       security: [
         { additional_properties: [{ name: "BearerAuth" value: {} }] },
         { additional_properties: [
@@ -37,8 +38,9 @@ service ImageService {
     };
   }
   rpc GetPublisherCredential(catalog.service.v1.GetPublisherCredentialRequest) returns (catalog.service.v1.GetPublisherCredentialResponse) {
-    option (google.api.http) = { get: "/api/v1/images/publisher-credential" };
+    option (google.api.http) = { get: "/api/v1/images/publisher-credential" response_body: "credential" };
     option (gnostic.openapi.v3.operation) = {
+      responses: { response_or_reference: [{ name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/PublisherCredential" } } } }] } } } }] }
       security: [
         { additional_properties: [{ name: "BearerAuth" value: {} }] },
         { additional_properties: [
@@ -112,8 +114,9 @@ service ImageService {
     };
   }
   rpc GetImage(catalog.service.v1.GetImageRequest) returns (catalog.service.v1.GetImageResponse) {
-    option (google.api.http) = { get: "/api/v1/images/registrations/{image_id}" };
+    option (google.api.http) = { get: "/api/v1/images/registrations/{image_id}" response_body: "image" };
     option (gnostic.openapi.v3.operation) = {
+      responses: { response_or_reference: [{ name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/ImageRegistration" } } } }] } } } }] }
       security: [
         { additional_properties: [{ name: "BearerAuth" value: {} }] },
         { additional_properties: [

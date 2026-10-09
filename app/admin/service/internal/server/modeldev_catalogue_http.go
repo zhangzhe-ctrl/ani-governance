@@ -64,7 +64,7 @@ func registerModelDevCatalogueHTTP(server *khttp.Server, modeldev *service.Model
 		if err != nil {
 			return err
 		}
-		return ctx.Result(http.StatusOK, out)
+		return ctx.Result(http.StatusOK, out.(*modeldevv1.GetInputVersionResponse).GetInputVersion())
 	})
 }
 

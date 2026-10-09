@@ -337,8 +337,8 @@ github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9
 github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9173/go.mod h1:3mSqLUcRMc++eiZuqICo56tFwoKZ9jr34tepPvWcOsM=
 github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261005092412-218f5e5efedf h1:CedQ4OwQsiwi36epEGz4090aTWRyMoFcfzcJyvoSbZI=
 github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261005092412-218f5e5efedf/go.mod h1:JLfy2wwoIxD4hIsdtbCSDeDboGy/dKD62OylHxmK3qw=
-github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261008083036-73c417066534 h1:C+uaggtnduAsLQZaKUlZ5IW7L3Jkvb2YXWlwZ7AUz6o=
-github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261008083036-73c417066534/go.mod h1:J8jdG+2XoaWmtIBn6dErQzOvA/soOd9slkoKNpkKbEs=
+github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261009024544-60702b2bcfe4 h1:OiqauH/164VRWx53WtYCVpQDRCDWPZt6u0efrK9OjbU=
+github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261009024544-60702b2bcfe4/go.mod h1:J8jdG+2XoaWmtIBn6dErQzOvA/soOd9slkoKNpkKbEs=
 go.einride.tech/aip v0.86.3 h1:jg80Ec4XBPYg1i7avzrl3MJol/dUwmMMLHtcmEMyxgM=
 go.einride.tech/aip v0.86.3/go.mod h1:dZuN/0sXeoscfWqsW8QLcLrGZdvsCC1B2R2CZ4kHmao=
 go.mongodb.org/mongo-driver/v2 v2.9.0 h1:e2mQdOmbkiYz+dj3faM7lVDwl7WdnRD+g5VicafMhL0=

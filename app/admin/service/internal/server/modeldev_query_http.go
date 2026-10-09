@@ -96,7 +96,7 @@ func registerModelDevQueryHTTP(server *khttp.Server, modeldev *service.ModelDevS
 		if err != nil {
 			return err
 		}
-		return ctx.Result(http.StatusOK, out)
+		return ctx.Result(http.StatusOK, out.(*modeldevv1.GetExecutionResponse).GetExecution())
 	})
 	route.GET(data.ModelDevListArtifactsPath, func(ctx khttp.Context) error {
 		modelDevQueryHeaders(ctx)
