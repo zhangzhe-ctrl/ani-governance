@@ -52,7 +52,7 @@ service NetworkService {
    };
  }
  rpc CreateVPC(catalog.service.v1.CreateVPCRequest) returns (catalog.service.v1.CreateVPCResponse) {
-   option (google.api.http) = { post: "/api/v1/networks/vpcs" body: "*" };
+   option (google.api.http) = { post: "/api/v1/networks/vpcs" body: "*" response_body: "vpc" };
    option (gnostic.openapi.v3.operation) = {
      security: [
        { additional_properties: [{ name: "BearerAuth" value: {} }] },
@@ -65,6 +65,7 @@ service NetworkService {
      summary: "Create a VPC in the authenticated tenant"
      description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:create permission. The VPC is created asynchronously; the response carries the persisted record and an operation id. Retries with the same idempotency_key replay the original result."
      responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "Accepted resource snapshot; inspect state and last_operation_id for completion" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/VPC" } } } }] } } } },
        { name: "400" value: { response: { description: "Invalid name, CIDR or idempotency key" } } },
        { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
        { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
@@ -74,7 +75,7 @@ service NetworkService {
    };
  }
  rpc DeleteVPC(catalog.service.v1.DeleteVPCRequest) returns (catalog.service.v1.DeleteVPCResponse) {
-   option (google.api.http) = { delete: "/api/v1/networks/vpcs/{vpc_id}" };
+   option (google.api.http) = { delete: "/api/v1/networks/vpcs/{vpc_id}" response_body: "vpc" };
    option (gnostic.openapi.v3.operation) = {
      security: [
        { additional_properties: [{ name: "BearerAuth" value: {} }] },
@@ -87,6 +88,7 @@ service NetworkService {
      summary: "Delete a VPC in the authenticated tenant"
      description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:vpc:delete permission. Deletion is asynchronous; the response carries the final record state and an operation id. Cross-tenant and missing VPCs both return 404."
      responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "Accepted resource snapshot; inspect state and last_operation_id for completion" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/VPC" } } } }] } } } },
        { name: "400" value: { response: { description: "Invalid VPC ID" } } },
        { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
        { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
@@ -110,7 +112,7 @@ service NetworkService {
      summary: "Get a network operation result"
      description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:operation:get permission. Returns the processing result of one tenant-owned operation; cross-tenant and missing operations both return 404."
      responses: { response_or_reference: [
-       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/Operation" } } } }] } } } },
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/NetworkOperation" } } } }] } } } },
        { name: "400" value: { response: { description: "Invalid operation ID" } } },
        { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
        { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
@@ -167,7 +169,7 @@ service NetworkService {
    };
  }
  rpc CreateEIP(catalog.service.v1.CreateEIPRequest) returns (catalog.service.v1.CreateEIPResponse) {
-   option (google.api.http) = { post: "/api/v1/networks/eips" body: "*" };
+   option (google.api.http) = { post: "/api/v1/networks/eips" body: "*" response_body: "eip" };
    option (gnostic.openapi.v3.operation) = {
      security: [
        { additional_properties: [{ name: "BearerAuth" value: {} }] },
@@ -180,6 +182,7 @@ service NetworkService {
      summary: "Allocate a public EIP for the authenticated tenant"
      description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:create permission. Allocation is asynchronous; retries with the same idempotency_key replay the original result. Only Public addresses are allocatable."
      responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "Accepted resource snapshot; inspect state and last_operation_id for completion" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/EIP" } } } }] } } } },
        { name: "400" value: { response: { description: "Invalid name, description or idempotency key" } } },
        { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
        { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
@@ -189,7 +192,7 @@ service NetworkService {
    };
  }
  rpc DeleteEIP(catalog.service.v1.DeleteEIPRequest) returns (catalog.service.v1.DeleteEIPResponse) {
-   option (google.api.http) = { delete: "/api/v1/networks/eips/{eip_id}" };
+   option (google.api.http) = { delete: "/api/v1/networks/eips/{eip_id}" response_body: "eip" };
    option (gnostic.openapi.v3.operation) = {
      security: [
        { additional_properties: [{ name: "BearerAuth" value: {} }] },
@@ -202,6 +205,7 @@ service NetworkService {
      summary: "Release an EIP in the authenticated tenant"
      description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:eip:delete permission. Release is asynchronous; a bound EIP must be unbound first. Cross-tenant and missing EIPs both return 404."
      responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "Accepted resource snapshot; inspect state and last_operation_id for completion" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/EIP" } } } }] } } } },
        { name: "400" value: { response: { description: "Invalid EIP ID" } } },
        { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
        { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
@@ -236,7 +240,7 @@ service NetworkService {
    };
  }
  rpc BindVPCSnat(catalog.service.v1.BindVPCSnatRequest) returns (catalog.service.v1.BindVPCSnatResponse) {
-   option (google.api.http) = { post: "/api/v1/networks/vpcs/{vpc_id}/snat/bindings" body: "*" };
+   option (google.api.http) = { post: "/api/v1/networks/vpcs/{vpc_id}/snat/bindings" body: "*" response_body: "snat" };
    option (gnostic.openapi.v3.operation) = {
      security: [
        { additional_properties: [{ name: "BearerAuth" value: {} }] },
@@ -249,12 +253,346 @@ service NetworkService {
      summary: "Bind a public EIP as a VPC's SNAT egress"
      description: "Requires user JWT or ANI HMAC-SHA256 signature, NETWORK subscription and network:snat:bind permission. Binding is asynchronous and exclusive; retries with the same idempotency_key replay the original result."
      responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "Accepted resource snapshot; inspect state and last_operation_id for completion" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/VPCSnat" } } } }] } } } },
        { name: "400" value: { response: { description: "Invalid VPC or EIP ID" } } },
        { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
        { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
        { name: "404" value: { response: { description: "VPC or EIP not found in this tenant" } } },
        { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
        { name: "504" value: { response: { description: "Connected Network call timed out" } } }
+     ] }
+   };
+ }
+ rpc CreateSubnet(catalog.service.v1.CreateSubnetRequest) returns (catalog.service.v1.CreateSubnetResponse) {
+   option (google.api.http) = { post: "/api/v1/networks/subnets" body: "*" response_body: "subnet" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "CreateSubnet in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:subnet:create permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion."
+     responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/Subnet" } } } }] } } } },
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc GetSubnet(catalog.service.v1.GetSubnetRequest) returns (catalog.service.v1.GetSubnetResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/subnets/{subnet_id}" response_body: "subnet" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "GetSubnet in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:subnet:get permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion."
+     responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/Subnet" } } } }] } } } },
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc ListSubnets(catalog.service.v1.ListSubnetsRequest) returns (catalog.service.v1.ListSubnetsResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/subnets" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "ListSubnets in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:subnet:list permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Cursor pagination preserves items, next_cursor and filtered total; limit is 1..100."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc DeleteSubnet(catalog.service.v1.DeleteSubnetRequest) returns (catalog.service.v1.DeleteSubnetResponse) {
+   option (google.api.http) = { delete: "/api/v1/networks/subnets/{subnet_id}" response_body: "subnet" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "DeleteSubnet in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:subnet:delete permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion."
+     responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/Subnet" } } } }] } } } },
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc GetVPCSnatBinding(catalog.service.v1.GetVPCSnatBindingRequest) returns (catalog.service.v1.GetVPCSnatBindingResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/snat/bindings/{binding_id}" response_body: "snat" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "GetVPCSnatBinding in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:snat:get permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. desired_enabled and optional applied_enabled distinguish intent from fresh observation; unbinding retains the independent EIP."
+     responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/VPCSnat" } } } }] } } } },
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc SetVPCSnatEnabled(catalog.service.v1.SetVPCSnatEnabledRequest) returns (catalog.service.v1.SetVPCSnatEnabledResponse) {
+   option (google.api.http) = { patch: "/api/v1/networks/snat/bindings/{binding_id}" body: "*" response_body: "snat" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "SetVPCSnatEnabled in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:snat:update permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. desired_enabled and optional applied_enabled distinguish intent from fresh observation; unbinding retains the independent EIP."
+     responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/VPCSnat" } } } }] } } } },
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc DeleteVPCSnatBinding(catalog.service.v1.DeleteVPCSnatBindingRequest) returns (catalog.service.v1.DeleteVPCSnatBindingResponse) {
+   option (google.api.http) = { delete: "/api/v1/networks/snat/bindings/{binding_id}" response_body: "snat" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "DeleteVPCSnatBinding in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:snat:delete permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. desired_enabled and optional applied_enabled distinguish intent from fresh observation; unbinding retains the independent EIP."
+     responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/VPCSnat" } } } }] } } } },
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc CreateLoadBalancer(catalog.service.v1.CreateLoadBalancerRequest) returns (catalog.service.v1.CreateLoadBalancerResponse) {
+   option (google.api.http) = { post: "/api/v1/networks/load-balancers" body: "*" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "CreateLoadBalancer in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:create permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc GetLoadBalancer(catalog.service.v1.GetLoadBalancerRequest) returns (catalog.service.v1.GetLoadBalancerResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/load-balancers/{load_balancer_id}" response_body: "load_balancer" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "GetLoadBalancer in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:get permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation."
+     responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/LoadBalancer" } } } }] } } } },
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc ListLoadBalancers(catalog.service.v1.ListLoadBalancersRequest) returns (catalog.service.v1.ListLoadBalancersResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/load-balancers" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "ListLoadBalancers in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:list permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Cursor pagination preserves items, next_cursor and filtered total; limit is 1..100. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc UpdateLoadBalancer(catalog.service.v1.UpdateLoadBalancerRequest) returns (catalog.service.v1.UpdateLoadBalancerResponse) {
+   option (google.api.http) = { patch: "/api/v1/networks/load-balancers/{load_balancer_id}" body: "*" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "UpdateLoadBalancer in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:update permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc DeleteLoadBalancer(catalog.service.v1.DeleteLoadBalancerRequest) returns (catalog.service.v1.DeleteLoadBalancerResponse) {
+   option (google.api.http) = { delete: "/api/v1/networks/load-balancers/{load_balancer_id}" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "DeleteLoadBalancer in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:delete permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation."
+     responses: { response_or_reference: [
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
+     ] }
+   };
+ }
+ rpc GetLoadBalancerOperation(catalog.service.v1.GetLoadBalancerOperationRequest) returns (catalog.service.v1.GetLoadBalancerOperationResponse) {
+   option (google.api.http) = { get: "/api/v1/networks/load-balancers/operations/{operation_id}" response_body: "operation" };
+   option (gnostic.openapi.v3.operation) = {
+     security: [
+       { additional_properties: [{ name: "BearerAuth" value: {} }] },
+       { additional_properties: [
+         { name: "AccessKeyAuth" value: {} },
+         { name: "SignatureAuth" value: {} },
+         { name: "SignatureTime" value: {} }
+       ] }
+     ]
+     summary: "GetLoadBalancerOperation in the authenticated tenant"
+     description: "Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:operation:get permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation."
+     responses: { response_or_reference: [
+       { name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/NetworkOperation" } } } }] } } } },
+       { name: "400" value: { response: { description: "Invalid resource ID, filter or request" } } },
+       { name: "401" value: { response: { description: "Missing, invalid, expired or revoked credentials" } } },
+       { name: "403" value: { response: { description: "Tenant, permission or subscription denied" } } },
+       { name: "404" value: { response: { description: "Resource not found in this tenant" } } },
+       { name: "409" value: { response: { description: "Idempotency or resource conflict" } } },
+       { name: "412" value: { response: { description: "Version, lifecycle, ownership or occupied-resource precondition failed" } } },
+       { name: "503" value: { response: { description: "Network dependency or trusted identity unavailable" } } },
+       { name: "504" value: { response: { description: "Connected network call timed out" } } }
      ] }
    };
  }

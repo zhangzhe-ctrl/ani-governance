@@ -20,17 +20,30 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	NetworkService_GetVPC_FullMethodName       = "/admin.service.v1.NetworkService/GetVPC"
-	NetworkService_ListVPCs_FullMethodName     = "/admin.service.v1.NetworkService/ListVPCs"
-	NetworkService_CreateVPC_FullMethodName    = "/admin.service.v1.NetworkService/CreateVPC"
-	NetworkService_DeleteVPC_FullMethodName    = "/admin.service.v1.NetworkService/DeleteVPC"
-	NetworkService_GetOperation_FullMethodName = "/admin.service.v1.NetworkService/GetOperation"
-	NetworkService_GetEIP_FullMethodName       = "/admin.service.v1.NetworkService/GetEIP"
-	NetworkService_ListEIPs_FullMethodName     = "/admin.service.v1.NetworkService/ListEIPs"
-	NetworkService_CreateEIP_FullMethodName    = "/admin.service.v1.NetworkService/CreateEIP"
-	NetworkService_DeleteEIP_FullMethodName    = "/admin.service.v1.NetworkService/DeleteEIP"
-	NetworkService_GetVPCSnat_FullMethodName   = "/admin.service.v1.NetworkService/GetVPCSnat"
-	NetworkService_BindVPCSnat_FullMethodName  = "/admin.service.v1.NetworkService/BindVPCSnat"
+	NetworkService_GetVPC_FullMethodName                   = "/admin.service.v1.NetworkService/GetVPC"
+	NetworkService_ListVPCs_FullMethodName                 = "/admin.service.v1.NetworkService/ListVPCs"
+	NetworkService_CreateVPC_FullMethodName                = "/admin.service.v1.NetworkService/CreateVPC"
+	NetworkService_DeleteVPC_FullMethodName                = "/admin.service.v1.NetworkService/DeleteVPC"
+	NetworkService_GetOperation_FullMethodName             = "/admin.service.v1.NetworkService/GetOperation"
+	NetworkService_GetEIP_FullMethodName                   = "/admin.service.v1.NetworkService/GetEIP"
+	NetworkService_ListEIPs_FullMethodName                 = "/admin.service.v1.NetworkService/ListEIPs"
+	NetworkService_CreateEIP_FullMethodName                = "/admin.service.v1.NetworkService/CreateEIP"
+	NetworkService_DeleteEIP_FullMethodName                = "/admin.service.v1.NetworkService/DeleteEIP"
+	NetworkService_GetVPCSnat_FullMethodName               = "/admin.service.v1.NetworkService/GetVPCSnat"
+	NetworkService_BindVPCSnat_FullMethodName              = "/admin.service.v1.NetworkService/BindVPCSnat"
+	NetworkService_CreateSubnet_FullMethodName             = "/admin.service.v1.NetworkService/CreateSubnet"
+	NetworkService_GetSubnet_FullMethodName                = "/admin.service.v1.NetworkService/GetSubnet"
+	NetworkService_ListSubnets_FullMethodName              = "/admin.service.v1.NetworkService/ListSubnets"
+	NetworkService_DeleteSubnet_FullMethodName             = "/admin.service.v1.NetworkService/DeleteSubnet"
+	NetworkService_GetVPCSnatBinding_FullMethodName        = "/admin.service.v1.NetworkService/GetVPCSnatBinding"
+	NetworkService_SetVPCSnatEnabled_FullMethodName        = "/admin.service.v1.NetworkService/SetVPCSnatEnabled"
+	NetworkService_DeleteVPCSnatBinding_FullMethodName     = "/admin.service.v1.NetworkService/DeleteVPCSnatBinding"
+	NetworkService_CreateLoadBalancer_FullMethodName       = "/admin.service.v1.NetworkService/CreateLoadBalancer"
+	NetworkService_GetLoadBalancer_FullMethodName          = "/admin.service.v1.NetworkService/GetLoadBalancer"
+	NetworkService_ListLoadBalancers_FullMethodName        = "/admin.service.v1.NetworkService/ListLoadBalancers"
+	NetworkService_UpdateLoadBalancer_FullMethodName       = "/admin.service.v1.NetworkService/UpdateLoadBalancer"
+	NetworkService_DeleteLoadBalancer_FullMethodName       = "/admin.service.v1.NetworkService/DeleteLoadBalancer"
+	NetworkService_GetLoadBalancerOperation_FullMethodName = "/admin.service.v1.NetworkService/GetLoadBalancerOperation"
 )
 
 // NetworkServiceClient is the client API for NetworkService service.
@@ -48,6 +61,19 @@ type NetworkServiceClient interface {
 	DeleteEIP(ctx context.Context, in *v1.DeleteEIPRequest, opts ...grpc.CallOption) (*v1.DeleteEIPResponse, error)
 	GetVPCSnat(ctx context.Context, in *v1.GetVPCSnatRequest, opts ...grpc.CallOption) (*v1.GetVPCSnatResponse, error)
 	BindVPCSnat(ctx context.Context, in *v1.BindVPCSnatRequest, opts ...grpc.CallOption) (*v1.BindVPCSnatResponse, error)
+	CreateSubnet(ctx context.Context, in *v1.CreateSubnetRequest, opts ...grpc.CallOption) (*v1.CreateSubnetResponse, error)
+	GetSubnet(ctx context.Context, in *v1.GetSubnetRequest, opts ...grpc.CallOption) (*v1.GetSubnetResponse, error)
+	ListSubnets(ctx context.Context, in *v1.ListSubnetsRequest, opts ...grpc.CallOption) (*v1.ListSubnetsResponse, error)
+	DeleteSubnet(ctx context.Context, in *v1.DeleteSubnetRequest, opts ...grpc.CallOption) (*v1.DeleteSubnetResponse, error)
+	GetVPCSnatBinding(ctx context.Context, in *v1.GetVPCSnatBindingRequest, opts ...grpc.CallOption) (*v1.GetVPCSnatBindingResponse, error)
+	SetVPCSnatEnabled(ctx context.Context, in *v1.SetVPCSnatEnabledRequest, opts ...grpc.CallOption) (*v1.SetVPCSnatEnabledResponse, error)
+	DeleteVPCSnatBinding(ctx context.Context, in *v1.DeleteVPCSnatBindingRequest, opts ...grpc.CallOption) (*v1.DeleteVPCSnatBindingResponse, error)
+	CreateLoadBalancer(ctx context.Context, in *v1.CreateLoadBalancerRequest, opts ...grpc.CallOption) (*v1.CreateLoadBalancerResponse, error)
+	GetLoadBalancer(ctx context.Context, in *v1.GetLoadBalancerRequest, opts ...grpc.CallOption) (*v1.GetLoadBalancerResponse, error)
+	ListLoadBalancers(ctx context.Context, in *v1.ListLoadBalancersRequest, opts ...grpc.CallOption) (*v1.ListLoadBalancersResponse, error)
+	UpdateLoadBalancer(ctx context.Context, in *v1.UpdateLoadBalancerRequest, opts ...grpc.CallOption) (*v1.UpdateLoadBalancerResponse, error)
+	DeleteLoadBalancer(ctx context.Context, in *v1.DeleteLoadBalancerRequest, opts ...grpc.CallOption) (*v1.DeleteLoadBalancerResponse, error)
+	GetLoadBalancerOperation(ctx context.Context, in *v1.GetLoadBalancerOperationRequest, opts ...grpc.CallOption) (*v1.GetLoadBalancerOperationResponse, error)
 }
 
 type networkServiceClient struct {
@@ -168,6 +194,136 @@ func (c *networkServiceClient) BindVPCSnat(ctx context.Context, in *v1.BindVPCSn
 	return out, nil
 }
 
+func (c *networkServiceClient) CreateSubnet(ctx context.Context, in *v1.CreateSubnetRequest, opts ...grpc.CallOption) (*v1.CreateSubnetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.CreateSubnetResponse)
+	err := c.cc.Invoke(ctx, NetworkService_CreateSubnet_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) GetSubnet(ctx context.Context, in *v1.GetSubnetRequest, opts ...grpc.CallOption) (*v1.GetSubnetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.GetSubnetResponse)
+	err := c.cc.Invoke(ctx, NetworkService_GetSubnet_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) ListSubnets(ctx context.Context, in *v1.ListSubnetsRequest, opts ...grpc.CallOption) (*v1.ListSubnetsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ListSubnetsResponse)
+	err := c.cc.Invoke(ctx, NetworkService_ListSubnets_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) DeleteSubnet(ctx context.Context, in *v1.DeleteSubnetRequest, opts ...grpc.CallOption) (*v1.DeleteSubnetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.DeleteSubnetResponse)
+	err := c.cc.Invoke(ctx, NetworkService_DeleteSubnet_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) GetVPCSnatBinding(ctx context.Context, in *v1.GetVPCSnatBindingRequest, opts ...grpc.CallOption) (*v1.GetVPCSnatBindingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.GetVPCSnatBindingResponse)
+	err := c.cc.Invoke(ctx, NetworkService_GetVPCSnatBinding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) SetVPCSnatEnabled(ctx context.Context, in *v1.SetVPCSnatEnabledRequest, opts ...grpc.CallOption) (*v1.SetVPCSnatEnabledResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.SetVPCSnatEnabledResponse)
+	err := c.cc.Invoke(ctx, NetworkService_SetVPCSnatEnabled_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) DeleteVPCSnatBinding(ctx context.Context, in *v1.DeleteVPCSnatBindingRequest, opts ...grpc.CallOption) (*v1.DeleteVPCSnatBindingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.DeleteVPCSnatBindingResponse)
+	err := c.cc.Invoke(ctx, NetworkService_DeleteVPCSnatBinding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) CreateLoadBalancer(ctx context.Context, in *v1.CreateLoadBalancerRequest, opts ...grpc.CallOption) (*v1.CreateLoadBalancerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.CreateLoadBalancerResponse)
+	err := c.cc.Invoke(ctx, NetworkService_CreateLoadBalancer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) GetLoadBalancer(ctx context.Context, in *v1.GetLoadBalancerRequest, opts ...grpc.CallOption) (*v1.GetLoadBalancerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.GetLoadBalancerResponse)
+	err := c.cc.Invoke(ctx, NetworkService_GetLoadBalancer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) ListLoadBalancers(ctx context.Context, in *v1.ListLoadBalancersRequest, opts ...grpc.CallOption) (*v1.ListLoadBalancersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ListLoadBalancersResponse)
+	err := c.cc.Invoke(ctx, NetworkService_ListLoadBalancers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) UpdateLoadBalancer(ctx context.Context, in *v1.UpdateLoadBalancerRequest, opts ...grpc.CallOption) (*v1.UpdateLoadBalancerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.UpdateLoadBalancerResponse)
+	err := c.cc.Invoke(ctx, NetworkService_UpdateLoadBalancer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) DeleteLoadBalancer(ctx context.Context, in *v1.DeleteLoadBalancerRequest, opts ...grpc.CallOption) (*v1.DeleteLoadBalancerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.DeleteLoadBalancerResponse)
+	err := c.cc.Invoke(ctx, NetworkService_DeleteLoadBalancer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *networkServiceClient) GetLoadBalancerOperation(ctx context.Context, in *v1.GetLoadBalancerOperationRequest, opts ...grpc.CallOption) (*v1.GetLoadBalancerOperationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.GetLoadBalancerOperationResponse)
+	err := c.cc.Invoke(ctx, NetworkService_GetLoadBalancerOperation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NetworkServiceServer is the server API for NetworkService service.
 // All implementations must embed UnimplementedNetworkServiceServer
 // for forward compatibility.
@@ -183,6 +339,19 @@ type NetworkServiceServer interface {
 	DeleteEIP(context.Context, *v1.DeleteEIPRequest) (*v1.DeleteEIPResponse, error)
 	GetVPCSnat(context.Context, *v1.GetVPCSnatRequest) (*v1.GetVPCSnatResponse, error)
 	BindVPCSnat(context.Context, *v1.BindVPCSnatRequest) (*v1.BindVPCSnatResponse, error)
+	CreateSubnet(context.Context, *v1.CreateSubnetRequest) (*v1.CreateSubnetResponse, error)
+	GetSubnet(context.Context, *v1.GetSubnetRequest) (*v1.GetSubnetResponse, error)
+	ListSubnets(context.Context, *v1.ListSubnetsRequest) (*v1.ListSubnetsResponse, error)
+	DeleteSubnet(context.Context, *v1.DeleteSubnetRequest) (*v1.DeleteSubnetResponse, error)
+	GetVPCSnatBinding(context.Context, *v1.GetVPCSnatBindingRequest) (*v1.GetVPCSnatBindingResponse, error)
+	SetVPCSnatEnabled(context.Context, *v1.SetVPCSnatEnabledRequest) (*v1.SetVPCSnatEnabledResponse, error)
+	DeleteVPCSnatBinding(context.Context, *v1.DeleteVPCSnatBindingRequest) (*v1.DeleteVPCSnatBindingResponse, error)
+	CreateLoadBalancer(context.Context, *v1.CreateLoadBalancerRequest) (*v1.CreateLoadBalancerResponse, error)
+	GetLoadBalancer(context.Context, *v1.GetLoadBalancerRequest) (*v1.GetLoadBalancerResponse, error)
+	ListLoadBalancers(context.Context, *v1.ListLoadBalancersRequest) (*v1.ListLoadBalancersResponse, error)
+	UpdateLoadBalancer(context.Context, *v1.UpdateLoadBalancerRequest) (*v1.UpdateLoadBalancerResponse, error)
+	DeleteLoadBalancer(context.Context, *v1.DeleteLoadBalancerRequest) (*v1.DeleteLoadBalancerResponse, error)
+	GetLoadBalancerOperation(context.Context, *v1.GetLoadBalancerOperationRequest) (*v1.GetLoadBalancerOperationResponse, error)
 	mustEmbedUnimplementedNetworkServiceServer()
 }
 
@@ -225,6 +394,45 @@ func (UnimplementedNetworkServiceServer) GetVPCSnat(context.Context, *v1.GetVPCS
 }
 func (UnimplementedNetworkServiceServer) BindVPCSnat(context.Context, *v1.BindVPCSnatRequest) (*v1.BindVPCSnatResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BindVPCSnat not implemented")
+}
+func (UnimplementedNetworkServiceServer) CreateSubnet(context.Context, *v1.CreateSubnetRequest) (*v1.CreateSubnetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateSubnet not implemented")
+}
+func (UnimplementedNetworkServiceServer) GetSubnet(context.Context, *v1.GetSubnetRequest) (*v1.GetSubnetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetSubnet not implemented")
+}
+func (UnimplementedNetworkServiceServer) ListSubnets(context.Context, *v1.ListSubnetsRequest) (*v1.ListSubnetsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListSubnets not implemented")
+}
+func (UnimplementedNetworkServiceServer) DeleteSubnet(context.Context, *v1.DeleteSubnetRequest) (*v1.DeleteSubnetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteSubnet not implemented")
+}
+func (UnimplementedNetworkServiceServer) GetVPCSnatBinding(context.Context, *v1.GetVPCSnatBindingRequest) (*v1.GetVPCSnatBindingResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetVPCSnatBinding not implemented")
+}
+func (UnimplementedNetworkServiceServer) SetVPCSnatEnabled(context.Context, *v1.SetVPCSnatEnabledRequest) (*v1.SetVPCSnatEnabledResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetVPCSnatEnabled not implemented")
+}
+func (UnimplementedNetworkServiceServer) DeleteVPCSnatBinding(context.Context, *v1.DeleteVPCSnatBindingRequest) (*v1.DeleteVPCSnatBindingResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteVPCSnatBinding not implemented")
+}
+func (UnimplementedNetworkServiceServer) CreateLoadBalancer(context.Context, *v1.CreateLoadBalancerRequest) (*v1.CreateLoadBalancerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateLoadBalancer not implemented")
+}
+func (UnimplementedNetworkServiceServer) GetLoadBalancer(context.Context, *v1.GetLoadBalancerRequest) (*v1.GetLoadBalancerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetLoadBalancer not implemented")
+}
+func (UnimplementedNetworkServiceServer) ListLoadBalancers(context.Context, *v1.ListLoadBalancersRequest) (*v1.ListLoadBalancersResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListLoadBalancers not implemented")
+}
+func (UnimplementedNetworkServiceServer) UpdateLoadBalancer(context.Context, *v1.UpdateLoadBalancerRequest) (*v1.UpdateLoadBalancerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateLoadBalancer not implemented")
+}
+func (UnimplementedNetworkServiceServer) DeleteLoadBalancer(context.Context, *v1.DeleteLoadBalancerRequest) (*v1.DeleteLoadBalancerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteLoadBalancer not implemented")
+}
+func (UnimplementedNetworkServiceServer) GetLoadBalancerOperation(context.Context, *v1.GetLoadBalancerOperationRequest) (*v1.GetLoadBalancerOperationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetLoadBalancerOperation not implemented")
 }
 func (UnimplementedNetworkServiceServer) mustEmbedUnimplementedNetworkServiceServer() {}
 func (UnimplementedNetworkServiceServer) testEmbeddedByValue()                        {}
@@ -445,6 +653,240 @@ func _NetworkService_BindVPCSnat_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NetworkService_CreateSubnet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.CreateSubnetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).CreateSubnet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_CreateSubnet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).CreateSubnet(ctx, req.(*v1.CreateSubnetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_GetSubnet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.GetSubnetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).GetSubnet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_GetSubnet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).GetSubnet(ctx, req.(*v1.GetSubnetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_ListSubnets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ListSubnetsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).ListSubnets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_ListSubnets_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).ListSubnets(ctx, req.(*v1.ListSubnetsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_DeleteSubnet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.DeleteSubnetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).DeleteSubnet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_DeleteSubnet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).DeleteSubnet(ctx, req.(*v1.DeleteSubnetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_GetVPCSnatBinding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.GetVPCSnatBindingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).GetVPCSnatBinding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_GetVPCSnatBinding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).GetVPCSnatBinding(ctx, req.(*v1.GetVPCSnatBindingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_SetVPCSnatEnabled_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.SetVPCSnatEnabledRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).SetVPCSnatEnabled(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_SetVPCSnatEnabled_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).SetVPCSnatEnabled(ctx, req.(*v1.SetVPCSnatEnabledRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_DeleteVPCSnatBinding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.DeleteVPCSnatBindingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).DeleteVPCSnatBinding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_DeleteVPCSnatBinding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).DeleteVPCSnatBinding(ctx, req.(*v1.DeleteVPCSnatBindingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_CreateLoadBalancer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.CreateLoadBalancerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).CreateLoadBalancer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_CreateLoadBalancer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).CreateLoadBalancer(ctx, req.(*v1.CreateLoadBalancerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_GetLoadBalancer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.GetLoadBalancerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).GetLoadBalancer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_GetLoadBalancer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).GetLoadBalancer(ctx, req.(*v1.GetLoadBalancerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_ListLoadBalancers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ListLoadBalancersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).ListLoadBalancers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_ListLoadBalancers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).ListLoadBalancers(ctx, req.(*v1.ListLoadBalancersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_UpdateLoadBalancer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.UpdateLoadBalancerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).UpdateLoadBalancer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_UpdateLoadBalancer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).UpdateLoadBalancer(ctx, req.(*v1.UpdateLoadBalancerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_DeleteLoadBalancer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.DeleteLoadBalancerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).DeleteLoadBalancer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_DeleteLoadBalancer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).DeleteLoadBalancer(ctx, req.(*v1.DeleteLoadBalancerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetworkService_GetLoadBalancerOperation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.GetLoadBalancerOperationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).GetLoadBalancerOperation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_GetLoadBalancerOperation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).GetLoadBalancerOperation(ctx, req.(*v1.GetLoadBalancerOperationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NetworkService_ServiceDesc is the grpc.ServiceDesc for NetworkService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -495,6 +937,58 @@ var NetworkService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BindVPCSnat",
 			Handler:    _NetworkService_BindVPCSnat_Handler,
+		},
+		{
+			MethodName: "CreateSubnet",
+			Handler:    _NetworkService_CreateSubnet_Handler,
+		},
+		{
+			MethodName: "GetSubnet",
+			Handler:    _NetworkService_GetSubnet_Handler,
+		},
+		{
+			MethodName: "ListSubnets",
+			Handler:    _NetworkService_ListSubnets_Handler,
+		},
+		{
+			MethodName: "DeleteSubnet",
+			Handler:    _NetworkService_DeleteSubnet_Handler,
+		},
+		{
+			MethodName: "GetVPCSnatBinding",
+			Handler:    _NetworkService_GetVPCSnatBinding_Handler,
+		},
+		{
+			MethodName: "SetVPCSnatEnabled",
+			Handler:    _NetworkService_SetVPCSnatEnabled_Handler,
+		},
+		{
+			MethodName: "DeleteVPCSnatBinding",
+			Handler:    _NetworkService_DeleteVPCSnatBinding_Handler,
+		},
+		{
+			MethodName: "CreateLoadBalancer",
+			Handler:    _NetworkService_CreateLoadBalancer_Handler,
+		},
+		{
+			MethodName: "GetLoadBalancer",
+			Handler:    _NetworkService_GetLoadBalancer_Handler,
+		},
+		{
+			MethodName: "ListLoadBalancers",
+			Handler:    _NetworkService_ListLoadBalancers_Handler,
+		},
+		{
+			MethodName: "UpdateLoadBalancer",
+			Handler:    _NetworkService_UpdateLoadBalancer_Handler,
+		},
+		{
+			MethodName: "DeleteLoadBalancer",
+			Handler:    _NetworkService_DeleteLoadBalancer_Handler,
+		},
+		{
+			MethodName: "GetLoadBalancerOperation",
+			Handler:    _NetworkService_GetLoadBalancerOperation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

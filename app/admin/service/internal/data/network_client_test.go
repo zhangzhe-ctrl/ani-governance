@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 	"testing"
 	"time"
 )
@@ -101,5 +102,149 @@ func TestNetworkClientKeyActor(t *testing.T) {
 		if _, err := c.GetVPC(ctx, "11111111-1111-4111-8111-111111111111", actor, "vpc_11111111111111111111111111111111"); err == nil {
 			t.Fatalf("accepted %s", actor)
 		}
+	}
+}
+
+type networkTenantRPCProbe struct {
+	networkv1.NetworkServiceClient
+	networkv1.TenantEgressServiceClient
+	networkv1.TenantLoadBalancerServiceClient
+	t        *testing.T
+	requests map[string]proto.Message
+}
+
+func (p *networkTenantRPCProbe) capture(ctx context.Context, tenant, method string, request proto.Message) {
+	md, _ := metadata.FromOutgoingContext(ctx)
+	if len(md) != 3 || len(md.Get("x-ani-tenant-id")) != 1 || md.Get("x-ani-tenant-id")[0] != tenant || tenant != "11111111-1111-4111-8111-111111111111" || len(md.Get("x-ani-actor")) != 1 || md.Get("x-ani-actor")[0] != "governance:access-key:42" || len(md.Get("x-ani-request-id")) != 1 {
+		p.t.Fatalf("trusted metadata not rebuilt for %s", method)
+	}
+	if id, err := uuid.Parse(md.Get("x-ani-request-id")[0]); err != nil || id == uuid.Nil {
+		p.t.Fatalf("invalid request identity for %s", method)
+	}
+	if _, ok := ctx.Deadline(); !ok {
+		p.t.Fatal("missing bounded deadline")
+	}
+	p.requests[method] = request
+}
+func (p *networkTenantRPCProbe) CreateSubnet(ctx context.Context, in *networkv1.CreateSubnetRequest, _ ...grpc.CallOption) (*networkv1.CreateSubnetResponse, error) {
+	p.capture(ctx, in.TenantId, "CreateSubnet", in)
+	return &networkv1.CreateSubnetResponse{}, nil
+}
+func (p *networkTenantRPCProbe) GetSubnet(ctx context.Context, in *networkv1.GetSubnetRequest, _ ...grpc.CallOption) (*networkv1.GetSubnetResponse, error) {
+	p.capture(ctx, in.TenantId, "GetSubnet", in)
+	return &networkv1.GetSubnetResponse{}, nil
+}
+func (p *networkTenantRPCProbe) ListSubnets(ctx context.Context, in *networkv1.ListSubnetsRequest, _ ...grpc.CallOption) (*networkv1.ListSubnetsResponse, error) {
+	p.capture(ctx, in.TenantId, "ListSubnets", in)
+	return &networkv1.ListSubnetsResponse{}, nil
+}
+func (p *networkTenantRPCProbe) DeleteSubnet(ctx context.Context, in *networkv1.DeleteSubnetRequest, _ ...grpc.CallOption) (*networkv1.DeleteSubnetResponse, error) {
+	p.capture(ctx, in.TenantId, "DeleteSubnet", in)
+	return &networkv1.DeleteSubnetResponse{}, nil
+}
+func (p *networkTenantRPCProbe) GetVPCSnatBinding(ctx context.Context, in *networkv1.GetVPCSnatBindingRequest, _ ...grpc.CallOption) (*networkv1.GetVPCSnatBindingResponse, error) {
+	p.capture(ctx, in.TargetTenantId, "GetVPCSnatBinding", in)
+	return &networkv1.GetVPCSnatBindingResponse{}, nil
+}
+func (p *networkTenantRPCProbe) SetVPCSnatEnabled(ctx context.Context, in *networkv1.SetVPCSnatEnabledRequest, _ ...grpc.CallOption) (*networkv1.SetVPCSnatEnabledResponse, error) {
+	p.capture(ctx, in.TargetTenantId, "SetVPCSnatEnabled", in)
+	return &networkv1.SetVPCSnatEnabledResponse{}, nil
+}
+func (p *networkTenantRPCProbe) DeleteVPCSnatBinding(ctx context.Context, in *networkv1.DeleteVPCSnatBindingRequest, _ ...grpc.CallOption) (*networkv1.DeleteVPCSnatBindingResponse, error) {
+	p.capture(ctx, in.TargetTenantId, "DeleteVPCSnatBinding", in)
+	return &networkv1.DeleteVPCSnatBindingResponse{}, nil
+}
+func (p *networkTenantRPCProbe) CreateLoadBalancer(ctx context.Context, in *networkv1.CreateLoadBalancerRequest, _ ...grpc.CallOption) (*networkv1.CreateLoadBalancerResponse, error) {
+	p.capture(ctx, in.TargetTenantId, "CreateLoadBalancer", in)
+	return &networkv1.CreateLoadBalancerResponse{}, nil
+}
+func (p *networkTenantRPCProbe) GetLoadBalancer(ctx context.Context, in *networkv1.GetLoadBalancerRequest, _ ...grpc.CallOption) (*networkv1.GetLoadBalancerResponse, error) {
+	p.capture(ctx, in.TargetTenantId, "GetLoadBalancer", in)
+	return &networkv1.GetLoadBalancerResponse{}, nil
+}
+func (p *networkTenantRPCProbe) ListLoadBalancers(ctx context.Context, in *networkv1.ListLoadBalancersRequest, _ ...grpc.CallOption) (*networkv1.ListLoadBalancersResponse, error) {
+	p.capture(ctx, in.TargetTenantId, "ListLoadBalancers", in)
+	return &networkv1.ListLoadBalancersResponse{}, nil
+}
+func (p *networkTenantRPCProbe) UpdateLoadBalancer(ctx context.Context, in *networkv1.UpdateLoadBalancerRequest, _ ...grpc.CallOption) (*networkv1.UpdateLoadBalancerResponse, error) {
+	p.capture(ctx, in.TargetTenantId, "UpdateLoadBalancer", in)
+	return &networkv1.UpdateLoadBalancerResponse{}, nil
+}
+func (p *networkTenantRPCProbe) DeleteLoadBalancer(ctx context.Context, in *networkv1.DeleteLoadBalancerRequest, _ ...grpc.CallOption) (*networkv1.DeleteLoadBalancerResponse, error) {
+	p.capture(ctx, in.TargetTenantId, "DeleteLoadBalancer", in)
+	return &networkv1.DeleteLoadBalancerResponse{}, nil
+}
+func (p *networkTenantRPCProbe) GetLoadBalancerOperation(ctx context.Context, in *networkv1.GetLoadBalancerOperationRequest, _ ...grpc.CallOption) (*networkv1.GetLoadBalancerOperationResponse, error) {
+	p.capture(ctx, in.TargetTenantId, "GetLoadBalancerOperation", in)
+	return &networkv1.GetLoadBalancerOperationResponse{}, nil
+}
+func TestNetworkClientAllNewMethodsRebuildMetadata(t *testing.T) {
+	probe := &networkTenantRPCProbe{t: t, requests: make(map[string]proto.Message)}
+	c := &NetworkClient{client: probe, egress: probe, loadBalancers: probe, timeout: time.Second}
+	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("evil", "public", "x-ani-tenant-id", "forged", "x-ani-actor", "governance:user:999", "authorization", "private", "x-signature", "private"))
+	tenant, actor := "11111111-1111-4111-8111-111111111111", "governance:access-key:42"
+	gateway := "10.0.1.254"
+	zero, port := uint32(0), uint32(80)
+	createLB := &networkv1.CreateLoadBalancerRequest{TargetTenantId: "forged", VpcId: "vpc", SubnetId: "subnet", IdempotencyKey: "create-key", Backends: []*networkv1.LoadBalancerBackendInput{{Weight: &zero}}, HealthCheck: &networkv1.LoadBalancerHealthCheck{Port: &port}}
+	updateLB := &networkv1.UpdateLoadBalancerRequest{TargetTenantId: "forged", LoadBalancerId: "lb", ExpectedVersion: 19, IdempotencyKey: "update-key"}
+	listLB := &networkv1.ListLoadBalancersRequest{TargetTenantId: "forged", VpcId: "vpc", SubnetId: "subnet", Limit: 7, Cursor: "lb-cursor", Exposure: networkv1.LoadBalancerExposure_LOAD_BALANCER_EXPOSURE_PRIVATE, State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}
+	calls := []struct {
+		name string
+		call func(string) error
+	}{
+		{"CreateSubnet", func(a string) error {
+			_, err := c.CreateSubnet(ctx, tenant, a, "vpc", "subnet", "10.0.1.0/24", "description", "subnet-key", &gateway)
+			return err
+		}},
+		{"GetSubnet", func(a string) error { _, err := c.GetSubnet(ctx, tenant, a, "subnet"); return err }},
+		{"ListSubnets", func(a string) error {
+			_, err := c.ListSubnets(ctx, tenant, a, "vpc", "name", "AVAILABLE", 7, "subnet-cursor")
+			return err
+		}},
+		{"DeleteSubnet", func(a string) error { _, err := c.DeleteSubnet(ctx, tenant, a, "subnet"); return err }},
+		{"GetVPCSnatBinding", func(a string) error { _, err := c.GetVPCSnatBinding(ctx, tenant, a, "binding"); return err }},
+		{"SetVPCSnatEnabled", func(a string) error {
+			_, err := c.SetVPCSnatEnabled(ctx, tenant, a, "binding", false, 19, "toggle-key")
+			return err
+		}},
+		{"DeleteVPCSnatBinding", func(a string) error { _, err := c.DeleteVPCSnatBinding(ctx, tenant, a, "binding"); return err }},
+		{"CreateLoadBalancer", func(a string) error { _, err := c.CreateLoadBalancer(ctx, tenant, a, createLB); return err }},
+		{"GetLoadBalancer", func(a string) error { _, err := c.GetLoadBalancer(ctx, tenant, a, "lb"); return err }},
+		{"ListLoadBalancers", func(a string) error { _, err := c.ListLoadBalancers(ctx, tenant, a, listLB); return err }},
+		{"UpdateLoadBalancer", func(a string) error { _, err := c.UpdateLoadBalancer(ctx, tenant, a, updateLB); return err }},
+		{"DeleteLoadBalancer", func(a string) error { _, err := c.DeleteLoadBalancer(ctx, tenant, a, "lb"); return err }},
+		{"GetLoadBalancerOperation", func(a string) error { _, err := c.GetLoadBalancerOperation(ctx, tenant, a, "operation"); return err }},
+	}
+	for _, tc := range calls {
+		t.Run(tc.name, func(t *testing.T) {
+			if err := tc.call("governance:user:0"); err == nil {
+				t.Fatal("invalid actor accepted")
+			}
+			if probe.requests[tc.name] != nil {
+				t.Fatal("invalid actor reached RPC")
+			}
+			if err := tc.call(actor); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+	subnet := probe.requests["CreateSubnet"].(*networkv1.CreateSubnetRequest)
+	if subnet.Gateway == nil || *subnet.Gateway != gateway || subnet.Attribution.GetActor() != actor || subnet.Attribution.GetDirectCaller() != "ani-governance" || subnet.IdempotencyKey != "subnet-key" {
+		t.Fatal("subnet accepted intent changed")
+	}
+	subnetList := probe.requests["ListSubnets"].(*networkv1.ListSubnetsRequest)
+	if subnetList.VpcId != "vpc" || subnetList.Cursor != "subnet-cursor" || subnetList.Limit != 7 || subnetList.State != networkv1.ResourceState_RESOURCE_STATE_AVAILABLE {
+		t.Fatal("subnet filter changed")
+	}
+	toggle := probe.requests["SetVPCSnatEnabled"].(*networkv1.SetVPCSnatEnabledRequest)
+	if toggle.Enabled || toggle.ExpectedVersion != 19 || toggle.IdempotencyKey != "toggle-key" {
+		t.Fatal("SNAT mutation changed")
+	}
+	capturedCreate := probe.requests["CreateLoadBalancer"].(*networkv1.CreateLoadBalancerRequest)
+	if capturedCreate == createLB || capturedCreate.Backends[0].Weight == nil || *capturedCreate.Backends[0].Weight != 0 || capturedCreate.HealthCheck.Port == nil {
+		t.Fatal("LB cloned intent changed")
+	}
+	if createLB.TargetTenantId != "forged" || updateLB.TargetTenantId != "forged" || listLB.TargetTenantId != "forged" {
+		t.Fatal("client mutated caller request")
 	}
 }

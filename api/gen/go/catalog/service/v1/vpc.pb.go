@@ -22,6 +22,307 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Load balancer requests preserve Resource enum values and optional input presence.
+type LoadBalancerExposure int32
+
+const (
+	LoadBalancerExposure_LOAD_BALANCER_EXPOSURE_UNSPECIFIED    LoadBalancerExposure = 0
+	LoadBalancerExposure_LOAD_BALANCER_EXPOSURE_PRIVATE        LoadBalancerExposure = 1
+	LoadBalancerExposure_LOAD_BALANCER_EXPOSURE_PUBLIC         LoadBalancerExposure = 2
+	LoadBalancerExposure_LOAD_BALANCER_EXPOSURE_PUBLIC_PRIVATE LoadBalancerExposure = 3
+)
+
+// Enum value maps for LoadBalancerExposure.
+var (
+	LoadBalancerExposure_name = map[int32]string{
+		0: "LOAD_BALANCER_EXPOSURE_UNSPECIFIED",
+		1: "LOAD_BALANCER_EXPOSURE_PRIVATE",
+		2: "LOAD_BALANCER_EXPOSURE_PUBLIC",
+		3: "LOAD_BALANCER_EXPOSURE_PUBLIC_PRIVATE",
+	}
+	LoadBalancerExposure_value = map[string]int32{
+		"LOAD_BALANCER_EXPOSURE_UNSPECIFIED":    0,
+		"LOAD_BALANCER_EXPOSURE_PRIVATE":        1,
+		"LOAD_BALANCER_EXPOSURE_PUBLIC":         2,
+		"LOAD_BALANCER_EXPOSURE_PUBLIC_PRIVATE": 3,
+	}
+)
+
+func (x LoadBalancerExposure) Enum() *LoadBalancerExposure {
+	p := new(LoadBalancerExposure)
+	*p = x
+	return p
+}
+
+func (x LoadBalancerExposure) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LoadBalancerExposure) Descriptor() protoreflect.EnumDescriptor {
+	return file_catalog_service_v1_vpc_proto_enumTypes[0].Descriptor()
+}
+
+func (LoadBalancerExposure) Type() protoreflect.EnumType {
+	return &file_catalog_service_v1_vpc_proto_enumTypes[0]
+}
+
+func (x LoadBalancerExposure) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LoadBalancerExposure.Descriptor instead.
+func (LoadBalancerExposure) EnumDescriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{0}
+}
+
+type LoadBalancerListenerProtocol int32
+
+const (
+	LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED LoadBalancerListenerProtocol = 0
+	LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_HTTP        LoadBalancerListenerProtocol = 1
+)
+
+// Enum value maps for LoadBalancerListenerProtocol.
+var (
+	LoadBalancerListenerProtocol_name = map[int32]string{
+		0: "LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED",
+		1: "LOAD_BALANCER_LISTENER_PROTOCOL_HTTP",
+	}
+	LoadBalancerListenerProtocol_value = map[string]int32{
+		"LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED": 0,
+		"LOAD_BALANCER_LISTENER_PROTOCOL_HTTP":        1,
+	}
+)
+
+func (x LoadBalancerListenerProtocol) Enum() *LoadBalancerListenerProtocol {
+	p := new(LoadBalancerListenerProtocol)
+	*p = x
+	return p
+}
+
+func (x LoadBalancerListenerProtocol) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LoadBalancerListenerProtocol) Descriptor() protoreflect.EnumDescriptor {
+	return file_catalog_service_v1_vpc_proto_enumTypes[1].Descriptor()
+}
+
+func (LoadBalancerListenerProtocol) Type() protoreflect.EnumType {
+	return &file_catalog_service_v1_vpc_proto_enumTypes[1]
+}
+
+func (x LoadBalancerListenerProtocol) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LoadBalancerListenerProtocol.Descriptor instead.
+func (LoadBalancerListenerProtocol) EnumDescriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{1}
+}
+
+type LoadBalancerAlgorithm int32
+
+const (
+	LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_UNSPECIFIED LoadBalancerAlgorithm = 0
+	LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_ROUND_ROBIN LoadBalancerAlgorithm = 1
+)
+
+// Enum value maps for LoadBalancerAlgorithm.
+var (
+	LoadBalancerAlgorithm_name = map[int32]string{
+		0: "LOAD_BALANCER_ALGORITHM_UNSPECIFIED",
+		1: "LOAD_BALANCER_ALGORITHM_ROUND_ROBIN",
+	}
+	LoadBalancerAlgorithm_value = map[string]int32{
+		"LOAD_BALANCER_ALGORITHM_UNSPECIFIED": 0,
+		"LOAD_BALANCER_ALGORITHM_ROUND_ROBIN": 1,
+	}
+)
+
+func (x LoadBalancerAlgorithm) Enum() *LoadBalancerAlgorithm {
+	p := new(LoadBalancerAlgorithm)
+	*p = x
+	return p
+}
+
+func (x LoadBalancerAlgorithm) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LoadBalancerAlgorithm) Descriptor() protoreflect.EnumDescriptor {
+	return file_catalog_service_v1_vpc_proto_enumTypes[2].Descriptor()
+}
+
+func (LoadBalancerAlgorithm) Type() protoreflect.EnumType {
+	return &file_catalog_service_v1_vpc_proto_enumTypes[2]
+}
+
+func (x LoadBalancerAlgorithm) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LoadBalancerAlgorithm.Descriptor instead.
+func (LoadBalancerAlgorithm) EnumDescriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{2}
+}
+
+type LoadBalancerHealthCheckProtocol int32
+
+const (
+	LoadBalancerHealthCheckProtocol_LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED LoadBalancerHealthCheckProtocol = 0
+	LoadBalancerHealthCheckProtocol_LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP         LoadBalancerHealthCheckProtocol = 1
+)
+
+// Enum value maps for LoadBalancerHealthCheckProtocol.
+var (
+	LoadBalancerHealthCheckProtocol_name = map[int32]string{
+		0: "LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED",
+		1: "LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP",
+	}
+	LoadBalancerHealthCheckProtocol_value = map[string]int32{
+		"LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED": 0,
+		"LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP":         1,
+	}
+)
+
+func (x LoadBalancerHealthCheckProtocol) Enum() *LoadBalancerHealthCheckProtocol {
+	p := new(LoadBalancerHealthCheckProtocol)
+	*p = x
+	return p
+}
+
+func (x LoadBalancerHealthCheckProtocol) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LoadBalancerHealthCheckProtocol) Descriptor() protoreflect.EnumDescriptor {
+	return file_catalog_service_v1_vpc_proto_enumTypes[3].Descriptor()
+}
+
+func (LoadBalancerHealthCheckProtocol) Type() protoreflect.EnumType {
+	return &file_catalog_service_v1_vpc_proto_enumTypes[3]
+}
+
+func (x LoadBalancerHealthCheckProtocol) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LoadBalancerHealthCheckProtocol.Descriptor instead.
+func (LoadBalancerHealthCheckProtocol) EnumDescriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{3}
+}
+
+type LoadBalancerConfigurationState int32
+
+const (
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED LoadBalancerConfigurationState = 0
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_PENDING     LoadBalancerConfigurationState = 1
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_APPLYING    LoadBalancerConfigurationState = 2
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED  LoadBalancerConfigurationState = 3
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED    LoadBalancerConfigurationState = 4
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN     LoadBalancerConfigurationState = 5
+)
+
+// Enum value maps for LoadBalancerConfigurationState.
+var (
+	LoadBalancerConfigurationState_name = map[int32]string{
+		0: "LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED",
+		1: "LOAD_BALANCER_CONFIGURATION_STATE_PENDING",
+		2: "LOAD_BALANCER_CONFIGURATION_STATE_APPLYING",
+		3: "LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED",
+		4: "LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED",
+		5: "LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN",
+	}
+	LoadBalancerConfigurationState_value = map[string]int32{
+		"LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED": 0,
+		"LOAD_BALANCER_CONFIGURATION_STATE_PENDING":     1,
+		"LOAD_BALANCER_CONFIGURATION_STATE_APPLYING":    2,
+		"LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED":  3,
+		"LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED":    4,
+		"LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN":     5,
+	}
+)
+
+func (x LoadBalancerConfigurationState) Enum() *LoadBalancerConfigurationState {
+	p := new(LoadBalancerConfigurationState)
+	*p = x
+	return p
+}
+
+func (x LoadBalancerConfigurationState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LoadBalancerConfigurationState) Descriptor() protoreflect.EnumDescriptor {
+	return file_catalog_service_v1_vpc_proto_enumTypes[4].Descriptor()
+}
+
+func (LoadBalancerConfigurationState) Type() protoreflect.EnumType {
+	return &file_catalog_service_v1_vpc_proto_enumTypes[4]
+}
+
+func (x LoadBalancerConfigurationState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LoadBalancerConfigurationState.Descriptor instead.
+func (LoadBalancerConfigurationState) EnumDescriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{4}
+}
+
+type LoadBalancerDataPlaneState int32
+
+const (
+	LoadBalancerDataPlaneState_LOAD_BALANCER_DATA_PLANE_STATE_UNSPECIFIED LoadBalancerDataPlaneState = 0
+	LoadBalancerDataPlaneState_LOAD_BALANCER_DATA_PLANE_STATE_UNKNOWN     LoadBalancerDataPlaneState = 1
+	LoadBalancerDataPlaneState_LOAD_BALANCER_DATA_PLANE_STATE_HEALTHY     LoadBalancerDataPlaneState = 2
+	LoadBalancerDataPlaneState_LOAD_BALANCER_DATA_PLANE_STATE_UNHEALTHY   LoadBalancerDataPlaneState = 3
+)
+
+// Enum value maps for LoadBalancerDataPlaneState.
+var (
+	LoadBalancerDataPlaneState_name = map[int32]string{
+		0: "LOAD_BALANCER_DATA_PLANE_STATE_UNSPECIFIED",
+		1: "LOAD_BALANCER_DATA_PLANE_STATE_UNKNOWN",
+		2: "LOAD_BALANCER_DATA_PLANE_STATE_HEALTHY",
+		3: "LOAD_BALANCER_DATA_PLANE_STATE_UNHEALTHY",
+	}
+	LoadBalancerDataPlaneState_value = map[string]int32{
+		"LOAD_BALANCER_DATA_PLANE_STATE_UNSPECIFIED": 0,
+		"LOAD_BALANCER_DATA_PLANE_STATE_UNKNOWN":     1,
+		"LOAD_BALANCER_DATA_PLANE_STATE_HEALTHY":     2,
+		"LOAD_BALANCER_DATA_PLANE_STATE_UNHEALTHY":   3,
+	}
+)
+
+func (x LoadBalancerDataPlaneState) Enum() *LoadBalancerDataPlaneState {
+	p := new(LoadBalancerDataPlaneState)
+	*p = x
+	return p
+}
+
+func (x LoadBalancerDataPlaneState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LoadBalancerDataPlaneState) Descriptor() protoreflect.EnumDescriptor {
+	return file_catalog_service_v1_vpc_proto_enumTypes[5].Descriptor()
+}
+
+func (LoadBalancerDataPlaneState) Type() protoreflect.EnumType {
+	return &file_catalog_service_v1_vpc_proto_enumTypes[5]
+}
+
+func (x LoadBalancerDataPlaneState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LoadBalancerDataPlaneState.Descriptor instead.
+func (LoadBalancerDataPlaneState) EnumDescriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{5}
+}
+
 type GetVPCRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	VpcId         string                 `protobuf:"bytes,1,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
@@ -636,6 +937,7 @@ type Operation struct {
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,proto3" json:"updated_at,omitempty"`
 	CompletedAt   *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=completed_at,proto3" json:"completed_at,omitempty"`
 	NextAttemptAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=next_attempt_at,proto3" json:"next_attempt_at,omitempty"`
+	ReasonMessage string                 `protobuf:"bytes,11,opt,name=reason_message,proto3" json:"reason_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -738,6 +1040,13 @@ func (x *Operation) GetNextAttemptAt() *timestamppb.Timestamp {
 		return x.NextAttemptAt
 	}
 	return nil
+}
+
+func (x *Operation) GetReasonMessage() string {
+	if x != nil {
+		return x.ReasonMessage
+	}
+	return ""
 }
 
 type GetOperationResponse struct {
@@ -1471,20 +1780,25 @@ func (x *GetVPCSnatRequest) GetVpcId() string {
 
 // Public product fields only.
 type VPCSnat struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	VpcId          string                 `protobuf:"bytes,2,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
-	EipId          string                 `protobuf:"bytes,3,opt,name=eip_id,proto3" json:"eip_id,omitempty"`
-	EipAddress     string                 `protobuf:"bytes,4,opt,name=eip_address,proto3" json:"eip_address,omitempty"`
-	State          string                 `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
-	Reason         string                 `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
-	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,proto3" json:"created_at,omitempty"`
-	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,proto3" json:"updated_at,omitempty"`
-	Version        int64                  `protobuf:"varint,9,opt,name=version,proto3" json:"version,omitempty"`
-	DesiredEnabled bool                   `protobuf:"varint,10,opt,name=desired_enabled,proto3" json:"desired_enabled,omitempty"`
-	AppliedEnabled bool                   `protobuf:"varint,11,opt,name=applied_enabled,proto3" json:"applied_enabled,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	VpcId            string                 `protobuf:"bytes,2,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
+	EipId            string                 `protobuf:"bytes,3,opt,name=eip_id,proto3" json:"eip_id,omitempty"`
+	EipAddress       string                 `protobuf:"bytes,4,opt,name=eip_address,proto3" json:"eip_address,omitempty"`
+	State            string                 `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
+	Reason           string                 `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
+	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,proto3" json:"created_at,omitempty"`
+	UpdatedAt        *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,proto3" json:"updated_at,omitempty"`
+	Version          int64                  `protobuf:"varint,9,opt,name=version,proto3" json:"version,omitempty"`
+	DesiredEnabled   bool                   `protobuf:"varint,10,opt,name=desired_enabled,proto3" json:"desired_enabled,omitempty"`
+	AppliedEnabled   *bool                  `protobuf:"varint,11,opt,name=applied_enabled,proto3,oneof" json:"applied_enabled,omitempty"`
+	ObservedAt       *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=observed_at,proto3" json:"observed_at,omitempty"`
+	ObservationStale bool                   `protobuf:"varint,13,opt,name=observation_stale,proto3" json:"observation_stale,omitempty"`
+	LastOperationId  string                 `protobuf:"bytes,14,opt,name=last_operation_id,proto3" json:"last_operation_id,omitempty"`
+	Purpose          string                 `protobuf:"bytes,15,opt,name=purpose,proto3" json:"purpose,omitempty"`
+	ReasonMessage    string                 `protobuf:"bytes,16,opt,name=reason_message,proto3" json:"reason_message,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *VPCSnat) Reset() {
@@ -1588,10 +1902,45 @@ func (x *VPCSnat) GetDesiredEnabled() bool {
 }
 
 func (x *VPCSnat) GetAppliedEnabled() bool {
-	if x != nil {
-		return x.AppliedEnabled
+	if x != nil && x.AppliedEnabled != nil {
+		return *x.AppliedEnabled
 	}
 	return false
+}
+
+func (x *VPCSnat) GetObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAt
+	}
+	return nil
+}
+
+func (x *VPCSnat) GetObservationStale() bool {
+	if x != nil {
+		return x.ObservationStale
+	}
+	return false
+}
+
+func (x *VPCSnat) GetLastOperationId() string {
+	if x != nil {
+		return x.LastOperationId
+	}
+	return ""
+}
+
+func (x *VPCSnat) GetPurpose() string {
+	if x != nil {
+		return x.Purpose
+	}
+	return ""
+}
+
+func (x *VPCSnat) GetReasonMessage() string {
+	if x != nil {
+		return x.ReasonMessage
+	}
+	return ""
 }
 
 type GetVPCSnatResponse struct {
@@ -1742,6 +2091,2291 @@ func (x *BindVPCSnatResponse) GetSnat() *VPCSnat {
 	return nil
 }
 
+// Tenant-facing subnet fields; ownership is resolved from authenticated context.
+type Subnet struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	VpcId            string                 `protobuf:"bytes,2,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
+	Name             string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Description      string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	Cidr             string                 `protobuf:"bytes,5,opt,name=cidr,proto3" json:"cidr,omitempty"`
+	Gateway          string                 `protobuf:"bytes,6,opt,name=gateway,proto3" json:"gateway,omitempty"`
+	State            string                 `protobuf:"bytes,7,opt,name=state,proto3" json:"state,omitempty"`
+	Reason           string                 `protobuf:"bytes,8,opt,name=reason,proto3" json:"reason,omitempty"`
+	ReasonMessage    string                 `protobuf:"bytes,9,opt,name=reason_message,proto3" json:"reason_message,omitempty"`
+	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,proto3" json:"created_at,omitempty"`
+	UpdatedAt        *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=updated_at,proto3" json:"updated_at,omitempty"`
+	Version          int64                  `protobuf:"varint,12,opt,name=version,proto3" json:"version,omitempty"`
+	ObservedAt       *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=observed_at,proto3" json:"observed_at,omitempty"`
+	ObservationStale bool                   `protobuf:"varint,14,opt,name=observation_stale,proto3" json:"observation_stale,omitempty"`
+	LastOperationId  string                 `protobuf:"bytes,15,opt,name=last_operation_id,proto3" json:"last_operation_id,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *Subnet) Reset() {
+	*x = Subnet{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Subnet) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Subnet) ProtoMessage() {}
+
+func (x *Subnet) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Subnet.ProtoReflect.Descriptor instead.
+func (*Subnet) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *Subnet) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Subnet) GetVpcId() string {
+	if x != nil {
+		return x.VpcId
+	}
+	return ""
+}
+
+func (x *Subnet) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Subnet) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *Subnet) GetCidr() string {
+	if x != nil {
+		return x.Cidr
+	}
+	return ""
+}
+
+func (x *Subnet) GetGateway() string {
+	if x != nil {
+		return x.Gateway
+	}
+	return ""
+}
+
+func (x *Subnet) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *Subnet) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *Subnet) GetReasonMessage() string {
+	if x != nil {
+		return x.ReasonMessage
+	}
+	return ""
+}
+
+func (x *Subnet) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Subnet) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *Subnet) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *Subnet) GetObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAt
+	}
+	return nil
+}
+
+func (x *Subnet) GetObservationStale() bool {
+	if x != nil {
+		return x.ObservationStale
+	}
+	return false
+}
+
+func (x *Subnet) GetLastOperationId() string {
+	if x != nil {
+		return x.LastOperationId
+	}
+	return ""
+}
+
+type CreateSubnetRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	VpcId          string                 `protobuf:"bytes,1,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Cidr           string                 `protobuf:"bytes,3,opt,name=cidr,proto3" json:"cidr,omitempty"`
+	Description    string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	IdempotencyKey string                 `protobuf:"bytes,5,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	Gateway        *string                `protobuf:"bytes,6,opt,name=gateway,proto3,oneof" json:"gateway,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CreateSubnetRequest) Reset() {
+	*x = CreateSubnetRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateSubnetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateSubnetRequest) ProtoMessage() {}
+
+func (x *CreateSubnetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateSubnetRequest.ProtoReflect.Descriptor instead.
+func (*CreateSubnetRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *CreateSubnetRequest) GetVpcId() string {
+	if x != nil {
+		return x.VpcId
+	}
+	return ""
+}
+
+func (x *CreateSubnetRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateSubnetRequest) GetCidr() string {
+	if x != nil {
+		return x.Cidr
+	}
+	return ""
+}
+
+func (x *CreateSubnetRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CreateSubnetRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+func (x *CreateSubnetRequest) GetGateway() string {
+	if x != nil && x.Gateway != nil {
+		return *x.Gateway
+	}
+	return ""
+}
+
+type CreateSubnetResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Subnet        *Subnet                `protobuf:"bytes,1,opt,name=subnet,proto3" json:"subnet,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateSubnetResponse) Reset() {
+	*x = CreateSubnetResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateSubnetResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateSubnetResponse) ProtoMessage() {}
+
+func (x *CreateSubnetResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateSubnetResponse.ProtoReflect.Descriptor instead.
+func (*CreateSubnetResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *CreateSubnetResponse) GetSubnet() *Subnet {
+	if x != nil {
+		return x.Subnet
+	}
+	return nil
+}
+
+type GetSubnetRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SubnetId      string                 `protobuf:"bytes,1,opt,name=subnet_id,proto3" json:"subnet_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSubnetRequest) Reset() {
+	*x = GetSubnetRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSubnetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSubnetRequest) ProtoMessage() {}
+
+func (x *GetSubnetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSubnetRequest.ProtoReflect.Descriptor instead.
+func (*GetSubnetRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *GetSubnetRequest) GetSubnetId() string {
+	if x != nil {
+		return x.SubnetId
+	}
+	return ""
+}
+
+type GetSubnetResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Subnet        *Subnet                `protobuf:"bytes,1,opt,name=subnet,proto3" json:"subnet,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSubnetResponse) Reset() {
+	*x = GetSubnetResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSubnetResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSubnetResponse) ProtoMessage() {}
+
+func (x *GetSubnetResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSubnetResponse.ProtoReflect.Descriptor instead.
+func (*GetSubnetResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *GetSubnetResponse) GetSubnet() *Subnet {
+	if x != nil {
+		return x.Subnet
+	}
+	return nil
+}
+
+type ListSubnetsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	VpcId         string                 `protobuf:"bytes,1,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	State         string                 `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
+	Limit         int32                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        string                 `protobuf:"bytes,5,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSubnetsRequest) Reset() {
+	*x = ListSubnetsRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSubnetsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSubnetsRequest) ProtoMessage() {}
+
+func (x *ListSubnetsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSubnetsRequest.ProtoReflect.Descriptor instead.
+func (*ListSubnetsRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *ListSubnetsRequest) GetVpcId() string {
+	if x != nil {
+		return x.VpcId
+	}
+	return ""
+}
+
+func (x *ListSubnetsRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ListSubnetsRequest) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *ListSubnetsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListSubnetsRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+type ListSubnetsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*Subnet              `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	NextCursor    string                 `protobuf:"bytes,2,opt,name=next_cursor,proto3" json:"next_cursor,omitempty"`
+	Total         int64                  `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSubnetsResponse) Reset() {
+	*x = ListSubnetsResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSubnetsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSubnetsResponse) ProtoMessage() {}
+
+func (x *ListSubnetsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSubnetsResponse.ProtoReflect.Descriptor instead.
+func (*ListSubnetsResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *ListSubnetsResponse) GetItems() []*Subnet {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *ListSubnetsResponse) GetNextCursor() string {
+	if x != nil {
+		return x.NextCursor
+	}
+	return ""
+}
+
+func (x *ListSubnetsResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+type DeleteSubnetRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SubnetId      string                 `protobuf:"bytes,1,opt,name=subnet_id,proto3" json:"subnet_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteSubnetRequest) Reset() {
+	*x = DeleteSubnetRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteSubnetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteSubnetRequest) ProtoMessage() {}
+
+func (x *DeleteSubnetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteSubnetRequest.ProtoReflect.Descriptor instead.
+func (*DeleteSubnetRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *DeleteSubnetRequest) GetSubnetId() string {
+	if x != nil {
+		return x.SubnetId
+	}
+	return ""
+}
+
+type DeleteSubnetResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Subnet        *Subnet                `protobuf:"bytes,1,opt,name=subnet,proto3" json:"subnet,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteSubnetResponse) Reset() {
+	*x = DeleteSubnetResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteSubnetResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteSubnetResponse) ProtoMessage() {}
+
+func (x *DeleteSubnetResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteSubnetResponse.ProtoReflect.Descriptor instead.
+func (*DeleteSubnetResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *DeleteSubnetResponse) GetSubnet() *Subnet {
+	if x != nil {
+		return x.Subnet
+	}
+	return nil
+}
+
+type GetVPCSnatBindingRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BindingId     string                 `protobuf:"bytes,1,opt,name=binding_id,proto3" json:"binding_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVPCSnatBindingRequest) Reset() {
+	*x = GetVPCSnatBindingRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVPCSnatBindingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVPCSnatBindingRequest) ProtoMessage() {}
+
+func (x *GetVPCSnatBindingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVPCSnatBindingRequest.ProtoReflect.Descriptor instead.
+func (*GetVPCSnatBindingRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *GetVPCSnatBindingRequest) GetBindingId() string {
+	if x != nil {
+		return x.BindingId
+	}
+	return ""
+}
+
+type GetVPCSnatBindingResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Snat          *VPCSnat               `protobuf:"bytes,1,opt,name=snat,proto3" json:"snat,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVPCSnatBindingResponse) Reset() {
+	*x = GetVPCSnatBindingResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVPCSnatBindingResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVPCSnatBindingResponse) ProtoMessage() {}
+
+func (x *GetVPCSnatBindingResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVPCSnatBindingResponse.ProtoReflect.Descriptor instead.
+func (*GetVPCSnatBindingResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *GetVPCSnatBindingResponse) GetSnat() *VPCSnat {
+	if x != nil {
+		return x.Snat
+	}
+	return nil
+}
+
+type SetVPCSnatEnabledRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	BindingId       string                 `protobuf:"bytes,1,opt,name=binding_id,proto3" json:"binding_id,omitempty"`
+	Enabled         bool                   `protobuf:"varint,2,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	ExpectedVersion int64                  `protobuf:"varint,3,opt,name=expected_version,proto3" json:"expected_version,omitempty"`
+	IdempotencyKey  string                 `protobuf:"bytes,4,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *SetVPCSnatEnabledRequest) Reset() {
+	*x = SetVPCSnatEnabledRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetVPCSnatEnabledRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetVPCSnatEnabledRequest) ProtoMessage() {}
+
+func (x *SetVPCSnatEnabledRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetVPCSnatEnabledRequest.ProtoReflect.Descriptor instead.
+func (*SetVPCSnatEnabledRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *SetVPCSnatEnabledRequest) GetBindingId() string {
+	if x != nil {
+		return x.BindingId
+	}
+	return ""
+}
+
+func (x *SetVPCSnatEnabledRequest) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *SetVPCSnatEnabledRequest) GetExpectedVersion() int64 {
+	if x != nil {
+		return x.ExpectedVersion
+	}
+	return 0
+}
+
+func (x *SetVPCSnatEnabledRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+type SetVPCSnatEnabledResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Snat          *VPCSnat               `protobuf:"bytes,1,opt,name=snat,proto3" json:"snat,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetVPCSnatEnabledResponse) Reset() {
+	*x = SetVPCSnatEnabledResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetVPCSnatEnabledResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetVPCSnatEnabledResponse) ProtoMessage() {}
+
+func (x *SetVPCSnatEnabledResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetVPCSnatEnabledResponse.ProtoReflect.Descriptor instead.
+func (*SetVPCSnatEnabledResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *SetVPCSnatEnabledResponse) GetSnat() *VPCSnat {
+	if x != nil {
+		return x.Snat
+	}
+	return nil
+}
+
+type DeleteVPCSnatBindingRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BindingId     string                 `protobuf:"bytes,1,opt,name=binding_id,proto3" json:"binding_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteVPCSnatBindingRequest) Reset() {
+	*x = DeleteVPCSnatBindingRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteVPCSnatBindingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteVPCSnatBindingRequest) ProtoMessage() {}
+
+func (x *DeleteVPCSnatBindingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteVPCSnatBindingRequest.ProtoReflect.Descriptor instead.
+func (*DeleteVPCSnatBindingRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *DeleteVPCSnatBindingRequest) GetBindingId() string {
+	if x != nil {
+		return x.BindingId
+	}
+	return ""
+}
+
+type DeleteVPCSnatBindingResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Snat          *VPCSnat               `protobuf:"bytes,1,opt,name=snat,proto3" json:"snat,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteVPCSnatBindingResponse) Reset() {
+	*x = DeleteVPCSnatBindingResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteVPCSnatBindingResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteVPCSnatBindingResponse) ProtoMessage() {}
+
+func (x *DeleteVPCSnatBindingResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteVPCSnatBindingResponse.ProtoReflect.Descriptor instead.
+func (*DeleteVPCSnatBindingResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *DeleteVPCSnatBindingResponse) GetSnat() *VPCSnat {
+	if x != nil {
+		return x.Snat
+	}
+	return nil
+}
+
+type LoadBalancerListenerInput struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Protocol      LoadBalancerListenerProtocol `protobuf:"varint,1,opt,name=protocol,proto3,enum=catalog.service.v1.LoadBalancerListenerProtocol" json:"protocol,omitempty"`
+	Port          *uint32                      `protobuf:"varint,2,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoadBalancerListenerInput) Reset() {
+	*x = LoadBalancerListenerInput{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancerListenerInput) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancerListenerInput) ProtoMessage() {}
+
+func (x *LoadBalancerListenerInput) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancerListenerInput.ProtoReflect.Descriptor instead.
+func (*LoadBalancerListenerInput) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *LoadBalancerListenerInput) GetProtocol() LoadBalancerListenerProtocol {
+	if x != nil {
+		return x.Protocol
+	}
+	return LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED
+}
+
+func (x *LoadBalancerListenerInput) GetPort() uint32 {
+	if x != nil && x.Port != nil {
+		return *x.Port
+	}
+	return 0
+}
+
+type LoadBalancerListener struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Id            string                       `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Protocol      LoadBalancerListenerProtocol `protobuf:"varint,2,opt,name=protocol,proto3,enum=catalog.service.v1.LoadBalancerListenerProtocol" json:"protocol,omitempty"`
+	Port          uint32                       `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoadBalancerListener) Reset() {
+	*x = LoadBalancerListener{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancerListener) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancerListener) ProtoMessage() {}
+
+func (x *LoadBalancerListener) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancerListener.ProtoReflect.Descriptor instead.
+func (*LoadBalancerListener) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *LoadBalancerListener) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *LoadBalancerListener) GetProtocol() LoadBalancerListenerProtocol {
+	if x != nil {
+		return x.Protocol
+	}
+	return LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED
+}
+
+func (x *LoadBalancerListener) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+type LoadBalancerBackendInput struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	SubnetId      string                 `protobuf:"bytes,2,opt,name=subnet_id,proto3" json:"subnet_id,omitempty"`
+	Address       string                 `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
+	Port          uint32                 `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
+	Weight        *uint32                `protobuf:"varint,5,opt,name=weight,proto3,oneof" json:"weight,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoadBalancerBackendInput) Reset() {
+	*x = LoadBalancerBackendInput{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancerBackendInput) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancerBackendInput) ProtoMessage() {}
+
+func (x *LoadBalancerBackendInput) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancerBackendInput.ProtoReflect.Descriptor instead.
+func (*LoadBalancerBackendInput) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *LoadBalancerBackendInput) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *LoadBalancerBackendInput) GetSubnetId() string {
+	if x != nil {
+		return x.SubnetId
+	}
+	return ""
+}
+
+func (x *LoadBalancerBackendInput) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *LoadBalancerBackendInput) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *LoadBalancerBackendInput) GetWeight() uint32 {
+	if x != nil && x.Weight != nil {
+		return *x.Weight
+	}
+	return 0
+}
+
+type LoadBalancerBackendMember struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	SubnetId         string                 `protobuf:"bytes,2,opt,name=subnet_id,proto3" json:"subnet_id,omitempty"`
+	Address          string                 `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
+	Port             uint32                 `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
+	Weight           uint32                 `protobuf:"varint,5,opt,name=weight,proto3" json:"weight,omitempty"`
+	AttachmentId     string                 `protobuf:"bytes,6,opt,name=attachment_id,proto3" json:"attachment_id,omitempty"`
+	State            string                 `protobuf:"bytes,7,opt,name=state,proto3" json:"state,omitempty"`
+	Reason           string                 `protobuf:"bytes,8,opt,name=reason,proto3" json:"reason,omitempty"`
+	ObservedAt       *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=observed_at,proto3" json:"observed_at,omitempty"`
+	ObservationStale bool                   `protobuf:"varint,10,opt,name=observation_stale,proto3" json:"observation_stale,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *LoadBalancerBackendMember) Reset() {
+	*x = LoadBalancerBackendMember{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancerBackendMember) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancerBackendMember) ProtoMessage() {}
+
+func (x *LoadBalancerBackendMember) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancerBackendMember.ProtoReflect.Descriptor instead.
+func (*LoadBalancerBackendMember) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *LoadBalancerBackendMember) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *LoadBalancerBackendMember) GetSubnetId() string {
+	if x != nil {
+		return x.SubnetId
+	}
+	return ""
+}
+
+func (x *LoadBalancerBackendMember) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *LoadBalancerBackendMember) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *LoadBalancerBackendMember) GetWeight() uint32 {
+	if x != nil {
+		return x.Weight
+	}
+	return 0
+}
+
+func (x *LoadBalancerBackendMember) GetAttachmentId() string {
+	if x != nil {
+		return x.AttachmentId
+	}
+	return ""
+}
+
+func (x *LoadBalancerBackendMember) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *LoadBalancerBackendMember) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *LoadBalancerBackendMember) GetObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAt
+	}
+	return nil
+}
+
+func (x *LoadBalancerBackendMember) GetObservationStale() bool {
+	if x != nil {
+		return x.ObservationStale
+	}
+	return false
+}
+
+type LoadBalancerHealthCheck struct {
+	state              protoimpl.MessageState          `protogen:"open.v1"`
+	Protocol           LoadBalancerHealthCheckProtocol `protobuf:"varint,1,opt,name=protocol,proto3,enum=catalog.service.v1.LoadBalancerHealthCheckProtocol" json:"protocol,omitempty"`
+	IntervalSeconds    *uint32                         `protobuf:"varint,2,opt,name=interval_seconds,proto3,oneof" json:"interval_seconds,omitempty"`
+	TimeoutSeconds     *uint32                         `protobuf:"varint,3,opt,name=timeout_seconds,proto3,oneof" json:"timeout_seconds,omitempty"`
+	UnhealthyThreshold *uint32                         `protobuf:"varint,4,opt,name=unhealthy_threshold,proto3,oneof" json:"unhealthy_threshold,omitempty"`
+	HealthyThreshold   *uint32                         `protobuf:"varint,5,opt,name=healthy_threshold,proto3,oneof" json:"healthy_threshold,omitempty"`
+	Port               *uint32                         `protobuf:"varint,6,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *LoadBalancerHealthCheck) Reset() {
+	*x = LoadBalancerHealthCheck{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancerHealthCheck) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancerHealthCheck) ProtoMessage() {}
+
+func (x *LoadBalancerHealthCheck) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancerHealthCheck.ProtoReflect.Descriptor instead.
+func (*LoadBalancerHealthCheck) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *LoadBalancerHealthCheck) GetProtocol() LoadBalancerHealthCheckProtocol {
+	if x != nil {
+		return x.Protocol
+	}
+	return LoadBalancerHealthCheckProtocol_LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED
+}
+
+func (x *LoadBalancerHealthCheck) GetIntervalSeconds() uint32 {
+	if x != nil && x.IntervalSeconds != nil {
+		return *x.IntervalSeconds
+	}
+	return 0
+}
+
+func (x *LoadBalancerHealthCheck) GetTimeoutSeconds() uint32 {
+	if x != nil && x.TimeoutSeconds != nil {
+		return *x.TimeoutSeconds
+	}
+	return 0
+}
+
+func (x *LoadBalancerHealthCheck) GetUnhealthyThreshold() uint32 {
+	if x != nil && x.UnhealthyThreshold != nil {
+		return *x.UnhealthyThreshold
+	}
+	return 0
+}
+
+func (x *LoadBalancerHealthCheck) GetHealthyThreshold() uint32 {
+	if x != nil && x.HealthyThreshold != nil {
+		return *x.HealthyThreshold
+	}
+	return 0
+}
+
+func (x *LoadBalancerHealthCheck) GetPort() uint32 {
+	if x != nil && x.Port != nil {
+		return *x.Port
+	}
+	return 0
+}
+
+type LoadBalancer struct {
+	state               protoimpl.MessageState         `protogen:"open.v1"`
+	Id                  string                         `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	VpcId               string                         `protobuf:"bytes,3,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
+	SubnetId            string                         `protobuf:"bytes,4,opt,name=subnet_id,proto3" json:"subnet_id,omitempty"`
+	Name                string                         `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
+	Description         string                         `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
+	Exposure            LoadBalancerExposure           `protobuf:"varint,7,opt,name=exposure,proto3,enum=catalog.service.v1.LoadBalancerExposure" json:"exposure,omitempty"`
+	Flavor              string                         `protobuf:"bytes,8,opt,name=flavor,proto3" json:"flavor,omitempty"`
+	PublicEipId         string                         `protobuf:"bytes,9,opt,name=public_eip_id,proto3" json:"public_eip_id,omitempty"`
+	PrivateIp           string                         `protobuf:"bytes,10,opt,name=private_ip,proto3" json:"private_ip,omitempty"`
+	Listener            *LoadBalancerListener          `protobuf:"bytes,11,opt,name=listener,proto3" json:"listener,omitempty"`
+	Backends            []*LoadBalancerBackendMember   `protobuf:"bytes,12,rep,name=backends,proto3" json:"backends,omitempty"`
+	HealthCheck         *LoadBalancerHealthCheck       `protobuf:"bytes,13,opt,name=health_check,proto3" json:"health_check,omitempty"`
+	Algorithm           LoadBalancerAlgorithm          `protobuf:"varint,14,opt,name=algorithm,proto3,enum=catalog.service.v1.LoadBalancerAlgorithm" json:"algorithm,omitempty"`
+	State               string                         `protobuf:"bytes,15,opt,name=state,proto3" json:"state,omitempty"`
+	Reason              string                         `protobuf:"bytes,16,opt,name=reason,proto3" json:"reason,omitempty"`
+	ReasonMessage       string                         `protobuf:"bytes,17,opt,name=reason_message,proto3" json:"reason_message,omitempty"`
+	Version             int64                          `protobuf:"varint,18,opt,name=version,proto3" json:"version,omitempty"`
+	DesiredVersion      int64                          `protobuf:"varint,19,opt,name=desired_version,proto3" json:"desired_version,omitempty"`
+	AppliedVersion      int64                          `protobuf:"varint,20,opt,name=applied_version,proto3" json:"applied_version,omitempty"`
+	ConfigurationState  LoadBalancerConfigurationState `protobuf:"varint,21,opt,name=configuration_state,proto3,enum=catalog.service.v1.LoadBalancerConfigurationState" json:"configuration_state,omitempty"`
+	DataPlaneState      LoadBalancerDataPlaneState     `protobuf:"varint,22,opt,name=data_plane_state,proto3,enum=catalog.service.v1.LoadBalancerDataPlaneState" json:"data_plane_state,omitempty"`
+	ObservedAt          *timestamppb.Timestamp         `protobuf:"bytes,23,opt,name=observed_at,proto3" json:"observed_at,omitempty"`
+	ObservationStale    bool                           `protobuf:"varint,24,opt,name=observation_stale,proto3" json:"observation_stale,omitempty"`
+	CreatedAt           *timestamppb.Timestamp         `protobuf:"bytes,25,opt,name=created_at,proto3" json:"created_at,omitempty"`
+	UpdatedAt           *timestamppb.Timestamp         `protobuf:"bytes,26,opt,name=updated_at,proto3" json:"updated_at,omitempty"`
+	LastOperationId     string                         `protobuf:"bytes,27,opt,name=last_operation_id,proto3" json:"last_operation_id,omitempty"`
+	PublicAddress       string                         `protobuf:"bytes,28,opt,name=public_address,proto3" json:"public_address,omitempty"`
+	DataPlaneObservedAt *timestamppb.Timestamp         `protobuf:"bytes,29,opt,name=data_plane_observed_at,proto3" json:"data_plane_observed_at,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *LoadBalancer) Reset() {
+	*x = LoadBalancer{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancer) ProtoMessage() {}
+
+func (x *LoadBalancer) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancer.ProtoReflect.Descriptor instead.
+func (*LoadBalancer) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *LoadBalancer) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetVpcId() string {
+	if x != nil {
+		return x.VpcId
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetSubnetId() string {
+	if x != nil {
+		return x.SubnetId
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetExposure() LoadBalancerExposure {
+	if x != nil {
+		return x.Exposure
+	}
+	return LoadBalancerExposure_LOAD_BALANCER_EXPOSURE_UNSPECIFIED
+}
+
+func (x *LoadBalancer) GetFlavor() string {
+	if x != nil {
+		return x.Flavor
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetPublicEipId() string {
+	if x != nil {
+		return x.PublicEipId
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetPrivateIp() string {
+	if x != nil {
+		return x.PrivateIp
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetListener() *LoadBalancerListener {
+	if x != nil {
+		return x.Listener
+	}
+	return nil
+}
+
+func (x *LoadBalancer) GetBackends() []*LoadBalancerBackendMember {
+	if x != nil {
+		return x.Backends
+	}
+	return nil
+}
+
+func (x *LoadBalancer) GetHealthCheck() *LoadBalancerHealthCheck {
+	if x != nil {
+		return x.HealthCheck
+	}
+	return nil
+}
+
+func (x *LoadBalancer) GetAlgorithm() LoadBalancerAlgorithm {
+	if x != nil {
+		return x.Algorithm
+	}
+	return LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_UNSPECIFIED
+}
+
+func (x *LoadBalancer) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetReasonMessage() string {
+	if x != nil {
+		return x.ReasonMessage
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *LoadBalancer) GetDesiredVersion() int64 {
+	if x != nil {
+		return x.DesiredVersion
+	}
+	return 0
+}
+
+func (x *LoadBalancer) GetAppliedVersion() int64 {
+	if x != nil {
+		return x.AppliedVersion
+	}
+	return 0
+}
+
+func (x *LoadBalancer) GetConfigurationState() LoadBalancerConfigurationState {
+	if x != nil {
+		return x.ConfigurationState
+	}
+	return LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED
+}
+
+func (x *LoadBalancer) GetDataPlaneState() LoadBalancerDataPlaneState {
+	if x != nil {
+		return x.DataPlaneState
+	}
+	return LoadBalancerDataPlaneState_LOAD_BALANCER_DATA_PLANE_STATE_UNSPECIFIED
+}
+
+func (x *LoadBalancer) GetObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAt
+	}
+	return nil
+}
+
+func (x *LoadBalancer) GetObservationStale() bool {
+	if x != nil {
+		return x.ObservationStale
+	}
+	return false
+}
+
+func (x *LoadBalancer) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *LoadBalancer) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *LoadBalancer) GetLastOperationId() string {
+	if x != nil {
+		return x.LastOperationId
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetPublicAddress() string {
+	if x != nil {
+		return x.PublicAddress
+	}
+	return ""
+}
+
+func (x *LoadBalancer) GetDataPlaneObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DataPlaneObservedAt
+	}
+	return nil
+}
+
+type CreateLoadBalancerRequest struct {
+	state          protoimpl.MessageState      `protogen:"open.v1"`
+	Name           string                      `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description    string                      `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	VpcId          string                      `protobuf:"bytes,4,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
+	SubnetId       string                      `protobuf:"bytes,5,opt,name=subnet_id,proto3" json:"subnet_id,omitempty"`
+	Exposure       LoadBalancerExposure        `protobuf:"varint,6,opt,name=exposure,proto3,enum=catalog.service.v1.LoadBalancerExposure" json:"exposure,omitempty"`
+	Flavor         string                      `protobuf:"bytes,7,opt,name=flavor,proto3" json:"flavor,omitempty"`
+	PublicEipId    string                      `protobuf:"bytes,8,opt,name=public_eip_id,proto3" json:"public_eip_id,omitempty"`
+	PrivateIp      string                      `protobuf:"bytes,9,opt,name=private_ip,proto3" json:"private_ip,omitempty"`
+	Listener       *LoadBalancerListenerInput  `protobuf:"bytes,10,opt,name=listener,proto3" json:"listener,omitempty"`
+	Backends       []*LoadBalancerBackendInput `protobuf:"bytes,11,rep,name=backends,proto3" json:"backends,omitempty"`
+	HealthCheck    *LoadBalancerHealthCheck    `protobuf:"bytes,12,opt,name=health_check,proto3" json:"health_check,omitempty"`
+	IdempotencyKey string                      `protobuf:"bytes,13,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CreateLoadBalancerRequest) Reset() {
+	*x = CreateLoadBalancerRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateLoadBalancerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateLoadBalancerRequest) ProtoMessage() {}
+
+func (x *CreateLoadBalancerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateLoadBalancerRequest.ProtoReflect.Descriptor instead.
+func (*CreateLoadBalancerRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *CreateLoadBalancerRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateLoadBalancerRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CreateLoadBalancerRequest) GetVpcId() string {
+	if x != nil {
+		return x.VpcId
+	}
+	return ""
+}
+
+func (x *CreateLoadBalancerRequest) GetSubnetId() string {
+	if x != nil {
+		return x.SubnetId
+	}
+	return ""
+}
+
+func (x *CreateLoadBalancerRequest) GetExposure() LoadBalancerExposure {
+	if x != nil {
+		return x.Exposure
+	}
+	return LoadBalancerExposure_LOAD_BALANCER_EXPOSURE_UNSPECIFIED
+}
+
+func (x *CreateLoadBalancerRequest) GetFlavor() string {
+	if x != nil {
+		return x.Flavor
+	}
+	return ""
+}
+
+func (x *CreateLoadBalancerRequest) GetPublicEipId() string {
+	if x != nil {
+		return x.PublicEipId
+	}
+	return ""
+}
+
+func (x *CreateLoadBalancerRequest) GetPrivateIp() string {
+	if x != nil {
+		return x.PrivateIp
+	}
+	return ""
+}
+
+func (x *CreateLoadBalancerRequest) GetListener() *LoadBalancerListenerInput {
+	if x != nil {
+		return x.Listener
+	}
+	return nil
+}
+
+func (x *CreateLoadBalancerRequest) GetBackends() []*LoadBalancerBackendInput {
+	if x != nil {
+		return x.Backends
+	}
+	return nil
+}
+
+func (x *CreateLoadBalancerRequest) GetHealthCheck() *LoadBalancerHealthCheck {
+	if x != nil {
+		return x.HealthCheck
+	}
+	return nil
+}
+
+func (x *CreateLoadBalancerRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+type CreateLoadBalancerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LoadBalancer  *LoadBalancer          `protobuf:"bytes,1,opt,name=load_balancer,proto3" json:"load_balancer,omitempty"`
+	Operation     *Operation             `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateLoadBalancerResponse) Reset() {
+	*x = CreateLoadBalancerResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateLoadBalancerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateLoadBalancerResponse) ProtoMessage() {}
+
+func (x *CreateLoadBalancerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateLoadBalancerResponse.ProtoReflect.Descriptor instead.
+func (*CreateLoadBalancerResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *CreateLoadBalancerResponse) GetLoadBalancer() *LoadBalancer {
+	if x != nil {
+		return x.LoadBalancer
+	}
+	return nil
+}
+
+func (x *CreateLoadBalancerResponse) GetOperation() *Operation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
+type GetLoadBalancerRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	LoadBalancerId string                 `protobuf:"bytes,2,opt,name=load_balancer_id,proto3" json:"load_balancer_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GetLoadBalancerRequest) Reset() {
+	*x = GetLoadBalancerRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetLoadBalancerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLoadBalancerRequest) ProtoMessage() {}
+
+func (x *GetLoadBalancerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLoadBalancerRequest.ProtoReflect.Descriptor instead.
+func (*GetLoadBalancerRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *GetLoadBalancerRequest) GetLoadBalancerId() string {
+	if x != nil {
+		return x.LoadBalancerId
+	}
+	return ""
+}
+
+type GetLoadBalancerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LoadBalancer  *LoadBalancer          `protobuf:"bytes,1,opt,name=load_balancer,proto3" json:"load_balancer,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetLoadBalancerResponse) Reset() {
+	*x = GetLoadBalancerResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetLoadBalancerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLoadBalancerResponse) ProtoMessage() {}
+
+func (x *GetLoadBalancerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLoadBalancerResponse.ProtoReflect.Descriptor instead.
+func (*GetLoadBalancerResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *GetLoadBalancerResponse) GetLoadBalancer() *LoadBalancer {
+	if x != nil {
+		return x.LoadBalancer
+	}
+	return nil
+}
+
+type ListLoadBalancersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	VpcId         string                 `protobuf:"bytes,3,opt,name=vpc_id,proto3" json:"vpc_id,omitempty"`
+	SubnetId      string                 `protobuf:"bytes,4,opt,name=subnet_id,proto3" json:"subnet_id,omitempty"`
+	Exposure      LoadBalancerExposure   `protobuf:"varint,5,opt,name=exposure,proto3,enum=catalog.service.v1.LoadBalancerExposure" json:"exposure,omitempty"`
+	State         string                 `protobuf:"bytes,6,opt,name=state,proto3" json:"state,omitempty"`
+	Limit         int32                  `protobuf:"varint,7,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        string                 `protobuf:"bytes,8,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListLoadBalancersRequest) Reset() {
+	*x = ListLoadBalancersRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListLoadBalancersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListLoadBalancersRequest) ProtoMessage() {}
+
+func (x *ListLoadBalancersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListLoadBalancersRequest.ProtoReflect.Descriptor instead.
+func (*ListLoadBalancersRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *ListLoadBalancersRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ListLoadBalancersRequest) GetVpcId() string {
+	if x != nil {
+		return x.VpcId
+	}
+	return ""
+}
+
+func (x *ListLoadBalancersRequest) GetSubnetId() string {
+	if x != nil {
+		return x.SubnetId
+	}
+	return ""
+}
+
+func (x *ListLoadBalancersRequest) GetExposure() LoadBalancerExposure {
+	if x != nil {
+		return x.Exposure
+	}
+	return LoadBalancerExposure_LOAD_BALANCER_EXPOSURE_UNSPECIFIED
+}
+
+func (x *ListLoadBalancersRequest) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *ListLoadBalancersRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListLoadBalancersRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+type ListLoadBalancersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*LoadBalancer        `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	NextCursor    string                 `protobuf:"bytes,2,opt,name=next_cursor,proto3" json:"next_cursor,omitempty"`
+	Total         int64                  `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListLoadBalancersResponse) Reset() {
+	*x = ListLoadBalancersResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListLoadBalancersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListLoadBalancersResponse) ProtoMessage() {}
+
+func (x *ListLoadBalancersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListLoadBalancersResponse.ProtoReflect.Descriptor instead.
+func (*ListLoadBalancersResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{53}
+}
+
+func (x *ListLoadBalancersResponse) GetItems() []*LoadBalancer {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *ListLoadBalancersResponse) GetNextCursor() string {
+	if x != nil {
+		return x.NextCursor
+	}
+	return ""
+}
+
+func (x *ListLoadBalancersResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+type UpdateLoadBalancerRequest struct {
+	state           protoimpl.MessageState      `protogen:"open.v1"`
+	LoadBalancerId  string                      `protobuf:"bytes,2,opt,name=load_balancer_id,proto3" json:"load_balancer_id,omitempty"`
+	ExpectedVersion int64                       `protobuf:"varint,3,opt,name=expected_version,proto3" json:"expected_version,omitempty"`
+	IdempotencyKey  string                      `protobuf:"bytes,4,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	Name            string                      `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
+	Description     string                      `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
+	Backends        []*LoadBalancerBackendInput `protobuf:"bytes,7,rep,name=backends,proto3" json:"backends,omitempty"`
+	HealthCheck     *LoadBalancerHealthCheck    `protobuf:"bytes,8,opt,name=health_check,proto3" json:"health_check,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *UpdateLoadBalancerRequest) Reset() {
+	*x = UpdateLoadBalancerRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateLoadBalancerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateLoadBalancerRequest) ProtoMessage() {}
+
+func (x *UpdateLoadBalancerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateLoadBalancerRequest.ProtoReflect.Descriptor instead.
+func (*UpdateLoadBalancerRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{54}
+}
+
+func (x *UpdateLoadBalancerRequest) GetLoadBalancerId() string {
+	if x != nil {
+		return x.LoadBalancerId
+	}
+	return ""
+}
+
+func (x *UpdateLoadBalancerRequest) GetExpectedVersion() int64 {
+	if x != nil {
+		return x.ExpectedVersion
+	}
+	return 0
+}
+
+func (x *UpdateLoadBalancerRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+func (x *UpdateLoadBalancerRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateLoadBalancerRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *UpdateLoadBalancerRequest) GetBackends() []*LoadBalancerBackendInput {
+	if x != nil {
+		return x.Backends
+	}
+	return nil
+}
+
+func (x *UpdateLoadBalancerRequest) GetHealthCheck() *LoadBalancerHealthCheck {
+	if x != nil {
+		return x.HealthCheck
+	}
+	return nil
+}
+
+type UpdateLoadBalancerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LoadBalancer  *LoadBalancer          `protobuf:"bytes,1,opt,name=load_balancer,proto3" json:"load_balancer,omitempty"`
+	Operation     *Operation             `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateLoadBalancerResponse) Reset() {
+	*x = UpdateLoadBalancerResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateLoadBalancerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateLoadBalancerResponse) ProtoMessage() {}
+
+func (x *UpdateLoadBalancerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateLoadBalancerResponse.ProtoReflect.Descriptor instead.
+func (*UpdateLoadBalancerResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *UpdateLoadBalancerResponse) GetLoadBalancer() *LoadBalancer {
+	if x != nil {
+		return x.LoadBalancer
+	}
+	return nil
+}
+
+func (x *UpdateLoadBalancerResponse) GetOperation() *Operation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
+type DeleteLoadBalancerRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	LoadBalancerId string                 `protobuf:"bytes,2,opt,name=load_balancer_id,proto3" json:"load_balancer_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *DeleteLoadBalancerRequest) Reset() {
+	*x = DeleteLoadBalancerRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteLoadBalancerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteLoadBalancerRequest) ProtoMessage() {}
+
+func (x *DeleteLoadBalancerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteLoadBalancerRequest.ProtoReflect.Descriptor instead.
+func (*DeleteLoadBalancerRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{56}
+}
+
+func (x *DeleteLoadBalancerRequest) GetLoadBalancerId() string {
+	if x != nil {
+		return x.LoadBalancerId
+	}
+	return ""
+}
+
+type DeleteLoadBalancerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LoadBalancer  *LoadBalancer          `protobuf:"bytes,1,opt,name=load_balancer,proto3" json:"load_balancer,omitempty"`
+	Operation     *Operation             `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteLoadBalancerResponse) Reset() {
+	*x = DeleteLoadBalancerResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteLoadBalancerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteLoadBalancerResponse) ProtoMessage() {}
+
+func (x *DeleteLoadBalancerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteLoadBalancerResponse.ProtoReflect.Descriptor instead.
+func (*DeleteLoadBalancerResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{57}
+}
+
+func (x *DeleteLoadBalancerResponse) GetLoadBalancer() *LoadBalancer {
+	if x != nil {
+		return x.LoadBalancer
+	}
+	return nil
+}
+
+func (x *DeleteLoadBalancerResponse) GetOperation() *Operation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
+type GetLoadBalancerOperationRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OperationId   string                 `protobuf:"bytes,2,opt,name=operation_id,proto3" json:"operation_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetLoadBalancerOperationRequest) Reset() {
+	*x = GetLoadBalancerOperationRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetLoadBalancerOperationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLoadBalancerOperationRequest) ProtoMessage() {}
+
+func (x *GetLoadBalancerOperationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLoadBalancerOperationRequest.ProtoReflect.Descriptor instead.
+func (*GetLoadBalancerOperationRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{58}
+}
+
+func (x *GetLoadBalancerOperationRequest) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
+type GetLoadBalancerOperationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Operation     *Operation             `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetLoadBalancerOperationResponse) Reset() {
+	*x = GetLoadBalancerOperationResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[59]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetLoadBalancerOperationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLoadBalancerOperationResponse) ProtoMessage() {}
+
+func (x *GetLoadBalancerOperationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[59]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLoadBalancerOperationResponse.ProtoReflect.Descriptor instead.
+func (*GetLoadBalancerOperationResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{59}
+}
+
+func (x *GetLoadBalancerOperationResponse) GetOperation() *Operation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
 var File_catalog_service_v1_vpc_proto protoreflect.FileDescriptor
 
 const file_catalog_service_v1_vpc_proto_rawDesc = "" +
@@ -1791,7 +4425,7 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x11DeleteVPCResponse\x12)\n" +
 	"\x03vpc\x18\x01 \x01(\v2\x17.catalog.service.v1.VPCR\x03vpc\"9\n" +
 	"\x13GetOperationRequest\x12\"\n" +
-	"\foperation_id\x18\x01 \x01(\tR\foperation_id\"\xa3\x03\n" +
+	"\foperation_id\x18\x01 \x01(\tR\foperation_id\"\xcb\x03\n" +
 	"\tOperation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12 \n" +
 	"\vresource_id\x18\x02 \x01(\tR\vresource_id\x12$\n" +
@@ -1807,7 +4441,8 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"updated_at\x12>\n" +
 	"\fcompleted_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\fcompleted_at\x12D\n" +
 	"\x0fnext_attempt_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\x0fnext_attempt_at\"S\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x0fnext_attempt_at\x12&\n" +
+	"\x0ereason_message\x18\v \x01(\tR\x0ereason_message\"S\n" +
 	"\x14GetOperationResponse\x12;\n" +
 	"\toperation\x18\x01 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation\"\x89\x05\n" +
 	"\x03EIP\x12\x0e\n" +
@@ -1865,7 +4500,7 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x11DeleteEIPResponse\x12)\n" +
 	"\x03eip\x18\x01 \x01(\v2\x17.catalog.service.v1.EIPR\x03eip\"+\n" +
 	"\x11GetVPCSnatRequest\x12\x16\n" +
-	"\x06vpc_id\x18\x01 \x01(\tR\x06vpc_id\"\xff\x02\n" +
+	"\x06vpc_id\x18\x01 \x01(\tR\x06vpc_id\"\xf4\x04\n" +
 	"\aVPCSnat\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06vpc_id\x18\x02 \x01(\tR\x06vpc_id\x12\x16\n" +
@@ -1881,8 +4516,14 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"updated_at\x12\x18\n" +
 	"\aversion\x18\t \x01(\x03R\aversion\x12(\n" +
 	"\x0fdesired_enabled\x18\n" +
-	" \x01(\bR\x0fdesired_enabled\x12(\n" +
-	"\x0fapplied_enabled\x18\v \x01(\bR\x0fapplied_enabled\"E\n" +
+	" \x01(\bR\x0fdesired_enabled\x12-\n" +
+	"\x0fapplied_enabled\x18\v \x01(\bH\x00R\x0fapplied_enabled\x88\x01\x01\x12<\n" +
+	"\vobserved_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\vobserved_at\x12,\n" +
+	"\x11observation_stale\x18\r \x01(\bR\x11observation_stale\x12,\n" +
+	"\x11last_operation_id\x18\x0e \x01(\tR\x11last_operation_id\x12\x18\n" +
+	"\apurpose\x18\x0f \x01(\tR\apurpose\x12&\n" +
+	"\x0ereason_message\x18\x10 \x01(\tR\x0ereason_messageB\x12\n" +
+	"\x10_applied_enabled\"E\n" +
 	"\x12GetVPCSnatResponse\x12/\n" +
 	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"n\n" +
 	"\x12BindVPCSnatRequest\x12\x16\n" +
@@ -1890,7 +4531,235 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x06eip_id\x18\x02 \x01(\tR\x06eip_id\x12(\n" +
 	"\x0fidempotency_key\x18\x03 \x01(\tR\x0fidempotency_key\"F\n" +
 	"\x13BindVPCSnatResponse\x12/\n" +
-	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snatB\xc3\x01\n" +
+	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"\x96\x04\n" +
+	"\x06Subnet\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"\x06vpc_id\x18\x02 \x01(\tR\x06vpc_id\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x12\n" +
+	"\x04cidr\x18\x05 \x01(\tR\x04cidr\x12\x18\n" +
+	"\agateway\x18\x06 \x01(\tR\agateway\x12\x14\n" +
+	"\x05state\x18\a \x01(\tR\x05state\x12\x16\n" +
+	"\x06reason\x18\b \x01(\tR\x06reason\x12&\n" +
+	"\x0ereason_message\x18\t \x01(\tR\x0ereason_message\x12:\n" +
+	"\n" +
+	"created_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"created_at\x12:\n" +
+	"\n" +
+	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"updated_at\x12\x18\n" +
+	"\aversion\x18\f \x01(\x03R\aversion\x12<\n" +
+	"\vobserved_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\vobserved_at\x12,\n" +
+	"\x11observation_stale\x18\x0e \x01(\bR\x11observation_stale\x12,\n" +
+	"\x11last_operation_id\x18\x0f \x01(\tR\x11last_operation_id\"\xcc\x01\n" +
+	"\x13CreateSubnetRequest\x12\x16\n" +
+	"\x06vpc_id\x18\x01 \x01(\tR\x06vpc_id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
+	"\x04cidr\x18\x03 \x01(\tR\x04cidr\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12(\n" +
+	"\x0fidempotency_key\x18\x05 \x01(\tR\x0fidempotency_key\x12\x1d\n" +
+	"\agateway\x18\x06 \x01(\tH\x00R\agateway\x88\x01\x01B\n" +
+	"\n" +
+	"\b_gateway\"J\n" +
+	"\x14CreateSubnetResponse\x122\n" +
+	"\x06subnet\x18\x01 \x01(\v2\x1a.catalog.service.v1.SubnetR\x06subnet\"0\n" +
+	"\x10GetSubnetRequest\x12\x1c\n" +
+	"\tsubnet_id\x18\x01 \x01(\tR\tsubnet_id\"G\n" +
+	"\x11GetSubnetResponse\x122\n" +
+	"\x06subnet\x18\x01 \x01(\v2\x1a.catalog.service.v1.SubnetR\x06subnet\"\x84\x01\n" +
+	"\x12ListSubnetsRequest\x12\x16\n" +
+	"\x06vpc_id\x18\x01 \x01(\tR\x06vpc_id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
+	"\x05state\x18\x03 \x01(\tR\x05state\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06cursor\x18\x05 \x01(\tR\x06cursor\"\x7f\n" +
+	"\x13ListSubnetsResponse\x120\n" +
+	"\x05items\x18\x01 \x03(\v2\x1a.catalog.service.v1.SubnetR\x05items\x12 \n" +
+	"\vnext_cursor\x18\x02 \x01(\tR\vnext_cursor\x12\x14\n" +
+	"\x05total\x18\x03 \x01(\x03R\x05total\"3\n" +
+	"\x13DeleteSubnetRequest\x12\x1c\n" +
+	"\tsubnet_id\x18\x01 \x01(\tR\tsubnet_id\"J\n" +
+	"\x14DeleteSubnetResponse\x122\n" +
+	"\x06subnet\x18\x01 \x01(\v2\x1a.catalog.service.v1.SubnetR\x06subnet\":\n" +
+	"\x18GetVPCSnatBindingRequest\x12\x1e\n" +
+	"\n" +
+	"binding_id\x18\x01 \x01(\tR\n" +
+	"binding_id\"L\n" +
+	"\x19GetVPCSnatBindingResponse\x12/\n" +
+	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"\xaa\x01\n" +
+	"\x18SetVPCSnatEnabledRequest\x12\x1e\n" +
+	"\n" +
+	"binding_id\x18\x01 \x01(\tR\n" +
+	"binding_id\x12\x18\n" +
+	"\aenabled\x18\x02 \x01(\bR\aenabled\x12*\n" +
+	"\x10expected_version\x18\x03 \x01(\x03R\x10expected_version\x12(\n" +
+	"\x0fidempotency_key\x18\x04 \x01(\tR\x0fidempotency_key\"L\n" +
+	"\x19SetVPCSnatEnabledResponse\x12/\n" +
+	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"=\n" +
+	"\x1bDeleteVPCSnatBindingRequest\x12\x1e\n" +
+	"\n" +
+	"binding_id\x18\x01 \x01(\tR\n" +
+	"binding_id\"O\n" +
+	"\x1cDeleteVPCSnatBindingResponse\x12/\n" +
+	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"\x8b\x01\n" +
+	"\x19LoadBalancerListenerInput\x12L\n" +
+	"\bprotocol\x18\x01 \x01(\x0e20.catalog.service.v1.LoadBalancerListenerProtocolR\bprotocol\x12\x17\n" +
+	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x88\x01\x01B\a\n" +
+	"\x05_port\"\x88\x01\n" +
+	"\x14LoadBalancerListener\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12L\n" +
+	"\bprotocol\x18\x02 \x01(\x0e20.catalog.service.v1.LoadBalancerListenerProtocolR\bprotocol\x12\x12\n" +
+	"\x04port\x18\x03 \x01(\rR\x04port\"\x9e\x01\n" +
+	"\x18LoadBalancerBackendInput\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
+	"\tsubnet_id\x18\x02 \x01(\tR\tsubnet_id\x12\x18\n" +
+	"\aaddress\x18\x03 \x01(\tR\aaddress\x12\x12\n" +
+	"\x04port\x18\x04 \x01(\rR\x04port\x12\x1b\n" +
+	"\x06weight\x18\x05 \x01(\rH\x00R\x06weight\x88\x01\x01B\t\n" +
+	"\a_weight\"\xcf\x02\n" +
+	"\x19LoadBalancerBackendMember\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
+	"\tsubnet_id\x18\x02 \x01(\tR\tsubnet_id\x12\x18\n" +
+	"\aaddress\x18\x03 \x01(\tR\aaddress\x12\x12\n" +
+	"\x04port\x18\x04 \x01(\rR\x04port\x12\x16\n" +
+	"\x06weight\x18\x05 \x01(\rR\x06weight\x12$\n" +
+	"\rattachment_id\x18\x06 \x01(\tR\rattachment_id\x12\x14\n" +
+	"\x05state\x18\a \x01(\tR\x05state\x12\x16\n" +
+	"\x06reason\x18\b \x01(\tR\x06reason\x12<\n" +
+	"\vobserved_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\vobserved_at\x12,\n" +
+	"\x11observation_stale\x18\n" +
+	" \x01(\bR\x11observation_stale\"\xad\x03\n" +
+	"\x17LoadBalancerHealthCheck\x12O\n" +
+	"\bprotocol\x18\x01 \x01(\x0e23.catalog.service.v1.LoadBalancerHealthCheckProtocolR\bprotocol\x12/\n" +
+	"\x10interval_seconds\x18\x02 \x01(\rH\x00R\x10interval_seconds\x88\x01\x01\x12-\n" +
+	"\x0ftimeout_seconds\x18\x03 \x01(\rH\x01R\x0ftimeout_seconds\x88\x01\x01\x125\n" +
+	"\x13unhealthy_threshold\x18\x04 \x01(\rH\x02R\x13unhealthy_threshold\x88\x01\x01\x121\n" +
+	"\x11healthy_threshold\x18\x05 \x01(\rH\x03R\x11healthy_threshold\x88\x01\x01\x12\x17\n" +
+	"\x04port\x18\x06 \x01(\rH\x04R\x04port\x88\x01\x01B\x13\n" +
+	"\x11_interval_secondsB\x12\n" +
+	"\x10_timeout_secondsB\x16\n" +
+	"\x14_unhealthy_thresholdB\x14\n" +
+	"\x12_healthy_thresholdB\a\n" +
+	"\x05_port\"\xed\n" +
+	"\n" +
+	"\fLoadBalancer\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"\x06vpc_id\x18\x03 \x01(\tR\x06vpc_id\x12\x1c\n" +
+	"\tsubnet_id\x18\x04 \x01(\tR\tsubnet_id\x12\x12\n" +
+	"\x04name\x18\x05 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x06 \x01(\tR\vdescription\x12D\n" +
+	"\bexposure\x18\a \x01(\x0e2(.catalog.service.v1.LoadBalancerExposureR\bexposure\x12\x16\n" +
+	"\x06flavor\x18\b \x01(\tR\x06flavor\x12$\n" +
+	"\rpublic_eip_id\x18\t \x01(\tR\rpublic_eip_id\x12\x1e\n" +
+	"\n" +
+	"private_ip\x18\n" +
+	" \x01(\tR\n" +
+	"private_ip\x12D\n" +
+	"\blistener\x18\v \x01(\v2(.catalog.service.v1.LoadBalancerListenerR\blistener\x12I\n" +
+	"\bbackends\x18\f \x03(\v2-.catalog.service.v1.LoadBalancerBackendMemberR\bbackends\x12O\n" +
+	"\fhealth_check\x18\r \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\x12G\n" +
+	"\talgorithm\x18\x0e \x01(\x0e2).catalog.service.v1.LoadBalancerAlgorithmR\talgorithm\x12\x14\n" +
+	"\x05state\x18\x0f \x01(\tR\x05state\x12\x16\n" +
+	"\x06reason\x18\x10 \x01(\tR\x06reason\x12&\n" +
+	"\x0ereason_message\x18\x11 \x01(\tR\x0ereason_message\x12\x18\n" +
+	"\aversion\x18\x12 \x01(\x03R\aversion\x12(\n" +
+	"\x0fdesired_version\x18\x13 \x01(\x03R\x0fdesired_version\x12(\n" +
+	"\x0fapplied_version\x18\x14 \x01(\x03R\x0fapplied_version\x12d\n" +
+	"\x13configuration_state\x18\x15 \x01(\x0e22.catalog.service.v1.LoadBalancerConfigurationStateR\x13configuration_state\x12Z\n" +
+	"\x10data_plane_state\x18\x16 \x01(\x0e2..catalog.service.v1.LoadBalancerDataPlaneStateR\x10data_plane_state\x12<\n" +
+	"\vobserved_at\x18\x17 \x01(\v2\x1a.google.protobuf.TimestampR\vobserved_at\x12,\n" +
+	"\x11observation_stale\x18\x18 \x01(\bR\x11observation_stale\x12:\n" +
+	"\n" +
+	"created_at\x18\x19 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"created_at\x12:\n" +
+	"\n" +
+	"updated_at\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"updated_at\x12,\n" +
+	"\x11last_operation_id\x18\x1b \x01(\tR\x11last_operation_id\x12&\n" +
+	"\x0epublic_address\x18\x1c \x01(\tR\x0epublic_address\x12R\n" +
+	"\x16data_plane_observed_at\x18\x1d \x01(\v2\x1a.google.protobuf.TimestampR\x16data_plane_observed_at\"\xbb\x04\n" +
+	"\x19CreateLoadBalancerRequest\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x16\n" +
+	"\x06vpc_id\x18\x04 \x01(\tR\x06vpc_id\x12\x1c\n" +
+	"\tsubnet_id\x18\x05 \x01(\tR\tsubnet_id\x12D\n" +
+	"\bexposure\x18\x06 \x01(\x0e2(.catalog.service.v1.LoadBalancerExposureR\bexposure\x12\x16\n" +
+	"\x06flavor\x18\a \x01(\tR\x06flavor\x12$\n" +
+	"\rpublic_eip_id\x18\b \x01(\tR\rpublic_eip_id\x12\x1e\n" +
+	"\n" +
+	"private_ip\x18\t \x01(\tR\n" +
+	"private_ip\x12I\n" +
+	"\blistener\x18\n" +
+	" \x01(\v2-.catalog.service.v1.LoadBalancerListenerInputR\blistener\x12H\n" +
+	"\bbackends\x18\v \x03(\v2,.catalog.service.v1.LoadBalancerBackendInputR\bbackends\x12O\n" +
+	"\fhealth_check\x18\f \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\x12(\n" +
+	"\x0fidempotency_key\x18\r \x01(\tR\x0fidempotency_key\"\xa1\x01\n" +
+	"\x1aCreateLoadBalancerResponse\x12F\n" +
+	"\rload_balancer\x18\x01 \x01(\v2 .catalog.service.v1.LoadBalancerR\rload_balancer\x12;\n" +
+	"\toperation\x18\x02 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation\"D\n" +
+	"\x16GetLoadBalancerRequest\x12*\n" +
+	"\x10load_balancer_id\x18\x02 \x01(\tR\x10load_balancer_id\"a\n" +
+	"\x17GetLoadBalancerResponse\x12F\n" +
+	"\rload_balancer\x18\x01 \x01(\v2 .catalog.service.v1.LoadBalancerR\rload_balancer\"\xee\x01\n" +
+	"\x18ListLoadBalancersRequest\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
+	"\x06vpc_id\x18\x03 \x01(\tR\x06vpc_id\x12\x1c\n" +
+	"\tsubnet_id\x18\x04 \x01(\tR\tsubnet_id\x12D\n" +
+	"\bexposure\x18\x05 \x01(\x0e2(.catalog.service.v1.LoadBalancerExposureR\bexposure\x12\x14\n" +
+	"\x05state\x18\x06 \x01(\tR\x05state\x12\x14\n" +
+	"\x05limit\x18\a \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06cursor\x18\b \x01(\tR\x06cursor\"\x8b\x01\n" +
+	"\x19ListLoadBalancersResponse\x126\n" +
+	"\x05items\x18\x01 \x03(\v2 .catalog.service.v1.LoadBalancerR\x05items\x12 \n" +
+	"\vnext_cursor\x18\x02 \x01(\tR\vnext_cursor\x12\x14\n" +
+	"\x05total\x18\x03 \x01(\x03R\x05total\"\xee\x02\n" +
+	"\x19UpdateLoadBalancerRequest\x12*\n" +
+	"\x10load_balancer_id\x18\x02 \x01(\tR\x10load_balancer_id\x12*\n" +
+	"\x10expected_version\x18\x03 \x01(\x03R\x10expected_version\x12(\n" +
+	"\x0fidempotency_key\x18\x04 \x01(\tR\x0fidempotency_key\x12\x12\n" +
+	"\x04name\x18\x05 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x06 \x01(\tR\vdescription\x12H\n" +
+	"\bbackends\x18\a \x03(\v2,.catalog.service.v1.LoadBalancerBackendInputR\bbackends\x12O\n" +
+	"\fhealth_check\x18\b \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\"\xa1\x01\n" +
+	"\x1aUpdateLoadBalancerResponse\x12F\n" +
+	"\rload_balancer\x18\x01 \x01(\v2 .catalog.service.v1.LoadBalancerR\rload_balancer\x12;\n" +
+	"\toperation\x18\x02 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation\"G\n" +
+	"\x19DeleteLoadBalancerRequest\x12*\n" +
+	"\x10load_balancer_id\x18\x02 \x01(\tR\x10load_balancer_id\"\xa1\x01\n" +
+	"\x1aDeleteLoadBalancerResponse\x12F\n" +
+	"\rload_balancer\x18\x01 \x01(\v2 .catalog.service.v1.LoadBalancerR\rload_balancer\x12;\n" +
+	"\toperation\x18\x02 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation\"E\n" +
+	"\x1fGetLoadBalancerOperationRequest\x12\"\n" +
+	"\foperation_id\x18\x02 \x01(\tR\foperation_id\"_\n" +
+	" GetLoadBalancerOperationResponse\x12;\n" +
+	"\toperation\x18\x01 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation*\xb0\x01\n" +
+	"\x14LoadBalancerExposure\x12&\n" +
+	"\"LOAD_BALANCER_EXPOSURE_UNSPECIFIED\x10\x00\x12\"\n" +
+	"\x1eLOAD_BALANCER_EXPOSURE_PRIVATE\x10\x01\x12!\n" +
+	"\x1dLOAD_BALANCER_EXPOSURE_PUBLIC\x10\x02\x12)\n" +
+	"%LOAD_BALANCER_EXPOSURE_PUBLIC_PRIVATE\x10\x03*y\n" +
+	"\x1cLoadBalancerListenerProtocol\x12/\n" +
+	"+LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED\x10\x00\x12(\n" +
+	"$LOAD_BALANCER_LISTENER_PROTOCOL_HTTP\x10\x01*i\n" +
+	"\x15LoadBalancerAlgorithm\x12'\n" +
+	"#LOAD_BALANCER_ALGORITHM_UNSPECIFIED\x10\x00\x12'\n" +
+	"#LOAD_BALANCER_ALGORITHM_ROUND_ROBIN\x10\x01*\x83\x01\n" +
+	"\x1fLoadBalancerHealthCheckProtocol\x123\n" +
+	"/LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED\x10\x00\x12+\n" +
+	"'LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP\x10\x01*\xc3\x02\n" +
+	"\x1eLoadBalancerConfigurationState\x121\n" +
+	"-LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED\x10\x00\x12-\n" +
+	")LOAD_BALANCER_CONFIGURATION_STATE_PENDING\x10\x01\x12.\n" +
+	"*LOAD_BALANCER_CONFIGURATION_STATE_APPLYING\x10\x02\x120\n" +
+	",LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED\x10\x03\x12.\n" +
+	"*LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED\x10\x04\x12-\n" +
+	")LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN\x10\x05*\xd2\x01\n" +
+	"\x1aLoadBalancerDataPlaneState\x12.\n" +
+	"*LOAD_BALANCER_DATA_PLANE_STATE_UNSPECIFIED\x10\x00\x12*\n" +
+	"&LOAD_BALANCER_DATA_PLANE_STATE_UNKNOWN\x10\x01\x12*\n" +
+	"&LOAD_BALANCER_DATA_PLANE_STATE_HEALTHY\x10\x02\x12,\n" +
+	"(LOAD_BALANCER_DATA_PLANE_STATE_UNHEALTHY\x10\x03B\xc3\x01\n" +
 	"\x16com.catalog.service.v1B\bVpcProtoP\x01Z5go-wind-admin/api/gen/go/catalog/service/v1;servicev1\xa2\x02\x03CSX\xaa\x02\x12Catalog.Service.V1\xca\x02\x12Catalog\\Service\\V1\xe2\x02\x1eCatalog\\Service\\V1\\GPBMetadata\xea\x02\x14Catalog::Service::V1b\x06proto3"
 
 var (
@@ -1905,67 +4774,149 @@ func file_catalog_service_v1_vpc_proto_rawDescGZIP() []byte {
 	return file_catalog_service_v1_vpc_proto_rawDescData
 }
 
-var file_catalog_service_v1_vpc_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_catalog_service_v1_vpc_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_catalog_service_v1_vpc_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
 var file_catalog_service_v1_vpc_proto_goTypes = []any{
-	(*GetVPCRequest)(nil),         // 0: catalog.service.v1.GetVPCRequest
-	(*VPC)(nil),                   // 1: catalog.service.v1.VPC
-	(*GetVPCResponse)(nil),        // 2: catalog.service.v1.GetVPCResponse
-	(*ListVPCsRequest)(nil),       // 3: catalog.service.v1.ListVPCsRequest
-	(*ListVPCsResponse)(nil),      // 4: catalog.service.v1.ListVPCsResponse
-	(*CreateVPCRequest)(nil),      // 5: catalog.service.v1.CreateVPCRequest
-	(*CreateVPCResponse)(nil),     // 6: catalog.service.v1.CreateVPCResponse
-	(*DeleteVPCRequest)(nil),      // 7: catalog.service.v1.DeleteVPCRequest
-	(*DeleteVPCResponse)(nil),     // 8: catalog.service.v1.DeleteVPCResponse
-	(*GetOperationRequest)(nil),   // 9: catalog.service.v1.GetOperationRequest
-	(*Operation)(nil),             // 10: catalog.service.v1.Operation
-	(*GetOperationResponse)(nil),  // 11: catalog.service.v1.GetOperationResponse
-	(*EIP)(nil),                   // 12: catalog.service.v1.EIP
-	(*EIPBindingTarget)(nil),      // 13: catalog.service.v1.EIPBindingTarget
-	(*GetEIPRequest)(nil),         // 14: catalog.service.v1.GetEIPRequest
-	(*GetEIPResponse)(nil),        // 15: catalog.service.v1.GetEIPResponse
-	(*ListEIPsRequest)(nil),       // 16: catalog.service.v1.ListEIPsRequest
-	(*ListEIPsResponse)(nil),      // 17: catalog.service.v1.ListEIPsResponse
-	(*CreateEIPRequest)(nil),      // 18: catalog.service.v1.CreateEIPRequest
-	(*CreateEIPResponse)(nil),     // 19: catalog.service.v1.CreateEIPResponse
-	(*DeleteEIPRequest)(nil),      // 20: catalog.service.v1.DeleteEIPRequest
-	(*DeleteEIPResponse)(nil),     // 21: catalog.service.v1.DeleteEIPResponse
-	(*GetVPCSnatRequest)(nil),     // 22: catalog.service.v1.GetVPCSnatRequest
-	(*VPCSnat)(nil),               // 23: catalog.service.v1.VPCSnat
-	(*GetVPCSnatResponse)(nil),    // 24: catalog.service.v1.GetVPCSnatResponse
-	(*BindVPCSnatRequest)(nil),    // 25: catalog.service.v1.BindVPCSnatRequest
-	(*BindVPCSnatResponse)(nil),   // 26: catalog.service.v1.BindVPCSnatResponse
-	(*timestamppb.Timestamp)(nil), // 27: google.protobuf.Timestamp
+	(LoadBalancerExposure)(0),                // 0: catalog.service.v1.LoadBalancerExposure
+	(LoadBalancerListenerProtocol)(0),        // 1: catalog.service.v1.LoadBalancerListenerProtocol
+	(LoadBalancerAlgorithm)(0),               // 2: catalog.service.v1.LoadBalancerAlgorithm
+	(LoadBalancerHealthCheckProtocol)(0),     // 3: catalog.service.v1.LoadBalancerHealthCheckProtocol
+	(LoadBalancerConfigurationState)(0),      // 4: catalog.service.v1.LoadBalancerConfigurationState
+	(LoadBalancerDataPlaneState)(0),          // 5: catalog.service.v1.LoadBalancerDataPlaneState
+	(*GetVPCRequest)(nil),                    // 6: catalog.service.v1.GetVPCRequest
+	(*VPC)(nil),                              // 7: catalog.service.v1.VPC
+	(*GetVPCResponse)(nil),                   // 8: catalog.service.v1.GetVPCResponse
+	(*ListVPCsRequest)(nil),                  // 9: catalog.service.v1.ListVPCsRequest
+	(*ListVPCsResponse)(nil),                 // 10: catalog.service.v1.ListVPCsResponse
+	(*CreateVPCRequest)(nil),                 // 11: catalog.service.v1.CreateVPCRequest
+	(*CreateVPCResponse)(nil),                // 12: catalog.service.v1.CreateVPCResponse
+	(*DeleteVPCRequest)(nil),                 // 13: catalog.service.v1.DeleteVPCRequest
+	(*DeleteVPCResponse)(nil),                // 14: catalog.service.v1.DeleteVPCResponse
+	(*GetOperationRequest)(nil),              // 15: catalog.service.v1.GetOperationRequest
+	(*Operation)(nil),                        // 16: catalog.service.v1.Operation
+	(*GetOperationResponse)(nil),             // 17: catalog.service.v1.GetOperationResponse
+	(*EIP)(nil),                              // 18: catalog.service.v1.EIP
+	(*EIPBindingTarget)(nil),                 // 19: catalog.service.v1.EIPBindingTarget
+	(*GetEIPRequest)(nil),                    // 20: catalog.service.v1.GetEIPRequest
+	(*GetEIPResponse)(nil),                   // 21: catalog.service.v1.GetEIPResponse
+	(*ListEIPsRequest)(nil),                  // 22: catalog.service.v1.ListEIPsRequest
+	(*ListEIPsResponse)(nil),                 // 23: catalog.service.v1.ListEIPsResponse
+	(*CreateEIPRequest)(nil),                 // 24: catalog.service.v1.CreateEIPRequest
+	(*CreateEIPResponse)(nil),                // 25: catalog.service.v1.CreateEIPResponse
+	(*DeleteEIPRequest)(nil),                 // 26: catalog.service.v1.DeleteEIPRequest
+	(*DeleteEIPResponse)(nil),                // 27: catalog.service.v1.DeleteEIPResponse
+	(*GetVPCSnatRequest)(nil),                // 28: catalog.service.v1.GetVPCSnatRequest
+	(*VPCSnat)(nil),                          // 29: catalog.service.v1.VPCSnat
+	(*GetVPCSnatResponse)(nil),               // 30: catalog.service.v1.GetVPCSnatResponse
+	(*BindVPCSnatRequest)(nil),               // 31: catalog.service.v1.BindVPCSnatRequest
+	(*BindVPCSnatResponse)(nil),              // 32: catalog.service.v1.BindVPCSnatResponse
+	(*Subnet)(nil),                           // 33: catalog.service.v1.Subnet
+	(*CreateSubnetRequest)(nil),              // 34: catalog.service.v1.CreateSubnetRequest
+	(*CreateSubnetResponse)(nil),             // 35: catalog.service.v1.CreateSubnetResponse
+	(*GetSubnetRequest)(nil),                 // 36: catalog.service.v1.GetSubnetRequest
+	(*GetSubnetResponse)(nil),                // 37: catalog.service.v1.GetSubnetResponse
+	(*ListSubnetsRequest)(nil),               // 38: catalog.service.v1.ListSubnetsRequest
+	(*ListSubnetsResponse)(nil),              // 39: catalog.service.v1.ListSubnetsResponse
+	(*DeleteSubnetRequest)(nil),              // 40: catalog.service.v1.DeleteSubnetRequest
+	(*DeleteSubnetResponse)(nil),             // 41: catalog.service.v1.DeleteSubnetResponse
+	(*GetVPCSnatBindingRequest)(nil),         // 42: catalog.service.v1.GetVPCSnatBindingRequest
+	(*GetVPCSnatBindingResponse)(nil),        // 43: catalog.service.v1.GetVPCSnatBindingResponse
+	(*SetVPCSnatEnabledRequest)(nil),         // 44: catalog.service.v1.SetVPCSnatEnabledRequest
+	(*SetVPCSnatEnabledResponse)(nil),        // 45: catalog.service.v1.SetVPCSnatEnabledResponse
+	(*DeleteVPCSnatBindingRequest)(nil),      // 46: catalog.service.v1.DeleteVPCSnatBindingRequest
+	(*DeleteVPCSnatBindingResponse)(nil),     // 47: catalog.service.v1.DeleteVPCSnatBindingResponse
+	(*LoadBalancerListenerInput)(nil),        // 48: catalog.service.v1.LoadBalancerListenerInput
+	(*LoadBalancerListener)(nil),             // 49: catalog.service.v1.LoadBalancerListener
+	(*LoadBalancerBackendInput)(nil),         // 50: catalog.service.v1.LoadBalancerBackendInput
+	(*LoadBalancerBackendMember)(nil),        // 51: catalog.service.v1.LoadBalancerBackendMember
+	(*LoadBalancerHealthCheck)(nil),          // 52: catalog.service.v1.LoadBalancerHealthCheck
+	(*LoadBalancer)(nil),                     // 53: catalog.service.v1.LoadBalancer
+	(*CreateLoadBalancerRequest)(nil),        // 54: catalog.service.v1.CreateLoadBalancerRequest
+	(*CreateLoadBalancerResponse)(nil),       // 55: catalog.service.v1.CreateLoadBalancerResponse
+	(*GetLoadBalancerRequest)(nil),           // 56: catalog.service.v1.GetLoadBalancerRequest
+	(*GetLoadBalancerResponse)(nil),          // 57: catalog.service.v1.GetLoadBalancerResponse
+	(*ListLoadBalancersRequest)(nil),         // 58: catalog.service.v1.ListLoadBalancersRequest
+	(*ListLoadBalancersResponse)(nil),        // 59: catalog.service.v1.ListLoadBalancersResponse
+	(*UpdateLoadBalancerRequest)(nil),        // 60: catalog.service.v1.UpdateLoadBalancerRequest
+	(*UpdateLoadBalancerResponse)(nil),       // 61: catalog.service.v1.UpdateLoadBalancerResponse
+	(*DeleteLoadBalancerRequest)(nil),        // 62: catalog.service.v1.DeleteLoadBalancerRequest
+	(*DeleteLoadBalancerResponse)(nil),       // 63: catalog.service.v1.DeleteLoadBalancerResponse
+	(*GetLoadBalancerOperationRequest)(nil),  // 64: catalog.service.v1.GetLoadBalancerOperationRequest
+	(*GetLoadBalancerOperationResponse)(nil), // 65: catalog.service.v1.GetLoadBalancerOperationResponse
+	(*timestamppb.Timestamp)(nil),            // 66: google.protobuf.Timestamp
 }
 var file_catalog_service_v1_vpc_proto_depIdxs = []int32{
-	27, // 0: catalog.service.v1.VPC.created_at:type_name -> google.protobuf.Timestamp
-	27, // 1: catalog.service.v1.VPC.updated_at:type_name -> google.protobuf.Timestamp
-	27, // 2: catalog.service.v1.VPC.observed_at:type_name -> google.protobuf.Timestamp
-	1,  // 3: catalog.service.v1.GetVPCResponse.vpc:type_name -> catalog.service.v1.VPC
-	1,  // 4: catalog.service.v1.ListVPCsResponse.items:type_name -> catalog.service.v1.VPC
-	1,  // 5: catalog.service.v1.CreateVPCResponse.vpc:type_name -> catalog.service.v1.VPC
-	1,  // 6: catalog.service.v1.DeleteVPCResponse.vpc:type_name -> catalog.service.v1.VPC
-	27, // 7: catalog.service.v1.Operation.created_at:type_name -> google.protobuf.Timestamp
-	27, // 8: catalog.service.v1.Operation.updated_at:type_name -> google.protobuf.Timestamp
-	27, // 9: catalog.service.v1.Operation.completed_at:type_name -> google.protobuf.Timestamp
-	27, // 10: catalog.service.v1.Operation.next_attempt_at:type_name -> google.protobuf.Timestamp
-	10, // 11: catalog.service.v1.GetOperationResponse.operation:type_name -> catalog.service.v1.Operation
-	27, // 12: catalog.service.v1.EIP.created_at:type_name -> google.protobuf.Timestamp
-	27, // 13: catalog.service.v1.EIP.updated_at:type_name -> google.protobuf.Timestamp
-	27, // 14: catalog.service.v1.EIP.observed_at:type_name -> google.protobuf.Timestamp
-	13, // 15: catalog.service.v1.EIP.binding_target:type_name -> catalog.service.v1.EIPBindingTarget
-	12, // 16: catalog.service.v1.GetEIPResponse.eip:type_name -> catalog.service.v1.EIP
-	12, // 17: catalog.service.v1.ListEIPsResponse.items:type_name -> catalog.service.v1.EIP
-	12, // 18: catalog.service.v1.CreateEIPResponse.eip:type_name -> catalog.service.v1.EIP
-	12, // 19: catalog.service.v1.DeleteEIPResponse.eip:type_name -> catalog.service.v1.EIP
-	27, // 20: catalog.service.v1.VPCSnat.created_at:type_name -> google.protobuf.Timestamp
-	27, // 21: catalog.service.v1.VPCSnat.updated_at:type_name -> google.protobuf.Timestamp
-	23, // 22: catalog.service.v1.GetVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
-	23, // 23: catalog.service.v1.BindVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
-	24, // [24:24] is the sub-list for method output_type
-	24, // [24:24] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	66, // 0: catalog.service.v1.VPC.created_at:type_name -> google.protobuf.Timestamp
+	66, // 1: catalog.service.v1.VPC.updated_at:type_name -> google.protobuf.Timestamp
+	66, // 2: catalog.service.v1.VPC.observed_at:type_name -> google.protobuf.Timestamp
+	7,  // 3: catalog.service.v1.GetVPCResponse.vpc:type_name -> catalog.service.v1.VPC
+	7,  // 4: catalog.service.v1.ListVPCsResponse.items:type_name -> catalog.service.v1.VPC
+	7,  // 5: catalog.service.v1.CreateVPCResponse.vpc:type_name -> catalog.service.v1.VPC
+	7,  // 6: catalog.service.v1.DeleteVPCResponse.vpc:type_name -> catalog.service.v1.VPC
+	66, // 7: catalog.service.v1.Operation.created_at:type_name -> google.protobuf.Timestamp
+	66, // 8: catalog.service.v1.Operation.updated_at:type_name -> google.protobuf.Timestamp
+	66, // 9: catalog.service.v1.Operation.completed_at:type_name -> google.protobuf.Timestamp
+	66, // 10: catalog.service.v1.Operation.next_attempt_at:type_name -> google.protobuf.Timestamp
+	16, // 11: catalog.service.v1.GetOperationResponse.operation:type_name -> catalog.service.v1.Operation
+	66, // 12: catalog.service.v1.EIP.created_at:type_name -> google.protobuf.Timestamp
+	66, // 13: catalog.service.v1.EIP.updated_at:type_name -> google.protobuf.Timestamp
+	66, // 14: catalog.service.v1.EIP.observed_at:type_name -> google.protobuf.Timestamp
+	19, // 15: catalog.service.v1.EIP.binding_target:type_name -> catalog.service.v1.EIPBindingTarget
+	18, // 16: catalog.service.v1.GetEIPResponse.eip:type_name -> catalog.service.v1.EIP
+	18, // 17: catalog.service.v1.ListEIPsResponse.items:type_name -> catalog.service.v1.EIP
+	18, // 18: catalog.service.v1.CreateEIPResponse.eip:type_name -> catalog.service.v1.EIP
+	18, // 19: catalog.service.v1.DeleteEIPResponse.eip:type_name -> catalog.service.v1.EIP
+	66, // 20: catalog.service.v1.VPCSnat.created_at:type_name -> google.protobuf.Timestamp
+	66, // 21: catalog.service.v1.VPCSnat.updated_at:type_name -> google.protobuf.Timestamp
+	66, // 22: catalog.service.v1.VPCSnat.observed_at:type_name -> google.protobuf.Timestamp
+	29, // 23: catalog.service.v1.GetVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	29, // 24: catalog.service.v1.BindVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	66, // 25: catalog.service.v1.Subnet.created_at:type_name -> google.protobuf.Timestamp
+	66, // 26: catalog.service.v1.Subnet.updated_at:type_name -> google.protobuf.Timestamp
+	66, // 27: catalog.service.v1.Subnet.observed_at:type_name -> google.protobuf.Timestamp
+	33, // 28: catalog.service.v1.CreateSubnetResponse.subnet:type_name -> catalog.service.v1.Subnet
+	33, // 29: catalog.service.v1.GetSubnetResponse.subnet:type_name -> catalog.service.v1.Subnet
+	33, // 30: catalog.service.v1.ListSubnetsResponse.items:type_name -> catalog.service.v1.Subnet
+	33, // 31: catalog.service.v1.DeleteSubnetResponse.subnet:type_name -> catalog.service.v1.Subnet
+	29, // 32: catalog.service.v1.GetVPCSnatBindingResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	29, // 33: catalog.service.v1.SetVPCSnatEnabledResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	29, // 34: catalog.service.v1.DeleteVPCSnatBindingResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	1,  // 35: catalog.service.v1.LoadBalancerListenerInput.protocol:type_name -> catalog.service.v1.LoadBalancerListenerProtocol
+	1,  // 36: catalog.service.v1.LoadBalancerListener.protocol:type_name -> catalog.service.v1.LoadBalancerListenerProtocol
+	66, // 37: catalog.service.v1.LoadBalancerBackendMember.observed_at:type_name -> google.protobuf.Timestamp
+	3,  // 38: catalog.service.v1.LoadBalancerHealthCheck.protocol:type_name -> catalog.service.v1.LoadBalancerHealthCheckProtocol
+	0,  // 39: catalog.service.v1.LoadBalancer.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
+	49, // 40: catalog.service.v1.LoadBalancer.listener:type_name -> catalog.service.v1.LoadBalancerListener
+	51, // 41: catalog.service.v1.LoadBalancer.backends:type_name -> catalog.service.v1.LoadBalancerBackendMember
+	52, // 42: catalog.service.v1.LoadBalancer.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	2,  // 43: catalog.service.v1.LoadBalancer.algorithm:type_name -> catalog.service.v1.LoadBalancerAlgorithm
+	4,  // 44: catalog.service.v1.LoadBalancer.configuration_state:type_name -> catalog.service.v1.LoadBalancerConfigurationState
+	5,  // 45: catalog.service.v1.LoadBalancer.data_plane_state:type_name -> catalog.service.v1.LoadBalancerDataPlaneState
+	66, // 46: catalog.service.v1.LoadBalancer.observed_at:type_name -> google.protobuf.Timestamp
+	66, // 47: catalog.service.v1.LoadBalancer.created_at:type_name -> google.protobuf.Timestamp
+	66, // 48: catalog.service.v1.LoadBalancer.updated_at:type_name -> google.protobuf.Timestamp
+	66, // 49: catalog.service.v1.LoadBalancer.data_plane_observed_at:type_name -> google.protobuf.Timestamp
+	0,  // 50: catalog.service.v1.CreateLoadBalancerRequest.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
+	48, // 51: catalog.service.v1.CreateLoadBalancerRequest.listener:type_name -> catalog.service.v1.LoadBalancerListenerInput
+	50, // 52: catalog.service.v1.CreateLoadBalancerRequest.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
+	52, // 53: catalog.service.v1.CreateLoadBalancerRequest.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	53, // 54: catalog.service.v1.CreateLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	16, // 55: catalog.service.v1.CreateLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
+	53, // 56: catalog.service.v1.GetLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	0,  // 57: catalog.service.v1.ListLoadBalancersRequest.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
+	53, // 58: catalog.service.v1.ListLoadBalancersResponse.items:type_name -> catalog.service.v1.LoadBalancer
+	50, // 59: catalog.service.v1.UpdateLoadBalancerRequest.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
+	52, // 60: catalog.service.v1.UpdateLoadBalancerRequest.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	53, // 61: catalog.service.v1.UpdateLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	16, // 62: catalog.service.v1.UpdateLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
+	53, // 63: catalog.service.v1.DeleteLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	16, // 64: catalog.service.v1.DeleteLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
+	16, // 65: catalog.service.v1.GetLoadBalancerOperationResponse.operation:type_name -> catalog.service.v1.Operation
+	66, // [66:66] is the sub-list for method output_type
+	66, // [66:66] is the sub-list for method input_type
+	66, // [66:66] is the sub-list for extension type_name
+	66, // [66:66] is the sub-list for extension extendee
+	0,  // [0:66] is the sub-list for field type_name
 }
 
 func init() { file_catalog_service_v1_vpc_proto_init() }
@@ -1973,18 +4924,24 @@ func file_catalog_service_v1_vpc_proto_init() {
 	if File_catalog_service_v1_vpc_proto != nil {
 		return
 	}
+	file_catalog_service_v1_vpc_proto_msgTypes[23].OneofWrappers = []any{}
+	file_catalog_service_v1_vpc_proto_msgTypes[28].OneofWrappers = []any{}
+	file_catalog_service_v1_vpc_proto_msgTypes[42].OneofWrappers = []any{}
+	file_catalog_service_v1_vpc_proto_msgTypes[44].OneofWrappers = []any{}
+	file_catalog_service_v1_vpc_proto_msgTypes[46].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_catalog_service_v1_vpc_proto_rawDesc), len(file_catalog_service_v1_vpc_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   27,
+			NumEnums:      6,
+			NumMessages:   60,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_catalog_service_v1_vpc_proto_goTypes,
 		DependencyIndexes: file_catalog_service_v1_vpc_proto_depIdxs,
+		EnumInfos:         file_catalog_service_v1_vpc_proto_enumTypes,
 		MessageInfos:      file_catalog_service_v1_vpc_proto_msgTypes,
 	}.Build()
 	File_catalog_service_v1_vpc_proto = out.File

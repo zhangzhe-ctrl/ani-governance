@@ -1,6 +1,6 @@
 # 功能对接与接口风格改动登记
 
-总体状态：**进行中，未结项**。最后更新：2026-09-22。
+总体状态：**进行中，未结项**。最后更新：2026-10-09。
 
 本文件覆盖所有后续对接功能。每次用户对接一个新功能时，AI 先排查真实调用链，将涉及的接口、请求和响应、鉴权条件、现有问题追加到对应功能组。先累计登记，等用户指定某个批次后，再统一修改该批接口的路径、字段和响应风格；不能因排查或登记就自动改接口风格。
 
@@ -20,7 +20,7 @@
 | 平台运营账号管理 | 复用 ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-02/12；AUTH-15～AUTH-18；SESSION-01～SESSION-04；PERM-01～PERM-06、PERMGROUP-01～PERMGROUP-05 | 支持多个平台账号；运营/只读角色模板待 API 接入后再加；自助会话与权限点/权限组接口本轮补登，缺口见 MGMT-08～MGMT-15 | 待指定 |
 | API Key / AK-SK | AK-01～AK-07 | 签名、角色绑定、加密与可信审计已完成，真实 VPC 闭环 PASS | AKSK-VPC-20260922 已完成本批 |
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
-| Network 租户面读写对接（GOV-RESOURCE-20260922） | NET-02～NET-11；复用 AK-*、AUTH-* | BFF 路由/客户端/Service 已实现，17/17 全链路验收 PASS | GOV-RESOURCE-20260922 完成 |
+| Network 租户面读写对接 | NET-01～NET-24；复用 AK-*、AUTH-* | 24 方法 JWT/AK、三条主链、清理和相关门禁 pass | 本轮源码及隔离闭环完成；真实环境 not_verified |
 | 通用配额与 GPU 本地模拟 | QUOTA-01～03、QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 本地模拟闭环已实现并通过指定验收；正式构建无 GPU 路由；真实 GPU 未接入 | QUOTA-GPU-LOCAL-01，本地验收完成（真实 GPU not_verified） |
 | ModelDev CPU 主干受理及受管入口 | MODELDEV-01～MODELDEV-08 | 当前授权、可信解析、持久受理/投递、查询及受管目录/输入/运行操作已装配；启用/回退经真实鉴权/PG CAS 验证，目标集群业务验收仍需独立证明 | CPU-P01，进行中 |
 
@@ -28,7 +28,109 @@
 
 本批 **AKSK-VPC-20260922** 已由用户明确指定，覆盖 AK-01～07、AK-ISSUE-01～05、NET-01/NET-ISSUE-01：实现、远端定向测试、空库真实链路及必要负向验收均 PASS。证据见 [运行记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/aksk-vpc-20260922/README.md)。单个批次完成不代表整体登记结束，其他功能风格仍待指定。
 
-本批 **GOV-RESOURCE-20260922**（进行中）：把 governance ↔ 下游资源服务（ani-resource-service，原 ani-network-service 改名）对接从单一 VPC 只读扩为**租户面读+写**。新增 BFF 路由（NET-02～NET-11）：`GET/POST /api/v1/networks/vpcs`、`DELETE /api/v1/networks/vpcs/{vpc_id}`、`GET /api/v1/networks/operations/{operation_id}`、`GET/POST /api/v1/networks/eips`、`DELETE /api/v1/networks/eips/{eip_id}`、`GET /api/v1/networks/vpcs/{vpc_id}/snat`、`POST /api/v1/networks/vpcs/{vpc_id}/snat/bindings`。权限码族 `network:vpc:list|create|delete`、`network:operation:get`、`network:eip:get|list|create|delete`、`network:snat:get|bind`（`bootstrap-network-access.sql` 已扩展）。下游统一走新的 `ANI_NETWORK_MODE=governance` 组合入口（mTLS、SAN、三头、actor 合同与 vpc-read 一致；resource 侧白名单按域分组，平台面与流式全部拒绝）。本批全链路验收未执行，状态以 [计划](../../ani-resource-service/docs/plans/governance-integration.md) 勾选为准。
+历史 **GOV-RESOURCE-20260922** 对接了 NET-01～NET-11 共 11 个租户接口；“17/17”是该批场景数，不是 Resource 租户 RPC 全量覆盖。该批 AK 实际只支持 GetVPC，其余接口的机器访问在 2026-10-09 增补。历史计划、证据及部署保持各自时点；当前覆盖与响应合同以下方本轮小节和源码为准。
+
+## 2026-10-09：租户 Network 补齐与响应合同
+
+本轮源码补齐 NET-12～NET-24 的 Subnet、SNAT 和 LB 入口，并把已有未放行的 10 个入口与新增 13 个入口加入精确机器身份策略。当前租户面为下表 24 个方法；**全部支持用户 JWT 或 ANI-HMAC-SHA256，并要求当前租户状态、对应角色/API 权限及套餐 `NETWORK` 模块**。源码接入与实际验收分别记录，不能用路由或 OpenAPI 存在代替业务完成。
+
+### 当前路由、权限与响应
+
+NET-01～NET-11 沿用历史编号；NET-12～NET-24 为本轮新增。下表的单资源类型表示 HTTP 直接返回对象；内部 gRPC 响应仍保留原消息字段。
+
+| 编号 | RPC | HTTP 方法与路径 | 权限码 | HTTP 响应 |
+| --- | --- | --- | --- | --- |
+| NET-01 | GetVPC | `GET /api/v1/networks/vpcs/{vpc_id}` | `network:vpc:get` | VPC |
+| NET-02 | ListVPCs | `GET /api/v1/networks/vpcs` | `network:vpc:list` | items / next_cursor / total |
+| NET-03 | CreateVPC | `POST /api/v1/networks/vpcs` | `network:vpc:create` | VPC |
+| NET-04 | DeleteVPC | `DELETE /api/v1/networks/vpcs/{vpc_id}` | `network:vpc:delete` | VPC |
+| NET-05 | GetOperation | `GET /api/v1/networks/operations/{operation_id}` | `network:operation:get` | Operation |
+| NET-06 | GetEIP | `GET /api/v1/networks/eips/{eip_id}` | `network:eip:get` | EIP |
+| NET-07 | ListEIPs | `GET /api/v1/networks/eips` | `network:eip:list` | items / next_cursor / total |
+| NET-08 | CreateEIP | `POST /api/v1/networks/eips` | `network:eip:create` | EIP |
+| NET-09 | DeleteEIP | `DELETE /api/v1/networks/eips/{eip_id}` | `network:eip:delete` | EIP |
+| NET-10 | GetVPCSnat | `GET /api/v1/networks/vpcs/{vpc_id}/snat` | `network:snat:get` | VPCSnat |
+| NET-11 | BindVPCSnat | `POST /api/v1/networks/vpcs/{vpc_id}/snat/bindings` | `network:snat:bind` | VPCSnat |
+| NET-12 | CreateSubnet | `POST /api/v1/networks/subnets` | `network:subnet:create` | Subnet |
+| NET-13 | GetSubnet | `GET /api/v1/networks/subnets/{subnet_id}` | `network:subnet:get` | Subnet |
+| NET-14 | ListSubnets | `GET /api/v1/networks/subnets` | `network:subnet:list` | items / next_cursor / total |
+| NET-15 | DeleteSubnet | `DELETE /api/v1/networks/subnets/{subnet_id}` | `network:subnet:delete` | Subnet |
+| NET-16 | GetVPCSnatBinding | `GET /api/v1/networks/snat/bindings/{binding_id}` | `network:snat:get` | VPCSnat |
+| NET-17 | SetVPCSnatEnabled | `PATCH /api/v1/networks/snat/bindings/{binding_id}` | `network:snat:update` | VPCSnat |
+| NET-18 | DeleteVPCSnatBinding | `DELETE /api/v1/networks/snat/bindings/{binding_id}` | `network:snat:delete` | VPCSnat |
+| NET-19 | CreateLoadBalancer | `POST /api/v1/networks/load-balancers` | `network:load-balancer:create` | load_balancer + operation |
+| NET-20 | GetLoadBalancer | `GET /api/v1/networks/load-balancers/{load_balancer_id}` | `network:load-balancer:get` | LoadBalancer |
+| NET-21 | ListLoadBalancers | `GET /api/v1/networks/load-balancers` | `network:load-balancer:list` | items / next_cursor / total |
+| NET-22 | UpdateLoadBalancer | `PATCH /api/v1/networks/load-balancers/{load_balancer_id}` | `network:load-balancer:update` | load_balancer + operation |
+| NET-23 | DeleteLoadBalancer | `DELETE /api/v1/networks/load-balancers/{load_balancer_id}` | `network:load-balancer:delete` | load_balancer + operation |
+| NET-24 | GetLoadBalancerOperation | `GET /api/v1/networks/load-balancers/operations/{operation_id}` | `network:load-balancer:operation:get` | Operation |
+
+HTTP 方法、字段、签名与请求限制以 [Network 路由输入](../api/protos/admin/service/v1/i_network.proto)、[公开 DTO](../api/protos/catalog/service/v1/vpc.proto) 和 [AK/SK 合同](contracts/aksk-signature.md) 为准，不接受公网 `tenant`、`actor`、`operator` 或平台管理员身份。Subnet 创建保留 `vpc_id` 与可选 `gateway`；SNAT 切换保留 `binding_id/enabled/expected_version/idempotency_key`；LB 创建保留父资源、入口、后端和健康检查输入，更新只允许现有可变字段并携带 `expected_version/idempotency_key`。GET/DELETE 无请求体，POST/PATCH 使用对应 DTO 的 JSON 对象；详情与写入不接受 query。
+
+四类列表保留 `items/next_cursor/total`，`total` 为相同可信租户、权限和筛选条件下的总数，不受本页 cursor/limit 影响；Proto int64 在 HTTP JSON 中为十进制字符串，空列表返回 `"0"`。VPC/EIP 查询允许 `name/state/limit/cursor`，Subnet 另有 `vpc_id`，LB 另有 `vpc_id/subnet_id/exposure`；实际白名单及未知、重复、歧义参数的拒绝见 [Network 请求策略](../pkg/middleware/auth/network_policy.go)。
+
+### 身份、归属与异步结果
+
+用户与 Key 分别建立可信 `Principal`；API Key 继续是独立机器身份，不伪造 `user_id`。签名校验绑定 method、规范 path/query、AK、时间戳与原始 body SHA256，复查 Key/角色/租户/套餐；重复认证头、JWT/AK 混用、未知 operation 和篡改在业务副作用前拒绝。历史 GetVPC 签名向量和 Image 11 方法的合法客户端保留，调用示例见 [签名客户端](../scripts/ops/aksk_vpc_client.py)。
+
+[Network Service](../app/admin/service/internal/service/network_service.go) 从认证主体取得本地租户，经持久 `resource_tenant_id` 映射后调用 [出站客户端](../app/admin/service/internal/data/network_client.go)。客户端整体重建单值 `x-ani-tenant-id/x-ani-actor/x-ani-request-id`，actor 区分 `governance:user:<id>` 与 `governance:access-key:<id>`；不转发公网身份或认证材料。Resource 继续负责真实租户过滤、父子归属、持久幂等、版本、占用和删除约束，Governance 核对返回对象的租户和资源关联。
+
+HTTP 成功表示 Resource 返回了持久资源或受理快照；资源生命周期与 operation 结果分别查询。SNAT 的 `desired_enabled` 与可选 `applied_enabled` 保留期望、实际观测和未知状态，解绑保留独立 EIP。LB 的 `state/configuration_state/data_plane_state` 与 `desired_version/applied_version`、观测时间分别保留，不能把受理、配置完成或 operation 成功解释为流量健康；删除结果仍含资源与 operation，并由 Resource 释放关联、保留独立 EIP 和工作负载。公开错误保留 Resource 的领域 reason 和适当 HTTP 码，不暴露下游私有错误详情。
+
+平台 Network 27 方法、Attachment 四个方法、ImageRuntime 两个方法和实例 owner 的 GetSubmission 不属于此租户 HTTP/AK 接入范围。
+
+### 十个既有单对象响应展开
+
+下表通过 BFF `response_body` 展开；资源内部字段、枚举、时间、int64 序列化和内部 gRPC 字段编号保留。新增单对象接口同样直接返回公开对象，既有已展开详情沿用原行为。
+
+| 方法 | HTTP 方法与路径 | `response_body` / 直接类型 |
+| --- | --- | --- |
+| CreateVPC | `POST /api/v1/networks/vpcs` | `vpc` / VPC |
+| DeleteVPC | `DELETE /api/v1/networks/vpcs/{vpc_id}` | `vpc` / VPC |
+| CreateEIP | `POST /api/v1/networks/eips` | `eip` / EIP |
+| DeleteEIP | `DELETE /api/v1/networks/eips/{eip_id}` | `eip` / EIP |
+| BindVPCSnat | `POST /api/v1/networks/vpcs/{vpc_id}/snat/bindings` | `snat` / VPCSnat |
+| EnsureImageSpace | `POST /api/v1/images/space:enable` | `space` / ImageSpace |
+| DisablePublisherCredential | `POST /api/v1/images/publisher-credential:disable` | `credential` / PublisherCredential |
+| RegisterImage | `POST /api/v1/images/registrations` | `image` / ImageRegistration |
+| UpdateImage | `PATCH /api/v1/images/registrations/{image_id}` | `image` / ImageRegistration |
+| UnregisterImage | `POST /api/v1/images/registrations/{image_id}:unregister` | `image` / ImageRegistration |
+
+例如原 `{"vpc":{"id":"..."}}` 返回为 `{"id":"..."}`。Image 凭证签发/重置的 `credential + secret + replay_until`、API Key 创建/重置的 `data + secret_key`、制品下载授权的 `artifact + download_url + expires_at`、LB 的 `load_balancer + operation` 及分页、统计、日志等有业务含义的组合字段完整保留；不引入全局 code/data 包装。正式生成同时更新 HTTP 服务端、客户端和 [OpenAPI](../app/admin/service/cmd/server/assets/openapi.yaml)，OpenAPI 的 NetworkOperation 使用独立名称避免与生成器 Operation 同名，仍对应公开 Network Operation 对象。
+
+### 权限材料、API 目录与运行授权
+
+[bootstrap-network-access.sql](../scripts/ops/sql/bootstrap-network-access.sql) 是 24 条路由及权限关系的源码材料，面向显式指定的租户、角色与已有 NETWORK 套餐；它不自动扩大共享套餐，运行前核对目标和前置条件。源码/SQL 存在不是目录已登记或角色已获授权的证据。
+
+运行实例先按 [API 权限运维](api-role-permission-ops.md) 执行 `admin sync-apis --dry-run`，确认后显式同步，保留既有 ID、启停状态与权限关联；目录同步不删除接口、不授予角色。再按授权应用所选权限材料、确认对应租户角色和套餐，并刷新实际策略缓存。以上目录和运行角色写入只在本任务独占验收环境执行；共享业务库、角色策略与生产部署仍需单独授权。
+
+逐接口行为、JWT/AK、跨租户与套餐拒绝、真实持久化/worker 和产品清理由 [Network HTTP 联调用例](../app/admin/service/internal/service/network_joint_http_test.go)、[Resource 子进程接线](../app/admin/service/internal/service/network_joint_fixture_test.go) 与 [隔离执行入口](../scripts/network-joint-integration) 验证；[请求与签名负向用例](../pkg/middleware/auth/network_policy_test.go)、[客户端受信 metadata 用例](../app/admin/service/internal/data/network_client_test.go)、[Service 映射用例](../app/admin/service/internal/service/network_service_test.go) 和 [HTTP/OpenAPI 响应用例](../app/admin/service/internal/server/detail_response_http_test.go) 提供对应回归，不代替三条业务主链。独占数据库中的运行授权与清理必须有实际执行结果。
+
+### 本轮运行证据
+
+本轮 Goal 的源码与隔离业务闭环完成，`pass`。基线 Resource `60702b2bcfe441b8ef86991b95274d0da34773ea`、Governance `315389d274acfc4237a87b9b4c98c23320f91b4c`；两仓位于任务独占 `codex/network-governance-20261009` worktree。验收快照时尚未提交或发布；随后用户已授权交付两仓远端 `main`，最终远端 SHA 以对应 Git 提交及交付回执为准，远端 CI 在实际验证前为 `not_verified`。最终验证源包：Governance `governance-final11/source.tar.gz`，SHA256 `5b1c16ff1e3b68e9c42eb378183c064f688872fbb0110732162150a7708294d2`；Resource `resource-final10/source.tar.gz`，SHA256 `0db2c8e312a5470e85919a1ad9a1712565e4fe9deb3f90939f549af26a309b7e`。源包、原始日志、清单和命令仅保留于本地任务归档 `/home/chabking/.codex/worktrees/network-governance-20261009/runs/`，不随业务源码提交；下文材料名均相对该归档根目录。`source-equivalence12.json` 确认验收后的代码及生成输入一致，最终证据文档更新不改变验证代码及生成输入。
+
+最终 `network-joint11` 中 24 个方法逐一经过真实 HTTP 的 JWT 与 AK 身份，完成 Subnet、SNAT、LB 三条主链、持久化/幂等/CAS/占用/关联释放、权限/套餐/租户隔离和签名负向场景。拒绝发生在 Resource 新业务副作用前。`image-joint11` 覆盖原有 11 个 Image AK 方法、五个写响应的 JWT/AK 展开、凭证组合、实际持久化与产品注销/禁用；`affected11` 核实 Network 客户端/Service、十个直接写响应和生成客户端、既有详情/列表与业务组合，均 `pass`。调用使用真实 Governance 身份、Casbin/套餐、mTLS、Resource 业务代码、独占 PostgreSQL 和 worker；KC、Envoy、实例 owner、registry 仅在外部适配器边界使用明确替身。**真实外部网络/Harbor、流量数据面及生产验收 `not_verified`**。
+
+租户资源先经 HTTP 产品接口释放/删除；Resource 子进程随后走真实 Attachment 协作、Subnet/VPC 和平台用例，关闭池分配、依次删除 Public 池、Intranet 池与网关，等待真实 worker 的 Deleted/Succeeded。最终活动 VPC/Subnet/EIP/SNAT/LB/Attachment/平台资源总数为 0。平台合同没有清默认命令，默认引用保留指向已删除池的历史记录，未手改业务状态或删业务记录。Network helper PID `4122479`、Image helper PID `4127965` 均退出 0。基础设施最后清理；独立核查 `evidence/ubuntu/cleanup-ubuntu11.json` 的 20 个明确记录容器、8 个 helper PID 均不存在，任务私有运行目录无残留；`evidence/fedora/cleanup-fedora11.json` 确认正式检查的 Redis 已移除。源码包、日志与构建哈希作为恢复/复现材料保留。
+
+主机：业务/生成/Resource 门禁为 SSH `ubuntu`（`i-8yg2l7u8`），Governance 正式检查为 SSH `fedora`。普通任务先用 Ubuntu；其早先扫描受内存压力中止，改用 Fedora 官方 Go、任务私有模块缓存、2 CPU/8 GiB 上限。重任务串行。最终运行 Go 1.26.9、protoc 29.3、Buf 1.60.0、SQLC 1.31.1；生成器锁保持。短任务 TMPDIR 分别为 `/home/ubuntu/t82`、`/home/chabking/t1f82`。远端临时 Git 仅供正式格式/生成入口比较，不是源仓提交。执行与退出码：
+
+| 命令/验证 | 主机 | 结果及原始日志 |
+| --- | --- | --- |
+| `RESOURCE_NETWORK_TEST_BINARY=... ./scripts/network-joint-integration` | Ubuntu | pass / 0：`evidence/ubuntu/network-joint11.log` |
+| `IMAGE_RESOURCE_CONTRACT_BINARY=... ./scripts/image-joint-integration` | Ubuntu | pass / 0：`evidence/ubuntu/image-joint11.log` |
+| `go test -mod=readonly -count=1 -run '^(TestNetwork\|TestSingleWrite\|TestBusinessCombination\|TestDetail)'`，data/service/server | Ubuntu | pass / 0：`evidence/ubuntu/affected11.log` |
+| `make check-generated`，两次完整 `make gen`、gow/redact integration | Ubuntu | pass / 0：`evidence/ubuntu/governance-generated11.log`，861 个生成文件/209 个输入/6 根的清单 `evidence/ubuntu/generated11/generation-source-final.json` |
+| `make verify BUF=... SQLC=...` | Ubuntu | pass / 0：`evidence/ubuntu/resource-verify11.log` |
+| `make check`，格式/布局/Python/build/pkg/SQL/security | Fedora | pass / 0：`evidence/fedora/governance-check11.log` |
+| `validate-cleanup11.py EVIDENCE_DIR OUTPUT --tmpdir ...` | 两主机 | pass / 0，清理 JSON 见上文 |
+
+完整串行命令见 `final-ubuntu11.sh`，Resource 联调二进制另留 `evidence/ubuntu/resource-network-binary11.sha256`、`evidence/ubuntu/resource-image-binary11.sha256`。权限材料在独占库经 API 目录 dry-run 回滚、真实 ApiRepoSync 与 SQL 重复应用校验；24 路由/23 权限码（两种 SNAT 查询共享一权限）保持既有禁用条目且不误授其他角色。**源码材料、独占运行目录/角色授权为 pass；共享 API 目录、共享角色策略未写入，应用镜像发布、部署及生产运行授权 not_verified。**
+
+原 Go 1.26.7 的 `evidence/fedora/governance-check10.log` 保留 `fail`：2026-10-08 新公告命中标准库及 HTTP/2。按 [Go 1.26.9 发布记录](https://go.dev/doc/devel/release#go1.26.9) 和 [GO-2026-6617 修复版本](https://pkg.go.dev/vuln/GO-2026-6617)，仅为解除必需门禁升级 Governance Go/Dockerfile 到 1.26.9、x/net 到 v0.60.0，并保留它要求的传递依赖版本；不改生成器锁或 Resource 生产代码。最终扫描可调用漏洞为 0、未检出密钥泄漏；仅依赖级告警按原日志保留。早期代理 EOF/缓存权限、长 TMPDIR socket 及外部 SNAT 状态发布/驱动版本等待失败保留原日志；最终修正未绕过权限、版本或持久化。
+
+外扩 defaultdata 回归 `evidence/ubuntu/governance-regressions09b.log` 保留 `fail`：ModelDev `deadline_in_flight` 断言失败。失败快照的该实现、测试及 go.mod/go.sum 与起始 `315389d` 逐字节一致，源哈希见 `evidence/ubuntu/modeldev-source-comparison09.json`。安全更新前，相同 Ubuntu Go 1.26.7 环境各对照一次：`evidence/ubuntu/modeldev-baseline-10.log` fail / 1，`evidence/ubuntu/modeldev-candidate-10.log` pass / 0；原失败在基线可复现，表现存在时序不稳定。未改 ModelDev，未以定向通过覆盖全包失败。该投递测试在本轮接入改动范围外；本轮不声称全仓回归全部通过，不重复无关配额/Compute/Storage/IAM/安装器验收。
 
 ## 功能组：登录、登出及登录后初始化
 
@@ -544,9 +646,9 @@ const url = `${BASE_URL}/admin/v1/users?${params.toString()}`;
 
 ## 功能组：API Key / AK-SK
 
-### 当前交付：AKSK-VPC-20260922（已实施及验收）
+### 历史交付：AKSK-VPC-20260922（该批已实施及验收）
 
-以 [执行文档](aksk-vpc-execution-plan.md) 为最终合同。下面旧版本排查保留为历史，不再描述当前代码。
+该历史批次以 [执行文档](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/aksk-vpc-execution-plan.md) 为其最终合同；下列 PASS 仅属该批，2026-10-09 的 Network/Image 当前签名范围以 [AK/SK 合同](contracts/aksk-signature.md) 和本轮登记为准。下面旧版本排查保留为历史，不再描述当前代码。
 
 | 编号 | 当前方法和路径 | 当前合同与验证 |
 | --- | --- | --- |
@@ -568,7 +670,7 @@ Key 绑定同租户启用 TENANT 角色，复用套餐和 Casbin。主密钥文�
 | AK-ISSUE-04 | 已解决本批首次部署：空库种子权限 + 显式专用套餐与角色配置；租户管理员创建 Key PASS |
 | AK-ISSUE-05 | 已解决 NET-01：共用 Principal 与下游 actor；Key 对用户专用/Key 管理接口仍 403，PASS |
 
-证据及复现命令见 [本批记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/aksk-vpc-20260922/README.md)。本次仅持久化 VPC 查询，不证明网络数据面，也不开放其他业务 API。
+证据及复现命令见 [本批记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/aksk-vpc-20260922/README.md)。该批仅验收持久化 VPC 查询，不证明网络数据面；该批只开放 GetVPC 的限制已由本轮 24 个租户 Network 与既有 Image 11 个方法的精确策略扩展，不开放其他未登记的机器接口。
 
 ### 实施前历史排查（以下记录截至源码 5a2a2e8，已由上述交付替代）
 
@@ -666,11 +768,11 @@ Key 绑定同租户启用 TENANT 角色，复用套餐和 Casbin。主密钥文�
 
 ## 功能组：VPC 详情查询的机器调用
 
-### 当前交付：NET-01 / NET-ISSUE-01
+### 历史交付：NET-01 / NET-ISSUE-01（2026-09-22）
 
 `GET /api/v1/networks/vpcs/{vpc_id}` 已接受用户 JWT 或三个签名头之一整组，禁止混用；只接受规范 VPC 路径和空 query/body。可信主体经公共认证层进入租户/套餐/Casbin，数值租户经持久化 resource_tenant_id 映射，下游统一生成 `governance:user:<id>` 或 `governance:access-key:<id>`。
 
-Network 在 66f787b 上仅整合 9e56e1c 必要 vpc-read 改动，保留主线 BaseConnectivity 映射和租户过滤，加入 Key actor；没有整支合并平台工作或改名。真实 NodePort → Governance → mTLS → Network → PostgreSQL 已 PASS；跨租户/不存在同样 404（仅 request_id 不同），伪造公网身份无效，缺/错误证书与 RPC/header 租户不一致拒绝，用户 JWT 查询与登出回归 PASS。NET-ISSUE-01 本批已解决，full 模式及其他 RPC 仍不在开放范围。
+Network 在 66f787b 上仅整合 9e56e1c 必要 vpc-read 改动，保留主线 BaseConnectivity 映射和租户过滤，加入 Key actor；没有整支合并平台工作或改名。真实 NodePort → Governance → mTLS → Network → PostgreSQL 已 PASS；跨租户/不存在同样 404（仅 request_id 不同），伪造公网身份无效，缺/错误证书与 RPC/header 租户不一致拒绝，用户 JWT 查询与登出回归 PASS。NET-ISSUE-01 在该批已解决，当时 full 模式及其他 RPC 不在其开放范围；当前租户 Network 接入使用 Resource 的 governance 组合入口，范围和本轮验收以上方 2026-10-09 小节为准。
 
 本次运行证据见 [本批记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/aksk-vpc-20260922/README.md)，以下保留实施前的分支核对和范围形成记录。
 
@@ -692,13 +794,13 @@ Governance 的两处适配必须修改：[NetworkService.GetVPC](../app/admin/se
 
 该分支已有的 [GovernanceResolver/Unary](https://github.com/zhangzhe-ctrl/ani-network-service/blob/9e56e1c675bb2102c8e84adc5a8dfd2962823ddd/internal/server/governance.go) 校验证书链及精确 SAN `ani-governance`，随后信任它声明的单值 `x-ani-tenant-id`、`x-ani-actor`、`x-ani-request-id`，仅允许 GetVPC；校验 RPC 请求 `tenant_id` 与可信 header 一致。**Network 不重新查询用户归属或角色权限**，这些由 Governance 保证；一致性检查避免请求体的重复租户字段绕过 header 范围，并非另一套租户授权。当前 actor 格式只接受 `governance:user:<非零ID>`，接 API Key 时需扩展为可区分的机器 actor，同时复用原证书和租户信任链。
 
-Network 的 [GetVPC SQL](../../ani-network-service/internal/data/queries/vpcs.sql) 已按 `tenant_id + vpc_id` 过滤，同租户关联也有条件；请求签名不要求改 VPC 查询或领域模型。后续应先整合已有接收实现，再适配 Key 身份，不重新建设 mTLS 或引入 IAM。Governance 的 `go.mod` 只固定消费的 API 模块，不决定 Network 实际运行的镜像/源码版本；2026-09-21 `a936623` 将模块 pin 更新为 main `66f787b`，没有删除独立分支的服务端代码。
+Network 的 [GetVPC SQL](https://github.com/zhangzhe-ctrl/ani-network-service/blob/66f787bd30134141726c596612501a83cf75bdb7/internal/data/queries/vpcs.sql) 已按 `tenant_id + vpc_id` 过滤，同租户关联也有条件；请求签名不要求改 VPC 查询或领域模型。后续应先整合已有接收实现，再适配 Key 身份，不重新建设 mTLS 或引入 IAM。Governance 的 `go.mod` 只固定消费的 API 模块，不决定 Network 实际运行的镜像/源码版本；2026-09-21 `a936623` 将模块 pin 更新为 main `66f787b`，没有删除独立分支的服务端代码。
 
 历史 [2026-09-19 执行记录](https://github.com/zhangzhe-ctrl/ani-network-service/blob/9e56e1c675bb2102c8e84adc5a8dfd2962823ddd/docs/execution/records/governance-vpc-read-20260919.md) 保存 VPC 只读链路与 mTLS/隔离验收，不能把这些说成从未实现；它也不证明当前部署或新增 API Key 链路已通过。当前部署版本本轮未检查；分支整合、机器 actor、签名调用和原 JWT 回归仍为 `not_verified`。原“不含下游合同调整”的 3～5 人天估算不包含分支整合与两仓联调。
 
 ### 第一批收窄：先跑通签名查询 VPC
 
-用户要求先跑通主流程，后续按实际问题迭代。第一批只验收“管理员配置租户 Key → 客户端签名 → Governance 验签和既有权限检查 → mTLS 调 Network GetVPC → 返回本租户 VPC”；不把所有业务 API、通用云厂商兼容列为前置。用户已明确没有旧 Key、没有存量用户，按首次部署实施。沿用此前 2～3 个开发人天的粗估，不是交付承诺。执行依据见 [AK/SK 执行文档](aksk-vpc-execution-plan.md)，尚未改实现。
+用户要求先跑通主流程，后续按实际问题迭代。第一批只验收“管理员配置租户 Key → 客户端签名 → Governance 验签和既有权限检查 → mTLS 调 Network GetVPC → 返回本租户 VPC”；不把所有业务 API、通用云厂商兼容列为前置。用户已明确没有旧 Key、没有存量用户，按首次部署实施。沿用此前 2～3 个开发人天的粗估，不是交付承诺。执行依据见 [AK/SK 执行文档](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/aksk-vpc-execution-plan.md)，尚未改实现。
 
 - Governance：复用 AK 管理，增加加密 SK 和一个同租户角色绑定；入口增加签名认证，首批仅开放 NET-01，其他业务接口按后续批次接入。租户状态、套餐和 Casbin 继续复用。每次查 Key 当前状态即可，先不做权限/密钥缓存。
 - Network：整合现有 `9e56e1c` 的 vpc-read 入口，扩展其 actor 校验支持 Key；不重写 mTLS、可信租户 header 或 VPC 查询。`git merge-tree --write-tree main 9e56e1c` 只预览、未实际合并：唯一文本冲突在 `internal/data/postgres.go`，一侧增加 BaseConnectivity 返回映射，另一侧增加连接失败错误分类，需同时保留。仍需实际编译和回归，合并预览不算验证通过。
@@ -708,7 +810,7 @@ Network 的 [GetVPC SQL](../../ani-network-service/internal/data/queries/vpcs.sq
 
 ### API Key 风格对照与声明预览（历史方向，现已按执行文档实施）
 
-2026-09-22：用户明确将**共用认证层**纳入范围，参照 [ANI OpenAPI](../../ANI/repo/api/openapi/v1.yaml) 查看预览后确认方向，并要求编写含 Python 示例的执行文档。用户进一步明确**没有旧 Key、没有存量用户**。后续以 [执行文档](aksk-vpc-execution-plan.md) 的接口、签名规范、首次部署与验收步骤为准；本节保留原样式对照；实现和真实运行结果以上述当前交付及执行文档为准。
+2026-09-22：用户明确将**共用认证层**纳入范围，参照 [ANI OpenAPI](../../ANI/repo/api/openapi/v1.yaml) 查看预览后确认方向，并要求编写含 Python 示例的执行文档。用户进一步明确**没有旧 Key、没有存量用户**。后续以 [执行文档](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/aksk-vpc-execution-plan.md) 的接口、签名规范、首次部署与验收步骤为准；本节保留原样式对照；实现和真实运行结果以上述当前交付及执行文档为准。
 
 参照文件在 `servers.url` 中已有 `/api/v1`，Key 路由写作 `/auth/api-keys`，完整路径为 `/api/v1/auth/api-keys`。其 `ApiKeyAuth` 使用单个 `X-API-Key` 长期凭证；创建字段为 `name/scopes/user_id/rate_limit_rpm/expires_at`，创建响应为 `key_id/key_value/key_prefix`，列表为 `items/total`。**这是静态 API Key 声明，不是 AK/SK 请求签名协议。**
 
@@ -764,7 +866,7 @@ Content-Type: application/json
 }
 ```
 
-业务调用外观如下；头名和准确签名输入已写入执行文档。客户端以 SK 计算 HMAC-SHA256 签名，业务请求不发送 SK，也不预先换 JWT。首批仍只有 NET-01 签名闭环，不扩大为全部业务 API。
+业务调用外观如下；头名和准确签名输入已写入执行文档。客户端以 SK 计算 HMAC-SHA256 签名，业务请求不发送 SK，也不预先换 JWT。此历史首批仅有 NET-01 签名闭环；当前精确机器入口以上方 2026-10-09 登记及 AK/SK 合同为准，不开放所有业务 API。
 
 ```http
 GET /api/v1/networks/vpcs/vpc_0123456789abcdef0123456789abcdef

@@ -25,10 +25,11 @@ var File_admin_service_v1_admin_doc_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_admin_doc_proto_rawDesc = "" +
 	"\n" +
-	" admin/service/v1/admin_doc.proto\x12\x10admin.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\xc1\t\xbaG\x83\b\x12\xba\x01\n" +
+	" admin/service/v1/admin_doc.proto\x12\x10admin.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\xbd\f\xbaG\xff\n" +
+	"\x12\xba\x01\n" +
 	"\x10GoWind Admin API\x12\x10GoWind Admin API\"D\n" +
 	"\x05tx7do\x12&https://github.com/tx7do/go-wind-admin\x1a\x13yanglinbo@gmail.com*I\n" +
-	"\vMIT License\x12:https://github.com/tx7do/go-wind-admin/blob/master/LICENSE2\x031.0*\xa7\x06\n" +
+	"\vMIT License\x12:https://github.com/tx7do/go-wind-admin/blob/master/LICENSE2\x031.0*\xa3\t\n" +
 	"\xd4\x01\n" +
 	"\xd1\x01\n" +
 	"\fKratosStatus\x12\xc0\x01\n" +
@@ -52,7 +53,7 @@ const file_admin_service_v1_admin_doc_proto_rawDesc = "" +
 	";\n" +
 	"\x10application/json\x12'\n" +
 	"%\x12#\n" +
-	"!#/components/schemas/KratosStatus:\xe4\x03\n" +
+	"!#/components/schemas/KratosStatus:\xe0\x06\n" +
 	"-\n" +
 	"\n" +
 	"BearerAuth\x12\x1f\n" +
@@ -62,10 +63,10 @@ const file_admin_service_v1_admin_doc_proto_rawDesc = "" +
 	"\rAccessKeyAuth\x12^\n" +
 	"\\\n" +
 	"\x06apiKey\x12<Public AK; all three signature headers are required together\x1a\fX-Access-Key\"\x06header\n" +
-	"z\n" +
-	"\rSignatureAuth\x12i\n" +
-	"g\n" +
-	"\x06apiKey\x12HANI seven-line HMAC-SHA256, lowercase hex; Swagger does not calculate it\x1a\vX-Signature\"\x06header\n" +
+	"\xf5\x03\n" +
+	"\rSignatureAuth\x12\xe3\x03\n" +
+	"\xe0\x03\n" +
+	"\x06apiKey\x12\xc0\x03ANI-HMAC-SHA256 seven lines: algorithm, uppercase HTTP method, canonical path, canonical query (url.Values.Encode), Access Key, Unix timestamp, lowercase SHA256 of raw request body. HMAC-SHA256 is lowercase hex; all signature headers required, 300-second time window, no Bearer mixing. Supported operations: 24 tenant Network and 11 Image methods only; current API permission and module checks still required. Swagger does not calculate signatures.\x1a\vX-Signature\"\x06header\n" +
 	"i\n" +
 	"\rSignatureTime\x12X\n" +
 	"V\n" +

@@ -57,6 +57,7 @@ message Operation {
  google.protobuf.Timestamp updated_at = 8 [json_name = "updated_at"];
  google.protobuf.Timestamp completed_at = 9 [json_name = "completed_at"];
  google.protobuf.Timestamp next_attempt_at = 10 [json_name = "next_attempt_at"];
+ string reason_message = 11 [json_name = "reason_message"];
 }
 message GetOperationResponse { Operation operation = 1 [json_name = "operation"]; }
 
@@ -123,7 +124,12 @@ message VPCSnat {
  google.protobuf.Timestamp updated_at = 8 [json_name = "updated_at"];
  int64 version = 9 [json_name = "version"];
  bool desired_enabled = 10 [json_name = "desired_enabled"];
- bool applied_enabled = 11 [json_name = "applied_enabled"];
+ optional bool applied_enabled = 11 [json_name = "applied_enabled"];
+ google.protobuf.Timestamp observed_at = 12 [json_name = "observed_at"];
+ bool observation_stale = 13 [json_name = "observation_stale"];
+ string last_operation_id = 14 [json_name = "last_operation_id"];
+ string purpose = 15 [json_name = "purpose"];
+ string reason_message = 16 [json_name = "reason_message"];
 }
 message GetVPCSnatResponse { VPCSnat snat = 1 [json_name = "snat"]; }
 
@@ -133,3 +139,199 @@ message BindVPCSnatRequest {
  string idempotency_key = 3 [json_name = "idempotency_key"];
 }
 message BindVPCSnatResponse { VPCSnat snat = 1 [json_name = "snat"]; }
+
+// Tenant-facing subnet fields; ownership is resolved from authenticated context.
+message Subnet {
+ string id = 1 [json_name = "id"];
+ string vpc_id = 2 [json_name = "vpc_id"];
+ string name = 3 [json_name = "name"];
+ string description = 4 [json_name = "description"];
+ string cidr = 5 [json_name = "cidr"];
+ string gateway = 6 [json_name = "gateway"];
+ string state = 7 [json_name = "state"];
+ string reason = 8 [json_name = "reason"];
+ string reason_message = 9 [json_name = "reason_message"];
+ google.protobuf.Timestamp created_at = 10 [json_name = "created_at"];
+ google.protobuf.Timestamp updated_at = 11 [json_name = "updated_at"];
+ int64 version = 12 [json_name = "version"];
+ google.protobuf.Timestamp observed_at = 13 [json_name = "observed_at"];
+ bool observation_stale = 14 [json_name = "observation_stale"];
+ string last_operation_id = 15 [json_name = "last_operation_id"];
+}
+message CreateSubnetRequest {
+ string vpc_id = 1 [json_name = "vpc_id"];
+ string name = 2 [json_name = "name"];
+ string cidr = 3 [json_name = "cidr"];
+ string description = 4 [json_name = "description"];
+ string idempotency_key = 5 [json_name = "idempotency_key"];
+ optional string gateway = 6 [json_name = "gateway"];
+}
+message CreateSubnetResponse { Subnet subnet = 1 [json_name = "subnet"]; }
+message GetSubnetRequest { string subnet_id = 1 [json_name = "subnet_id"]; }
+message GetSubnetResponse { Subnet subnet = 1 [json_name = "subnet"]; }
+message ListSubnetsRequest {
+ string vpc_id = 1 [json_name = "vpc_id"];
+ string name = 2 [json_name = "name"];
+ string state = 3 [json_name = "state"];
+ int32 limit = 4 [json_name = "limit"];
+ string cursor = 5 [json_name = "cursor"];
+}
+message ListSubnetsResponse {
+ repeated Subnet items = 1 [json_name = "items"];
+ string next_cursor = 2 [json_name = "next_cursor"];
+ int64 total = 3 [json_name = "total"];
+}
+message DeleteSubnetRequest { string subnet_id = 1 [json_name = "subnet_id"]; }
+message DeleteSubnetResponse { Subnet subnet = 1 [json_name = "subnet"]; }
+message GetVPCSnatBindingRequest { string binding_id = 1 [json_name = "binding_id"]; }
+message GetVPCSnatBindingResponse { VPCSnat snat = 1 [json_name = "snat"]; }
+message SetVPCSnatEnabledRequest {
+ string binding_id = 1 [json_name = "binding_id"];
+ bool enabled = 2 [json_name = "enabled"];
+ int64 expected_version = 3 [json_name = "expected_version"];
+ string idempotency_key = 4 [json_name = "idempotency_key"];
+}
+message SetVPCSnatEnabledResponse { VPCSnat snat = 1 [json_name = "snat"]; }
+message DeleteVPCSnatBindingRequest { string binding_id = 1 [json_name = "binding_id"]; }
+message DeleteVPCSnatBindingResponse { VPCSnat snat = 1 [json_name = "snat"]; }
+
+// Load balancer requests preserve Resource enum values and optional input presence.
+enum LoadBalancerExposure {
+  LOAD_BALANCER_EXPOSURE_UNSPECIFIED = 0;
+  LOAD_BALANCER_EXPOSURE_PRIVATE = 1;
+  LOAD_BALANCER_EXPOSURE_PUBLIC = 2;
+  LOAD_BALANCER_EXPOSURE_PUBLIC_PRIVATE = 3;
+}
+enum LoadBalancerListenerProtocol {
+  LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED = 0;
+  LOAD_BALANCER_LISTENER_PROTOCOL_HTTP = 1;
+}
+enum LoadBalancerAlgorithm {
+  LOAD_BALANCER_ALGORITHM_UNSPECIFIED = 0;
+  LOAD_BALANCER_ALGORITHM_ROUND_ROBIN = 1;
+}
+enum LoadBalancerHealthCheckProtocol {
+  LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED = 0;
+  LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP = 1;
+}
+enum LoadBalancerConfigurationState {
+  LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED = 0;
+  LOAD_BALANCER_CONFIGURATION_STATE_PENDING = 1;
+  LOAD_BALANCER_CONFIGURATION_STATE_APPLYING = 2;
+  LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED = 3;
+  LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED = 4;
+  LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN = 5;
+}
+enum LoadBalancerDataPlaneState {
+  LOAD_BALANCER_DATA_PLANE_STATE_UNSPECIFIED = 0;
+  LOAD_BALANCER_DATA_PLANE_STATE_UNKNOWN = 1;
+  LOAD_BALANCER_DATA_PLANE_STATE_HEALTHY = 2;
+  LOAD_BALANCER_DATA_PLANE_STATE_UNHEALTHY = 3;
+}
+message LoadBalancerListenerInput {
+  LoadBalancerListenerProtocol protocol = 1 [json_name = "protocol"];
+  optional uint32 port = 2 [json_name = "port"];
+}
+message LoadBalancerListener {
+  string id = 1 [json_name = "id"];
+  LoadBalancerListenerProtocol protocol = 2 [json_name = "protocol"];
+  uint32 port = 3 [json_name = "port"];
+}
+message LoadBalancerBackendInput {
+  string id = 1 [json_name = "id"];
+  string subnet_id = 2 [json_name = "subnet_id"];
+  string address = 3 [json_name = "address"];
+  uint32 port = 4 [json_name = "port"];
+  optional uint32 weight = 5 [json_name = "weight"];
+}
+message LoadBalancerBackendMember {
+  string id = 1 [json_name = "id"];
+  string subnet_id = 2 [json_name = "subnet_id"];
+  string address = 3 [json_name = "address"];
+  uint32 port = 4 [json_name = "port"];
+  uint32 weight = 5 [json_name = "weight"];
+  string attachment_id = 6 [json_name = "attachment_id"];
+  string state = 7 [json_name = "state"];
+  string reason = 8 [json_name = "reason"];
+  google.protobuf.Timestamp observed_at = 9 [json_name = "observed_at"];
+  bool observation_stale = 10 [json_name = "observation_stale"];
+}
+message LoadBalancerHealthCheck {
+  LoadBalancerHealthCheckProtocol protocol = 1 [json_name = "protocol"];
+  optional uint32 interval_seconds = 2 [json_name = "interval_seconds"];
+  optional uint32 timeout_seconds = 3 [json_name = "timeout_seconds"];
+  optional uint32 unhealthy_threshold = 4 [json_name = "unhealthy_threshold"];
+  optional uint32 healthy_threshold = 5 [json_name = "healthy_threshold"];
+  optional uint32 port = 6 [json_name = "port"];
+}
+message LoadBalancer {
+  string id = 1 [json_name = "id"];
+  string vpc_id = 3 [json_name = "vpc_id"];
+  string subnet_id = 4 [json_name = "subnet_id"];
+  string name = 5 [json_name = "name"];
+  string description = 6 [json_name = "description"];
+  LoadBalancerExposure exposure = 7 [json_name = "exposure"];
+  string flavor = 8 [json_name = "flavor"];
+  string public_eip_id = 9 [json_name = "public_eip_id"];
+  string private_ip = 10 [json_name = "private_ip"];
+  LoadBalancerListener listener = 11 [json_name = "listener"];
+  repeated LoadBalancerBackendMember backends = 12 [json_name = "backends"];
+  LoadBalancerHealthCheck health_check = 13 [json_name = "health_check"];
+  LoadBalancerAlgorithm algorithm = 14 [json_name = "algorithm"];
+  string state = 15 [json_name = "state"];
+  string reason = 16 [json_name = "reason"];
+  string reason_message = 17 [json_name = "reason_message"];
+  int64 version = 18 [json_name = "version"];
+  int64 desired_version = 19 [json_name = "desired_version"];
+  int64 applied_version = 20 [json_name = "applied_version"];
+  LoadBalancerConfigurationState configuration_state = 21 [json_name = "configuration_state"];
+  LoadBalancerDataPlaneState data_plane_state = 22 [json_name = "data_plane_state"];
+  google.protobuf.Timestamp observed_at = 23 [json_name = "observed_at"];
+  bool observation_stale = 24 [json_name = "observation_stale"];
+  google.protobuf.Timestamp created_at = 25 [json_name = "created_at"];
+  google.protobuf.Timestamp updated_at = 26 [json_name = "updated_at"];
+  string last_operation_id = 27 [json_name = "last_operation_id"];
+  string public_address = 28 [json_name = "public_address"];
+  google.protobuf.Timestamp data_plane_observed_at = 29 [json_name = "data_plane_observed_at"];
+}
+message CreateLoadBalancerRequest {
+  string name = 2 [json_name = "name"];
+  string description = 3 [json_name = "description"];
+  string vpc_id = 4 [json_name = "vpc_id"];
+  string subnet_id = 5 [json_name = "subnet_id"];
+  LoadBalancerExposure exposure = 6 [json_name = "exposure"];
+  string flavor = 7 [json_name = "flavor"];
+  string public_eip_id = 8 [json_name = "public_eip_id"];
+  string private_ip = 9 [json_name = "private_ip"];
+  LoadBalancerListenerInput listener = 10 [json_name = "listener"];
+  repeated LoadBalancerBackendInput backends = 11 [json_name = "backends"];
+  LoadBalancerHealthCheck health_check = 12 [json_name = "health_check"];
+  string idempotency_key = 13 [json_name = "idempotency_key"];
+}
+message CreateLoadBalancerResponse { LoadBalancer load_balancer = 1 [json_name = "load_balancer"]; Operation operation = 2 [json_name = "operation"]; }
+message GetLoadBalancerRequest { string load_balancer_id = 2 [json_name = "load_balancer_id"]; }
+message GetLoadBalancerResponse { LoadBalancer load_balancer = 1 [json_name = "load_balancer"]; }
+message ListLoadBalancersRequest {
+  string name = 2 [json_name = "name"];
+  string vpc_id = 3 [json_name = "vpc_id"];
+  string subnet_id = 4 [json_name = "subnet_id"];
+  LoadBalancerExposure exposure = 5 [json_name = "exposure"];
+  string state = 6 [json_name = "state"];
+  int32 limit = 7 [json_name = "limit"];
+  string cursor = 8 [json_name = "cursor"];
+}
+message ListLoadBalancersResponse { repeated LoadBalancer items = 1 [json_name = "items"]; string next_cursor = 2 [json_name = "next_cursor"]; int64 total = 3 [json_name = "total"]; }
+message UpdateLoadBalancerRequest {
+  string load_balancer_id = 2 [json_name = "load_balancer_id"];
+  int64 expected_version = 3 [json_name = "expected_version"];
+  string idempotency_key = 4 [json_name = "idempotency_key"];
+  string name = 5 [json_name = "name"];
+  string description = 6 [json_name = "description"];
+  repeated LoadBalancerBackendInput backends = 7 [json_name = "backends"];
+  LoadBalancerHealthCheck health_check = 8 [json_name = "health_check"];
+}
+message UpdateLoadBalancerResponse { LoadBalancer load_balancer = 1 [json_name = "load_balancer"]; Operation operation = 2 [json_name = "operation"]; }
+message DeleteLoadBalancerRequest { string load_balancer_id = 2 [json_name = "load_balancer_id"]; }
+message DeleteLoadBalancerResponse { LoadBalancer load_balancer = 1 [json_name = "load_balancer"]; Operation operation = 2 [json_name = "operation"]; }
+message GetLoadBalancerOperationRequest { string operation_id = 2 [json_name = "operation_id"]; }
+message GetLoadBalancerOperationResponse { Operation operation = 1 [json_name = "operation"]; }

@@ -22,28 +22,54 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationNetworkServiceBindVPCSnat = "/admin.service.v1.NetworkService/BindVPCSnat"
 const OperationNetworkServiceCreateEIP = "/admin.service.v1.NetworkService/CreateEIP"
+const OperationNetworkServiceCreateLoadBalancer = "/admin.service.v1.NetworkService/CreateLoadBalancer"
+const OperationNetworkServiceCreateSubnet = "/admin.service.v1.NetworkService/CreateSubnet"
 const OperationNetworkServiceCreateVPC = "/admin.service.v1.NetworkService/CreateVPC"
 const OperationNetworkServiceDeleteEIP = "/admin.service.v1.NetworkService/DeleteEIP"
+const OperationNetworkServiceDeleteLoadBalancer = "/admin.service.v1.NetworkService/DeleteLoadBalancer"
+const OperationNetworkServiceDeleteSubnet = "/admin.service.v1.NetworkService/DeleteSubnet"
 const OperationNetworkServiceDeleteVPC = "/admin.service.v1.NetworkService/DeleteVPC"
+const OperationNetworkServiceDeleteVPCSnatBinding = "/admin.service.v1.NetworkService/DeleteVPCSnatBinding"
 const OperationNetworkServiceGetEIP = "/admin.service.v1.NetworkService/GetEIP"
+const OperationNetworkServiceGetLoadBalancer = "/admin.service.v1.NetworkService/GetLoadBalancer"
+const OperationNetworkServiceGetLoadBalancerOperation = "/admin.service.v1.NetworkService/GetLoadBalancerOperation"
 const OperationNetworkServiceGetOperation = "/admin.service.v1.NetworkService/GetOperation"
+const OperationNetworkServiceGetSubnet = "/admin.service.v1.NetworkService/GetSubnet"
 const OperationNetworkServiceGetVPC = "/admin.service.v1.NetworkService/GetVPC"
 const OperationNetworkServiceGetVPCSnat = "/admin.service.v1.NetworkService/GetVPCSnat"
+const OperationNetworkServiceGetVPCSnatBinding = "/admin.service.v1.NetworkService/GetVPCSnatBinding"
 const OperationNetworkServiceListEIPs = "/admin.service.v1.NetworkService/ListEIPs"
+const OperationNetworkServiceListLoadBalancers = "/admin.service.v1.NetworkService/ListLoadBalancers"
+const OperationNetworkServiceListSubnets = "/admin.service.v1.NetworkService/ListSubnets"
 const OperationNetworkServiceListVPCs = "/admin.service.v1.NetworkService/ListVPCs"
+const OperationNetworkServiceSetVPCSnatEnabled = "/admin.service.v1.NetworkService/SetVPCSnatEnabled"
+const OperationNetworkServiceUpdateLoadBalancer = "/admin.service.v1.NetworkService/UpdateLoadBalancer"
 
 type NetworkServiceHTTPServer interface {
 	BindVPCSnat(context.Context, *v1.BindVPCSnatRequest) (*v1.BindVPCSnatResponse, error)
 	CreateEIP(context.Context, *v1.CreateEIPRequest) (*v1.CreateEIPResponse, error)
+	CreateLoadBalancer(context.Context, *v1.CreateLoadBalancerRequest) (*v1.CreateLoadBalancerResponse, error)
+	CreateSubnet(context.Context, *v1.CreateSubnetRequest) (*v1.CreateSubnetResponse, error)
 	CreateVPC(context.Context, *v1.CreateVPCRequest) (*v1.CreateVPCResponse, error)
 	DeleteEIP(context.Context, *v1.DeleteEIPRequest) (*v1.DeleteEIPResponse, error)
+	DeleteLoadBalancer(context.Context, *v1.DeleteLoadBalancerRequest) (*v1.DeleteLoadBalancerResponse, error)
+	DeleteSubnet(context.Context, *v1.DeleteSubnetRequest) (*v1.DeleteSubnetResponse, error)
 	DeleteVPC(context.Context, *v1.DeleteVPCRequest) (*v1.DeleteVPCResponse, error)
+	DeleteVPCSnatBinding(context.Context, *v1.DeleteVPCSnatBindingRequest) (*v1.DeleteVPCSnatBindingResponse, error)
 	GetEIP(context.Context, *v1.GetEIPRequest) (*v1.GetEIPResponse, error)
+	GetLoadBalancer(context.Context, *v1.GetLoadBalancerRequest) (*v1.GetLoadBalancerResponse, error)
+	GetLoadBalancerOperation(context.Context, *v1.GetLoadBalancerOperationRequest) (*v1.GetLoadBalancerOperationResponse, error)
 	GetOperation(context.Context, *v1.GetOperationRequest) (*v1.GetOperationResponse, error)
+	GetSubnet(context.Context, *v1.GetSubnetRequest) (*v1.GetSubnetResponse, error)
 	GetVPC(context.Context, *v1.GetVPCRequest) (*v1.GetVPCResponse, error)
 	GetVPCSnat(context.Context, *v1.GetVPCSnatRequest) (*v1.GetVPCSnatResponse, error)
+	GetVPCSnatBinding(context.Context, *v1.GetVPCSnatBindingRequest) (*v1.GetVPCSnatBindingResponse, error)
 	ListEIPs(context.Context, *v1.ListEIPsRequest) (*v1.ListEIPsResponse, error)
+	ListLoadBalancers(context.Context, *v1.ListLoadBalancersRequest) (*v1.ListLoadBalancersResponse, error)
+	ListSubnets(context.Context, *v1.ListSubnetsRequest) (*v1.ListSubnetsResponse, error)
 	ListVPCs(context.Context, *v1.ListVPCsRequest) (*v1.ListVPCsResponse, error)
+	SetVPCSnatEnabled(context.Context, *v1.SetVPCSnatEnabledRequest) (*v1.SetVPCSnatEnabledResponse, error)
+	UpdateLoadBalancer(context.Context, *v1.UpdateLoadBalancerRequest) (*v1.UpdateLoadBalancerResponse, error)
 }
 
 func RegisterNetworkServiceHTTPServer(s *http.Server, srv NetworkServiceHTTPServer) {
@@ -59,6 +85,19 @@ func RegisterNetworkServiceHTTPServer(s *http.Server, srv NetworkServiceHTTPServ
 	r.DELETE("/api/v1/networks/eips/{eip_id}", _NetworkService_DeleteEIP0_HTTP_Handler(srv))
 	r.GET("/api/v1/networks/vpcs/{vpc_id}/snat", _NetworkService_GetVPCSnat0_HTTP_Handler(srv))
 	r.POST("/api/v1/networks/vpcs/{vpc_id}/snat/bindings", _NetworkService_BindVPCSnat0_HTTP_Handler(srv))
+	r.POST("/api/v1/networks/subnets", _NetworkService_CreateSubnet0_HTTP_Handler(srv))
+	r.GET("/api/v1/networks/subnets/{subnet_id}", _NetworkService_GetSubnet0_HTTP_Handler(srv))
+	r.GET("/api/v1/networks/subnets", _NetworkService_ListSubnets0_HTTP_Handler(srv))
+	r.DELETE("/api/v1/networks/subnets/{subnet_id}", _NetworkService_DeleteSubnet0_HTTP_Handler(srv))
+	r.GET("/api/v1/networks/snat/bindings/{binding_id}", _NetworkService_GetVPCSnatBinding0_HTTP_Handler(srv))
+	r.PATCH("/api/v1/networks/snat/bindings/{binding_id}", _NetworkService_SetVPCSnatEnabled0_HTTP_Handler(srv))
+	r.DELETE("/api/v1/networks/snat/bindings/{binding_id}", _NetworkService_DeleteVPCSnatBinding0_HTTP_Handler(srv))
+	r.POST("/api/v1/networks/load-balancers", _NetworkService_CreateLoadBalancer0_HTTP_Handler(srv))
+	r.GET("/api/v1/networks/load-balancers/{load_balancer_id}", _NetworkService_GetLoadBalancer0_HTTP_Handler(srv))
+	r.GET("/api/v1/networks/load-balancers", _NetworkService_ListLoadBalancers0_HTTP_Handler(srv))
+	r.PATCH("/api/v1/networks/load-balancers/{load_balancer_id}", _NetworkService_UpdateLoadBalancer0_HTTP_Handler(srv))
+	r.DELETE("/api/v1/networks/load-balancers/{load_balancer_id}", _NetworkService_DeleteLoadBalancer0_HTTP_Handler(srv))
+	r.GET("/api/v1/networks/load-balancers/operations/{operation_id}", _NetworkService_GetLoadBalancerOperation0_HTTP_Handler(srv))
 }
 
 func _NetworkService_GetVPC0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
@@ -120,7 +159,7 @@ func _NetworkService_CreateVPC0_HTTP_Handler(srv NetworkServiceHTTPServer) func(
 			return err
 		}
 		reply := out.(*v1.CreateVPCResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Vpc)
 	}
 }
 
@@ -142,7 +181,7 @@ func _NetworkService_DeleteVPC0_HTTP_Handler(srv NetworkServiceHTTPServer) func(
 			return err
 		}
 		reply := out.(*v1.DeleteVPCResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Vpc)
 	}
 }
 
@@ -227,7 +266,7 @@ func _NetworkService_CreateEIP0_HTTP_Handler(srv NetworkServiceHTTPServer) func(
 			return err
 		}
 		reply := out.(*v1.CreateEIPResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Eip)
 	}
 }
 
@@ -249,7 +288,7 @@ func _NetworkService_DeleteEIP0_HTTP_Handler(srv NetworkServiceHTTPServer) func(
 			return err
 		}
 		reply := out.(*v1.DeleteEIPResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Eip)
 	}
 }
 
@@ -296,22 +335,321 @@ func _NetworkService_BindVPCSnat0_HTTP_Handler(srv NetworkServiceHTTPServer) fun
 			return err
 		}
 		reply := out.(*v1.BindVPCSnatResponse)
+		return ctx.Result(200, reply.Snat)
+	}
+}
+
+func _NetworkService_CreateSubnet0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.CreateSubnetRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceCreateSubnet)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateSubnet(ctx, req.(*v1.CreateSubnetRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.CreateSubnetResponse)
+		return ctx.Result(200, reply.Subnet)
+	}
+}
+
+func _NetworkService_GetSubnet0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.GetSubnetRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceGetSubnet)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetSubnet(ctx, req.(*v1.GetSubnetRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.GetSubnetResponse)
+		return ctx.Result(200, reply.Subnet)
+	}
+}
+
+func _NetworkService_ListSubnets0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.ListSubnetsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceListSubnets)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListSubnets(ctx, req.(*v1.ListSubnetsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.ListSubnetsResponse)
 		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_DeleteSubnet0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.DeleteSubnetRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceDeleteSubnet)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteSubnet(ctx, req.(*v1.DeleteSubnetRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.DeleteSubnetResponse)
+		return ctx.Result(200, reply.Subnet)
+	}
+}
+
+func _NetworkService_GetVPCSnatBinding0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.GetVPCSnatBindingRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceGetVPCSnatBinding)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetVPCSnatBinding(ctx, req.(*v1.GetVPCSnatBindingRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.GetVPCSnatBindingResponse)
+		return ctx.Result(200, reply.Snat)
+	}
+}
+
+func _NetworkService_SetVPCSnatEnabled0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.SetVPCSnatEnabledRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceSetVPCSnatEnabled)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetVPCSnatEnabled(ctx, req.(*v1.SetVPCSnatEnabledRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.SetVPCSnatEnabledResponse)
+		return ctx.Result(200, reply.Snat)
+	}
+}
+
+func _NetworkService_DeleteVPCSnatBinding0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.DeleteVPCSnatBindingRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceDeleteVPCSnatBinding)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteVPCSnatBinding(ctx, req.(*v1.DeleteVPCSnatBindingRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.DeleteVPCSnatBindingResponse)
+		return ctx.Result(200, reply.Snat)
+	}
+}
+
+func _NetworkService_CreateLoadBalancer0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.CreateLoadBalancerRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceCreateLoadBalancer)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateLoadBalancer(ctx, req.(*v1.CreateLoadBalancerRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.CreateLoadBalancerResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_GetLoadBalancer0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.GetLoadBalancerRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceGetLoadBalancer)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetLoadBalancer(ctx, req.(*v1.GetLoadBalancerRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.GetLoadBalancerResponse)
+		return ctx.Result(200, reply.LoadBalancer)
+	}
+}
+
+func _NetworkService_ListLoadBalancers0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.ListLoadBalancersRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceListLoadBalancers)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListLoadBalancers(ctx, req.(*v1.ListLoadBalancersRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.ListLoadBalancersResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_UpdateLoadBalancer0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.UpdateLoadBalancerRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceUpdateLoadBalancer)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdateLoadBalancer(ctx, req.(*v1.UpdateLoadBalancerRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.UpdateLoadBalancerResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_DeleteLoadBalancer0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.DeleteLoadBalancerRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceDeleteLoadBalancer)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteLoadBalancer(ctx, req.(*v1.DeleteLoadBalancerRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.DeleteLoadBalancerResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetworkService_GetLoadBalancerOperation0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.GetLoadBalancerOperationRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceGetLoadBalancerOperation)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetLoadBalancerOperation(ctx, req.(*v1.GetLoadBalancerOperationRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.GetLoadBalancerOperationResponse)
+		return ctx.Result(200, reply.Operation)
 	}
 }
 
 type NetworkServiceHTTPClient interface {
 	BindVPCSnat(ctx context.Context, req *v1.BindVPCSnatRequest, opts ...http.CallOption) (rsp *v1.BindVPCSnatResponse, err error)
 	CreateEIP(ctx context.Context, req *v1.CreateEIPRequest, opts ...http.CallOption) (rsp *v1.CreateEIPResponse, err error)
+	CreateLoadBalancer(ctx context.Context, req *v1.CreateLoadBalancerRequest, opts ...http.CallOption) (rsp *v1.CreateLoadBalancerResponse, err error)
+	CreateSubnet(ctx context.Context, req *v1.CreateSubnetRequest, opts ...http.CallOption) (rsp *v1.CreateSubnetResponse, err error)
 	CreateVPC(ctx context.Context, req *v1.CreateVPCRequest, opts ...http.CallOption) (rsp *v1.CreateVPCResponse, err error)
 	DeleteEIP(ctx context.Context, req *v1.DeleteEIPRequest, opts ...http.CallOption) (rsp *v1.DeleteEIPResponse, err error)
+	DeleteLoadBalancer(ctx context.Context, req *v1.DeleteLoadBalancerRequest, opts ...http.CallOption) (rsp *v1.DeleteLoadBalancerResponse, err error)
+	DeleteSubnet(ctx context.Context, req *v1.DeleteSubnetRequest, opts ...http.CallOption) (rsp *v1.DeleteSubnetResponse, err error)
 	DeleteVPC(ctx context.Context, req *v1.DeleteVPCRequest, opts ...http.CallOption) (rsp *v1.DeleteVPCResponse, err error)
+	DeleteVPCSnatBinding(ctx context.Context, req *v1.DeleteVPCSnatBindingRequest, opts ...http.CallOption) (rsp *v1.DeleteVPCSnatBindingResponse, err error)
 	GetEIP(ctx context.Context, req *v1.GetEIPRequest, opts ...http.CallOption) (rsp *v1.GetEIPResponse, err error)
+	GetLoadBalancer(ctx context.Context, req *v1.GetLoadBalancerRequest, opts ...http.CallOption) (rsp *v1.GetLoadBalancerResponse, err error)
+	GetLoadBalancerOperation(ctx context.Context, req *v1.GetLoadBalancerOperationRequest, opts ...http.CallOption) (rsp *v1.GetLoadBalancerOperationResponse, err error)
 	GetOperation(ctx context.Context, req *v1.GetOperationRequest, opts ...http.CallOption) (rsp *v1.GetOperationResponse, err error)
+	GetSubnet(ctx context.Context, req *v1.GetSubnetRequest, opts ...http.CallOption) (rsp *v1.GetSubnetResponse, err error)
 	GetVPC(ctx context.Context, req *v1.GetVPCRequest, opts ...http.CallOption) (rsp *v1.GetVPCResponse, err error)
 	GetVPCSnat(ctx context.Context, req *v1.GetVPCSnatRequest, opts ...http.CallOption) (rsp *v1.GetVPCSnatResponse, err error)
+	GetVPCSnatBinding(ctx context.Context, req *v1.GetVPCSnatBindingRequest, opts ...http.CallOption) (rsp *v1.GetVPCSnatBindingResponse, err error)
 	ListEIPs(ctx context.Context, req *v1.ListEIPsRequest, opts ...http.CallOption) (rsp *v1.ListEIPsResponse, err error)
+	ListLoadBalancers(ctx context.Context, req *v1.ListLoadBalancersRequest, opts ...http.CallOption) (rsp *v1.ListLoadBalancersResponse, err error)
+	ListSubnets(ctx context.Context, req *v1.ListSubnetsRequest, opts ...http.CallOption) (rsp *v1.ListSubnetsResponse, err error)
 	ListVPCs(ctx context.Context, req *v1.ListVPCsRequest, opts ...http.CallOption) (rsp *v1.ListVPCsResponse, err error)
+	SetVPCSnatEnabled(ctx context.Context, req *v1.SetVPCSnatEnabledRequest, opts ...http.CallOption) (rsp *v1.SetVPCSnatEnabledResponse, err error)
+	UpdateLoadBalancer(ctx context.Context, req *v1.UpdateLoadBalancerRequest, opts ...http.CallOption) (rsp *v1.UpdateLoadBalancerResponse, err error)
 }
 
 type NetworkServiceHTTPClientImpl struct {
@@ -328,7 +666,7 @@ func (c *NetworkServiceHTTPClientImpl) BindVPCSnat(ctx context.Context, in *v1.B
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationNetworkServiceBindVPCSnat))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out.Snat, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -341,7 +679,33 @@ func (c *NetworkServiceHTTPClientImpl) CreateEIP(ctx context.Context, in *v1.Cre
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationNetworkServiceCreateEIP))
 	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out.Eip, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) CreateLoadBalancer(ctx context.Context, in *v1.CreateLoadBalancerRequest, opts ...http.CallOption) (*v1.CreateLoadBalancerResponse, error) {
+	var out v1.CreateLoadBalancerResponse
+	pattern := "/api/v1/networks/load-balancers"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationNetworkServiceCreateLoadBalancer))
+	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) CreateSubnet(ctx context.Context, in *v1.CreateSubnetRequest, opts ...http.CallOption) (*v1.CreateSubnetResponse, error) {
+	var out v1.CreateSubnetResponse
+	pattern := "/api/v1/networks/subnets"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationNetworkServiceCreateSubnet))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out.Subnet, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -354,7 +718,7 @@ func (c *NetworkServiceHTTPClientImpl) CreateVPC(ctx context.Context, in *v1.Cre
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationNetworkServiceCreateVPC))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out.Vpc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +731,33 @@ func (c *NetworkServiceHTTPClientImpl) DeleteEIP(ctx context.Context, in *v1.Del
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationNetworkServiceDeleteEIP))
 	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out.Eip, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) DeleteLoadBalancer(ctx context.Context, in *v1.DeleteLoadBalancerRequest, opts ...http.CallOption) (*v1.DeleteLoadBalancerResponse, error) {
+	var out v1.DeleteLoadBalancerResponse
+	pattern := "/api/v1/networks/load-balancers/{load_balancer_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceDeleteLoadBalancer))
+	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) DeleteSubnet(ctx context.Context, in *v1.DeleteSubnetRequest, opts ...http.CallOption) (*v1.DeleteSubnetResponse, error) {
+	var out v1.DeleteSubnetResponse
+	pattern := "/api/v1/networks/subnets/{subnet_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceDeleteSubnet))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out.Subnet, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -380,7 +770,20 @@ func (c *NetworkServiceHTTPClientImpl) DeleteVPC(ctx context.Context, in *v1.Del
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationNetworkServiceDeleteVPC))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out.Vpc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) DeleteVPCSnatBinding(ctx context.Context, in *v1.DeleteVPCSnatBindingRequest, opts ...http.CallOption) (*v1.DeleteVPCSnatBindingResponse, error) {
+	var out v1.DeleteVPCSnatBindingResponse
+	pattern := "/api/v1/networks/snat/bindings/{binding_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceDeleteVPCSnatBinding))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out.Snat, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -400,6 +803,32 @@ func (c *NetworkServiceHTTPClientImpl) GetEIP(ctx context.Context, in *v1.GetEIP
 	return &out, nil
 }
 
+func (c *NetworkServiceHTTPClientImpl) GetLoadBalancer(ctx context.Context, in *v1.GetLoadBalancerRequest, opts ...http.CallOption) (*v1.GetLoadBalancerResponse, error) {
+	var out v1.GetLoadBalancerResponse
+	pattern := "/api/v1/networks/load-balancers/{load_balancer_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceGetLoadBalancer))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.LoadBalancer, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) GetLoadBalancerOperation(ctx context.Context, in *v1.GetLoadBalancerOperationRequest, opts ...http.CallOption) (*v1.GetLoadBalancerOperationResponse, error) {
+	var out v1.GetLoadBalancerOperationResponse
+	pattern := "/api/v1/networks/load-balancers/operations/{operation_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceGetLoadBalancerOperation))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Operation, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *NetworkServiceHTTPClientImpl) GetOperation(ctx context.Context, in *v1.GetOperationRequest, opts ...http.CallOption) (*v1.GetOperationResponse, error) {
 	var out v1.GetOperationResponse
 	pattern := "/api/v1/networks/operations/{operation_id}"
@@ -407,6 +836,19 @@ func (c *NetworkServiceHTTPClientImpl) GetOperation(ctx context.Context, in *v1.
 	opts = append(opts, http.Operation(OperationNetworkServiceGetOperation))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Operation, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) GetSubnet(ctx context.Context, in *v1.GetSubnetRequest, opts ...http.CallOption) (*v1.GetSubnetResponse, error) {
+	var out v1.GetSubnetResponse
+	pattern := "/api/v1/networks/subnets/{subnet_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceGetSubnet))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Subnet, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -439,11 +881,50 @@ func (c *NetworkServiceHTTPClientImpl) GetVPCSnat(ctx context.Context, in *v1.Ge
 	return &out, nil
 }
 
+func (c *NetworkServiceHTTPClientImpl) GetVPCSnatBinding(ctx context.Context, in *v1.GetVPCSnatBindingRequest, opts ...http.CallOption) (*v1.GetVPCSnatBindingResponse, error) {
+	var out v1.GetVPCSnatBindingResponse
+	pattern := "/api/v1/networks/snat/bindings/{binding_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceGetVPCSnatBinding))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out.Snat, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *NetworkServiceHTTPClientImpl) ListEIPs(ctx context.Context, in *v1.ListEIPsRequest, opts ...http.CallOption) (*v1.ListEIPsResponse, error) {
 	var out v1.ListEIPsResponse
 	pattern := "/api/v1/networks/eips"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationNetworkServiceListEIPs))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) ListLoadBalancers(ctx context.Context, in *v1.ListLoadBalancersRequest, opts ...http.CallOption) (*v1.ListLoadBalancersResponse, error) {
+	var out v1.ListLoadBalancersResponse
+	pattern := "/api/v1/networks/load-balancers"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceListLoadBalancers))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) ListSubnets(ctx context.Context, in *v1.ListSubnetsRequest, opts ...http.CallOption) (*v1.ListSubnetsResponse, error) {
+	var out v1.ListSubnetsResponse
+	pattern := "/api/v1/networks/subnets"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceListSubnets))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -459,6 +940,32 @@ func (c *NetworkServiceHTTPClientImpl) ListVPCs(ctx context.Context, in *v1.List
 	opts = append(opts, http.Operation(OperationNetworkServiceListVPCs))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) SetVPCSnatEnabled(ctx context.Context, in *v1.SetVPCSnatEnabledRequest, opts ...http.CallOption) (*v1.SetVPCSnatEnabledResponse, error) {
+	var out v1.SetVPCSnatEnabledResponse
+	pattern := "/api/v1/networks/snat/bindings/{binding_id}"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationNetworkServiceSetVPCSnatEnabled))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PATCH", path, in, &out.Snat, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) UpdateLoadBalancer(ctx context.Context, in *v1.UpdateLoadBalancerRequest, opts ...http.CallOption) (*v1.UpdateLoadBalancerResponse, error) {
+	var out v1.UpdateLoadBalancerResponse
+	pattern := "/api/v1/networks/load-balancers/{load_balancer_id}"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationNetworkServiceUpdateLoadBalancer))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PATCH", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

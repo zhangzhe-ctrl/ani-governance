@@ -188,7 +188,7 @@ func NewRestServer(
 		return nil, nil
 	}
 
-	srv, err := rpc.CreateRestServerWithFilters(cfg, []http.FilterFunc{auth.ImageHTTPFilter},
+	srv, err := rpc.CreateRestServerWithFilters(cfg, []http.FilterFunc{auth.ImageHTTPFilter, auth.NetworkHTTPFilter},
 		middlewares...,
 	)
 	if err != nil {

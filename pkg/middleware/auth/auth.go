@@ -82,8 +82,8 @@ func Server(opts ...Option) middleware.Middleware {
 				tokenPayload = payload
 				ctx = NewContext(ctx, tokenPayload)
 				principal, _ = PrincipalFromContext(ctx)
-				if isHTTP && tr.Operation() == VPCReadOperation {
-					if err := ValidateVPCReadRequest(htr.Request()); err != nil {
+				if isHTTP && IsNetworkOperation(tr.Operation()) {
+					if err := ValidateNetworkRequest(htr.Request(), tr.Operation()); err != nil {
 						return nil, err
 					}
 				}

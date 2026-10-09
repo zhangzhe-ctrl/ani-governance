@@ -6,7 +6,7 @@
 
 根目录是 Go 模块根，模块名暂为 `go-wind-admin`，服务身份为 `ani-governance`。模块名及所有技术引用必须一起保留，直到单独的改名任务。不要为品牌整理修改 import、go_package、Proto 包名、运行标识或本地包目录。
 
-Go 基准来自 `go.mod`（当前 1.26.7）。`gow` 是本仓维护副本，来源 v1.0.3 不等于应安装上游二进制。用 `make gow` 构建，使用本仓的 api/ent/run/version；不运行未接管的 Wire、project/new、migrate 等脚手架命令。工具版本以 Makefile、活跃模板和工具锁为准，不用 latest 补空缺。
+Go 基准来自 `go.mod`。`gow` 是本仓维护副本，来源 v1.0.3 不等于应安装上游二进制。用 `make gow` 构建，使用本仓的 api/ent/run/version；不运行未接管的 Wire、project/new、migrate 等脚手架命令。工具版本以 Makefile、活跃模板和工具锁为准，不用 latest 补空缺。
 
 读取顺序：当前任务 → 本文件 → 相关合同与真实源码 → 对应开发指南章节。保留无关工作区修改；一次任务不加载全部历史迁移回执。未执行的事情明确写未执行，不能以文件存在、静态检查或 HTTP 200 代替验收。
 

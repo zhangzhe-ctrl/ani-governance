@@ -18,11 +18,8 @@ import (
 
 const VPCReadOperation = "/admin.service.v1.NetworkService/GetVPC"
 
-// Key-enabled operations are explicit. Adding a route never grants machine access implicitly.
-var keyOperations = map[string]bool{VPCReadOperation: true}
-
 func allowsAPIKey(operation string) bool {
-	return keyOperations[operation] || IsImageOperation(operation)
+	return IsNetworkOperation(operation) || IsImageOperation(operation)
 }
 
 const emptyBodySHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -97,15 +94,26 @@ func verifySignature(ctx context.Context, r *http.Request, operation string, sto
 	if !allowsAPIKey(operation) {
 		return nil, errors.Forbidden("USER_REQUIRED", "this operation requires a user identity")
 	}
-	var imageDigest imageRequestDigest
+	var digest string
 	if IsImageOperation(operation) {
-		var ok bool
-		imageDigest, ok = r.Context().Value(imageRequestDigestKey{}).(imageRequestDigest)
+		imageDigest, ok := r.Context().Value(imageRequestDigestKey{}).(imageRequestDigest)
 		if !ok || imageDigest.Operation != operation || r.URL.RawQuery != r.URL.Query().Encode() {
 			return denied()
 		}
-	} else if err := ValidateVPCReadRequest(r); err != nil {
-		return nil, err
+		digest = imageDigest.Digest
+	} else {
+		if err := ValidateNetworkRequest(r, operation); err != nil {
+			return nil, err
+		}
+		if r.URL.RawQuery != r.URL.Query().Encode() {
+			return denied()
+		}
+		if validated, ok := r.Context().Value(networkRequestDigestKey{}).(networkRequestDigest); ok {
+			digest = validated.Digest
+		} else {
+			// Preserve the existing canonical GetVPC client contract.
+			digest = emptyBodySHA256
+		}
 	}
 	if store == nil {
 		return nil, errors.ServiceUnavailable("SIGNING_STORE_UNAVAILABLE", "credential store unavailable")
@@ -123,10 +131,7 @@ func verifySignature(ctx context.Context, r *http.Request, operation string, sto
 	if key.Secret == "" {
 		return nil, errors.ServiceUnavailable("SIGNING_STORE_UNAVAILABLE", "credential secret unavailable")
 	}
-	expected := VPCSignature(key.Secret, r.URL.Path, ak, ts)
-	if IsImageOperation(operation) {
-		expected = imageSignatureDigest(key.Secret, r.Method, r.URL.Path, r.URL.RawQuery, ak, ts, imageDigest.Digest)
-	}
+	expected := imageSignatureDigest(key.Secret, r.Method, r.URL.Path, r.URL.RawQuery, ak, ts, digest)
 	if !hmac.Equal([]byte(expected), []byte(sig)) {
 		return denied()
 	}

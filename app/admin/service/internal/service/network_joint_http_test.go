@@ -1,0 +1,574 @@
+//go:build networkintegration
+
+package service
+
+import (
+	"context"
+	"crypto/rand"
+	"database/sql"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"testing"
+	"time"
+
+	"entgo.io/ent/dialect"
+	entsql "entgo.io/ent/dialect/sql"
+	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/redis/go-redis/v9"
+	"github.com/stretchr/testify/require"
+	admin "go-wind-admin/api/gen/go/admin/service/v1"
+	authv1 "go-wind-admin/api/gen/go/authentication/service/v1"
+	"go-wind-admin/app/admin/service/cmd/server/assets"
+	"go-wind-admin/app/admin/service/internal/data"
+	"go-wind-admin/app/admin/service/internal/data/ent"
+	"go-wind-admin/app/admin/service/internal/data/ent/accesskey"
+	apiEntity "go-wind-admin/app/admin/service/internal/data/ent/api"
+	"go-wind-admin/app/admin/service/internal/data/ent/permission"
+	"go-wind-admin/app/admin/service/internal/data/ent/permissionapi"
+	"go-wind-admin/app/admin/service/internal/data/ent/planmodule"
+	"go-wind-admin/app/admin/service/internal/data/ent/role"
+	"go-wind-admin/app/admin/service/internal/data/ent/rolepermission"
+	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
+	"go-wind-admin/pkg/authorizer"
+	appcrypto "go-wind-admin/pkg/crypto"
+	appViewer "go-wind-admin/pkg/entgo/viewer"
+	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
+	authzMiddleware "go-wind-admin/pkg/localdeps/kratos-authz/middleware"
+	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
+	"go-wind-admin/pkg/localdeps/kratos-bootstrap/bootstrap"
+	bLogger "go-wind-admin/pkg/localdeps/kratos-bootstrap/logger"
+	"go-wind-admin/pkg/middleware/auth"
+	dbbootstrap "go-wind-admin/sql/bootstrap"
+)
+
+// Run only through scripts/network-joint-integration: required inputs fail rather
+// than skip. Auth/cache/policies/tenant resolution and HTTP/mTLS are real;
+// Resource uses production code with controlled external providers.
+func TestNetworkJointHTTP(t *testing.T) {
+	peer := newNetworkResourcePeer(t)
+	ctx := context.Background()
+	sys := appViewer.NewSystemViewerContext(ctx)
+	openDB := func(env string) (*sql.DB, *entCrud.EntClient[*ent.Client], *ent.Client) {
+		t.Helper()
+		file := os.Getenv(env)
+		require.NotEmpty(t, file, "isolated runner input required")
+		raw, err := os.ReadFile(file)
+		require.NoError(t, err)
+		db, err := sql.Open("pgx", strings.TrimSpace(string(raw)))
+		require.NoError(t, err)
+		t.Cleanup(func() { _ = db.Close() })
+		driver := entsql.OpenDB(dialect.Postgres, db)
+		client := ent.NewClient(ent.Driver(driver))
+		return db, entCrud.NewEntClient[*ent.Client](client, driver), client
+	}
+	runtimeDB, ec, _ := openDB("NETWORK_GOV_RUNTIME_DSN_FILE")
+	fixtureDB, fixtureEC, client := openDB("NETWORK_GOV_ADMIN_DSN_FILE")
+	var privileged bool
+	require.NoError(t, runtimeDB.QueryRowContext(ctx, "SELECT rolsuper OR rolcreatedb OR rolcreaterole OR rolbypassrls FROM pg_roles WHERE rolname=current_user").Scan(&privileged))
+	require.False(t, privileged)
+	var owners int
+	require.NoError(t, runtimeDB.QueryRowContext(ctx, "SELECT count(*) FROM pg_class WHERE relnamespace='public'::regnamespace AND relowner=(SELECT oid FROM pg_roles WHERE rolname=current_user)").Scan(&owners))
+	require.Zero(t, owners)
+	randomKey := make([]byte, 32)
+	_, err := rand.Read(randomKey)
+	require.NoError(t, err)
+	cfg := &conf.Bootstrap{Authz: &conf.Authorization{Type: "casbin"}, Authn: &conf.Authentication{Jwt: &conf.Authentication_Jwt{Method: "HS256", Key: hex.EncodeToString(randomKey)}}}
+	bctx := bootstrap.NewContextWithParam(sys, nil, cfg, bLogger.NopLogger())
+	raw, err := os.ReadFile(os.Getenv("NETWORK_GOV_REDIS_FILE"))
+	require.NoError(t, err)
+	var redisCfg struct{ Address, Password string }
+	require.NoError(t, json.Unmarshal(raw, &redisCfg))
+	require.NotEmpty(t, redisCfg.Password)
+	rdb := redis.NewClient(&redis.Options{Addr: redisCfg.Address, Password: redisCfg.Password})
+	t.Cleanup(func() { _ = rdb.Close() })
+	require.NoError(t, rdb.Ping(ctx).Err())
+	cache := data.NewUserTokenCache(bctx, rdb)
+	authenticator := data.NewAuthenticator(bctx, cache)
+	checker := data.NewTokenChecker(bctx, authenticator, authv1.ClientType_admin)
+	apis := data.NewApiRepo(bctx, ec)
+	policy := authorizer.NewAuthorizer(bctx, data.NewAuthorizerProvider(bctx, newRoleRepo(ec), apis))
+	catalog, err := dbbootstrap.Catalog(assets.OpenApiData)
+	require.NoError(t, err)
+	tx, err := fixtureDB.BeginTx(ctx, nil)
+	require.NoError(t, err)
+	_, err = dbbootstrap.SyncAPIs(ctx, tx, catalog, true)
+	require.NoError(t, err)
+	require.NoError(t, tx.Rollback())
+	require.NoError(t, data.NewApiRepo(bctx, fixtureEC).SyncOpenAPI(sys, assets.OpenApiData))
+	seed, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "..", "sql", "data", "20261009_network_permissions.sql"))
+	require.NoError(t, err)
+	for i := 0; i < 2; i++ {
+		_, err = fixtureDB.ExecContext(ctx, string(seed))
+		require.NoError(t, err)
+	}
+	count, err := client.RolePermission.Query().Count(sys)
+	require.NoError(t, err)
+	require.Zero(t, count, "catalog import must not grant roles")
+	plan, err := client.Plan.Create().SetName("Network isolated fixture").Save(sys)
+	require.NoError(t, err)
+	module, err := client.PlanModule.Create().SetPlanID(plan.ID).SetModule(planmodule.ModuleNetwork).Save(sys)
+	require.NoError(t, err)
+	uuids := []string{peer.TenantID, "22222222-2222-4222-8222-222222222222"}
+	tenants := make([]*ent.Tenant, 2)
+	for i, id := range uuids {
+		tenants[i], err = client.Tenant.Create().SetName(fmt.Sprintf("Network %d", i)).SetCode(fmt.Sprintf("network-%d", i)).SetResourceTenantID(id).SetStatus(tenant.StatusOn).SetPlanID(plan.ID).Save(sys)
+		require.NoError(t, err)
+	}
+	createRole := func(tid uint32, code string) *ent.Role {
+		r, err := client.Role.Create().SetTenantID(tid).SetCode(code).SetName(code).SetType(role.TypeTenant).SetStatus(role.StatusOn).Save(sys)
+		require.NoError(t, err)
+		return r
+	}
+	reader := createRole(tenants[0].ID, "network-fixture-reader")
+	publisher := createRole(tenants[0].ID, "network-fixture-publisher")
+	other := createRole(tenants[1].ID, "network-fixture-other")
+	for _, op := range auth.NetworkOperations {
+		a, err := client.Api.Query().Where(apiEntity.PathEQ(op.Path), apiEntity.MethodEQ(op.Method)).Only(sys)
+		require.NoError(t, err)
+		require.Equal(t, apiEntity.BusinessModuleNetwork, *a.BusinessModule)
+		perm, err := client.Permission.Query().Where(permission.CodeEQ(op.Permission)).Only(sys)
+		require.NoError(t, err)
+		_, err = client.PermissionApi.Query().Where(permissionapi.APIIDEQ(a.ID), permissionapi.PermissionIDEQ(perm.ID)).Only(sys)
+		require.NoError(t, err)
+		grant := []*ent.Role{publisher, other}
+		if op.ReadOnly {
+			grant = append(grant, reader)
+		}
+		for _, r := range grant {
+			exists, err := client.RolePermission.Query().Where(rolepermission.RoleIDEQ(r.ID), rolepermission.PermissionIDEQ(perm.ID)).Exist(sys)
+			require.NoError(t, err)
+			if exists {
+				continue
+			}
+			_, err = client.RolePermission.Create().SetTenantID(*r.TenantID).SetRoleID(r.ID).SetPermissionID(perm.ID).SetEffect(rolepermission.EffectAllow).SetStatus(rolepermission.StatusOn).Save(sys)
+			require.NoError(t, err)
+		}
+	}
+	require.NoError(t, policy.ResetPolicies(ctx))
+	token := func(r *ent.Role, uid uint32) string {
+		v, _, err := authenticator.CreateUserToken(ctx, authv1.ClientType_admin, &authv1.UserTokenPayload{UserId: uid, TenantId: r.TenantID, Roles: []string{*r.Code}})
+		require.NoError(t, err)
+		return v
+	}
+	readerToken, publisherToken, otherToken := token(reader, 1), token(publisher, 2), token(other, 3)
+	cipher, err := appcrypto.NewAccessKeyCipher(hex.EncodeToString(randomKey))
+	require.NoError(t, err)
+	keys := data.NewAccessKeyRepo(bctx, ec, cipher)
+	makeAK := func(r *ent.Role, suffix string) (*ent.AccessKey, string) {
+		secret := "sk-" + hex.EncodeToString(randomKey) + suffix
+		encrypted, err := cipher.Encrypt(secret)
+		require.NoError(t, err)
+		k, err := client.AccessKey.Create().SetTenantID(*r.TenantID).SetRoleID(r.ID).SetAccessKey("ak-network-" + suffix).SetSecretCiphertext(encrypted).SetStatus(accesskey.StatusOn).Save(sys)
+		require.NoError(t, err)
+		return k, secret
+	}
+	readerAK, readerSK := makeAK(reader, "reader")
+	publisherAK, publisherSK := makeAK(publisher, "publisher")
+	otherAK, otherSK := makeAK(other, "other")
+	server := khttp.NewServer(khttp.Filter(auth.NetworkHTTPFilter), khttp.Middleware(auth.CredentialHeaders(), auth.Server(auth.WithAccessTokenChecker(checker), auth.WithSigningKeyStore(keys), auth.WithTenantAccessChecker(data.NewTenantAccessCheckerImpl(bctx, ec)), auth.WithInjectMetadata(false)), authzMiddleware.Server(policy.Engine())))
+	admin.RegisterNetworkServiceHTTPServer(server, NewNetworkService(peer.Client, data.NewTenantRepo(bctx, ec)))
+	host := httptest.NewServer(server)
+	t.Cleanup(host.Close)
+	type identity struct {
+		bearer string
+		key    *ent.AccessKey
+		secret string
+	}
+	// Track only resources admitted through this HTTP fixture. Compensation runs
+	// before closing HTTP, tokens or the Resource subprocess and uses product
+	// lifecycle APIs, retaining the original failure and reporting cleanup apart.
+	type admittedResource struct{ path, bearer string }
+	admitted := map[string]map[string]admittedResource{}
+	track := func(id identity, method, path string, out map[string]any) {
+		resource := out
+		if combined, ok := out["load_balancer"].(map[string]any); ok {
+			resource = combined
+		}
+		resourceID, _ := resource["id"].(string)
+		if resourceID == "" {
+			return
+		}
+		if resource["state"] == "deleted" {
+			for _, entries := range admitted {
+				delete(entries, resourceID)
+			}
+			return
+		}
+		if method != "POST" {
+			return
+		}
+		kind, resourcePath := "", ""
+		switch {
+		case path == "/api/v1/networks/vpcs":
+			kind = "vpc"
+			resourcePath = path + "/" + resourceID
+		case path == "/api/v1/networks/subnets":
+			kind = "subnet"
+			resourcePath = path + "/" + resourceID
+		case path == "/api/v1/networks/eips":
+			kind = "eip"
+			resourcePath = path + "/" + resourceID
+		case path == "/api/v1/networks/load-balancers":
+			kind = "load-balancer"
+			resourcePath = path + "/" + resourceID
+		case strings.HasSuffix(path, "/snat/bindings"):
+			kind = "snat"
+			resourcePath = "/api/v1/networks/snat/bindings/" + resourceID
+		}
+		if kind == "" {
+			return
+		}
+		if admitted[kind] == nil {
+			admitted[kind] = map[string]admittedResource{}
+		}
+		bearer := publisherToken
+		if id.bearer == otherToken || id.key == otherAK {
+			bearer = otherToken
+		}
+		admitted[kind][resourceID] = admittedResource{resourcePath, bearer}
+	}
+	t.Cleanup(func() {
+		remaining := 0
+		for _, entries := range admitted {
+			remaining += len(entries)
+		}
+		if remaining == 0 {
+			t.Log("HTTP compensation: no active task resources")
+			return
+		}
+		call := func(method string, resource admittedResource) (int, map[string]any, error) {
+			requestCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			defer cancel()
+			req, err := http.NewRequestWithContext(requestCtx, method, host.URL+resource.path, nil)
+			if err != nil {
+				return 0, nil, err
+			}
+			req.Header.Set("Authorization", "Bearer "+resource.bearer)
+			response, err := host.Client().Do(req)
+			if err != nil {
+				return 0, nil, err
+			}
+			defer response.Body.Close()
+			payload, err := io.ReadAll(response.Body)
+			if err != nil {
+				return response.StatusCode, nil, err
+			}
+			out := map[string]any{}
+			err = json.Unmarshal(payload, &out)
+			return response.StatusCode, out, err
+		}
+		deadline := time.Now().Add(20 * time.Second)
+		for _, kind := range []string{"load-balancer", "snat", "subnet", "eip", "vpc"} {
+			for resourceID, resource := range admitted[kind] {
+				finished := false
+				lastStatus := 0
+				var lastErr error
+				for time.Now().Before(deadline) {
+					status, out, err := call("GET", resource)
+					lastStatus, lastErr = status, err
+					if err == nil && (status == 404 || (status == 200 && out["state"] == "deleted")) {
+						finished = true
+						break
+					}
+					status, _, err = call("DELETE", resource)
+					lastStatus, lastErr = status, err
+					if err != nil || status == 401 || status == 403 {
+						break
+					}
+					time.Sleep(40 * time.Millisecond)
+				}
+				if finished {
+					delete(admitted[kind], resourceID)
+					t.Logf("HTTP compensation pass kind=%s id=%s", kind, resourceID)
+				} else {
+					t.Errorf("HTTP compensation fail kind=%s id=%s status=%d transport=%v", kind, resourceID, lastStatus, lastErr)
+				}
+			}
+		}
+	})
+	jwtIdentity := identity{bearer: publisherToken}
+	akIdentity := identity{key: publisherAK, secret: publisherSK}
+	request := func(t *testing.T, id identity, method, path, body string, mutate func(*http.Request), want int) map[string]any {
+		t.Helper()
+		req, err := http.NewRequest(method, host.URL+path, strings.NewReader(body))
+		require.NoError(t, err)
+		req.URL.RawQuery = req.URL.Query().Encode()
+		req.Header.Set("Content-Type", "application/json")
+		if id.bearer != "" {
+			req.Header.Set("Authorization", "Bearer "+id.bearer)
+		}
+		if id.key != nil {
+			ts := strconv.FormatInt(time.Now().Unix(), 10)
+			req.Header.Set("X-Access-Key", id.key.AccessKey)
+			req.Header.Set("X-Timestamp", ts)
+			req.Header.Set("X-Signature", auth.NetworkSignature(id.secret, method, req.URL.Path, req.URL.RawQuery, id.key.AccessKey, ts, []byte(body)))
+		}
+		if mutate != nil {
+			mutate(req)
+		}
+		resp, err := host.Client().Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		payload, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+		var admittedOutput map[string]any
+		if resp.StatusCode >= 200 && resp.StatusCode < 300 && json.Unmarshal(payload, &admittedOutput) == nil {
+			track(id, method, req.URL.Path, admittedOutput)
+		}
+		require.Equal(t, want, resp.StatusCode, method+" "+path+" response="+string(payload))
+		require.NotContains(t, string(payload), "tenant_id")
+		require.NotContains(t, string(payload), "tenantId")
+		out := map[string]any{}
+		require.NoError(t, json.Unmarshal(payload, &out))
+		t.Logf("HTTP %s %s -> %d", method, path, want)
+		return out
+	}
+	get := func(t *testing.T, id identity, path string) map[string]any {
+		return request(t, id, "GET", path, "", nil, 200)
+	}
+	poll := func(t *testing.T, id identity, path string, ready func(map[string]any) bool) map[string]any {
+		t.Helper()
+		for deadline := time.Now().Add(15 * time.Second); time.Now().Before(deadline); {
+			out := get(t, id, path)
+			if ready(out) {
+				return out
+			}
+			time.Sleep(40 * time.Millisecond)
+		}
+		t.Fatalf("asynchronous Resource worker must converge: %s", path)
+		return nil
+	}
+	state := func(want string) func(map[string]any) bool {
+		return func(v map[string]any) bool { return v["state"] == want }
+	}
+	assertPersisted := func(t *testing.T, table, column, id, tenant, state string) {
+		t.Helper()
+		var tid, current string
+		require.NoError(t, peer.DB.QueryRowContext(ctx, "SELECT tenant_id::text,state FROM "+table+" WHERE "+column+"=$1", id).Scan(&tid, &current))
+		require.Equal(t, tenant, tid)
+		if state == "provisioning" {
+			require.Contains(t, []string{"provisioning", "available"}, current)
+		} else {
+			require.Equal(t, state, current)
+		}
+	}
+	beforeSideEffects := func(t *testing.T) int {
+		var count int
+		require.NoError(t, peer.DB.QueryRowContext(ctx, "SELECT count(*) FROM network_operations").Scan(&count))
+		return count
+	}
+	const base = "/api/v1/networks"
+	for _, mode := range []struct {
+		name string
+		id   identity
+	}{{"jwt", jwtIdentity}, {"ak", akIdentity}} {
+		t.Run(mode.name, func(t *testing.T) {
+			id := mode.id
+			vpcBody := fmt.Sprintf(`{"name":%q,"cidr":"10.61.0.0/16","description":"joint HTTP durable vertical","idempotency_key":%q}`, "joint-"+mode.name, "vpc-"+mode.name)
+			vpc := request(t, id, "POST", base+"/vpcs", vpcBody, nil, 200)
+			require.NotContains(t, vpc, "vpc")
+			require.Equal(t, "provisioning", vpc["state"])
+			vpcID := vpc["id"].(string)
+			assertPersisted(t, "network_vpcs", "vpc_id", vpcID, peer.TenantID, "provisioning")
+			replay := request(t, id, "POST", base+"/vpcs", vpcBody, nil, 200)
+			require.Equal(t, vpc, replay)
+			request(t, id, "POST", base+"/vpcs", strings.Replace(vpcBody, "10.61.0.0/16", "10.62.0.0/16", 1), nil, 409)
+			poll(t, id, base+"/vpcs/"+vpcID, state("available"))
+			opID := vpc["last_operation_id"].(string)
+			poll(t, id, base+"/operations/"+opID, state("succeeded"))
+			listed := get(t, id, base+"/vpcs?name=joint-"+mode.name+"&limit=1")
+			require.Equal(t, "1", listed["total"])
+			ids := make([]string, 2)
+			for i := range ids {
+				body := fmt.Sprintf(`{"name":"child-%d","vpc_id":%q,"cidr":"10.61.%d.0/24","description":"subnet durable child","idempotency_key":%q}`, i, vpcID, i+1, "subnet-"+mode.name+strconv.Itoa(i))
+				sub := request(t, id, "POST", base+"/subnets", body, nil, 200)
+				require.NotContains(t, sub, "subnet")
+				require.Equal(t, vpcID, sub["vpc_id"])
+				require.Equal(t, "provisioning", sub["state"])
+				ids[i] = sub["id"].(string)
+				require.Equal(t, sub, request(t, id, "POST", base+"/subnets", body, nil, 200))
+				assertPersisted(t, "network_subnets", "subnet_id", ids[i], peer.TenantID, "provisioning")
+				poll(t, id, base+"/subnets/"+ids[i], state("available"))
+			}
+			first := get(t, id, base+"/subnets?vpc_id="+vpcID+"&limit=1")
+			require.Equal(t, "2", first["total"])
+			require.Len(t, first["items"], 1)
+			require.NotEmpty(t, first["next_cursor"])
+			second := get(t, id, base+"/subnets?vpc_id="+vpcID+"&limit=1&cursor="+url.QueryEscape(first["next_cursor"].(string)))
+			require.Equal(t, "2", second["total"])
+			require.Len(t, second["items"], 1)
+			filtered := get(t, id, base+"/subnets?vpc_id="+vpcID+"&name=child-0&state=available")
+			require.Equal(t, "1", filtered["total"])
+			request(t, id, "DELETE", base+"/vpcs/"+vpcID, "", nil, 412)
+			foreignBody := fmt.Sprintf(`{"name":"foreign-child","vpc_id":%q,"cidr":"10.61.9.0/24","idempotency_key":%q}`, vpcID, "foreign-parent-"+mode.name)
+			request(t, identity{bearer: otherToken}, "POST", base+"/subnets", foreignBody, nil, 404)
+			request(t, identity{key: otherAK, secret: otherSK}, "POST", base+"/subnets", foreignBody, nil, 404)
+			// The existing supply/platform fixture has a verified enabled Public pool.
+			eipBody := fmt.Sprintf(`{"name":%q,"description":"independent address","idempotency_key":%q}`, "joint-eip-"+mode.name, "eip-"+mode.name)
+			eip := request(t, id, "POST", base+"/eips", eipBody, nil, 200)
+			require.NotContains(t, eip, "eip")
+			eipID := eip["id"].(string)
+			require.Equal(t, eip, request(t, id, "POST", base+"/eips", eipBody, nil, 200))
+			poll(t, id, base+"/eips/"+eipID, state("available"))
+			require.Equal(t, "1", get(t, id, base+"/eips?name=joint-eip-"+mode.name)["total"])
+			snatBody := fmt.Sprintf(`{"eip_id":%q,"idempotency_key":%q}`, eipID, "snat-"+mode.name)
+			snat := request(t, id, "POST", base+"/vpcs/"+vpcID+"/snat/bindings", snatBody, nil, 200)
+			require.NotContains(t, snat, "snat")
+			snatID := snat["id"].(string)
+			require.Equal(t, snat, request(t, id, "POST", base+"/vpcs/"+vpcID+"/snat/bindings", snatBody, nil, 200))
+			snat = poll(t, id, base+"/snat/bindings/"+snatID, func(v map[string]any) bool { return v["state"] == "available" && v["applied_enabled"] == true })
+			require.Equal(t, snatID, get(t, id, base+"/vpcs/"+vpcID+"/snat")["id"])
+			poll(t, id, base+"/operations/"+snat["last_operation_id"].(string), state("succeeded"))
+			snat = get(t, id, base+"/snat/bindings/"+snatID)
+			for _, enabled := range []bool{false, true} {
+				body := fmt.Sprintf(`{"enabled":%t,"expected_version":%q,"idempotency_key":%q}`, enabled, snat["version"], fmt.Sprintf("toggle-%s-%t", mode.name, enabled))
+				accepted := request(t, id, "PATCH", base+"/snat/bindings/"+snatID, body, nil, 200)
+				require.Equal(t, enabled, accepted["desired_enabled"])
+				require.NotEqual(t, accepted["desired_enabled"], accepted["applied_enabled"], "accepted intent must retain independently observed applied value")
+				require.Equal(t, accepted, request(t, id, "PATCH", base+"/snat/bindings/"+snatID, body, nil, 200))
+				snat = poll(t, id, base+"/snat/bindings/"+snatID, func(v map[string]any) bool { return v["state"] == "available" && v["applied_enabled"] == enabled })
+				poll(t, id, base+"/operations/"+accepted["last_operation_id"].(string), state("succeeded"))
+				// SNAT operation completion and its EIP/VPC observations converge
+				// independently. Continuous observations also advance the resource
+				// version, so fetch it after these waits before the next mutation.
+				poll(t, id, base+"/eips/"+eipID, state("available"))
+				poll(t, id, base+"/vpcs/"+vpcID, state("available"))
+				snat = get(t, id, base+"/snat/bindings/"+snatID)
+			}
+			request(t, id, "PATCH", base+"/snat/bindings/"+snatID, `{"enabled":false,"expected_version":"1","idempotency_key":"stale-`+mode.name+`"}`, nil, 412)
+			deleted := request(t, id, "DELETE", base+"/snat/bindings/"+snatID, "", nil, 200)
+			require.NotContains(t, deleted, "snat")
+			poll(t, id, base+"/snat/bindings/"+snatID, state("deleted"))
+			require.Equal(t, "available", get(t, id, base+"/eips/"+eipID)["state"])
+			// Backend attachment was prepared and confirmed using real owner protocol;
+			// its Kubernetes/instance owner facts are the controlled external boundary.
+			lbBody := fmt.Sprintf(`{"name":%q,"vpc_id":%q,"subnet_id":%q,"exposure":"LOAD_BALANCER_EXPOSURE_PUBLIC_PRIVATE","flavor":"small","private_ip":"10.42.1.100","public_eip_id":%q,"idempotency_key":%q,"listener":{"protocol":"LOAD_BALANCER_LISTENER_PROTOCOL_HTTP","port":80},"backends":[{"subnet_id":%q,"address":%q,"port":8080}],"health_check":{"port":8080}}`, "joint-lb-"+mode.name, peer.ParentVPC, peer.EntrySubnet, eipID, "lb-"+mode.name, peer.BackendSubnet, peer.BackendAddress)
+			result := request(t, id, "POST", base+"/load-balancers", lbBody, nil, 200)
+			require.Contains(t, result, "operation")
+			lb := result["load_balancer"].(map[string]any)
+			lbID := lb["id"].(string)
+			require.Equal(t, result, request(t, id, "POST", base+"/load-balancers", lbBody, nil, 200))
+			lb = poll(t, id, base+"/load-balancers/"+lbID, state("available"))
+			require.Equal(t, "LOAD_BALANCER_DATA_PLANE_STATE_UNKNOWN", lb["data_plane_state"])
+			lbOp := result["operation"].(map[string]any)["id"].(string)
+			poll(t, id, base+"/load-balancers/operations/"+lbOp, state("succeeded"))
+			require.Equal(t, "1", get(t, id, base+"/load-balancers?vpc_id="+peer.ParentVPC+"&name=joint-lb-"+mode.name+"&limit=1")["total"])
+			request(t, id, "DELETE", base+"/subnets/"+peer.EntrySubnet, "", nil, 412)
+			updateBody := fmt.Sprintf(`{"name":%q,"description":"updated over authenticated HTTP","expected_version":%q,"idempotency_key":%q,"backends":[{"id":%q,"subnet_id":%q,"address":%q,"port":8080,"weight":2}],"health_check":{"port":8080}}`, "updated-lb-"+mode.name, lb["version"], "lb-update-"+mode.name, lb["backends"].([]any)[0].(map[string]any)["id"], peer.BackendSubnet, peer.BackendAddress)
+			updated := request(t, id, "PATCH", base+"/load-balancers/"+lbID, updateBody, nil, 200)
+			require.Contains(t, updated, "operation")
+			require.Contains(t, updated, "load_balancer")
+			require.Equal(t, updated, request(t, id, "PATCH", base+"/load-balancers/"+lbID, updateBody, nil, 200))
+			updateOp := updated["operation"].(map[string]any)["id"].(string)
+			poll(t, id, base+"/load-balancers/operations/"+updateOp, state("succeeded"))
+			poll(t, id, base+"/load-balancers/"+lbID, func(v map[string]any) bool {
+				return v["state"] == "available" && v["desired_version"] == v["applied_version"]
+			})
+			request(t, id, "PATCH", base+"/load-balancers/"+lbID, strings.Replace(strings.Replace(updateBody, `"expected_version":"`+lb["version"].(string)+`"`, `"expected_version":"1"`, 1), "lb-update-"+mode.name, "stale-lb-update-"+mode.name, 1), nil, 412)
+			removed := request(t, id, "DELETE", base+"/load-balancers/"+lbID, "", nil, 200)
+			require.Contains(t, removed, "operation")
+			require.Contains(t, removed, "load_balancer")
+			poll(t, id, base+"/load-balancers/"+lbID, state("deleted"))
+			var claims, refs, vips int
+			require.NoError(t, peer.DB.QueryRowContext(ctx, `SELECT (SELECT count(*) FROM network_eip_claims WHERE tenant_id=$1 AND eip_id=$2 AND released_at IS NULL),(SELECT count(*) FROM network_lb_subnet_refs WHERE tenant_id=$1 AND lb_id=$3 AND released_at IS NULL),(SELECT count(*) FROM network_lb_vip_intents WHERE tenant_id=$1 AND lb_id=$3 AND released_at IS NULL)`, peer.TenantID, eipID, lbID).Scan(&claims, &refs, &vips))
+			require.Zero(t, claims)
+			require.Zero(t, refs)
+			require.Zero(t, vips)
+			require.Equal(t, "available", get(t, id, base+"/eips/"+eipID)["state"])
+			require.Equal(t, "available", get(t, id, base+"/vpcs/"+peer.ParentVPC)["state"])
+			require.Equal(t, "available", get(t, id, base+"/subnets/"+peer.BackendSubnet)["state"])
+			for _, path := range []string{base + "/vpcs/" + vpcID, base + "/subnets/" + ids[0], base + "/eips/" + eipID, base + "/snat/bindings/" + snatID, base + "/load-balancers/" + lbID, base + "/load-balancers/operations/" + lbOp} {
+				request(t, identity{bearer: otherToken}, "GET", path, "", nil, 404)
+				request(t, identity{key: otherAK, secret: otherSK}, "GET", path, "", nil, 404)
+			}
+			request(t, id, "DELETE", base+"/eips/"+eipID, "", nil, 200)
+			poll(t, id, base+"/eips/"+eipID, state("deleted"))
+			for _, subnetID := range ids {
+				removed := request(t, id, "DELETE", base+"/subnets/"+subnetID, "", nil, 200)
+				require.NotContains(t, removed, "subnet")
+				poll(t, id, base+"/subnets/"+subnetID, state("deleted"))
+			}
+			removed = request(t, id, "DELETE", base+"/vpcs/"+vpcID, "", nil, 200)
+			require.NotContains(t, removed, "vpc")
+			poll(t, id, base+"/vpcs/"+vpcID, state("deleted"))
+		})
+	}
+	// Failed main-flow assertions return while fixture authorization is still
+	// usable so compensation can release any accepted resources.
+	if t.Failed() {
+		return
+	}
+	// Every rejection below is verified before a new Resource operation is saved.
+	before := beforeSideEffects(t)
+	validBody := fmt.Sprintf(`{"name":"negative","vpc_id":%q,"cidr":"10.42.8.0/24","idempotency_key":"negative"}`, peer.ParentVPC)
+	path := base + "/subnets"
+	request(t, identity{}, "POST", path, validBody, nil, 401)
+	request(t, identity{bearer: readerToken}, "POST", path, validBody, nil, 403)
+	request(t, identity{key: readerAK, secret: readerSK}, "POST", path, validBody, nil, 403)
+	request(t, akIdentity, "POST", path, validBody, func(r *http.Request) {
+		r.Body = io.NopCloser(strings.NewReader(strings.Replace(validBody, "negative", "tampered", 1)))
+		r.ContentLength = int64(len(strings.Replace(validBody, "negative", "tampered", 1)))
+	}, 401)
+	request(t, akIdentity, "GET", base+"/subnets?vpc_id="+peer.ParentVPC+"&limit=1", "", func(r *http.Request) { r.URL.RawQuery = "vpc_id=" + peer.ParentVPC + "&limit=2" }, 401)
+	request(t, akIdentity, "GET", base+"/vpcs/"+peer.ParentVPC, "", func(r *http.Request) { r.URL.Path = base + "/vpcs/vpc_" + strings.Repeat("a", 32) }, 401)
+	request(t, akIdentity, "DELETE", base+"/vpcs/"+peer.ParentVPC, "", func(r *http.Request) { r.Method = "GET" }, 401)
+	for _, header := range []string{"X-Access-Key", "X-Timestamp", "X-Signature"} {
+		denied := request(t, akIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Add(header, "duplicate") }, 401)
+		require.Equal(t, "INVALID_SIGNATURE", denied["reason"], "duplicate credentials preserve the shared authentication contract")
+	}
+	request(t, jwtIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Add("Authorization", "Bearer "+publisherToken) }, 401)
+	request(t, akIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Set("Authorization", "Bearer "+publisherToken) }, 400)
+	request(t, akIdentity, "POST", path, validBody, func(r *http.Request) {
+		ts := strconv.FormatInt(time.Now().Add(-10*time.Minute).Unix(), 10)
+		r.Header.Set("X-Timestamp", ts)
+		r.Header.Set("X-Signature", auth.NetworkSignature(publisherSK, "POST", path, "", publisherAK.AccessKey, ts, []byte(validBody)))
+	}, 401)
+	request(t, jwtIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Add("X-Ani-Tenant-Id", "forged") }, 400)
+	request(t, jwtIdentity, "POST", path, strings.Replace(validBody, `"name":"negative"`, `"tenant_id":"forged","name":"negative"`, 1), nil, 400)
+	request(t, akIdentity, "GET", base+"/vpcs?limit=1&limit=2", "", nil, 400)
+	request(t, akIdentity, "POST", base+"/unknown", validBody, nil, 400)
+	require.Equal(t, before, beforeSideEffects(t))
+	_, err = client.Tenant.UpdateOneID(tenants[0].ID).SetStatus(tenant.StatusOff).Save(sys)
+	require.NoError(t, err)
+	request(t, jwtIdentity, "POST", path, validBody, nil, 403)
+	request(t, akIdentity, "POST", path, validBody, nil, 403)
+	_, err = client.Tenant.UpdateOneID(tenants[0].ID).SetStatus(tenant.StatusOn).Save(sys)
+	require.NoError(t, err)
+	_, err = client.AccessKey.UpdateOneID(publisherAK.ID).SetStatus(accesskey.StatusOff).Save(sys)
+	require.NoError(t, err)
+	request(t, akIdentity, "POST", path, validBody, nil, 401)
+	_, err = client.AccessKey.UpdateOneID(publisherAK.ID).SetStatus(accesskey.StatusOn).Save(sys)
+	require.NoError(t, err)
+	expiry := time.Now().Add(-time.Minute)
+	_, err = client.AccessKey.UpdateOneID(publisherAK.ID).SetExpiresAt(expiry).Save(sys)
+	require.NoError(t, err)
+	request(t, akIdentity, "POST", path, validBody, nil, 401)
+	_, err = client.AccessKey.UpdateOneID(publisherAK.ID).ClearExpiresAt().Save(sys)
+	require.NoError(t, err)
+	revokedAK, revokedSK := makeAK(publisher, "revoked")
+	require.NoError(t, client.AccessKey.DeleteOneID(revokedAK.ID).Exec(sys))
+	request(t, identity{key: revokedAK, secret: revokedSK}, "POST", path, validBody, nil, 401)
+	_, err = client.RolePermission.Update().Where(rolepermission.RoleIDEQ(publisher.ID)).SetStatus(rolepermission.StatusOff).Save(sys)
+	require.NoError(t, err)
+	require.NoError(t, policy.ResetPolicies(ctx))
+	request(t, akIdentity, "POST", path, validBody, nil, 403)
+	request(t, jwtIdentity, "POST", path, validBody, nil, 403)
+	_, err = client.RolePermission.Update().Where(rolepermission.RoleIDEQ(publisher.ID)).SetStatus(rolepermission.StatusOn).Save(sys)
+	require.NoError(t, err)
+	require.NoError(t, policy.ResetPolicies(ctx))
+	require.NoError(t, client.PlanModule.DeleteOneID(module.ID).Exec(sys))
+	request(t, akIdentity, "POST", path, validBody, nil, 403)
+	request(t, jwtIdentity, "POST", path, validBody, nil, 403)
+	require.Equal(t, before, beforeSideEffects(t))
+	t.Log("24 Network methods passed real HTTP/JWT and AK -> policy/NETWORK -> mTLS -> Resource/PG/worker with product cleanup")
+}

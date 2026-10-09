@@ -10,6 +10,7 @@ import (
 	adminv1 "go-wind-admin/api/gen/go/admin/service/v1"
 	catalogv1 "go-wind-admin/api/gen/go/catalog/service/v1"
 	"go-wind-admin/pkg/middleware/auth"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"regexp"
@@ -41,6 +42,19 @@ type NetworkTenantClient interface {
 	DeleteEIP(context.Context, string, string, string) (*networkv1.DeleteEIPResponse, error)
 	GetVPCSnat(context.Context, string, string, string) (*networkv1.GetVPCSnatResponse, error)
 	BindVPCSnat(context.Context, string, string, string, string, string) (*networkv1.BindVPCSnatResponse, error)
+	CreateSubnet(context.Context, string, string, string, string, string, string, string, *string) (*networkv1.CreateSubnetResponse, error)
+	GetSubnet(context.Context, string, string, string) (*networkv1.GetSubnetResponse, error)
+	ListSubnets(context.Context, string, string, string, string, string, int32, string) (*networkv1.ListSubnetsResponse, error)
+	DeleteSubnet(context.Context, string, string, string) (*networkv1.DeleteSubnetResponse, error)
+	GetVPCSnatBinding(context.Context, string, string, string) (*networkv1.GetVPCSnatBindingResponse, error)
+	SetVPCSnatEnabled(context.Context, string, string, string, bool, int64, string) (*networkv1.SetVPCSnatEnabledResponse, error)
+	DeleteVPCSnatBinding(context.Context, string, string, string) (*networkv1.DeleteVPCSnatBindingResponse, error)
+	CreateLoadBalancer(context.Context, string, string, *networkv1.CreateLoadBalancerRequest) (*networkv1.CreateLoadBalancerResponse, error)
+	GetLoadBalancer(context.Context, string, string, string) (*networkv1.GetLoadBalancerResponse, error)
+	ListLoadBalancers(context.Context, string, string, *networkv1.ListLoadBalancersRequest) (*networkv1.ListLoadBalancersResponse, error)
+	UpdateLoadBalancer(context.Context, string, string, *networkv1.UpdateLoadBalancerRequest) (*networkv1.UpdateLoadBalancerResponse, error)
+	DeleteLoadBalancer(context.Context, string, string, string) (*networkv1.DeleteLoadBalancerResponse, error)
+	GetLoadBalancerOperation(context.Context, string, string, string) (*networkv1.GetLoadBalancerOperationResponse, error)
 }
 type NetworkService struct {
 	adminv1.UnimplementedNetworkServiceServer
@@ -53,6 +67,9 @@ func NewNetworkService(client NetworkTenantClient, tenants ResourceTenantResolve
 }
 
 var vpcIDPattern = regexp.MustCompile(`^vpc_[0-9a-f]{32}$`)
+var subnetIDPattern = regexp.MustCompile(`^subnet_[0-9a-f]{32}$`)
+var snatIDPattern = regexp.MustCompile(`^snat_[0-9a-f]{32}$`)
+var loadBalancerIDPattern = regexp.MustCompile(`^lb_[0-9a-f]{32}$`)
 var eipIDPattern = regexp.MustCompile(`^eip_[0-9a-f]{32}$`)
 var operationIDPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 
@@ -66,7 +83,7 @@ func trustedOperator(ctx context.Context, s *NetworkService) (*auth.Principal, s
 	if operator.TenantID == 0 || operator.ID == 0 {
 		return nil, "", errors.Forbidden("TENANT_REQUIRED", "tenant identity required")
 	}
-	if s.client == nil {
+	if s.client == nil || s.tenants == nil {
 		return nil, "", errors.ServiceUnavailable("NETWORK_UNAVAILABLE", "network read access is not configured")
 	}
 	if _, err := operator.Actor(); err != nil {
@@ -141,13 +158,14 @@ func wireSnat(v *networkv1.VPCSnatBinding) *catalogv1.VPCSnat {
 	return &catalogv1.VPCSnat{Id: v.Id, VpcId: v.VpcId, EipId: v.EipId, EipAddress: v.EipAddress,
 		State: strings.ToLower(strings.TrimPrefix(v.State.String(), "RESOURCE_STATE_")), Reason: v.Reason,
 		CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt, Version: v.Version,
-		DesiredEnabled: v.DesiredEnabled, AppliedEnabled: v.GetAppliedEnabled()}
+		DesiredEnabled: v.DesiredEnabled, AppliedEnabled: v.AppliedEnabled,
+		ObservedAt: v.ObservedAt, ObservationStale: v.ObservationStale, LastOperationId: v.LastOperationId, Purpose: v.Purpose, ReasonMessage: v.ReasonMessage}
 }
 
 func wireOperation(v *networkv1.Operation) *catalogv1.Operation {
 	return &catalogv1.Operation{Id: v.Id, ResourceId: v.ResourceId, ResourceType: strings.ToLower(strings.TrimPrefix(v.ResourceType.String(), "RESOURCE_TYPE_")),
 		Kind: strings.ToLower(strings.TrimPrefix(v.Kind.String(), "OPERATION_KIND_")), State: strings.ToLower(strings.TrimPrefix(v.State.String(), "OPERATION_STATE_")),
-		Reason: v.Reason, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt, CompletedAt: v.CompletedAt, NextAttemptAt: v.NextAttemptAt}
+		Reason: v.Reason, ReasonMessage: v.ReasonMessage, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt, CompletedAt: v.CompletedAt, NextAttemptAt: v.NextAttemptAt}
 }
 
 func (s *NetworkService) ListVPCs(ctx context.Context, req *catalogv1.ListVPCsRequest) (*catalogv1.ListVPCsResponse, error) {
@@ -344,7 +362,7 @@ func (s *NetworkService) GetVPCSnat(ctx context.Context, req *catalogv1.GetVPCSn
 	if err != nil {
 		return nil, mapNetworkError(err)
 	}
-	if reply == nil || reply.Binding == nil || reply.Binding.TenantId != tenant {
+	if reply == nil || reply.Binding == nil || reply.Binding.TenantId != tenant || reply.Binding.VpcId != req.GetVpcId() {
 		return nil, errors.ServiceUnavailable("NETWORK_INVALID_RESPONSE", "invalid network response")
 	}
 	return &catalogv1.GetVPCSnatResponse{Snat: wireSnat(reply.Binding)}, nil
@@ -366,24 +384,428 @@ func (s *NetworkService) BindVPCSnat(ctx context.Context, req *catalogv1.BindVPC
 	if err != nil {
 		return nil, mapNetworkError(err)
 	}
-	if reply == nil || reply.Binding == nil || reply.Binding.TenantId != tenant {
+	if reply == nil || reply.Binding == nil || reply.Binding.TenantId != tenant || reply.Binding.VpcId != req.GetVpcId() || reply.Binding.EipId != req.GetEipId() {
 		return nil, errors.ServiceUnavailable("NETWORK_INVALID_RESPONSE", "invalid network response")
 	}
 	return &catalogv1.BindVPCSnatResponse{Snat: wireSnat(reply.Binding)}, nil
 }
+
+// Error reasons are carried by Resource's typed ErrorInfo; public responses
+// retain the reason without forwarding private dependency messages.
 func mapNetworkError(err error) error {
-	klog.Errorf("network VPC RPC failed: %v", err)
+	code, reason, message := 503, "NETWORK_UNAVAILABLE", "network request unavailable"
 	switch status.Code(err) {
 	case codes.NotFound:
-		return errors.NotFound("VPC_NOT_FOUND", "VPC not found")
+		code, reason, message = 404, "VPC_NOT_FOUND", "network resource not found"
 	case codes.InvalidArgument:
-		return errors.BadRequest("INVALID_VPC_ID", "invalid VPC request")
+		code, reason, message = 400, "INVALID_VPC_ID", "invalid network request"
+	case codes.AlreadyExists, codes.Aborted:
+		code, reason, message = 409, "NETWORK_CONFLICT", "network resource conflict"
 	case codes.FailedPrecondition:
-		return errors.New(412, "NETWORK_PRECONDITION_FAILED", "network resource is not in the required state")
+		code, reason, message = 412, "NETWORK_PRECONDITION_FAILED", "network resource is not in the required state"
 	case codes.DeadlineExceeded:
-		return errors.New(504, "NETWORK_TIMEOUT", "network query timed out")
-	// Internal identity rejection is a dependency failure, not a user's login error.
-	default:
-		return errors.ServiceUnavailable("NETWORK_UNAVAILABLE", "network query unavailable")
+		code, reason, message = 504, "NETWORK_TIMEOUT", "network request timed out"
+	case codes.Canceled:
+		code, reason, message = 499, "NETWORK_CANCELED", "network request canceled"
 	}
+	if code != 503 || status.Code(err) == codes.Unavailable {
+		for _, detail := range status.Convert(err).Details() {
+			if info, ok := detail.(*errdetails.ErrorInfo); ok && info.Domain == "network.ani.io" && regexp.MustCompile(`^[A-Z][A-Z0-9_]{0,63}$`).MatchString(info.Reason) {
+				reason = info.Reason
+				break
+			}
+		}
+	}
+	klog.Errorf("network RPC failed: code=%s reason=%s", status.Code(err), reason)
+	return errors.New(code, reason, message)
+}
+
+func wireSubnet(v *networkv1.Subnet) *catalogv1.Subnet {
+	return &catalogv1.Subnet{Id: v.Id, VpcId: v.VpcId, Name: v.Name, Description: v.Description, Cidr: v.Cidr, Gateway: v.Gateway,
+		State: strings.ToLower(strings.TrimPrefix(v.State.String(), "RESOURCE_STATE_")), Reason: v.Reason, ReasonMessage: v.ReasonMessage,
+		CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt, Version: v.Version, ObservedAt: v.ObservedAt,
+		ObservationStale: v.ObservationStale, LastOperationId: v.LastOperationId}
+}
+func validSubnetReply(v *networkv1.Subnet, tenant, id, vpcID string) bool {
+	return v != nil && v.TenantId == tenant && subnetIDPattern.MatchString(v.Id) && (id == "" || v.Id == id) &&
+		vpcIDPattern.MatchString(v.VpcId) && (vpcID == "" || v.VpcId == vpcID) && v.State >= networkv1.ResourceState_RESOURCE_STATE_PROVISIONING && v.State <= networkv1.ResourceState_RESOURCE_STATE_DELETED
+}
+func invalidNetworkReply() error {
+	return errors.ServiceUnavailable("NETWORK_INVALID_RESPONSE", "invalid network response")
+}
+
+func (s *NetworkService) CreateSubnet(ctx context.Context, req *catalogv1.CreateSubnetRequest) (*catalogv1.CreateSubnetResponse, error) {
+	if req == nil || !vpcIDPattern.MatchString(req.GetVpcId()) {
+		return nil, errors.BadRequest("INVALID_VPC_ID", "invalid VPC ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.CreateSubnet(ctx, tenant, actor, req.GetVpcId(), req.GetName(), req.GetCidr(), req.GetDescription(), req.GetIdempotencyKey(), req.Gateway)
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || !validSubnetReply(reply.Subnet, tenant, "", req.GetVpcId()) {
+		return nil, invalidNetworkReply()
+	}
+	return &catalogv1.CreateSubnetResponse{Subnet: wireSubnet(reply.Subnet)}, nil
+}
+func (s *NetworkService) ListSubnets(ctx context.Context, req *catalogv1.ListSubnetsRequest) (*catalogv1.ListSubnetsResponse, error) {
+	if req == nil || (req.GetVpcId() != "" && !vpcIDPattern.MatchString(req.GetVpcId())) {
+		return nil, errors.BadRequest("INVALID_VPC_ID", "invalid VPC ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.ListSubnets(ctx, tenant, actor, req.GetVpcId(), req.GetName(), req.GetState(), req.GetLimit(), req.GetCursor())
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || reply.Total < 0 {
+		return nil, invalidNetworkReply()
+	}
+	out := &catalogv1.ListSubnetsResponse{NextCursor: reply.NextCursor, Total: reply.Total, Items: make([]*catalogv1.Subnet, 0, len(reply.Items))}
+	for _, v := range reply.Items {
+		if !validSubnetReply(v, tenant, "", req.GetVpcId()) {
+			return nil, invalidNetworkReply()
+		}
+		out.Items = append(out.Items, wireSubnet(v))
+	}
+	return out, nil
+}
+func (s *NetworkService) GetSubnet(ctx context.Context, req *catalogv1.GetSubnetRequest) (*catalogv1.GetSubnetResponse, error) {
+	if req == nil || !subnetIDPattern.MatchString(req.GetSubnetId()) {
+		return nil, errors.BadRequest("INVALID_SUBNET_ID", "invalid subnet ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.GetSubnet(ctx, tenant, actor, req.GetSubnetId())
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || !validSubnetReply(reply.Subnet, tenant, req.GetSubnetId(), "") {
+		return nil, invalidNetworkReply()
+	}
+	return &catalogv1.GetSubnetResponse{Subnet: wireSubnet(reply.Subnet)}, nil
+}
+func (s *NetworkService) DeleteSubnet(ctx context.Context, req *catalogv1.DeleteSubnetRequest) (*catalogv1.DeleteSubnetResponse, error) {
+	if req == nil || !subnetIDPattern.MatchString(req.GetSubnetId()) {
+		return nil, errors.BadRequest("INVALID_SUBNET_ID", "invalid subnet ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.DeleteSubnet(ctx, tenant, actor, req.GetSubnetId())
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || !validSubnetReply(reply.Subnet, tenant, req.GetSubnetId(), "") {
+		return nil, invalidNetworkReply()
+	}
+	return &catalogv1.DeleteSubnetResponse{Subnet: wireSubnet(reply.Subnet)}, nil
+}
+func (s *NetworkService) GetVPCSnatBinding(ctx context.Context, req *catalogv1.GetVPCSnatBindingRequest) (*catalogv1.GetVPCSnatBindingResponse, error) {
+	if req == nil || !snatIDPattern.MatchString(req.GetBindingId()) {
+		return nil, errors.BadRequest("INVALID_SNAT_ID", "invalid SNAT binding ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.GetVPCSnatBinding(ctx, tenant, actor, req.GetBindingId())
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || reply.Binding == nil || reply.Binding.TenantId != tenant || reply.Binding.Id != req.GetBindingId() {
+		return nil, invalidNetworkReply()
+	}
+	return &catalogv1.GetVPCSnatBindingResponse{Snat: wireSnat(reply.Binding)}, nil
+}
+func (s *NetworkService) SetVPCSnatEnabled(ctx context.Context, req *catalogv1.SetVPCSnatEnabledRequest) (*catalogv1.SetVPCSnatEnabledResponse, error) {
+	if req == nil || !snatIDPattern.MatchString(req.GetBindingId()) {
+		return nil, errors.BadRequest("INVALID_SNAT_ID", "invalid SNAT binding ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.SetVPCSnatEnabled(ctx, tenant, actor, req.GetBindingId(), req.GetEnabled(), req.GetExpectedVersion(), req.GetIdempotencyKey())
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || reply.Binding == nil || reply.Binding.TenantId != tenant || reply.Binding.Id != req.GetBindingId() {
+		return nil, invalidNetworkReply()
+	}
+	return &catalogv1.SetVPCSnatEnabledResponse{Snat: wireSnat(reply.Binding)}, nil
+}
+func (s *NetworkService) DeleteVPCSnatBinding(ctx context.Context, req *catalogv1.DeleteVPCSnatBindingRequest) (*catalogv1.DeleteVPCSnatBindingResponse, error) {
+	if req == nil || !snatIDPattern.MatchString(req.GetBindingId()) {
+		return nil, errors.BadRequest("INVALID_SNAT_ID", "invalid SNAT binding ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.DeleteVPCSnatBinding(ctx, tenant, actor, req.GetBindingId())
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || reply.Binding == nil || reply.Binding.TenantId != tenant || reply.Binding.Id != req.GetBindingId() {
+		return nil, invalidNetworkReply()
+	}
+	return &catalogv1.DeleteVPCSnatBindingResponse{Snat: wireSnat(reply.Binding)}, nil
+}
+
+func networkLBBackends(inputs []*catalogv1.LoadBalancerBackendInput) ([]*networkv1.LoadBalancerBackendInput, error) {
+	out := make([]*networkv1.LoadBalancerBackendInput, 0, len(inputs))
+	for _, v := range inputs {
+		if v == nil {
+			return nil, errors.BadRequest("INVALID_ARGUMENT", "missing load balancer backend")
+		}
+		out = append(out, &networkv1.LoadBalancerBackendInput{Id: v.Id, SubnetId: v.SubnetId, Address: v.Address, Port: v.Port, Weight: v.Weight})
+	}
+	return out, nil
+}
+func networkLBHealth(v *catalogv1.LoadBalancerHealthCheck) *networkv1.LoadBalancerHealthCheck {
+	if v == nil {
+		return nil
+	}
+	return &networkv1.LoadBalancerHealthCheck{Protocol: networkv1.LoadBalancerHealthCheckProtocol(v.Protocol), IntervalSeconds: v.IntervalSeconds, TimeoutSeconds: v.TimeoutSeconds, UnhealthyThreshold: v.UnhealthyThreshold, HealthyThreshold: v.HealthyThreshold, Port: v.Port}
+}
+func wireLBHealth(v *networkv1.LoadBalancerHealthCheck) *catalogv1.LoadBalancerHealthCheck {
+	if v == nil {
+		return nil
+	}
+	return &catalogv1.LoadBalancerHealthCheck{Protocol: catalogv1.LoadBalancerHealthCheckProtocol(v.Protocol), IntervalSeconds: v.IntervalSeconds, TimeoutSeconds: v.TimeoutSeconds, UnhealthyThreshold: v.UnhealthyThreshold, HealthyThreshold: v.HealthyThreshold, Port: v.Port}
+}
+func wireLoadBalancer(v *networkv1.LoadBalancer) *catalogv1.LoadBalancer {
+	out := &catalogv1.LoadBalancer{Id: v.Id, VpcId: v.VpcId, SubnetId: v.SubnetId, Name: v.Name, Description: v.Description,
+		Exposure: catalogv1.LoadBalancerExposure(v.Exposure), Flavor: v.Flavor, PublicEipId: v.PublicEipId, PrivateIp: v.PrivateIp,
+		HealthCheck: wireLBHealth(v.HealthCheck), Algorithm: catalogv1.LoadBalancerAlgorithm(v.Algorithm),
+		State: strings.ToLower(strings.TrimPrefix(v.State.String(), "RESOURCE_STATE_")), Reason: v.Reason, ReasonMessage: v.ReasonMessage,
+		Version: v.Version, DesiredVersion: v.DesiredVersion, AppliedVersion: v.AppliedVersion,
+		ConfigurationState: catalogv1.LoadBalancerConfigurationState(v.ConfigurationState), DataPlaneState: catalogv1.LoadBalancerDataPlaneState(v.DataPlaneState),
+		ObservedAt: v.ObservedAt, ObservationStale: v.ObservationStale, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt,
+		LastOperationId: v.LastOperationId, PublicAddress: v.PublicAddress, DataPlaneObservedAt: v.DataPlaneObservedAt,
+		Backends: make([]*catalogv1.LoadBalancerBackendMember, 0, len(v.Backends))}
+	if v.Listener != nil {
+		out.Listener = &catalogv1.LoadBalancerListener{Id: v.Listener.Id, Protocol: catalogv1.LoadBalancerListenerProtocol(v.Listener.Protocol), Port: v.Listener.Port}
+	}
+	for _, b := range v.Backends {
+		out.Backends = append(out.Backends, &catalogv1.LoadBalancerBackendMember{Id: b.Id, SubnetId: b.SubnetId, Address: b.Address, Port: b.Port, Weight: b.Weight, AttachmentId: b.AttachmentId, State: b.State, Reason: b.Reason, ObservedAt: b.ObservedAt, ObservationStale: b.ObservationStale})
+	}
+	return out
+}
+func validLoadBalancerReply(v *networkv1.LoadBalancer, tenant, id, vpcID, subnetID string) bool {
+	if v == nil || v.TenantId != tenant || !loadBalancerIDPattern.MatchString(v.Id) || (id != "" && v.Id != id) ||
+		!vpcIDPattern.MatchString(v.VpcId) || !subnetIDPattern.MatchString(v.SubnetId) || (vpcID != "" && v.VpcId != vpcID) || (subnetID != "" && v.SubnetId != subnetID) ||
+		v.State < networkv1.ResourceState_RESOURCE_STATE_PROVISIONING || v.State > networkv1.ResourceState_RESOURCE_STATE_DELETED {
+		return false
+	}
+	for _, b := range v.Backends {
+		if b == nil {
+			return false
+		}
+	}
+	return true
+}
+func validLoadBalancerOperation(v *networkv1.Operation, tenant, id, resourceID string, kind networkv1.OperationKind) bool {
+	return v != nil && v.TenantId == tenant && operationIDPattern.MatchString(v.Id) && v.Id != "00000000-0000-0000-0000-000000000000" &&
+		(id == "" || v.Id == id) && v.ResourceType == networkv1.ResourceType_RESOURCE_TYPE_LOAD_BALANCER &&
+		loadBalancerIDPattern.MatchString(v.ResourceId) && (resourceID == "" || v.ResourceId == resourceID) &&
+		(kind == networkv1.OperationKind_OPERATION_KIND_UNSPECIFIED || v.Kind == kind)
+}
+func (s *NetworkService) CreateLoadBalancer(ctx context.Context, req *catalogv1.CreateLoadBalancerRequest) (*catalogv1.CreateLoadBalancerResponse, error) {
+	if req == nil || !vpcIDPattern.MatchString(req.GetVpcId()) || !subnetIDPattern.MatchString(req.GetSubnetId()) {
+		return nil, errors.BadRequest("INVALID_ARGUMENT", "invalid VPC or subnet ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	backends, err := networkLBBackends(req.Backends)
+	if err != nil {
+		return nil, err
+	}
+	in := &networkv1.CreateLoadBalancerRequest{Name: req.Name, Description: req.Description, VpcId: req.VpcId, SubnetId: req.SubnetId,
+		Exposure: networkv1.LoadBalancerExposure(req.Exposure), Flavor: req.Flavor, PublicEipId: req.PublicEipId, PrivateIp: req.PrivateIp,
+		Backends: backends, HealthCheck: networkLBHealth(req.HealthCheck), IdempotencyKey: req.IdempotencyKey}
+	if req.Listener != nil {
+		in.Listener = &networkv1.LoadBalancerListenerInput{Protocol: networkv1.LoadBalancerListenerProtocol(req.Listener.Protocol), Port: req.Listener.Port}
+	}
+	reply, err := s.client.CreateLoadBalancer(ctx, tenant, actor, in)
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || !validLoadBalancerReply(reply.LoadBalancer, tenant, "", req.VpcId, req.SubnetId) ||
+		!validLoadBalancerOperation(reply.Operation, tenant, reply.LoadBalancer.LastOperationId, reply.LoadBalancer.Id, networkv1.OperationKind_OPERATION_KIND_CREATE_LOAD_BALANCER) {
+		return nil, invalidNetworkReply()
+	}
+	return &catalogv1.CreateLoadBalancerResponse{LoadBalancer: wireLoadBalancer(reply.LoadBalancer), Operation: wireOperation(reply.Operation)}, nil
+}
+func (s *NetworkService) GetLoadBalancer(ctx context.Context, req *catalogv1.GetLoadBalancerRequest) (*catalogv1.GetLoadBalancerResponse, error) {
+	if req == nil || !loadBalancerIDPattern.MatchString(req.GetLoadBalancerId()) {
+		return nil, errors.BadRequest("INVALID_LOAD_BALANCER_ID", "invalid load balancer ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.GetLoadBalancer(ctx, tenant, actor, req.GetLoadBalancerId())
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || !validLoadBalancerReply(reply.LoadBalancer, tenant, req.GetLoadBalancerId(), "", "") {
+		return nil, invalidNetworkReply()
+	}
+	return &catalogv1.GetLoadBalancerResponse{LoadBalancer: wireLoadBalancer(reply.LoadBalancer)}, nil
+}
+func (s *NetworkService) ListLoadBalancers(ctx context.Context, req *catalogv1.ListLoadBalancersRequest) (*catalogv1.ListLoadBalancersResponse, error) {
+	if req == nil || (req.GetVpcId() != "" && !vpcIDPattern.MatchString(req.GetVpcId())) || (req.GetSubnetId() != "" && !subnetIDPattern.MatchString(req.GetSubnetId())) {
+		return nil, errors.BadRequest("INVALID_ARGUMENT", "invalid VPC or subnet filter")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	state := networkv1.ResourceState_RESOURCE_STATE_UNSPECIFIED
+	if req.GetState() != "" {
+		value, ok := networkv1.ResourceState_value[req.GetState()]
+		if !ok {
+			value, ok = networkv1.ResourceState_value["RESOURCE_STATE_"+strings.ToUpper(req.GetState())]
+		}
+		if !ok {
+			return nil, errors.BadRequest("INVALID_ARGUMENT", "invalid resource state filter")
+		}
+		state = networkv1.ResourceState(value)
+	}
+	reply, err := s.client.ListLoadBalancers(ctx, tenant, actor, &networkv1.ListLoadBalancersRequest{Name: req.Name, VpcId: req.VpcId, SubnetId: req.SubnetId, Exposure: networkv1.LoadBalancerExposure(req.Exposure), State: state, Limit: req.Limit, Cursor: req.Cursor})
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || reply.Total < 0 {
+		return nil, invalidNetworkReply()
+	}
+	out := &catalogv1.ListLoadBalancersResponse{NextCursor: reply.NextCursor, Total: reply.Total, Items: make([]*catalogv1.LoadBalancer, 0, len(reply.Items))}
+	for _, v := range reply.Items {
+		if !validLoadBalancerReply(v, tenant, "", req.VpcId, req.SubnetId) {
+			return nil, invalidNetworkReply()
+		}
+		out.Items = append(out.Items, wireLoadBalancer(v))
+	}
+	return out, nil
+}
+func (s *NetworkService) UpdateLoadBalancer(ctx context.Context, req *catalogv1.UpdateLoadBalancerRequest) (*catalogv1.UpdateLoadBalancerResponse, error) {
+	if req == nil || !loadBalancerIDPattern.MatchString(req.GetLoadBalancerId()) {
+		return nil, errors.BadRequest("INVALID_LOAD_BALANCER_ID", "invalid load balancer ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	backends, err := networkLBBackends(req.Backends)
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.UpdateLoadBalancer(ctx, tenant, actor, &networkv1.UpdateLoadBalancerRequest{LoadBalancerId: req.LoadBalancerId, ExpectedVersion: req.ExpectedVersion, IdempotencyKey: req.IdempotencyKey, Name: req.Name, Description: req.Description, Backends: backends, HealthCheck: networkLBHealth(req.HealthCheck)})
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || !validLoadBalancerReply(reply.LoadBalancer, tenant, req.LoadBalancerId, "", "") ||
+		!validLoadBalancerOperation(reply.Operation, tenant, reply.LoadBalancer.LastOperationId, reply.LoadBalancer.Id, networkv1.OperationKind_OPERATION_KIND_UPDATE_LOAD_BALANCER) {
+		return nil, invalidNetworkReply()
+	}
+	return &catalogv1.UpdateLoadBalancerResponse{LoadBalancer: wireLoadBalancer(reply.LoadBalancer), Operation: wireOperation(reply.Operation)}, nil
+}
+func (s *NetworkService) DeleteLoadBalancer(ctx context.Context, req *catalogv1.DeleteLoadBalancerRequest) (*catalogv1.DeleteLoadBalancerResponse, error) {
+	if req == nil || !loadBalancerIDPattern.MatchString(req.GetLoadBalancerId()) {
+		return nil, errors.BadRequest("INVALID_LOAD_BALANCER_ID", "invalid load balancer ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.DeleteLoadBalancer(ctx, tenant, actor, req.LoadBalancerId)
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || !validLoadBalancerReply(reply.LoadBalancer, tenant, req.LoadBalancerId, "", "") ||
+		!validLoadBalancerOperation(reply.Operation, tenant, reply.LoadBalancer.LastOperationId, reply.LoadBalancer.Id, networkv1.OperationKind_OPERATION_KIND_DELETE_LOAD_BALANCER) {
+		return nil, invalidNetworkReply()
+	}
+	return &catalogv1.DeleteLoadBalancerResponse{LoadBalancer: wireLoadBalancer(reply.LoadBalancer), Operation: wireOperation(reply.Operation)}, nil
+}
+func (s *NetworkService) GetLoadBalancerOperation(ctx context.Context, req *catalogv1.GetLoadBalancerOperationRequest) (*catalogv1.GetLoadBalancerOperationResponse, error) {
+	if req == nil || !operationIDPattern.MatchString(req.GetOperationId()) || req.GetOperationId() == "00000000-0000-0000-0000-000000000000" {
+		return nil, errors.BadRequest("INVALID_OPERATION_ID", "invalid operation ID")
+	}
+	operator, tenant, err := trustedOperator(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	actor, err := operator.Actor()
+	if err != nil {
+		return nil, err
+	}
+	reply, err := s.client.GetLoadBalancerOperation(ctx, tenant, actor, req.OperationId)
+	if err != nil {
+		return nil, mapNetworkError(err)
+	}
+	if reply == nil || !validLoadBalancerOperation(reply.Operation, tenant, req.OperationId, "", networkv1.OperationKind_OPERATION_KIND_UNSPECIFIED) {
+		return nil, invalidNetworkReply()
+	}
+	return &catalogv1.GetLoadBalancerOperationResponse{Operation: wireOperation(reply.Operation)}, nil
 }

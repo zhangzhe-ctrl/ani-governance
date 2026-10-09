@@ -79,7 +79,7 @@ func _ImageService_EnsureImageSpace0_HTTP_Handler(srv ImageServiceHTTPServer) fu
 			return err
 		}
 		reply := out.(*v1.EnsureImageSpaceResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Space)
 	}
 }
 
@@ -183,7 +183,7 @@ func _ImageService_DisablePublisherCredential0_HTTP_Handler(srv ImageServiceHTTP
 			return err
 		}
 		reply := out.(*v1.DisablePublisherCredentialResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Credential)
 	}
 }
 
@@ -205,7 +205,7 @@ func _ImageService_RegisterImage0_HTTP_Handler(srv ImageServiceHTTPServer) func(
 			return err
 		}
 		reply := out.(*v1.RegisterImageResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Image)
 	}
 }
 
@@ -271,7 +271,7 @@ func _ImageService_UpdateImage0_HTTP_Handler(srv ImageServiceHTTPServer) func(ct
 			return err
 		}
 		reply := out.(*v1.UpdateImageResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Image)
 	}
 }
 
@@ -296,7 +296,7 @@ func _ImageService_UnregisterImage0_HTTP_Handler(srv ImageServiceHTTPServer) fun
 			return err
 		}
 		reply := out.(*v1.UnregisterImageResponse)
-		return ctx.Result(200, reply)
+		return ctx.Result(200, reply.Image)
 	}
 }
 
@@ -328,7 +328,7 @@ func (c *ImageServiceHTTPClientImpl) DisablePublisherCredential(ctx context.Cont
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationImageServiceDisablePublisherCredential))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out.Credential, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -341,7 +341,7 @@ func (c *ImageServiceHTTPClientImpl) EnsureImageSpace(ctx context.Context, in *v
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationImageServiceEnsureImageSpace))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out.Space, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -419,7 +419,7 @@ func (c *ImageServiceHTTPClientImpl) RegisterImage(ctx context.Context, in *v1.R
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationImageServiceRegisterImage))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out.Image, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -445,7 +445,7 @@ func (c *ImageServiceHTTPClientImpl) UnregisterImage(ctx context.Context, in *v1
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationImageServiceUnregisterImage))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out.Image, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -458,7 +458,7 @@ func (c *ImageServiceHTTPClientImpl) UpdateImage(ctx context.Context, in *v1.Upd
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationImageServiceUpdateImage))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "PATCH", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "PATCH", path, in, &out.Image, opts...)
 	if err != nil {
 		return nil, err
 	}

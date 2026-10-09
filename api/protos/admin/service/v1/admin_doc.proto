@@ -35,7 +35,7 @@ option (gnostic.openapi.v3.document) = {
       additional_properties: [
         { name: "BearerAuth" value: { security_scheme: { type: "http" scheme: "bearer" bearer_format: "JWT" description: "User JWT" } } },
         { name: "AccessKeyAuth" value: { security_scheme: { type: "apiKey" name: "X-Access-Key" in: "header" description: "Public AK; all three signature headers are required together" } } },
-        { name: "SignatureAuth" value: { security_scheme: { type: "apiKey" name: "X-Signature" in: "header" description: "ANI seven-line HMAC-SHA256, lowercase hex; Swagger does not calculate it" } } },
+        { name: "SignatureAuth" value: { security_scheme: { type: "apiKey" name: "X-Signature" in: "header" description: "ANI-HMAC-SHA256 seven lines: algorithm, uppercase HTTP method, canonical path, canonical query (url.Values.Encode), Access Key, Unix timestamp, lowercase SHA256 of raw request body. HMAC-SHA256 is lowercase hex; all signature headers required, 300-second time window, no Bearer mixing. Supported operations: 24 tenant Network and 11 Image methods only; current API permission and module checks still required. Swagger does not calculate signatures." } } },
         { name: "SignatureTime" value: { security_scheme: { type: "apiKey" name: "X-Timestamp" in: "header" description: "Positive Unix seconds within 300 seconds of server time" } } },
         {
           name: "OAuth2PasswordBearer";

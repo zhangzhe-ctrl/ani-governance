@@ -99,7 +99,7 @@ func TestDetailOpenAPIResponsesDescribeResourceObjects(t *testing.T) {
 	for path, schema := range map[string]string{
 		"/api/v1/networks/vpcs/{vpc_id}":                       "VPC",
 		"/api/v1/networks/eips/{eip_id}":                       "EIP",
-		"/api/v1/networks/operations/{operation_id}":           "Operation",
+		"/api/v1/networks/operations/{operation_id}":           "NetworkOperation",
 		"/api/v1/networks/vpcs/{vpc_id}/snat":                  "VPCSnat",
 		"/api/v1/images/space":                                 "ImageSpace",
 		"/api/v1/images/publisher-credential":                  "PublisherCredential",

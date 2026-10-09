@@ -7,8 +7,9 @@ import "gnostic/openapi/v3/annotations.proto";
 
 service ImageService {
   rpc EnsureImageSpace(catalog.service.v1.EnsureImageSpaceRequest) returns (catalog.service.v1.EnsureImageSpaceResponse) {
-    option (google.api.http) = { post: "/api/v1/images/space:enable" body: "*" };
+    option (google.api.http) = { post: "/api/v1/images/space:enable" body: "*" response_body: "space" };
     option (gnostic.openapi.v3.operation) = {
+      responses: { response_or_reference: [{ name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/ImageSpace" } } } }] } } } }] }
       security: [
         { additional_properties: [{ name: "BearerAuth" value: {} }] },
         { additional_properties: [
@@ -84,8 +85,9 @@ service ImageService {
     };
   }
   rpc DisablePublisherCredential(catalog.service.v1.DisablePublisherCredentialRequest) returns (catalog.service.v1.DisablePublisherCredentialResponse) {
-    option (google.api.http) = { post: "/api/v1/images/publisher-credential:disable" body: "*" };
+    option (google.api.http) = { post: "/api/v1/images/publisher-credential:disable" body: "*" response_body: "credential" };
     option (gnostic.openapi.v3.operation) = {
+      responses: { response_or_reference: [{ name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/PublisherCredential" } } } }] } } } }] }
       security: [
         { additional_properties: [{ name: "BearerAuth" value: {} }] },
         { additional_properties: [
@@ -99,8 +101,9 @@ service ImageService {
     };
   }
   rpc RegisterImage(catalog.service.v1.RegisterImageRequest) returns (catalog.service.v1.RegisterImageResponse) {
-    option (google.api.http) = { post: "/api/v1/images/registrations" body: "*" };
+    option (google.api.http) = { post: "/api/v1/images/registrations" body: "*" response_body: "image" };
     option (gnostic.openapi.v3.operation) = {
+      responses: { response_or_reference: [{ name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/ImageRegistration" } } } }] } } } }] }
       security: [
         { additional_properties: [{ name: "BearerAuth" value: {} }] },
         { additional_properties: [
@@ -145,8 +148,9 @@ service ImageService {
     };
   }
   rpc UpdateImage(catalog.service.v1.UpdateImageRequest) returns (catalog.service.v1.UpdateImageResponse) {
-    option (google.api.http) = { patch: "/api/v1/images/registrations/{image_id}" body: "*" };
+    option (google.api.http) = { patch: "/api/v1/images/registrations/{image_id}" body: "*" response_body: "image" };
     option (gnostic.openapi.v3.operation) = {
+      responses: { response_or_reference: [{ name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/ImageRegistration" } } } }] } } } }] }
       security: [
         { additional_properties: [{ name: "BearerAuth" value: {} }] },
         { additional_properties: [
@@ -160,8 +164,9 @@ service ImageService {
     };
   }
   rpc UnregisterImage(catalog.service.v1.UnregisterImageRequest) returns (catalog.service.v1.UnregisterImageResponse) {
-    option (google.api.http) = { post: "/api/v1/images/registrations/{image_id}:unregister" body: "*" };
+    option (google.api.http) = { post: "/api/v1/images/registrations/{image_id}:unregister" body: "*" response_body: "image" };
     option (gnostic.openapi.v3.operation) = {
+      responses: { response_or_reference: [{ name: "200" value: { response: { description: "OK" content: { additional_properties: [{ name: "application/json" value: { schema: { reference: { _ref: "#/components/schemas/ImageRegistration" } } } }] } } } }] }
       security: [
         { additional_properties: [{ name: "BearerAuth" value: {} }] },
         { additional_properties: [

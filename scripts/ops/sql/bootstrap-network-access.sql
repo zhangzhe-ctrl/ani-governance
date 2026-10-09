@@ -1,4 +1,4 @@
--- Fedora/operator only; explicit tenant-owned role, stable incremental API registration.
+-- Operator only; explicit tenant-owned role, stable incremental API registration.
 -- Apply to the final schema, then restart Governance and re-login affected users.
 -- Existing API/permission IDs are never truncated or renumbered.
 BEGIN;
@@ -55,7 +55,20 @@ BEGIN
   ('NetworkService','NetworkService_CreateEIP','/api/v1/networks/eips','POST','申请EIP','network:eip:create','Allocate a tenant public EIP'),
   ('NetworkService','NetworkService_DeleteEIP','/api/v1/networks/eips/{eip_id}','DELETE','释放EIP','network:eip:delete','Release a tenant EIP'),
   ('NetworkService','NetworkService_GetVPCSnat','/api/v1/networks/vpcs/{vpc_id}/snat','GET','查看SNAT','network:snat:get','Get a VPC SNAT binding'),
-  ('NetworkService','NetworkService_BindVPCSnat','/api/v1/networks/vpcs/{vpc_id}/snat/bindings','POST','绑定SNAT','network:snat:bind','Bind an EIP as a VPC SNAT egress');
+  ('NetworkService','NetworkService_BindVPCSnat','/api/v1/networks/vpcs/{vpc_id}/snat/bindings','POST','绑定SNAT','network:snat:bind','Bind an EIP as a VPC SNAT egress'),
+  ('NetworkService','NetworkService_CreateSubnet','/api/v1/networks/subnets','POST','CreateSubnet','network:subnet:create','CreateSubnet tenant Network resource'),
+  ('NetworkService','NetworkService_GetSubnet','/api/v1/networks/subnets/{subnet_id}','GET','GetSubnet','network:subnet:get','GetSubnet tenant Network resource'),
+  ('NetworkService','NetworkService_ListSubnets','/api/v1/networks/subnets','GET','ListSubnets','network:subnet:list','ListSubnets tenant Network resource'),
+  ('NetworkService','NetworkService_DeleteSubnet','/api/v1/networks/subnets/{subnet_id}','DELETE','DeleteSubnet','network:subnet:delete','DeleteSubnet tenant Network resource'),
+  ('NetworkService','NetworkService_GetVPCSnatBinding','/api/v1/networks/snat/bindings/{binding_id}','GET','GetVPCSnatBinding','network:snat:get','GetVPCSnatBinding tenant Network resource'),
+  ('NetworkService','NetworkService_SetVPCSnatEnabled','/api/v1/networks/snat/bindings/{binding_id}','PATCH','SetVPCSnatEnabled','network:snat:update','SetVPCSnatEnabled tenant Network resource'),
+  ('NetworkService','NetworkService_DeleteVPCSnatBinding','/api/v1/networks/snat/bindings/{binding_id}','DELETE','DeleteVPCSnatBinding','network:snat:delete','DeleteVPCSnatBinding tenant Network resource'),
+  ('NetworkService','NetworkService_CreateLoadBalancer','/api/v1/networks/load-balancers','POST','CreateLoadBalancer','network:load-balancer:create','CreateLoadBalancer tenant Network resource'),
+  ('NetworkService','NetworkService_GetLoadBalancer','/api/v1/networks/load-balancers/{load_balancer_id}','GET','GetLoadBalancer','network:load-balancer:get','GetLoadBalancer tenant Network resource'),
+  ('NetworkService','NetworkService_ListLoadBalancers','/api/v1/networks/load-balancers','GET','ListLoadBalancers','network:load-balancer:list','ListLoadBalancers tenant Network resource'),
+  ('NetworkService','NetworkService_UpdateLoadBalancer','/api/v1/networks/load-balancers/{load_balancer_id}','PATCH','UpdateLoadBalancer','network:load-balancer:update','UpdateLoadBalancer tenant Network resource'),
+  ('NetworkService','NetworkService_DeleteLoadBalancer','/api/v1/networks/load-balancers/{load_balancer_id}','DELETE','DeleteLoadBalancer','network:load-balancer:delete','DeleteLoadBalancer tenant Network resource'),
+  ('NetworkService','NetworkService_GetLoadBalancerOperation','/api/v1/networks/load-balancers/operations/{operation_id}','GET','GetLoadBalancerOperation','network:load-balancer:operation:get','GetLoadBalancerOperation tenant Network resource');
  FOR r IN SELECT * FROM temp_api_permission_pairs LOOP
    IF EXISTS(SELECT 1 FROM sys_apis WHERE path=r.path AND method=r.method
      AND (module IS DISTINCT FROM r.module OR business_module IS DISTINCT FROM 'NETWORK')) THEN
@@ -64,10 +77,10 @@ BEGIN
    INSERT INTO sys_apis(module,business_module,operation,path,method,scope,status,description)
    VALUES(r.module,'NETWORK',r.operation,r.path,r.method,'ADMIN','ON',r.description)
    ON CONFLICT(module,path,method,scope) DO NOTHING;
-   SELECT id INTO aid FROM sys_apis WHERE path=r.path AND method=r.method AND business_module='NETWORK';
+   SELECT id INTO STRICT aid FROM sys_apis WHERE path=r.path AND method=r.method AND business_module='NETWORK' AND status='ON' AND deleted_at IS NULL;
    IF aid IS NULL THEN RAISE EXCEPTION 'route registration failed: % %', r.method, r.path; END IF;
    INSERT INTO sys_permissions(name,code,status) VALUES(r.perm_name,r.perm_code,'ON') ON CONFLICT(code) DO NOTHING;
-   SELECT id INTO pid FROM sys_permissions WHERE code=r.perm_code AND status='ON';
+   SELECT id INTO STRICT pid FROM sys_permissions WHERE code=r.perm_code AND status='ON' AND deleted_at IS NULL;
    IF pid IS NULL THEN RAISE EXCEPTION 'permission registration failed: %', r.perm_code; END IF;
    INSERT INTO sys_permission_apis(permission_id,api_id) VALUES(pid,aid) ON CONFLICT(permission_id,api_id) DO NOTHING;
    INSERT INTO sys_role_permissions(role_id,permission_id,tenant_id,effect)

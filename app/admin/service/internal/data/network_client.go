@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 type NetworkClientConfig struct {
@@ -27,6 +28,7 @@ type NetworkClientConfig struct {
 type NetworkClient struct {
 	client          networkv1.NetworkServiceClient
 	egress          networkv1.TenantEgressServiceClient
+	loadBalancers   networkv1.TenantLoadBalancerServiceClient
 	timeout         time.Duration
 	connectionState func() connectivity.State
 }
@@ -68,7 +70,7 @@ func NewNetworkClient(c NetworkClientConfig) (*NetworkClient, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	return &NetworkClient{client: networkv1.NewNetworkServiceClient(conn), egress: networkv1.NewTenantEgressServiceClient(conn), timeout: c.Timeout, connectionState: conn.GetState}, func() { _ = conn.Close() }, nil
+	return &NetworkClient{client: networkv1.NewNetworkServiceClient(conn), egress: networkv1.NewTenantEgressServiceClient(conn), loadBalancers: networkv1.NewTenantLoadBalancerServiceClient(conn), timeout: c.Timeout, connectionState: conn.GetState}, func() { _ = conn.Close() }, nil
 }
 
 func NetworkConfigFromEnv() (NetworkClientConfig, error) {
@@ -131,7 +133,7 @@ func (c *NetworkClient) classify(err error) error {
 func outCall[T any](c *NetworkClient, ctx context.Context, tc trusted, call func(context.Context) (T, error)) (T, error) {
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
-	ctx = metadata.AppendToOutgoingContext(ctx, "x-ani-tenant-id", tc.tenant, "x-ani-actor", tc.actor, "x-ani-request-id", uuid.NewString())
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("x-ani-tenant-id", tc.tenant, "x-ani-actor", tc.actor, "x-ani-request-id", uuid.NewString()))
 	reply, err := call(ctx)
 	return reply, c.classify(err)
 }
@@ -147,7 +149,7 @@ func resourceState(state string) (networkv1.ResourceState, error) {
 	if value, ok := networkv1.ResourceState_value[state]; ok {
 		return networkv1.ResourceState(value), nil
 	}
-	if value, ok := networkv1.ResourceState_value["RESOURCE_STATE_"+strings.ToUpper(state)]; ok && state == strings.ToLower(state) {
+	if value, ok := networkv1.ResourceState_value["RESOURCE_STATE_"+strings.ToUpper(state)]; ok {
 		return networkv1.ResourceState(value), nil
 	}
 	return 0, fmt.Errorf("invalid state filter")
@@ -259,5 +261,146 @@ func (c *NetworkClient) BindVPCSnat(ctx context.Context, tenant, actor, vpcID, e
 	}
 	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.BindVPCSnatResponse, error) {
 		return c.egress.BindVPCSnat(ctx, &networkv1.BindVPCSnatRequest{TargetTenantId: tc.tenant, VpcId: vpcID, EipId: eipID, IdempotencyKey: idempotencyKey})
+	})
+}
+
+func (c *NetworkClient) CreateSubnet(ctx context.Context, tenant, actor, vpcID, name, cidr, description, idempotencyKey string, gateway *string) (*networkv1.CreateSubnetResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.CreateSubnetResponse, error) {
+		return c.client.CreateSubnet(ctx, &networkv1.CreateSubnetRequest{TenantId: tc.tenant, VpcId: vpcID, Name: name, Cidr: cidr, Description: description, IdempotencyKey: idempotencyKey, Gateway: gateway,
+			Attribution: &networkv1.Attribution{Actor: tc.actor, DirectCaller: "ani-governance", CorrelationId: uuid.NewString()}})
+	})
+}
+func (c *NetworkClient) ListSubnets(ctx context.Context, tenant, actor, vpcID, name, state string, limit int32, cursor string) (*networkv1.ListSubnetsResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	stateValue, err := resourceState(state)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.ListSubnetsResponse, error) {
+		return c.client.ListSubnets(ctx, &networkv1.ListSubnetsRequest{TenantId: tc.tenant, VpcId: vpcID, Name: name, State: stateValue, Limit: limit, Cursor: cursor})
+	})
+}
+func (c *NetworkClient) GetSubnet(ctx context.Context, tenant, actor, id string) (*networkv1.GetSubnetResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.GetSubnetResponse, error) {
+		return c.client.GetSubnet(ctx, &networkv1.GetSubnetRequest{TenantId: tc.tenant, SubnetId: id})
+	})
+}
+func (c *NetworkClient) DeleteSubnet(ctx context.Context, tenant, actor, id string) (*networkv1.DeleteSubnetResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.DeleteSubnetResponse, error) {
+		return c.client.DeleteSubnet(ctx, &networkv1.DeleteSubnetRequest{TenantId: tc.tenant, SubnetId: id})
+	})
+}
+func (c *NetworkClient) GetVPCSnatBinding(ctx context.Context, tenant, actor, id string) (*networkv1.GetVPCSnatBindingResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.GetVPCSnatBindingResponse, error) {
+		return c.egress.GetVPCSnatBinding(ctx, &networkv1.GetVPCSnatBindingRequest{TargetTenantId: tc.tenant, BindingId: id})
+	})
+}
+func (c *NetworkClient) DeleteVPCSnatBinding(ctx context.Context, tenant, actor, id string) (*networkv1.DeleteVPCSnatBindingResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.DeleteVPCSnatBindingResponse, error) {
+		return c.egress.DeleteVPCSnatBinding(ctx, &networkv1.DeleteVPCSnatBindingRequest{TargetTenantId: tc.tenant, BindingId: id})
+	})
+}
+func (c *NetworkClient) GetLoadBalancer(ctx context.Context, tenant, actor, id string) (*networkv1.GetLoadBalancerResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.GetLoadBalancerResponse, error) {
+		return c.loadBalancers.GetLoadBalancer(ctx, &networkv1.GetLoadBalancerRequest{TargetTenantId: tc.tenant, LoadBalancerId: id})
+	})
+}
+func (c *NetworkClient) DeleteLoadBalancer(ctx context.Context, tenant, actor, id string) (*networkv1.DeleteLoadBalancerResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.DeleteLoadBalancerResponse, error) {
+		return c.loadBalancers.DeleteLoadBalancer(ctx, &networkv1.DeleteLoadBalancerRequest{TargetTenantId: tc.tenant, LoadBalancerId: id})
+	})
+}
+func (c *NetworkClient) GetLoadBalancerOperation(ctx context.Context, tenant, actor, id string) (*networkv1.GetLoadBalancerOperationResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.GetLoadBalancerOperationResponse, error) {
+		return c.loadBalancers.GetLoadBalancerOperation(ctx, &networkv1.GetLoadBalancerOperationRequest{TargetTenantId: tc.tenant, OperationId: id})
+	})
+}
+func (c *NetworkClient) SetVPCSnatEnabled(ctx context.Context, tenant, actor, bindingID string, enabled bool, expectedVersion int64, key string) (*networkv1.SetVPCSnatEnabledResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.SetVPCSnatEnabledResponse, error) {
+		return c.egress.SetVPCSnatEnabled(ctx, &networkv1.SetVPCSnatEnabledRequest{TargetTenantId: tc.tenant, BindingId: bindingID, Enabled: enabled, ExpectedVersion: expectedVersion, IdempotencyKey: key})
+	})
+}
+func (c *NetworkClient) CreateLoadBalancer(ctx context.Context, tenant, actor string, request *networkv1.CreateLoadBalancerRequest) (*networkv1.CreateLoadBalancerResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	if request == nil {
+		return nil, status.Error(codes.InvalidArgument, "missing load balancer request")
+	}
+	// Clone the intent and replace identity; never mutate the caller's snapshot.
+	request = proto.Clone(request).(*networkv1.CreateLoadBalancerRequest)
+	request.TargetTenantId = tc.tenant
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.CreateLoadBalancerResponse, error) {
+		return c.loadBalancers.CreateLoadBalancer(ctx, request)
+	})
+}
+func (c *NetworkClient) UpdateLoadBalancer(ctx context.Context, tenant, actor string, request *networkv1.UpdateLoadBalancerRequest) (*networkv1.UpdateLoadBalancerResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	if request == nil {
+		return nil, status.Error(codes.InvalidArgument, "missing load balancer request")
+	}
+	// Clone the intent and replace identity; never mutate the caller's snapshot.
+	request = proto.Clone(request).(*networkv1.UpdateLoadBalancerRequest)
+	request.TargetTenantId = tc.tenant
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.UpdateLoadBalancerResponse, error) {
+		return c.loadBalancers.UpdateLoadBalancer(ctx, request)
+	})
+}
+func (c *NetworkClient) ListLoadBalancers(ctx context.Context, tenant, actor string, request *networkv1.ListLoadBalancersRequest) (*networkv1.ListLoadBalancersResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	if request == nil {
+		return nil, status.Error(codes.InvalidArgument, "missing load balancer request")
+	}
+	// Clone the intent and replace identity; never mutate the caller's snapshot.
+	request = proto.Clone(request).(*networkv1.ListLoadBalancersRequest)
+	request.TargetTenantId = tc.tenant
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.ListLoadBalancersResponse, error) {
+		return c.loadBalancers.ListLoadBalancers(ctx, request)
 	})
 }

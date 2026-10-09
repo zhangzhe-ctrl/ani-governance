@@ -6257,7 +6257,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/DisablePublisherCredentialResponse'
+                                $ref: '#/components/schemas/PublisherCredential'
             security:
                 - BearerAuth: []
                 - AccessKeyAuth: []
@@ -6378,7 +6378,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RegisterImageResponse'
+                                $ref: '#/components/schemas/ImageRegistration'
             security:
                 - BearerAuth: []
                 - AccessKeyAuth: []
@@ -6437,7 +6437,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UpdateImageResponse'
+                                $ref: '#/components/schemas/ImageRegistration'
             security:
                 - BearerAuth: []
                 - AccessKeyAuth: []
@@ -6468,7 +6468,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UnregisterImageResponse'
+                                $ref: '#/components/schemas/ImageRegistration'
             security:
                 - BearerAuth: []
                 - AccessKeyAuth: []
@@ -6512,7 +6512,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/EnsureImageSpaceResponse'
+                                $ref: '#/components/schemas/ImageSpace'
             security:
                 - BearerAuth: []
                 - AccessKeyAuth: []
@@ -6591,11 +6591,11 @@ paths:
                 required: true
             responses:
                 "200":
-                    description: OK
+                    description: Accepted resource snapshot; inspect state and last_operation_id for completion
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CreateEIPResponse'
+                                $ref: '#/components/schemas/EIP'
                 "400":
                     description: Invalid name, description or idempotency key
                 "401":
@@ -6662,11 +6662,11 @@ paths:
                     type: string
             responses:
                 "200":
-                    description: OK
+                    description: Accepted resource snapshot; inspect state and last_operation_id for completion
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/DeleteEIPResponse'
+                                $ref: '#/components/schemas/EIP'
                 "400":
                     description: Invalid EIP ID
                 "401":
@@ -6679,6 +6679,285 @@ paths:
                     description: Network dependency or trusted identity unavailable
                 "504":
                     description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/load-balancers:
+        get:
+            tags:
+                - NetworkService
+            summary: ListLoadBalancers in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:list permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Cursor pagination preserves items, next_cursor and filtered total; limit is 1..100. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation.
+            operationId: NetworkService_ListLoadBalancers
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: vpc_id
+                  in: query
+                  schema:
+                    type: string
+                - name: subnet_id
+                  in: query
+                  schema:
+                    type: string
+                - name: exposure
+                  in: query
+                  schema:
+                    enum:
+                        - LOAD_BALANCER_EXPOSURE_UNSPECIFIED
+                        - LOAD_BALANCER_EXPOSURE_PRIVATE
+                        - LOAD_BALANCER_EXPOSURE_PUBLIC
+                        - LOAD_BALANCER_EXPOSURE_PUBLIC_PRIVATE
+                    type: string
+                    format: enum
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: cursor
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListLoadBalancersResponse'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        post:
+            tags:
+                - NetworkService
+            summary: CreateLoadBalancer in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:create permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation.
+            operationId: NetworkService_CreateLoadBalancer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateLoadBalancerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateLoadBalancerResponse'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/load-balancers/operations/{operation_id}:
+        get:
+            tags:
+                - NetworkService
+            summary: GetLoadBalancerOperation in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:operation:get permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation.
+            operationId: NetworkService_GetLoadBalancerOperation
+            parameters:
+                - name: operation_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NetworkOperation'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/load-balancers/{load_balancer_id}:
+        get:
+            tags:
+                - NetworkService
+            summary: GetLoadBalancer in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:get permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation.
+            operationId: NetworkService_GetLoadBalancer
+            parameters:
+                - name: load_balancer_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LoadBalancer'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        delete:
+            tags:
+                - NetworkService
+            summary: DeleteLoadBalancer in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:delete permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation.
+            operationId: NetworkService_DeleteLoadBalancer
+            parameters:
+                - name: load_balancer_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/DeleteLoadBalancerResponse'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        patch:
+            tags:
+                - NetworkService
+            summary: UpdateLoadBalancer in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:load-balancer:update permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Resource lifecycle, desired/applied configuration and observed traffic health are independent; mutations preserve both load_balancer and operation.
+            operationId: NetworkService_UpdateLoadBalancer
+            parameters:
+                - name: load_balancer_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateLoadBalancerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UpdateLoadBalancerResponse'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
             security:
                 - BearerAuth: []
                 - AccessKeyAuth: []
@@ -6703,7 +6982,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Operation'
+                                $ref: '#/components/schemas/NetworkOperation'
                 "400":
                     description: Invalid operation ID
                 "401":
@@ -6716,6 +6995,311 @@ paths:
                     description: Network dependency or trusted identity unavailable
                 "504":
                     description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/snat/bindings/{binding_id}:
+        get:
+            tags:
+                - NetworkService
+            summary: GetVPCSnatBinding in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:snat:get permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. desired_enabled and optional applied_enabled distinguish intent from fresh observation; unbinding retains the independent EIP.
+            operationId: NetworkService_GetVPCSnatBinding
+            parameters:
+                - name: binding_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/VPCSnat'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        delete:
+            tags:
+                - NetworkService
+            summary: DeleteVPCSnatBinding in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:snat:delete permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. desired_enabled and optional applied_enabled distinguish intent from fresh observation; unbinding retains the independent EIP.
+            operationId: NetworkService_DeleteVPCSnatBinding
+            parameters:
+                - name: binding_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/VPCSnat'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        patch:
+            tags:
+                - NetworkService
+            summary: SetVPCSnatEnabled in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:snat:update permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. desired_enabled and optional applied_enabled distinguish intent from fresh observation; unbinding retains the independent EIP.
+            operationId: NetworkService_SetVPCSnatEnabled
+            parameters:
+                - name: binding_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetVPCSnatEnabledRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/VPCSnat'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/subnets:
+        get:
+            tags:
+                - NetworkService
+            summary: ListSubnets in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:subnet:list permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion. Cursor pagination preserves items, next_cursor and filtered total; limit is 1..100.
+            operationId: NetworkService_ListSubnets
+            parameters:
+                - name: vpc_id
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: cursor
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSubnetsResponse'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        post:
+            tags:
+                - NetworkService
+            summary: CreateSubnet in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:subnet:create permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion.
+            operationId: NetworkService_CreateSubnet
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateSubnetRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Subnet'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/subnets/{subnet_id}:
+        get:
+            tags:
+                - NetworkService
+            summary: GetSubnet in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:subnet:get permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion.
+            operationId: NetworkService_GetSubnet
+            parameters:
+                - name: subnet_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Subnet'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        delete:
+            tags:
+                - NetworkService
+            summary: DeleteSubnet in the authenticated tenant
+            description: Requires user JWT or ANI-HMAC-SHA256, NETWORK subscription and network:subnet:delete permission. Tenant and actor come from authenticated context. Cross-tenant and missing resources both return 404. Mutation responses are persisted acceptance snapshots, not asynchronous completion.
+            operationId: NetworkService_DeleteSubnet
+            parameters:
+                - name: subnet_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Subnet'
+                "400":
+                    description: Invalid resource ID, filter or request
+                "401":
+                    description: Missing, invalid, expired or revoked credentials
+                "403":
+                    description: Tenant, permission or subscription denied
+                "404":
+                    description: Resource not found in this tenant
+                "409":
+                    description: Idempotency or resource conflict
+                "412":
+                    description: Version, lifecycle, ownership or occupied-resource precondition failed
+                "503":
+                    description: Network dependency or trusted identity unavailable
+                "504":
+                    description: Connected network call timed out
             security:
                 - BearerAuth: []
                 - AccessKeyAuth: []
@@ -6782,11 +7366,11 @@ paths:
                 required: true
             responses:
                 "200":
-                    description: OK
+                    description: Accepted resource snapshot; inspect state and last_operation_id for completion
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CreateVPCResponse'
+                                $ref: '#/components/schemas/VPC'
                 "400":
                     description: Invalid name, CIDR or idempotency key
                 "401":
@@ -6853,11 +7437,11 @@ paths:
                     type: string
             responses:
                 "200":
-                    description: OK
+                    description: Accepted resource snapshot; inspect state and last_operation_id for completion
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/DeleteVPCResponse'
+                                $ref: '#/components/schemas/VPC'
                 "400":
                     description: Invalid VPC ID
                 "401":
@@ -6933,11 +7517,11 @@ paths:
                 required: true
             responses:
                 "200":
-                    description: OK
+                    description: Accepted resource snapshot; inspect state and last_operation_id for completion
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/BindVPCSnatResponse'
+                                $ref: '#/components/schemas/VPCSnat'
                 "400":
                     description: Invalid VPC or EIP ID
                 "401":
@@ -6957,6 +7541,35 @@ paths:
                   SignatureTime: []
 components:
     schemas:
+        NetworkOperation:
+            type: object
+            properties:
+                id:
+                    type: string
+                resource_id:
+                    type: string
+                resource_type:
+                    type: string
+                kind:
+                    type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+                completed_at:
+                    type: string
+                    format: date-time
+                next_attempt_at:
+                    type: string
+                    format: date-time
+                reason_message:
+                    type: string
         AcceleratorAdminBinding:
             type: object
             properties:
@@ -7988,6 +8601,48 @@ components:
                 data:
                     $ref: '#/components/schemas/Language'
             description: 创建语言 - 请求
+        CreateLoadBalancerRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                description:
+                    type: string
+                vpc_id:
+                    type: string
+                subnet_id:
+                    type: string
+                exposure:
+                    enum:
+                        - LOAD_BALANCER_EXPOSURE_UNSPECIFIED
+                        - LOAD_BALANCER_EXPOSURE_PRIVATE
+                        - LOAD_BALANCER_EXPOSURE_PUBLIC
+                        - LOAD_BALANCER_EXPOSURE_PUBLIC_PRIVATE
+                    type: string
+                    format: enum
+                flavor:
+                    type: string
+                public_eip_id:
+                    type: string
+                private_ip:
+                    type: string
+                listener:
+                    $ref: '#/components/schemas/LoadBalancerListenerInput'
+                backends:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/LoadBalancerBackendInput'
+                health_check:
+                    $ref: '#/components/schemas/LoadBalancerHealthCheck'
+                idempotency_key:
+                    type: string
+        CreateLoadBalancerResponse:
+            type: object
+            properties:
+                load_balancer:
+                    $ref: '#/components/schemas/LoadBalancer'
+                operation:
+                    $ref: '#/components/schemas/NetworkOperation'
         CreateLoginPolicyRequest:
             type: object
             properties:
@@ -8057,6 +8712,26 @@ components:
                 data:
                     $ref: '#/components/schemas/Role'
             description: 创建角色 - 请求
+        CreateSubnetRequest:
+            type: object
+            properties:
+                vpc_id:
+                    type: string
+                name:
+                    type: string
+                cidr:
+                    type: string
+                description:
+                    type: string
+                idempotency_key:
+                    type: string
+                gateway:
+                    type: string
+        CreateSubnetResponse:
+            type: object
+            properties:
+                subnet:
+                    $ref: '#/components/schemas/Subnet'
         CreateTaskRequest:
             type: object
             properties:
@@ -8293,6 +8968,13 @@ components:
             properties:
                 eip:
                     $ref: '#/components/schemas/EIP'
+        DeleteLoadBalancerResponse:
+            type: object
+            properties:
+                load_balancer:
+                    $ref: '#/components/schemas/LoadBalancer'
+                operation:
+                    $ref: '#/components/schemas/NetworkOperation'
         DeleteNotificationFromInboxRequest:
             type: object
             properties:
@@ -8306,11 +8988,21 @@ components:
                         type: integer
                         format: uint32
                     description: 收件箱记录ID列表，为空表示清空收件箱
+        DeleteSubnetResponse:
+            type: object
+            properties:
+                subnet:
+                    $ref: '#/components/schemas/Subnet'
         DeleteVPCResponse:
             type: object
             properties:
                 vpc:
                     $ref: '#/components/schemas/VPC'
+        DeleteVPCSnatBindingResponse:
+            type: object
+            properties:
+                snat:
+                    $ref: '#/components/schemas/VPCSnat'
         DeviceInfo:
             type: object
             properties:
@@ -8918,6 +9610,16 @@ components:
             properties:
                 input_version:
                     $ref: '#/components/schemas/InputVersionView'
+        GetLoadBalancerOperationResponse:
+            type: object
+            properties:
+                operation:
+                    $ref: '#/components/schemas/NetworkOperation'
+        GetLoadBalancerResponse:
+            type: object
+            properties:
+                load_balancer:
+                    $ref: '#/components/schemas/LoadBalancer'
         GetMFAStatusResponse:
             type: object
             properties:
@@ -8938,17 +9640,27 @@ components:
             type: object
             properties:
                 operation:
-                    $ref: '#/components/schemas/Operation'
+                    $ref: '#/components/schemas/NetworkOperation'
         GetPublisherCredentialResponse:
             type: object
             properties:
                 credential:
                     $ref: '#/components/schemas/PublisherCredential'
+        GetSubnetResponse:
+            type: object
+            properties:
+                subnet:
+                    $ref: '#/components/schemas/Subnet'
         GetVPCResponse:
             type: object
             properties:
                 vpc:
                     $ref: '#/components/schemas/VPC'
+        GetVPCSnatBindingResponse:
+            type: object
+            properties:
+                snat:
+                    $ref: '#/components/schemas/VPCSnat'
         GetVPCSnatResponse:
             type: object
             properties:
@@ -9691,6 +10403,17 @@ components:
                 total:
                     type: string
             description: 语言列表 - 答复
+        ListLoadBalancersResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/LoadBalancer'
+                next_cursor:
+                    type: string
+                total:
+                    type: string
         ListLoginAuditLogResponse:
             type: object
             properties:
@@ -9890,6 +10613,17 @@ components:
                     items:
                         $ref: '#/components/schemas/MenuRouteItem'
             description: 查询路由列表 - 回应
+        ListSubnetsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Subnet'
+                next_cursor:
+                    type: string
+                total:
+                    type: string
         ListTaskResponse:
             type: object
             properties:
@@ -9959,6 +10693,186 @@ components:
                     type: string
                 total:
                     type: string
+        LoadBalancer:
+            type: object
+            properties:
+                id:
+                    type: string
+                vpc_id:
+                    type: string
+                subnet_id:
+                    type: string
+                name:
+                    type: string
+                description:
+                    type: string
+                exposure:
+                    enum:
+                        - LOAD_BALANCER_EXPOSURE_UNSPECIFIED
+                        - LOAD_BALANCER_EXPOSURE_PRIVATE
+                        - LOAD_BALANCER_EXPOSURE_PUBLIC
+                        - LOAD_BALANCER_EXPOSURE_PUBLIC_PRIVATE
+                    type: string
+                    format: enum
+                flavor:
+                    type: string
+                public_eip_id:
+                    type: string
+                private_ip:
+                    type: string
+                listener:
+                    $ref: '#/components/schemas/LoadBalancerListener'
+                backends:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/LoadBalancerBackendMember'
+                health_check:
+                    $ref: '#/components/schemas/LoadBalancerHealthCheck'
+                algorithm:
+                    enum:
+                        - LOAD_BALANCER_ALGORITHM_UNSPECIFIED
+                        - LOAD_BALANCER_ALGORITHM_ROUND_ROBIN
+                    type: string
+                    format: enum
+                state:
+                    type: string
+                reason:
+                    type: string
+                reason_message:
+                    type: string
+                version:
+                    type: string
+                desired_version:
+                    type: string
+                applied_version:
+                    type: string
+                configuration_state:
+                    enum:
+                        - LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED
+                        - LOAD_BALANCER_CONFIGURATION_STATE_PENDING
+                        - LOAD_BALANCER_CONFIGURATION_STATE_APPLYING
+                        - LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED
+                        - LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED
+                        - LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN
+                    type: string
+                    format: enum
+                data_plane_state:
+                    enum:
+                        - LOAD_BALANCER_DATA_PLANE_STATE_UNSPECIFIED
+                        - LOAD_BALANCER_DATA_PLANE_STATE_UNKNOWN
+                        - LOAD_BALANCER_DATA_PLANE_STATE_HEALTHY
+                        - LOAD_BALANCER_DATA_PLANE_STATE_UNHEALTHY
+                    type: string
+                    format: enum
+                observed_at:
+                    type: string
+                    format: date-time
+                observation_stale:
+                    type: boolean
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+                last_operation_id:
+                    type: string
+                public_address:
+                    type: string
+                data_plane_observed_at:
+                    type: string
+                    format: date-time
+        LoadBalancerBackendInput:
+            type: object
+            properties:
+                id:
+                    type: string
+                subnet_id:
+                    type: string
+                address:
+                    type: string
+                port:
+                    type: integer
+                    format: uint32
+                weight:
+                    type: integer
+                    format: uint32
+        LoadBalancerBackendMember:
+            type: object
+            properties:
+                id:
+                    type: string
+                subnet_id:
+                    type: string
+                address:
+                    type: string
+                port:
+                    type: integer
+                    format: uint32
+                weight:
+                    type: integer
+                    format: uint32
+                attachment_id:
+                    type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                observed_at:
+                    type: string
+                    format: date-time
+                observation_stale:
+                    type: boolean
+        LoadBalancerHealthCheck:
+            type: object
+            properties:
+                protocol:
+                    enum:
+                        - LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED
+                        - LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP
+                    type: string
+                    format: enum
+                interval_seconds:
+                    type: integer
+                    format: uint32
+                timeout_seconds:
+                    type: integer
+                    format: uint32
+                unhealthy_threshold:
+                    type: integer
+                    format: uint32
+                healthy_threshold:
+                    type: integer
+                    format: uint32
+                port:
+                    type: integer
+                    format: uint32
+        LoadBalancerListener:
+            type: object
+            properties:
+                id:
+                    type: string
+                protocol:
+                    enum:
+                        - LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED
+                        - LOAD_BALANCER_LISTENER_PROTOCOL_HTTP
+                    type: string
+                    format: enum
+                port:
+                    type: integer
+                    format: uint32
+        LoadBalancerListenerInput:
+            type: object
+            properties:
+                protocol:
+                    enum:
+                        - LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED
+                        - LOAD_BALANCER_LISTENER_PROTOCOL_HTTP
+                    type: string
+                    format: enum
+                port:
+                    type: integer
+                    format: uint32
         LoginAuditLog:
             type: object
             properties:
@@ -12380,6 +13294,22 @@ components:
                     type: string
                 data:
                     $ref: '#/components/schemas/SetAcceleratorAdmissionData'
+        SetVPCSnatEnabledRequest:
+            type: object
+            properties:
+                binding_id:
+                    type: string
+                enabled:
+                    type: boolean
+                expected_version:
+                    type: string
+                idempotency_key:
+                    type: string
+        SetVPCSnatEnabledResponse:
+            type: object
+            properties:
+                snat:
+                    $ref: '#/components/schemas/VPCSnat'
         SlowLogEntry:
             type: object
             properties:
@@ -12471,6 +13401,43 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/NamedString'
+        Subnet:
+            type: object
+            properties:
+                id:
+                    type: string
+                vpc_id:
+                    type: string
+                name:
+                    type: string
+                description:
+                    type: string
+                cidr:
+                    type: string
+                gateway:
+                    type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                reason_message:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+                version:
+                    type: string
+                observed_at:
+                    type: string
+                    format: date-time
+                observation_stale:
+                    type: boolean
+                last_operation_id:
+                    type: string
+            description: Tenant-facing subnet fields; ownership is resolved from authenticated context.
         SyncMenusRequest:
             type: object
             properties:
@@ -12942,6 +13909,32 @@ components:
                     type: boolean
                     description: 如果设置为true的时候，资源不存在则会新增(插入)，并且在这种情况下`updateMask`字段将会被忽略。
             description: 更新语言 - 请求
+        UpdateLoadBalancerRequest:
+            type: object
+            properties:
+                load_balancer_id:
+                    type: string
+                expected_version:
+                    type: string
+                idempotency_key:
+                    type: string
+                name:
+                    type: string
+                description:
+                    type: string
+                backends:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/LoadBalancerBackendInput'
+                health_check:
+                    $ref: '#/components/schemas/LoadBalancerHealthCheck'
+        UpdateLoadBalancerResponse:
+            type: object
+            properties:
+                load_balancer:
+                    $ref: '#/components/schemas/LoadBalancer'
+                operation:
+                    $ref: '#/components/schemas/NetworkOperation'
         UpdateLoginPolicyRequest:
             type: object
             properties:
@@ -13408,6 +14401,17 @@ components:
                     type: boolean
                 applied_enabled:
                     type: boolean
+                observed_at:
+                    type: string
+                    format: date-time
+                observation_stale:
+                    type: boolean
+                last_operation_id:
+                    type: string
+                purpose:
+                    type: string
+                reason_message:
+                    type: string
             description: Public product fields only.
         VerifyCaptchaRequest:
             type: object
@@ -13507,7 +14511,7 @@ components:
             in: header
         SignatureAuth:
             type: apiKey
-            description: ANI seven-line HMAC-SHA256, lowercase hex; Swagger does not calculate it
+            description: 'ANI-HMAC-SHA256 seven lines: algorithm, uppercase HTTP method, canonical path, canonical query (url.Values.Encode), Access Key, Unix timestamp, lowercase SHA256 of raw request body. HMAC-SHA256 is lowercase hex; all signature headers required, 300-second time window, no Bearer mixing. Supported operations: 24 tenant Network and 11 Image methods only; current API permission and module checks still required. Swagger does not calculate signatures.'
             name: X-Signature
             in: header
         SignatureTime:

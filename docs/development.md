@@ -45,7 +45,7 @@ ANI Governance 是 ANI 的治理后端。当前仓库只包含后端；业务服
 
 ### 3.1 当前基线
 
-Go 版本由根 `go.mod` 定义，当前为 **1.26.7**。API 工具版本由根 Makefile、各活跃 Buf 模板和 `tools/config/tool-lock.json` 共同限定；不同切片存在已批准的不同插件版本，不要自行“统一到最新版”。
+Go 版本由根 `go.mod` 定义，当前为 **1.26.9**。API 工具版本由根 Makefile、各活跃 Buf 模板和 `tools/config/tool-lock.json` 共同限定；不同切片存在已批准的不同插件版本，不要自行“统一到最新版”。
 
 `gow` 的来源版本为 `gowind@v1.0.3`，但当前工具包含本仓适配，**这不是安装上游 v1.0.3 二进制的指令**。必须使用当前 checkout 构建的 `tools/bin/gow`。
 
