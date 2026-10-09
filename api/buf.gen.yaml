@@ -6,6 +6,8 @@ managed:
   enabled: true
 
   disable:
+    - path: inference/v1
+    - path: accelerator
     - module: buf.build/googleapis/googleapis
     - module: 'buf.build/envoyproxy/protoc-gen-validate'
     - module: 'buf.build/kratos/apis'
@@ -80,6 +82,8 @@ inputs:
   # 业务输入只选 protos：本地化分页 Proto 由 buf.pagination.gen.yaml 单独生成到
   # pkg/localdeps 目标，避免分页生成两份。
   - directory: protos
+    exclude_paths:
+      - protos/quota/service/v1/quota_release.proto
 
 plugins:
   # generate go code

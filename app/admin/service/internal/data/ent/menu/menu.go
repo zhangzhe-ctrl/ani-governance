@@ -174,6 +174,7 @@ const (
 	ModuleLog             Module = "LOG"
 	ModuleInternalMessage Module = "INTERNAL_MESSAGE"
 	ModuleTask            Module = "TASK"
+	ModuleInference       Module = "INFERENCE"
 )
 
 func (m Module) String() string {
@@ -183,7 +184,7 @@ func (m Module) String() string {
 // ModuleValidator is a validator for the "module" field enum values. It is called by the builders before save.
 func ModuleValidator(m Module) error {
 	switch m {
-	case ModuleDashboard, ModuleOpm, ModuleSystem, ModuleDict, ModuleTenant, ModulePermission, ModuleLog, ModuleInternalMessage, ModuleTask:
+	case ModuleDashboard, ModuleOpm, ModuleSystem, ModuleDict, ModuleTenant, ModulePermission, ModuleLog, ModuleInternalMessage, ModuleTask, ModuleInference:
 		return nil
 	default:
 		return fmt.Errorf("menu: invalid enum value for module field: %q", m)

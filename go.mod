@@ -35,8 +35,15 @@ require (
 
 require (
 	github.com/dlclark/regexp2 v1.12.0 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yuin/gopher-lua v1.1.2 // indirect
+	gopkg.in/inf.v0 v0.9.1 // indirect
+	k8s.io/apimachinery v0.36.3 // indirect
+	k8s.io/klog/v2 v2.140.0 // indirect
+	k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2 // indirect
+	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
 )
 
 require (
@@ -133,6 +140,8 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zclconf/go-cty v1.19.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.2.0 // indirect
+	github.com/zhangzhe-ctrl/ani-governance/api/quota v0.0.0-20261009133356-1ab461604c74
+	github.com/zhangzhe-ctrl/ani-inference-service v0.0.0-20261009141630-cbeb2a6c6fa1
 	go.einride.tech/aip v0.86.3
 	go.mongodb.org/mongo-driver/v2 v2.9.0
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect

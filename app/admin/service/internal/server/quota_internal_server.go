@@ -21,7 +21,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/peer"
 
-	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
+	quotapb "github.com/zhangzhe-ctrl/ani-governance/api/quota/gen/go/quota/service/v1"
 
 	"go-wind-admin/app/admin/service/internal/data"
 )
@@ -41,15 +41,21 @@ type QuotaInternalServerConfig struct {
 
 // QuotaInternalConfigFromEnv 从环境变量解析：
 // ANI_QUOTA_ENABLED / ANI_QUOTA_INTERNAL_ADDR / ANI_QUOTA_CA_FILE /
-// ANI_QUOTA_CERT_FILE / ANI_QUOTA_KEY_FILE。
+// ANI_QUOTA_CERT_FILE / ANI_QUOTA_KEY_FILE / ANI_QUOTA_INFERENCE_DNS_SAN。
+// Only the compiled ani-inference integration is registered. The environment
+// configures its exact deployed certificate name, never an owner or wildcard.
 func QuotaInternalConfigFromEnv() QuotaInternalServerConfig {
-	return QuotaInternalServerConfig{
+	config := QuotaInternalServerConfig{
 		Enabled:  os.Getenv("ANI_QUOTA_ENABLED") == "true",
 		Address:  os.Getenv("ANI_QUOTA_INTERNAL_ADDR"),
 		CAFile:   os.Getenv("ANI_QUOTA_CA_FILE"),
 		CertFile: os.Getenv("ANI_QUOTA_CERT_FILE"),
 		KeyFile:  os.Getenv("ANI_QUOTA_KEY_FILE"),
 	}
+	if name := os.Getenv("ANI_QUOTA_INFERENCE_DNS_SAN"); name != "" {
+		config.CertOwnerMap = map[string]string{name: "ani-inference"}
+	}
+	return config
 }
 
 // Validate enabled 配置完整性；fail-closed，不降级明文。
@@ -63,7 +69,29 @@ func (c *QuotaInternalServerConfig) Validate() error {
 	if len(c.CertOwnerMap) == 0 {
 		return fmt.Errorf("quota internal server requires at least one registered owner mapping")
 	}
+	for name, owner := range c.CertOwnerMap {
+		if !exactQuotaDNSName(name) || owner == "" {
+			return fmt.Errorf("quota internal server requires exact registered DNS SAN identities")
+		}
+	}
 	return nil
+}
+
+func exactQuotaDNSName(name string) bool {
+	if name == "" || len(name) > 253 || strings.TrimSpace(name) != name || strings.ContainsAny(name, "*:/\\") || net.ParseIP(name) != nil {
+		return false
+	}
+	for _, label := range strings.Split(name, ".") {
+		if label == "" || len(label) > 63 || label[0] == '-' || label[len(label)-1] == '-' {
+			return false
+		}
+		for _, character := range label {
+			if !(character >= 'a' && character <= 'z' || character >= 'A' && character <= 'Z' || character >= '0' && character <= '9' || character == '-') {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 // QuotaInternalServer 独立内部 mTLS gRPC listener（QUOTA-03）。
@@ -94,7 +122,8 @@ func NewQuotaInternalServer(cfg QuotaInternalServerConfig, ledger *data.QuotaLed
 		return nil, err
 	}
 
-	// 服务端自己的证书（SAN 必须是 ani-governance，供下游校验）。
+	// The caller verifies this server certificate against its explicitly
+	// configured Governance DNS name; deployment identities are not inferred.
 	cert, err := tls.LoadX509KeyPair(cfg.CertFile, cfg.KeyFile)
 	if err != nil {
 		return nil, fmt.Errorf("load quota internal server certificate: %w", err)
@@ -119,9 +148,13 @@ func NewQuotaInternalServer(cfg QuotaInternalServerConfig, ledger *data.QuotaLed
 		return nil, fmt.Errorf("listen quota internal address: %w", err)
 	}
 
+	owners := make(map[string]string, len(cfg.CertOwnerMap))
+	for name, owner := range cfg.CertOwnerMap {
+		owners[name] = owner
+	}
 	srv := &QuotaInternalServer{
 		ledger:   ledger,
-		owners:   cfg.CertOwnerMap,
+		owners:   owners,
 		listener: lis,
 	}
 	srv.grpcServer = grpc.NewServer(

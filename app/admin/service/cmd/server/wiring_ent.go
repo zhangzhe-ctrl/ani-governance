@@ -175,6 +175,30 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	// 配额账本与持久化转发（QUOTA-GPU-LOCAL-01）
 	quotaLedgerRepo := data.NewQuotaLedgerRepo(ctx, entClient)
 	quotaRegistry := service.NewQuotaAdapterRegistry()
+	inferenceConfig, err := data.InferenceConfigFromEnv()
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	var inferenceClient service.InferenceOwnerClient
+	if inferenceConfig.Address != "" {
+		client, closeInference, err := data.NewInferenceClient(inferenceConfig)
+		if err != nil {
+			rollback()
+			return nil, nil, err
+		}
+		cleanups = append(cleanups, closeInference)
+		inferenceClient = client
+	}
+	inferenceBinding := service.NewInferenceGpuBinding(inferenceClient, data.NewInferenceAuthorizationRepo(entClient))
+	// A client configuration cannot invent the authoritative module registry.
+	// Historical replay still performs current authorization before reading.
+	if inferenceClient != nil && data.InferenceModuleRegistered() {
+		if err := quotaRegistry.Register(inferenceBinding); err != nil {
+			rollback()
+			return nil, nil, err
+		}
+	}
 	quotaAdminRepo.SetExecutionCapabilities(quotaRegistry)
 	quotaWorker := service.NewQuotaDispatchWorker(ctx, quotaLedgerRepo, quotaRegistry)
 
@@ -292,14 +316,22 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	gpuBffLedger := service.NewGpuBffLedgerBridge(quotaLedgerRepo, quotaAdminRepo)
 	acceleratorService := service.NewAcceleratorService(acceleratorClient, tenantRepo, gpuBffLedger, gpuBffLedger, quotaAdminRepo, quotaRegistry)
+	var gpuPlans service.GpuPlanResolver
+	if acceleratorClient != nil {
+		gpuPlans = acceleratorClient.Catalog
+	}
+	inferenceAcceptance, err := service.NewGpuAcceptance(quotaLedgerRepo, quotaRegistry, tenantRepo, gpuPlans, inferenceBinding, quotaWorker)
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	inferenceService := service.NewInferenceService(inferenceAcceptance)
 	modeldevService := service.NewModelDevService(modeldevAuthorizationRepo, tenantRepo, modeldevAcceptanceRepo, modeldevBindingRepo, modeldevClient)
 
 	// ═══════════════════════ 五、传输层(internal/server) ═══════════════════════
 
 	// 内部退额 mTLS listener（QUOTA-03）：默认 disabled；enabled 缺凭据启动失败。
 	quotaInternalCfg := server.QuotaInternalConfigFromEnv()
-	// Owner identities are registered only by explicit production integration.
-	quotaInternalCfg.CertOwnerMap = nil
 	quotaInternalServer, err := server.NewQuotaInternalServer(quotaInternalCfg, quotaLedgerRepo)
 	if err != nil {
 		rollback()
@@ -331,6 +363,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		acceleratorService,
 		imageService,
 		modeldevService,
+		inferenceService,
 	)
 	if err != nil {
 		rollback()
