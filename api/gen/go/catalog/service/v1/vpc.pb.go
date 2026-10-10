@@ -9,6 +9,7 @@ package servicev1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -2980,6 +2981,10 @@ type LoadBalancerListenerInput struct {
 	state         protoimpl.MessageState       `protogen:"open.v1"`
 	Protocol      LoadBalancerListenerProtocol `protobuf:"varint,1,opt,name=protocol,proto3,enum=catalog.service.v1.LoadBalancerListenerProtocol" json:"protocol,omitempty"`
 	Port          *uint32                      `protobuf:"varint,2,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	Id            string                       `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                       `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	Backends      []*LoadBalancerBackendInput  `protobuf:"bytes,5,rep,name=backends,proto3" json:"backends,omitempty"`
+	HealthCheck   *LoadBalancerHealthCheck     `protobuf:"bytes,6,opt,name=health_check,proto3" json:"health_check,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3028,11 +3033,42 @@ func (x *LoadBalancerListenerInput) GetPort() uint32 {
 	return 0
 }
 
+func (x *LoadBalancerListenerInput) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *LoadBalancerListenerInput) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *LoadBalancerListenerInput) GetBackends() []*LoadBalancerBackendInput {
+	if x != nil {
+		return x.Backends
+	}
+	return nil
+}
+
+func (x *LoadBalancerListenerInput) GetHealthCheck() *LoadBalancerHealthCheck {
+	if x != nil {
+		return x.HealthCheck
+	}
+	return nil
+}
+
 type LoadBalancerListener struct {
 	state         protoimpl.MessageState       `protogen:"open.v1"`
 	Id            string                       `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Protocol      LoadBalancerListenerProtocol `protobuf:"varint,2,opt,name=protocol,proto3,enum=catalog.service.v1.LoadBalancerListenerProtocol" json:"protocol,omitempty"`
 	Port          uint32                       `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
+	Name          string                       `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	Backends      []*LoadBalancerBackendMember `protobuf:"bytes,5,rep,name=backends,proto3" json:"backends,omitempty"`
+	HealthCheck   *LoadBalancerHealthCheck     `protobuf:"bytes,6,opt,name=health_check,proto3" json:"health_check,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3086,6 +3122,27 @@ func (x *LoadBalancerListener) GetPort() uint32 {
 		return x.Port
 	}
 	return 0
+}
+
+func (x *LoadBalancerListener) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *LoadBalancerListener) GetBackends() []*LoadBalancerBackendMember {
+	if x != nil {
+		return x.Backends
+	}
+	return nil
+}
+
+func (x *LoadBalancerListener) GetHealthCheck() *LoadBalancerHealthCheck {
+	if x != nil {
+		return x.HealthCheck
+	}
+	return nil
 }
 
 type LoadBalancerBackendInput struct {
@@ -3394,6 +3451,7 @@ type LoadBalancer struct {
 	LastOperationId     string                         `protobuf:"bytes,27,opt,name=last_operation_id,proto3" json:"last_operation_id,omitempty"`
 	PublicAddress       string                         `protobuf:"bytes,28,opt,name=public_address,proto3" json:"public_address,omitempty"`
 	DataPlaneObservedAt *timestamppb.Timestamp         `protobuf:"bytes,29,opt,name=data_plane_observed_at,proto3" json:"data_plane_observed_at,omitempty"`
+	Listeners           []*LoadBalancerListener        `protobuf:"bytes,30,rep,name=listeners,proto3" json:"listeners,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -3624,6 +3682,13 @@ func (x *LoadBalancer) GetDataPlaneObservedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *LoadBalancer) GetListeners() []*LoadBalancerListener {
+	if x != nil {
+		return x.Listeners
+	}
+	return nil
+}
+
 type CreateLoadBalancerRequest struct {
 	state          protoimpl.MessageState      `protogen:"open.v1"`
 	Name           string                      `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -3638,6 +3703,7 @@ type CreateLoadBalancerRequest struct {
 	Backends       []*LoadBalancerBackendInput `protobuf:"bytes,11,rep,name=backends,proto3" json:"backends,omitempty"`
 	HealthCheck    *LoadBalancerHealthCheck    `protobuf:"bytes,12,opt,name=health_check,proto3" json:"health_check,omitempty"`
 	IdempotencyKey string                      `protobuf:"bytes,13,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	Listeners      *LoadBalancerListenerSet    `protobuf:"bytes,14,opt,name=listeners,proto3" json:"listeners,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -3754,6 +3820,13 @@ func (x *CreateLoadBalancerRequest) GetIdempotencyKey() string {
 		return x.IdempotencyKey
 	}
 	return ""
+}
+
+func (x *CreateLoadBalancerRequest) GetListeners() *LoadBalancerListenerSet {
+	if x != nil {
+		return x.Listeners
+	}
+	return nil
 }
 
 type CreateLoadBalancerResponse struct {
@@ -4057,6 +4130,9 @@ type UpdateLoadBalancerRequest struct {
 	Description     string                      `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
 	Backends        []*LoadBalancerBackendInput `protobuf:"bytes,7,rep,name=backends,proto3" json:"backends,omitempty"`
 	HealthCheck     *LoadBalancerHealthCheck    `protobuf:"bytes,8,opt,name=health_check,proto3" json:"health_check,omitempty"`
+	Listeners       *LoadBalancerListenerSet    `protobuf:"bytes,9,opt,name=listeners,proto3" json:"listeners,omitempty"`
+	UpdateMask      *fieldmaskpb.FieldMask      `protobuf:"bytes,10,opt,name=update_mask,proto3" json:"update_mask,omitempty"`
+	Data            *LoadBalancerMutableData    `protobuf:"bytes,11,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -4136,6 +4212,27 @@ func (x *UpdateLoadBalancerRequest) GetBackends() []*LoadBalancerBackendInput {
 func (x *UpdateLoadBalancerRequest) GetHealthCheck() *LoadBalancerHealthCheck {
 	if x != nil {
 		return x.HealthCheck
+	}
+	return nil
+}
+
+func (x *UpdateLoadBalancerRequest) GetListeners() *LoadBalancerListenerSet {
+	if x != nil {
+		return x.Listeners
+	}
+	return nil
+}
+
+func (x *UpdateLoadBalancerRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
+func (x *UpdateLoadBalancerRequest) GetData() *LoadBalancerMutableData {
+	if x != nil {
+		return x.Data
 	}
 	return nil
 }
@@ -4376,11 +4473,196 @@ func (x *GetLoadBalancerOperationResponse) GetOperation() *Operation {
 	return nil
 }
 
+// Presence distinguishes omission from an explicitly empty replacement.
+type LoadBalancerListenerSet struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Items         []*LoadBalancerListenerInput `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoadBalancerListenerSet) Reset() {
+	*x = LoadBalancerListenerSet{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[60]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancerListenerSet) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancerListenerSet) ProtoMessage() {}
+
+func (x *LoadBalancerListenerSet) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[60]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancerListenerSet.ProtoReflect.Descriptor instead.
+func (*LoadBalancerListenerSet) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{60}
+}
+
+func (x *LoadBalancerListenerSet) GetItems() []*LoadBalancerListenerInput {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type LoadBalancerMutableData struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Name          string                   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                   `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Listeners     *LoadBalancerListenerSet `protobuf:"bytes,3,opt,name=listeners,proto3" json:"listeners,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoadBalancerMutableData) Reset() {
+	*x = LoadBalancerMutableData{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[61]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancerMutableData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancerMutableData) ProtoMessage() {}
+
+func (x *LoadBalancerMutableData) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[61]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancerMutableData.ProtoReflect.Descriptor instead.
+func (*LoadBalancerMutableData) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{61}
+}
+
+func (x *LoadBalancerMutableData) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *LoadBalancerMutableData) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *LoadBalancerMutableData) GetListeners() *LoadBalancerListenerSet {
+	if x != nil {
+		return x.Listeners
+	}
+	return nil
+}
+
+type ListVPCCIDRPresetsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListVPCCIDRPresetsRequest) Reset() {
+	*x = ListVPCCIDRPresetsRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[62]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListVPCCIDRPresetsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListVPCCIDRPresetsRequest) ProtoMessage() {}
+
+func (x *ListVPCCIDRPresetsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[62]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListVPCCIDRPresetsRequest.ProtoReflect.Descriptor instead.
+func (*ListVPCCIDRPresetsRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{62}
+}
+
+type ListVPCCIDRPresetsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cidrs         []string               `protobuf:"bytes,1,rep,name=cidrs,proto3" json:"cidrs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListVPCCIDRPresetsResponse) Reset() {
+	*x = ListVPCCIDRPresetsResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListVPCCIDRPresetsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListVPCCIDRPresetsResponse) ProtoMessage() {}
+
+func (x *ListVPCCIDRPresetsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListVPCCIDRPresetsResponse.ProtoReflect.Descriptor instead.
+func (*ListVPCCIDRPresetsResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{63}
+}
+
+func (x *ListVPCCIDRPresetsResponse) GetCidrs() []string {
+	if x != nil {
+		return x.Cidrs
+	}
+	return nil
+}
+
 var File_catalog_service_v1_vpc_proto protoreflect.FileDescriptor
 
 const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\n" +
-	"\x1ccatalog/service/v1/vpc.proto\x12\x12catalog.service.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"'\n" +
+	"\x1ccatalog/service/v1/vpc.proto\x12\x12catalog.service.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\"'\n" +
 	"\rGetVPCRequest\x12\x16\n" +
 	"\x06vpc_id\x18\x01 \x01(\tR\x06vpc_id\"\xdd\x03\n" +
 	"\x03VPC\x12\x0e\n" +
@@ -4602,15 +4884,22 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"binding_id\x18\x01 \x01(\tR\n" +
 	"binding_id\"O\n" +
 	"\x1cDeleteVPCSnatBindingResponse\x12/\n" +
-	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"\x8b\x01\n" +
+	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"\xca\x02\n" +
 	"\x19LoadBalancerListenerInput\x12L\n" +
 	"\bprotocol\x18\x01 \x01(\x0e20.catalog.service.v1.LoadBalancerListenerProtocolR\bprotocol\x12\x17\n" +
-	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x88\x01\x01B\a\n" +
-	"\x05_port\"\x88\x01\n" +
+	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x88\x01\x01\x12\x0e\n" +
+	"\x02id\x18\x03 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12H\n" +
+	"\bbackends\x18\x05 \x03(\v2,.catalog.service.v1.LoadBalancerBackendInputR\bbackends\x12O\n" +
+	"\fhealth_check\x18\x06 \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_checkB\a\n" +
+	"\x05_port\"\xb8\x02\n" +
 	"\x14LoadBalancerListener\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12L\n" +
 	"\bprotocol\x18\x02 \x01(\x0e20.catalog.service.v1.LoadBalancerListenerProtocolR\bprotocol\x12\x12\n" +
-	"\x04port\x18\x03 \x01(\rR\x04port\"\x9e\x01\n" +
+	"\x04port\x18\x03 \x01(\rR\x04port\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12I\n" +
+	"\bbackends\x18\x05 \x03(\v2-.catalog.service.v1.LoadBalancerBackendMemberR\bbackends\x12O\n" +
+	"\fhealth_check\x18\x06 \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\"\x9e\x01\n" +
 	"\x18LoadBalancerBackendInput\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
 	"\tsubnet_id\x18\x02 \x01(\tR\tsubnet_id\x12\x18\n" +
@@ -4641,8 +4930,7 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x10_timeout_secondsB\x16\n" +
 	"\x14_unhealthy_thresholdB\x14\n" +
 	"\x12_healthy_thresholdB\a\n" +
-	"\x05_port\"\xed\n" +
-	"\n" +
+	"\x05_port\"\xb5\v\n" +
 	"\fLoadBalancer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06vpc_id\x18\x03 \x01(\tR\x06vpc_id\x12\x1c\n" +
@@ -4678,7 +4966,8 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"updated_at\x12,\n" +
 	"\x11last_operation_id\x18\x1b \x01(\tR\x11last_operation_id\x12&\n" +
 	"\x0epublic_address\x18\x1c \x01(\tR\x0epublic_address\x12R\n" +
-	"\x16data_plane_observed_at\x18\x1d \x01(\v2\x1a.google.protobuf.TimestampR\x16data_plane_observed_at\"\xbb\x04\n" +
+	"\x16data_plane_observed_at\x18\x1d \x01(\v2\x1a.google.protobuf.TimestampR\x16data_plane_observed_at\x12F\n" +
+	"\tlisteners\x18\x1e \x03(\v2(.catalog.service.v1.LoadBalancerListenerR\tlisteners\"\x86\x05\n" +
 	"\x19CreateLoadBalancerRequest\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x16\n" +
@@ -4694,7 +4983,8 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	" \x01(\v2-.catalog.service.v1.LoadBalancerListenerInputR\blistener\x12H\n" +
 	"\bbackends\x18\v \x03(\v2,.catalog.service.v1.LoadBalancerBackendInputR\bbackends\x12O\n" +
 	"\fhealth_check\x18\f \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\x12(\n" +
-	"\x0fidempotency_key\x18\r \x01(\tR\x0fidempotency_key\"\xa1\x01\n" +
+	"\x0fidempotency_key\x18\r \x01(\tR\x0fidempotency_key\x12I\n" +
+	"\tlisteners\x18\x0e \x01(\v2+.catalog.service.v1.LoadBalancerListenerSetR\tlisteners\"\xa1\x01\n" +
 	"\x1aCreateLoadBalancerResponse\x12F\n" +
 	"\rload_balancer\x18\x01 \x01(\v2 .catalog.service.v1.LoadBalancerR\rload_balancer\x12;\n" +
 	"\toperation\x18\x02 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation\"D\n" +
@@ -4713,7 +5003,7 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x19ListLoadBalancersResponse\x126\n" +
 	"\x05items\x18\x01 \x03(\v2 .catalog.service.v1.LoadBalancerR\x05items\x12 \n" +
 	"\vnext_cursor\x18\x02 \x01(\tR\vnext_cursor\x12\x14\n" +
-	"\x05total\x18\x03 \x01(\x03R\x05total\"\xee\x02\n" +
+	"\x05total\x18\x03 \x01(\x03R\x05total\"\xb8\x04\n" +
 	"\x19UpdateLoadBalancerRequest\x12*\n" +
 	"\x10load_balancer_id\x18\x02 \x01(\tR\x10load_balancer_id\x12*\n" +
 	"\x10expected_version\x18\x03 \x01(\x03R\x10expected_version\x12(\n" +
@@ -4721,7 +5011,11 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x06 \x01(\tR\vdescription\x12H\n" +
 	"\bbackends\x18\a \x03(\v2,.catalog.service.v1.LoadBalancerBackendInputR\bbackends\x12O\n" +
-	"\fhealth_check\x18\b \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\"\xa1\x01\n" +
+	"\fhealth_check\x18\b \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\x12I\n" +
+	"\tlisteners\x18\t \x01(\v2+.catalog.service.v1.LoadBalancerListenerSetR\tlisteners\x12<\n" +
+	"\vupdate_mask\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.FieldMaskR\vupdate_mask\x12?\n" +
+	"\x04data\x18\v \x01(\v2+.catalog.service.v1.LoadBalancerMutableDataR\x04data\"\xa1\x01\n" +
 	"\x1aUpdateLoadBalancerResponse\x12F\n" +
 	"\rload_balancer\x18\x01 \x01(\v2 .catalog.service.v1.LoadBalancerR\rload_balancer\x12;\n" +
 	"\toperation\x18\x02 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation\"G\n" +
@@ -4733,7 +5027,16 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x1fGetLoadBalancerOperationRequest\x12\"\n" +
 	"\foperation_id\x18\x02 \x01(\tR\foperation_id\"_\n" +
 	" GetLoadBalancerOperationResponse\x12;\n" +
-	"\toperation\x18\x01 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation*\xb0\x01\n" +
+	"\toperation\x18\x01 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation\"^\n" +
+	"\x17LoadBalancerListenerSet\x12C\n" +
+	"\x05items\x18\x01 \x03(\v2-.catalog.service.v1.LoadBalancerListenerInputR\x05items\"\x9a\x01\n" +
+	"\x17LoadBalancerMutableData\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12I\n" +
+	"\tlisteners\x18\x03 \x01(\v2+.catalog.service.v1.LoadBalancerListenerSetR\tlisteners\"\x1b\n" +
+	"\x19ListVPCCIDRPresetsRequest\"2\n" +
+	"\x1aListVPCCIDRPresetsResponse\x12\x14\n" +
+	"\x05cidrs\x18\x01 \x03(\tR\x05cidrs*\xb0\x01\n" +
 	"\x14LoadBalancerExposure\x12&\n" +
 	"\"LOAD_BALANCER_EXPOSURE_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eLOAD_BALANCER_EXPOSURE_PRIVATE\x10\x01\x12!\n" +
@@ -4775,7 +5078,7 @@ func file_catalog_service_v1_vpc_proto_rawDescGZIP() []byte {
 }
 
 var file_catalog_service_v1_vpc_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_catalog_service_v1_vpc_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
+var file_catalog_service_v1_vpc_proto_msgTypes = make([]protoimpl.MessageInfo, 64)
 var file_catalog_service_v1_vpc_proto_goTypes = []any{
 	(LoadBalancerExposure)(0),                // 0: catalog.service.v1.LoadBalancerExposure
 	(LoadBalancerListenerProtocol)(0),        // 1: catalog.service.v1.LoadBalancerListenerProtocol
@@ -4843,37 +5146,42 @@ var file_catalog_service_v1_vpc_proto_goTypes = []any{
 	(*DeleteLoadBalancerResponse)(nil),       // 63: catalog.service.v1.DeleteLoadBalancerResponse
 	(*GetLoadBalancerOperationRequest)(nil),  // 64: catalog.service.v1.GetLoadBalancerOperationRequest
 	(*GetLoadBalancerOperationResponse)(nil), // 65: catalog.service.v1.GetLoadBalancerOperationResponse
-	(*timestamppb.Timestamp)(nil),            // 66: google.protobuf.Timestamp
+	(*LoadBalancerListenerSet)(nil),          // 66: catalog.service.v1.LoadBalancerListenerSet
+	(*LoadBalancerMutableData)(nil),          // 67: catalog.service.v1.LoadBalancerMutableData
+	(*ListVPCCIDRPresetsRequest)(nil),        // 68: catalog.service.v1.ListVPCCIDRPresetsRequest
+	(*ListVPCCIDRPresetsResponse)(nil),       // 69: catalog.service.v1.ListVPCCIDRPresetsResponse
+	(*timestamppb.Timestamp)(nil),            // 70: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),            // 71: google.protobuf.FieldMask
 }
 var file_catalog_service_v1_vpc_proto_depIdxs = []int32{
-	66, // 0: catalog.service.v1.VPC.created_at:type_name -> google.protobuf.Timestamp
-	66, // 1: catalog.service.v1.VPC.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 2: catalog.service.v1.VPC.observed_at:type_name -> google.protobuf.Timestamp
+	70, // 0: catalog.service.v1.VPC.created_at:type_name -> google.protobuf.Timestamp
+	70, // 1: catalog.service.v1.VPC.updated_at:type_name -> google.protobuf.Timestamp
+	70, // 2: catalog.service.v1.VPC.observed_at:type_name -> google.protobuf.Timestamp
 	7,  // 3: catalog.service.v1.GetVPCResponse.vpc:type_name -> catalog.service.v1.VPC
 	7,  // 4: catalog.service.v1.ListVPCsResponse.items:type_name -> catalog.service.v1.VPC
 	7,  // 5: catalog.service.v1.CreateVPCResponse.vpc:type_name -> catalog.service.v1.VPC
 	7,  // 6: catalog.service.v1.DeleteVPCResponse.vpc:type_name -> catalog.service.v1.VPC
-	66, // 7: catalog.service.v1.Operation.created_at:type_name -> google.protobuf.Timestamp
-	66, // 8: catalog.service.v1.Operation.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 9: catalog.service.v1.Operation.completed_at:type_name -> google.protobuf.Timestamp
-	66, // 10: catalog.service.v1.Operation.next_attempt_at:type_name -> google.protobuf.Timestamp
+	70, // 7: catalog.service.v1.Operation.created_at:type_name -> google.protobuf.Timestamp
+	70, // 8: catalog.service.v1.Operation.updated_at:type_name -> google.protobuf.Timestamp
+	70, // 9: catalog.service.v1.Operation.completed_at:type_name -> google.protobuf.Timestamp
+	70, // 10: catalog.service.v1.Operation.next_attempt_at:type_name -> google.protobuf.Timestamp
 	16, // 11: catalog.service.v1.GetOperationResponse.operation:type_name -> catalog.service.v1.Operation
-	66, // 12: catalog.service.v1.EIP.created_at:type_name -> google.protobuf.Timestamp
-	66, // 13: catalog.service.v1.EIP.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 14: catalog.service.v1.EIP.observed_at:type_name -> google.protobuf.Timestamp
+	70, // 12: catalog.service.v1.EIP.created_at:type_name -> google.protobuf.Timestamp
+	70, // 13: catalog.service.v1.EIP.updated_at:type_name -> google.protobuf.Timestamp
+	70, // 14: catalog.service.v1.EIP.observed_at:type_name -> google.protobuf.Timestamp
 	19, // 15: catalog.service.v1.EIP.binding_target:type_name -> catalog.service.v1.EIPBindingTarget
 	18, // 16: catalog.service.v1.GetEIPResponse.eip:type_name -> catalog.service.v1.EIP
 	18, // 17: catalog.service.v1.ListEIPsResponse.items:type_name -> catalog.service.v1.EIP
 	18, // 18: catalog.service.v1.CreateEIPResponse.eip:type_name -> catalog.service.v1.EIP
 	18, // 19: catalog.service.v1.DeleteEIPResponse.eip:type_name -> catalog.service.v1.EIP
-	66, // 20: catalog.service.v1.VPCSnat.created_at:type_name -> google.protobuf.Timestamp
-	66, // 21: catalog.service.v1.VPCSnat.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 22: catalog.service.v1.VPCSnat.observed_at:type_name -> google.protobuf.Timestamp
+	70, // 20: catalog.service.v1.VPCSnat.created_at:type_name -> google.protobuf.Timestamp
+	70, // 21: catalog.service.v1.VPCSnat.updated_at:type_name -> google.protobuf.Timestamp
+	70, // 22: catalog.service.v1.VPCSnat.observed_at:type_name -> google.protobuf.Timestamp
 	29, // 23: catalog.service.v1.GetVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
 	29, // 24: catalog.service.v1.BindVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
-	66, // 25: catalog.service.v1.Subnet.created_at:type_name -> google.protobuf.Timestamp
-	66, // 26: catalog.service.v1.Subnet.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 27: catalog.service.v1.Subnet.observed_at:type_name -> google.protobuf.Timestamp
+	70, // 25: catalog.service.v1.Subnet.created_at:type_name -> google.protobuf.Timestamp
+	70, // 26: catalog.service.v1.Subnet.updated_at:type_name -> google.protobuf.Timestamp
+	70, // 27: catalog.service.v1.Subnet.observed_at:type_name -> google.protobuf.Timestamp
 	33, // 28: catalog.service.v1.CreateSubnetResponse.subnet:type_name -> catalog.service.v1.Subnet
 	33, // 29: catalog.service.v1.GetSubnetResponse.subnet:type_name -> catalog.service.v1.Subnet
 	33, // 30: catalog.service.v1.ListSubnetsResponse.items:type_name -> catalog.service.v1.Subnet
@@ -4882,41 +5190,52 @@ var file_catalog_service_v1_vpc_proto_depIdxs = []int32{
 	29, // 33: catalog.service.v1.SetVPCSnatEnabledResponse.snat:type_name -> catalog.service.v1.VPCSnat
 	29, // 34: catalog.service.v1.DeleteVPCSnatBindingResponse.snat:type_name -> catalog.service.v1.VPCSnat
 	1,  // 35: catalog.service.v1.LoadBalancerListenerInput.protocol:type_name -> catalog.service.v1.LoadBalancerListenerProtocol
-	1,  // 36: catalog.service.v1.LoadBalancerListener.protocol:type_name -> catalog.service.v1.LoadBalancerListenerProtocol
-	66, // 37: catalog.service.v1.LoadBalancerBackendMember.observed_at:type_name -> google.protobuf.Timestamp
-	3,  // 38: catalog.service.v1.LoadBalancerHealthCheck.protocol:type_name -> catalog.service.v1.LoadBalancerHealthCheckProtocol
-	0,  // 39: catalog.service.v1.LoadBalancer.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
-	49, // 40: catalog.service.v1.LoadBalancer.listener:type_name -> catalog.service.v1.LoadBalancerListener
-	51, // 41: catalog.service.v1.LoadBalancer.backends:type_name -> catalog.service.v1.LoadBalancerBackendMember
-	52, // 42: catalog.service.v1.LoadBalancer.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
-	2,  // 43: catalog.service.v1.LoadBalancer.algorithm:type_name -> catalog.service.v1.LoadBalancerAlgorithm
-	4,  // 44: catalog.service.v1.LoadBalancer.configuration_state:type_name -> catalog.service.v1.LoadBalancerConfigurationState
-	5,  // 45: catalog.service.v1.LoadBalancer.data_plane_state:type_name -> catalog.service.v1.LoadBalancerDataPlaneState
-	66, // 46: catalog.service.v1.LoadBalancer.observed_at:type_name -> google.protobuf.Timestamp
-	66, // 47: catalog.service.v1.LoadBalancer.created_at:type_name -> google.protobuf.Timestamp
-	66, // 48: catalog.service.v1.LoadBalancer.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 49: catalog.service.v1.LoadBalancer.data_plane_observed_at:type_name -> google.protobuf.Timestamp
-	0,  // 50: catalog.service.v1.CreateLoadBalancerRequest.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
-	48, // 51: catalog.service.v1.CreateLoadBalancerRequest.listener:type_name -> catalog.service.v1.LoadBalancerListenerInput
-	50, // 52: catalog.service.v1.CreateLoadBalancerRequest.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
-	52, // 53: catalog.service.v1.CreateLoadBalancerRequest.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
-	53, // 54: catalog.service.v1.CreateLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
-	16, // 55: catalog.service.v1.CreateLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
-	53, // 56: catalog.service.v1.GetLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
-	0,  // 57: catalog.service.v1.ListLoadBalancersRequest.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
-	53, // 58: catalog.service.v1.ListLoadBalancersResponse.items:type_name -> catalog.service.v1.LoadBalancer
-	50, // 59: catalog.service.v1.UpdateLoadBalancerRequest.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
-	52, // 60: catalog.service.v1.UpdateLoadBalancerRequest.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
-	53, // 61: catalog.service.v1.UpdateLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
-	16, // 62: catalog.service.v1.UpdateLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
-	53, // 63: catalog.service.v1.DeleteLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
-	16, // 64: catalog.service.v1.DeleteLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
-	16, // 65: catalog.service.v1.GetLoadBalancerOperationResponse.operation:type_name -> catalog.service.v1.Operation
-	66, // [66:66] is the sub-list for method output_type
-	66, // [66:66] is the sub-list for method input_type
-	66, // [66:66] is the sub-list for extension type_name
-	66, // [66:66] is the sub-list for extension extendee
-	0,  // [0:66] is the sub-list for field type_name
+	50, // 36: catalog.service.v1.LoadBalancerListenerInput.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
+	52, // 37: catalog.service.v1.LoadBalancerListenerInput.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	1,  // 38: catalog.service.v1.LoadBalancerListener.protocol:type_name -> catalog.service.v1.LoadBalancerListenerProtocol
+	51, // 39: catalog.service.v1.LoadBalancerListener.backends:type_name -> catalog.service.v1.LoadBalancerBackendMember
+	52, // 40: catalog.service.v1.LoadBalancerListener.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	70, // 41: catalog.service.v1.LoadBalancerBackendMember.observed_at:type_name -> google.protobuf.Timestamp
+	3,  // 42: catalog.service.v1.LoadBalancerHealthCheck.protocol:type_name -> catalog.service.v1.LoadBalancerHealthCheckProtocol
+	0,  // 43: catalog.service.v1.LoadBalancer.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
+	49, // 44: catalog.service.v1.LoadBalancer.listener:type_name -> catalog.service.v1.LoadBalancerListener
+	51, // 45: catalog.service.v1.LoadBalancer.backends:type_name -> catalog.service.v1.LoadBalancerBackendMember
+	52, // 46: catalog.service.v1.LoadBalancer.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	2,  // 47: catalog.service.v1.LoadBalancer.algorithm:type_name -> catalog.service.v1.LoadBalancerAlgorithm
+	4,  // 48: catalog.service.v1.LoadBalancer.configuration_state:type_name -> catalog.service.v1.LoadBalancerConfigurationState
+	5,  // 49: catalog.service.v1.LoadBalancer.data_plane_state:type_name -> catalog.service.v1.LoadBalancerDataPlaneState
+	70, // 50: catalog.service.v1.LoadBalancer.observed_at:type_name -> google.protobuf.Timestamp
+	70, // 51: catalog.service.v1.LoadBalancer.created_at:type_name -> google.protobuf.Timestamp
+	70, // 52: catalog.service.v1.LoadBalancer.updated_at:type_name -> google.protobuf.Timestamp
+	70, // 53: catalog.service.v1.LoadBalancer.data_plane_observed_at:type_name -> google.protobuf.Timestamp
+	49, // 54: catalog.service.v1.LoadBalancer.listeners:type_name -> catalog.service.v1.LoadBalancerListener
+	0,  // 55: catalog.service.v1.CreateLoadBalancerRequest.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
+	48, // 56: catalog.service.v1.CreateLoadBalancerRequest.listener:type_name -> catalog.service.v1.LoadBalancerListenerInput
+	50, // 57: catalog.service.v1.CreateLoadBalancerRequest.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
+	52, // 58: catalog.service.v1.CreateLoadBalancerRequest.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	66, // 59: catalog.service.v1.CreateLoadBalancerRequest.listeners:type_name -> catalog.service.v1.LoadBalancerListenerSet
+	53, // 60: catalog.service.v1.CreateLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	16, // 61: catalog.service.v1.CreateLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
+	53, // 62: catalog.service.v1.GetLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	0,  // 63: catalog.service.v1.ListLoadBalancersRequest.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
+	53, // 64: catalog.service.v1.ListLoadBalancersResponse.items:type_name -> catalog.service.v1.LoadBalancer
+	50, // 65: catalog.service.v1.UpdateLoadBalancerRequest.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
+	52, // 66: catalog.service.v1.UpdateLoadBalancerRequest.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	66, // 67: catalog.service.v1.UpdateLoadBalancerRequest.listeners:type_name -> catalog.service.v1.LoadBalancerListenerSet
+	71, // 68: catalog.service.v1.UpdateLoadBalancerRequest.update_mask:type_name -> google.protobuf.FieldMask
+	67, // 69: catalog.service.v1.UpdateLoadBalancerRequest.data:type_name -> catalog.service.v1.LoadBalancerMutableData
+	53, // 70: catalog.service.v1.UpdateLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	16, // 71: catalog.service.v1.UpdateLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
+	53, // 72: catalog.service.v1.DeleteLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	16, // 73: catalog.service.v1.DeleteLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
+	16, // 74: catalog.service.v1.GetLoadBalancerOperationResponse.operation:type_name -> catalog.service.v1.Operation
+	48, // 75: catalog.service.v1.LoadBalancerListenerSet.items:type_name -> catalog.service.v1.LoadBalancerListenerInput
+	66, // 76: catalog.service.v1.LoadBalancerMutableData.listeners:type_name -> catalog.service.v1.LoadBalancerListenerSet
+	77, // [77:77] is the sub-list for method output_type
+	77, // [77:77] is the sub-list for method input_type
+	77, // [77:77] is the sub-list for extension type_name
+	77, // [77:77] is the sub-list for extension extendee
+	0,  // [0:77] is the sub-list for field type_name
 }
 
 func init() { file_catalog_service_v1_vpc_proto_init() }
@@ -4935,7 +5254,7 @@ func file_catalog_service_v1_vpc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_catalog_service_v1_vpc_proto_rawDesc), len(file_catalog_service_v1_vpc_proto_rawDesc)),
 			NumEnums:      6,
-			NumMessages:   60,
+			NumMessages:   64,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

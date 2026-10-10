@@ -29,7 +29,8 @@ type NetworkOperationPolicy struct {
 // NetworkOperations is the complete tenant Network surface. Catalog membership
 // never grants a role: current tenant, NETWORK and Casbin gates still apply.
 var NetworkOperations = map[string]NetworkOperationPolicy{
-	"/admin.service.v1.NetworkService/CreateVPC": {"POST", "/api/v1/networks/vpcs", "network:vpc:create", false},
+	"/admin.service.v1.NetworkService/ListVPCCIDRPresets": {"GET", "/api/v1/networks/vpc-cidr-presets", "network:vpc:presets", true},
+	"/admin.service.v1.NetworkService/CreateVPC":          {"POST", "/api/v1/networks/vpcs", "network:vpc:create", false},
 	VPCReadOperation: {"GET", "/api/v1/networks/vpcs/{vpc_id}", "network:vpc:get", true},
 	"/admin.service.v1.NetworkService/ListVPCs":                 {"GET", "/api/v1/networks/vpcs", "network:vpc:list", true},
 	"/admin.service.v1.NetworkService/DeleteVPC":                {"DELETE", "/api/v1/networks/vpcs/{vpc_id}", "network:vpc:delete", false},
@@ -89,6 +90,8 @@ func networkRequestMessage(operation string) proto.Message {
 		return &view.CreateVPCRequest{}
 	case "GetVPC":
 		return &view.GetVPCRequest{}
+	case "ListVPCCIDRPresets":
+		return &view.ListVPCCIDRPresetsRequest{}
 	case "ListVPCs":
 		return &view.ListVPCsRequest{}
 	case "DeleteVPC":

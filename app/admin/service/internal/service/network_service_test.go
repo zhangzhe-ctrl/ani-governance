@@ -379,3 +379,8 @@ func TestNetworkDomainErrorReasons(t *testing.T) {
 		}
 	}
 }
+
+func (p *vpcProbe) ListVPCCIDRPresets(_ context.Context, tenant, actor string) (*networkv1.ListVPCCIDRPresetsResponse, error) {
+	p.calls++
+	return &networkv1.ListVPCCIDRPresetsResponse{Cidrs: []string{"10.61.0.0/16"}}, p.err
+}

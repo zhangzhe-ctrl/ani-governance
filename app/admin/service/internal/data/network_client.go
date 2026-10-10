@@ -404,3 +404,13 @@ func (c *NetworkClient) ListLoadBalancers(ctx context.Context, tenant, actor str
 		return c.loadBalancers.ListLoadBalancers(ctx, request)
 	})
 }
+
+func (c *NetworkClient) ListVPCCIDRPresets(ctx context.Context, tenant, actor string) (*networkv1.ListVPCCIDRPresetsResponse, error) {
+	tc, err := c.trusted(tenant, actor)
+	if err != nil {
+		return nil, err
+	}
+	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.ListVPCCIDRPresetsResponse, error) {
+		return c.client.ListVPCCIDRPresets(ctx, &networkv1.ListVPCCIDRPresetsRequest{TenantId: tc.tenant})
+	})
+}

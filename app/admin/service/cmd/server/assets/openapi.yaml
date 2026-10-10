@@ -7587,6 +7587,25 @@ paths:
                 - AccessKeyAuth: []
                   SignatureAuth: []
                   SignatureTime: []
+    /api/v1/networks/vpc-cidr-presets:
+        get:
+            tags:
+                - NetworkService
+            summary: Read selectable VPC CIDR presets
+            description: Requires JWT or ANI HMAC-SHA256, NETWORK and network:vpc:presets permission. Resource startup policy is the only list; platform conflicts are filtered and unknown or expired facts fail closed. No private topology is returned.
+            operationId: NetworkService_ListVPCCIDRPresets
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListVPCCIDRPresetsResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
     /api/v1/networks/vpcs:
         get:
             tags:
@@ -8969,6 +8988,8 @@ components:
                     $ref: '#/components/schemas/LoadBalancerHealthCheck'
                 idempotency_key:
                     type: string
+                listeners:
+                    $ref: '#/components/schemas/LoadBalancerListenerSet'
         CreateLoadBalancerResponse:
             type: object
             properties:
@@ -11099,6 +11120,13 @@ components:
                     type: string
                     description: 下一页游标：有下一页时返回，末页为空。客户端原样回传，不得解析或修改。
             description: 获取用户列表 - 答复
+        ListVPCCIDRPresetsResponse:
+            type: object
+            properties:
+                cidrs:
+                    type: array
+                    items:
+                        type: string
         ListVPCsResponse:
             type: object
             properties:
@@ -11199,6 +11227,10 @@ components:
                 data_plane_observed_at:
                     type: string
                     format: date-time
+                listeners:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/LoadBalancerListener'
         LoadBalancerBackendInput:
             type: object
             properties:
@@ -11278,6 +11310,14 @@ components:
                 port:
                     type: integer
                     format: uint32
+                name:
+                    type: string
+                backends:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/LoadBalancerBackendMember'
+                health_check:
+                    $ref: '#/components/schemas/LoadBalancerHealthCheck'
         LoadBalancerListenerInput:
             type: object
             properties:
@@ -11290,6 +11330,33 @@ components:
                 port:
                     type: integer
                     format: uint32
+                id:
+                    type: string
+                name:
+                    type: string
+                backends:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/LoadBalancerBackendInput'
+                health_check:
+                    $ref: '#/components/schemas/LoadBalancerHealthCheck'
+        LoadBalancerListenerSet:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/LoadBalancerListenerInput'
+            description: Presence distinguishes omission from an explicitly empty replacement.
+        LoadBalancerMutableData:
+            type: object
+            properties:
+                name:
+                    type: string
+                description:
+                    type: string
+                listeners:
+                    $ref: '#/components/schemas/LoadBalancerListenerSet'
         LoginAuditLog:
             type: object
             properties:
@@ -14393,6 +14460,13 @@ components:
                         $ref: '#/components/schemas/LoadBalancerBackendInput'
                 health_check:
                     $ref: '#/components/schemas/LoadBalancerHealthCheck'
+                listeners:
+                    $ref: '#/components/schemas/LoadBalancerListenerSet'
+                update_mask:
+                    type: string
+                    format: field-mask
+                data:
+                    $ref: '#/components/schemas/LoadBalancerMutableData'
         UpdateLoadBalancerResponse:
             type: object
             properties:

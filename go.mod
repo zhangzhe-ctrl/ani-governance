@@ -23,7 +23,7 @@ require (
 	github.com/xiaoqidun/entps v1.50.1
 	github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260924030150-1d32dd9a9173
 	github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261005092412-218f5e5efedf
-	github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261009024544-60702b2bcfe4
+	github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261010084537-9191cebb408b
 	go.opentelemetry.io/otel/trace v1.46.0
 	golang.org/x/net v0.60.0
 	google.golang.org/genproto v0.0.0-20260908043556-f8649ddbbfe6

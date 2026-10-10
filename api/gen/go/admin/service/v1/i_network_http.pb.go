@@ -41,6 +41,7 @@ const OperationNetworkServiceGetVPCSnatBinding = "/admin.service.v1.NetworkServi
 const OperationNetworkServiceListEIPs = "/admin.service.v1.NetworkService/ListEIPs"
 const OperationNetworkServiceListLoadBalancers = "/admin.service.v1.NetworkService/ListLoadBalancers"
 const OperationNetworkServiceListSubnets = "/admin.service.v1.NetworkService/ListSubnets"
+const OperationNetworkServiceListVPCCIDRPresets = "/admin.service.v1.NetworkService/ListVPCCIDRPresets"
 const OperationNetworkServiceListVPCs = "/admin.service.v1.NetworkService/ListVPCs"
 const OperationNetworkServiceSetVPCSnatEnabled = "/admin.service.v1.NetworkService/SetVPCSnatEnabled"
 const OperationNetworkServiceUpdateLoadBalancer = "/admin.service.v1.NetworkService/UpdateLoadBalancer"
@@ -67,6 +68,7 @@ type NetworkServiceHTTPServer interface {
 	ListEIPs(context.Context, *v1.ListEIPsRequest) (*v1.ListEIPsResponse, error)
 	ListLoadBalancers(context.Context, *v1.ListLoadBalancersRequest) (*v1.ListLoadBalancersResponse, error)
 	ListSubnets(context.Context, *v1.ListSubnetsRequest) (*v1.ListSubnetsResponse, error)
+	ListVPCCIDRPresets(context.Context, *v1.ListVPCCIDRPresetsRequest) (*v1.ListVPCCIDRPresetsResponse, error)
 	ListVPCs(context.Context, *v1.ListVPCsRequest) (*v1.ListVPCsResponse, error)
 	SetVPCSnatEnabled(context.Context, *v1.SetVPCSnatEnabledRequest) (*v1.SetVPCSnatEnabledResponse, error)
 	UpdateLoadBalancer(context.Context, *v1.UpdateLoadBalancerRequest) (*v1.UpdateLoadBalancerResponse, error)
@@ -74,6 +76,7 @@ type NetworkServiceHTTPServer interface {
 
 func RegisterNetworkServiceHTTPServer(s *http.Server, srv NetworkServiceHTTPServer) {
 	r := s.Route("/")
+	r.GET("/api/v1/networks/vpc-cidr-presets", _NetworkService_ListVPCCIDRPresets0_HTTP_Handler(srv))
 	r.GET("/api/v1/networks/vpcs/{vpc_id}", _NetworkService_GetVPC0_HTTP_Handler(srv))
 	r.GET("/api/v1/networks/vpcs", _NetworkService_ListVPCs0_HTTP_Handler(srv))
 	r.POST("/api/v1/networks/vpcs", _NetworkService_CreateVPC0_HTTP_Handler(srv))
@@ -98,6 +101,25 @@ func RegisterNetworkServiceHTTPServer(s *http.Server, srv NetworkServiceHTTPServ
 	r.PATCH("/api/v1/networks/load-balancers/{load_balancer_id}", _NetworkService_UpdateLoadBalancer0_HTTP_Handler(srv))
 	r.DELETE("/api/v1/networks/load-balancers/{load_balancer_id}", _NetworkService_DeleteLoadBalancer0_HTTP_Handler(srv))
 	r.GET("/api/v1/networks/load-balancers/operations/{operation_id}", _NetworkService_GetLoadBalancerOperation0_HTTP_Handler(srv))
+}
+
+func _NetworkService_ListVPCCIDRPresets0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.ListVPCCIDRPresetsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetworkServiceListVPCCIDRPresets)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListVPCCIDRPresets(ctx, req.(*v1.ListVPCCIDRPresetsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.ListVPCCIDRPresetsResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _NetworkService_GetVPC0_HTTP_Handler(srv NetworkServiceHTTPServer) func(ctx http.Context) error {
@@ -647,6 +669,7 @@ type NetworkServiceHTTPClient interface {
 	ListEIPs(ctx context.Context, req *v1.ListEIPsRequest, opts ...http.CallOption) (rsp *v1.ListEIPsResponse, err error)
 	ListLoadBalancers(ctx context.Context, req *v1.ListLoadBalancersRequest, opts ...http.CallOption) (rsp *v1.ListLoadBalancersResponse, err error)
 	ListSubnets(ctx context.Context, req *v1.ListSubnetsRequest, opts ...http.CallOption) (rsp *v1.ListSubnetsResponse, err error)
+	ListVPCCIDRPresets(ctx context.Context, req *v1.ListVPCCIDRPresetsRequest, opts ...http.CallOption) (rsp *v1.ListVPCCIDRPresetsResponse, err error)
 	ListVPCs(ctx context.Context, req *v1.ListVPCsRequest, opts ...http.CallOption) (rsp *v1.ListVPCsResponse, err error)
 	SetVPCSnatEnabled(ctx context.Context, req *v1.SetVPCSnatEnabledRequest, opts ...http.CallOption) (rsp *v1.SetVPCSnatEnabledResponse, err error)
 	UpdateLoadBalancer(ctx context.Context, req *v1.UpdateLoadBalancerRequest, opts ...http.CallOption) (rsp *v1.UpdateLoadBalancerResponse, err error)
@@ -925,6 +948,19 @@ func (c *NetworkServiceHTTPClientImpl) ListSubnets(ctx context.Context, in *v1.L
 	pattern := "/api/v1/networks/subnets"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationNetworkServiceListSubnets))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *NetworkServiceHTTPClientImpl) ListVPCCIDRPresets(ctx context.Context, in *v1.ListVPCCIDRPresetsRequest, opts ...http.CallOption) (*v1.ListVPCCIDRPresetsResponse, error) {
+	var out v1.ListVPCCIDRPresetsResponse
+	pattern := "/api/v1/networks/vpc-cidr-presets"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetworkServiceListVPCCIDRPresets))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
