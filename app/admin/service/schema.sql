@@ -1,4 +1,4 @@
-﻿-- atlas:pos sys_access_keys[type=table]
+-- atlas:pos sys_access_keys[type=table]
 -- atlas:pos sys_access_key_idempotency[type=table]
 -- atlas:pos sys_apis[type=table]
 -- atlas:pos sys_api_audit_logs[type=table]

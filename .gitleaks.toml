@@ -13,6 +13,12 @@ regexes = ['''(?s)^-----BEGIN (RSA )?PRIVATE KEY-----.*-----END (RSA )?PRIVATE K
 [[rules]]
 id = "generic-api-key"
 [[rules.allowlists]]
+description = "Cursor codec unit test fixtures: a literal low-entropy test signing key deliberately named cursor-secret-... and an arbitrary filter fingerprint used only to assert HMAC binding rejection; neither is loaded by any runtime path"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''^pkg/localdeps/go-crud/pagination/cursor_codec_test\.go$''']
+regexes = ['''^cursor-secret-32-bytes-long-xxxx$''', '''^abcdef0123456789$''']
+[[rules.allowlists]]
 description = "Fingerprint used to reject the known development RSA example"
 condition = "AND"
 paths = ['''^app/admin/service/internal/data/authenticator\.go$''']
