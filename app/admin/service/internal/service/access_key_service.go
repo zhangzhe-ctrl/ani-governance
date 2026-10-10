@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -65,6 +66,11 @@ func (s *AccessKeyService) Create(ctx context.Context, req *accesskeyV1.CreateAc
 			return nil, adminV1.ErrorBadRequest("invalid expires_at")
 		}
 	}
+	if key := strings.TrimSpace(req.Data.GetIdempotencyKey()); key != "" {
+		if len(key) > 128 {
+			return nil, adminV1.ErrorBadRequest("idempotency_key must be at most 128 characters")
+		}
+	}
 	ak, err := randomToken("ak-", 16)
 	if err != nil {
 		return nil, adminV1.ErrorInternalServerError("generate access key failed")
@@ -73,9 +79,24 @@ func (s *AccessKeyService) Create(ctx context.Context, req *accesskeyV1.CreateAc
 	if err != nil {
 		return nil, adminV1.ErrorInternalServerError("generate secret key failed")
 	}
-	dto, err := s.repo.Create(ctx, req.Data, tenantID, userID, ak, sk)
+	// 未携带 idempotency_key 时保持原有单次创建语义，不带任何幂等副作用。
+	if strings.TrimSpace(req.Data.GetIdempotencyKey()) == "" {
+		dto, err := s.repo.Create(ctx, req.Data, tenantID, userID, ak, sk)
+		if err != nil {
+			return nil, err
+		}
+		return &accesskeyV1.CreateAccessKeyResponse{Data: dto, SecretKey: sk}, nil
+	}
+	dto, replayed, err := s.repo.CreateIdempotent(ctx, req.Data, tenantID, userID, ak, sk)
 	if err != nil {
+		if errors.Is(err, data.ErrAccessKeyIdempotencyConflict) {
+			return nil, adminV1.ErrorConflict("IDEMPOTENCY_CONFLICT: idempotency key already used with a different request")
+		}
 		return nil, err
+	}
+	// 明文 SK 只交付一次：重放仅返回同一把 Key 的元数据，secret_key 留空。
+	if replayed {
+		return &accesskeyV1.CreateAccessKeyResponse{Data: dto}, nil
 	}
 	return &accesskeyV1.CreateAccessKeyResponse{Data: dto, SecretKey: sk}, nil
 }

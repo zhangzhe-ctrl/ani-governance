@@ -30,7 +30,18 @@ message AccessKey {
 message ListAccessKeyResponse { repeated AccessKey items = 1; uint64 total = 2; }
 message CountAccessKeyResponse { uint64 count = 1; }
 message GetAccessKeyRequest { uint32 key_id = 1 [json_name = "key_id"]; }
-message CreateAccessKeyRequest { AccessKey data = 1; }
+// Create-only input. It stays separate from the read model (AccessKey) so the
+// idempotency key never leaks into GET/List responses or the OpenAPI read schema.
+message CreateAccessKeyData {
+  optional string name = 1;
+  optional uint32 role_id = 2 [json_name = "role_id"];
+  optional google.protobuf.Timestamp expires_at = 3 [json_name = "expires_at"];
+  // Optional. When present, retrying with the same value and the same intent
+  // replays the original key instead of creating a second one; a different
+  // intent under the same value is rejected with 409 IDEMPOTENCY_CONFLICT.
+  optional string idempotency_key = 4 [json_name = "idempotency_key"];
+}
+message CreateAccessKeyRequest { CreateAccessKeyData data = 1; }
 message UpdateAccessKeyRequest {
   uint32 key_id = 1 [json_name = "key_id"];
   AccessKey data = 2;

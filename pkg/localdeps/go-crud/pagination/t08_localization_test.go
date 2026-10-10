@@ -104,6 +104,9 @@ func TestT08PagingRequestContractIsUnchanged(t *testing.T) {
 		{"limit", 4, protoreflect.Uint32Kind, "limit", "_limit", false, 1},
 		{"token", 5, protoreflect.StringKind, "token", "_token", false, 1},
 		{"no_paging", 6, protoreflect.BoolKind, "noPaging", "_no_paging", false, 1},
+		// cursor = 7 是本仓按已批准的分页改造引入的游标分页字段（字段号 7 之前空闲），
+		// 其余字段号、类型与 json_name 仍与上游逐字一致。
+		{"cursor", 7, protoreflect.StringKind, "cursor", "_cursor", false, 1},
 		{"query", 10, protoreflect.StringKind, "query", "filtering_type", false, 1},
 		{"filter", 11, protoreflect.StringKind, "filter", "filtering_type", false, 1},
 		{"filter_expr", 12, protoreflect.MessageKind, "filterExpr", "filtering_type", false, 1},

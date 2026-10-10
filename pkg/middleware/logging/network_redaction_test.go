@@ -14,7 +14,7 @@ import (
 )
 
 func TestNetworkAuditRedactsRawRequestForEveryTenantOperation(t *testing.T) {
-	require.Len(t, auth.NetworkOperations, 24)
+	require.Len(t, auth.NetworkOperations, 25)
 	for operation, policy := range auth.NetworkOperations {
 		t.Run(operation, func(t *testing.T) {
 			var record *auditV1.ApiAuditLog

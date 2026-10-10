@@ -472,6 +472,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -575,6 +583,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -758,6 +774,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -972,6 +996,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -1075,6 +1107,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -1230,6 +1270,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -1405,6 +1453,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -1608,6 +1664,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -1764,6 +1828,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -1858,6 +1930,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -2066,6 +2146,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -2169,6 +2257,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -2401,6 +2497,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -2932,6 +3036,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -3191,6 +3303,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -3294,6 +3414,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -3463,6 +3591,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -3566,6 +3702,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -3722,6 +3866,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -3905,6 +4057,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -4060,6 +4220,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -4191,6 +4359,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -4346,6 +4522,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -4449,6 +4633,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -4613,6 +4805,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -4704,6 +4904,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -4894,6 +5102,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -5157,6 +5373,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -5423,6 +5647,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -5883,6 +6115,14 @@ paths:
                   description: 是否不分页，如果为true，则page和pageSize参数无效。
                   schema:
                     type: boolean
+                - name: cursor
+                  in: query
+                  description: |-
+                    上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+                     与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+                     筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+                  schema:
+                    type: string
                 - name: query
                   in: query
                   description: JSON字符串过滤条件，基础语法：{"field1":"val1", "field2___icontains":"val2"}，具体请参见：https://github.com/tx7do/go-crud/tree/main/pagination/filter/README.md
@@ -8544,11 +8784,31 @@ components:
             properties:
                 data:
                     $ref: '#/components/schemas/CreateAcceleratorPoolData'
+        CreateAccessKeyData:
+            type: object
+            properties:
+                name:
+                    type: string
+                role_id:
+                    type: integer
+                    format: uint32
+                expires_at:
+                    type: string
+                    format: date-time
+                idempotency_key:
+                    type: string
+                    description: |-
+                        Optional. When present, retrying with the same value and the same intent
+                         replays the original key instead of creating a second one; a different
+                         intent under the same value is rejected with 409 IDEMPOTENCY_CONFLICT.
+            description: |-
+                Create-only input. It stays separate from the read model (AccessKey) so the
+                 idempotency key never leaks into GET/List responses or the OpenAPI read schema.
         CreateAccessKeyRequest:
             type: object
             properties:
                 data:
-                    $ref: '#/components/schemas/AccessKey'
+                    $ref: '#/components/schemas/CreateAccessKeyData'
         CreateAccessKeyResponse:
             type: object
             properties:
@@ -10856,6 +11116,9 @@ components:
                         $ref: '#/components/schemas/User'
                 total:
                     type: string
+                next_cursor:
+                    type: string
+                    description: 下一页游标：有下一页时返回，末页为空。客户端原样回传，不得解析或修改。
             description: 获取用户列表 - 答复
         ListVPCCIDRPresetsResponse:
             type: object

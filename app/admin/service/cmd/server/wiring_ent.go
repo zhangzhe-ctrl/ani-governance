@@ -14,6 +14,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/service"
 	"go-wind-admin/pkg/authorizer"
 	"go-wind-admin/pkg/crypto"
+	pagination "go-wind-admin/pkg/localdeps/go-crud/pagination"
 )
 
 // initApp 手写装配整个应用,是唯一后端构建的依赖注入点。
@@ -53,6 +54,12 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
+
+	// 游标分页（/admin/v1/users 的 limit+cursor）签名密钥：由同一份 AK/SK 主密钥
+	// 派生，因此所有加载同一密钥文件的副本派生结果一致，A 副本签发的游标可在
+	// B 副本校验。刻意不复用 token 游标密钥（SetTokenSecret）：后者未配置时保留
+	// "接受未签名 token"的兼容语义，不能把新游标的签名要求绑在它上面。
+	pagination.SetCursorSecret(accessKeyCipher.DeriveSubkey("ani-governance/pagination-cursor/v1"))
 
 	redisClient, cleanupRedis, err := data.NewRedisClient(ctx)
 	if err != nil {
