@@ -302,12 +302,55 @@ func (r *userRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*
 		return nil, identityV1.ErrorBadRequest("invalid parameter")
 	}
 
+	// 分页方式判定：cursor 与 page/pageSize/offset/token 互斥；不带任何窗口参数时
+	// 走游标分页（limit 默认 20），继续沿用 PagingRequest 的过滤/排序/fieldMask 能力。
+	if !req.GetNoPaging() {
+		hasWindowParam := req.Page != nil || req.PageSize != nil || req.Offset != nil || req.Token != nil
+		if req.GetCursor() != "" && hasWindowParam {
+			return nil, identityV1.ErrorBadRequest(
+				"cursor is mutually exclusive with page/pageSize/offset/token")
+		}
+		if req.GetCursor() != "" || !hasWindowParam {
+			return r.listWithCursor(ctx, req)
+		}
+	}
+
 	builder := r.entClient.Client().User.Query()
 
+	empty, err := r.applyUserListFilters(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if empty {
+		// 如果有关系过滤条件但没有匹配的用户ID，直接返回空结果
+		return &identityV1.ListUserResponse{Total: 0, Items: nil}, nil
+	}
+
+	ret, err := r.repository.ListWithPaging(ctx, builder, builder.Clone(), req)
+	if err != nil {
+		return nil, err
+	}
+	if ret == nil {
+		return &identityV1.ListUserResponse{Total: 0, Items: nil}, nil
+	}
+
+	resp := &identityV1.ListUserResponse{
+		Total: ret.Total,
+		Items: ret.Items,
+	}
+
+	r.enrichRelationIDs(ctx, resp.Items)
+
+	return resp, nil
+}
+
+// applyUserListFilters 把请求中的角色/组织/岗位过滤解析成用户 ID 交集，
+// 写回 req 的 filterExpr（就地修改），并返回是否应直接返回空结果。
+func (r *userRepo) applyUserListFilters(ctx context.Context, req *paginationV1.PagingRequest) (empty bool, err error) {
 	filterExpr, err := r.repository.ConvertFilterByPagingRequest(req)
 	if err != nil {
 		r.log.Errorf(ctx, "convert filter by paging request failed: %s", err.Error())
-		return nil, err
+		return false, err
 	}
 
 	excludeConditions := pagination.FilterFields(filterExpr, []string{
@@ -375,15 +418,14 @@ func (r *userRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*
 	mergedUserIDs, err = r.queryUserIDsByRelationIDs(ctx, roleIDs, orgUnitIDs, positionIDs)
 	if err != nil {
 		r.log.Errorf(ctx, "query user ids by relation ids failed: %s", err.Error())
-		return nil, err
+		return false, err
 	}
 
 	//r.log.Debugf(ctx, "filtered user ids by relation ids: [%v] [%v] [%v] [%v]", roleIDs, orgUnitIDs, positionIDs, mergedUserIDs)
 
 	hasRelationFilter := len(roleIDs) > 0 || len(orgUnitIDs) > 0 || len(positionIDs) > 0
 	if hasRelationFilter && len(mergedUserIDs) == 0 {
-		// 如果有关系过滤条件但没有匹配的用户ID，直接返回空结果
-		return &identityV1.ListUserResponse{Total: 0, Items: nil}, nil
+		return true, nil
 	}
 
 	if len(mergedUserIDs) > 0 {
@@ -402,21 +444,14 @@ func (r *userRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*
 
 	req.FilteringType = &paginationV1.PagingRequest_FilterExpr{FilterExpr: filterExpr}
 
-	ret, err := r.repository.ListWithPaging(ctx, builder, builder.Clone(), req)
-	if err != nil {
-		return nil, err
-	}
-	if ret == nil {
-		return &identityV1.ListUserResponse{Total: 0, Items: nil}, nil
-	}
+	return false, nil
+}
 
-	resp := &identityV1.ListUserResponse{
-		Total: ret.Total,
-		Items: ret.Items,
-	}
-
-	for _, item := range resp.Items {
-		roleIDs, positionIDs, orgUnitIDs, err = r.ListUserRelationIDs(ctx, item.GetId())
+// enrichRelationIDs 逐条回填用户的角色/组织/岗位 ID 列表（读视图字段）。
+// 单条回填失败只记录日志并继续，不影响整页返回。
+func (r *userRepo) enrichRelationIDs(ctx context.Context, items []*identityV1.User) {
+	for _, item := range items {
+		roleIDs, positionIDs, orgUnitIDs, err := r.ListUserRelationIDs(ctx, item.GetId())
 		if err != nil {
 			r.log.Errorf(ctx, "list user relation ids failed: %s", err.Error())
 			continue
@@ -427,8 +462,6 @@ func (r *userRepo) List(ctx context.Context, req *paginationV1.PagingRequest) (*
 
 		//r.log.Debugf(ctx, "user id=%d role_ids=%v position_ids=%v org_unit_ids=%v", item.GetId(), roleIDs, positionIDs, orgUnitIDs)
 	}
-
-	return resp, nil
 }
 
 // Get 获取用户

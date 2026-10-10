@@ -12,6 +12,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/migrate"
 
 	"go-wind-admin/app/admin/service/internal/data/ent/accesskey"
+	"go-wind-admin/app/admin/service/internal/data/ent/accesskeyidempotency"
 	"go-wind-admin/app/admin/service/internal/data/ent/api"
 	"go-wind-admin/app/admin/service/internal/data/ent/apiauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/dataaccessauditlog"
@@ -80,6 +81,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// AccessKey is the client for interacting with the AccessKey builders.
 	AccessKey *AccessKeyClient
+	// AccessKeyIdempotency is the client for interacting with the AccessKeyIdempotency builders.
+	AccessKeyIdempotency *AccessKeyIdempotencyClient
 	// Api is the client for interacting with the Api builders.
 	Api *APIClient
 	// ApiAuditLog is the client for interacting with the ApiAuditLog builders.
@@ -200,6 +203,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AccessKey = NewAccessKeyClient(c.config)
+	c.AccessKeyIdempotency = NewAccessKeyIdempotencyClient(c.config)
 	c.Api = NewAPIClient(c.config)
 	c.ApiAuditLog = NewApiAuditLogClient(c.config)
 	c.DataAccessAuditLog = NewDataAccessAuditLogClient(c.config)
@@ -347,6 +351,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:                      ctx,
 		config:                   cfg,
 		AccessKey:                NewAccessKeyClient(cfg),
+		AccessKeyIdempotency:     NewAccessKeyIdempotencyClient(cfg),
 		Api:                      NewAPIClient(cfg),
 		ApiAuditLog:              NewApiAuditLogClient(cfg),
 		DataAccessAuditLog:       NewDataAccessAuditLogClient(cfg),
@@ -421,6 +426,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:                      ctx,
 		config:                   cfg,
 		AccessKey:                NewAccessKeyClient(cfg),
+		AccessKeyIdempotency:     NewAccessKeyIdempotencyClient(cfg),
 		Api:                      NewAPIClient(cfg),
 		ApiAuditLog:              NewApiAuditLogClient(cfg),
 		DataAccessAuditLog:       NewDataAccessAuditLogClient(cfg),
@@ -504,19 +510,19 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AccessKey, c.Api, c.ApiAuditLog, c.DataAccessAuditLog, c.DictEntry,
-		c.DictEntryI18n, c.DictType, c.GpuDeleteAcceptance, c.GpuUsageSync,
-		c.InternalMessage, c.InternalMessageCategory, c.InternalMessageRecipient,
-		c.Language, c.LoginAuditLog, c.LoginPolicy, c.Membership, c.MembershipOrgUnit,
-		c.MembershipPosition, c.MembershipRole, c.Menu, c.ModelDevAcceptance,
-		c.ModelDevReleaseBinding, c.NotificationChannel, c.OperationAuditLog,
-		c.OrgUnit, c.Permission, c.PermissionApi, c.PermissionAuditLog,
-		c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy, c.Plan, c.PlanModule,
-		c.PlanQuota, c.PolicyEvaluationLog, c.Position, c.QuotaAccount, c.QuotaCharge,
-		c.QuotaDefinition, c.QuotaOperation, c.QuotaReleaseReceipt, c.Role,
-		c.RoleFieldPermission, c.RoleMetadata, c.RoleOrgUnit, c.RolePermission,
-		c.SysConfig, c.Task, c.Tenant, c.User, c.UserCredential, c.UserMfaFactor,
-		c.UserOrgUnit, c.UserPosition, c.UserRole,
+		c.AccessKey, c.AccessKeyIdempotency, c.Api, c.ApiAuditLog, c.DataAccessAuditLog,
+		c.DictEntry, c.DictEntryI18n, c.DictType, c.GpuDeleteAcceptance,
+		c.GpuUsageSync, c.InternalMessage, c.InternalMessageCategory,
+		c.InternalMessageRecipient, c.Language, c.LoginAuditLog, c.LoginPolicy,
+		c.Membership, c.MembershipOrgUnit, c.MembershipPosition, c.MembershipRole,
+		c.Menu, c.ModelDevAcceptance, c.ModelDevReleaseBinding, c.NotificationChannel,
+		c.OperationAuditLog, c.OrgUnit, c.Permission, c.PermissionApi,
+		c.PermissionAuditLog, c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy,
+		c.Plan, c.PlanModule, c.PlanQuota, c.PolicyEvaluationLog, c.Position,
+		c.QuotaAccount, c.QuotaCharge, c.QuotaDefinition, c.QuotaOperation,
+		c.QuotaReleaseReceipt, c.Role, c.RoleFieldPermission, c.RoleMetadata,
+		c.RoleOrgUnit, c.RolePermission, c.SysConfig, c.Task, c.Tenant, c.User,
+		c.UserCredential, c.UserMfaFactor, c.UserOrgUnit, c.UserPosition, c.UserRole,
 	} {
 		n.Use(hooks...)
 	}
@@ -526,19 +532,19 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AccessKey, c.Api, c.ApiAuditLog, c.DataAccessAuditLog, c.DictEntry,
-		c.DictEntryI18n, c.DictType, c.GpuDeleteAcceptance, c.GpuUsageSync,
-		c.InternalMessage, c.InternalMessageCategory, c.InternalMessageRecipient,
-		c.Language, c.LoginAuditLog, c.LoginPolicy, c.Membership, c.MembershipOrgUnit,
-		c.MembershipPosition, c.MembershipRole, c.Menu, c.ModelDevAcceptance,
-		c.ModelDevReleaseBinding, c.NotificationChannel, c.OperationAuditLog,
-		c.OrgUnit, c.Permission, c.PermissionApi, c.PermissionAuditLog,
-		c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy, c.Plan, c.PlanModule,
-		c.PlanQuota, c.PolicyEvaluationLog, c.Position, c.QuotaAccount, c.QuotaCharge,
-		c.QuotaDefinition, c.QuotaOperation, c.QuotaReleaseReceipt, c.Role,
-		c.RoleFieldPermission, c.RoleMetadata, c.RoleOrgUnit, c.RolePermission,
-		c.SysConfig, c.Task, c.Tenant, c.User, c.UserCredential, c.UserMfaFactor,
-		c.UserOrgUnit, c.UserPosition, c.UserRole,
+		c.AccessKey, c.AccessKeyIdempotency, c.Api, c.ApiAuditLog, c.DataAccessAuditLog,
+		c.DictEntry, c.DictEntryI18n, c.DictType, c.GpuDeleteAcceptance,
+		c.GpuUsageSync, c.InternalMessage, c.InternalMessageCategory,
+		c.InternalMessageRecipient, c.Language, c.LoginAuditLog, c.LoginPolicy,
+		c.Membership, c.MembershipOrgUnit, c.MembershipPosition, c.MembershipRole,
+		c.Menu, c.ModelDevAcceptance, c.ModelDevReleaseBinding, c.NotificationChannel,
+		c.OperationAuditLog, c.OrgUnit, c.Permission, c.PermissionApi,
+		c.PermissionAuditLog, c.PermissionGroup, c.PermissionMenu, c.PermissionPolicy,
+		c.Plan, c.PlanModule, c.PlanQuota, c.PolicyEvaluationLog, c.Position,
+		c.QuotaAccount, c.QuotaCharge, c.QuotaDefinition, c.QuotaOperation,
+		c.QuotaReleaseReceipt, c.Role, c.RoleFieldPermission, c.RoleMetadata,
+		c.RoleOrgUnit, c.RolePermission, c.SysConfig, c.Task, c.Tenant, c.User,
+		c.UserCredential, c.UserMfaFactor, c.UserOrgUnit, c.UserPosition, c.UserRole,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -549,6 +555,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *AccessKeyMutation:
 		return c.AccessKey.mutate(ctx, m)
+	case *AccessKeyIdempotencyMutation:
+		return c.AccessKeyIdempotency.mutate(ctx, m)
 	case *APIMutation:
 		return c.Api.mutate(ctx, m)
 	case *ApiAuditLogMutation:
@@ -793,6 +801,140 @@ func (c *AccessKeyClient) mutate(ctx context.Context, m *AccessKeyMutation) (Val
 		return (&AccessKeyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown AccessKey mutation op: %q", m.Op())
+	}
+}
+
+// AccessKeyIdempotencyClient is a client for the AccessKeyIdempotency schema.
+type AccessKeyIdempotencyClient struct {
+	config
+}
+
+// NewAccessKeyIdempotencyClient returns a client for the AccessKeyIdempotency from the given config.
+func NewAccessKeyIdempotencyClient(c config) *AccessKeyIdempotencyClient {
+	return &AccessKeyIdempotencyClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `accesskeyidempotency.Hooks(f(g(h())))`.
+func (c *AccessKeyIdempotencyClient) Use(hooks ...Hook) {
+	c.hooks.AccessKeyIdempotency = append(c.hooks.AccessKeyIdempotency, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `accesskeyidempotency.Intercept(f(g(h())))`.
+func (c *AccessKeyIdempotencyClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AccessKeyIdempotency = append(c.inters.AccessKeyIdempotency, interceptors...)
+}
+
+// Create returns a builder for creating a AccessKeyIdempotency entity.
+func (c *AccessKeyIdempotencyClient) Create() *AccessKeyIdempotencyCreate {
+	mutation := newAccessKeyIdempotencyMutation(c.config, OpCreate)
+	return &AccessKeyIdempotencyCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AccessKeyIdempotency entities.
+func (c *AccessKeyIdempotencyClient) CreateBulk(builders ...*AccessKeyIdempotencyCreate) *AccessKeyIdempotencyCreateBulk {
+	return &AccessKeyIdempotencyCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AccessKeyIdempotencyClient) MapCreateBulk(slice any, setFunc func(*AccessKeyIdempotencyCreate, int)) *AccessKeyIdempotencyCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AccessKeyIdempotencyCreateBulk{err: fmt.Errorf("calling to AccessKeyIdempotencyClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AccessKeyIdempotencyCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AccessKeyIdempotencyCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AccessKeyIdempotency.
+func (c *AccessKeyIdempotencyClient) Update() *AccessKeyIdempotencyUpdate {
+	mutation := newAccessKeyIdempotencyMutation(c.config, OpUpdate)
+	return &AccessKeyIdempotencyUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AccessKeyIdempotencyClient) UpdateOne(_m *AccessKeyIdempotency) *AccessKeyIdempotencyUpdateOne {
+	mutation := newAccessKeyIdempotencyMutation(c.config, OpUpdateOne, withAccessKeyIdempotency(_m))
+	return &AccessKeyIdempotencyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AccessKeyIdempotencyClient) UpdateOneID(id uint32) *AccessKeyIdempotencyUpdateOne {
+	mutation := newAccessKeyIdempotencyMutation(c.config, OpUpdateOne, withAccessKeyIdempotencyID(id))
+	return &AccessKeyIdempotencyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AccessKeyIdempotency.
+func (c *AccessKeyIdempotencyClient) Delete() *AccessKeyIdempotencyDelete {
+	mutation := newAccessKeyIdempotencyMutation(c.config, OpDelete)
+	return &AccessKeyIdempotencyDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AccessKeyIdempotencyClient) DeleteOne(_m *AccessKeyIdempotency) *AccessKeyIdempotencyDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AccessKeyIdempotencyClient) DeleteOneID(id uint32) *AccessKeyIdempotencyDeleteOne {
+	builder := c.Delete().Where(accesskeyidempotency.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AccessKeyIdempotencyDeleteOne{builder}
+}
+
+// Query returns a query builder for AccessKeyIdempotency.
+func (c *AccessKeyIdempotencyClient) Query() *AccessKeyIdempotencyQuery {
+	return &AccessKeyIdempotencyQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAccessKeyIdempotency},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AccessKeyIdempotency entity by its id.
+func (c *AccessKeyIdempotencyClient) Get(ctx context.Context, id uint32) (*AccessKeyIdempotency, error) {
+	return c.Query().Where(accesskeyidempotency.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AccessKeyIdempotencyClient) GetX(ctx context.Context, id uint32) *AccessKeyIdempotency {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *AccessKeyIdempotencyClient) Hooks() []Hook {
+	hooks := c.hooks.AccessKeyIdempotency
+	return append(hooks[:len(hooks):len(hooks)], accesskeyidempotency.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *AccessKeyIdempotencyClient) Interceptors() []Interceptor {
+	return c.inters.AccessKeyIdempotency
+}
+
+func (c *AccessKeyIdempotencyClient) mutate(ctx context.Context, m *AccessKeyIdempotencyMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AccessKeyIdempotencyCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AccessKeyIdempotencyUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AccessKeyIdempotencyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AccessKeyIdempotencyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AccessKeyIdempotency mutation op: %q", m.Op())
 	}
 }
 
@@ -8276,29 +8418,31 @@ func (c *UserRoleClient) mutate(ctx context.Context, m *UserRoleMutation) (Value
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AccessKey, Api, ApiAuditLog, DataAccessAuditLog, DictEntry, DictEntryI18n,
-		DictType, GpuDeleteAcceptance, GpuUsageSync, InternalMessage,
-		InternalMessageCategory, InternalMessageRecipient, Language, LoginAuditLog,
-		LoginPolicy, Membership, MembershipOrgUnit, MembershipPosition, MembershipRole,
-		Menu, ModelDevAcceptance, ModelDevReleaseBinding, NotificationChannel,
-		OperationAuditLog, OrgUnit, Permission, PermissionApi, PermissionAuditLog,
-		PermissionGroup, PermissionMenu, PermissionPolicy, Plan, PlanModule, PlanQuota,
-		PolicyEvaluationLog, Position, QuotaAccount, QuotaCharge, QuotaDefinition,
-		QuotaOperation, QuotaReleaseReceipt, Role, RoleFieldPermission, RoleMetadata,
-		RoleOrgUnit, RolePermission, SysConfig, Task, Tenant, User, UserCredential,
-		UserMfaFactor, UserOrgUnit, UserPosition, UserRole []ent.Hook
+		AccessKey, AccessKeyIdempotency, Api, ApiAuditLog, DataAccessAuditLog,
+		DictEntry, DictEntryI18n, DictType, GpuDeleteAcceptance, GpuUsageSync,
+		InternalMessage, InternalMessageCategory, InternalMessageRecipient, Language,
+		LoginAuditLog, LoginPolicy, Membership, MembershipOrgUnit, MembershipPosition,
+		MembershipRole, Menu, ModelDevAcceptance, ModelDevReleaseBinding,
+		NotificationChannel, OperationAuditLog, OrgUnit, Permission, PermissionApi,
+		PermissionAuditLog, PermissionGroup, PermissionMenu, PermissionPolicy, Plan,
+		PlanModule, PlanQuota, PolicyEvaluationLog, Position, QuotaAccount,
+		QuotaCharge, QuotaDefinition, QuotaOperation, QuotaReleaseReceipt, Role,
+		RoleFieldPermission, RoleMetadata, RoleOrgUnit, RolePermission, SysConfig,
+		Task, Tenant, User, UserCredential, UserMfaFactor, UserOrgUnit, UserPosition,
+		UserRole []ent.Hook
 	}
 	inters struct {
-		AccessKey, Api, ApiAuditLog, DataAccessAuditLog, DictEntry, DictEntryI18n,
-		DictType, GpuDeleteAcceptance, GpuUsageSync, InternalMessage,
-		InternalMessageCategory, InternalMessageRecipient, Language, LoginAuditLog,
-		LoginPolicy, Membership, MembershipOrgUnit, MembershipPosition, MembershipRole,
-		Menu, ModelDevAcceptance, ModelDevReleaseBinding, NotificationChannel,
-		OperationAuditLog, OrgUnit, Permission, PermissionApi, PermissionAuditLog,
-		PermissionGroup, PermissionMenu, PermissionPolicy, Plan, PlanModule, PlanQuota,
-		PolicyEvaluationLog, Position, QuotaAccount, QuotaCharge, QuotaDefinition,
-		QuotaOperation, QuotaReleaseReceipt, Role, RoleFieldPermission, RoleMetadata,
-		RoleOrgUnit, RolePermission, SysConfig, Task, Tenant, User, UserCredential,
-		UserMfaFactor, UserOrgUnit, UserPosition, UserRole []ent.Interceptor
+		AccessKey, AccessKeyIdempotency, Api, ApiAuditLog, DataAccessAuditLog,
+		DictEntry, DictEntryI18n, DictType, GpuDeleteAcceptance, GpuUsageSync,
+		InternalMessage, InternalMessageCategory, InternalMessageRecipient, Language,
+		LoginAuditLog, LoginPolicy, Membership, MembershipOrgUnit, MembershipPosition,
+		MembershipRole, Menu, ModelDevAcceptance, ModelDevReleaseBinding,
+		NotificationChannel, OperationAuditLog, OrgUnit, Permission, PermissionApi,
+		PermissionAuditLog, PermissionGroup, PermissionMenu, PermissionPolicy, Plan,
+		PlanModule, PlanQuota, PolicyEvaluationLog, Position, QuotaAccount,
+		QuotaCharge, QuotaDefinition, QuotaOperation, QuotaReleaseReceipt, Role,
+		RoleFieldPermission, RoleMetadata, RoleOrgUnit, RolePermission, SysConfig,
+		Task, Tenant, User, UserCredential, UserMfaFactor, UserOrgUnit, UserPosition,
+		UserRole []ent.Interceptor
 	}
 )

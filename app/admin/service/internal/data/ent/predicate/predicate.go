@@ -9,6 +9,9 @@ import (
 // AccessKey is the predicate function for accesskey builders.
 type AccessKey func(*sql.Selector)
 
+// AccessKeyIdempotency is the predicate function for accesskeyidempotency builders.
+type AccessKeyIdempotency func(*sql.Selector)
+
 // Api is the predicate function for api builders.
 type Api func(*sql.Selector)
 

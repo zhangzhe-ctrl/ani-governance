@@ -18,7 +18,7 @@
 | 租户管理员管理 | 复用 TENANT-06、ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-01/12；AUTH-15～AUTH-18（自助 /me） | 复用用户和租户角色；用户明确不做主管理员移交 | 待指定 |
 | 套餐管理 | PLAN-01～PLAN-14；复用 TENANT-04/08 | 模块限制已有接线；数量配额只配置和统计 | 待指定 |
 | 平台运营账号管理 | 复用 ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-02/12；AUTH-15～AUTH-18；SESSION-01～SESSION-04；PERM-01～PERM-06、PERMGROUP-01～PERMGROUP-05 | 支持多个平台账号；运营/只读角色模板待 API 接入后再加；自助会话与权限点/权限组接口本轮补登，缺口见 MGMT-08～MGMT-15 | 待指定 |
-| API Key / AK-SK | AK-01～AK-07 | 签名、角色绑定、加密与可信审计已完成，真实 VPC 闭环 PASS | AKSK-VPC-20260922 已完成本批 |
+| API Key / AK-SK | AK-01～AK-07；AK-IDEM-01（创建幂等，2026-10-10） | 签名、角色绑定、加密与可信审计已完成，真实 VPC 闭环 PASS；创建幂等已在 ani-system 真实环境实测（HTTP 20/20 PASS + 8 并发 ALL PASS） | AKSK-VPC-20260922 已完成本批；幂等属即时修复，未并入风格批次 |
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
 | Network 租户面读写对接 | NET-01～NET-24；复用 AK-*、AUTH-* | 24 方法 JWT/AK、三条主链、清理和相关门禁 pass | 本轮源码及隔离闭环完成；真实环境 not_verified |
 | 通用配额与 GPU 本地模拟 | QUOTA-01～03、QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 本地模拟闭环已实现并通过指定验收；正式构建无 GPU 路由；真实 GPU 未接入 | QUOTA-GPU-LOCAL-01，本地验收完成（真实 GPU not_verified） |
@@ -654,13 +654,22 @@ const url = `${BASE_URL}/admin/v1/users?${params.toString()}`;
 | --- | --- | --- |
 | AK-01 | `GET /api/v1/auth/api-keys` | 用户 JWT；`items/total`，无 SK；真实 HTTP PASS |
 | AK-02 | `GET /api/v1/auth/api-keys/{key_id}` | 用户 JWT；snake_case Key 信息、数字 id/role_id；跨租户 404，PASS |
-| AK-03 | `POST /api/v1/auth/api-keys` | `{data:{name,role_id,expires_at?}}` → **201** `{data,secret_key}`；真实 HTTP PASS |
+| AK-03 | `POST /api/v1/auth/api-keys` | `{data:{name,role_id,expires_at?,idempotency_key?}}` → **201** `{data,secret_key}`；真实 HTTP PASS；`idempotency_key` 语义见 AK-IDEM-01 |
 | AK-04 | `PUT /api/v1/auth/api-keys/{key_id}` | 仅 name/role_id/is_active/expires_at；外层 update_mask，值为 FieldMask lowerCamel；清空到期、启停、改绑 PASS |
 | AK-05 | `DELETE /api/v1/auth/api-keys/{key_id}` | 200 `{status:"revoked"}`，后续签名 401，PASS |
 | AK-06 | `PUT /api/v1/auth/api-keys/{key_id}/secret` | `{}` → `{data,secret_key}`；AK 不变，旧 SK 立即拒绝、新 SK 成功，PASS |
 | AK-07 | 旧 `/admin/v1/access-keys/token` 已移除 | RPC/签发分支/白名单和 secret_hash 删除；旧路径 404，PASS |
 
 Key 绑定同租户启用 TENANT 角色，复用套餐和 Casbin。主密钥文件必填，SK 使用专用 AES-256-GCM 实例加密；仅创建/重置返回一次，列表、详情、日志和审计无 SK/完整签名。每请求查询 Key 和角色状态，主体为独立 `api_key`，不伪造 user_id。首次种子为租户管理员授予六条管理权限；目标专用套餐经 API 开放 DASHBOARD/OPM/SYSTEM/NETWORK。
+
+### 变更：AK-03 创建幂等（AK-IDEM-01，2026-10-10）
+
+`POST /api/v1/auth/api-keys` 增加可选 `idempotency_key`；**未带该键时行为与改造前完全一致**（201 返回明文 SK），属向后兼容的可选增强，不新增或改路径/权限，不触发 API 目录同步。
+
+- 作用域 `(tenant_id, actor_id, action='access_key.create', idempotency_key)`，取自信任上下文；同键同意图回放**原 Key 元数据**（同一 `id`/`access_key`），**不再返回明文 `secret_key`**（SK 仅交付一次）；同键异意图返回 **409**，reason 含 `IDEMPOTENCY_CONFLICT`。
+- 存储为**独立表** `sys_access_key_idempotency`（迁移 `20261010131938_access_key_idempotency.sql`），**故意不对 `sys_access_keys` 建外键**：`sys_access_keys` 是物理删除，记录须活得更久，才能把「创建→删除→同键重放」判定为回放而非再建一把。串行化仅依赖唯一索引 `(tenant_id,actor_id,action,idempotency_key)`，未加 tenant 行锁（创建只写一张新行，无共享聚合被改）。
+- 实测（ani-system @ ani-01，PostgreSQL + HTTP，2026-10-10）：先补跑迁移（表原缺失，atlas 由 `20261003152319` 升至 `20261010131938`）→ `verify-idempotency.py` **20/20 PASS**（无键 201 带 SK；同键同意图重放同 `id` 且 SK 空；异意图 409；不同键两把；key>128/name 空/role_id 缺均 400；创建→删除→同键重放 **404 `ACCESS_KEY_NOT_FOUND`** 且库内同名 0 把）→ `verify-idempotency-concurrency.py` 8 并发同键 **ALL PASS**（全部 201、同一 `id`、恰好 1 个带明文 SK、库内仅 1 把）。测试数据已清理。
+- 边界：**前端联调未做**（前端尚未带 `idempotency_key` 调用）；重放拿不到明文 SK 属既定取舍（首次响应丢失需走 `ResetSecret`）。
 
 | 问题编号 | 本批结论 |
 | --- | --- |
@@ -1262,3 +1271,29 @@ Resource 仅提供内部 gRPC，本批同步公开 JSON 规格和 SBOM，已发�
 - `scripts/image-joint-integration`：pass。Resource helper 从上述已发布模块编译；真实鉴权 HTTP → mTLS → Resource → PostgreSQL 的空间与未签发凭证 GET 返回展开字段，读取不隐式签发；镜像详情、列表总数和权限/缓存保护检查保留。独占 PG/Redis 和 helper 数据库均已清理。
 
 执行日志位于本地 `/tmp/flat-details-resource-verify.log`、`/tmp/flat-details-resource-sbom.log`、`/tmp/flat-details-governance-generate-test-3.log`、`/tmp/flat-details-governance-published-validation.log`、`/tmp/flat-details-governance-real-details.log`。首次注解重复和 OpenAPI 重复 200 的失败日志保留，未放宽断言。9 路由测试冻结传输结构；真实数据库链路的上述范围与 ModelDev 仅编译检查分别报告。部署和目标环境业务验收仍为 `not_verified`。
+
+## LIST-CURSOR-01：`GET /admin/v1/users` 改为 limit + cursor 游标分页（2026-10-10）
+
+按组长口径把 `GET /admin/v1/users` 由 `page/pageSize` 改为 `limit` + `cursor`，对外形状对齐 vpc 列表（`items` + `next_cursor` + `total`）。本批**只改这一个接口**：其余使用 `pagination.PagingRequest` 的 admin 列表接口行为不变（`cursor` 随共享请求消息出现在 OpenAPI 参数表里，但这些接口不接入游标语义，传了会被忽略）。
+
+报文：请求 `?limit=20&cursor=<不透明游标>`，`limit` 不传取 20、只接受 1~100，越界或非法直接 400（不做截断）；`cursor` 首次不传，此后原样回传上一页的 `next_cursor`，与 `page/pageSize`、`offset`、`token` 互斥（同时出现 400）。响应 `{items, next_cursor, total}`：`total` 是当前租户/权限/筛选条件下的总数，不受游标窗口影响（Proto uint64，HTTP JSON 十进制字符串）；`next_cursor` 有下一页才返回，末页为空（protojson 不输出未填充字段，因此末页该键缺席而不是空串）。
+
+游标是服务端 HMAC-SHA256 签名的不透明串（`c1.<base64url(payload)>.<hex(hmac)>`），绑定资源（`identity.user`）、上下文（tenant/platform/system）、可信租户与“筛选 + 排序”指纹。篡改、跨租户、换筛选或换排序复用一律 400，不降级为首页；可信 `viewer` 缺失时 fail-closed。
+
+排序：默认按唯一 ID 降序（与前端既有 `orderBy=['-id']` 一致），客户端 `sorting/orderBy` 只接受单一排序列并强制追加唯一 ID 兜底；可排序列限 `id/tenant_id/username/nickname/realname/email/mobile/status/gender/created_at/updated_at/last_login_at/locked_until`，未列出的排序列 400。`sys_users` 绝大多数列可空，因此排序显式声明 NULLS 位置（降序 NULL 在前、升序 NULL 在后），键集条件单独处理“游标落在 NULL 区段”的情形，避免跨页漏掉整个 NULL 区段；排序值取自数据库实体（可空列在实体里是指针，能区分 SQL NULL 与空值），而不是 DTO。`fieldMask` 只裁剪输出：为生成游标额外读取的排序列与唯一 ID 在输出前清理。
+
+鉴权与租户边界不变：仍走既有 Bearer 鉴权与权限点/`sys_permission_apis` 精确匹配；租户谓词由 Ent 的 TenantPrivacy 在查询侧强制，游标内的租户取自服务端 viewer，不信任入站参数。未新增 `(path, method)`，不触发 API 目录与权限关系变更。
+
+签名密钥不新增配置项：启动装配从既有 AK/SK 主密钥（`ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE`，所有副本同一份文件）用 HMAC-SHA256 域分离派生子密钥，因此多副本可互认游标，轮换主密钥会使存量游标失效（客户端回到第一页）。刻意不复用 `SetTokenSecret`：该密钥当前未在生产配置（全仓只有测试调用它），且其“无密钥时接受未签名 token”的兼容语义不应被新游标的签名要求绑上。
+
+本机（Windows，Go 1.26.9）已执行：`go build ./...`；`go vet`（data/service/server/pkg/localdeps/go-crud/pkg/crypto）；`go test ./pkg/localdeps/go-crud/... ./pkg/crypto/... ./app/admin/service/internal/data ./app/admin/service/internal/server`，覆盖游标 codec 往返/篡改/绑定不匹配/缺密钥/超长/与 token 格式互不兼容、limit 默认值与边界、筛选指纹对筛选与排序敏感、键集谓词四种 NULL 分支的 SQL 文本、repo 层翻页不重不漏/同值排序兜底/`total` 不受窗口影响/可空列升降序都覆盖全量/`fieldMask` 裁剪后仍能生成游标/400 分支。生成物由暂存副本重放已验收 10 个模板后与工作树逐字节比对再回写（未手改生成物、未在正式输出根裸跑 Buf）；分页契约测试 `TestT08PagingRequestContractIsUnchanged` 按本批授权增列 `cursor = 7`。
+
+未验证与边界：SQLite 夹具驱动把 `time.Time` 列存成 Go 时间字符串并按整串文本比较（含单调时钟后缀），时间列键集在 SQLite 上不可靠，因此时间列排序只做编码/解码与谓词单测，真实断言留给部署环境；其余 26 个列表接口的 `cursor` 仅出现在 OpenAPI 参数表，无语义。
+
+部署实测（ani-system @ ani-01，2026-10-10）：本机交叉编译 linux/amd64 → `craft_images.py` 打成 docker-archive（tag `172.16.101.10:5000/ani/ani-governance:20261010-cursor`，53.3MB）→ 经 ttyd 通道上传（整包 md5 校验通过）→ ani-01 `ctr -n k8s.io images import` 并推到可写 registry 5001 → 重启只读 registry 5000 → 该 tag 可见（`tags: ["20261008","20261010-cursor"]`）→ `kubectl set image deployment/ani-governance server=...:20261010-cursor -n ani-system` → rollout 成功，新 Pod 1/1 Running（调度到 ani-03，从 registry 拉取）。本批无 schema 变更，未跑迁移；回滚目标是换镜像前的 `localhost/ani-governance@sha256:9626e873c009650ebb41a9f783b82aede430cb3b08b3e9f72cb54e57e175d829`。
+
+实测（`verify-cursor.py`，全程只读，21 项断言全通过）：平台登录后 `limit=3` 取首页 → 3 条、`total="5"`、返回 `next_cursor`；带游标取第二页 → 2 条、与首页无重复、`total` 仍为 `"5"`；`limit=0/101/abc` 均 400；篡改游标 400；`cursor`+`page` 互斥 400；换筛选复用游标 400；换排序复用游标 400；按 `created_at` 降序 limit=2 翻页 → 5 行无重复且覆盖 `total`；末页 `next_cursor` 为空串。回归冒烟（`smoke-regression.py`，fail=0）：`GET /admin/v1/users?page=1&pageSize=2` 旧路径仍 200、2 条带 `total`；`plans/roles/tenants` 带 `cursor=bogus` 仍 200（这些接口不接入游标语义）；无 token 401、`/admin/v1/me` 200。
+
+两条实测修正（以实测为准）：① 首页不传排序时的默认排序就是 id 降序，因此"用 `orderBy=["-id"]` 复用游标"属于同一绑定、返回 200 才正确，验收用例已改用 `orderBy=["-created_at"]`；② 本部署的响应编码会输出未填充字段，末页 `next_cursor` 是空串（键存在）而非键缺席，仍满足"末页为空"。
+
+未执行/遗留：本批镜像内含上一批次（access-key 幂等）的代码，而该批迁移当时未在 ani-system 的库上执行（本批不含 schema 变更、未跑 Atlas）。**该遗留已于 2026-10-10 处置**：补跑迁移 `20261010131938` 并授予 `gov_app` 权限后，`POST /api/v1/auth/api-keys` 带 `idempotency_key` 的幂等行为已实测通过（见 AK-IDEM-01）。SQLite 上的时间列键集仍不可断言（夹具驱动存储形态问题），PostgreSQL 上已由上述 `created_at` 翻页用例覆盖。

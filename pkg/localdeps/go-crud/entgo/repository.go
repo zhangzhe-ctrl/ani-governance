@@ -101,6 +101,10 @@ func NewRepository[
 type PagingResult[E any] struct {
 	Items []*E   `json:"items"`
 	Total uint64 `json:"total"`
+
+	// NextCursor 是游标分页（ListWithCursor）的下一页游标；末页为空字符串。
+	// page/offset/token 分页不使用该字段。
+	NextCursor string `json:"next_cursor,omitempty"`
 }
 
 // Count 计算符合条件的记录数

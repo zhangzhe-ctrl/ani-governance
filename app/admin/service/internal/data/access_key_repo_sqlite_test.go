@@ -38,7 +38,7 @@ func TestAccessKeyRepoLifecycle(t *testing.T) {
 	require.NoError(t, err)
 	foreign, err := repo.entClient.Client().Role.Create().SetTenantID(8).SetName("other").SetCode("tenant:other").SetType(role.TypeTenant).SetStatus(role.StatusOn).Save(system)
 	require.NoError(t, err)
-	dto, err := repo.Create(a, &accesskeyV1.AccessKey{Name: trans.Ptr("test"), RoleId: trans.Ptr(r.ID)}, 7, 10, "ak-test", "sk-example")
+	dto, err := repo.Create(a, &accesskeyV1.CreateAccessKeyData{Name: trans.Ptr("test"), RoleId: trans.Ptr(r.ID)}, 7, 10, "ak-test", "sk-example")
 	require.NoError(t, err)
 	require.True(t, dto.GetIsActive())
 	row, err := repo.entClient.Client().AccessKey.Get(system, dto.GetId())
@@ -63,7 +63,7 @@ func TestAccessKeyRepoLifecycle(t *testing.T) {
 	_, err = repo.Get(b, &accesskeyV1.GetAccessKeyRequest{KeyId: dto.GetId()})
 	require.Error(t, err)
 	require.Error(t, repo.Delete(b, dto.GetId(), 8))
-	_, err = repo.Create(a, &accesskeyV1.AccessKey{Name: trans.Ptr("foreign"), RoleId: trans.Ptr(foreign.ID)}, 7, 10, "ak-other", "sk-example")
+	_, err = repo.Create(a, &accesskeyV1.CreateAccessKeyData{Name: trans.Ptr("foreign"), RoleId: trans.Ptr(foreign.ID)}, 7, 10, "ak-other", "sk-example")
 	require.Error(t, err)
 	update := func(data *accesskeyV1.AccessKey, paths ...string) error {
 		return repo.Update(a, &accesskeyV1.UpdateAccessKeyRequest{KeyId: dto.GetId(), Data: data, UpdateMask: &fieldmaskpb.FieldMask{Paths: paths}}, 7, 10)
