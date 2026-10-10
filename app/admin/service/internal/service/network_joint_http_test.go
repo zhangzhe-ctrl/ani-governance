@@ -53,7 +53,8 @@ import (
 
 // Run only through scripts/network-joint-integration: required inputs fail rather
 // than skip. Auth/cache/policies/tenant resolution and HTTP/mTLS are real;
-// Resource uses production code with controlled external providers.
+// Resource uses production code with controlled external providers, or the
+// runner-owned actual Resource process for the explicitly selected live VPC case.
 func TestNetworkJointHTTP(t *testing.T) {
 	peer := newNetworkResourcePeer(t)
 	ctx := context.Background()
@@ -141,7 +142,9 @@ func TestNetworkJointHTTP(t *testing.T) {
 		_, err = client.PermissionApi.Query().Where(permissionapi.APIIDEQ(a.ID), permissionapi.PermissionIDEQ(perm.ID)).Only(sys)
 		require.NoError(t, err)
 		grant := []*ent.Role{publisher, other}
-		if op.ReadOnly {
+		// Leave the new preset permission ungranted to this fixture role so its
+		// JWT and API key exercise the actual permission denial path.
+		if op.ReadOnly && op.Permission != "network:vpc:presets" {
 			grant = append(grant, reader)
 		}
 		for _, r := range grant {
@@ -175,7 +178,9 @@ func TestNetworkJointHTTP(t *testing.T) {
 	readerAK, readerSK := makeAK(reader, "reader")
 	publisherAK, publisherSK := makeAK(publisher, "publisher")
 	otherAK, otherSK := makeAK(other, "other")
-	server := khttp.NewServer(khttp.Filter(auth.NetworkHTTPFilter), khttp.Middleware(auth.CredentialHeaders(), auth.Server(auth.WithAccessTokenChecker(checker), auth.WithSigningKeyStore(keys), auth.WithTenantAccessChecker(data.NewTenantAccessCheckerImpl(bctx, ec)), auth.WithInjectMetadata(false)), authzMiddleware.Server(policy.Engine())))
+	// Match configs/server.yaml: the framework's 1s default cancels real KC
+	// reads at the fixture boundary before the Network client's own deadline.
+	server := khttp.NewServer(khttp.Timeout(10*time.Second), khttp.Filter(auth.NetworkHTTPFilter), khttp.Middleware(auth.CredentialHeaders(), auth.Server(auth.WithAccessTokenChecker(checker), auth.WithSigningKeyStore(keys), auth.WithTenantAccessChecker(data.NewTenantAccessCheckerImpl(bctx, ec)), auth.WithInjectMetadata(false)), authzMiddleware.Server(policy.Engine())))
 	admin.RegisterNetworkServiceHTTPServer(server, NewNetworkService(peer.Client, data.NewTenantRepo(bctx, ec)))
 	host := httptest.NewServer(server)
 	t.Cleanup(host.Close)
@@ -368,6 +373,109 @@ func TestNetworkJointHTTP(t *testing.T) {
 		return count
 	}
 	const base = "/api/v1/networks"
+	t.Run("fixed_flavors", func(t *testing.T) {
+		for _, scenario := range []struct {
+			flavor string
+			caller identity
+		}{{"small", jwtIdentity}, {"medium", akIdentity}, {"large", jwtIdentity}} {
+			t.Run(scenario.flavor, func(t *testing.T) {
+				id := scenario.caller
+				body := fmt.Sprintf(`{"name":%q,"vpc_id":%q,"subnet_id":%q,"exposure":"LOAD_BALANCER_EXPOSURE_PRIVATE","flavor":%q,"private_ip":"10.42.1.100","idempotency_key":%q,"listener":{"protocol":"LOAD_BALANCER_LISTENER_PROTOCOL_HTTP","port":80},"backends":[{"subnet_id":%q,"address":%q,"port":8080}],"health_check":{"port":8080}}`, "fixed-"+scenario.flavor, peer.ParentVPC, peer.EntrySubnet, scenario.flavor, "fixed-"+scenario.flavor, peer.BackendSubnet, peer.BackendAddress)
+				accepted := request(t, id, "POST", base+"/load-balancers", body, nil, 200)
+				lbID := accepted["load_balancer"].(map[string]any)["id"].(string)
+				require.Equal(t, accepted, request(t, id, "POST", base+"/load-balancers", body, nil, 200))
+				lb := poll(t, id, base+"/load-balancers/"+lbID, func(v map[string]any) bool {
+					return v["state"] == "available" && v["desired_version"] == v["applied_version"]
+				})
+				require.Equal(t, scenario.flavor, lb["flavor"])
+				var stored string
+				require.NoError(t, peer.DB.QueryRowContext(ctx, `SELECT flavor FROM network_load_balancers WHERE tenant_id=$1 AND lb_id=$2`, peer.TenantID, lbID).Scan(&stored))
+				require.Equal(t, scenario.flavor, stored)
+				request(t, id, "DELETE", base+"/load-balancers/"+lbID, "", nil, 200)
+				poll(t, id, base+"/load-balancers/"+lbID, state("deleted"))
+				var occupied int
+				require.NoError(t, peer.DB.QueryRowContext(ctx, `SELECT (SELECT count(*) FROM network_lb_vip_intents WHERE tenant_id=$1 AND lb_id=$2 AND released_at IS NULL)+(SELECT count(*) FROM network_lb_subnet_refs WHERE tenant_id=$1 AND lb_id=$2 AND released_at IS NULL)`, peer.TenantID, lbID).Scan(&occupied))
+				require.Zero(t, occupied)
+			})
+		}
+	})
+	t.Run("vpc_presets", func(t *testing.T) {
+		vpcCIDR, subnetCIDR := "10.61.0.0/16", "10.61.1.0/24"
+		if peer.LiveClusterUID != "" {
+			vpcCIDR, subnetCIDR = peer.VPCCIDR, peer.SubnetCIDR
+		}
+		choices := get(t, jwtIdentity, base+"/vpc-cidr-presets")
+		require.Equal(t, choices, get(t, akIdentity, base+"/vpc-cidr-presets"))
+		values := choices["cidrs"].([]any)
+		require.Contains(t, values, vpcCIDR)
+		require.NotContains(t, values, "10.96.0.0/16")
+		require.NotContains(t, values, "172.16.101.0/24")
+		t.Run("lifecycle", func(t *testing.T) {
+			for _, scenario := range []struct {
+				name   string
+				caller identity
+			}{{"jwt", jwtIdentity}, {"ak", akIdentity}} {
+				body := fmt.Sprintf(`{"name":%q,"cidr":%q,"idempotency_key":%q}`, "preset-"+scenario.name, vpcCIDR, "preset-"+scenario.name)
+				accepted := request(t, scenario.caller, "POST", base+"/vpcs", body, nil, 200)
+				require.Equal(t, accepted, request(t, scenario.caller, "POST", base+"/vpcs", body, nil, 200))
+				id := accepted["id"].(string)
+				poll(t, scenario.caller, base+"/vpcs/"+id, state("available"))
+				sub := request(t, scenario.caller, "POST", base+"/subnets", fmt.Sprintf(`{"vpc_id":%q,"name":"preset-child","cidr":%q,"idempotency_key":%q}`, id, subnetCIDR, "preset-child-"+scenario.name), nil, 200)
+				subID := sub["id"].(string)
+				poll(t, scenario.caller, base+"/subnets/"+subID, state("available"))
+				request(t, scenario.caller, "DELETE", base+"/subnets/"+subID, "", nil, 200)
+				poll(t, scenario.caller, base+"/subnets/"+subID, state("deleted"))
+				request(t, scenario.caller, "DELETE", base+"/vpcs/"+id, "", nil, 200)
+				poll(t, scenario.caller, base+"/vpcs/"+id, state("deleted"))
+			}
+		})
+		t.Run("rejections", func(t *testing.T) {
+			before := beforeSideEffects(t)
+			request(t, akIdentity, "POST", base+"/vpcs", `{"name":"custom","cidr":"10.63.0.0/16","idempotency_key":"custom"}`, nil, 400)
+			request(t, jwtIdentity, "POST", base+"/vpcs", `{"name":"conflict","cidr":"10.96.0.0/16","idempotency_key":"conflict"}`, nil, 412)
+			require.Equal(t, before, beforeSideEffects(t))
+		})
+	})
+	t.Run("multiple_listeners", func(t *testing.T) {
+		jsonBody := func(v any) string { raw, err := json.Marshal(v); require.NoError(t, err); return string(raw) }
+		listener := func(name string, port int, address string) map[string]any {
+			return map[string]any{"name": name, "protocol": "LOAD_BALANCER_LISTENER_PROTOCOL_HTTP", "port": port, "backends": []any{map[string]any{"subnet_id": peer.BackendSubnet, "address": address, "port": 8080}}, "health_check": map[string]any{"port": 8080}}
+		}
+		first, second := listener("first", 80, peer.BackendAddress), listener("second", 8081, peer.SecondBackendAddress)
+		body := jsonBody(map[string]any{"name": "multi", "vpc_id": peer.ParentVPC, "subnet_id": peer.EntrySubnet, "exposure": "LOAD_BALANCER_EXPOSURE_PRIVATE", "private_ip": "10.42.1.100", "idempotency_key": "multi-create", "listeners": map[string]any{"items": []any{first, second}}})
+		accepted := request(t, jwtIdentity, "POST", base+"/load-balancers", body, nil, 200)
+		lbID := accepted["load_balancer"].(map[string]any)["id"].(string)
+		require.Equal(t, accepted, request(t, akIdentity, "POST", base+"/load-balancers", body, nil, 200))
+		path := base + "/load-balancers/" + lbID
+		configured := func(v map[string]any) bool {
+			return v["state"] == "available" && v["configuration_state"] == "LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED" && v["desired_version"] == v["applied_version"]
+		}
+		lb := poll(t, jwtIdentity, path, configured)
+		items := lb["listeners"].([]any)
+		require.Len(t, items, 2)
+		first["id"], second["id"] = items[0].(map[string]any)["id"], items[1].(map[string]any)["id"]
+		second["port"] = 8082
+		second["health_check"].(map[string]any)["interval_seconds"] = 7
+		third := listener("third", 8083, peer.BackendAddress)
+		update := func(key string, set []any) {
+			body := jsonBody(map[string]any{"expected_version": lb["version"], "idempotency_key": key, "data": map[string]any{"listeners": map[string]any{"items": set}}, "update_mask": "listeners"})
+			receipt := request(t, akIdentity, "PATCH", path, body, nil, 200)
+			require.Equal(t, receipt, request(t, jwtIdentity, "PATCH", path, body, nil, 200))
+			lb = poll(t, jwtIdentity, path, configured)
+		}
+		update("multi-add-change", []any{first, second, third})
+		items = lb["listeners"].([]any)
+		require.Len(t, items, 3)
+		require.Equal(t, second["id"], items[1].(map[string]any)["id"])
+		third["id"] = items[2].(map[string]any)["id"]
+		update("multi-remove", []any{first, third})
+		require.Len(t, lb["listeners"].([]any), 2)
+		request(t, akIdentity, "DELETE", path, "", nil, 200)
+		poll(t, jwtIdentity, path, state("deleted"))
+		var occupied int
+		require.NoError(t, peer.DB.QueryRowContext(ctx, `SELECT (SELECT count(*) FROM network_lb_vip_intents WHERE tenant_id=$1 AND lb_id=$2 AND released_at IS NULL)+(SELECT count(*) FROM network_lb_subnet_refs WHERE tenant_id=$1 AND lb_id=$2 AND released_at IS NULL)`, peer.TenantID, lbID).Scan(&occupied))
+		require.Zero(t, occupied)
+	})
 	for _, mode := range []struct {
 		name string
 		id   identity
@@ -508,67 +616,84 @@ func TestNetworkJointHTTP(t *testing.T) {
 	if t.Failed() {
 		return
 	}
-	// Every rejection below is verified before a new Resource operation is saved.
-	before := beforeSideEffects(t)
-	validBody := fmt.Sprintf(`{"name":"negative","vpc_id":%q,"cidr":"10.42.8.0/24","idempotency_key":"negative"}`, peer.ParentVPC)
-	path := base + "/subnets"
-	request(t, identity{}, "POST", path, validBody, nil, 401)
-	request(t, identity{bearer: readerToken}, "POST", path, validBody, nil, 403)
-	request(t, identity{key: readerAK, secret: readerSK}, "POST", path, validBody, nil, 403)
-	request(t, akIdentity, "POST", path, validBody, func(r *http.Request) {
-		r.Body = io.NopCloser(strings.NewReader(strings.Replace(validBody, "negative", "tampered", 1)))
-		r.ContentLength = int64(len(strings.Replace(validBody, "negative", "tampered", 1)))
-	}, 401)
-	request(t, akIdentity, "GET", base+"/subnets?vpc_id="+peer.ParentVPC+"&limit=1", "", func(r *http.Request) { r.URL.RawQuery = "vpc_id=" + peer.ParentVPC + "&limit=2" }, 401)
-	request(t, akIdentity, "GET", base+"/vpcs/"+peer.ParentVPC, "", func(r *http.Request) { r.URL.Path = base + "/vpcs/vpc_" + strings.Repeat("a", 32) }, 401)
-	request(t, akIdentity, "DELETE", base+"/vpcs/"+peer.ParentVPC, "", func(r *http.Request) { r.Method = "GET" }, 401)
-	for _, header := range []string{"X-Access-Key", "X-Timestamp", "X-Signature"} {
-		denied := request(t, akIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Add(header, "duplicate") }, 401)
-		require.Equal(t, "INVALID_SIGNATURE", denied["reason"], "duplicate credentials preserve the shared authentication contract")
-	}
-	request(t, jwtIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Add("Authorization", "Bearer "+publisherToken) }, 401)
-	request(t, akIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Set("Authorization", "Bearer "+publisherToken) }, 400)
-	request(t, akIdentity, "POST", path, validBody, func(r *http.Request) {
-		ts := strconv.FormatInt(time.Now().Add(-10*time.Minute).Unix(), 10)
-		r.Header.Set("X-Timestamp", ts)
-		r.Header.Set("X-Signature", auth.NetworkSignature(publisherSK, "POST", path, "", publisherAK.AccessKey, ts, []byte(validBody)))
-	}, 401)
-	request(t, jwtIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Add("X-Ani-Tenant-Id", "forged") }, 400)
-	request(t, jwtIdentity, "POST", path, strings.Replace(validBody, `"name":"negative"`, `"tenant_id":"forged","name":"negative"`, 1), nil, 400)
-	request(t, akIdentity, "GET", base+"/vpcs?limit=1&limit=2", "", nil, 400)
-	request(t, akIdentity, "POST", base+"/unknown", validBody, nil, 400)
-	require.Equal(t, before, beforeSideEffects(t))
-	_, err = client.Tenant.UpdateOneID(tenants[0].ID).SetStatus(tenant.StatusOff).Save(sys)
-	require.NoError(t, err)
-	request(t, jwtIdentity, "POST", path, validBody, nil, 403)
-	request(t, akIdentity, "POST", path, validBody, nil, 403)
-	_, err = client.Tenant.UpdateOneID(tenants[0].ID).SetStatus(tenant.StatusOn).Save(sys)
-	require.NoError(t, err)
-	_, err = client.AccessKey.UpdateOneID(publisherAK.ID).SetStatus(accesskey.StatusOff).Save(sys)
-	require.NoError(t, err)
-	request(t, akIdentity, "POST", path, validBody, nil, 401)
-	_, err = client.AccessKey.UpdateOneID(publisherAK.ID).SetStatus(accesskey.StatusOn).Save(sys)
-	require.NoError(t, err)
-	expiry := time.Now().Add(-time.Minute)
-	_, err = client.AccessKey.UpdateOneID(publisherAK.ID).SetExpiresAt(expiry).Save(sys)
-	require.NoError(t, err)
-	request(t, akIdentity, "POST", path, validBody, nil, 401)
-	_, err = client.AccessKey.UpdateOneID(publisherAK.ID).ClearExpiresAt().Save(sys)
-	require.NoError(t, err)
-	revokedAK, revokedSK := makeAK(publisher, "revoked")
-	require.NoError(t, client.AccessKey.DeleteOneID(revokedAK.ID).Exec(sys))
-	request(t, identity{key: revokedAK, secret: revokedSK}, "POST", path, validBody, nil, 401)
-	_, err = client.RolePermission.Update().Where(rolepermission.RoleIDEQ(publisher.ID)).SetStatus(rolepermission.StatusOff).Save(sys)
-	require.NoError(t, err)
-	require.NoError(t, policy.ResetPolicies(ctx))
-	request(t, akIdentity, "POST", path, validBody, nil, 403)
-	request(t, jwtIdentity, "POST", path, validBody, nil, 403)
-	_, err = client.RolePermission.Update().Where(rolepermission.RoleIDEQ(publisher.ID)).SetStatus(rolepermission.StatusOn).Save(sys)
-	require.NoError(t, err)
-	require.NoError(t, policy.ResetPolicies(ctx))
-	require.NoError(t, client.PlanModule.DeleteOneID(module.ID).Exec(sys))
-	request(t, akIdentity, "POST", path, validBody, nil, 403)
-	request(t, jwtIdentity, "POST", path, validBody, nil, 403)
-	require.Equal(t, before, beforeSideEffects(t))
-	t.Log("24 Network methods passed real HTTP/JWT and AK -> policy/NETWORK -> mTLS -> Resource/PG/worker with product cleanup")
+	t.Run("preset_access", func(t *testing.T) {
+		before := beforeSideEffects(t)
+		path := base + "/vpc-cidr-presets"
+		request(t, identity{}, "GET", path, "", nil, 401)
+		request(t, identity{bearer: readerToken}, "GET", path, "", nil, 403)
+		request(t, identity{key: readerAK, secret: readerSK}, "GET", path, "", nil, 403)
+		request(t, akIdentity, "GET", path+"?tenant_id=forged", "", nil, 400)
+		for _, foreign := range []identity{{bearer: otherToken}, {key: otherAK, secret: otherSK}} {
+			request(t, foreign, "GET", base+"/vpcs/"+peer.ParentVPC, "", nil, 404)
+			body := fmt.Sprintf(`{"name":"foreign-listeners","vpc_id":%q,"subnet_id":%q,"exposure":"LOAD_BALANCER_EXPOSURE_PRIVATE","private_ip":"10.42.1.100","idempotency_key":"foreign-listeners","listeners":{"items":[{"name":"first","port":80,"backends":[{"subnet_id":%q,"address":%q,"port":8080}],"health_check":{"port":8080}}]}}`, peer.ParentVPC, peer.EntrySubnet, peer.BackendSubnet, peer.BackendAddress)
+			request(t, foreign, "POST", base+"/load-balancers", body, nil, 404)
+		}
+		require.Equal(t, before, beforeSideEffects(t))
+	})
+	t.Run("authentication_and_plan", func(t *testing.T) {
+		// Every rejection below is verified before a new Resource operation is saved.
+		before := beforeSideEffects(t)
+		validBody := fmt.Sprintf(`{"name":"negative","vpc_id":%q,"cidr":"10.42.8.0/24","idempotency_key":"negative"}`, peer.ParentVPC)
+		path := base + "/subnets"
+		request(t, identity{}, "POST", path, validBody, nil, 401)
+		request(t, identity{bearer: readerToken}, "POST", path, validBody, nil, 403)
+		request(t, identity{key: readerAK, secret: readerSK}, "POST", path, validBody, nil, 403)
+		request(t, akIdentity, "POST", path, validBody, func(r *http.Request) {
+			r.Body = io.NopCloser(strings.NewReader(strings.Replace(validBody, "negative", "tampered", 1)))
+			r.ContentLength = int64(len(strings.Replace(validBody, "negative", "tampered", 1)))
+		}, 401)
+		request(t, akIdentity, "GET", base+"/subnets?vpc_id="+peer.ParentVPC+"&limit=1", "", func(r *http.Request) { r.URL.RawQuery = "vpc_id=" + peer.ParentVPC + "&limit=2" }, 401)
+		request(t, akIdentity, "GET", base+"/vpcs/"+peer.ParentVPC, "", func(r *http.Request) { r.URL.Path = base + "/vpcs/vpc_" + strings.Repeat("a", 32) }, 401)
+		request(t, akIdentity, "DELETE", base+"/vpcs/"+peer.ParentVPC, "", func(r *http.Request) { r.Method = "GET" }, 401)
+		for _, header := range []string{"X-Access-Key", "X-Timestamp", "X-Signature"} {
+			denied := request(t, akIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Add(header, "duplicate") }, 401)
+			require.Equal(t, "INVALID_SIGNATURE", denied["reason"], "duplicate credentials preserve the shared authentication contract")
+		}
+		request(t, jwtIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Add("Authorization", "Bearer "+publisherToken) }, 401)
+		request(t, akIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Set("Authorization", "Bearer "+publisherToken) }, 400)
+		request(t, akIdentity, "POST", path, validBody, func(r *http.Request) {
+			ts := strconv.FormatInt(time.Now().Add(-10*time.Minute).Unix(), 10)
+			r.Header.Set("X-Timestamp", ts)
+			r.Header.Set("X-Signature", auth.NetworkSignature(publisherSK, "POST", path, "", publisherAK.AccessKey, ts, []byte(validBody)))
+		}, 401)
+		request(t, jwtIdentity, "POST", path, validBody, func(r *http.Request) { r.Header.Add("X-Ani-Tenant-Id", "forged") }, 400)
+		request(t, jwtIdentity, "POST", path, strings.Replace(validBody, `"name":"negative"`, `"tenant_id":"forged","name":"negative"`, 1), nil, 400)
+		request(t, akIdentity, "GET", base+"/vpcs?limit=1&limit=2", "", nil, 400)
+		request(t, akIdentity, "POST", base+"/unknown", validBody, nil, 400)
+		require.Equal(t, before, beforeSideEffects(t))
+		_, err = client.Tenant.UpdateOneID(tenants[0].ID).SetStatus(tenant.StatusOff).Save(sys)
+		require.NoError(t, err)
+		request(t, jwtIdentity, "POST", path, validBody, nil, 403)
+		request(t, akIdentity, "POST", path, validBody, nil, 403)
+		_, err = client.Tenant.UpdateOneID(tenants[0].ID).SetStatus(tenant.StatusOn).Save(sys)
+		require.NoError(t, err)
+		_, err = client.AccessKey.UpdateOneID(publisherAK.ID).SetStatus(accesskey.StatusOff).Save(sys)
+		require.NoError(t, err)
+		request(t, akIdentity, "POST", path, validBody, nil, 401)
+		_, err = client.AccessKey.UpdateOneID(publisherAK.ID).SetStatus(accesskey.StatusOn).Save(sys)
+		require.NoError(t, err)
+		expiry := time.Now().Add(-time.Minute)
+		_, err = client.AccessKey.UpdateOneID(publisherAK.ID).SetExpiresAt(expiry).Save(sys)
+		require.NoError(t, err)
+		request(t, akIdentity, "POST", path, validBody, nil, 401)
+		_, err = client.AccessKey.UpdateOneID(publisherAK.ID).ClearExpiresAt().Save(sys)
+		require.NoError(t, err)
+		revokedAK, revokedSK := makeAK(publisher, "revoked")
+		require.NoError(t, client.AccessKey.DeleteOneID(revokedAK.ID).Exec(sys))
+		request(t, identity{key: revokedAK, secret: revokedSK}, "POST", path, validBody, nil, 401)
+		_, err = client.RolePermission.Update().Where(rolepermission.RoleIDEQ(publisher.ID)).SetStatus(rolepermission.StatusOff).Save(sys)
+		require.NoError(t, err)
+		require.NoError(t, policy.ResetPolicies(ctx))
+		request(t, akIdentity, "POST", path, validBody, nil, 403)
+		request(t, jwtIdentity, "POST", path, validBody, nil, 403)
+		_, err = client.RolePermission.Update().Where(rolepermission.RoleIDEQ(publisher.ID)).SetStatus(rolepermission.StatusOn).Save(sys)
+		require.NoError(t, err)
+		require.NoError(t, policy.ResetPolicies(ctx))
+		require.NoError(t, client.PlanModule.DeleteOneID(module.ID).Exec(sys))
+		request(t, akIdentity, "GET", base+"/vpc-cidr-presets", "", nil, 403)
+		request(t, jwtIdentity, "GET", base+"/vpc-cidr-presets", "", nil, 403)
+		request(t, akIdentity, "POST", path, validBody, nil, 403)
+		request(t, jwtIdentity, "POST", path, validBody, nil, 403)
+		require.Equal(t, before, beforeSideEffects(t))
+	})
 }

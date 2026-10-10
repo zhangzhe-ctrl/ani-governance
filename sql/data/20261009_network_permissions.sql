@@ -5,6 +5,7 @@ DO $$
 DECLARE r record; selected_api_id bigint; selected_permission_id bigint; route_count bigint;
 BEGIN
   FOR r IN SELECT * FROM (VALUES
+    ('GET','/api/v1/networks/vpc-cidr-presets','network:vpc:presets'),
     ('GET','/api/v1/networks/vpcs/{vpc_id}','network:vpc:get'),
     ('GET','/api/v1/networks/vpcs','network:vpc:list'),
     ('POST','/api/v1/networks/vpcs','network:vpc:create'),

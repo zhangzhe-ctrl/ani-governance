@@ -26,6 +26,7 @@ func TestNetworkAllTenantOperationsSignAndReplayBody(t *testing.T) {
 		{"CreateVPC", "POST", "/api/v1/networks/vpcs", "", `{"name":"vpc","cidr":"10.0.0.0/16","idempotency_key":"create-vpc"}`},
 		{"GetVPC", "GET", vectorPath, "", ""},
 		{"ListVPCs", "GET", "/api/v1/networks/vpcs", "limit=1&name=demo&state=available", ""},
+		{"ListVPCCIDRPresets", "GET", "/api/v1/networks/vpc-cidr-presets", "", ""},
 		{"DeleteVPC", "DELETE", vectorPath, "", ""},
 		{"GetOperation", "GET", "/api/v1/networks/operations/" + policyOperationID, "", ""},
 		{"CreateSubnet", "POST", "/api/v1/networks/subnets", "", `{"vpc_id":"vpc_0123456789abcdef0123456789abcdef","name":"subnet","cidr":"10.0.1.0/24","idempotency_key":"create-subnet"}`},
@@ -48,7 +49,7 @@ func TestNetworkAllTenantOperationsSignAndReplayBody(t *testing.T) {
 		{"DeleteLoadBalancer", "DELETE", "/api/v1/networks/load-balancers/" + policyLBID, "", ""},
 		{"GetLoadBalancerOperation", "GET", "/api/v1/networks/load-balancers/operations/" + policyOperationID, "", ""},
 	}
-	if len(NetworkOperations) != 24 {
+	if len(NetworkOperations) != 25 {
 		t.Fatal("unexpected public Network surface")
 	}
 	now := time.Unix(1700000000, 0)

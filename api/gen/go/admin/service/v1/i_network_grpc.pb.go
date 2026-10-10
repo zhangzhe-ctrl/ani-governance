@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	NetworkService_ListVPCCIDRPresets_FullMethodName       = "/admin.service.v1.NetworkService/ListVPCCIDRPresets"
 	NetworkService_GetVPC_FullMethodName                   = "/admin.service.v1.NetworkService/GetVPC"
 	NetworkService_ListVPCs_FullMethodName                 = "/admin.service.v1.NetworkService/ListVPCs"
 	NetworkService_CreateVPC_FullMethodName                = "/admin.service.v1.NetworkService/CreateVPC"
@@ -50,6 +51,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NetworkServiceClient interface {
+	ListVPCCIDRPresets(ctx context.Context, in *v1.ListVPCCIDRPresetsRequest, opts ...grpc.CallOption) (*v1.ListVPCCIDRPresetsResponse, error)
 	GetVPC(ctx context.Context, in *v1.GetVPCRequest, opts ...grpc.CallOption) (*v1.GetVPCResponse, error)
 	ListVPCs(ctx context.Context, in *v1.ListVPCsRequest, opts ...grpc.CallOption) (*v1.ListVPCsResponse, error)
 	CreateVPC(ctx context.Context, in *v1.CreateVPCRequest, opts ...grpc.CallOption) (*v1.CreateVPCResponse, error)
@@ -82,6 +84,16 @@ type networkServiceClient struct {
 
 func NewNetworkServiceClient(cc grpc.ClientConnInterface) NetworkServiceClient {
 	return &networkServiceClient{cc}
+}
+
+func (c *networkServiceClient) ListVPCCIDRPresets(ctx context.Context, in *v1.ListVPCCIDRPresetsRequest, opts ...grpc.CallOption) (*v1.ListVPCCIDRPresetsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ListVPCCIDRPresetsResponse)
+	err := c.cc.Invoke(ctx, NetworkService_ListVPCCIDRPresets_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *networkServiceClient) GetVPC(ctx context.Context, in *v1.GetVPCRequest, opts ...grpc.CallOption) (*v1.GetVPCResponse, error) {
@@ -328,6 +340,7 @@ func (c *networkServiceClient) GetLoadBalancerOperation(ctx context.Context, in 
 // All implementations must embed UnimplementedNetworkServiceServer
 // for forward compatibility.
 type NetworkServiceServer interface {
+	ListVPCCIDRPresets(context.Context, *v1.ListVPCCIDRPresetsRequest) (*v1.ListVPCCIDRPresetsResponse, error)
 	GetVPC(context.Context, *v1.GetVPCRequest) (*v1.GetVPCResponse, error)
 	ListVPCs(context.Context, *v1.ListVPCsRequest) (*v1.ListVPCsResponse, error)
 	CreateVPC(context.Context, *v1.CreateVPCRequest) (*v1.CreateVPCResponse, error)
@@ -362,6 +375,9 @@ type NetworkServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedNetworkServiceServer struct{}
 
+func (UnimplementedNetworkServiceServer) ListVPCCIDRPresets(context.Context, *v1.ListVPCCIDRPresetsRequest) (*v1.ListVPCCIDRPresetsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListVPCCIDRPresets not implemented")
+}
 func (UnimplementedNetworkServiceServer) GetVPC(context.Context, *v1.GetVPCRequest) (*v1.GetVPCResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetVPC not implemented")
 }
@@ -453,6 +469,24 @@ func RegisterNetworkServiceServer(s grpc.ServiceRegistrar, srv NetworkServiceSer
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&NetworkService_ServiceDesc, srv)
+}
+
+func _NetworkService_ListVPCCIDRPresets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ListVPCCIDRPresetsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetworkServiceServer).ListVPCCIDRPresets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetworkService_ListVPCCIDRPresets_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetworkServiceServer).ListVPCCIDRPresets(ctx, req.(*v1.ListVPCCIDRPresetsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _NetworkService_GetVPC_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -894,6 +928,10 @@ var NetworkService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "admin.service.v1.NetworkService",
 	HandlerType: (*NetworkServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListVPCCIDRPresets",
+			Handler:    _NetworkService_ListVPCCIDRPresets_Handler,
+		},
 		{
 			MethodName: "GetVPC",
 			Handler:    _NetworkService_GetVPC_Handler,

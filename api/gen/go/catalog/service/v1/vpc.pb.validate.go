@@ -5546,6 +5546,73 @@ func (m *LoadBalancerListenerInput) validate(all bool) error {
 
 	// no validation rules for Protocol
 
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	for idx, item := range m.GetBackends() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, LoadBalancerListenerInputValidationError{
+						field:  fmt.Sprintf("Backends[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, LoadBalancerListenerInputValidationError{
+						field:  fmt.Sprintf("Backends[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return LoadBalancerListenerInputValidationError{
+					field:  fmt.Sprintf("Backends[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if all {
+		switch v := interface{}(m.GetHealthCheck()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LoadBalancerListenerInputValidationError{
+					field:  "HealthCheck",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LoadBalancerListenerInputValidationError{
+					field:  "HealthCheck",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetHealthCheck()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return LoadBalancerListenerInputValidationError{
+				field:  "HealthCheck",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if m.Port != nil {
 		// no validation rules for Port
 	}
@@ -5657,6 +5724,71 @@ func (m *LoadBalancerListener) validate(all bool) error {
 	// no validation rules for Protocol
 
 	// no validation rules for Port
+
+	// no validation rules for Name
+
+	for idx, item := range m.GetBackends() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, LoadBalancerListenerValidationError{
+						field:  fmt.Sprintf("Backends[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, LoadBalancerListenerValidationError{
+						field:  fmt.Sprintf("Backends[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return LoadBalancerListenerValidationError{
+					field:  fmt.Sprintf("Backends[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if all {
+		switch v := interface{}(m.GetHealthCheck()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LoadBalancerListenerValidationError{
+					field:  "HealthCheck",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LoadBalancerListenerValidationError{
+					field:  "HealthCheck",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetHealthCheck()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return LoadBalancerListenerValidationError{
+				field:  "HealthCheck",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return LoadBalancerListenerMultiError(errors)
@@ -6397,6 +6529,40 @@ func (m *LoadBalancer) validate(all bool) error {
 		}
 	}
 
+	for idx, item := range m.GetListeners() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, LoadBalancerValidationError{
+						field:  fmt.Sprintf("Listeners[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, LoadBalancerValidationError{
+						field:  fmt.Sprintf("Listeners[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return LoadBalancerValidationError{
+					field:  fmt.Sprintf("Listeners[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return LoadBalancerMultiError(errors)
 	}
@@ -6605,6 +6771,35 @@ func (m *CreateLoadBalancerRequest) validate(all bool) error {
 	}
 
 	// no validation rules for IdempotencyKey
+
+	if all {
+		switch v := interface{}(m.GetListeners()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CreateLoadBalancerRequestValidationError{
+					field:  "Listeners",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CreateLoadBalancerRequestValidationError{
+					field:  "Listeners",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetListeners()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateLoadBalancerRequestValidationError{
+				field:  "Listeners",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return CreateLoadBalancerRequestMultiError(errors)
@@ -7432,6 +7627,93 @@ func (m *UpdateLoadBalancerRequest) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetListeners()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateLoadBalancerRequestValidationError{
+					field:  "Listeners",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateLoadBalancerRequestValidationError{
+					field:  "Listeners",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetListeners()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateLoadBalancerRequestValidationError{
+				field:  "Listeners",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetUpdateMask()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateLoadBalancerRequestValidationError{
+					field:  "UpdateMask",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateLoadBalancerRequestValidationError{
+					field:  "UpdateMask",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetUpdateMask()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateLoadBalancerRequestValidationError{
+				field:  "UpdateMask",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetData()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateLoadBalancerRequestValidationError{
+					field:  "Data",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateLoadBalancerRequestValidationError{
+					field:  "Data",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetData()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateLoadBalancerRequestValidationError{
+				field:  "Data",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return UpdateLoadBalancerRequestMultiError(errors)
 	}
@@ -8174,3 +8456,478 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetLoadBalancerOperationResponseValidationError{}
+
+// Validate checks the field values on LoadBalancerListenerSet with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LoadBalancerListenerSet) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LoadBalancerListenerSet with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LoadBalancerListenerSetMultiError, or nil if none found.
+func (m *LoadBalancerListenerSet) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LoadBalancerListenerSet) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetItems() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, LoadBalancerListenerSetValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, LoadBalancerListenerSetValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return LoadBalancerListenerSetValidationError{
+					field:  fmt.Sprintf("Items[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return LoadBalancerListenerSetMultiError(errors)
+	}
+
+	return nil
+}
+
+// LoadBalancerListenerSetMultiError is an error wrapping multiple validation
+// errors returned by LoadBalancerListenerSet.ValidateAll() if the designated
+// constraints aren't met.
+type LoadBalancerListenerSetMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LoadBalancerListenerSetMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LoadBalancerListenerSetMultiError) AllErrors() []error { return m }
+
+// LoadBalancerListenerSetValidationError is the validation error returned by
+// LoadBalancerListenerSet.Validate if the designated constraints aren't met.
+type LoadBalancerListenerSetValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LoadBalancerListenerSetValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LoadBalancerListenerSetValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LoadBalancerListenerSetValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LoadBalancerListenerSetValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LoadBalancerListenerSetValidationError) ErrorName() string {
+	return "LoadBalancerListenerSetValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LoadBalancerListenerSetValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLoadBalancerListenerSet.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LoadBalancerListenerSetValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LoadBalancerListenerSetValidationError{}
+
+// Validate checks the field values on LoadBalancerMutableData with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LoadBalancerMutableData) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LoadBalancerMutableData with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LoadBalancerMutableDataMultiError, or nil if none found.
+func (m *LoadBalancerMutableData) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LoadBalancerMutableData) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Name
+
+	// no validation rules for Description
+
+	if all {
+		switch v := interface{}(m.GetListeners()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LoadBalancerMutableDataValidationError{
+					field:  "Listeners",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LoadBalancerMutableDataValidationError{
+					field:  "Listeners",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetListeners()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return LoadBalancerMutableDataValidationError{
+				field:  "Listeners",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return LoadBalancerMutableDataMultiError(errors)
+	}
+
+	return nil
+}
+
+// LoadBalancerMutableDataMultiError is an error wrapping multiple validation
+// errors returned by LoadBalancerMutableData.ValidateAll() if the designated
+// constraints aren't met.
+type LoadBalancerMutableDataMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LoadBalancerMutableDataMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LoadBalancerMutableDataMultiError) AllErrors() []error { return m }
+
+// LoadBalancerMutableDataValidationError is the validation error returned by
+// LoadBalancerMutableData.Validate if the designated constraints aren't met.
+type LoadBalancerMutableDataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LoadBalancerMutableDataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LoadBalancerMutableDataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LoadBalancerMutableDataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LoadBalancerMutableDataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LoadBalancerMutableDataValidationError) ErrorName() string {
+	return "LoadBalancerMutableDataValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LoadBalancerMutableDataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLoadBalancerMutableData.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LoadBalancerMutableDataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LoadBalancerMutableDataValidationError{}
+
+// Validate checks the field values on ListVPCCIDRPresetsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListVPCCIDRPresetsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListVPCCIDRPresetsRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListVPCCIDRPresetsRequestMultiError, or nil if none found.
+func (m *ListVPCCIDRPresetsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListVPCCIDRPresetsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListVPCCIDRPresetsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListVPCCIDRPresetsRequestMultiError is an error wrapping multiple validation
+// errors returned by ListVPCCIDRPresetsRequest.ValidateAll() if the
+// designated constraints aren't met.
+type ListVPCCIDRPresetsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListVPCCIDRPresetsRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListVPCCIDRPresetsRequestMultiError) AllErrors() []error { return m }
+
+// ListVPCCIDRPresetsRequestValidationError is the validation error returned by
+// ListVPCCIDRPresetsRequest.Validate if the designated constraints aren't met.
+type ListVPCCIDRPresetsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListVPCCIDRPresetsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListVPCCIDRPresetsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListVPCCIDRPresetsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListVPCCIDRPresetsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListVPCCIDRPresetsRequestValidationError) ErrorName() string {
+	return "ListVPCCIDRPresetsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListVPCCIDRPresetsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListVPCCIDRPresetsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListVPCCIDRPresetsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListVPCCIDRPresetsRequestValidationError{}
+
+// Validate checks the field values on ListVPCCIDRPresetsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListVPCCIDRPresetsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListVPCCIDRPresetsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListVPCCIDRPresetsResponseMultiError, or nil if none found.
+func (m *ListVPCCIDRPresetsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListVPCCIDRPresetsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListVPCCIDRPresetsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListVPCCIDRPresetsResponseMultiError is an error wrapping multiple
+// validation errors returned by ListVPCCIDRPresetsResponse.ValidateAll() if
+// the designated constraints aren't met.
+type ListVPCCIDRPresetsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListVPCCIDRPresetsResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListVPCCIDRPresetsResponseMultiError) AllErrors() []error { return m }
+
+// ListVPCCIDRPresetsResponseValidationError is the validation error returned
+// by ListVPCCIDRPresetsResponse.Validate if the designated constraints aren't met.
+type ListVPCCIDRPresetsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListVPCCIDRPresetsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListVPCCIDRPresetsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListVPCCIDRPresetsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListVPCCIDRPresetsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListVPCCIDRPresetsResponseValidationError) ErrorName() string {
+	return "ListVPCCIDRPresetsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListVPCCIDRPresetsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListVPCCIDRPresetsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListVPCCIDRPresetsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListVPCCIDRPresetsResponseValidationError{}

@@ -1,6 +1,6 @@
 # 功能对接与接口风格改动登记
 
-总体状态：**进行中，未结项**。最后更新：2026-10-09。
+总体状态：**进行中，未结项**。最后更新：2026-10-10。
 
 本文件覆盖所有后续对接功能。每次用户对接一个新功能时，AI 先排查真实调用链，将涉及的接口、请求和响应、鉴权条件、现有问题追加到对应功能组。先累计登记，等用户指定某个批次后，再统一修改该批接口的路径、字段和响应风格；不能因排查或登记就自动改接口风格。
 
@@ -20,7 +20,7 @@
 | 平台运营账号管理 | 复用 ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-02/12；AUTH-15～AUTH-18；SESSION-01～SESSION-04；PERM-01～PERM-06、PERMGROUP-01～PERMGROUP-05 | 支持多个平台账号；运营/只读角色模板待 API 接入后再加；自助会话与权限点/权限组接口本轮补登，缺口见 MGMT-08～MGMT-15 | 待指定 |
 | API Key / AK-SK | AK-01～AK-07 | 签名、角色绑定、加密与可信审计已完成，真实 VPC 闭环 PASS | AKSK-VPC-20260922 已完成本批 |
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
-| Network 租户面读写对接 | NET-01～NET-24；复用 AK-*、AUTH-* | 24 方法 JWT/AK、三条主链、清理和相关门禁 pass | 本轮源码及隔离闭环完成；真实环境 not_verified |
+| Network 租户面读写对接 | NET-01～NET-25；复用 AK-*、AUTH-* | 24 方法 JWT/AK、三条主链、清理和相关门禁 pass | 本轮源码及隔离闭环完成；真实环境 not_verified |
 | 通用配额与 GPU 本地模拟 | QUOTA-01～03、QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 本地模拟闭环已实现并通过指定验收；正式构建无 GPU 路由；真实 GPU 未接入 | QUOTA-GPU-LOCAL-01，本地验收完成（真实 GPU not_verified） |
 | ModelDev CPU 主干受理及受管入口 | MODELDEV-01～MODELDEV-08 | 当前授权、可信解析、持久受理/投递、查询及受管目录/输入/运行操作已装配；启用/回退经真实鉴权/PG CAS 验证，目标集群业务验收仍需独立证明 | CPU-P01，进行中 |
 
@@ -29,6 +29,18 @@
 本批 **AKSK-VPC-20260922** 已由用户明确指定，覆盖 AK-01～07、AK-ISSUE-01～05、NET-01/NET-ISSUE-01：实现、远端定向测试、空库真实链路及必要负向验收均 PASS。证据见 [运行记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/aksk-vpc-20260922/README.md)。单个批次完成不代表整体登记结束，其他功能风格仍待指定。
 
 历史 **GOV-RESOURCE-20260922** 对接了 NET-01～NET-11 共 11 个租户接口；“17/17”是该批场景数，不是 Resource 租户 RPC 全量覆盖。该批 AK 实际只支持 GetVPC，其余接口的机器访问在 2026-10-09 增补。历史计划、证据及部署保持各自时点；当前覆盖与响应合同以下方本轮小节和源码为准。
+
+## 2026-10-10：固定三规格、多监听器与 VPC 预设后端
+
+用户明确禁止修改前端，本批限后端。NET-19～NET-24 沿用路径、旧字段编号和 LB 组合响应，flavor 固定 small/medium/large。创建可提供 `listeners: {items: [...]}`，每监听器有稳定 id/name、HTTP port、独立 backends/health_check；旧 listener/backends/health_check 输入继续兼容，混用拒绝。更新沿用 expected_version/idempotency_key，新输入使用 `data` 和 `update_mask`；集合遗漏保持，提供表示整体替换，空集合拒绝。查询追加 `listeners`，desired/applied 和配置状态继续与真实流量证据分开。
+
+| 编号 | RPC | HTTP | 权限码 | 响应 |
+| --- | --- | --- | --- | --- |
+| NET-25 | ListVPCCIDRPresets | `GET /api/v1/networks/vpc-cidr-presets` | `network:vpc:presets` | `{cidrs:[...]}` |
+
+NET-25 无 body/query，支持 JWT 和 ANI-HMAC-SHA256，要求当前租户、角色/API 权限及 `NETWORK` 套餐模块；可信 Resource tenant 从持久映射获取，不接受公网 tenant/actor。机器 operation allowlist、API 权限 SQL 和 OpenAPI 同步纳入新接口。只在独占验收库执行目录 dry-run、显式同步、权限/套餐关系及 Casbin 刷新，未修改业务库。
+
+预设唯一来源是 Resource 启动 YAML。读取只返回无冲突候选，不公开平台拓扑；CreateVPC 首次受理精确匹配并重新检查平台事实，空配置拒绝新建，旧幂等重放保持。配置改动需重启 Resource，Governance 不维护第二份列表。当前验收结果和恢复入口统一见 [本次计划](plans/network-lb-vpc-presets.md#实施结果与剩余断点)。
 
 ## 2026-10-09：租户 Network 补齐与响应合同
 

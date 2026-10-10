@@ -1,6 +1,7 @@
 syntax = "proto3";
 package catalog.service.v1;
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
 
 message GetVPCRequest { string vpc_id = 1 [json_name = "vpc_id"]; }
 // Public product fields only; tenant identity and provider placement stay internal.
@@ -231,11 +232,18 @@ enum LoadBalancerDataPlaneState {
 message LoadBalancerListenerInput {
   LoadBalancerListenerProtocol protocol = 1 [json_name = "protocol"];
   optional uint32 port = 2 [json_name = "port"];
+  string id = 3 [json_name = "id"];
+  string name = 4 [json_name = "name"];
+  repeated LoadBalancerBackendInput backends = 5 [json_name = "backends"];
+  LoadBalancerHealthCheck health_check = 6 [json_name = "health_check"];
 }
 message LoadBalancerListener {
   string id = 1 [json_name = "id"];
   LoadBalancerListenerProtocol protocol = 2 [json_name = "protocol"];
   uint32 port = 3 [json_name = "port"];
+  string name = 4 [json_name = "name"];
+  repeated LoadBalancerBackendMember backends = 5 [json_name = "backends"];
+  LoadBalancerHealthCheck health_check = 6 [json_name = "health_check"];
 }
 message LoadBalancerBackendInput {
   string id = 1 [json_name = "id"];
@@ -293,6 +301,7 @@ message LoadBalancer {
   string last_operation_id = 27 [json_name = "last_operation_id"];
   string public_address = 28 [json_name = "public_address"];
   google.protobuf.Timestamp data_plane_observed_at = 29 [json_name = "data_plane_observed_at"];
+  repeated LoadBalancerListener listeners = 30 [json_name = "listeners"];
 }
 message CreateLoadBalancerRequest {
   string name = 2 [json_name = "name"];
@@ -307,6 +316,7 @@ message CreateLoadBalancerRequest {
   repeated LoadBalancerBackendInput backends = 11 [json_name = "backends"];
   LoadBalancerHealthCheck health_check = 12 [json_name = "health_check"];
   string idempotency_key = 13 [json_name = "idempotency_key"];
+  LoadBalancerListenerSet listeners = 14 [json_name = "listeners"];
 }
 message CreateLoadBalancerResponse { LoadBalancer load_balancer = 1 [json_name = "load_balancer"]; Operation operation = 2 [json_name = "operation"]; }
 message GetLoadBalancerRequest { string load_balancer_id = 2 [json_name = "load_balancer_id"]; }
@@ -329,9 +339,19 @@ message UpdateLoadBalancerRequest {
   string description = 6 [json_name = "description"];
   repeated LoadBalancerBackendInput backends = 7 [json_name = "backends"];
   LoadBalancerHealthCheck health_check = 8 [json_name = "health_check"];
+  LoadBalancerListenerSet listeners = 9 [json_name = "listeners"];
+  google.protobuf.FieldMask update_mask = 10 [json_name = "update_mask"];
+  LoadBalancerMutableData data = 11 [json_name = "data"];
 }
 message UpdateLoadBalancerResponse { LoadBalancer load_balancer = 1 [json_name = "load_balancer"]; Operation operation = 2 [json_name = "operation"]; }
 message DeleteLoadBalancerRequest { string load_balancer_id = 2 [json_name = "load_balancer_id"]; }
 message DeleteLoadBalancerResponse { LoadBalancer load_balancer = 1 [json_name = "load_balancer"]; Operation operation = 2 [json_name = "operation"]; }
 message GetLoadBalancerOperationRequest { string operation_id = 2 [json_name = "operation_id"]; }
 message GetLoadBalancerOperationResponse { Operation operation = 1 [json_name = "operation"]; }
+
+// Presence distinguishes omission from an explicitly empty replacement.
+message LoadBalancerListenerSet { repeated LoadBalancerListenerInput items = 1; }
+message LoadBalancerMutableData { string name = 1; string description = 2; LoadBalancerListenerSet listeners = 3; }
+
+message ListVPCCIDRPresetsRequest {}
+message ListVPCCIDRPresetsResponse { repeated string cidrs = 1 [json_name = "cidrs"]; }
