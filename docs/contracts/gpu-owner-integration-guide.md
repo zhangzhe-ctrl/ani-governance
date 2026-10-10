@@ -1,6 +1,6 @@
 # GPU owner 接入、关闭与释放指南
 
-本文面向 Inference 和后续 GPU 业务服务，描述 GOV-ACC-V12-01 已实现的 Governance 公共能力，以及真实 owner 必须完成的接缝。**当前正式构建没有 GPU owner adapter，两个正式 GPU 配额目录为 `NOT_ENABLED`。** 管理和只读 BFF 可独立使用；本文不是可直接调用的 Inference 创建 API，也不是生产启用说明。
+本文面向 Inference 和后续 GPU 业务服务，描述 Governance 的创建接线与累计退额合同。`GOV-ACC-INF-V12-WIRING-01` 新增正式 Inference BFF、编译注册 adapter、公开退额 API 和固定 owner 身份装配；具体软件验收与发布版本以本批结果索引为准。未配置 Inference 客户端或缺少当前套餐/动作授权时继续拒绝新创建。持久 ACK 与受控注入退额不证明模型运行、物理释放或生产验收。
 
 独立持久化测试 owner 只存在于 `app/admin/service/tests/contracts/gpu/*_test.go`。它运行真实 PostgreSQL 命令、墓碑和通知事务，但不创建 Kubernetes 工作负载，不实现 Inference，不证明物理 GPU 清理。软件、真实 owner、硬件和生产部署的结论必须分别记录。
 
@@ -11,7 +11,7 @@
 | Governance | 最低实现版本为 **`bd9ad1a33bbe8ce28f4faeb19bfc9ee494ae8a84`**：`GpuAcceptance`、schema 2 canonical、`gpu-metering-v1`、完整配额账本（当前已恢复 Ent；下列 SHA 为历史交付版本）、DELETE acceptance、独立 usage sync、严格 ACK/GPU release 校验 | 源码 manifest、版本对和后续证据提交写入[交付记录](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/release/closeout.md)。任务起点 `0fbe1a69e49cc23dc7a1696b62f68c34a7c6a48a` 不包含这些能力 |
 | Accelerator | 最低固定交付 SHA `1d32dd9a9173b8869fa0ef2ae64e20b88f2ca0a3`；`accelerator.v1`、`accelerator.integration.v1`、22 RPC、公开附件及本批运行时整改 | 已发布的任务分支提交；这不表示生产部署、真实 owner 或硬件已经通过 |
 | 跨仓依赖 | 本仓 [go.mod](../../go.mod) / [go.sum](../../go.sum) 固定 `v0.0.0-20260924030150-1d32dd9a9173`，对应上行 Acc SHA | 上述 Gov 实现与该模块已完成 Fedora 软件验收；精确CI状态和用户接受不等待Gov CI的边界见交付记录。旧API基线联调不能认证新模块 |
-| 当前 owner | `ani-inference`，固定单 owner 的 ref、身份、公钥和查询约束 | 支持这一合同标识不等于已经注册正式 Inference adapter；第二 owner 未实现 |
+| 当前 owner | `ani-inference`，固定单 owner 的 ref、身份、公钥和查询约束 | 正式 Inference adapter 源码已接入；实际环境启用仍需受管连接、当前授权、额度和身份；第二 owner 未实现 |
 | 未开放能力 | 任意 owner、自报 URL/RPC 转发、在线 GPU 扩缩、额外 GPU 容器/滚动副本、多设备容器 | 均不能仅改配置或更换名称启用 |
 
 接入评审必须先填写最低 Gov SHA、最低 Acc SHA、实际 Go 模块版本与 sum、数据库迁移版本和两仓受测版本对；未锁定前只可做接口开发，不能据本文宣布接入验收完成。使用 `GOWORK=off` 正式消费模块，不使用兄弟目录 `replace`、复制 Proto 或跨仓 `internal` 导入。
@@ -26,7 +26,9 @@
 | 原子占额、取消、DELETE、累计释放 | [quota_ledger_repo.go](../../app/admin/service/internal/data/quota_ledger_repo.go) |
 | 独立投影扫描、租约、重试与 CAS | [gpu_usage_sync_worker.go](../../app/admin/service/internal/service/gpu_usage_sync_worker.go)、[quota_gpu_sync_repo.go](../../app/admin/service/internal/data/quota_gpu_sync_repo.go) |
 | owner 退款身份及稳定协议 | [quota_internal_server.go](../../app/admin/service/internal/server/quota_internal_server.go)、[quota_release.proto](../../api/protos/quota/service/v1/quota_release.proto) |
-| 正式构建默认关闭 | [wiring_ent.go](../../app/admin/service/cmd/server/wiring_ent.go) |
+| 正式业务 BFF、严格 adapter | [inference_service.go](../../app/admin/service/internal/service/inference_service.go)、[inference_client.go](../../app/admin/service/internal/data/inference_client.go) |
+| 当前用户/角色/套餐与路由授权 | [inference_authorization.go](../../app/admin/service/internal/data/inference_authorization.go) |
+| 正式装配与受管连接 | [wiring_ent.go](../../app/admin/service/cmd/server/wiring_ent.go) |
 | 已登记的公网接口和权限 | [接口集成登记](../interface-integration-register.md)、[BFF Proto](../../api/protos/admin/service/v1/i_accelerator.proto) |
 
 ## 2. 权威和职责
@@ -66,9 +68,28 @@
 | Gov → Acc，SyncGpuUsage | 同一精确 Gov URI，按原持久 ref/plan/账本派生；不套用当前用户 grant。权限撤回和套餐到期不能阻断原事实同步 |
 | owner → Acc，ObserveRelease | 唯一 URI SAN 精确为 `spiffe://ani.internal/service/ani-inference`；`x-ani-tenant-id` 等于原 ref，实际 Pod 断言也必须可信 |
 | owner → Gov，ReportQuotaRelease | 内部独立 mTLS listener，客户端**精确 DNS SAN** 命中编译装配的 owner map；至少命中一个 owner，命中不同 owner 拒绝，同 owner 多个 SAN 可接受。不是 Acc 的唯一 URI 规则 |
-| Gov → 实际 owner 业务 RPC | 由未来真实业务 API 的服务身份合同固定；测试 owner 的 HTTP 控制入口不提供生产合同 |
+| Gov → Inference 受管 GPU RPC | TLS 1.3；客户端证书唯一 URI SAN 精确为 `spiffe://ani.internal/service/ani-governance`。接收器验证链及该身份，从可信附件 ref 取得原租户；普通 metadata 自报不能提供授权 |
 
-平台 Acc grant 不包含伪造 tenant，可以配置明确平台 cluster `*`；租户 grant 只允许具体 cluster UUID。不能用 tenant `0` 或空值绕过租户边界。Gov 内部退款服务默认关闭，正式 owner map 当前为空；启用 listener 但缺地址/CA/证书/key/map 会报错，不能靠环境字符串把测试 owner 加入正式构建。
+平台 Acc grant 不包含伪造 tenant，可以配置明确平台 cluster `*`；租户 grant 只允许具体 cluster UUID。不能用 tenant `0` 或空值绕过租户边界。Gov 内部退款服务默认关闭；编译装配仅允许固定 owner `ani-inference`，精确客户端 DNS SAN 由 `ANI_QUOTA_INFERENCE_DNS_SAN` 配置。没有提供生产 SAN 时不能启用 listener；通配符、URI、IP 和非规范 DNS 名均拒绝。配置不能选择另一个 owner，同 CA 的其他客户端也不会获得退额权限。
+
+### 4.1 正式创建/删除入口与受管配置
+
+本批用户确认登记 `INFERENCE=15`，独立于 `ACCELERATOR`。`PlanModule(INFERENCE)` 表示当前套餐允许推理功能；`PlanQuota(gpu.shared_memory_mib/gpu.physical.count)` 表示额度上限；当前角色对两个独立动作的授权仍是另一道必需闸门。来源为活跃 `identity/service/v1/module.proto` 和接口集成登记。
+
+| 接口 | 公共报文与结果 |
+|---|---|
+| `POST /api/v1/inference/services` | `{"data":{"idempotency_key":"UUID","name":"...","model_version_id":"UUID","resource":{"requests":{},"limits":{},"gpu":{"cluster_id":"UUID","pool_id":"UUID","profile_id":"UUID","profile_version":"1","replicas":1,"devices_per_replica":1,"container_name":"kserve-container"}},"replicas":1,"runtime":{"mode":1,"provider":"kserve"},"model_artifact":{},"engine":{"type":"...","image":"...","command":["..."],"args":[]},"served_model_name":"..."}}`；业务调用既有 `AcceptGpuCreate`，返回 operation/resource、replayed、`ACCEPTED` 和 dispatch ID |
+| `POST /api/v1/inference/services/{data.resource_id}:delete` | `{"data":{"idempotency_key":"UUID"}}`，资源从路径绑定；若正文同时带 resource_id 必须相同。调用既有 `AcceptGpuDelete`，返回 `QUEUED_FOR_OWNER` 或 `CANCELED_BEFORE_DISPATCH`；不接受本地 generation，也不返回释放完成 |
+
+公共 DTO 没有附件、charges、可信 tenant/actor/owner、plan 或目的 URL；严格 HTTP 解码拒绝未知字段、重复字段、额外 query 和身份注入头。正式 adapter 调用 `InferenceServiceManager/CreateInferenceService` 与专用 `DeleteInferenceServiceRequest`；create 附件为 tag 10、原全量 charges 为 tag 11，delete 保留 tags 1..3、附件为 tag 4、原全量 charges 为 tag 5，响应 `durable_owner_ack` 为 tag 3。
+
+原业务规范和 digest 由 Inference 公开 API 包 `CanonicalBusinessPayload` / `DecodeBusinessPayload` / `BusinessPayloadDigest` 唯一提供。全部业务 snake_case 字段参与，map 为字典序对象，整数与枚举为十进制字符串，空 list/map 为 `[]/{}`、缺 message 为 null，SHA-256 无前缀；完全排除 request_id、gpu_owner_attachment 和 original_charges。计划摘要继续使用 Acc 自己的算法；不能混用。
+
+Gov 在 Occupy 前调用同包 `ValidateBusinessPayload`。当前锁定 KServe 的 LWS 路径无法可靠承载所需 Pod GPU annotations 与 Queue，受管 GPU LWS 输入明确拒绝；不能先占额后靠异步补丁补参数，C02 的实际 LWS 参数投影保持 `not_verified`。固定副本 Deployment 路径和 CPU LWS 分别按其实际支持能力处理。
+
+Gov→Inference 配置为 `ANI_INFERENCE_ADDR`、`ANI_INFERENCE_CA_FILE`、`ANI_INFERENCE_CERT_FILE`、`ANI_INFERENCE_KEY_FILE`、`ANI_INFERENCE_SERVER_NAME`。最后一项是部署方提供的精确服务端 DNS SAN，不从服务名猜测；固定三秒超时、TLS 1.3，无明文或 skipVerify。退款 receiver 配置为 `ANI_QUOTA_ENABLED=true`、`ANI_QUOTA_INTERNAL_ADDR`、`ANI_QUOTA_CA_FILE`、`ANI_QUOTA_CERT_FILE`、`ANI_QUOTA_KEY_FILE`、`ANI_QUOTA_INFERENCE_DNS_SAN`；最后一项只映射到固定 `ani-inference`。
+
+权限登记使用 [register-inference-permissions.sql](../../scripts/ops/sql/register-inference-permissions.sql)，先执行当前 API dry-run 与显式同步。选定租户的现有 `tenant:manager` 角色和选定套餐启用使用 [enable-inference-access.sql](../../scripts/ops/sql/enable-inference-access.sql)，明确传 tenant_id/role_id/plan_id；不更改基础 FREE、不向模板/所有角色自动授予，也不配置额度。共享套餐的 INFERENCE entitlement 影响全部订阅该套餐的租户，须按预期选择套餐。脚本仅供显式运维执行，源码落盘不表示已操作生产数据库。
 
 | 字段 | 来源和语义 |
 |---|---|
@@ -149,7 +170,7 @@ Acc 只有公钥，不持有 owner 私钥。未签名或不匹配的实际分配
 
 ## 8. DELETE、关闭墓碑与 ObserveRelease
 
-公开删除由未来真实业务 BFF 做当前权限校验后调用 `AcceptGpuDelete`。Gov 从本库读取原 CREATE、plan 和完整 charges，在一个事务内锁住原操作并与 worker 领取串行化：
+公开删除由正式 Inference BFF 做当前权限校验后调用 `AcceptGpuDelete`。Gov 从本库读取原 CREATE、plan 和完整 charges，在一个事务内锁住原操作并与 worker 领取串行化：
 
 | 原 CREATE 状态 | 持久结果 |
 |---|---|
@@ -243,4 +264,4 @@ Gov usage worker 周期分页重扫原 CREATE 和完整 charges，派生同一 r
 
 Governance 当前统一入口为 `make verify-ci`，Acc 入口仍为 `make verify`，在授权 Fedora 隔离环境执行；集成脚本见 [run-joint-contract.sh](../../scripts/accelerator-acceptance/run-joint-contract.sh)。摘要表直接引用已有受测固定向量，不创造新“示例正确 hash”。完整 Goal 矩阵仍是 Acc `docs/plans/governance-accelerator-v1.2-acceptance.md`，本文不替代逐 ID 结果。
 
-[本批软件联调证据](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/joint-software.md)明确区分 fixture 和真实事实。测试 owner 的软件关闭可以与叠加观察中仍有 live binding 同时存在；这用于证明 ENDED 不清 binding，不能作为真实 owner 退款正确性的硬件证据。当前还缺正式 owner 注册、真实业务 API/渲染/清理、多 owner 和真实 GPU 验收；CPU 推理、sleep 容器、YAML 或 HTTP 存活都不能替代这些门槛。
+[历史 GOV-ACC-V12-01 软件联调证据](https://github.com/zhangzhe-ctrl/ani-governance/blob/63849fc4cde38b879184a8fea4a6f539e60063e1/docs/evidence/gov-acc-v12-01/joint-software.md)明确区分 fixture 和真实事实，不能作为新 Inference 接线的验收结果。新的 `TestActualInferenceOwnerWiring` 使用实际 Inference RPC/PG 和实际退款客户端，暂停外部模型/Kubernetes 执行，在 Gov 已有持久 DELETE 后显式注入完成通知；其运行结果单独记录。真实模型/调度/硬件、Pod 签名与完整范围、创建封闭/在途写/完整清理、ObserveRelease、关闭事实/可靠 outbox、业务退款触发和真实恢复仍由推理负责人验收。ENDED 不清仍在观察到的 live binding；CPU 推理、sleep 容器、YAML 或 HTTP 存活不能替代这些门槛。

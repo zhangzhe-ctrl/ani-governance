@@ -200,6 +200,7 @@ var activeGenConfigs = []string{
 	"buf.network.gen.yaml",
 	"buf.pagination.gen.yaml",
 	"buf.quota.gen.yaml",
+	"buf.quota-release.gen.yaml",
 	"buf.redact.gen.yaml",
 	"buf.validate.gen.yaml",
 }

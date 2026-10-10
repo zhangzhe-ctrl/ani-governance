@@ -25,7 +25,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	quota "go-wind-admin/api/gen/go/quota/service/v1"
+	quota "github.com/zhangzhe-ctrl/ani-governance/api/quota/gen/go/quota/service/v1"
+	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/service"
 	"go-wind-admin/pkg/middleware/auth"
@@ -364,14 +365,14 @@ func (*ownerAdapter) GpuQuotaCodes() []string {
 func (a *ownerAdapter) Actions() []string { return []string{a.CreateAction(), a.DeleteAction()} }
 func (*ownerAdapter) AuthorizeGpu(_ context.Context, p *auth.Principal, action, resource string) error {
 	if p == nil || p.Type != auth.SubjectUser || p.ID != 1 || p.TenantID != 1 {
-		return data.QuotaErrNotFound("resource not found")
+		return quotapb.ErrorQuotaNotFound("%s", "resource not found")
 	}
 	return nil
 }
 func (*ownerAdapter) ValidateGpuBusiness(_ context.Context, p proto.Message) ([]data.QuotaOccupyItem, error) {
 	v, ok := p.(*wrapperspb.StringValue)
 	if !ok || v.Value == "" {
-		return nil, data.QuotaErrInvalid("test business name required")
+		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "test business name required")
 	}
 	if strings.HasPrefix(v.Value, "mixed-") {
 		return []data.QuotaOccupyItem{{QuotaCode: "storage.bytes", Units: 10}}, nil

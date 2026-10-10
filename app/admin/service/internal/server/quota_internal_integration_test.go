@@ -12,7 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
+	quotapb "github.com/zhangzhe-ctrl/ani-governance/api/quota/gen/go/quota/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent/quotacharge"
 	"go-wind-admin/app/admin/service/tests/testutil"

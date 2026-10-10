@@ -1,0 +1,32 @@
+syntax = "proto3";
+package inference.service.v1;
+
+import "inference/v1/inference.proto";
+
+// Public user intent. Trusted attachments, charges, identity and destination
+// are assembled by Governance and have no representation in this DTO.
+message CreateInferenceRequest { CreateInferenceData data = 1; }
+message CreateInferenceData {
+  string idempotency_key = 1 [json_name = "idempotency_key"];
+  string name = 2;
+  string model_version_id = 3 [json_name = "model_version_id"];
+  inference.v1.ResourceSpec resource = 4;
+  int32 replicas = 5;
+  inference.v1.RuntimeSpec runtime = 6;
+  inference.v1.ModelArtifact model_artifact = 7 [json_name = "model_artifact"];
+  inference.v1.EngineSpec engine = 8;
+  string served_model_name = 9 [json_name = "served_model_name"];
+}
+message DeleteInferenceRequest { DeleteInferenceData data = 1; }
+message DeleteInferenceData {
+  string idempotency_key = 1 [json_name = "idempotency_key"];
+  string resource_id = 2 [json_name = "resource_id"];
+}
+message InferenceAcceptance {
+  string operation_id = 1 [json_name = "operation_id"];
+  string resource_id = 2 [json_name = "resource_id"];
+  bool replayed = 3;
+  // Durable Governance admission; this is not model readiness.
+  string result = 4;
+  string dispatch_operation_id = 5 [json_name = "dispatch_operation_id"];
+}

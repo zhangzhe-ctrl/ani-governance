@@ -187,13 +187,14 @@ if os.environ.get('FAIL_KIND') == kind: sys.exit(43 if kind == 'quota-server' el
             active.write_text('var activeGenConfigs = []string{\n'
                               '"buf.gen.yaml",\n"buf.pagination.gen.yaml",\n'
                               '"buf.redact.gen.yaml",\n"buf.bootstrap.conf.gen.yaml",\n'
-                              '"buf.admin.openapi.gen.yaml",\n}\n')
+                              '"buf.admin.openapi.gen.yaml",\n"buf.quota-release.gen.yaml",\n}\n')
             templates = {
                 'buf.gen.yaml': 'gen/go',
                 'buf.pagination.gen.yaml': '../pkg/localdeps/go-crud/api/gen/go',
                 'buf.redact.gen.yaml': '../pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact',
                 'buf.bootstrap.conf.gen.yaml': '../pkg/localdeps/kratos-bootstrap/api/gen/go',
                 'buf.admin.openapi.gen.yaml': '../app/admin/service/cmd/server/assets',
+                'buf.quota-release.gen.yaml': 'quota/gen/go',
             }
             for name, output in templates.items():
                 target = root / 'api' / name
@@ -201,6 +202,7 @@ if os.environ.get('FAIL_KIND') == kind: sys.exit(43 if kind == 'quota-server' el
                 target.write_text(f'plugins:\n  - local: protoc\n    out: {output}\n')
             outputs = [
                 'api/gen/go/example.pb.go',
+                'api/quota/gen/go/quota_release.pb.go',
                 'pkg/localdeps/go-crud/api/gen/go/pagination.pb.go',
                 'pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/redact.pb.go',
                 'pkg/localdeps/go-wind-toolkit/protoc-gen-go-redact/README.md',

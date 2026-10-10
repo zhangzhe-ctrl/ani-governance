@@ -617,6 +617,7 @@ func TestGeneratedArtifactClasses(t *testing.T) {
 func TestEveryCommittedArtifactUnderAManagedRootIsClassified(t *testing.T) {
 	expectedHandWritten := map[string]int{
 		"api/gen/go":                                         0,
+		"api/quota/gen/go":                                   0,
 		"pkg/localdeps/go-crud/api/gen/go":                   0,
 		"pkg/localdeps/kratos-bootstrap/api/gen/go":          0,
 		"app/admin/service/cmd/server/assets":                2,  // assets.go and the hand-written modeldev_openapi_test.go

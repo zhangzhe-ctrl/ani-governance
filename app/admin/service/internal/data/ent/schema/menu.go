@@ -90,6 +90,7 @@ func (Menu) Fields() []ent.Field {
 				"Log", "LOG",
 				"InternalMessage", "INTERNAL_MESSAGE",
 				"Task", "TASK",
+				"Inference", "INFERENCE",
 			).
 			Optional().
 			Nillable(),

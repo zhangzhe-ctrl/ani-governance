@@ -1297,3 +1297,20 @@ Resource 仅提供内部 gRPC，本批同步公开 JSON 规格和 SBOM，已发�
 两条实测修正（以实测为准）：① 首页不传排序时的默认排序就是 id 降序，因此"用 `orderBy=["-id"]` 复用游标"属于同一绑定、返回 200 才正确，验收用例已改用 `orderBy=["-created_at"]`；② 本部署的响应编码会输出未填充字段，末页 `next_cursor` 是空串（键存在）而非键缺席，仍满足"末页为空"。
 
 未执行/遗留：本批镜像内含上一批次（access-key 幂等）的代码，而该批迁移当时未在 ani-system 的库上执行（本批不含 schema 变更、未跑 Atlas）。**该遗留已于 2026-10-10 处置**：补跑迁移 `20261010131938` 并授予 `gov_app` 权限后，`POST /api/v1/auth/api-keys` 带 `idempotency_key` 的幂等行为已实测通过（见 AK-IDEM-01）。SQLite 上的时间列键集仍不可断言（夹具驱动存储形态问题），PostgreSQL 上已由上述 `created_at` 翻页用例覆盖。
+
+## GOV-ACC-INF-V12-WIRING-01：推理创建与删除接线（2026-10-09）
+
+用户明确批准本仓登记 `INFERENCE=15`。新增推理模块和两项独立动作；当前源码登记与实际授权/部署分别验收，不据此向基础套餐、所有角色或生产环境自动开放。
+
+| 编号 | 入口 | 报文与可靠受理 | 当前授权条件 |
+|---|---|---|---|
+| INF-01 | `POST /api/v1/inference/services` | `data` 内接原推理业务与 `resource.gpu`、UUID idempotency_key；不暴露内部附件。调用现有 AcceptGpuCreate：授权、重放、Resolve、冻结、Ent一次占额、持久 dispatch；返回原 operation/resource、replayed、ACCEPTED | 可信 tenant-user Principal；活跃当前用户/租户/角色；当前套餐 INFERENCE；独立 `inference:service:create` → 当前 API route grant；对应 GPU PlanQuota；实际 Acc delegation 与已装配 Inference adapter |
+| INF-02 | `POST /api/v1/inference/services/{data.resource_id}:delete` | `data.idempotency_key`；resource由路径绑定，正文若有须一致。调用现有 AcceptGpuDelete：未发可本地原子取消，否则持久 DELETE 关联并可靠投递；ACK不是释放完成 | 同一可信租户与独立 `inference:service:delete` 动作；权限先于原创建读取/幂等重放，不能用 Accelerator 读权或历史原记录绕过 |
+
+ledger adapter action固定为权威 Inference RPC full method `CreateInferenceService` / `DeleteInferenceService`；目的地址和服务端精确 DNS SAN 只来自受管配置。真实 Inference RPC保留原业务tags，加入公共Acc附件与原全量charges；唯一业务摘要来自 Inference API公开helper，adapter核对durable ACK并映射既有三个snake_case字段。完整字段/单位/身份/错误/恢复见 [GPU owner接入指南](contracts/gpu-owner-integration-guide.md)。
+
+当前受管GPU的LWS输入在共享业务校验中、Occupy之前明确拒绝；锁定KServe的LWS模板无法可靠投影GPU annotations与Queue。本批不把typed渲染接口或接受后补丁当C02可运行路径，实际LWS投影仍为not_verified。
+
+模块资格 `PlanModule`、上限 `PlanQuota` 与当前用户动作授权各自独立。API先dry-run/显式sync后执行 [权限目录登记](../scripts/ops/sql/register-inference-permissions.sql)，再仅为显式选定tenant:manager角色和选定套餐执行 [启用脚本](../scripts/ops/sql/enable-inference-access.sql)，传tenant_id/role_id/plan_id；不修改基础FREE、模板、所有角色或用户配额。Gov内部退款listener仅编译注册固定ani-inference，生产精确客户端DNS SAN必须明确配置，不猜测。
+
+软件测试使用实际Gov受理/账本/当前权限、真实Acc解析和真实Inference RPC/PG；只有外部provider证据可用明确替身，外部模型/Kubernetes执行暂停。完成通知在持久DELETE后显式注入，通过真实Inference退款客户端调用真实Gov mTLS/PG。源码实现、发布依赖、运行结果、CI及生产/真实GPU验收由本批结果索引分别记录；本文不回填未执行PASS，也不将本批之外的接口风格整体登记结项。

@@ -119,6 +119,10 @@ register:
 api: gow redact-plugin
 	tools/bin/gow api
 
+.PHONY: api-quota-release
+api-quota-release:
+	bash scripts/generate-quota-api.sh
+
 # pgv / 单模板 buf generate 只是内部阶段；完整生成命令是 `gow api`（或 `make api`）。
 # PGV 单独一遍：文件级范围由 api/buf.validate.gen.yaml 的清单固定（T15），clean:false 不动共享输出根。
 pgv:

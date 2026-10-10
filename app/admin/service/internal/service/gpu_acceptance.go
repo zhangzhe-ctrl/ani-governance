@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"sort"
 	"strconv"
@@ -123,13 +124,23 @@ func (s *GpuAcceptance) AcceptGpuCreate(ctx context.Context, key string, gpu *ac
 		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid resource tenant mapping")
 	}
 	actorID := strconv.FormatUint(uint64(p.ID), 10)
-	businessObject, err := gpuCanonicalMessage(business.ProtoReflect())
+	var businessObject map[string]any
+	var businessBytes []byte
+	if canonical, ok := s.binding.(interface {
+		CanonicalGpuBusiness(proto.Message) ([]byte, error)
+	}); ok {
+		businessBytes, err = canonical.CanonicalGpuBusiness(business)
+		if err == nil {
+			err = json.Unmarshal(businessBytes, &businessObject)
+		}
+	} else {
+		businessObject, err = gpuCanonicalMessage(business.ProtoReflect())
+		if err == nil {
+			businessBytes, err = gpuCanonicalJSON(businessObject)
+		}
+	}
 	if err != nil {
 		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid business payload")
-	}
-	businessBytes, err := gpuCanonicalJSON(businessObject)
-	if err != nil {
-		return nil, err
 	}
 	gpuObject, err := gpuCanonicalMessage(gpu.ProtoReflect())
 	if err != nil {

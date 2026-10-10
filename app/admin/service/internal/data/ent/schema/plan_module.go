@@ -47,6 +47,7 @@ func (PlanModule) Fields() []ent.Field {
 				"Network", "NETWORK",
 				"Accelerator", "ACCELERATOR",
 				"Image", "IMAGE",
+				"Inference", "INFERENCE",
 			).
 			Optional().
 			Nillable(),

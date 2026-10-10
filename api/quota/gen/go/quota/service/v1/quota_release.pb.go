@@ -388,8 +388,7 @@ const file_quota_service_v1_quota_release_proto_rawDesc = "" +
 	"\x0fABORTED_CLEANED\x10\x01\x12\x15\n" +
 	"\x11RESOURCE_RELEASED\x10\x022\x86\x01\n" +
 	"\x13QuotaReleaseService\x12o\n" +
-	"\x12ReportQuotaRelease\x12+.quota.service.v1.ReportQuotaReleaseRequest\x1a,.quota.service.v1.ReportQuotaReleaseResponseB\xbe\x01\n" +
-	"\x14com.quota.service.v1B\x11QuotaReleaseProtoP\x01Z1go-wind-admin/api/gen/go/quota/service/v1;quotapb\xa2\x02\x03QSX\xaa\x02\x10Quota.Service.V1\xca\x02\x10Quota\\Service\\V1\xe2\x02\x1cQuota\\Service\\V1\\GPBMetadata\xea\x02\x12Quota::Service::V1b\x06proto3"
+	"\x12ReportQuotaRelease\x12+.quota.service.v1.ReportQuotaReleaseRequest\x1a,.quota.service.v1.ReportQuotaReleaseResponseBSZQgithub.com/zhangzhe-ctrl/ani-governance/api/quota/gen/go/quota/service/v1;quotapbb\x06proto3"
 
 var (
 	file_quota_service_v1_quota_release_proto_rawDescOnce sync.Once
