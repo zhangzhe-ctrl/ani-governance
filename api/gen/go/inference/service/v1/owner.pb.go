@@ -73,12 +73,16 @@ type CreateInferenceData struct {
 	IdempotencyKey  string                 `protobuf:"bytes,1,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
 	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	ModelVersionId  string                 `protobuf:"bytes,3,opt,name=model_version_id,proto3" json:"model_version_id,omitempty"`
-	Resource        *v1.ResourceSpec       `protobuf:"bytes,4,opt,name=resource,proto3" json:"resource,omitempty"`
-	Replicas        int32                  `protobuf:"varint,5,opt,name=replicas,proto3" json:"replicas,omitempty"`
-	Runtime         *v1.RuntimeSpec        `protobuf:"bytes,6,opt,name=runtime,proto3" json:"runtime,omitempty"`
-	ModelArtifact   *v1.ModelArtifact      `protobuf:"bytes,7,opt,name=model_artifact,proto3" json:"model_artifact,omitempty"`
-	Engine          *v1.EngineSpec         `protobuf:"bytes,8,opt,name=engine,proto3" json:"engine,omitempty"`
-	ServedModelName string                 `protobuf:"bytes,9,opt,name=served_model_name,proto3" json:"served_model_name,omitempty"`
+	ServedModelName string                 `protobuf:"bytes,4,opt,name=served_model_name,proto3" json:"served_model_name,omitempty"`
+	EngineImage     string                 `protobuf:"bytes,5,opt,name=engine_image,proto3" json:"engine_image,omitempty"`
+	EngineType      string                 `protobuf:"bytes,6,opt,name=engine_type,proto3" json:"engine_type,omitempty"`
+	Command         string                 `protobuf:"bytes,7,opt,name=command,proto3" json:"command,omitempty"`
+	Cpu             string                 `protobuf:"bytes,8,opt,name=cpu,proto3" json:"cpu,omitempty"`
+	Memory          string                 `protobuf:"bytes,9,opt,name=memory,proto3" json:"memory,omitempty"`
+	Replicas        int32                  `protobuf:"varint,10,opt,name=replicas,proto3" json:"replicas,omitempty"`
+	Gpu             *GpuSelection          `protobuf:"bytes,11,opt,name=gpu,proto3" json:"gpu,omitempty"`
+	RuntimeMode     v1.RuntimeMode         `protobuf:"varint,12,opt,name=runtime_mode,proto3,enum=inference.v1.RuntimeMode" json:"runtime_mode,omitempty"`
+	WorkerReplicas  int32                  `protobuf:"varint,13,opt,name=worker_replicas,proto3" json:"worker_replicas,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -134,11 +138,46 @@ func (x *CreateInferenceData) GetModelVersionId() string {
 	return ""
 }
 
-func (x *CreateInferenceData) GetResource() *v1.ResourceSpec {
+func (x *CreateInferenceData) GetServedModelName() string {
 	if x != nil {
-		return x.Resource
+		return x.ServedModelName
 	}
-	return nil
+	return ""
+}
+
+func (x *CreateInferenceData) GetEngineImage() string {
+	if x != nil {
+		return x.EngineImage
+	}
+	return ""
+}
+
+func (x *CreateInferenceData) GetEngineType() string {
+	if x != nil {
+		return x.EngineType
+	}
+	return ""
+}
+
+func (x *CreateInferenceData) GetCommand() string {
+	if x != nil {
+		return x.Command
+	}
+	return ""
+}
+
+func (x *CreateInferenceData) GetCpu() string {
+	if x != nil {
+		return x.Cpu
+	}
+	return ""
+}
+
+func (x *CreateInferenceData) GetMemory() string {
+	if x != nil {
+		return x.Memory
+	}
+	return ""
 }
 
 func (x *CreateInferenceData) GetReplicas() int32 {
@@ -148,32 +187,93 @@ func (x *CreateInferenceData) GetReplicas() int32 {
 	return 0
 }
 
-func (x *CreateInferenceData) GetRuntime() *v1.RuntimeSpec {
+func (x *CreateInferenceData) GetGpu() *GpuSelection {
 	if x != nil {
-		return x.Runtime
+		return x.Gpu
 	}
 	return nil
 }
 
-func (x *CreateInferenceData) GetModelArtifact() *v1.ModelArtifact {
+func (x *CreateInferenceData) GetRuntimeMode() v1.RuntimeMode {
 	if x != nil {
-		return x.ModelArtifact
+		return x.RuntimeMode
 	}
-	return nil
+	return v1.RuntimeMode(0)
 }
 
-func (x *CreateInferenceData) GetEngine() *v1.EngineSpec {
+func (x *CreateInferenceData) GetWorkerReplicas() int32 {
 	if x != nil {
-		return x.Engine
+		return x.WorkerReplicas
 	}
-	return nil
+	return 0
 }
 
-func (x *CreateInferenceData) GetServedModelName() string {
+type GpuSelection struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId      string                 `protobuf:"bytes,1,opt,name=cluster_id,proto3" json:"cluster_id,omitempty"`
+	PoolId         string                 `protobuf:"bytes,2,opt,name=pool_id,proto3" json:"pool_id,omitempty"`
+	ProfileId      string                 `protobuf:"bytes,3,opt,name=profile_id,proto3" json:"profile_id,omitempty"`
+	ProfileVersion uint64                 `protobuf:"varint,4,opt,name=profile_version,proto3" json:"profile_version,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GpuSelection) Reset() {
+	*x = GpuSelection{}
+	mi := &file_inference_service_v1_owner_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GpuSelection) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GpuSelection) ProtoMessage() {}
+
+func (x *GpuSelection) ProtoReflect() protoreflect.Message {
+	mi := &file_inference_service_v1_owner_proto_msgTypes[2]
 	if x != nil {
-		return x.ServedModelName
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GpuSelection.ProtoReflect.Descriptor instead.
+func (*GpuSelection) Descriptor() ([]byte, []int) {
+	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GpuSelection) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
 	}
 	return ""
+}
+
+func (x *GpuSelection) GetPoolId() string {
+	if x != nil {
+		return x.PoolId
+	}
+	return ""
+}
+
+func (x *GpuSelection) GetProfileId() string {
+	if x != nil {
+		return x.ProfileId
+	}
+	return ""
+}
+
+func (x *GpuSelection) GetProfileVersion() uint64 {
+	if x != nil {
+		return x.ProfileVersion
+	}
+	return 0
 }
 
 type DeleteInferenceRequest struct {
@@ -185,7 +285,7 @@ type DeleteInferenceRequest struct {
 
 func (x *DeleteInferenceRequest) Reset() {
 	*x = DeleteInferenceRequest{}
-	mi := &file_inference_service_v1_owner_proto_msgTypes[2]
+	mi := &file_inference_service_v1_owner_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -197,7 +297,7 @@ func (x *DeleteInferenceRequest) String() string {
 func (*DeleteInferenceRequest) ProtoMessage() {}
 
 func (x *DeleteInferenceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inference_service_v1_owner_proto_msgTypes[2]
+	mi := &file_inference_service_v1_owner_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -210,7 +310,7 @@ func (x *DeleteInferenceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteInferenceRequest.ProtoReflect.Descriptor instead.
 func (*DeleteInferenceRequest) Descriptor() ([]byte, []int) {
-	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{2}
+	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *DeleteInferenceRequest) GetData() *DeleteInferenceData {
@@ -221,16 +321,17 @@ func (x *DeleteInferenceRequest) GetData() *DeleteInferenceData {
 }
 
 type DeleteInferenceData struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	IdempotencyKey string                 `protobuf:"bytes,1,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
-	ResourceId     string                 `protobuf:"bytes,2,opt,name=resource_id,proto3" json:"resource_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	IdempotencyKey     string                 `protobuf:"bytes,1,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	ResourceId         string                 `protobuf:"bytes,2,opt,name=resource_id,proto3" json:"resource_id,omitempty"`
+	ExpectedGeneration int64                  `protobuf:"varint,3,opt,name=expected_generation,proto3" json:"expected_generation,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *DeleteInferenceData) Reset() {
 	*x = DeleteInferenceData{}
-	mi := &file_inference_service_v1_owner_proto_msgTypes[3]
+	mi := &file_inference_service_v1_owner_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -242,7 +343,7 @@ func (x *DeleteInferenceData) String() string {
 func (*DeleteInferenceData) ProtoMessage() {}
 
 func (x *DeleteInferenceData) ProtoReflect() protoreflect.Message {
-	mi := &file_inference_service_v1_owner_proto_msgTypes[3]
+	mi := &file_inference_service_v1_owner_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -255,7 +356,7 @@ func (x *DeleteInferenceData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteInferenceData.ProtoReflect.Descriptor instead.
 func (*DeleteInferenceData) Descriptor() ([]byte, []int) {
-	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{3}
+	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeleteInferenceData) GetIdempotencyKey() string {
@@ -272,6 +373,13 @@ func (x *DeleteInferenceData) GetResourceId() string {
 	return ""
 }
 
+func (x *DeleteInferenceData) GetExpectedGeneration() int64 {
+	if x != nil {
+		return x.ExpectedGeneration
+	}
+	return 0
+}
+
 type InferenceAcceptance struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	OperationId string                 `protobuf:"bytes,1,opt,name=operation_id,proto3" json:"operation_id,omitempty"`
@@ -286,7 +394,7 @@ type InferenceAcceptance struct {
 
 func (x *InferenceAcceptance) Reset() {
 	*x = InferenceAcceptance{}
-	mi := &file_inference_service_v1_owner_proto_msgTypes[4]
+	mi := &file_inference_service_v1_owner_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -298,7 +406,7 @@ func (x *InferenceAcceptance) String() string {
 func (*InferenceAcceptance) ProtoMessage() {}
 
 func (x *InferenceAcceptance) ProtoReflect() protoreflect.Message {
-	mi := &file_inference_service_v1_owner_proto_msgTypes[4]
+	mi := &file_inference_service_v1_owner_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -311,7 +419,7 @@ func (x *InferenceAcceptance) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InferenceAcceptance.ProtoReflect.Descriptor instead.
 func (*InferenceAcceptance) Descriptor() ([]byte, []int) {
-	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{4}
+	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *InferenceAcceptance) GetOperationId() string {
@@ -349,34 +457,253 @@ func (x *InferenceAcceptance) GetDispatchOperationId() string {
 	return ""
 }
 
+type GetInferenceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ResourceId    string                 `protobuf:"bytes,1,opt,name=resource_id,proto3" json:"resource_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetInferenceRequest) Reset() {
+	*x = GetInferenceRequest{}
+	mi := &file_inference_service_v1_owner_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetInferenceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetInferenceRequest) ProtoMessage() {}
+
+func (x *GetInferenceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_inference_service_v1_owner_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetInferenceRequest.ProtoReflect.Descriptor instead.
+func (*GetInferenceRequest) Descriptor() ([]byte, []int) {
+	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetInferenceRequest) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
+}
+
+type ListInferenceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,proto3" json:"page_size,omitempty"`
+	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,proto3" json:"page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListInferenceRequest) Reset() {
+	*x = ListInferenceRequest{}
+	mi := &file_inference_service_v1_owner_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListInferenceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListInferenceRequest) ProtoMessage() {}
+
+func (x *ListInferenceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_inference_service_v1_owner_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListInferenceRequest.ProtoReflect.Descriptor instead.
+func (*ListInferenceRequest) Descriptor() ([]byte, []int) {
+	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ListInferenceRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListInferenceRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+type ListInferenceResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Services      []*v1.InferenceService `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
+	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListInferenceResponse) Reset() {
+	*x = ListInferenceResponse{}
+	mi := &file_inference_service_v1_owner_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListInferenceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListInferenceResponse) ProtoMessage() {}
+
+func (x *ListInferenceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_inference_service_v1_owner_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListInferenceResponse.ProtoReflect.Descriptor instead.
+func (*ListInferenceResponse) Descriptor() ([]byte, []int) {
+	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ListInferenceResponse) GetServices() []*v1.InferenceService {
+	if x != nil {
+		return x.Services
+	}
+	return nil
+}
+
+func (x *ListInferenceResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+type GetInferenceOperationRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OperationId   string                 `protobuf:"bytes,1,opt,name=operation_id,proto3" json:"operation_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetInferenceOperationRequest) Reset() {
+	*x = GetInferenceOperationRequest{}
+	mi := &file_inference_service_v1_owner_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetInferenceOperationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetInferenceOperationRequest) ProtoMessage() {}
+
+func (x *GetInferenceOperationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_inference_service_v1_owner_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetInferenceOperationRequest.ProtoReflect.Descriptor instead.
+func (*GetInferenceOperationRequest) Descriptor() ([]byte, []int) {
+	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetInferenceOperationRequest) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
 var File_inference_service_v1_owner_proto protoreflect.FileDescriptor
 
 const file_inference_service_v1_owner_proto_rawDesc = "" +
 	"\n" +
 	" inference/service/v1/owner.proto\x12\x14inference.service.v1\x1a\x1cinference/v1/inference.proto\"W\n" +
 	"\x16CreateInferenceRequest\x12=\n" +
-	"\x04data\x18\x01 \x01(\v2).inference.service.v1.CreateInferenceDataR\x04data\"\xad\x03\n" +
+	"\x04data\x18\x01 \x01(\v2).inference.service.v1.CreateInferenceDataR\x04data\"\xf2\x03\n" +
 	"\x13CreateInferenceData\x12(\n" +
 	"\x0fidempotency_key\x18\x01 \x01(\tR\x0fidempotency_key\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12*\n" +
-	"\x10model_version_id\x18\x03 \x01(\tR\x10model_version_id\x126\n" +
-	"\bresource\x18\x04 \x01(\v2\x1a.inference.v1.ResourceSpecR\bresource\x12\x1a\n" +
-	"\breplicas\x18\x05 \x01(\x05R\breplicas\x123\n" +
-	"\aruntime\x18\x06 \x01(\v2\x19.inference.v1.RuntimeSpecR\aruntime\x12C\n" +
-	"\x0emodel_artifact\x18\a \x01(\v2\x1b.inference.v1.ModelArtifactR\x0emodel_artifact\x120\n" +
-	"\x06engine\x18\b \x01(\v2\x18.inference.v1.EngineSpecR\x06engine\x12,\n" +
-	"\x11served_model_name\x18\t \x01(\tR\x11served_model_name\"W\n" +
+	"\x10model_version_id\x18\x03 \x01(\tR\x10model_version_id\x12,\n" +
+	"\x11served_model_name\x18\x04 \x01(\tR\x11served_model_name\x12\"\n" +
+	"\fengine_image\x18\x05 \x01(\tR\fengine_image\x12 \n" +
+	"\vengine_type\x18\x06 \x01(\tR\vengine_type\x12\x18\n" +
+	"\acommand\x18\a \x01(\tR\acommand\x12\x10\n" +
+	"\x03cpu\x18\b \x01(\tR\x03cpu\x12\x16\n" +
+	"\x06memory\x18\t \x01(\tR\x06memory\x12\x1a\n" +
+	"\breplicas\x18\n" +
+	" \x01(\x05R\breplicas\x124\n" +
+	"\x03gpu\x18\v \x01(\v2\".inference.service.v1.GpuSelectionR\x03gpu\x12=\n" +
+	"\fruntime_mode\x18\f \x01(\x0e2\x19.inference.v1.RuntimeModeR\fruntime_mode\x12(\n" +
+	"\x0fworker_replicas\x18\r \x01(\x05R\x0fworker_replicas\"\x92\x01\n" +
+	"\fGpuSelection\x12\x1e\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\n" +
+	"cluster_id\x12\x18\n" +
+	"\apool_id\x18\x02 \x01(\tR\apool_id\x12\x1e\n" +
+	"\n" +
+	"profile_id\x18\x03 \x01(\tR\n" +
+	"profile_id\x12(\n" +
+	"\x0fprofile_version\x18\x04 \x01(\x04R\x0fprofile_version\"W\n" +
 	"\x16DeleteInferenceRequest\x12=\n" +
-	"\x04data\x18\x01 \x01(\v2).inference.service.v1.DeleteInferenceDataR\x04data\"a\n" +
+	"\x04data\x18\x01 \x01(\v2).inference.service.v1.DeleteInferenceDataR\x04data\"\x93\x01\n" +
 	"\x13DeleteInferenceData\x12(\n" +
 	"\x0fidempotency_key\x18\x01 \x01(\tR\x0fidempotency_key\x12 \n" +
-	"\vresource_id\x18\x02 \x01(\tR\vresource_id\"\xc5\x01\n" +
+	"\vresource_id\x18\x02 \x01(\tR\vresource_id\x120\n" +
+	"\x13expected_generation\x18\x03 \x01(\x03R\x13expected_generation\"\xc5\x01\n" +
 	"\x13InferenceAcceptance\x12\"\n" +
 	"\foperation_id\x18\x01 \x01(\tR\foperation_id\x12 \n" +
 	"\vresource_id\x18\x02 \x01(\tR\vresource_id\x12\x1a\n" +
 	"\breplayed\x18\x03 \x01(\bR\breplayed\x12\x16\n" +
 	"\x06result\x18\x04 \x01(\tR\x06result\x124\n" +
-	"\x15dispatch_operation_id\x18\x05 \x01(\tR\x15dispatch_operation_idB\xd1\x01\n" +
+	"\x15dispatch_operation_id\x18\x05 \x01(\tR\x15dispatch_operation_id\"7\n" +
+	"\x13GetInferenceRequest\x12 \n" +
+	"\vresource_id\x18\x01 \x01(\tR\vresource_id\"T\n" +
+	"\x14ListInferenceRequest\x12\x1c\n" +
+	"\tpage_size\x18\x01 \x01(\x05R\tpage_size\x12\x1e\n" +
+	"\n" +
+	"page_token\x18\x02 \x01(\tR\n" +
+	"page_token\"}\n" +
+	"\x15ListInferenceResponse\x12:\n" +
+	"\bservices\x18\x01 \x03(\v2\x1e.inference.v1.InferenceServiceR\bservices\x12(\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\x0fnext_page_token\"B\n" +
+	"\x1cGetInferenceOperationRequest\x12\"\n" +
+	"\foperation_id\x18\x01 \x01(\tR\foperation_idB\xd1\x01\n" +
 	"\x18com.inference.service.v1B\n" +
 	"OwnerProtoP\x01Z7go-wind-admin/api/gen/go/inference/service/v1;servicev1\xa2\x02\x03ISX\xaa\x02\x14Inference.Service.V1\xca\x02\x14Inference\\Service\\V1\xe2\x02 Inference\\Service\\V1\\GPBMetadata\xea\x02\x16Inference::Service::V1b\x06proto3"
 
@@ -392,30 +719,32 @@ func file_inference_service_v1_owner_proto_rawDescGZIP() []byte {
 	return file_inference_service_v1_owner_proto_rawDescData
 }
 
-var file_inference_service_v1_owner_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_inference_service_v1_owner_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_inference_service_v1_owner_proto_goTypes = []any{
-	(*CreateInferenceRequest)(nil), // 0: inference.service.v1.CreateInferenceRequest
-	(*CreateInferenceData)(nil),    // 1: inference.service.v1.CreateInferenceData
-	(*DeleteInferenceRequest)(nil), // 2: inference.service.v1.DeleteInferenceRequest
-	(*DeleteInferenceData)(nil),    // 3: inference.service.v1.DeleteInferenceData
-	(*InferenceAcceptance)(nil),    // 4: inference.service.v1.InferenceAcceptance
-	(*v1.ResourceSpec)(nil),        // 5: inference.v1.ResourceSpec
-	(*v1.RuntimeSpec)(nil),         // 6: inference.v1.RuntimeSpec
-	(*v1.ModelArtifact)(nil),       // 7: inference.v1.ModelArtifact
-	(*v1.EngineSpec)(nil),          // 8: inference.v1.EngineSpec
+	(*CreateInferenceRequest)(nil),       // 0: inference.service.v1.CreateInferenceRequest
+	(*CreateInferenceData)(nil),          // 1: inference.service.v1.CreateInferenceData
+	(*GpuSelection)(nil),                 // 2: inference.service.v1.GpuSelection
+	(*DeleteInferenceRequest)(nil),       // 3: inference.service.v1.DeleteInferenceRequest
+	(*DeleteInferenceData)(nil),          // 4: inference.service.v1.DeleteInferenceData
+	(*InferenceAcceptance)(nil),          // 5: inference.service.v1.InferenceAcceptance
+	(*GetInferenceRequest)(nil),          // 6: inference.service.v1.GetInferenceRequest
+	(*ListInferenceRequest)(nil),         // 7: inference.service.v1.ListInferenceRequest
+	(*ListInferenceResponse)(nil),        // 8: inference.service.v1.ListInferenceResponse
+	(*GetInferenceOperationRequest)(nil), // 9: inference.service.v1.GetInferenceOperationRequest
+	(v1.RuntimeMode)(0),                  // 10: inference.v1.RuntimeMode
+	(*v1.InferenceService)(nil),          // 11: inference.v1.InferenceService
 }
 var file_inference_service_v1_owner_proto_depIdxs = []int32{
-	1, // 0: inference.service.v1.CreateInferenceRequest.data:type_name -> inference.service.v1.CreateInferenceData
-	5, // 1: inference.service.v1.CreateInferenceData.resource:type_name -> inference.v1.ResourceSpec
-	6, // 2: inference.service.v1.CreateInferenceData.runtime:type_name -> inference.v1.RuntimeSpec
-	7, // 3: inference.service.v1.CreateInferenceData.model_artifact:type_name -> inference.v1.ModelArtifact
-	8, // 4: inference.service.v1.CreateInferenceData.engine:type_name -> inference.v1.EngineSpec
-	3, // 5: inference.service.v1.DeleteInferenceRequest.data:type_name -> inference.service.v1.DeleteInferenceData
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	1,  // 0: inference.service.v1.CreateInferenceRequest.data:type_name -> inference.service.v1.CreateInferenceData
+	2,  // 1: inference.service.v1.CreateInferenceData.gpu:type_name -> inference.service.v1.GpuSelection
+	10, // 2: inference.service.v1.CreateInferenceData.runtime_mode:type_name -> inference.v1.RuntimeMode
+	4,  // 3: inference.service.v1.DeleteInferenceRequest.data:type_name -> inference.service.v1.DeleteInferenceData
+	11, // 4: inference.service.v1.ListInferenceResponse.services:type_name -> inference.v1.InferenceService
+	5,  // [5:5] is the sub-list for method output_type
+	5,  // [5:5] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_inference_service_v1_owner_proto_init() }
@@ -429,7 +758,7 @@ func file_inference_service_v1_owner_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inference_service_v1_owner_proto_rawDesc), len(file_inference_service_v1_owner_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

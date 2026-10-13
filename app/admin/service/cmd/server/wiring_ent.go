@@ -85,6 +85,21 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanups = append(cleanups, closeModelDev)
 		modeldevClient = client
 	}
+	modelConfig, err := data.ModelConfigFromEnv()
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	var modelClient *data.ModelClient
+	if modelConfig.Address != "" {
+		client, closeModel, err := data.NewModelClient(modelConfig)
+		if err != nil {
+			rollback()
+			return nil, nil, err
+		}
+		cleanups = append(cleanups, closeModel)
+		modelClient = client
+	}
 
 	// 认证基建:令牌缓存 → 认证器 → 访问令牌校验器。
 	clientType := data.NewClientType()
@@ -325,7 +340,8 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		rollback()
 		return nil, nil, err
 	}
-	inferenceService := service.NewInferenceService(inferenceAcceptance)
+	inferenceService := service.NewInferenceServiceWithOwnerAndModel(inferenceAcceptance, inferenceClient, tenantRepo, modelClient)
+	modelService := service.NewModelService(modelClient, tenantRepo)
 	modeldevService := service.NewModelDevService(modeldevAuthorizationRepo, tenantRepo, modeldevAcceptanceRepo, modeldevBindingRepo, modeldevClient)
 
 	// ═══════════════════════ 五、传输层(internal/server) ═══════════════════════
@@ -364,6 +380,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		imageService,
 		modeldevService,
 		inferenceService,
+		modelService,
 	)
 	if err != nil {
 		rollback()
