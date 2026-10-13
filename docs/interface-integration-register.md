@@ -1269,10 +1269,12 @@ Resource 仅提供内部 gRPC，本批同步公开 JSON 规格和 SBOM，已发�
 
 | 编号 | 入口 | 报文与可靠受理 | 当前授权条件 |
 |---|---|---|---|
-| INF-01 | `POST /api/v1/inference/services` | `data` 内接原推理业务与 `resource.gpu`、UUID idempotency_key；不暴露内部附件。调用现有 AcceptGpuCreate：授权、重放、Resolve、冻结、Ent一次占额、持久 dispatch；返回原 operation/resource、replayed、ACCEPTED | 可信 tenant-user Principal；活跃当前用户/租户/角色；当前套餐 INFERENCE；独立 `inference:service:create` → 当前 API route grant；对应 GPU PlanQuota；实际 Acc delegation 与已装配 Inference adapter |
+| INF-01 | `POST /api/v1/inference/services` | `data` 使用扁平推理字段（UUID idempotency_key、model_version_id、engine_image、engine_type、完整单字符串 command、cpu、memory、replicas、四字段 gpu）；不暴露内部附件、Kubernetes 数组或嵌套 resource/runtime/engine。调用现有 AcceptGpuCreate：授权、重放、Resolve、冻结、Ent一次占额、持久 dispatch；返回原 operation/resource、replayed、ACCEPTED | 可信 tenant-user Principal；活跃当前用户/租户/角色；当前套餐 INFERENCE；独立 `inference:service:create` → 当前 API route grant；对应 GPU PlanQuota；实际 Acc delegation 与已装配 Inference adapter |
 | INF-02 | `POST /api/v1/inference/services/{data.resource_id}:delete` | `data.idempotency_key`；resource由路径绑定，正文若有须一致。调用现有 AcceptGpuDelete：未发可本地原子取消，否则持久 DELETE 关联并可靠投递；ACK不是释放完成 | 同一可信租户与独立 `inference:service:delete` 动作；权限先于原创建读取/幂等重放，不能用 Accelerator 读权或历史原记录绕过 |
 
 ledger adapter action固定为权威 Inference RPC full method `CreateInferenceService` / `DeleteInferenceService`；目的地址和服务端精确 DNS SAN 只来自受管配置。真实 Inference RPC保留原业务tags，加入公共Acc附件与原全量charges；唯一业务摘要来自 Inference API公开helper，adapter核对durable ACK并映射既有三个snake_case字段。完整字段/单位/身份/错误/恢复见 [GPU owner接入指南](contracts/gpu-owner-integration-guide.md)。
+
+公共创建报文的 `command` 是调用方提供的完整单字符串；公开合同没有 `command[]` 或 `args[]` 数组，Governance、Model 和 Inference 不解析、拼接或追加启动参数。
 
 当前受管GPU的LWS输入在共享业务校验中、Occupy之前明确拒绝；锁定KServe的LWS模板无法可靠投影GPU annotations与Queue。本批不把typed渲染接口或接受后补丁当C02可运行路径，实际LWS投影仍为not_verified。
 

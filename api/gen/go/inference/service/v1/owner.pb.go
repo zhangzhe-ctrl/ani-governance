@@ -854,9 +854,9 @@ var File_inference_service_v1_owner_proto protoreflect.FileDescriptor
 
 const file_inference_service_v1_owner_proto_rawDesc = "" +
 	"\n" +
-	" inference/service/v1/owner.proto\x12\x14inference.service.v1\x1a\x1cinference/v1/inference.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a$gnostic/openapi/v3/annotations.proto\"\xa5\x03\n" +
+	" inference/service/v1/owner.proto\x12\x14inference.service.v1\x1a\x1cinference/v1/inference.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a$gnostic/openapi/v3/annotations.proto\"\xba\x03\n" +
 	"\x16CreateInferenceRequest\x12=\n" +
-	"\x04data\x18\x01 \x01(\v2).inference.service.v1.CreateInferenceDataR\x04data:\xcb\x02\xbaG\xc7\x02:\xc4\x02\x12\xc1\x02{\"data\":{\"idempotency_key\":\"req-001\",\"name\":\"qwen-inference\",\"model_version_id\":\"version-1\",\"served_model_name\":\"qwen2.5-1.5b-instruct\",\"engine_image\":\"registry.example/vllm:latest\",\"engine_type\":\"vllm\",\"command\":\"exec vllm serve /models --served-model-name qwen2.5-1.5b-instruct\",\"cpu\":\"8\",\"memory\":\"32Gi\",\"replicas\":1}}\"\xf2\x03\n" +
+	"\x04data\x18\x01 \x01(\v2).inference.service.v1.CreateInferenceDataR\x04data:\xe0\x02\xbaG\xdc\x02:\xd9\x02\x12\xd6\x02{\"data\":{\"idempotency_key\":\"req-001\",\"name\":\"qwen-inference\",\"model_version_id\":\"version-1\",\"served_model_name\":\"qwen2.5-1.5b-instruct\",\"engine_image\":\"registry.example/vllm:latest\",\"engine_type\":\"vllm\",\"command\":\"exec vllm serve /models --served-model-name qwen2.5-1.5b-instruct --max-model-len 4096\",\"cpu\":\"8\",\"memory\":\"32Gi\",\"replicas\":1}}\"\xf2\x03\n" +
 	"\x13CreateInferenceData\x12(\n" +
 	"\x0fidempotency_key\x18\x01 \x01(\tR\x0fidempotency_key\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12*\n" +
