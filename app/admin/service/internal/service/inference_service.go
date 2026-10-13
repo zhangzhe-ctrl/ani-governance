@@ -8,6 +8,7 @@ import (
 
 	kratoserrors "github.com/go-kratos/kratos/v2/errors"
 	modelv1 "github.com/liangzai006/ani-model-service/api/model/v1"
+	attachment "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/integration/v1"
 	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
 	inferencev1 "github.com/zhangzhe-ctrl/ani-inference-service/api/inference/v1"
 	admin "go-wind-admin/api/gen/go/admin/service/v1"
@@ -36,6 +37,11 @@ type InferenceOwnerClient interface {
 // state; Governance only verifies that the selected version is ready.
 type InferenceModelClient interface {
 	GetModelVersion(context.Context, string, string, *modelv1.GetModelVersionRequest) (*modelv1.GetModelVersionResponse, error)
+}
+
+type InferenceGpuAcceptance interface {
+	AcceptGpuCreate(context.Context, string, *acc.GpuRequest, proto.Message) (*data.QuotaOccupyResult, error)
+	AcceptGpuDelete(context.Context, string, string) (*attachment.GpuDeleteAcceptance, error)
 }
 
 type inferenceTrustedOwnerClient interface {
@@ -206,19 +212,21 @@ func quotaActorString(actor QuotaActor) string {
 
 type InferenceService struct {
 	admin.UnimplementedInferenceServiceServer
-	acceptance *GpuAcceptance
+	acceptance InferenceGpuAcceptance
 	owner      InferenceOwnerClient
 	tenants    ResourceTenantResolver
 	model      InferenceModelClient
 }
 
-func NewInferenceService(a *GpuAcceptance) *InferenceService { return &InferenceService{acceptance: a} }
+func NewInferenceService(a InferenceGpuAcceptance) *InferenceService {
+	return &InferenceService{acceptance: a}
+}
 
-func NewInferenceServiceWithOwner(a *GpuAcceptance, owner InferenceOwnerClient, tenants ResourceTenantResolver) *InferenceService {
+func NewInferenceServiceWithOwner(a InferenceGpuAcceptance, owner InferenceOwnerClient, tenants ResourceTenantResolver) *InferenceService {
 	return &InferenceService{acceptance: a, owner: owner, tenants: tenants}
 }
 
-func NewInferenceServiceWithOwnerAndModel(a *GpuAcceptance, owner InferenceOwnerClient, tenants ResourceTenantResolver, model InferenceModelClient) *InferenceService {
+func NewInferenceServiceWithOwnerAndModel(a InferenceGpuAcceptance, owner InferenceOwnerClient, tenants ResourceTenantResolver, model InferenceModelClient) *InferenceService {
 	return &InferenceService{acceptance: a, owner: owner, tenants: tenants, model: model}
 }
 
@@ -231,26 +239,26 @@ func (s *InferenceService) CreateInference(ctx context.Context, in *view.CreateI
 	if err != nil {
 		return nil, err
 	}
+	if s == nil || s.model == nil {
+		return nil, status.Error(codes.Unavailable, "MODEL_ADAPTER_UNAVAILABLE")
+	}
+	tenant, actor, err := s.trustedInferenceOperator(ctx)
+	if err != nil {
+		return nil, err
+	}
+	modelReply, err := s.model.GetModelVersion(ctx, tenant, actor, &modelv1.GetModelVersionRequest{ModelVersionId: d.ModelVersionId})
+	if err != nil {
+		code := status.Code(err)
+		if code == codes.OK || code == codes.Unknown {
+			code = codes.Unavailable
+		}
+		return nil, status.Error(code, "model readiness check failed")
+	}
+	if modelReply == nil || modelReply.Version == nil || modelReply.Version.Id != d.ModelVersionId || !strings.EqualFold(strings.TrimSpace(modelReply.Version.Status), "ready") {
+		return nil, status.Error(codes.FailedPrecondition, "MODEL_NOT_READY")
+	}
 	if request.Resource.GetGpu() == nil {
-		if s == nil || s.model == nil {
-			return nil, status.Error(codes.Unavailable, "MODEL_ADAPTER_UNAVAILABLE")
-		}
-		tenant, actor, err := s.trustedInferenceOperator(ctx)
-		if err != nil {
-			return nil, err
-		}
-		modelReply, err := s.model.GetModelVersion(ctx, tenant, actor, &modelv1.GetModelVersionRequest{ModelVersionId: d.ModelVersionId})
-		if err != nil {
-			code := status.Code(err)
-			if code == codes.OK || code == codes.Unknown {
-				code = codes.Unavailable
-			}
-			return nil, status.Error(code, "model readiness check failed")
-		}
-		if modelReply == nil || modelReply.Version == nil || !strings.EqualFold(strings.TrimSpace(modelReply.Version.Status), "ready") {
-			return nil, status.Error(codes.FailedPrecondition, "MODEL_NOT_READY")
-		}
-		return s.createDirect(ctx, d, request)
+		return s.createDirect(ctx, d, request, tenant, actor)
 	}
 	if s == nil || s.acceptance == nil {
 		return nil, quotapb.ErrorQuotaAdapterUnavailable("%s", "inference unavailable")
@@ -359,7 +367,7 @@ func (s *InferenceService) DeleteInference(ctx context.Context, in *view.DeleteI
 
 // createDirect forwards an inference request without a GPU reservation. It
 // preserves the caller-owned complete engine command byte-for-byte.
-func (s *InferenceService) createDirect(ctx context.Context, data *view.CreateInferenceData, request *inferencev1.CreateInferenceServiceRequest) (*view.InferenceAcceptance, error) {
+func (s *InferenceService) createDirect(ctx context.Context, data *view.CreateInferenceData, request *inferencev1.CreateInferenceServiceRequest, tenant, actor string) (*view.InferenceAcceptance, error) {
 	if s == nil || s.owner == nil || s.tenants == nil {
 		return nil, status.Error(codes.Unavailable, "INFERENCE_ADAPTER_UNAVAILABLE")
 	}
@@ -368,10 +376,6 @@ func (s *InferenceService) createDirect(ctx context.Context, data *view.CreateIn
 	})
 	if !ok {
 		return nil, status.Error(codes.Unavailable, "INFERENCE_ADAPTER_UNAVAILABLE")
-	}
-	tenant, actor, err := s.trustedInferenceOperator(ctx)
-	if err != nil {
-		return nil, err
 	}
 	if strings.TrimSpace(data.IdempotencyKey) == "" {
 		return nil, status.Error(codes.InvalidArgument, "idempotency_key is required")

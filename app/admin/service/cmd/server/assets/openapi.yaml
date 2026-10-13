@@ -9849,13 +9849,10 @@ components:
                 image:
                     type: string
                 command:
-                    type: array
-                    items:
-                        type: string
-                args:
-                    type: array
-                    items:
-                        type: string
+                    type: string
+                    description: |-
+                        command is the complete shell command, preserved byte-for-byte until
+                         the Kubernetes adapter wraps it as ["/bin/sh", "-c"] plus one arg.
         EnrolledMethod:
             type: object
             properties:
