@@ -7,9 +7,11 @@
 package servicev1
 
 import (
+	_ "github.com/google/gnostic/openapiv3"
 	v1 "github.com/zhangzhe-ctrl/ani-inference-service/api/inference/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -553,9 +555,208 @@ func (x *ListInferenceRequest) GetPageToken() string {
 	return ""
 }
 
+// InferenceView is the Governance-owned read projection for UI consumers.
+// It intentionally keeps the business-facing flat fields while hiding
+// Inference's resource, runtime, engine, artifact and admission internals.
+type InferenceView struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name              string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	DesiredState      string                 `protobuf:"bytes,3,opt,name=desired_state,proto3" json:"desired_state,omitempty"`
+	Generation        int64                  `protobuf:"varint,4,opt,name=generation,proto3" json:"generation,omitempty"`
+	ModelVersionId    string                 `protobuf:"bytes,5,opt,name=model_version_id,proto3" json:"model_version_id,omitempty"`
+	ServedModelName   string                 `protobuf:"bytes,6,opt,name=served_model_name,proto3" json:"served_model_name,omitempty"`
+	Phase             string                 `protobuf:"bytes,7,opt,name=phase,proto3" json:"phase,omitempty"`
+	Health            string                 `protobuf:"bytes,8,opt,name=health,proto3" json:"health,omitempty"`
+	ObservedAt        *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=observed_at,proto3" json:"observed_at,omitempty"`
+	EngineImage       string                 `protobuf:"bytes,10,opt,name=engine_image,proto3" json:"engine_image,omitempty"`
+	EngineType        string                 `protobuf:"bytes,11,opt,name=engine_type,proto3" json:"engine_type,omitempty"`
+	Command           string                 `protobuf:"bytes,12,opt,name=command,proto3" json:"command,omitempty"`
+	Cpu               string                 `protobuf:"bytes,13,opt,name=cpu,proto3" json:"cpu,omitempty"`
+	Memory            string                 `protobuf:"bytes,14,opt,name=memory,proto3" json:"memory,omitempty"`
+	Replicas          int32                  `protobuf:"varint,15,opt,name=replicas,proto3" json:"replicas,omitempty"`
+	RuntimeMode       v1.RuntimeMode         `protobuf:"varint,16,opt,name=runtime_mode,proto3,enum=inference.v1.RuntimeMode" json:"runtime_mode,omitempty"`
+	WorkerReplicas    int32                  `protobuf:"varint,17,opt,name=worker_replicas,proto3" json:"worker_replicas,omitempty"`
+	Gpu               *GpuSelection          `protobuf:"bytes,18,opt,name=gpu,proto3" json:"gpu,omitempty"`
+	PublicationPhase  string                 `protobuf:"bytes,19,opt,name=publication_phase,proto3" json:"publication_phase,omitempty"`
+	AppliedGeneration int64                  `protobuf:"varint,20,opt,name=applied_generation,proto3" json:"applied_generation,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *InferenceView) Reset() {
+	*x = InferenceView{}
+	mi := &file_inference_service_v1_owner_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InferenceView) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InferenceView) ProtoMessage() {}
+
+func (x *InferenceView) ProtoReflect() protoreflect.Message {
+	mi := &file_inference_service_v1_owner_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InferenceView.ProtoReflect.Descriptor instead.
+func (*InferenceView) Descriptor() ([]byte, []int) {
+	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *InferenceView) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *InferenceView) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *InferenceView) GetDesiredState() string {
+	if x != nil {
+		return x.DesiredState
+	}
+	return ""
+}
+
+func (x *InferenceView) GetGeneration() int64 {
+	if x != nil {
+		return x.Generation
+	}
+	return 0
+}
+
+func (x *InferenceView) GetModelVersionId() string {
+	if x != nil {
+		return x.ModelVersionId
+	}
+	return ""
+}
+
+func (x *InferenceView) GetServedModelName() string {
+	if x != nil {
+		return x.ServedModelName
+	}
+	return ""
+}
+
+func (x *InferenceView) GetPhase() string {
+	if x != nil {
+		return x.Phase
+	}
+	return ""
+}
+
+func (x *InferenceView) GetHealth() string {
+	if x != nil {
+		return x.Health
+	}
+	return ""
+}
+
+func (x *InferenceView) GetObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAt
+	}
+	return nil
+}
+
+func (x *InferenceView) GetEngineImage() string {
+	if x != nil {
+		return x.EngineImage
+	}
+	return ""
+}
+
+func (x *InferenceView) GetEngineType() string {
+	if x != nil {
+		return x.EngineType
+	}
+	return ""
+}
+
+func (x *InferenceView) GetCommand() string {
+	if x != nil {
+		return x.Command
+	}
+	return ""
+}
+
+func (x *InferenceView) GetCpu() string {
+	if x != nil {
+		return x.Cpu
+	}
+	return ""
+}
+
+func (x *InferenceView) GetMemory() string {
+	if x != nil {
+		return x.Memory
+	}
+	return ""
+}
+
+func (x *InferenceView) GetReplicas() int32 {
+	if x != nil {
+		return x.Replicas
+	}
+	return 0
+}
+
+func (x *InferenceView) GetRuntimeMode() v1.RuntimeMode {
+	if x != nil {
+		return x.RuntimeMode
+	}
+	return v1.RuntimeMode(0)
+}
+
+func (x *InferenceView) GetWorkerReplicas() int32 {
+	if x != nil {
+		return x.WorkerReplicas
+	}
+	return 0
+}
+
+func (x *InferenceView) GetGpu() *GpuSelection {
+	if x != nil {
+		return x.Gpu
+	}
+	return nil
+}
+
+func (x *InferenceView) GetPublicationPhase() string {
+	if x != nil {
+		return x.PublicationPhase
+	}
+	return ""
+}
+
+func (x *InferenceView) GetAppliedGeneration() int64 {
+	if x != nil {
+		return x.AppliedGeneration
+	}
+	return 0
+}
+
 type ListInferenceResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Services      []*v1.InferenceService `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
+	Services      []*InferenceView       `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
 	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -563,7 +764,7 @@ type ListInferenceResponse struct {
 
 func (x *ListInferenceResponse) Reset() {
 	*x = ListInferenceResponse{}
-	mi := &file_inference_service_v1_owner_proto_msgTypes[8]
+	mi := &file_inference_service_v1_owner_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -575,7 +776,7 @@ func (x *ListInferenceResponse) String() string {
 func (*ListInferenceResponse) ProtoMessage() {}
 
 func (x *ListInferenceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inference_service_v1_owner_proto_msgTypes[8]
+	mi := &file_inference_service_v1_owner_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -588,10 +789,10 @@ func (x *ListInferenceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInferenceResponse.ProtoReflect.Descriptor instead.
 func (*ListInferenceResponse) Descriptor() ([]byte, []int) {
-	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{8}
+	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListInferenceResponse) GetServices() []*v1.InferenceService {
+func (x *ListInferenceResponse) GetServices() []*InferenceView {
 	if x != nil {
 		return x.Services
 	}
@@ -614,7 +815,7 @@ type GetInferenceOperationRequest struct {
 
 func (x *GetInferenceOperationRequest) Reset() {
 	*x = GetInferenceOperationRequest{}
-	mi := &file_inference_service_v1_owner_proto_msgTypes[9]
+	mi := &file_inference_service_v1_owner_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -626,7 +827,7 @@ func (x *GetInferenceOperationRequest) String() string {
 func (*GetInferenceOperationRequest) ProtoMessage() {}
 
 func (x *GetInferenceOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inference_service_v1_owner_proto_msgTypes[9]
+	mi := &file_inference_service_v1_owner_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -639,7 +840,7 @@ func (x *GetInferenceOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInferenceOperationRequest.ProtoReflect.Descriptor instead.
 func (*GetInferenceOperationRequest) Descriptor() ([]byte, []int) {
-	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{9}
+	return file_inference_service_v1_owner_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetInferenceOperationRequest) GetOperationId() string {
@@ -653,9 +854,9 @@ var File_inference_service_v1_owner_proto protoreflect.FileDescriptor
 
 const file_inference_service_v1_owner_proto_rawDesc = "" +
 	"\n" +
-	" inference/service/v1/owner.proto\x12\x14inference.service.v1\x1a\x1cinference/v1/inference.proto\"W\n" +
+	" inference/service/v1/owner.proto\x12\x14inference.service.v1\x1a\x1cinference/v1/inference.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a$gnostic/openapi/v3/annotations.proto\"\xa5\x03\n" +
 	"\x16CreateInferenceRequest\x12=\n" +
-	"\x04data\x18\x01 \x01(\v2).inference.service.v1.CreateInferenceDataR\x04data\"\xf2\x03\n" +
+	"\x04data\x18\x01 \x01(\v2).inference.service.v1.CreateInferenceDataR\x04data:\xcb\x02\xbaG\xc7\x02:\xc4\x02\x12\xc1\x02{\"data\":{\"idempotency_key\":\"req-001\",\"name\":\"qwen-inference\",\"model_version_id\":\"version-1\",\"served_model_name\":\"qwen2.5-1.5b-instruct\",\"engine_image\":\"registry.example/vllm:latest\",\"engine_type\":\"vllm\",\"command\":\"exec vllm serve /models --served-model-name qwen2.5-1.5b-instruct\",\"cpu\":\"8\",\"memory\":\"32Gi\",\"replicas\":1}}\"\xf2\x03\n" +
 	"\x13CreateInferenceData\x12(\n" +
 	"\x0fidempotency_key\x18\x01 \x01(\tR\x0fidempotency_key\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12*\n" +
@@ -698,9 +899,33 @@ const file_inference_service_v1_owner_proto_rawDesc = "" +
 	"\tpage_size\x18\x01 \x01(\x05R\tpage_size\x12\x1e\n" +
 	"\n" +
 	"page_token\x18\x02 \x01(\tR\n" +
-	"page_token\"}\n" +
-	"\x15ListInferenceResponse\x12:\n" +
-	"\bservices\x18\x01 \x03(\v2\x1e.inference.v1.InferenceServiceR\bservices\x12(\n" +
+	"page_token\"\xe2\x05\n" +
+	"\rInferenceView\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12$\n" +
+	"\rdesired_state\x18\x03 \x01(\tR\rdesired_state\x12\x1e\n" +
+	"\n" +
+	"generation\x18\x04 \x01(\x03R\n" +
+	"generation\x12*\n" +
+	"\x10model_version_id\x18\x05 \x01(\tR\x10model_version_id\x12,\n" +
+	"\x11served_model_name\x18\x06 \x01(\tR\x11served_model_name\x12\x14\n" +
+	"\x05phase\x18\a \x01(\tR\x05phase\x12\x16\n" +
+	"\x06health\x18\b \x01(\tR\x06health\x12<\n" +
+	"\vobserved_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\vobserved_at\x12\"\n" +
+	"\fengine_image\x18\n" +
+	" \x01(\tR\fengine_image\x12 \n" +
+	"\vengine_type\x18\v \x01(\tR\vengine_type\x12\x18\n" +
+	"\acommand\x18\f \x01(\tR\acommand\x12\x10\n" +
+	"\x03cpu\x18\r \x01(\tR\x03cpu\x12\x16\n" +
+	"\x06memory\x18\x0e \x01(\tR\x06memory\x12\x1a\n" +
+	"\breplicas\x18\x0f \x01(\x05R\breplicas\x12=\n" +
+	"\fruntime_mode\x18\x10 \x01(\x0e2\x19.inference.v1.RuntimeModeR\fruntime_mode\x12(\n" +
+	"\x0fworker_replicas\x18\x11 \x01(\x05R\x0fworker_replicas\x124\n" +
+	"\x03gpu\x18\x12 \x01(\v2\".inference.service.v1.GpuSelectionR\x03gpu\x12,\n" +
+	"\x11publication_phase\x18\x13 \x01(\tR\x11publication_phase\x12.\n" +
+	"\x12applied_generation\x18\x14 \x01(\x03R\x12applied_generation\"\x82\x01\n" +
+	"\x15ListInferenceResponse\x12?\n" +
+	"\bservices\x18\x01 \x03(\v2#.inference.service.v1.InferenceViewR\bservices\x12(\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\x0fnext_page_token\"B\n" +
 	"\x1cGetInferenceOperationRequest\x12\"\n" +
 	"\foperation_id\x18\x01 \x01(\tR\foperation_idB\xd1\x01\n" +
@@ -719,7 +944,7 @@ func file_inference_service_v1_owner_proto_rawDescGZIP() []byte {
 	return file_inference_service_v1_owner_proto_rawDescData
 }
 
-var file_inference_service_v1_owner_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_inference_service_v1_owner_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_inference_service_v1_owner_proto_goTypes = []any{
 	(*CreateInferenceRequest)(nil),       // 0: inference.service.v1.CreateInferenceRequest
 	(*CreateInferenceData)(nil),          // 1: inference.service.v1.CreateInferenceData
@@ -729,22 +954,26 @@ var file_inference_service_v1_owner_proto_goTypes = []any{
 	(*InferenceAcceptance)(nil),          // 5: inference.service.v1.InferenceAcceptance
 	(*GetInferenceRequest)(nil),          // 6: inference.service.v1.GetInferenceRequest
 	(*ListInferenceRequest)(nil),         // 7: inference.service.v1.ListInferenceRequest
-	(*ListInferenceResponse)(nil),        // 8: inference.service.v1.ListInferenceResponse
-	(*GetInferenceOperationRequest)(nil), // 9: inference.service.v1.GetInferenceOperationRequest
-	(v1.RuntimeMode)(0),                  // 10: inference.v1.RuntimeMode
-	(*v1.InferenceService)(nil),          // 11: inference.v1.InferenceService
+	(*InferenceView)(nil),                // 8: inference.service.v1.InferenceView
+	(*ListInferenceResponse)(nil),        // 9: inference.service.v1.ListInferenceResponse
+	(*GetInferenceOperationRequest)(nil), // 10: inference.service.v1.GetInferenceOperationRequest
+	(v1.RuntimeMode)(0),                  // 11: inference.v1.RuntimeMode
+	(*timestamppb.Timestamp)(nil),        // 12: google.protobuf.Timestamp
 }
 var file_inference_service_v1_owner_proto_depIdxs = []int32{
 	1,  // 0: inference.service.v1.CreateInferenceRequest.data:type_name -> inference.service.v1.CreateInferenceData
 	2,  // 1: inference.service.v1.CreateInferenceData.gpu:type_name -> inference.service.v1.GpuSelection
-	10, // 2: inference.service.v1.CreateInferenceData.runtime_mode:type_name -> inference.v1.RuntimeMode
+	11, // 2: inference.service.v1.CreateInferenceData.runtime_mode:type_name -> inference.v1.RuntimeMode
 	4,  // 3: inference.service.v1.DeleteInferenceRequest.data:type_name -> inference.service.v1.DeleteInferenceData
-	11, // 4: inference.service.v1.ListInferenceResponse.services:type_name -> inference.v1.InferenceService
-	5,  // [5:5] is the sub-list for method output_type
-	5,  // [5:5] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	12, // 4: inference.service.v1.InferenceView.observed_at:type_name -> google.protobuf.Timestamp
+	11, // 5: inference.service.v1.InferenceView.runtime_mode:type_name -> inference.v1.RuntimeMode
+	2,  // 6: inference.service.v1.InferenceView.gpu:type_name -> inference.service.v1.GpuSelection
+	8,  // 7: inference.service.v1.ListInferenceResponse.services:type_name -> inference.service.v1.InferenceView
+	8,  // [8:8] is the sub-list for method output_type
+	8,  // [8:8] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_inference_service_v1_owner_proto_init() }
@@ -758,7 +987,7 @@ func file_inference_service_v1_owner_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inference_service_v1_owner_proto_rawDesc), len(file_inference_service_v1_owner_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

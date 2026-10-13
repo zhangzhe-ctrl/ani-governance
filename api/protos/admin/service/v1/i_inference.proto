@@ -15,7 +15,7 @@ service InferenceService {
   rpc DeleteInference(inference.service.v1.DeleteInferenceRequest) returns (inference.service.v1.InferenceAcceptance) {
     option (google.api.http) = {post: "/api/v1/inference/services/{data.resource_id}:delete" body: "*"};
   }
-  rpc GetInference(inference.service.v1.GetInferenceRequest) returns (inference.v1.InferenceService) {
+  rpc GetInference(inference.service.v1.GetInferenceRequest) returns (inference.service.v1.InferenceView) {
     option (google.api.http) = {get: "/api/v1/inference/services/{resource_id}"};
   }
   rpc ListInference(inference.service.v1.ListInferenceRequest) returns (inference.service.v1.ListInferenceResponse) {

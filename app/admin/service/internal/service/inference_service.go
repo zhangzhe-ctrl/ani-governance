@@ -453,7 +453,49 @@ func mapInferenceOwnerError(err error) error {
 	}
 }
 
-func (s *InferenceService) GetInference(ctx context.Context, in *view.GetInferenceRequest) (*inferencev1.InferenceService, error) {
+func mapInferenceView(source *inferencev1.InferenceService) *view.InferenceView {
+	if source == nil {
+		return nil
+	}
+	projected := &view.InferenceView{
+		Id:                source.Id,
+		Name:              source.Name,
+		DesiredState:      source.DesiredState,
+		Generation:        source.Generation,
+		ModelVersionId:    source.ModelVersionId,
+		ServedModelName:   source.ServedModelName,
+		Phase:             source.RuntimePhase,
+		Health:            source.InvocationHealth,
+		ObservedAt:        source.ObservedAt,
+		Replicas:          source.Replicas,
+		PublicationPhase:  source.PublicationPhase,
+		AppliedGeneration: source.AppliedGeneration,
+	}
+	if source.Resource != nil {
+		projected.Cpu = source.Resource.Requests["cpu"]
+		projected.Memory = source.Resource.Requests["memory"]
+		if source.Resource.Gpu != nil {
+			projected.Gpu = &view.GpuSelection{
+				ClusterId:      source.Resource.Gpu.ClusterId,
+				PoolId:         source.Resource.Gpu.PoolId,
+				ProfileId:      source.Resource.Gpu.ProfileId,
+				ProfileVersion: source.Resource.Gpu.ProfileVersion,
+			}
+		}
+	}
+	if source.Engine != nil {
+		projected.EngineImage = source.Engine.Image
+		projected.EngineType = source.Engine.Type
+		projected.Command = source.Engine.Command
+	}
+	if source.Runtime != nil {
+		projected.RuntimeMode = source.Runtime.Mode
+		projected.WorkerReplicas = source.Runtime.WorkerReplicas
+	}
+	return projected
+}
+
+func (s *InferenceService) GetInference(ctx context.Context, in *view.GetInferenceRequest) (*view.InferenceView, error) {
 	if in == nil || strings.TrimSpace(in.ResourceId) == "" {
 		return nil, status.Error(codes.InvalidArgument, "resource_id is required")
 	}
@@ -474,7 +516,7 @@ func (s *InferenceService) GetInference(ctx context.Context, in *view.GetInferen
 	if result == nil || result.Id != in.ResourceId {
 		return nil, status.Error(codes.Unavailable, "INVALID_INFERENCE_RESPONSE")
 	}
-	return result, nil
+	return mapInferenceView(result), nil
 }
 
 func (s *InferenceService) ListInference(ctx context.Context, in *view.ListInferenceRequest) (*view.ListInferenceResponse, error) {
@@ -498,7 +540,11 @@ func (s *InferenceService) ListInference(ctx context.Context, in *view.ListInfer
 	if result == nil || len(result.Services) > 100 {
 		return nil, status.Error(codes.Unavailable, "INVALID_INFERENCE_RESPONSE")
 	}
-	return &view.ListInferenceResponse{Services: result.Services, NextPageToken: result.NextPageToken}, nil
+	services := make([]*view.InferenceView, 0, len(result.Services))
+	for _, service := range result.Services {
+		services = append(services, mapInferenceView(service))
+	}
+	return &view.ListInferenceResponse{Services: services, NextPageToken: result.NextPageToken}, nil
 }
 
 func (s *InferenceService) GetInferenceOperation(ctx context.Context, in *view.GetInferenceOperationRequest) (*inferencev1.Operation, error) {

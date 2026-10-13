@@ -38,7 +38,7 @@ const (
 type InferenceServiceClient interface {
 	CreateInference(ctx context.Context, in *v1.CreateInferenceRequest, opts ...grpc.CallOption) (*v1.InferenceAcceptance, error)
 	DeleteInference(ctx context.Context, in *v1.DeleteInferenceRequest, opts ...grpc.CallOption) (*v1.InferenceAcceptance, error)
-	GetInference(ctx context.Context, in *v1.GetInferenceRequest, opts ...grpc.CallOption) (*v11.InferenceService, error)
+	GetInference(ctx context.Context, in *v1.GetInferenceRequest, opts ...grpc.CallOption) (*v1.InferenceView, error)
 	ListInference(ctx context.Context, in *v1.ListInferenceRequest, opts ...grpc.CallOption) (*v1.ListInferenceResponse, error)
 	GetInferenceOperation(ctx context.Context, in *v1.GetInferenceOperationRequest, opts ...grpc.CallOption) (*v11.Operation, error)
 }
@@ -71,9 +71,9 @@ func (c *inferenceServiceClient) DeleteInference(ctx context.Context, in *v1.Del
 	return out, nil
 }
 
-func (c *inferenceServiceClient) GetInference(ctx context.Context, in *v1.GetInferenceRequest, opts ...grpc.CallOption) (*v11.InferenceService, error) {
+func (c *inferenceServiceClient) GetInference(ctx context.Context, in *v1.GetInferenceRequest, opts ...grpc.CallOption) (*v1.InferenceView, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v11.InferenceService)
+	out := new(v1.InferenceView)
 	err := c.cc.Invoke(ctx, InferenceService_GetInference_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func (c *inferenceServiceClient) GetInferenceOperation(ctx context.Context, in *
 type InferenceServiceServer interface {
 	CreateInference(context.Context, *v1.CreateInferenceRequest) (*v1.InferenceAcceptance, error)
 	DeleteInference(context.Context, *v1.DeleteInferenceRequest) (*v1.InferenceAcceptance, error)
-	GetInference(context.Context, *v1.GetInferenceRequest) (*v11.InferenceService, error)
+	GetInference(context.Context, *v1.GetInferenceRequest) (*v1.InferenceView, error)
 	ListInference(context.Context, *v1.ListInferenceRequest) (*v1.ListInferenceResponse, error)
 	GetInferenceOperation(context.Context, *v1.GetInferenceOperationRequest) (*v11.Operation, error)
 	mustEmbedUnimplementedInferenceServiceServer()
@@ -130,7 +130,7 @@ func (UnimplementedInferenceServiceServer) CreateInference(context.Context, *v1.
 func (UnimplementedInferenceServiceServer) DeleteInference(context.Context, *v1.DeleteInferenceRequest) (*v1.InferenceAcceptance, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteInference not implemented")
 }
-func (UnimplementedInferenceServiceServer) GetInference(context.Context, *v1.GetInferenceRequest) (*v11.InferenceService, error) {
+func (UnimplementedInferenceServiceServer) GetInference(context.Context, *v1.GetInferenceRequest) (*v1.InferenceView, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetInference not implemented")
 }
 func (UnimplementedInferenceServiceServer) ListInference(context.Context, *v1.ListInferenceRequest) (*v1.ListInferenceResponse, error) {

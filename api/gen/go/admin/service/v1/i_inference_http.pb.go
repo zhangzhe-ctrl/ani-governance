@@ -30,7 +30,7 @@ const OperationInferenceServiceListInference = "/admin.service.v1.InferenceServi
 type InferenceServiceHTTPServer interface {
 	CreateInference(context.Context, *v1.CreateInferenceRequest) (*v1.InferenceAcceptance, error)
 	DeleteInference(context.Context, *v1.DeleteInferenceRequest) (*v1.InferenceAcceptance, error)
-	GetInference(context.Context, *v1.GetInferenceRequest) (*v11.InferenceService, error)
+	GetInference(context.Context, *v1.GetInferenceRequest) (*v1.InferenceView, error)
 	GetInferenceOperation(context.Context, *v1.GetInferenceOperationRequest) (*v11.Operation, error)
 	ListInference(context.Context, *v1.ListInferenceRequest) (*v1.ListInferenceResponse, error)
 }
@@ -108,7 +108,7 @@ func _InferenceService_GetInference0_HTTP_Handler(srv InferenceServiceHTTPServer
 		if err != nil {
 			return err
 		}
-		reply := out.(*v11.InferenceService)
+		reply := out.(*v1.InferenceView)
 		return ctx.Result(200, reply)
 	}
 }
@@ -157,7 +157,7 @@ func _InferenceService_GetInferenceOperation0_HTTP_Handler(srv InferenceServiceH
 type InferenceServiceHTTPClient interface {
 	CreateInference(ctx context.Context, req *v1.CreateInferenceRequest, opts ...http.CallOption) (rsp *v1.InferenceAcceptance, err error)
 	DeleteInference(ctx context.Context, req *v1.DeleteInferenceRequest, opts ...http.CallOption) (rsp *v1.InferenceAcceptance, err error)
-	GetInference(ctx context.Context, req *v1.GetInferenceRequest, opts ...http.CallOption) (rsp *v11.InferenceService, err error)
+	GetInference(ctx context.Context, req *v1.GetInferenceRequest, opts ...http.CallOption) (rsp *v1.InferenceView, err error)
 	GetInferenceOperation(ctx context.Context, req *v1.GetInferenceOperationRequest, opts ...http.CallOption) (rsp *v11.Operation, err error)
 	ListInference(ctx context.Context, req *v1.ListInferenceRequest, opts ...http.CallOption) (rsp *v1.ListInferenceResponse, err error)
 }
@@ -196,8 +196,8 @@ func (c *InferenceServiceHTTPClientImpl) DeleteInference(ctx context.Context, in
 	return &out, nil
 }
 
-func (c *InferenceServiceHTTPClientImpl) GetInference(ctx context.Context, in *v1.GetInferenceRequest, opts ...http.CallOption) (*v11.InferenceService, error) {
-	var out v11.InferenceService
+func (c *InferenceServiceHTTPClientImpl) GetInference(ctx context.Context, in *v1.GetInferenceRequest, opts ...http.CallOption) (*v1.InferenceView, error) {
+	var out v1.InferenceView
 	pattern := "/api/v1/inference/services/{resource_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationInferenceServiceGetInference))
