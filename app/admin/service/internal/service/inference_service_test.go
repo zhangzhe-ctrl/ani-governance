@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"testing"
 
+	inferencev1 "github.com/liangzai006/ani-inference-service/api/inference/v1"
 	modelv1 "github.com/liangzai006/ani-model-service/api/model/v1"
 	"github.com/stretchr/testify/require"
 	attachment "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/integration/v1"
 	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
-	inferencev1 "github.com/zhangzhe-ctrl/ani-inference-service/api/inference/v1"
 	view "go-wind-admin/api/gen/go/inference/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/pkg/middleware/auth"
@@ -105,6 +105,11 @@ func TestInferenceServiceCreatesWithoutGPUThroughTrustedOwner(t *testing.T) {
 	if owner.request.GetEngine().GetCommand() != request.Data.Command || owner.request.GetEngine().GetImage() != request.Data.EngineImage || owner.request.GetEngine().GetType() != request.Data.EngineType {
 		t.Fatalf("engine was changed: %#v", owner.request.GetEngine())
 	}
+	endpoint := owner.request.GetRuntime().GetEndpoint()
+	require.Equal(t, int32(8000), endpoint.GetContainerPort())
+	require.Equal(t, int32(80), endpoint.GetServicePort())
+	require.Equal(t, "8000", endpoint.GetTargetPort())
+	require.Equal(t, "TCP", endpoint.GetProtocol())
 	if owner.request.GetResource().GetRequests()["cpu"] != "1" || owner.request.GetResource().GetRequests()["memory"] != "2Gi" || owner.request.GetResource().GetLimits() != nil {
 		t.Fatalf("resources were changed: %#v", owner.request.GetResource())
 	}
@@ -172,6 +177,10 @@ func TestInferenceServiceDerivesGPUPlacementForDeploymentAndLWS(t *testing.T) {
 			require.Equal(t, tc.container, request.GetResource().GetGpu().GetContainerName())
 			require.Equal(t, tc.gpuPods, request.GetResource().GetGpu().GetReplicas())
 			require.Equal(t, uint32(1), request.GetResource().GetGpu().GetDevicesPerReplica())
+			require.Equal(t, int32(8000), request.GetRuntime().GetEndpoint().GetContainerPort())
+			require.Equal(t, int32(80), request.GetRuntime().GetEndpoint().GetServicePort())
+			require.Equal(t, "8000", request.GetRuntime().GetEndpoint().GetTargetPort())
+			require.Equal(t, "TCP", request.GetRuntime().GetEndpoint().GetProtocol())
 		})
 	}
 }

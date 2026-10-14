@@ -1281,3 +1281,54 @@ ledger adapter action固定为权威 Inference RPC full method `CreateInferenceS
 模块资格 `PlanModule`、上限 `PlanQuota` 与当前用户动作授权各自独立。API先dry-run/显式sync后执行 [权限目录登记](../scripts/ops/sql/register-inference-permissions.sql)，再仅为显式选定tenant:manager角色和选定套餐执行 [启用脚本](../scripts/ops/sql/enable-inference-access.sql)，传tenant_id/role_id/plan_id；不修改基础FREE、模板、所有角色或用户配额。Gov内部退款listener仅编译注册固定ani-inference，生产精确客户端DNS SAN必须明确配置，不猜测。
 
 软件测试使用实际Gov受理/账本/当前权限、真实Acc解析和真实Inference RPC/PG；只有外部provider证据可用明确替身，外部模型/Kubernetes执行暂停。完成通知在持久DELETE后显式注入，通过真实Inference退款客户端调用真实Gov mTLS/PG。源码实现、发布依赖、运行结果、CI及生产/真实GPU验收由本批结果索引分别记录；本文不回填未执行PASS，也不将本批之外的接口风格整体登记结项。
+
+## GOV-MODEL-INF-20261012：Model / Inference BFF 接入
+
+本批把模型目录、模型导入和推理生命周期接入 Governance BFF。调用方只面向
+Governance HTTP；Governance 根据已认证的租户用户建立下游 mTLS gRPC 请求，Model
+和 Inference 不读取客户端提交的租户或 actor 字段。ModelScope 导入仍由 Model
+Service 创建一次性 Kubernetes Job 完成，模型文件写入当前 Model Service 配置的
+S3-compatible 存储；Inference 创建时必须引用已就绪的 `model_version_id`。
+
+### HTTP 入口
+
+| 业务 | 方法与路径 | 权限 |
+|---|---|---|
+| 模型列表/详情 | `GET /api/v1/models`、`GET /api/v1/models/{model_id}` | `model:service:read` |
+| 模型版本 | `GET /api/v1/models/{model_id}/versions`、`GET /api/v1/model-versions/{model_version_id}` | `model:service:read` |
+| 导入任务查询 | `GET /api/v1/models/import-tasks/{task_id}` | `model:service:read` |
+| 创建模型/版本、发起导入、重试 | `POST /api/v1/models`、`POST /api/v1/model-versions`、`POST /api/v1/models:import`、`POST /api/v1/models/import-tasks/{task_id}:retry` | `model:service:manage` |
+| 创建推理 | `POST /api/v1/inference/services` | `inference:service:create` |
+| 推理查询 | `GET /api/v1/inference/services`、`GET /api/v1/inference/services/{resource_id}`、`GET /api/v1/inference/operations/{operation_id}` | `inference:service:read` |
+| 删除推理 | `POST /api/v1/inference/services/{data.resource_id}:delete` | `inference:service:delete` |
+
+请求体沿用各自 `data` 公开报文。推理创建使用 `engine_type`、`engine_image`、
+完整的单字符串 `command` 和 `served_model_name`；不再有 `engine.command[]` 或
+`engine.args[]` 数组。Governance、Model 和 Inference 都不会解析、拼接、替换或
+写死引擎启动参数；请求中的完整 command 原样保存并转发。未传 `gpu` 表示不使用
+GPU；传入 GPU 才进入配额/Accelerator 受理路径。
+运行时网络端点由适配器固定为 TCP `containerPort=8000`、`servicePort=80`、
+`targetPort=8000`；调用方提供的完整 command 必须让引擎监听容器端口 8000。
+适配器不解析 command，也不向其中追加端口或其他启动参数。
+
+### 新环境启用步骤
+
+1. 先对本版本 OpenAPI 执行 `admin sync-apis --dry-run`，人工确认后执行
+   `admin sync-apis`。
+2. 执行 [Model/Inference 权限目录登记](../scripts/ops/sql/register-model-inference-permissions.sql)。
+   该文件只登记权限与 API 关联，不自动给任何角色授权。
+3. 对明确的租户、当前 `tenant:manager` 角色和套餐执行
+   [Model/Inference 启用脚本](../scripts/ops/sql/enable-model-inference-access.sql)。
+   它只增加所选租户角色的权限和所选套餐的 `MODEL`、`INFERENCE` 模块，不修改其他租户、
+   模板角色或配额。
+4. 配置 Governance → Model/Inference 的证书、精确服务 DNS 和地址，重启 Governance
+   使 Casbin 策略重新加载；配置缺失时 BFF 应返回下游不可用，不退化为直连或明文。
+
+### 业务链路验收
+
+`登录 → POST /api/v1/models → POST /api/v1/model-versions → POST /api/v1/models:import
+→ 轮询导入任务 → 读取已就绪版本 → POST /api/v1/inference/services → 轮询
+operation/service → Higress /v1/completions`。导入任务状态可以在版本就绪前为
+`importing`；`GET /api/v1/model-versions/{id}` 只返回已就绪版本，不能把导入中的
+404 当作导入失败。CPU 验收不需要 GPU 或 Accelerator；GPU 验收必须在有 GPU 节点的
+新集群另行执行。本批不修改旧集群。

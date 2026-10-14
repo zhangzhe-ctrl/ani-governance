@@ -66,6 +66,7 @@ func TestServiceTagToBusinessModuleExactMapping(t *testing.T) {
 		"InternalMessageRecipientService": identityV1.Module_INTERNAL_MESSAGE,
 
 		"NetworkService":  identityV1.Module_NETWORK,
+		"ModelService":    identityV1.Module_MODEL,
 		"ModelDevService": identityV1.Module_MODEL,
 	}
 	assert.Equal(t, expected, ServiceTagToBusinessModule,
@@ -90,7 +91,7 @@ func TestServiceTagToBusinessModuleReverseMapping(t *testing.T) {
 		identityV1.Module_INTERNAL_MESSAGE: {"InternalMessageService", "InternalMessageCategoryService", "InternalMessageRecipientService"},
 		identityV1.Module_NETWORK:          {"NetworkService"},
 		identityV1.Module_ACCELERATOR:      {"AcceleratorAdminService", "AcceleratorService"},
-		identityV1.Module_MODEL:            {"ModelDevService"},
+		identityV1.Module_MODEL:            {"ModelDevService", "ModelService"},
 	}
 
 	actual := make(map[identityV1.Module][]string)
@@ -122,8 +123,8 @@ func TestServiceTagToBusinessModuleValuesValid(t *testing.T) {
 // modulesWithoutService 是"已在枚举中定义、但当前确实没有服务登记"的模块白名单。
 // 加入本表等于显式声明：该模块此刻没有任何服务承接，是有意为之而非漏登记。
 //
-// CPU-P01 ModelDev uses the existing MODEL module. Model registration and
-// the retired /api/v1/models route are not restored by this mapping.
+// ModelDev and the Model BFF share the MODEL module. This is intentional:
+// model import/version lifecycle and ModelDev are both tenant model workflows.
 var modulesWithoutService = map[identityV1.Module]string{}
 
 // TestServiceTagToBusinessModuleCoversAllDefinedModules 覆盖完备性：每个已定义的

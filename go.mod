@@ -15,7 +15,8 @@ require (
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/jinzhu/inflection v1.0.0
-	github.com/liangzai006/ani-model-service v0.0.0-20261012084931-71c10de63f07
+	github.com/liangzai006/ani-inference-service v0.0.0-20261013084555-79beaaf5cf0b
+	github.com/liangzai006/ani-model-service v0.0.0-20261013092523-8951c85bc150
 	github.com/lib/pq v1.12.3
 	github.com/mileusna/useragent v1.3.5
 	github.com/pquerna/otp v1.5.0
@@ -142,7 +143,6 @@ require (
 	github.com/zclconf/go-cty v1.19.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.2.0 // indirect
 	github.com/zhangzhe-ctrl/ani-governance/api/quota v0.0.0-20261009133356-1ab461604c74
-	github.com/zhangzhe-ctrl/ani-inference-service v0.0.0-20261009141630-cbeb2a6c6fa1
 	go.einride.tech/aip v0.86.3
 	go.mongodb.org/mongo-driver/v2 v2.9.0
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
@@ -173,7 +173,3 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
 )
-
-replace github.com/zhangzhe-ctrl/ani-inference-service => ../ani-inference-service
-
-replace github.com/liangzai006/ani-model-service => ../ani-model-service

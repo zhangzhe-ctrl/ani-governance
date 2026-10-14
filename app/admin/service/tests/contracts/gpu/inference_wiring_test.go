@@ -25,11 +25,11 @@ import (
 
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/google/uuid"
+	inferencev1 "github.com/liangzai006/ani-inference-service/api/inference/v1"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
 	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
 	quota "github.com/zhangzhe-ctrl/ani-governance/api/quota/gen/go/quota/service/v1"
-	inferencev1 "github.com/zhangzhe-ctrl/ani-inference-service/api/inference/v1"
 	authv1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	identityv1 "go-wind-admin/api/gen/go/identity/service/v1"
 	view "go-wind-admin/api/gen/go/inference/service/v1"

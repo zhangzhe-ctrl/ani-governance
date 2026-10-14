@@ -7,10 +7,10 @@ import (
 	"strings"
 
 	kratoserrors "github.com/go-kratos/kratos/v2/errors"
+	inferencev1 "github.com/liangzai006/ani-inference-service/api/inference/v1"
 	modelv1 "github.com/liangzai006/ani-model-service/api/model/v1"
 	attachment "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/integration/v1"
 	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
-	inferencev1 "github.com/zhangzhe-ctrl/ani-inference-service/api/inference/v1"
 	admin "go-wind-admin/api/gen/go/admin/service/v1"
 	view "go-wind-admin/api/gen/go/inference/service/v1"
 	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
@@ -323,8 +323,15 @@ func (s *InferenceService) buildCreateRequest(d *view.CreateInferenceData) (*inf
 	return &inferencev1.CreateInferenceServiceRequest{
 		Name: d.Name, ModelVersionId: d.ModelVersionId, ServedModelName: d.ServedModelName, Replicas: d.Replicas,
 		Resource: &inferencev1.ResourceSpec{Requests: map[string]string{"cpu": d.Cpu, "memory": d.Memory}, Gpu: gpu},
-		Runtime:  &inferencev1.RuntimeSpec{Mode: mode, WorkerReplicas: d.WorkerReplicas, Provider: "kserve"},
-		Engine:   &inferencev1.EngineSpec{Type: d.EngineType, Image: d.EngineImage, Command: d.Command},
+		// Governance exposes the business-facing flat request. The inference
+		// runtime still needs an explicit HTTP endpoint to mount the verified
+		// model PVC and publish the KServe predictor. Keep this transport
+		// contract separate from the caller-owned startup command.
+		Runtime: &inferencev1.RuntimeSpec{
+			Mode: mode, WorkerReplicas: d.WorkerReplicas, Provider: "kserve",
+			Endpoint: &inferencev1.EndpointSpec{ContainerPort: 8000, ServicePort: 80, TargetPort: "8000", Protocol: "TCP"},
+		},
+		Engine: &inferencev1.EngineSpec{Type: d.EngineType, Image: d.EngineImage, Command: d.Command},
 	}, nil
 }
 
