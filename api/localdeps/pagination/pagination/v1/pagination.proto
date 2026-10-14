@@ -14,7 +14,7 @@ import "gnostic/openapi/v3/annotations.proto";
 // ------------------------------
 // 特别说明
 // ------------------------------
-// 1. 本文件定义了多种分页方式（页码-页大小、偏移量-限制、令牌分页、不分页）
+// 1. 本文件定义了多种分页方式（页码-页大小、偏移量-限制、令牌分页、游标分页、不分页）
 //    以及通用的分页请求与响应结构，供不同场景选择使用。
 // 2. 排序规则、过滤表达式等均可复用，避免重复定义。
 // 3. 通用分页请求与响应适用于大多数场景，建议优先使用。
@@ -279,6 +279,16 @@ message PagingRequest {
     json_name = "noPaging",
     (gnostic.openapi.v3.property) = {
       description: "是否不分页，如果为true，则page和pageSize参数无效。"
+    }
+  ];
+
+  // 上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。
+  // 与 page/pageSize、offset、token 互斥；游标由服务端签名并绑定资源、租户上下文、
+  // 筛选与排序，篡改或不匹配一律拒绝，客户端不得解析或修改其内容。
+  optional string cursor = 7 [
+    json_name = "cursor",
+    (gnostic.openapi.v3.property) = {
+      description: "上一页最后一条记录的不透明游标（首次请求为空，取上一页响应中的 next_cursor）。与 page/pageSize、offset、token 互斥。"
     }
   ];
 

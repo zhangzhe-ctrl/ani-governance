@@ -83,7 +83,7 @@ func newOnboardingEnv(t *testing.T) *onboardingEnv {
 	ec := onboardingClient(t)
 	ctx := testutil.NewSystemViewerCtx(context.Background())
 	bctx := bootstrap.NewContextWithParam(ctx, nil, nil, bLogger.NopLogger())
-	u := data.NewUserRepo(bctx, ec, data.NewUserRoleRepo(bctx, ec), data.NewUserOrgUnitRepo(bctx, ec), data.NewUserPositionRepo(bctx, ec), nil)
+	u := data.NewUserRepo(bctx, ec, data.NewUserRoleRepo(bctx, ec), data.NewUserOrgUnitRepo(bctx, ec), data.NewUserPositionRepo(bctx, ec), nil, newRoleRepo(ec))
 	c := data.NewUserCredentialRepo(newRepoContext(), ec, password.NewBCryptCrypto(), newConfigRepo(t, ec, nil))
 	r := newRoleRepo(ec)
 	channels := data.NewNotificationChannelRepo(newRepoContext(), ec)
@@ -310,7 +310,7 @@ func TestOnboardingAPIRegistration(t *testing.T) {
 	}
 	ec := onboardingClient(t)
 	ctx := testutil.NewSystemViewerCtx(context.Background())
-	ec.Client().Api.Create().SetID(900).SetModule("UserService").SetPath("/admin/v1/users").SetMethod("POST").SaveX(ctx)
+	ec.Client().Api.Create().SetID(900).SetModule("UserService").SetPath("/api/v1/admin/users").SetMethod("POST").SaveX(ctx)
 	script, err := os.ReadFile("../../../../../scripts/bootstrap-invitation-api.sql")
 	require.NoError(t, err)
 	_, err = ec.DB().ExecContext(ctx, string(script))
@@ -320,6 +320,6 @@ func TestOnboardingAPIRegistration(t *testing.T) {
 	_, err = ec.DB().ExecContext(ctx, string(script))
 	require.NoError(t, err)
 	require.Equal(t, 2, ec.Client().Api.Query().CountX(ctx))
-	require.Equal(t, "/admin/v1/users", *ec.Client().Api.GetX(ctx, 900).Path)
+	require.Equal(t, "/api/v1/admin/users", *ec.Client().Api.GetX(ctx, 900).Path)
 	require.Equal(t, invitation.ID, ec.Client().Api.Query().Where(api.PathEQ(InvitationPath)).OnlyX(ctx).ID)
 }

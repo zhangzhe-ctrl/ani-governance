@@ -16,6 +16,7 @@ func TestServiceTagToBusinessModuleExactMapping(t *testing.T) {
 	expected := map[string]identityV1.Module{
 		"ImageService":            identityV1.Module_IMAGE,
 		"InferenceService":        identityV1.Module_INFERENCE,
+		"InstanceService":         identityV1.Module_INSTANCE,
 		"AcceleratorAdminService": identityV1.Module_ACCELERATOR,
 		"AcceleratorService":      identityV1.Module_ACCELERATOR,
 		"QuotaSelfService":        identityV1.Module_TENANT,
@@ -65,9 +66,10 @@ func TestServiceTagToBusinessModuleExactMapping(t *testing.T) {
 		"InternalMessageCategoryService":  identityV1.Module_INTERNAL_MESSAGE,
 		"InternalMessageRecipientService": identityV1.Module_INTERNAL_MESSAGE,
 
-		"NetworkService":  identityV1.Module_NETWORK,
-		"ModelService":    identityV1.Module_MODEL,
-		"ModelDevService": identityV1.Module_MODEL,
+		"NetworkService":         identityV1.Module_NETWORK,
+		"PlatformNetworkService": identityV1.Module_NETWORK,
+		"ModelService":           identityV1.Module_MODEL,
+		"ModelDevService":        identityV1.Module_MODEL,
 	}
 	assert.Equal(t, expected, ServiceTagToBusinessModule,
 		"ServiceTagToBusinessModule 内容漂移；如为有意变更请同步更新本测试")
@@ -80,6 +82,7 @@ func TestServiceTagToBusinessModuleReverseMapping(t *testing.T) {
 	expected := map[identityV1.Module][]string{
 		identityV1.Module_IMAGE:            {"ImageService"},
 		identityV1.Module_INFERENCE:        {"InferenceService"},
+		identityV1.Module_INSTANCE:         {"InstanceService"},
 		identityV1.Module_DASHBOARD:        {"AdminPortalService", "DashboardService", "AuthenticationService"},
 		identityV1.Module_OPM:              {"UserService", "OrgUnitService", "PositionService", "UserProfileService", "RoleService"},
 		identityV1.Module_PERMISSION:       {"MenuService", "ApiService", "PermissionService", "PermissionGroupService"},
@@ -89,7 +92,7 @@ func TestServiceTagToBusinessModuleReverseMapping(t *testing.T) {
 		identityV1.Module_TENANT:           {"TenantService", "PlanService", "PlanQuotaService", "PlanModuleService", "QuotaAdminService", "QuotaLabService", "QuotaSelfService"},
 		identityV1.Module_LOG:              {"ApiAuditLogService", "LoginAuditLogService", "OperationAuditLogService", "DataAccessAuditLogService", "PermissionAuditLogService", "PolicyEvaluationLogService", "RedisCacheMonitorService"},
 		identityV1.Module_INTERNAL_MESSAGE: {"InternalMessageService", "InternalMessageCategoryService", "InternalMessageRecipientService"},
-		identityV1.Module_NETWORK:          {"NetworkService"},
+		identityV1.Module_NETWORK:          {"NetworkService", "PlatformNetworkService"},
 		identityV1.Module_ACCELERATOR:      {"AcceleratorAdminService", "AcceleratorService"},
 		identityV1.Module_MODEL:            {"ModelDevService", "ModelService"},
 	}

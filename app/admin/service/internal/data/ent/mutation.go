@@ -10,6 +10,7 @@ import (
 	permissionpb "go-wind-admin/api/gen/go/permission/service/v1"
 	taskpb "go-wind-admin/api/gen/go/task/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent/accesskey"
+	"go-wind-admin/app/admin/service/internal/data/ent/accesskeyidempotency"
 	"go-wind-admin/app/admin/service/internal/data/ent/api"
 	"go-wind-admin/app/admin/service/internal/data/ent/apiauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/dataaccessauditlog"
@@ -82,6 +83,7 @@ const (
 
 	// Node types.
 	TypeAccessKey                = "AccessKey"
+	TypeAccessKeyIdempotency     = "AccessKeyIdempotency"
 	TypeAPI                      = "Api"
 	TypeApiAuditLog              = "ApiAuditLog"
 	TypeDataAccessAuditLog       = "DataAccessAuditLog"
@@ -1515,6 +1517,764 @@ func (m *AccessKeyMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *AccessKeyMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown AccessKey edge %s", name)
+}
+
+// AccessKeyIdempotencyMutation represents an operation that mutates the AccessKeyIdempotency nodes in the graph.
+type AccessKeyIdempotencyMutation struct {
+	config
+	op                  Op
+	typ                 string
+	id                  *uint32
+	tenant_id           *uint32
+	addtenant_id        *int32
+	actor_id            *uint32
+	addactor_id         *int32
+	action              *string
+	idempotency_key     *string
+	request_fingerprint *string
+	access_key_id       *uint32
+	addaccess_key_id    *int32
+	created_at          *time.Time
+	clearedFields       map[string]struct{}
+	done                bool
+	oldValue            func(context.Context) (*AccessKeyIdempotency, error)
+	predicates          []predicate.AccessKeyIdempotency
+}
+
+var _ ent.Mutation = (*AccessKeyIdempotencyMutation)(nil)
+
+// accesskeyidempotencyOption allows management of the mutation configuration using functional options.
+type accesskeyidempotencyOption func(*AccessKeyIdempotencyMutation)
+
+// newAccessKeyIdempotencyMutation creates new mutation for the AccessKeyIdempotency entity.
+func newAccessKeyIdempotencyMutation(c config, op Op, opts ...accesskeyidempotencyOption) *AccessKeyIdempotencyMutation {
+	m := &AccessKeyIdempotencyMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeAccessKeyIdempotency,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withAccessKeyIdempotencyID sets the ID field of the mutation.
+func withAccessKeyIdempotencyID(id uint32) accesskeyidempotencyOption {
+	return func(m *AccessKeyIdempotencyMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *AccessKeyIdempotency
+		)
+		m.oldValue = func(ctx context.Context) (*AccessKeyIdempotency, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().AccessKeyIdempotency.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withAccessKeyIdempotency sets the old AccessKeyIdempotency of the mutation.
+func withAccessKeyIdempotency(node *AccessKeyIdempotency) accesskeyidempotencyOption {
+	return func(m *AccessKeyIdempotencyMutation) {
+		m.oldValue = func(context.Context) (*AccessKeyIdempotency, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m AccessKeyIdempotencyMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m AccessKeyIdempotencyMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of AccessKeyIdempotency entities.
+func (m *AccessKeyIdempotencyMutation) SetID(id uint32) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *AccessKeyIdempotencyMutation) ID() (id uint32, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *AccessKeyIdempotencyMutation) IDs(ctx context.Context) ([]uint32, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint32{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().AccessKeyIdempotency.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *AccessKeyIdempotencyMutation) SetTenantID(u uint32) {
+	m.tenant_id = &u
+	m.addtenant_id = nil
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *AccessKeyIdempotencyMutation) TenantID() (r uint32, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the AccessKeyIdempotency entity.
+// If the AccessKeyIdempotency object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessKeyIdempotencyMutation) OldTenantID(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// AddTenantID adds u to the "tenant_id" field.
+func (m *AccessKeyIdempotencyMutation) AddTenantID(u int32) {
+	if m.addtenant_id != nil {
+		*m.addtenant_id += u
+	} else {
+		m.addtenant_id = &u
+	}
+}
+
+// AddedTenantID returns the value that was added to the "tenant_id" field in this mutation.
+func (m *AccessKeyIdempotencyMutation) AddedTenantID() (r int32, exists bool) {
+	v := m.addtenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *AccessKeyIdempotencyMutation) ResetTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+}
+
+// SetActorID sets the "actor_id" field.
+func (m *AccessKeyIdempotencyMutation) SetActorID(u uint32) {
+	m.actor_id = &u
+	m.addactor_id = nil
+}
+
+// ActorID returns the value of the "actor_id" field in the mutation.
+func (m *AccessKeyIdempotencyMutation) ActorID() (r uint32, exists bool) {
+	v := m.actor_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldActorID returns the old "actor_id" field's value of the AccessKeyIdempotency entity.
+// If the AccessKeyIdempotency object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessKeyIdempotencyMutation) OldActorID(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldActorID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldActorID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldActorID: %w", err)
+	}
+	return oldValue.ActorID, nil
+}
+
+// AddActorID adds u to the "actor_id" field.
+func (m *AccessKeyIdempotencyMutation) AddActorID(u int32) {
+	if m.addactor_id != nil {
+		*m.addactor_id += u
+	} else {
+		m.addactor_id = &u
+	}
+}
+
+// AddedActorID returns the value that was added to the "actor_id" field in this mutation.
+func (m *AccessKeyIdempotencyMutation) AddedActorID() (r int32, exists bool) {
+	v := m.addactor_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetActorID resets all changes to the "actor_id" field.
+func (m *AccessKeyIdempotencyMutation) ResetActorID() {
+	m.actor_id = nil
+	m.addactor_id = nil
+}
+
+// SetAction sets the "action" field.
+func (m *AccessKeyIdempotencyMutation) SetAction(s string) {
+	m.action = &s
+}
+
+// Action returns the value of the "action" field in the mutation.
+func (m *AccessKeyIdempotencyMutation) Action() (r string, exists bool) {
+	v := m.action
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAction returns the old "action" field's value of the AccessKeyIdempotency entity.
+// If the AccessKeyIdempotency object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessKeyIdempotencyMutation) OldAction(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAction is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAction requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAction: %w", err)
+	}
+	return oldValue.Action, nil
+}
+
+// ResetAction resets all changes to the "action" field.
+func (m *AccessKeyIdempotencyMutation) ResetAction() {
+	m.action = nil
+}
+
+// SetIdempotencyKey sets the "idempotency_key" field.
+func (m *AccessKeyIdempotencyMutation) SetIdempotencyKey(s string) {
+	m.idempotency_key = &s
+}
+
+// IdempotencyKey returns the value of the "idempotency_key" field in the mutation.
+func (m *AccessKeyIdempotencyMutation) IdempotencyKey() (r string, exists bool) {
+	v := m.idempotency_key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIdempotencyKey returns the old "idempotency_key" field's value of the AccessKeyIdempotency entity.
+// If the AccessKeyIdempotency object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessKeyIdempotencyMutation) OldIdempotencyKey(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIdempotencyKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIdempotencyKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIdempotencyKey: %w", err)
+	}
+	return oldValue.IdempotencyKey, nil
+}
+
+// ResetIdempotencyKey resets all changes to the "idempotency_key" field.
+func (m *AccessKeyIdempotencyMutation) ResetIdempotencyKey() {
+	m.idempotency_key = nil
+}
+
+// SetRequestFingerprint sets the "request_fingerprint" field.
+func (m *AccessKeyIdempotencyMutation) SetRequestFingerprint(s string) {
+	m.request_fingerprint = &s
+}
+
+// RequestFingerprint returns the value of the "request_fingerprint" field in the mutation.
+func (m *AccessKeyIdempotencyMutation) RequestFingerprint() (r string, exists bool) {
+	v := m.request_fingerprint
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequestFingerprint returns the old "request_fingerprint" field's value of the AccessKeyIdempotency entity.
+// If the AccessKeyIdempotency object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessKeyIdempotencyMutation) OldRequestFingerprint(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequestFingerprint is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequestFingerprint requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequestFingerprint: %w", err)
+	}
+	return oldValue.RequestFingerprint, nil
+}
+
+// ResetRequestFingerprint resets all changes to the "request_fingerprint" field.
+func (m *AccessKeyIdempotencyMutation) ResetRequestFingerprint() {
+	m.request_fingerprint = nil
+}
+
+// SetAccessKeyID sets the "access_key_id" field.
+func (m *AccessKeyIdempotencyMutation) SetAccessKeyID(u uint32) {
+	m.access_key_id = &u
+	m.addaccess_key_id = nil
+}
+
+// AccessKeyID returns the value of the "access_key_id" field in the mutation.
+func (m *AccessKeyIdempotencyMutation) AccessKeyID() (r uint32, exists bool) {
+	v := m.access_key_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccessKeyID returns the old "access_key_id" field's value of the AccessKeyIdempotency entity.
+// If the AccessKeyIdempotency object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessKeyIdempotencyMutation) OldAccessKeyID(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccessKeyID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccessKeyID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccessKeyID: %w", err)
+	}
+	return oldValue.AccessKeyID, nil
+}
+
+// AddAccessKeyID adds u to the "access_key_id" field.
+func (m *AccessKeyIdempotencyMutation) AddAccessKeyID(u int32) {
+	if m.addaccess_key_id != nil {
+		*m.addaccess_key_id += u
+	} else {
+		m.addaccess_key_id = &u
+	}
+}
+
+// AddedAccessKeyID returns the value that was added to the "access_key_id" field in this mutation.
+func (m *AccessKeyIdempotencyMutation) AddedAccessKeyID() (r int32, exists bool) {
+	v := m.addaccess_key_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAccessKeyID resets all changes to the "access_key_id" field.
+func (m *AccessKeyIdempotencyMutation) ResetAccessKeyID() {
+	m.access_key_id = nil
+	m.addaccess_key_id = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *AccessKeyIdempotencyMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *AccessKeyIdempotencyMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the AccessKeyIdempotency entity.
+// If the AccessKeyIdempotency object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessKeyIdempotencyMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *AccessKeyIdempotencyMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// Where appends a list predicates to the AccessKeyIdempotencyMutation builder.
+func (m *AccessKeyIdempotencyMutation) Where(ps ...predicate.AccessKeyIdempotency) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the AccessKeyIdempotencyMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *AccessKeyIdempotencyMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.AccessKeyIdempotency, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *AccessKeyIdempotencyMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *AccessKeyIdempotencyMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (AccessKeyIdempotency).
+func (m *AccessKeyIdempotencyMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *AccessKeyIdempotencyMutation) Fields() []string {
+	fields := make([]string, 0, 7)
+	if m.tenant_id != nil {
+		fields = append(fields, accesskeyidempotency.FieldTenantID)
+	}
+	if m.actor_id != nil {
+		fields = append(fields, accesskeyidempotency.FieldActorID)
+	}
+	if m.action != nil {
+		fields = append(fields, accesskeyidempotency.FieldAction)
+	}
+	if m.idempotency_key != nil {
+		fields = append(fields, accesskeyidempotency.FieldIdempotencyKey)
+	}
+	if m.request_fingerprint != nil {
+		fields = append(fields, accesskeyidempotency.FieldRequestFingerprint)
+	}
+	if m.access_key_id != nil {
+		fields = append(fields, accesskeyidempotency.FieldAccessKeyID)
+	}
+	if m.created_at != nil {
+		fields = append(fields, accesskeyidempotency.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *AccessKeyIdempotencyMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case accesskeyidempotency.FieldTenantID:
+		return m.TenantID()
+	case accesskeyidempotency.FieldActorID:
+		return m.ActorID()
+	case accesskeyidempotency.FieldAction:
+		return m.Action()
+	case accesskeyidempotency.FieldIdempotencyKey:
+		return m.IdempotencyKey()
+	case accesskeyidempotency.FieldRequestFingerprint:
+		return m.RequestFingerprint()
+	case accesskeyidempotency.FieldAccessKeyID:
+		return m.AccessKeyID()
+	case accesskeyidempotency.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *AccessKeyIdempotencyMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case accesskeyidempotency.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case accesskeyidempotency.FieldActorID:
+		return m.OldActorID(ctx)
+	case accesskeyidempotency.FieldAction:
+		return m.OldAction(ctx)
+	case accesskeyidempotency.FieldIdempotencyKey:
+		return m.OldIdempotencyKey(ctx)
+	case accesskeyidempotency.FieldRequestFingerprint:
+		return m.OldRequestFingerprint(ctx)
+	case accesskeyidempotency.FieldAccessKeyID:
+		return m.OldAccessKeyID(ctx)
+	case accesskeyidempotency.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown AccessKeyIdempotency field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AccessKeyIdempotencyMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case accesskeyidempotency.FieldTenantID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case accesskeyidempotency.FieldActorID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetActorID(v)
+		return nil
+	case accesskeyidempotency.FieldAction:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAction(v)
+		return nil
+	case accesskeyidempotency.FieldIdempotencyKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIdempotencyKey(v)
+		return nil
+	case accesskeyidempotency.FieldRequestFingerprint:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequestFingerprint(v)
+		return nil
+	case accesskeyidempotency.FieldAccessKeyID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccessKeyID(v)
+		return nil
+	case accesskeyidempotency.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown AccessKeyIdempotency field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *AccessKeyIdempotencyMutation) AddedFields() []string {
+	var fields []string
+	if m.addtenant_id != nil {
+		fields = append(fields, accesskeyidempotency.FieldTenantID)
+	}
+	if m.addactor_id != nil {
+		fields = append(fields, accesskeyidempotency.FieldActorID)
+	}
+	if m.addaccess_key_id != nil {
+		fields = append(fields, accesskeyidempotency.FieldAccessKeyID)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *AccessKeyIdempotencyMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case accesskeyidempotency.FieldTenantID:
+		return m.AddedTenantID()
+	case accesskeyidempotency.FieldActorID:
+		return m.AddedActorID()
+	case accesskeyidempotency.FieldAccessKeyID:
+		return m.AddedAccessKeyID()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AccessKeyIdempotencyMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case accesskeyidempotency.FieldTenantID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTenantID(v)
+		return nil
+	case accesskeyidempotency.FieldActorID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddActorID(v)
+		return nil
+	case accesskeyidempotency.FieldAccessKeyID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAccessKeyID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown AccessKeyIdempotency numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *AccessKeyIdempotencyMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *AccessKeyIdempotencyMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *AccessKeyIdempotencyMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown AccessKeyIdempotency nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *AccessKeyIdempotencyMutation) ResetField(name string) error {
+	switch name {
+	case accesskeyidempotency.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case accesskeyidempotency.FieldActorID:
+		m.ResetActorID()
+		return nil
+	case accesskeyidempotency.FieldAction:
+		m.ResetAction()
+		return nil
+	case accesskeyidempotency.FieldIdempotencyKey:
+		m.ResetIdempotencyKey()
+		return nil
+	case accesskeyidempotency.FieldRequestFingerprint:
+		m.ResetRequestFingerprint()
+		return nil
+	case accesskeyidempotency.FieldAccessKeyID:
+		m.ResetAccessKeyID()
+		return nil
+	case accesskeyidempotency.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown AccessKeyIdempotency field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *AccessKeyIdempotencyMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *AccessKeyIdempotencyMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *AccessKeyIdempotencyMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *AccessKeyIdempotencyMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *AccessKeyIdempotencyMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *AccessKeyIdempotencyMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *AccessKeyIdempotencyMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown AccessKeyIdempotency unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *AccessKeyIdempotencyMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown AccessKeyIdempotency edge %s", name)
 }
 
 // APIMutation represents an operation that mutates the Api nodes in the graph.

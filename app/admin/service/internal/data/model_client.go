@@ -70,7 +70,7 @@ func NewModelClient(c ModelClientConfig) (*ModelClient, func(), error) {
 		return nil, nil, errors.New("model client certificate unavailable")
 	}
 	leaf, err := x509.ParseCertificate(certificate.Certificate[0])
-	if err != nil || !hasExactDNSName(leaf, "ani-governance.ani.internal") {
+	if err != nil || !governanceClientCertificate(leaf) {
 		return nil, nil, errors.New("model client requires the registered Governance DNS identity")
 	}
 	pem, err := os.ReadFile(c.CAFile)
@@ -100,11 +100,23 @@ func NewModelClient(c ModelClientConfig) (*ModelClient, func(), error) {
 	return &ModelClient{connection: connection, client: modelv1.NewModelServiceClient(connection), timeout: c.Timeout}, func() { _ = connection.Close() }, nil
 }
 
+func governanceClientCertificate(cert *x509.Certificate) bool {
+	return cert != nil && len(cert.DNSNames) == 1 && cert.DNSNames[0] == "ani-governance" &&
+		len(cert.URIs) == 0 && len(cert.IPAddresses) == 0 && len(cert.EmailAddresses) == 0
+}
+
 func hasExactDNSName(cert *x509.Certificate, name string) bool {
-	if cert == nil || len(cert.DNSNames) != 1 {
+	if cert == nil {
 		return false
 	}
-	return cert.DNSNames[0] == name
+	matched := false
+	for _, dns := range cert.DNSNames {
+		if strings.Contains(dns, "*") {
+			return false
+		}
+		matched = matched || dns == name
+	}
+	return matched
 }
 
 func validModelIdentity(tenant, actor string) bool {

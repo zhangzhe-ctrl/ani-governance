@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 	"testing"
 )
 
@@ -358,9 +359,64 @@ func TestNetworkNewFieldsRetainIntentAndObservations(t *testing.T) {
 	if _, err := s.UpdateLoadBalancer(ctx, &catalogv1.UpdateLoadBalancerRequest{LoadBalancerId: testLBID, ExpectedVersion: 8, IdempotencyKey: "update-key", Backends: backends, HealthCheck: health}); err != nil || p.lbUpdate.ExpectedVersion != 8 || p.lbUpdate.IdempotencyKey != "update-key" {
 		t.Fatalf("LB mutation contract lost: %v", err)
 	}
+	for _, protocol := range []catalogv1.LoadBalancerListenerProtocol{catalogv1.LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_HTTP, catalogv1.LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_HTTPS, catalogv1.LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_TCP, catalogv1.LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_UDP, catalogv1.LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_SSL} {
+		input := &catalogv1.LoadBalancerListenerInput{Name: "parameters", Protocol: protocol, Port: &port, Backends: backends, Algorithm: catalogv1.LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_SOURCE_IP, CertificateRef: &catalogv1.LoadBalancerCertificateRef{Name: "tls", Namespace: "bound"}, SessionPersistence: &catalogv1.LoadBalancerSessionPersistence{Mode: catalogv1.LoadBalancerSessionMode_LOAD_BALANCER_SESSION_MODE_COOKIE_TIMEOUT, CookieExpirySeconds: 600}, MaxConnections: &zero, GzipEnabled: true, HttpsRedirectStatusCode: 302, HealthCheck: &catalogv1.LoadBalancerHealthCheck{Protocol: catalogv1.LoadBalancerHealthCheckProtocol_LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_HTTP, Port: &zero, Path: "/health", Hostname: "health.example.com"}}
+		if _, err := s.CreateLoadBalancer(ctx, &catalogv1.CreateLoadBalancerRequest{VpcId: testVPCID, SubnetId: testSubnetID, Listeners: &catalogv1.LoadBalancerListenerSet{Items: []*catalogv1.LoadBalancerListenerInput{input}}}); err != nil {
+			t.Fatal(err)
+		}
+		got := p.lbCreate.Listeners.Items[0]
+		if got.Protocol != networkv1.LoadBalancerListenerProtocol(protocol) || got.Algorithm != networkv1.LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_SOURCE_IP || got.CertificateRef.Name != "tls" || got.SessionPersistence.CookieExpirySeconds != 600 || got.MaxConnections == nil || *got.MaxConnections != 0 || !got.GzipEnabled || got.HttpsRedirectStatusCode != 302 || got.HealthCheck.Path != "/health" || got.HealthCheck.Hostname != "health.example.com" {
+			t.Fatalf("listener intent lost: %v", got)
+		}
+		wire := wireLoadBalancer(&networkv1.LoadBalancer{Listeners: []*networkv1.LoadBalancerListener{{Id: "listener", Protocol: got.Protocol, Algorithm: got.Algorithm, CertificateRef: got.CertificateRef, SessionPersistence: got.SessionPersistence, MaxConnections: got.MaxConnections, GzipEnabled: got.GzipEnabled, HttpsRedirectStatusCode: got.HttpsRedirectStatusCode, HealthCheck: got.HealthCheck}}})
+		if wire.Listener.Algorithm != input.Algorithm || wire.Listeners[0].CertificateRef.Namespace != "bound" || wire.Listener.HealthCheck.Path != "/health" || wire.Listener.MaxConnections == nil {
+			t.Fatalf("listener readback lost: %v", wire)
+		}
+	}
+	for _, ranges := range []*string{nil, func() *string { v := ""; return &v }(), func() *string { v := "10.42.1.2,10.42.1.4-10.42.1.9"; return &v }()} {
+		got := wireSubnet(&networkv1.Subnet{AvailableIpRange: ranges, UsedIpRange: ranges, ObservationStale: true})
+		if (got.AvailableIpRange == nil) != (ranges == nil) || (got.UsedIpRange == nil) != (ranges == nil) || ranges != nil && (*got.AvailableIpRange != *ranges || *got.UsedIpRange != *ranges) || !got.ObservationStale {
+			t.Fatalf("subnet range presence lost: %v", got)
+		}
+	}
 	lbs, err := s.ListLoadBalancers(ctx, &catalogv1.ListLoadBalancersRequest{VpcId: testVPCID, SubnetId: testSubnetID, State: "available", Limit: 1, Cursor: "input-cursor"})
 	if err != nil || lbs.GetTotal() != 43 || lbs.GetNextCursor() != "lb-cursor" || p.lbList.State != networkv1.ResourceState_RESOURCE_STATE_AVAILABLE || p.lbList.Cursor != "input-cursor" {
 		t.Fatalf("LB filtered page lost: %v", err)
+	}
+}
+func TestNetworkLoadBalancerDeferredFields(t *testing.T) {
+	for _, tc := range []struct {
+		name                     string
+		desired, target, applied int64
+		state                    networkv1.LoadBalancerConfigurationState
+		deployment, reason       string
+	}{
+		{"saved", 1, 0, 0, networkv1.LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_WAITING_FOR_BACKENDS, "waiting_for_backends", ""},
+		{"mixed", 3, 2, 2, networkv1.LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED, "waiting_for_backends", "WAITING_FOR_REDIRECT_TARGET"},
+		{"removing", 4, 4, 2, networkv1.LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_APPLYING, "removing", ""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			v := testLB("11111111-1111-4111-8111-111111111111", testLBID)
+			v.DesiredVersion, v.ProviderTargetVersion, v.AppliedVersion = tc.desired, tc.target, tc.applied
+			v.ConfigurationState = tc.state
+			v.Listeners = []*networkv1.LoadBalancerListener{{Id: "listener", DeploymentState: tc.deployment, Reason: tc.reason}}
+			got := wireLoadBalancer(v)
+			if got.DesiredVersion != tc.desired || got.ProviderTargetVersion != tc.target || got.AppliedVersion != tc.applied || int32(got.ConfigurationState) != int32(tc.state) || got.Listener.DeploymentState != tc.deployment || got.Listeners[0].Reason != tc.reason || got.Listener != got.Listeners[0] || got.ObservedAt != nil || got.DataPlaneState != catalogv1.LoadBalancerDataPlaneState_LOAD_BALANCER_DATA_PLANE_STATE_UNKNOWN {
+				t.Fatalf("deferred configuration or independent observation lost: %v", got)
+			}
+		})
+	}
+	legacy := wireLoadBalancer(&networkv1.LoadBalancer{Listener: &networkv1.LoadBalancerListener{Id: "legacy", DeploymentState: "unknown", Reason: "PROVIDER_NOT_READY"}})
+	if legacy.Listener.DeploymentState != "unknown" || legacy.Listener.Reason != "PROVIDER_NOT_READY" {
+		t.Fatalf("legacy listener summary lost deployment facts: %v", legacy)
+	}
+	for _, input := range []proto.Message{&catalogv1.LoadBalancerListenerInput{}, &catalogv1.CreateLoadBalancerRequest{}, &catalogv1.UpdateLoadBalancerRequest{}, &networkv1.LoadBalancerListenerInput{}} {
+		fields := input.ProtoReflect().Descriptor().Fields()
+		for _, name := range []protoreflect.Name{"deployment_state", "provider_target_version", "reason"} {
+			if fields.ByName(name) != nil {
+				t.Fatalf("read-only %s entered input contract %s", name, input.ProtoReflect().Descriptor().FullName())
+			}
+		}
 	}
 }
 func TestNetworkDomainErrorReasons(t *testing.T) {
@@ -378,4 +434,9 @@ func TestNetworkDomainErrorReasons(t *testing.T) {
 			t.Fatalf("mapped error lost or leaked detail: %v", mapped)
 		}
 	}
+}
+
+func (p *vpcProbe) ListVPCCIDRPresets(_ context.Context, tenant, actor string) (*networkv1.ListVPCCIDRPresetsResponse, error) {
+	p.calls++
+	return &networkv1.ListVPCCIDRPresetsResponse{Cidrs: []string{"10.61.0.0/16"}}, p.err
 }

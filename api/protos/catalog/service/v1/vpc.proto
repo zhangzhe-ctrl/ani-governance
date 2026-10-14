@@ -1,6 +1,7 @@
 syntax = "proto3";
 package catalog.service.v1;
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
 
 message GetVPCRequest { string vpc_id = 1 [json_name = "vpc_id"]; }
 // Public product fields only; tenant identity and provider placement stay internal.
@@ -157,6 +158,10 @@ message Subnet {
  google.protobuf.Timestamp observed_at = 13 [json_name = "observed_at"];
  bool observation_stale = 14 [json_name = "observation_stale"];
  string last_operation_id = 15 [json_name = "last_operation_id"];
+ reserved 16, 17;
+ reserved "available_ip_count", "used_ip_count";
+ optional string available_ip_range = 18 [json_name = "available_ip_range"];
+ optional string used_ip_range = 19 [json_name = "used_ip_range"];
 }
 message CreateSubnetRequest {
  string vpc_id = 1 [json_name = "vpc_id"];
@@ -205,14 +210,21 @@ enum LoadBalancerExposure {
 enum LoadBalancerListenerProtocol {
   LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED = 0;
   LOAD_BALANCER_LISTENER_PROTOCOL_HTTP = 1;
+  LOAD_BALANCER_LISTENER_PROTOCOL_HTTPS = 2;
+  LOAD_BALANCER_LISTENER_PROTOCOL_TCP = 3;
+  LOAD_BALANCER_LISTENER_PROTOCOL_UDP = 4;
+  LOAD_BALANCER_LISTENER_PROTOCOL_SSL = 5;
 }
 enum LoadBalancerAlgorithm {
   LOAD_BALANCER_ALGORITHM_UNSPECIFIED = 0;
   LOAD_BALANCER_ALGORITHM_ROUND_ROBIN = 1;
+  LOAD_BALANCER_ALGORITHM_LEAST_REQUEST = 2;
+  LOAD_BALANCER_ALGORITHM_SOURCE_IP = 3;
 }
 enum LoadBalancerHealthCheckProtocol {
   LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED = 0;
   LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP = 1;
+  LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_HTTP = 2;
 }
 enum LoadBalancerConfigurationState {
   LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED = 0;
@@ -221,6 +233,7 @@ enum LoadBalancerConfigurationState {
   LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED = 3;
   LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED = 4;
   LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN = 5;
+  LOAD_BALANCER_CONFIGURATION_STATE_WAITING_FOR_BACKENDS = 6;
 }
 enum LoadBalancerDataPlaneState {
   LOAD_BALANCER_DATA_PLANE_STATE_UNSPECIFIED = 0;
@@ -228,14 +241,51 @@ enum LoadBalancerDataPlaneState {
   LOAD_BALANCER_DATA_PLANE_STATE_HEALTHY = 2;
   LOAD_BALANCER_DATA_PLANE_STATE_UNHEALTHY = 3;
 }
+enum LoadBalancerSessionMode {
+  LOAD_BALANCER_SESSION_MODE_UNSPECIFIED = 0;
+  LOAD_BALANCER_SESSION_MODE_DISABLED = 3;
+  LOAD_BALANCER_SESSION_MODE_COOKIE_TIMEOUT = 1;
+  LOAD_BALANCER_SESSION_MODE_COOKIE_SESSION = 2;
+}
+message LoadBalancerCertificateRef {
+  string name = 1 [json_name = "name"];
+  string namespace = 2 [json_name = "namespace"];
+}
+message LoadBalancerSessionPersistence {
+  LoadBalancerSessionMode mode = 1 [json_name = "mode"];
+  uint32 cookie_expiry_seconds = 2 [json_name = "cookie_expiry_seconds"];
+}
 message LoadBalancerListenerInput {
   LoadBalancerListenerProtocol protocol = 1 [json_name = "protocol"];
   optional uint32 port = 2 [json_name = "port"];
+  string id = 3 [json_name = "id"];
+  string name = 4 [json_name = "name"];
+  repeated LoadBalancerBackendInput backends = 5 [json_name = "backends"];
+  LoadBalancerHealthCheck health_check = 6 [json_name = "health_check"];
+  LoadBalancerCertificateRef certificate_ref = 7 [json_name = "certificate_ref"];
+  LoadBalancerAlgorithm algorithm = 8 [json_name = "algorithm"];
+  LoadBalancerSessionPersistence session_persistence = 9 [json_name = "session_persistence"];
+  optional uint32 max_connections = 10 [json_name = "max_connections"];
+  bool gzip_enabled = 11 [json_name = "gzip_enabled"];
+  uint32 https_redirect_status_code = 12 [json_name = "https_redirect_status_code"];
 }
 message LoadBalancerListener {
   string id = 1 [json_name = "id"];
   LoadBalancerListenerProtocol protocol = 2 [json_name = "protocol"];
   uint32 port = 3 [json_name = "port"];
+  string name = 4 [json_name = "name"];
+  repeated LoadBalancerBackendMember backends = 5 [json_name = "backends"];
+  LoadBalancerHealthCheck health_check = 6 [json_name = "health_check"];
+  LoadBalancerCertificateRef certificate_ref = 7 [json_name = "certificate_ref"];
+  LoadBalancerAlgorithm algorithm = 8 [json_name = "algorithm"];
+  LoadBalancerSessionPersistence session_persistence = 9 [json_name = "session_persistence"];
+  optional uint32 max_connections = 10 [json_name = "max_connections"];
+  bool gzip_enabled = 11 [json_name = "gzip_enabled"];
+  uint32 https_redirect_status_code = 12 [json_name = "https_redirect_status_code"];
+  // Read-only: waiting_for_backends, applying, configured, removing, degraded
+  // or unknown. Waiting redirect listeners report WAITING_FOR_REDIRECT_TARGET.
+  string deployment_state = 13 [json_name = "deployment_state"];
+  string reason = 14 [json_name = "reason"];
 }
 message LoadBalancerBackendInput {
   string id = 1 [json_name = "id"];
@@ -263,6 +313,8 @@ message LoadBalancerHealthCheck {
   optional uint32 unhealthy_threshold = 4 [json_name = "unhealthy_threshold"];
   optional uint32 healthy_threshold = 5 [json_name = "healthy_threshold"];
   optional uint32 port = 6 [json_name = "port"];
+  string path = 7 [json_name = "path"];
+  string hostname = 8 [json_name = "hostname"];
 }
 message LoadBalancer {
   string id = 1 [json_name = "id"];
@@ -293,6 +345,10 @@ message LoadBalancer {
   string last_operation_id = 27 [json_name = "last_operation_id"];
   string public_address = 28 [json_name = "public_address"];
   google.protobuf.Timestamp data_plane_observed_at = 29 [json_name = "data_plane_observed_at"];
+  repeated LoadBalancerListener listeners = 30 [json_name = "listeners"];
+  // Read-only; pure database edits may advance desired_version without changing
+  // this Provider target. Zero means no projection has ever been targeted.
+  int64 provider_target_version = 31 [json_name = "provider_target_version"];
 }
 message CreateLoadBalancerRequest {
   string name = 2 [json_name = "name"];
@@ -307,6 +363,7 @@ message CreateLoadBalancerRequest {
   repeated LoadBalancerBackendInput backends = 11 [json_name = "backends"];
   LoadBalancerHealthCheck health_check = 12 [json_name = "health_check"];
   string idempotency_key = 13 [json_name = "idempotency_key"];
+  LoadBalancerListenerSet listeners = 14 [json_name = "listeners"];
 }
 message CreateLoadBalancerResponse { LoadBalancer load_balancer = 1 [json_name = "load_balancer"]; Operation operation = 2 [json_name = "operation"]; }
 message GetLoadBalancerRequest { string load_balancer_id = 2 [json_name = "load_balancer_id"]; }
@@ -329,9 +386,19 @@ message UpdateLoadBalancerRequest {
   string description = 6 [json_name = "description"];
   repeated LoadBalancerBackendInput backends = 7 [json_name = "backends"];
   LoadBalancerHealthCheck health_check = 8 [json_name = "health_check"];
+  LoadBalancerListenerSet listeners = 9 [json_name = "listeners"];
+  google.protobuf.FieldMask update_mask = 10 [json_name = "update_mask"];
+  LoadBalancerMutableData data = 11 [json_name = "data"];
 }
 message UpdateLoadBalancerResponse { LoadBalancer load_balancer = 1 [json_name = "load_balancer"]; Operation operation = 2 [json_name = "operation"]; }
 message DeleteLoadBalancerRequest { string load_balancer_id = 2 [json_name = "load_balancer_id"]; }
 message DeleteLoadBalancerResponse { LoadBalancer load_balancer = 1 [json_name = "load_balancer"]; Operation operation = 2 [json_name = "operation"]; }
 message GetLoadBalancerOperationRequest { string operation_id = 2 [json_name = "operation_id"]; }
 message GetLoadBalancerOperationResponse { Operation operation = 1 [json_name = "operation"]; }
+
+// Presence distinguishes omission from an explicitly empty replacement.
+message LoadBalancerListenerSet { repeated LoadBalancerListenerInput items = 1; }
+message LoadBalancerMutableData { string name = 1; string description = 2; LoadBalancerListenerSet listeners = 3; }
+
+message ListVPCCIDRPresetsRequest {}
+message ListVPCCIDRPresetsResponse { repeated string cidrs = 1 [json_name = "cidrs"]; }

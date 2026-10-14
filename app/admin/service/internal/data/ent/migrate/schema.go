@@ -46,6 +46,31 @@ var (
 			},
 		},
 	}
+	// SysAccessKeyIdempotencyColumns holds the columns for the "sys_access_key_idempotency" table.
+	SysAccessKeyIdempotencyColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
+		{Name: "tenant_id", Type: field.TypeUint32, Comment: "租户ID"},
+		{Name: "actor_id", Type: field.TypeUint32, Comment: "操作人用户ID"},
+		{Name: "action", Type: field.TypeString, Comment: "操作标识（固定 access_key.create）"},
+		{Name: "idempotency_key", Type: field.TypeString, Size: 128, Comment: "客户端提供的幂等键"},
+		{Name: "request_fingerprint", Type: field.TypeString, Comment: "规范意图的 sha256 十六进制"},
+		{Name: "access_key_id", Type: field.TypeUint32, Comment: "指向 sys_access_keys.id（回放原始对象）"},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间"},
+	}
+	// SysAccessKeyIdempotencyTable holds the schema information for the "sys_access_key_idempotency" table.
+	SysAccessKeyIdempotencyTable = &schema.Table{
+		Name:       "sys_access_key_idempotency",
+		Comment:    "访问凭证创建幂等记录表",
+		Columns:    SysAccessKeyIdempotencyColumns,
+		PrimaryKey: []*schema.Column{SysAccessKeyIdempotencyColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "uix_sys_access_key_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{SysAccessKeyIdempotencyColumns[1], SysAccessKeyIdempotencyColumns[2], SysAccessKeyIdempotencyColumns[3], SysAccessKeyIdempotencyColumns[4]},
+			},
+		},
+	}
 	// SysApisColumns holds the columns for the "sys_apis" table.
 	SysApisColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true, Comment: "id"},
@@ -59,7 +84,7 @@ var (
 		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "描述"},
 		{Name: "module", Type: field.TypeString, Nullable: true, Comment: "所属业务模块"},
 		{Name: "module_description", Type: field.TypeString, Nullable: true, Comment: "业务模块描述"},
-		{Name: "business_module", Type: field.TypeEnum, Nullable: true, Comment: "所属业务功能模块（用于套餐白名单过滤）", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "TASK", "MODEL", "NETWORK", "ACCELERATOR", "IMAGE", "INFERENCE"}},
+		{Name: "business_module", Type: field.TypeEnum, Nullable: true, Comment: "所属业务功能模块（用于套餐白名单过滤）", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "TASK", "MODEL", "NETWORK", "ACCELERATOR", "IMAGE", "INFERENCE", "INSTANCE"}},
 		{Name: "operation", Type: field.TypeString, Nullable: true, Comment: "接口操作名"},
 		{Name: "path", Type: field.TypeString, Nullable: true, Comment: "接口路径"},
 		{Name: "method", Type: field.TypeString, Nullable: true, Comment: "请求方法"},
@@ -2047,7 +2072,7 @@ var (
 		{Name: "created_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
 		{Name: "updated_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
 		{Name: "deleted_by", Type: field.TypeUint32, Nullable: true, Comment: "删除者ID"},
-		{Name: "module", Type: field.TypeEnum, Nullable: true, Comment: "功能模块", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "TASK", "MODEL", "NETWORK", "ACCELERATOR", "IMAGE", "INFERENCE"}},
+		{Name: "module", Type: field.TypeEnum, Nullable: true, Comment: "功能模块", Enums: []string{"DASHBOARD", "OPM", "SYSTEM", "DICT", "TENANT", "PERMISSION", "LOG", "INTERNAL_MESSAGE", "TASK", "MODEL", "NETWORK", "ACCELERATOR", "IMAGE", "INFERENCE", "INSTANCE"}},
 		{Name: "plan_id", Type: field.TypeUint32, Nullable: true},
 	}
 	// SysPlanModulesTable holds the schema information for the "sys_plan_modules" table.
@@ -3416,6 +3441,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		SysAccessKeysTable,
+		SysAccessKeyIdempotencyTable,
 		SysApisTable,
 		SysAPIAuditLogsTable,
 		SysDataAccessAuditLogsTable,
@@ -3481,6 +3507,16 @@ func init() {
 	}
 	SysAccessKeysTable.Annotation.Checks = map[string]string{
 		"sys_access_keys_tenant_positive": "tenant_id > 0",
+	}
+	SysAccessKeyIdempotencyTable.Annotation = &entsql.Annotation{
+		Table:     "sys_access_key_idempotency",
+		Charset:   "utf8mb4",
+		Collation: "utf8mb4_bin",
+	}
+	SysAccessKeyIdempotencyTable.Annotation.Checks = map[string]string{
+		"sys_access_key_idempotency_action_ck":          "action = 'access_key.create'",
+		"sys_access_key_idempotency_actor_positive_ck":  "actor_id > 0",
+		"sys_access_key_idempotency_tenant_positive_ck": "tenant_id > 0",
 	}
 	SysApisTable.Annotation = &entsql.Annotation{
 		Table:     "sys_apis",

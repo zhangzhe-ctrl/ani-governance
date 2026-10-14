@@ -135,6 +135,30 @@ func (f AccessKeyMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutat
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.AccessKeyMutation", m)
 }
 
+// The AccessKeyIdempotencyQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type AccessKeyIdempotencyQueryRuleFunc func(context.Context, *ent.AccessKeyIdempotencyQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f AccessKeyIdempotencyQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.AccessKeyIdempotencyQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.AccessKeyIdempotencyQuery", q)
+}
+
+// The AccessKeyIdempotencyMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type AccessKeyIdempotencyMutationRuleFunc func(context.Context, *ent.AccessKeyIdempotencyMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f AccessKeyIdempotencyMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.AccessKeyIdempotencyMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.AccessKeyIdempotencyMutation", m)
+}
+
 // The ApiQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type ApiQueryRuleFunc func(context.Context, *ent.APIQuery) error
@@ -1468,6 +1492,8 @@ func queryFilter(q ent.Query) (Filter, error) {
 	switch q := q.(type) {
 	case *ent.AccessKeyQuery:
 		return q.Filter(), nil
+	case *ent.AccessKeyIdempotencyQuery:
+		return q.Filter(), nil
 	case *ent.APIQuery:
 		return q.Filter(), nil
 	case *ent.ApiAuditLogQuery:
@@ -1584,6 +1610,8 @@ func queryFilter(q ent.Query) (Filter, error) {
 func mutationFilter(m ent.Mutation) (Filter, error) {
 	switch m := m.(type) {
 	case *ent.AccessKeyMutation:
+		return m.Filter(), nil
+	case *ent.AccessKeyIdempotencyMutation:
 		return m.Filter(), nil
 	case *ent.APIMutation:
 		return m.Filter(), nil

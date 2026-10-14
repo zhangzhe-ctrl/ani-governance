@@ -270,6 +270,8 @@ func (x *ListUserResponse) Redact() {
 	}
 
 	// Safe field: Total
+
+	// Safe field: NextCursor
 }
 
 // Ensure GetUserRequest implements the Redactor interface at compile time.

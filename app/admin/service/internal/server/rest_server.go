@@ -178,11 +178,13 @@ func NewRestServer(
 	accessKeyService *service.AccessKeyService,
 	configService *service.ConfigService,
 	networkService *service.NetworkService,
+	platformNetworkService *service.PlatformNetworkService,
 	acceleratorService *service.AcceleratorService,
 	imageService *service.ImageService,
 	modeldevService *service.ModelDevService,
 	inferenceService *service.InferenceService,
 	modelService *service.ModelService,
+	instanceServices ...*service.InstanceService,
 ) (*http.Server, error) {
 	cfg := ctx.GetConfig()
 
@@ -253,6 +255,7 @@ func NewRestServer(
 	registerAccessKeyHTTP(srv, accessKeyService)
 	adminV1.RegisterConfigServiceHTTPServer(srv, configService)
 	adminV1.RegisterNetworkServiceHTTPServer(srv, networkService)
+	adminV1.RegisterPlatformNetworkServiceHTTPServer(srv, platformNetworkService)
 	adminV1.RegisterImageServiceHTTPServer(srv, imageService)
 	adminV1.RegisterAcceleratorAdminServiceHTTPServer(srv, acceleratorService)
 	adminV1.RegisterAcceleratorServiceHTTPServer(srv, acceleratorService)
@@ -263,6 +266,9 @@ func NewRestServer(
 	}
 	if modelService != nil {
 		adminV1.RegisterModelServiceHTTPServer(srv, modelService)
+	}
+	if len(instanceServices) > 0 && instanceServices[0] != nil {
+		RegisterInstanceHTTPServer(srv, instanceServices[0])
 	}
 
 	if cfg.GetServer().GetRest().GetEnableSwagger() {

@@ -9,7 +9,6 @@ import (
 	modelv1 "github.com/liangzai006/ani-model-service/api/model/v1"
 	"github.com/stretchr/testify/require"
 	attachment "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/integration/v1"
-	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
 	view "go-wind-admin/api/gen/go/inference/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/pkg/middleware/auth"
@@ -31,24 +30,11 @@ type inferenceModelProbe struct {
 	tenant   string
 	actor    string
 	request  *modelv1.GetModelVersionRequest
-}
-
-type inferenceGpuAcceptanceProbe struct {
-	createCalls int
-	request     *inferencev1.CreateInferenceServiceRequest
-}
-
-func (p *inferenceGpuAcceptanceProbe) AcceptGpuCreate(_ context.Context, _ string, _ *acc.GpuRequest, request proto.Message) (*data.QuotaOccupyResult, error) {
-	p.createCalls++
-	p.request = request.(*inferencev1.CreateInferenceServiceRequest)
-	return &data.QuotaOccupyResult{OperationID: "gpu-op", ResourceID: "gpu-service"}, nil
-}
-
-func (*inferenceGpuAcceptanceProbe) AcceptGpuDelete(context.Context, string, string) (*attachment.GpuDeleteAcceptance, error) {
-	panic("unused")
+	calls    int
 }
 
 func (p *inferenceModelProbe) GetModelVersion(_ context.Context, tenant, actor string, request *modelv1.GetModelVersionRequest) (*modelv1.GetModelVersionResponse, error) {
+	p.calls++
 	p.tenant, p.actor, p.request = tenant, actor, request
 	return p.response, p.err
 }
@@ -128,7 +114,7 @@ func TestInferenceServiceRejectsModelThatIsNotReady(t *testing.T) {
 	require.Zero(t, owner.createCalls)
 }
 
-func TestInferenceServiceChecksModelBeforeGPUAcceptance(t *testing.T) {
+func TestInferenceServiceChecksModelBeforeDirectCreate(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
 		version  *modelv1.ModelVersion
@@ -140,19 +126,18 @@ func TestInferenceServiceChecksModelBeforeGPUAcceptance(t *testing.T) {
 		{name: "ready matching version", version: &modelv1.ModelVersion{Id: "version-1", Status: "ready"}, wantCode: codes.OK, calls: 1},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			acceptance := &inferenceGpuAcceptanceProbe{}
+			owner := &directInferenceOwnerProbe{}
 			model := &inferenceModelProbe{response: &modelv1.GetModelVersionResponse{Version: tc.version}}
-			s := NewInferenceServiceWithOwnerAndModel(acceptance, nil, directInferenceTenantProbe{}, model)
+			s := NewInferenceServiceWithOwnerAndModel(nil, owner, directInferenceTenantProbe{}, model)
 			ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42})
 			reply, err := s.CreateInference(ctx, &view.CreateInferenceRequest{Data: &view.CreateInferenceData{
 				IdempotencyKey: "20000000-0000-4000-8000-000000000001", Name: "qwen", ModelVersionId: "version-1", ServedModelName: "qwen", EngineType: "vllm", EngineImage: "image", Command: "serve", Cpu: "1", Memory: "2Gi", Replicas: 1,
-				Gpu: &view.GpuSelection{ClusterId: "cluster", PoolId: "pool", ProfileId: "profile", ProfileVersion: 1},
 			}})
 			require.Equal(t, tc.wantCode, status.Code(err))
-			require.Equal(t, tc.calls, acceptance.createCalls)
+			require.Equal(t, tc.calls, owner.createCalls)
 			if tc.calls == 1 {
-				require.Equal(t, "gpu-service", reply.GetResourceId())
-				require.Equal(t, "version-1", acceptance.request.GetModelVersionId())
+				require.Equal(t, "svc-1", reply.GetResourceId())
+				require.Equal(t, "version-1", owner.request.GetModelVersionId())
 			}
 		})
 	}

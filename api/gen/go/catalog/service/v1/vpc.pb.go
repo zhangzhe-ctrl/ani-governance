@@ -9,6 +9,7 @@ package servicev1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -80,6 +81,10 @@ type LoadBalancerListenerProtocol int32
 const (
 	LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED LoadBalancerListenerProtocol = 0
 	LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_HTTP        LoadBalancerListenerProtocol = 1
+	LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_HTTPS       LoadBalancerListenerProtocol = 2
+	LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_TCP         LoadBalancerListenerProtocol = 3
+	LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_UDP         LoadBalancerListenerProtocol = 4
+	LoadBalancerListenerProtocol_LOAD_BALANCER_LISTENER_PROTOCOL_SSL         LoadBalancerListenerProtocol = 5
 )
 
 // Enum value maps for LoadBalancerListenerProtocol.
@@ -87,10 +92,18 @@ var (
 	LoadBalancerListenerProtocol_name = map[int32]string{
 		0: "LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED",
 		1: "LOAD_BALANCER_LISTENER_PROTOCOL_HTTP",
+		2: "LOAD_BALANCER_LISTENER_PROTOCOL_HTTPS",
+		3: "LOAD_BALANCER_LISTENER_PROTOCOL_TCP",
+		4: "LOAD_BALANCER_LISTENER_PROTOCOL_UDP",
+		5: "LOAD_BALANCER_LISTENER_PROTOCOL_SSL",
 	}
 	LoadBalancerListenerProtocol_value = map[string]int32{
 		"LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED": 0,
 		"LOAD_BALANCER_LISTENER_PROTOCOL_HTTP":        1,
+		"LOAD_BALANCER_LISTENER_PROTOCOL_HTTPS":       2,
+		"LOAD_BALANCER_LISTENER_PROTOCOL_TCP":         3,
+		"LOAD_BALANCER_LISTENER_PROTOCOL_UDP":         4,
+		"LOAD_BALANCER_LISTENER_PROTOCOL_SSL":         5,
 	}
 )
 
@@ -124,8 +137,10 @@ func (LoadBalancerListenerProtocol) EnumDescriptor() ([]byte, []int) {
 type LoadBalancerAlgorithm int32
 
 const (
-	LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_UNSPECIFIED LoadBalancerAlgorithm = 0
-	LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_ROUND_ROBIN LoadBalancerAlgorithm = 1
+	LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_UNSPECIFIED   LoadBalancerAlgorithm = 0
+	LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_ROUND_ROBIN   LoadBalancerAlgorithm = 1
+	LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_LEAST_REQUEST LoadBalancerAlgorithm = 2
+	LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_SOURCE_IP     LoadBalancerAlgorithm = 3
 )
 
 // Enum value maps for LoadBalancerAlgorithm.
@@ -133,10 +148,14 @@ var (
 	LoadBalancerAlgorithm_name = map[int32]string{
 		0: "LOAD_BALANCER_ALGORITHM_UNSPECIFIED",
 		1: "LOAD_BALANCER_ALGORITHM_ROUND_ROBIN",
+		2: "LOAD_BALANCER_ALGORITHM_LEAST_REQUEST",
+		3: "LOAD_BALANCER_ALGORITHM_SOURCE_IP",
 	}
 	LoadBalancerAlgorithm_value = map[string]int32{
-		"LOAD_BALANCER_ALGORITHM_UNSPECIFIED": 0,
-		"LOAD_BALANCER_ALGORITHM_ROUND_ROBIN": 1,
+		"LOAD_BALANCER_ALGORITHM_UNSPECIFIED":   0,
+		"LOAD_BALANCER_ALGORITHM_ROUND_ROBIN":   1,
+		"LOAD_BALANCER_ALGORITHM_LEAST_REQUEST": 2,
+		"LOAD_BALANCER_ALGORITHM_SOURCE_IP":     3,
 	}
 )
 
@@ -172,6 +191,7 @@ type LoadBalancerHealthCheckProtocol int32
 const (
 	LoadBalancerHealthCheckProtocol_LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED LoadBalancerHealthCheckProtocol = 0
 	LoadBalancerHealthCheckProtocol_LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP         LoadBalancerHealthCheckProtocol = 1
+	LoadBalancerHealthCheckProtocol_LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_HTTP        LoadBalancerHealthCheckProtocol = 2
 )
 
 // Enum value maps for LoadBalancerHealthCheckProtocol.
@@ -179,10 +199,12 @@ var (
 	LoadBalancerHealthCheckProtocol_name = map[int32]string{
 		0: "LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED",
 		1: "LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP",
+		2: "LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_HTTP",
 	}
 	LoadBalancerHealthCheckProtocol_value = map[string]int32{
 		"LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED": 0,
 		"LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP":         1,
+		"LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_HTTP":        2,
 	}
 )
 
@@ -216,12 +238,13 @@ func (LoadBalancerHealthCheckProtocol) EnumDescriptor() ([]byte, []int) {
 type LoadBalancerConfigurationState int32
 
 const (
-	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED LoadBalancerConfigurationState = 0
-	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_PENDING     LoadBalancerConfigurationState = 1
-	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_APPLYING    LoadBalancerConfigurationState = 2
-	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED  LoadBalancerConfigurationState = 3
-	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED    LoadBalancerConfigurationState = 4
-	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN     LoadBalancerConfigurationState = 5
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED          LoadBalancerConfigurationState = 0
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_PENDING              LoadBalancerConfigurationState = 1
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_APPLYING             LoadBalancerConfigurationState = 2
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED           LoadBalancerConfigurationState = 3
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED             LoadBalancerConfigurationState = 4
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN              LoadBalancerConfigurationState = 5
+	LoadBalancerConfigurationState_LOAD_BALANCER_CONFIGURATION_STATE_WAITING_FOR_BACKENDS LoadBalancerConfigurationState = 6
 )
 
 // Enum value maps for LoadBalancerConfigurationState.
@@ -233,14 +256,16 @@ var (
 		3: "LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED",
 		4: "LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED",
 		5: "LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN",
+		6: "LOAD_BALANCER_CONFIGURATION_STATE_WAITING_FOR_BACKENDS",
 	}
 	LoadBalancerConfigurationState_value = map[string]int32{
-		"LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED": 0,
-		"LOAD_BALANCER_CONFIGURATION_STATE_PENDING":     1,
-		"LOAD_BALANCER_CONFIGURATION_STATE_APPLYING":    2,
-		"LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED":  3,
-		"LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED":    4,
-		"LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN":     5,
+		"LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED":          0,
+		"LOAD_BALANCER_CONFIGURATION_STATE_PENDING":              1,
+		"LOAD_BALANCER_CONFIGURATION_STATE_APPLYING":             2,
+		"LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED":           3,
+		"LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED":             4,
+		"LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN":              5,
+		"LOAD_BALANCER_CONFIGURATION_STATE_WAITING_FOR_BACKENDS": 6,
 	}
 )
 
@@ -321,6 +346,58 @@ func (x LoadBalancerDataPlaneState) Number() protoreflect.EnumNumber {
 // Deprecated: Use LoadBalancerDataPlaneState.Descriptor instead.
 func (LoadBalancerDataPlaneState) EnumDescriptor() ([]byte, []int) {
 	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{5}
+}
+
+type LoadBalancerSessionMode int32
+
+const (
+	LoadBalancerSessionMode_LOAD_BALANCER_SESSION_MODE_UNSPECIFIED    LoadBalancerSessionMode = 0
+	LoadBalancerSessionMode_LOAD_BALANCER_SESSION_MODE_DISABLED       LoadBalancerSessionMode = 3
+	LoadBalancerSessionMode_LOAD_BALANCER_SESSION_MODE_COOKIE_TIMEOUT LoadBalancerSessionMode = 1
+	LoadBalancerSessionMode_LOAD_BALANCER_SESSION_MODE_COOKIE_SESSION LoadBalancerSessionMode = 2
+)
+
+// Enum value maps for LoadBalancerSessionMode.
+var (
+	LoadBalancerSessionMode_name = map[int32]string{
+		0: "LOAD_BALANCER_SESSION_MODE_UNSPECIFIED",
+		3: "LOAD_BALANCER_SESSION_MODE_DISABLED",
+		1: "LOAD_BALANCER_SESSION_MODE_COOKIE_TIMEOUT",
+		2: "LOAD_BALANCER_SESSION_MODE_COOKIE_SESSION",
+	}
+	LoadBalancerSessionMode_value = map[string]int32{
+		"LOAD_BALANCER_SESSION_MODE_UNSPECIFIED":    0,
+		"LOAD_BALANCER_SESSION_MODE_DISABLED":       3,
+		"LOAD_BALANCER_SESSION_MODE_COOKIE_TIMEOUT": 1,
+		"LOAD_BALANCER_SESSION_MODE_COOKIE_SESSION": 2,
+	}
+)
+
+func (x LoadBalancerSessionMode) Enum() *LoadBalancerSessionMode {
+	p := new(LoadBalancerSessionMode)
+	*p = x
+	return p
+}
+
+func (x LoadBalancerSessionMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LoadBalancerSessionMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_catalog_service_v1_vpc_proto_enumTypes[6].Descriptor()
+}
+
+func (LoadBalancerSessionMode) Type() protoreflect.EnumType {
+	return &file_catalog_service_v1_vpc_proto_enumTypes[6]
+}
+
+func (x LoadBalancerSessionMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LoadBalancerSessionMode.Descriptor instead.
+func (LoadBalancerSessionMode) EnumDescriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{6}
 }
 
 type GetVPCRequest struct {
@@ -2109,6 +2186,8 @@ type Subnet struct {
 	ObservedAt       *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=observed_at,proto3" json:"observed_at,omitempty"`
 	ObservationStale bool                   `protobuf:"varint,14,opt,name=observation_stale,proto3" json:"observation_stale,omitempty"`
 	LastOperationId  string                 `protobuf:"bytes,15,opt,name=last_operation_id,proto3" json:"last_operation_id,omitempty"`
+	AvailableIpRange *string                `protobuf:"bytes,18,opt,name=available_ip_range,proto3,oneof" json:"available_ip_range,omitempty"`
+	UsedIpRange      *string                `protobuf:"bytes,19,opt,name=used_ip_range,proto3,oneof" json:"used_ip_range,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -2244,6 +2323,20 @@ func (x *Subnet) GetObservationStale() bool {
 func (x *Subnet) GetLastOperationId() string {
 	if x != nil {
 		return x.LastOperationId
+	}
+	return ""
+}
+
+func (x *Subnet) GetAvailableIpRange() string {
+	if x != nil && x.AvailableIpRange != nil {
+		return *x.AvailableIpRange
+	}
+	return ""
+}
+
+func (x *Subnet) GetUsedIpRange() string {
+	if x != nil && x.UsedIpRange != nil {
+		return *x.UsedIpRange
 	}
 	return ""
 }
@@ -2976,17 +3069,131 @@ func (x *DeleteVPCSnatBindingResponse) GetSnat() *VPCSnat {
 	return nil
 }
 
-type LoadBalancerListenerInput struct {
-	state         protoimpl.MessageState       `protogen:"open.v1"`
-	Protocol      LoadBalancerListenerProtocol `protobuf:"varint,1,opt,name=protocol,proto3,enum=catalog.service.v1.LoadBalancerListenerProtocol" json:"protocol,omitempty"`
-	Port          *uint32                      `protobuf:"varint,2,opt,name=port,proto3,oneof" json:"port,omitempty"`
+type LoadBalancerCertificateRef struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Namespace     string                 `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *LoadBalancerCertificateRef) Reset() {
+	*x = LoadBalancerCertificateRef{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancerCertificateRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancerCertificateRef) ProtoMessage() {}
+
+func (x *LoadBalancerCertificateRef) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancerCertificateRef.ProtoReflect.Descriptor instead.
+func (*LoadBalancerCertificateRef) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *LoadBalancerCertificateRef) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *LoadBalancerCertificateRef) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+type LoadBalancerSessionPersistence struct {
+	state               protoimpl.MessageState  `protogen:"open.v1"`
+	Mode                LoadBalancerSessionMode `protobuf:"varint,1,opt,name=mode,proto3,enum=catalog.service.v1.LoadBalancerSessionMode" json:"mode,omitempty"`
+	CookieExpirySeconds uint32                  `protobuf:"varint,2,opt,name=cookie_expiry_seconds,proto3" json:"cookie_expiry_seconds,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *LoadBalancerSessionPersistence) Reset() {
+	*x = LoadBalancerSessionPersistence{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancerSessionPersistence) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancerSessionPersistence) ProtoMessage() {}
+
+func (x *LoadBalancerSessionPersistence) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancerSessionPersistence.ProtoReflect.Descriptor instead.
+func (*LoadBalancerSessionPersistence) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *LoadBalancerSessionPersistence) GetMode() LoadBalancerSessionMode {
+	if x != nil {
+		return x.Mode
+	}
+	return LoadBalancerSessionMode_LOAD_BALANCER_SESSION_MODE_UNSPECIFIED
+}
+
+func (x *LoadBalancerSessionPersistence) GetCookieExpirySeconds() uint32 {
+	if x != nil {
+		return x.CookieExpirySeconds
+	}
+	return 0
+}
+
+type LoadBalancerListenerInput struct {
+	state                   protoimpl.MessageState          `protogen:"open.v1"`
+	Protocol                LoadBalancerListenerProtocol    `protobuf:"varint,1,opt,name=protocol,proto3,enum=catalog.service.v1.LoadBalancerListenerProtocol" json:"protocol,omitempty"`
+	Port                    *uint32                         `protobuf:"varint,2,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	Id                      string                          `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`
+	Name                    string                          `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	Backends                []*LoadBalancerBackendInput     `protobuf:"bytes,5,rep,name=backends,proto3" json:"backends,omitempty"`
+	HealthCheck             *LoadBalancerHealthCheck        `protobuf:"bytes,6,opt,name=health_check,proto3" json:"health_check,omitempty"`
+	CertificateRef          *LoadBalancerCertificateRef     `protobuf:"bytes,7,opt,name=certificate_ref,proto3" json:"certificate_ref,omitempty"`
+	Algorithm               LoadBalancerAlgorithm           `protobuf:"varint,8,opt,name=algorithm,proto3,enum=catalog.service.v1.LoadBalancerAlgorithm" json:"algorithm,omitempty"`
+	SessionPersistence      *LoadBalancerSessionPersistence `protobuf:"bytes,9,opt,name=session_persistence,proto3" json:"session_persistence,omitempty"`
+	MaxConnections          *uint32                         `protobuf:"varint,10,opt,name=max_connections,proto3,oneof" json:"max_connections,omitempty"`
+	GzipEnabled             bool                            `protobuf:"varint,11,opt,name=gzip_enabled,proto3" json:"gzip_enabled,omitempty"`
+	HttpsRedirectStatusCode uint32                          `protobuf:"varint,12,opt,name=https_redirect_status_code,proto3" json:"https_redirect_status_code,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
 func (x *LoadBalancerListenerInput) Reset() {
 	*x = LoadBalancerListenerInput{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[42]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2998,7 +3205,7 @@ func (x *LoadBalancerListenerInput) String() string {
 func (*LoadBalancerListenerInput) ProtoMessage() {}
 
 func (x *LoadBalancerListenerInput) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[42]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3011,7 +3218,7 @@ func (x *LoadBalancerListenerInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadBalancerListenerInput.ProtoReflect.Descriptor instead.
 func (*LoadBalancerListenerInput) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{42}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *LoadBalancerListenerInput) GetProtocol() LoadBalancerListenerProtocol {
@@ -3028,18 +3235,101 @@ func (x *LoadBalancerListenerInput) GetPort() uint32 {
 	return 0
 }
 
+func (x *LoadBalancerListenerInput) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *LoadBalancerListenerInput) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *LoadBalancerListenerInput) GetBackends() []*LoadBalancerBackendInput {
+	if x != nil {
+		return x.Backends
+	}
+	return nil
+}
+
+func (x *LoadBalancerListenerInput) GetHealthCheck() *LoadBalancerHealthCheck {
+	if x != nil {
+		return x.HealthCheck
+	}
+	return nil
+}
+
+func (x *LoadBalancerListenerInput) GetCertificateRef() *LoadBalancerCertificateRef {
+	if x != nil {
+		return x.CertificateRef
+	}
+	return nil
+}
+
+func (x *LoadBalancerListenerInput) GetAlgorithm() LoadBalancerAlgorithm {
+	if x != nil {
+		return x.Algorithm
+	}
+	return LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_UNSPECIFIED
+}
+
+func (x *LoadBalancerListenerInput) GetSessionPersistence() *LoadBalancerSessionPersistence {
+	if x != nil {
+		return x.SessionPersistence
+	}
+	return nil
+}
+
+func (x *LoadBalancerListenerInput) GetMaxConnections() uint32 {
+	if x != nil && x.MaxConnections != nil {
+		return *x.MaxConnections
+	}
+	return 0
+}
+
+func (x *LoadBalancerListenerInput) GetGzipEnabled() bool {
+	if x != nil {
+		return x.GzipEnabled
+	}
+	return false
+}
+
+func (x *LoadBalancerListenerInput) GetHttpsRedirectStatusCode() uint32 {
+	if x != nil {
+		return x.HttpsRedirectStatusCode
+	}
+	return 0
+}
+
 type LoadBalancerListener struct {
-	state         protoimpl.MessageState       `protogen:"open.v1"`
-	Id            string                       `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Protocol      LoadBalancerListenerProtocol `protobuf:"varint,2,opt,name=protocol,proto3,enum=catalog.service.v1.LoadBalancerListenerProtocol" json:"protocol,omitempty"`
-	Port          uint32                       `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                   protoimpl.MessageState          `protogen:"open.v1"`
+	Id                      string                          `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Protocol                LoadBalancerListenerProtocol    `protobuf:"varint,2,opt,name=protocol,proto3,enum=catalog.service.v1.LoadBalancerListenerProtocol" json:"protocol,omitempty"`
+	Port                    uint32                          `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
+	Name                    string                          `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	Backends                []*LoadBalancerBackendMember    `protobuf:"bytes,5,rep,name=backends,proto3" json:"backends,omitempty"`
+	HealthCheck             *LoadBalancerHealthCheck        `protobuf:"bytes,6,opt,name=health_check,proto3" json:"health_check,omitempty"`
+	CertificateRef          *LoadBalancerCertificateRef     `protobuf:"bytes,7,opt,name=certificate_ref,proto3" json:"certificate_ref,omitempty"`
+	Algorithm               LoadBalancerAlgorithm           `protobuf:"varint,8,opt,name=algorithm,proto3,enum=catalog.service.v1.LoadBalancerAlgorithm" json:"algorithm,omitempty"`
+	SessionPersistence      *LoadBalancerSessionPersistence `protobuf:"bytes,9,opt,name=session_persistence,proto3" json:"session_persistence,omitempty"`
+	MaxConnections          *uint32                         `protobuf:"varint,10,opt,name=max_connections,proto3,oneof" json:"max_connections,omitempty"`
+	GzipEnabled             bool                            `protobuf:"varint,11,opt,name=gzip_enabled,proto3" json:"gzip_enabled,omitempty"`
+	HttpsRedirectStatusCode uint32                          `protobuf:"varint,12,opt,name=https_redirect_status_code,proto3" json:"https_redirect_status_code,omitempty"`
+	// Read-only: waiting_for_backends, applying, configured, removing, degraded
+	// or unknown. Waiting redirect listeners report WAITING_FOR_REDIRECT_TARGET.
+	DeploymentState string `protobuf:"bytes,13,opt,name=deployment_state,proto3" json:"deployment_state,omitempty"`
+	Reason          string `protobuf:"bytes,14,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *LoadBalancerListener) Reset() {
 	*x = LoadBalancerListener{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[43]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3051,7 +3341,7 @@ func (x *LoadBalancerListener) String() string {
 func (*LoadBalancerListener) ProtoMessage() {}
 
 func (x *LoadBalancerListener) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[43]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3064,7 +3354,7 @@ func (x *LoadBalancerListener) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadBalancerListener.ProtoReflect.Descriptor instead.
 func (*LoadBalancerListener) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{43}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *LoadBalancerListener) GetId() string {
@@ -3088,6 +3378,83 @@ func (x *LoadBalancerListener) GetPort() uint32 {
 	return 0
 }
 
+func (x *LoadBalancerListener) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *LoadBalancerListener) GetBackends() []*LoadBalancerBackendMember {
+	if x != nil {
+		return x.Backends
+	}
+	return nil
+}
+
+func (x *LoadBalancerListener) GetHealthCheck() *LoadBalancerHealthCheck {
+	if x != nil {
+		return x.HealthCheck
+	}
+	return nil
+}
+
+func (x *LoadBalancerListener) GetCertificateRef() *LoadBalancerCertificateRef {
+	if x != nil {
+		return x.CertificateRef
+	}
+	return nil
+}
+
+func (x *LoadBalancerListener) GetAlgorithm() LoadBalancerAlgorithm {
+	if x != nil {
+		return x.Algorithm
+	}
+	return LoadBalancerAlgorithm_LOAD_BALANCER_ALGORITHM_UNSPECIFIED
+}
+
+func (x *LoadBalancerListener) GetSessionPersistence() *LoadBalancerSessionPersistence {
+	if x != nil {
+		return x.SessionPersistence
+	}
+	return nil
+}
+
+func (x *LoadBalancerListener) GetMaxConnections() uint32 {
+	if x != nil && x.MaxConnections != nil {
+		return *x.MaxConnections
+	}
+	return 0
+}
+
+func (x *LoadBalancerListener) GetGzipEnabled() bool {
+	if x != nil {
+		return x.GzipEnabled
+	}
+	return false
+}
+
+func (x *LoadBalancerListener) GetHttpsRedirectStatusCode() uint32 {
+	if x != nil {
+		return x.HttpsRedirectStatusCode
+	}
+	return 0
+}
+
+func (x *LoadBalancerListener) GetDeploymentState() string {
+	if x != nil {
+		return x.DeploymentState
+	}
+	return ""
+}
+
+func (x *LoadBalancerListener) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
 type LoadBalancerBackendInput struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -3101,7 +3468,7 @@ type LoadBalancerBackendInput struct {
 
 func (x *LoadBalancerBackendInput) Reset() {
 	*x = LoadBalancerBackendInput{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[44]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3113,7 +3480,7 @@ func (x *LoadBalancerBackendInput) String() string {
 func (*LoadBalancerBackendInput) ProtoMessage() {}
 
 func (x *LoadBalancerBackendInput) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[44]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3126,7 +3493,7 @@ func (x *LoadBalancerBackendInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadBalancerBackendInput.ProtoReflect.Descriptor instead.
 func (*LoadBalancerBackendInput) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{44}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *LoadBalancerBackendInput) GetId() string {
@@ -3182,7 +3549,7 @@ type LoadBalancerBackendMember struct {
 
 func (x *LoadBalancerBackendMember) Reset() {
 	*x = LoadBalancerBackendMember{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[45]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3194,7 +3561,7 @@ func (x *LoadBalancerBackendMember) String() string {
 func (*LoadBalancerBackendMember) ProtoMessage() {}
 
 func (x *LoadBalancerBackendMember) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[45]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3207,7 +3574,7 @@ func (x *LoadBalancerBackendMember) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadBalancerBackendMember.ProtoReflect.Descriptor instead.
 func (*LoadBalancerBackendMember) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{45}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *LoadBalancerBackendMember) GetId() string {
@@ -3288,13 +3655,15 @@ type LoadBalancerHealthCheck struct {
 	UnhealthyThreshold *uint32                         `protobuf:"varint,4,opt,name=unhealthy_threshold,proto3,oneof" json:"unhealthy_threshold,omitempty"`
 	HealthyThreshold   *uint32                         `protobuf:"varint,5,opt,name=healthy_threshold,proto3,oneof" json:"healthy_threshold,omitempty"`
 	Port               *uint32                         `protobuf:"varint,6,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	Path               string                          `protobuf:"bytes,7,opt,name=path,proto3" json:"path,omitempty"`
+	Hostname           string                          `protobuf:"bytes,8,opt,name=hostname,proto3" json:"hostname,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
 
 func (x *LoadBalancerHealthCheck) Reset() {
 	*x = LoadBalancerHealthCheck{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[46]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3306,7 +3675,7 @@ func (x *LoadBalancerHealthCheck) String() string {
 func (*LoadBalancerHealthCheck) ProtoMessage() {}
 
 func (x *LoadBalancerHealthCheck) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[46]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3319,7 +3688,7 @@ func (x *LoadBalancerHealthCheck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadBalancerHealthCheck.ProtoReflect.Descriptor instead.
 func (*LoadBalancerHealthCheck) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{46}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *LoadBalancerHealthCheck) GetProtocol() LoadBalancerHealthCheckProtocol {
@@ -3364,6 +3733,20 @@ func (x *LoadBalancerHealthCheck) GetPort() uint32 {
 	return 0
 }
 
+func (x *LoadBalancerHealthCheck) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *LoadBalancerHealthCheck) GetHostname() string {
+	if x != nil {
+		return x.Hostname
+	}
+	return ""
+}
+
 type LoadBalancer struct {
 	state               protoimpl.MessageState         `protogen:"open.v1"`
 	Id                  string                         `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -3394,13 +3777,17 @@ type LoadBalancer struct {
 	LastOperationId     string                         `protobuf:"bytes,27,opt,name=last_operation_id,proto3" json:"last_operation_id,omitempty"`
 	PublicAddress       string                         `protobuf:"bytes,28,opt,name=public_address,proto3" json:"public_address,omitempty"`
 	DataPlaneObservedAt *timestamppb.Timestamp         `protobuf:"bytes,29,opt,name=data_plane_observed_at,proto3" json:"data_plane_observed_at,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	Listeners           []*LoadBalancerListener        `protobuf:"bytes,30,rep,name=listeners,proto3" json:"listeners,omitempty"`
+	// Read-only; pure database edits may advance desired_version without changing
+	// this Provider target. Zero means no projection has ever been targeted.
+	ProviderTargetVersion int64 `protobuf:"varint,31,opt,name=provider_target_version,proto3" json:"provider_target_version,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *LoadBalancer) Reset() {
 	*x = LoadBalancer{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[47]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3412,7 +3799,7 @@ func (x *LoadBalancer) String() string {
 func (*LoadBalancer) ProtoMessage() {}
 
 func (x *LoadBalancer) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[47]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3425,7 +3812,7 @@ func (x *LoadBalancer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadBalancer.ProtoReflect.Descriptor instead.
 func (*LoadBalancer) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{47}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *LoadBalancer) GetId() string {
@@ -3624,6 +4011,20 @@ func (x *LoadBalancer) GetDataPlaneObservedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *LoadBalancer) GetListeners() []*LoadBalancerListener {
+	if x != nil {
+		return x.Listeners
+	}
+	return nil
+}
+
+func (x *LoadBalancer) GetProviderTargetVersion() int64 {
+	if x != nil {
+		return x.ProviderTargetVersion
+	}
+	return 0
+}
+
 type CreateLoadBalancerRequest struct {
 	state          protoimpl.MessageState      `protogen:"open.v1"`
 	Name           string                      `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -3638,13 +4039,14 @@ type CreateLoadBalancerRequest struct {
 	Backends       []*LoadBalancerBackendInput `protobuf:"bytes,11,rep,name=backends,proto3" json:"backends,omitempty"`
 	HealthCheck    *LoadBalancerHealthCheck    `protobuf:"bytes,12,opt,name=health_check,proto3" json:"health_check,omitempty"`
 	IdempotencyKey string                      `protobuf:"bytes,13,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	Listeners      *LoadBalancerListenerSet    `protobuf:"bytes,14,opt,name=listeners,proto3" json:"listeners,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CreateLoadBalancerRequest) Reset() {
 	*x = CreateLoadBalancerRequest{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[48]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3656,7 +4058,7 @@ func (x *CreateLoadBalancerRequest) String() string {
 func (*CreateLoadBalancerRequest) ProtoMessage() {}
 
 func (x *CreateLoadBalancerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[48]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3669,7 +4071,7 @@ func (x *CreateLoadBalancerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateLoadBalancerRequest.ProtoReflect.Descriptor instead.
 func (*CreateLoadBalancerRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{48}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *CreateLoadBalancerRequest) GetName() string {
@@ -3756,6 +4158,13 @@ func (x *CreateLoadBalancerRequest) GetIdempotencyKey() string {
 	return ""
 }
 
+func (x *CreateLoadBalancerRequest) GetListeners() *LoadBalancerListenerSet {
+	if x != nil {
+		return x.Listeners
+	}
+	return nil
+}
+
 type CreateLoadBalancerResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	LoadBalancer  *LoadBalancer          `protobuf:"bytes,1,opt,name=load_balancer,proto3" json:"load_balancer,omitempty"`
@@ -3766,7 +4175,7 @@ type CreateLoadBalancerResponse struct {
 
 func (x *CreateLoadBalancerResponse) Reset() {
 	*x = CreateLoadBalancerResponse{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[49]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3778,7 +4187,7 @@ func (x *CreateLoadBalancerResponse) String() string {
 func (*CreateLoadBalancerResponse) ProtoMessage() {}
 
 func (x *CreateLoadBalancerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[49]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3791,7 +4200,7 @@ func (x *CreateLoadBalancerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateLoadBalancerResponse.ProtoReflect.Descriptor instead.
 func (*CreateLoadBalancerResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{49}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *CreateLoadBalancerResponse) GetLoadBalancer() *LoadBalancer {
@@ -3817,7 +4226,7 @@ type GetLoadBalancerRequest struct {
 
 func (x *GetLoadBalancerRequest) Reset() {
 	*x = GetLoadBalancerRequest{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[50]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3829,7 +4238,7 @@ func (x *GetLoadBalancerRequest) String() string {
 func (*GetLoadBalancerRequest) ProtoMessage() {}
 
 func (x *GetLoadBalancerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[50]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3842,7 +4251,7 @@ func (x *GetLoadBalancerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLoadBalancerRequest.ProtoReflect.Descriptor instead.
 func (*GetLoadBalancerRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{50}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *GetLoadBalancerRequest) GetLoadBalancerId() string {
@@ -3861,7 +4270,7 @@ type GetLoadBalancerResponse struct {
 
 func (x *GetLoadBalancerResponse) Reset() {
 	*x = GetLoadBalancerResponse{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[51]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3873,7 +4282,7 @@ func (x *GetLoadBalancerResponse) String() string {
 func (*GetLoadBalancerResponse) ProtoMessage() {}
 
 func (x *GetLoadBalancerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[51]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3886,7 +4295,7 @@ func (x *GetLoadBalancerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLoadBalancerResponse.ProtoReflect.Descriptor instead.
 func (*GetLoadBalancerResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{51}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *GetLoadBalancerResponse) GetLoadBalancer() *LoadBalancer {
@@ -3911,7 +4320,7 @@ type ListLoadBalancersRequest struct {
 
 func (x *ListLoadBalancersRequest) Reset() {
 	*x = ListLoadBalancersRequest{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[52]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3923,7 +4332,7 @@ func (x *ListLoadBalancersRequest) String() string {
 func (*ListLoadBalancersRequest) ProtoMessage() {}
 
 func (x *ListLoadBalancersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[52]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3936,7 +4345,7 @@ func (x *ListLoadBalancersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLoadBalancersRequest.ProtoReflect.Descriptor instead.
 func (*ListLoadBalancersRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{52}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *ListLoadBalancersRequest) GetName() string {
@@ -3999,7 +4408,7 @@ type ListLoadBalancersResponse struct {
 
 func (x *ListLoadBalancersResponse) Reset() {
 	*x = ListLoadBalancersResponse{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[53]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4011,7 +4420,7 @@ func (x *ListLoadBalancersResponse) String() string {
 func (*ListLoadBalancersResponse) ProtoMessage() {}
 
 func (x *ListLoadBalancersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[53]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4024,7 +4433,7 @@ func (x *ListLoadBalancersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLoadBalancersResponse.ProtoReflect.Descriptor instead.
 func (*ListLoadBalancersResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{53}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ListLoadBalancersResponse) GetItems() []*LoadBalancer {
@@ -4057,13 +4466,16 @@ type UpdateLoadBalancerRequest struct {
 	Description     string                      `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
 	Backends        []*LoadBalancerBackendInput `protobuf:"bytes,7,rep,name=backends,proto3" json:"backends,omitempty"`
 	HealthCheck     *LoadBalancerHealthCheck    `protobuf:"bytes,8,opt,name=health_check,proto3" json:"health_check,omitempty"`
+	Listeners       *LoadBalancerListenerSet    `protobuf:"bytes,9,opt,name=listeners,proto3" json:"listeners,omitempty"`
+	UpdateMask      *fieldmaskpb.FieldMask      `protobuf:"bytes,10,opt,name=update_mask,proto3" json:"update_mask,omitempty"`
+	Data            *LoadBalancerMutableData    `protobuf:"bytes,11,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UpdateLoadBalancerRequest) Reset() {
 	*x = UpdateLoadBalancerRequest{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[54]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4075,7 +4487,7 @@ func (x *UpdateLoadBalancerRequest) String() string {
 func (*UpdateLoadBalancerRequest) ProtoMessage() {}
 
 func (x *UpdateLoadBalancerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[54]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4088,7 +4500,7 @@ func (x *UpdateLoadBalancerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateLoadBalancerRequest.ProtoReflect.Descriptor instead.
 func (*UpdateLoadBalancerRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{54}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *UpdateLoadBalancerRequest) GetLoadBalancerId() string {
@@ -4140,6 +4552,27 @@ func (x *UpdateLoadBalancerRequest) GetHealthCheck() *LoadBalancerHealthCheck {
 	return nil
 }
 
+func (x *UpdateLoadBalancerRequest) GetListeners() *LoadBalancerListenerSet {
+	if x != nil {
+		return x.Listeners
+	}
+	return nil
+}
+
+func (x *UpdateLoadBalancerRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
+func (x *UpdateLoadBalancerRequest) GetData() *LoadBalancerMutableData {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
 type UpdateLoadBalancerResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	LoadBalancer  *LoadBalancer          `protobuf:"bytes,1,opt,name=load_balancer,proto3" json:"load_balancer,omitempty"`
@@ -4150,7 +4583,7 @@ type UpdateLoadBalancerResponse struct {
 
 func (x *UpdateLoadBalancerResponse) Reset() {
 	*x = UpdateLoadBalancerResponse{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[55]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4162,7 +4595,7 @@ func (x *UpdateLoadBalancerResponse) String() string {
 func (*UpdateLoadBalancerResponse) ProtoMessage() {}
 
 func (x *UpdateLoadBalancerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[55]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4175,7 +4608,7 @@ func (x *UpdateLoadBalancerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateLoadBalancerResponse.ProtoReflect.Descriptor instead.
 func (*UpdateLoadBalancerResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{55}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *UpdateLoadBalancerResponse) GetLoadBalancer() *LoadBalancer {
@@ -4201,7 +4634,7 @@ type DeleteLoadBalancerRequest struct {
 
 func (x *DeleteLoadBalancerRequest) Reset() {
 	*x = DeleteLoadBalancerRequest{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[56]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4213,7 +4646,7 @@ func (x *DeleteLoadBalancerRequest) String() string {
 func (*DeleteLoadBalancerRequest) ProtoMessage() {}
 
 func (x *DeleteLoadBalancerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[56]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4226,7 +4659,7 @@ func (x *DeleteLoadBalancerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteLoadBalancerRequest.ProtoReflect.Descriptor instead.
 func (*DeleteLoadBalancerRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{56}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *DeleteLoadBalancerRequest) GetLoadBalancerId() string {
@@ -4246,7 +4679,7 @@ type DeleteLoadBalancerResponse struct {
 
 func (x *DeleteLoadBalancerResponse) Reset() {
 	*x = DeleteLoadBalancerResponse{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[57]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4258,7 +4691,7 @@ func (x *DeleteLoadBalancerResponse) String() string {
 func (*DeleteLoadBalancerResponse) ProtoMessage() {}
 
 func (x *DeleteLoadBalancerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[57]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4271,7 +4704,7 @@ func (x *DeleteLoadBalancerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteLoadBalancerResponse.ProtoReflect.Descriptor instead.
 func (*DeleteLoadBalancerResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{57}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *DeleteLoadBalancerResponse) GetLoadBalancer() *LoadBalancer {
@@ -4297,7 +4730,7 @@ type GetLoadBalancerOperationRequest struct {
 
 func (x *GetLoadBalancerOperationRequest) Reset() {
 	*x = GetLoadBalancerOperationRequest{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[58]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4309,7 +4742,7 @@ func (x *GetLoadBalancerOperationRequest) String() string {
 func (*GetLoadBalancerOperationRequest) ProtoMessage() {}
 
 func (x *GetLoadBalancerOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[58]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4322,7 +4755,7 @@ func (x *GetLoadBalancerOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLoadBalancerOperationRequest.ProtoReflect.Descriptor instead.
 func (*GetLoadBalancerOperationRequest) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{58}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *GetLoadBalancerOperationRequest) GetOperationId() string {
@@ -4341,7 +4774,7 @@ type GetLoadBalancerOperationResponse struct {
 
 func (x *GetLoadBalancerOperationResponse) Reset() {
 	*x = GetLoadBalancerOperationResponse{}
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[59]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4353,7 +4786,7 @@ func (x *GetLoadBalancerOperationResponse) String() string {
 func (*GetLoadBalancerOperationResponse) ProtoMessage() {}
 
 func (x *GetLoadBalancerOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_catalog_service_v1_vpc_proto_msgTypes[59]
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4366,7 +4799,7 @@ func (x *GetLoadBalancerOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLoadBalancerOperationResponse.ProtoReflect.Descriptor instead.
 func (*GetLoadBalancerOperationResponse) Descriptor() ([]byte, []int) {
-	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{59}
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *GetLoadBalancerOperationResponse) GetOperation() *Operation {
@@ -4376,11 +4809,196 @@ func (x *GetLoadBalancerOperationResponse) GetOperation() *Operation {
 	return nil
 }
 
+// Presence distinguishes omission from an explicitly empty replacement.
+type LoadBalancerListenerSet struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Items         []*LoadBalancerListenerInput `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoadBalancerListenerSet) Reset() {
+	*x = LoadBalancerListenerSet{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[62]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancerListenerSet) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancerListenerSet) ProtoMessage() {}
+
+func (x *LoadBalancerListenerSet) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[62]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancerListenerSet.ProtoReflect.Descriptor instead.
+func (*LoadBalancerListenerSet) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{62}
+}
+
+func (x *LoadBalancerListenerSet) GetItems() []*LoadBalancerListenerInput {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type LoadBalancerMutableData struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Name          string                   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                   `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Listeners     *LoadBalancerListenerSet `protobuf:"bytes,3,opt,name=listeners,proto3" json:"listeners,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoadBalancerMutableData) Reset() {
+	*x = LoadBalancerMutableData{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadBalancerMutableData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadBalancerMutableData) ProtoMessage() {}
+
+func (x *LoadBalancerMutableData) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadBalancerMutableData.ProtoReflect.Descriptor instead.
+func (*LoadBalancerMutableData) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{63}
+}
+
+func (x *LoadBalancerMutableData) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *LoadBalancerMutableData) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *LoadBalancerMutableData) GetListeners() *LoadBalancerListenerSet {
+	if x != nil {
+		return x.Listeners
+	}
+	return nil
+}
+
+type ListVPCCIDRPresetsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListVPCCIDRPresetsRequest) Reset() {
+	*x = ListVPCCIDRPresetsRequest{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListVPCCIDRPresetsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListVPCCIDRPresetsRequest) ProtoMessage() {}
+
+func (x *ListVPCCIDRPresetsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListVPCCIDRPresetsRequest.ProtoReflect.Descriptor instead.
+func (*ListVPCCIDRPresetsRequest) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{64}
+}
+
+type ListVPCCIDRPresetsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cidrs         []string               `protobuf:"bytes,1,rep,name=cidrs,proto3" json:"cidrs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListVPCCIDRPresetsResponse) Reset() {
+	*x = ListVPCCIDRPresetsResponse{}
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListVPCCIDRPresetsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListVPCCIDRPresetsResponse) ProtoMessage() {}
+
+func (x *ListVPCCIDRPresetsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_v1_vpc_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListVPCCIDRPresetsResponse.ProtoReflect.Descriptor instead.
+func (*ListVPCCIDRPresetsResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_v1_vpc_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *ListVPCCIDRPresetsResponse) GetCidrs() []string {
+	if x != nil {
+		return x.Cidrs
+	}
+	return nil
+}
+
 var File_catalog_service_v1_vpc_proto protoreflect.FileDescriptor
 
 const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\n" +
-	"\x1ccatalog/service/v1/vpc.proto\x12\x12catalog.service.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"'\n" +
+	"\x1ccatalog/service/v1/vpc.proto\x12\x12catalog.service.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a google/protobuf/field_mask.proto\"'\n" +
 	"\rGetVPCRequest\x12\x16\n" +
 	"\x06vpc_id\x18\x01 \x01(\tR\x06vpc_id\"\xdd\x03\n" +
 	"\x03VPC\x12\x0e\n" +
@@ -4531,7 +5149,7 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x06eip_id\x18\x02 \x01(\tR\x06eip_id\x12(\n" +
 	"\x0fidempotency_key\x18\x03 \x01(\tR\x0fidempotency_key\"F\n" +
 	"\x13BindVPCSnatResponse\x12/\n" +
-	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"\x96\x04\n" +
+	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"\xce\x05\n" +
 	"\x06Subnet\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06vpc_id\x18\x02 \x01(\tR\x06vpc_id\x12\x12\n" +
@@ -4552,7 +5170,11 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\aversion\x18\f \x01(\x03R\aversion\x12<\n" +
 	"\vobserved_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\vobserved_at\x12,\n" +
 	"\x11observation_stale\x18\x0e \x01(\bR\x11observation_stale\x12,\n" +
-	"\x11last_operation_id\x18\x0f \x01(\tR\x11last_operation_id\"\xcc\x01\n" +
+	"\x11last_operation_id\x18\x0f \x01(\tR\x11last_operation_id\x123\n" +
+	"\x12available_ip_range\x18\x12 \x01(\tH\x00R\x12available_ip_range\x88\x01\x01\x12)\n" +
+	"\rused_ip_range\x18\x13 \x01(\tH\x01R\rused_ip_range\x88\x01\x01B\x15\n" +
+	"\x13_available_ip_rangeB\x10\n" +
+	"\x0e_used_ip_rangeJ\x04\b\x10\x10\x11J\x04\b\x11\x10\x12R\x12available_ip_countR\rused_ip_count\"\xcc\x01\n" +
 	"\x13CreateSubnetRequest\x12\x16\n" +
 	"\x06vpc_id\x18\x01 \x01(\tR\x06vpc_id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
@@ -4602,15 +5224,46 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"binding_id\x18\x01 \x01(\tR\n" +
 	"binding_id\"O\n" +
 	"\x1cDeleteVPCSnatBindingResponse\x12/\n" +
-	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"\x8b\x01\n" +
+	"\x04snat\x18\x01 \x01(\v2\x1b.catalog.service.v1.VPCSnatR\x04snat\"N\n" +
+	"\x1aLoadBalancerCertificateRef\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
+	"\tnamespace\x18\x02 \x01(\tR\tnamespace\"\x97\x01\n" +
+	"\x1eLoadBalancerSessionPersistence\x12?\n" +
+	"\x04mode\x18\x01 \x01(\x0e2+.catalog.service.v1.LoadBalancerSessionModeR\x04mode\x124\n" +
+	"\x15cookie_expiry_seconds\x18\x02 \x01(\rR\x15cookie_expiry_seconds\"\xfa\x05\n" +
 	"\x19LoadBalancerListenerInput\x12L\n" +
 	"\bprotocol\x18\x01 \x01(\x0e20.catalog.service.v1.LoadBalancerListenerProtocolR\bprotocol\x12\x17\n" +
-	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x88\x01\x01B\a\n" +
-	"\x05_port\"\x88\x01\n" +
+	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x88\x01\x01\x12\x0e\n" +
+	"\x02id\x18\x03 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12H\n" +
+	"\bbackends\x18\x05 \x03(\v2,.catalog.service.v1.LoadBalancerBackendInputR\bbackends\x12O\n" +
+	"\fhealth_check\x18\x06 \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\x12X\n" +
+	"\x0fcertificate_ref\x18\a \x01(\v2..catalog.service.v1.LoadBalancerCertificateRefR\x0fcertificate_ref\x12G\n" +
+	"\talgorithm\x18\b \x01(\x0e2).catalog.service.v1.LoadBalancerAlgorithmR\talgorithm\x12d\n" +
+	"\x13session_persistence\x18\t \x01(\v22.catalog.service.v1.LoadBalancerSessionPersistenceR\x13session_persistence\x12-\n" +
+	"\x0fmax_connections\x18\n" +
+	" \x01(\rH\x01R\x0fmax_connections\x88\x01\x01\x12\"\n" +
+	"\fgzip_enabled\x18\v \x01(\bR\fgzip_enabled\x12>\n" +
+	"\x1ahttps_redirect_status_code\x18\f \x01(\rR\x1ahttps_redirect_status_codeB\a\n" +
+	"\x05_portB\x12\n" +
+	"\x10_max_connections\"\xac\x06\n" +
 	"\x14LoadBalancerListener\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12L\n" +
 	"\bprotocol\x18\x02 \x01(\x0e20.catalog.service.v1.LoadBalancerListenerProtocolR\bprotocol\x12\x12\n" +
-	"\x04port\x18\x03 \x01(\rR\x04port\"\x9e\x01\n" +
+	"\x04port\x18\x03 \x01(\rR\x04port\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12I\n" +
+	"\bbackends\x18\x05 \x03(\v2-.catalog.service.v1.LoadBalancerBackendMemberR\bbackends\x12O\n" +
+	"\fhealth_check\x18\x06 \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\x12X\n" +
+	"\x0fcertificate_ref\x18\a \x01(\v2..catalog.service.v1.LoadBalancerCertificateRefR\x0fcertificate_ref\x12G\n" +
+	"\talgorithm\x18\b \x01(\x0e2).catalog.service.v1.LoadBalancerAlgorithmR\talgorithm\x12d\n" +
+	"\x13session_persistence\x18\t \x01(\v22.catalog.service.v1.LoadBalancerSessionPersistenceR\x13session_persistence\x12-\n" +
+	"\x0fmax_connections\x18\n" +
+	" \x01(\rH\x00R\x0fmax_connections\x88\x01\x01\x12\"\n" +
+	"\fgzip_enabled\x18\v \x01(\bR\fgzip_enabled\x12>\n" +
+	"\x1ahttps_redirect_status_code\x18\f \x01(\rR\x1ahttps_redirect_status_code\x12*\n" +
+	"\x10deployment_state\x18\r \x01(\tR\x10deployment_state\x12\x16\n" +
+	"\x06reason\x18\x0e \x01(\tR\x06reasonB\x12\n" +
+	"\x10_max_connections\"\x9e\x01\n" +
 	"\x18LoadBalancerBackendInput\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
 	"\tsubnet_id\x18\x02 \x01(\tR\tsubnet_id\x12\x18\n" +
@@ -4629,20 +5282,21 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x06reason\x18\b \x01(\tR\x06reason\x12<\n" +
 	"\vobserved_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\vobserved_at\x12,\n" +
 	"\x11observation_stale\x18\n" +
-	" \x01(\bR\x11observation_stale\"\xad\x03\n" +
+	" \x01(\bR\x11observation_stale\"\xdd\x03\n" +
 	"\x17LoadBalancerHealthCheck\x12O\n" +
 	"\bprotocol\x18\x01 \x01(\x0e23.catalog.service.v1.LoadBalancerHealthCheckProtocolR\bprotocol\x12/\n" +
 	"\x10interval_seconds\x18\x02 \x01(\rH\x00R\x10interval_seconds\x88\x01\x01\x12-\n" +
 	"\x0ftimeout_seconds\x18\x03 \x01(\rH\x01R\x0ftimeout_seconds\x88\x01\x01\x125\n" +
 	"\x13unhealthy_threshold\x18\x04 \x01(\rH\x02R\x13unhealthy_threshold\x88\x01\x01\x121\n" +
 	"\x11healthy_threshold\x18\x05 \x01(\rH\x03R\x11healthy_threshold\x88\x01\x01\x12\x17\n" +
-	"\x04port\x18\x06 \x01(\rH\x04R\x04port\x88\x01\x01B\x13\n" +
+	"\x04port\x18\x06 \x01(\rH\x04R\x04port\x88\x01\x01\x12\x12\n" +
+	"\x04path\x18\a \x01(\tR\x04path\x12\x1a\n" +
+	"\bhostname\x18\b \x01(\tR\bhostnameB\x13\n" +
 	"\x11_interval_secondsB\x12\n" +
 	"\x10_timeout_secondsB\x16\n" +
 	"\x14_unhealthy_thresholdB\x14\n" +
 	"\x12_healthy_thresholdB\a\n" +
-	"\x05_port\"\xed\n" +
-	"\n" +
+	"\x05_port\"\xef\v\n" +
 	"\fLoadBalancer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06vpc_id\x18\x03 \x01(\tR\x06vpc_id\x12\x1c\n" +
@@ -4678,7 +5332,9 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"updated_at\x12,\n" +
 	"\x11last_operation_id\x18\x1b \x01(\tR\x11last_operation_id\x12&\n" +
 	"\x0epublic_address\x18\x1c \x01(\tR\x0epublic_address\x12R\n" +
-	"\x16data_plane_observed_at\x18\x1d \x01(\v2\x1a.google.protobuf.TimestampR\x16data_plane_observed_at\"\xbb\x04\n" +
+	"\x16data_plane_observed_at\x18\x1d \x01(\v2\x1a.google.protobuf.TimestampR\x16data_plane_observed_at\x12F\n" +
+	"\tlisteners\x18\x1e \x03(\v2(.catalog.service.v1.LoadBalancerListenerR\tlisteners\x128\n" +
+	"\x17provider_target_version\x18\x1f \x01(\x03R\x17provider_target_version\"\x86\x05\n" +
 	"\x19CreateLoadBalancerRequest\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x16\n" +
@@ -4694,7 +5350,8 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	" \x01(\v2-.catalog.service.v1.LoadBalancerListenerInputR\blistener\x12H\n" +
 	"\bbackends\x18\v \x03(\v2,.catalog.service.v1.LoadBalancerBackendInputR\bbackends\x12O\n" +
 	"\fhealth_check\x18\f \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\x12(\n" +
-	"\x0fidempotency_key\x18\r \x01(\tR\x0fidempotency_key\"\xa1\x01\n" +
+	"\x0fidempotency_key\x18\r \x01(\tR\x0fidempotency_key\x12I\n" +
+	"\tlisteners\x18\x0e \x01(\v2+.catalog.service.v1.LoadBalancerListenerSetR\tlisteners\"\xa1\x01\n" +
 	"\x1aCreateLoadBalancerResponse\x12F\n" +
 	"\rload_balancer\x18\x01 \x01(\v2 .catalog.service.v1.LoadBalancerR\rload_balancer\x12;\n" +
 	"\toperation\x18\x02 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation\"D\n" +
@@ -4713,7 +5370,7 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x19ListLoadBalancersResponse\x126\n" +
 	"\x05items\x18\x01 \x03(\v2 .catalog.service.v1.LoadBalancerR\x05items\x12 \n" +
 	"\vnext_cursor\x18\x02 \x01(\tR\vnext_cursor\x12\x14\n" +
-	"\x05total\x18\x03 \x01(\x03R\x05total\"\xee\x02\n" +
+	"\x05total\x18\x03 \x01(\x03R\x05total\"\xb8\x04\n" +
 	"\x19UpdateLoadBalancerRequest\x12*\n" +
 	"\x10load_balancer_id\x18\x02 \x01(\tR\x10load_balancer_id\x12*\n" +
 	"\x10expected_version\x18\x03 \x01(\x03R\x10expected_version\x12(\n" +
@@ -4721,7 +5378,11 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x06 \x01(\tR\vdescription\x12H\n" +
 	"\bbackends\x18\a \x03(\v2,.catalog.service.v1.LoadBalancerBackendInputR\bbackends\x12O\n" +
-	"\fhealth_check\x18\b \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\"\xa1\x01\n" +
+	"\fhealth_check\x18\b \x01(\v2+.catalog.service.v1.LoadBalancerHealthCheckR\fhealth_check\x12I\n" +
+	"\tlisteners\x18\t \x01(\v2+.catalog.service.v1.LoadBalancerListenerSetR\tlisteners\x12<\n" +
+	"\vupdate_mask\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.FieldMaskR\vupdate_mask\x12?\n" +
+	"\x04data\x18\v \x01(\v2+.catalog.service.v1.LoadBalancerMutableDataR\x04data\"\xa1\x01\n" +
 	"\x1aUpdateLoadBalancerResponse\x12F\n" +
 	"\rload_balancer\x18\x01 \x01(\v2 .catalog.service.v1.LoadBalancerR\rload_balancer\x12;\n" +
 	"\toperation\x18\x02 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation\"G\n" +
@@ -4733,33 +5394,55 @@ const file_catalog_service_v1_vpc_proto_rawDesc = "" +
 	"\x1fGetLoadBalancerOperationRequest\x12\"\n" +
 	"\foperation_id\x18\x02 \x01(\tR\foperation_id\"_\n" +
 	" GetLoadBalancerOperationResponse\x12;\n" +
-	"\toperation\x18\x01 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation*\xb0\x01\n" +
+	"\toperation\x18\x01 \x01(\v2\x1d.catalog.service.v1.OperationR\toperation\"^\n" +
+	"\x17LoadBalancerListenerSet\x12C\n" +
+	"\x05items\x18\x01 \x03(\v2-.catalog.service.v1.LoadBalancerListenerInputR\x05items\"\x9a\x01\n" +
+	"\x17LoadBalancerMutableData\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12I\n" +
+	"\tlisteners\x18\x03 \x01(\v2+.catalog.service.v1.LoadBalancerListenerSetR\tlisteners\"\x1b\n" +
+	"\x19ListVPCCIDRPresetsRequest\"2\n" +
+	"\x1aListVPCCIDRPresetsResponse\x12\x14\n" +
+	"\x05cidrs\x18\x01 \x03(\tR\x05cidrs*\xb0\x01\n" +
 	"\x14LoadBalancerExposure\x12&\n" +
 	"\"LOAD_BALANCER_EXPOSURE_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eLOAD_BALANCER_EXPOSURE_PRIVATE\x10\x01\x12!\n" +
 	"\x1dLOAD_BALANCER_EXPOSURE_PUBLIC\x10\x02\x12)\n" +
-	"%LOAD_BALANCER_EXPOSURE_PUBLIC_PRIVATE\x10\x03*y\n" +
+	"%LOAD_BALANCER_EXPOSURE_PUBLIC_PRIVATE\x10\x03*\x9f\x02\n" +
 	"\x1cLoadBalancerListenerProtocol\x12/\n" +
 	"+LOAD_BALANCER_LISTENER_PROTOCOL_UNSPECIFIED\x10\x00\x12(\n" +
-	"$LOAD_BALANCER_LISTENER_PROTOCOL_HTTP\x10\x01*i\n" +
+	"$LOAD_BALANCER_LISTENER_PROTOCOL_HTTP\x10\x01\x12)\n" +
+	"%LOAD_BALANCER_LISTENER_PROTOCOL_HTTPS\x10\x02\x12'\n" +
+	"#LOAD_BALANCER_LISTENER_PROTOCOL_TCP\x10\x03\x12'\n" +
+	"#LOAD_BALANCER_LISTENER_PROTOCOL_UDP\x10\x04\x12'\n" +
+	"#LOAD_BALANCER_LISTENER_PROTOCOL_SSL\x10\x05*\xbb\x01\n" +
 	"\x15LoadBalancerAlgorithm\x12'\n" +
 	"#LOAD_BALANCER_ALGORITHM_UNSPECIFIED\x10\x00\x12'\n" +
-	"#LOAD_BALANCER_ALGORITHM_ROUND_ROBIN\x10\x01*\x83\x01\n" +
+	"#LOAD_BALANCER_ALGORITHM_ROUND_ROBIN\x10\x01\x12)\n" +
+	"%LOAD_BALANCER_ALGORITHM_LEAST_REQUEST\x10\x02\x12%\n" +
+	"!LOAD_BALANCER_ALGORITHM_SOURCE_IP\x10\x03*\xb1\x01\n" +
 	"\x1fLoadBalancerHealthCheckProtocol\x123\n" +
 	"/LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_UNSPECIFIED\x10\x00\x12+\n" +
-	"'LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP\x10\x01*\xc3\x02\n" +
+	"'LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_TCP\x10\x01\x12,\n" +
+	"(LOAD_BALANCER_HEALTH_CHECK_PROTOCOL_HTTP\x10\x02*\xff\x02\n" +
 	"\x1eLoadBalancerConfigurationState\x121\n" +
 	"-LOAD_BALANCER_CONFIGURATION_STATE_UNSPECIFIED\x10\x00\x12-\n" +
 	")LOAD_BALANCER_CONFIGURATION_STATE_PENDING\x10\x01\x12.\n" +
 	"*LOAD_BALANCER_CONFIGURATION_STATE_APPLYING\x10\x02\x120\n" +
 	",LOAD_BALANCER_CONFIGURATION_STATE_CONFIGURED\x10\x03\x12.\n" +
 	"*LOAD_BALANCER_CONFIGURATION_STATE_DEGRADED\x10\x04\x12-\n" +
-	")LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN\x10\x05*\xd2\x01\n" +
+	")LOAD_BALANCER_CONFIGURATION_STATE_UNKNOWN\x10\x05\x12:\n" +
+	"6LOAD_BALANCER_CONFIGURATION_STATE_WAITING_FOR_BACKENDS\x10\x06*\xd2\x01\n" +
 	"\x1aLoadBalancerDataPlaneState\x12.\n" +
 	"*LOAD_BALANCER_DATA_PLANE_STATE_UNSPECIFIED\x10\x00\x12*\n" +
 	"&LOAD_BALANCER_DATA_PLANE_STATE_UNKNOWN\x10\x01\x12*\n" +
 	"&LOAD_BALANCER_DATA_PLANE_STATE_HEALTHY\x10\x02\x12,\n" +
-	"(LOAD_BALANCER_DATA_PLANE_STATE_UNHEALTHY\x10\x03B\xc3\x01\n" +
+	"(LOAD_BALANCER_DATA_PLANE_STATE_UNHEALTHY\x10\x03*\xcc\x01\n" +
+	"\x17LoadBalancerSessionMode\x12*\n" +
+	"&LOAD_BALANCER_SESSION_MODE_UNSPECIFIED\x10\x00\x12'\n" +
+	"#LOAD_BALANCER_SESSION_MODE_DISABLED\x10\x03\x12-\n" +
+	")LOAD_BALANCER_SESSION_MODE_COOKIE_TIMEOUT\x10\x01\x12-\n" +
+	")LOAD_BALANCER_SESSION_MODE_COOKIE_SESSION\x10\x02B\xc3\x01\n" +
 	"\x16com.catalog.service.v1B\bVpcProtoP\x01Z5go-wind-admin/api/gen/go/catalog/service/v1;servicev1\xa2\x02\x03CSX\xaa\x02\x12Catalog.Service.V1\xca\x02\x12Catalog\\Service\\V1\xe2\x02\x1eCatalog\\Service\\V1\\GPBMetadata\xea\x02\x14Catalog::Service::V1b\x06proto3"
 
 var (
@@ -4774,8 +5457,8 @@ func file_catalog_service_v1_vpc_proto_rawDescGZIP() []byte {
 	return file_catalog_service_v1_vpc_proto_rawDescData
 }
 
-var file_catalog_service_v1_vpc_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_catalog_service_v1_vpc_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
+var file_catalog_service_v1_vpc_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_catalog_service_v1_vpc_proto_msgTypes = make([]protoimpl.MessageInfo, 66)
 var file_catalog_service_v1_vpc_proto_goTypes = []any{
 	(LoadBalancerExposure)(0),                // 0: catalog.service.v1.LoadBalancerExposure
 	(LoadBalancerListenerProtocol)(0),        // 1: catalog.service.v1.LoadBalancerListenerProtocol
@@ -4783,140 +5466,166 @@ var file_catalog_service_v1_vpc_proto_goTypes = []any{
 	(LoadBalancerHealthCheckProtocol)(0),     // 3: catalog.service.v1.LoadBalancerHealthCheckProtocol
 	(LoadBalancerConfigurationState)(0),      // 4: catalog.service.v1.LoadBalancerConfigurationState
 	(LoadBalancerDataPlaneState)(0),          // 5: catalog.service.v1.LoadBalancerDataPlaneState
-	(*GetVPCRequest)(nil),                    // 6: catalog.service.v1.GetVPCRequest
-	(*VPC)(nil),                              // 7: catalog.service.v1.VPC
-	(*GetVPCResponse)(nil),                   // 8: catalog.service.v1.GetVPCResponse
-	(*ListVPCsRequest)(nil),                  // 9: catalog.service.v1.ListVPCsRequest
-	(*ListVPCsResponse)(nil),                 // 10: catalog.service.v1.ListVPCsResponse
-	(*CreateVPCRequest)(nil),                 // 11: catalog.service.v1.CreateVPCRequest
-	(*CreateVPCResponse)(nil),                // 12: catalog.service.v1.CreateVPCResponse
-	(*DeleteVPCRequest)(nil),                 // 13: catalog.service.v1.DeleteVPCRequest
-	(*DeleteVPCResponse)(nil),                // 14: catalog.service.v1.DeleteVPCResponse
-	(*GetOperationRequest)(nil),              // 15: catalog.service.v1.GetOperationRequest
-	(*Operation)(nil),                        // 16: catalog.service.v1.Operation
-	(*GetOperationResponse)(nil),             // 17: catalog.service.v1.GetOperationResponse
-	(*EIP)(nil),                              // 18: catalog.service.v1.EIP
-	(*EIPBindingTarget)(nil),                 // 19: catalog.service.v1.EIPBindingTarget
-	(*GetEIPRequest)(nil),                    // 20: catalog.service.v1.GetEIPRequest
-	(*GetEIPResponse)(nil),                   // 21: catalog.service.v1.GetEIPResponse
-	(*ListEIPsRequest)(nil),                  // 22: catalog.service.v1.ListEIPsRequest
-	(*ListEIPsResponse)(nil),                 // 23: catalog.service.v1.ListEIPsResponse
-	(*CreateEIPRequest)(nil),                 // 24: catalog.service.v1.CreateEIPRequest
-	(*CreateEIPResponse)(nil),                // 25: catalog.service.v1.CreateEIPResponse
-	(*DeleteEIPRequest)(nil),                 // 26: catalog.service.v1.DeleteEIPRequest
-	(*DeleteEIPResponse)(nil),                // 27: catalog.service.v1.DeleteEIPResponse
-	(*GetVPCSnatRequest)(nil),                // 28: catalog.service.v1.GetVPCSnatRequest
-	(*VPCSnat)(nil),                          // 29: catalog.service.v1.VPCSnat
-	(*GetVPCSnatResponse)(nil),               // 30: catalog.service.v1.GetVPCSnatResponse
-	(*BindVPCSnatRequest)(nil),               // 31: catalog.service.v1.BindVPCSnatRequest
-	(*BindVPCSnatResponse)(nil),              // 32: catalog.service.v1.BindVPCSnatResponse
-	(*Subnet)(nil),                           // 33: catalog.service.v1.Subnet
-	(*CreateSubnetRequest)(nil),              // 34: catalog.service.v1.CreateSubnetRequest
-	(*CreateSubnetResponse)(nil),             // 35: catalog.service.v1.CreateSubnetResponse
-	(*GetSubnetRequest)(nil),                 // 36: catalog.service.v1.GetSubnetRequest
-	(*GetSubnetResponse)(nil),                // 37: catalog.service.v1.GetSubnetResponse
-	(*ListSubnetsRequest)(nil),               // 38: catalog.service.v1.ListSubnetsRequest
-	(*ListSubnetsResponse)(nil),              // 39: catalog.service.v1.ListSubnetsResponse
-	(*DeleteSubnetRequest)(nil),              // 40: catalog.service.v1.DeleteSubnetRequest
-	(*DeleteSubnetResponse)(nil),             // 41: catalog.service.v1.DeleteSubnetResponse
-	(*GetVPCSnatBindingRequest)(nil),         // 42: catalog.service.v1.GetVPCSnatBindingRequest
-	(*GetVPCSnatBindingResponse)(nil),        // 43: catalog.service.v1.GetVPCSnatBindingResponse
-	(*SetVPCSnatEnabledRequest)(nil),         // 44: catalog.service.v1.SetVPCSnatEnabledRequest
-	(*SetVPCSnatEnabledResponse)(nil),        // 45: catalog.service.v1.SetVPCSnatEnabledResponse
-	(*DeleteVPCSnatBindingRequest)(nil),      // 46: catalog.service.v1.DeleteVPCSnatBindingRequest
-	(*DeleteVPCSnatBindingResponse)(nil),     // 47: catalog.service.v1.DeleteVPCSnatBindingResponse
-	(*LoadBalancerListenerInput)(nil),        // 48: catalog.service.v1.LoadBalancerListenerInput
-	(*LoadBalancerListener)(nil),             // 49: catalog.service.v1.LoadBalancerListener
-	(*LoadBalancerBackendInput)(nil),         // 50: catalog.service.v1.LoadBalancerBackendInput
-	(*LoadBalancerBackendMember)(nil),        // 51: catalog.service.v1.LoadBalancerBackendMember
-	(*LoadBalancerHealthCheck)(nil),          // 52: catalog.service.v1.LoadBalancerHealthCheck
-	(*LoadBalancer)(nil),                     // 53: catalog.service.v1.LoadBalancer
-	(*CreateLoadBalancerRequest)(nil),        // 54: catalog.service.v1.CreateLoadBalancerRequest
-	(*CreateLoadBalancerResponse)(nil),       // 55: catalog.service.v1.CreateLoadBalancerResponse
-	(*GetLoadBalancerRequest)(nil),           // 56: catalog.service.v1.GetLoadBalancerRequest
-	(*GetLoadBalancerResponse)(nil),          // 57: catalog.service.v1.GetLoadBalancerResponse
-	(*ListLoadBalancersRequest)(nil),         // 58: catalog.service.v1.ListLoadBalancersRequest
-	(*ListLoadBalancersResponse)(nil),        // 59: catalog.service.v1.ListLoadBalancersResponse
-	(*UpdateLoadBalancerRequest)(nil),        // 60: catalog.service.v1.UpdateLoadBalancerRequest
-	(*UpdateLoadBalancerResponse)(nil),       // 61: catalog.service.v1.UpdateLoadBalancerResponse
-	(*DeleteLoadBalancerRequest)(nil),        // 62: catalog.service.v1.DeleteLoadBalancerRequest
-	(*DeleteLoadBalancerResponse)(nil),       // 63: catalog.service.v1.DeleteLoadBalancerResponse
-	(*GetLoadBalancerOperationRequest)(nil),  // 64: catalog.service.v1.GetLoadBalancerOperationRequest
-	(*GetLoadBalancerOperationResponse)(nil), // 65: catalog.service.v1.GetLoadBalancerOperationResponse
-	(*timestamppb.Timestamp)(nil),            // 66: google.protobuf.Timestamp
+	(LoadBalancerSessionMode)(0),             // 6: catalog.service.v1.LoadBalancerSessionMode
+	(*GetVPCRequest)(nil),                    // 7: catalog.service.v1.GetVPCRequest
+	(*VPC)(nil),                              // 8: catalog.service.v1.VPC
+	(*GetVPCResponse)(nil),                   // 9: catalog.service.v1.GetVPCResponse
+	(*ListVPCsRequest)(nil),                  // 10: catalog.service.v1.ListVPCsRequest
+	(*ListVPCsResponse)(nil),                 // 11: catalog.service.v1.ListVPCsResponse
+	(*CreateVPCRequest)(nil),                 // 12: catalog.service.v1.CreateVPCRequest
+	(*CreateVPCResponse)(nil),                // 13: catalog.service.v1.CreateVPCResponse
+	(*DeleteVPCRequest)(nil),                 // 14: catalog.service.v1.DeleteVPCRequest
+	(*DeleteVPCResponse)(nil),                // 15: catalog.service.v1.DeleteVPCResponse
+	(*GetOperationRequest)(nil),              // 16: catalog.service.v1.GetOperationRequest
+	(*Operation)(nil),                        // 17: catalog.service.v1.Operation
+	(*GetOperationResponse)(nil),             // 18: catalog.service.v1.GetOperationResponse
+	(*EIP)(nil),                              // 19: catalog.service.v1.EIP
+	(*EIPBindingTarget)(nil),                 // 20: catalog.service.v1.EIPBindingTarget
+	(*GetEIPRequest)(nil),                    // 21: catalog.service.v1.GetEIPRequest
+	(*GetEIPResponse)(nil),                   // 22: catalog.service.v1.GetEIPResponse
+	(*ListEIPsRequest)(nil),                  // 23: catalog.service.v1.ListEIPsRequest
+	(*ListEIPsResponse)(nil),                 // 24: catalog.service.v1.ListEIPsResponse
+	(*CreateEIPRequest)(nil),                 // 25: catalog.service.v1.CreateEIPRequest
+	(*CreateEIPResponse)(nil),                // 26: catalog.service.v1.CreateEIPResponse
+	(*DeleteEIPRequest)(nil),                 // 27: catalog.service.v1.DeleteEIPRequest
+	(*DeleteEIPResponse)(nil),                // 28: catalog.service.v1.DeleteEIPResponse
+	(*GetVPCSnatRequest)(nil),                // 29: catalog.service.v1.GetVPCSnatRequest
+	(*VPCSnat)(nil),                          // 30: catalog.service.v1.VPCSnat
+	(*GetVPCSnatResponse)(nil),               // 31: catalog.service.v1.GetVPCSnatResponse
+	(*BindVPCSnatRequest)(nil),               // 32: catalog.service.v1.BindVPCSnatRequest
+	(*BindVPCSnatResponse)(nil),              // 33: catalog.service.v1.BindVPCSnatResponse
+	(*Subnet)(nil),                           // 34: catalog.service.v1.Subnet
+	(*CreateSubnetRequest)(nil),              // 35: catalog.service.v1.CreateSubnetRequest
+	(*CreateSubnetResponse)(nil),             // 36: catalog.service.v1.CreateSubnetResponse
+	(*GetSubnetRequest)(nil),                 // 37: catalog.service.v1.GetSubnetRequest
+	(*GetSubnetResponse)(nil),                // 38: catalog.service.v1.GetSubnetResponse
+	(*ListSubnetsRequest)(nil),               // 39: catalog.service.v1.ListSubnetsRequest
+	(*ListSubnetsResponse)(nil),              // 40: catalog.service.v1.ListSubnetsResponse
+	(*DeleteSubnetRequest)(nil),              // 41: catalog.service.v1.DeleteSubnetRequest
+	(*DeleteSubnetResponse)(nil),             // 42: catalog.service.v1.DeleteSubnetResponse
+	(*GetVPCSnatBindingRequest)(nil),         // 43: catalog.service.v1.GetVPCSnatBindingRequest
+	(*GetVPCSnatBindingResponse)(nil),        // 44: catalog.service.v1.GetVPCSnatBindingResponse
+	(*SetVPCSnatEnabledRequest)(nil),         // 45: catalog.service.v1.SetVPCSnatEnabledRequest
+	(*SetVPCSnatEnabledResponse)(nil),        // 46: catalog.service.v1.SetVPCSnatEnabledResponse
+	(*DeleteVPCSnatBindingRequest)(nil),      // 47: catalog.service.v1.DeleteVPCSnatBindingRequest
+	(*DeleteVPCSnatBindingResponse)(nil),     // 48: catalog.service.v1.DeleteVPCSnatBindingResponse
+	(*LoadBalancerCertificateRef)(nil),       // 49: catalog.service.v1.LoadBalancerCertificateRef
+	(*LoadBalancerSessionPersistence)(nil),   // 50: catalog.service.v1.LoadBalancerSessionPersistence
+	(*LoadBalancerListenerInput)(nil),        // 51: catalog.service.v1.LoadBalancerListenerInput
+	(*LoadBalancerListener)(nil),             // 52: catalog.service.v1.LoadBalancerListener
+	(*LoadBalancerBackendInput)(nil),         // 53: catalog.service.v1.LoadBalancerBackendInput
+	(*LoadBalancerBackendMember)(nil),        // 54: catalog.service.v1.LoadBalancerBackendMember
+	(*LoadBalancerHealthCheck)(nil),          // 55: catalog.service.v1.LoadBalancerHealthCheck
+	(*LoadBalancer)(nil),                     // 56: catalog.service.v1.LoadBalancer
+	(*CreateLoadBalancerRequest)(nil),        // 57: catalog.service.v1.CreateLoadBalancerRequest
+	(*CreateLoadBalancerResponse)(nil),       // 58: catalog.service.v1.CreateLoadBalancerResponse
+	(*GetLoadBalancerRequest)(nil),           // 59: catalog.service.v1.GetLoadBalancerRequest
+	(*GetLoadBalancerResponse)(nil),          // 60: catalog.service.v1.GetLoadBalancerResponse
+	(*ListLoadBalancersRequest)(nil),         // 61: catalog.service.v1.ListLoadBalancersRequest
+	(*ListLoadBalancersResponse)(nil),        // 62: catalog.service.v1.ListLoadBalancersResponse
+	(*UpdateLoadBalancerRequest)(nil),        // 63: catalog.service.v1.UpdateLoadBalancerRequest
+	(*UpdateLoadBalancerResponse)(nil),       // 64: catalog.service.v1.UpdateLoadBalancerResponse
+	(*DeleteLoadBalancerRequest)(nil),        // 65: catalog.service.v1.DeleteLoadBalancerRequest
+	(*DeleteLoadBalancerResponse)(nil),       // 66: catalog.service.v1.DeleteLoadBalancerResponse
+	(*GetLoadBalancerOperationRequest)(nil),  // 67: catalog.service.v1.GetLoadBalancerOperationRequest
+	(*GetLoadBalancerOperationResponse)(nil), // 68: catalog.service.v1.GetLoadBalancerOperationResponse
+	(*LoadBalancerListenerSet)(nil),          // 69: catalog.service.v1.LoadBalancerListenerSet
+	(*LoadBalancerMutableData)(nil),          // 70: catalog.service.v1.LoadBalancerMutableData
+	(*ListVPCCIDRPresetsRequest)(nil),        // 71: catalog.service.v1.ListVPCCIDRPresetsRequest
+	(*ListVPCCIDRPresetsResponse)(nil),       // 72: catalog.service.v1.ListVPCCIDRPresetsResponse
+	(*timestamppb.Timestamp)(nil),            // 73: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),            // 74: google.protobuf.FieldMask
 }
 var file_catalog_service_v1_vpc_proto_depIdxs = []int32{
-	66, // 0: catalog.service.v1.VPC.created_at:type_name -> google.protobuf.Timestamp
-	66, // 1: catalog.service.v1.VPC.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 2: catalog.service.v1.VPC.observed_at:type_name -> google.protobuf.Timestamp
-	7,  // 3: catalog.service.v1.GetVPCResponse.vpc:type_name -> catalog.service.v1.VPC
-	7,  // 4: catalog.service.v1.ListVPCsResponse.items:type_name -> catalog.service.v1.VPC
-	7,  // 5: catalog.service.v1.CreateVPCResponse.vpc:type_name -> catalog.service.v1.VPC
-	7,  // 6: catalog.service.v1.DeleteVPCResponse.vpc:type_name -> catalog.service.v1.VPC
-	66, // 7: catalog.service.v1.Operation.created_at:type_name -> google.protobuf.Timestamp
-	66, // 8: catalog.service.v1.Operation.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 9: catalog.service.v1.Operation.completed_at:type_name -> google.protobuf.Timestamp
-	66, // 10: catalog.service.v1.Operation.next_attempt_at:type_name -> google.protobuf.Timestamp
-	16, // 11: catalog.service.v1.GetOperationResponse.operation:type_name -> catalog.service.v1.Operation
-	66, // 12: catalog.service.v1.EIP.created_at:type_name -> google.protobuf.Timestamp
-	66, // 13: catalog.service.v1.EIP.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 14: catalog.service.v1.EIP.observed_at:type_name -> google.protobuf.Timestamp
-	19, // 15: catalog.service.v1.EIP.binding_target:type_name -> catalog.service.v1.EIPBindingTarget
-	18, // 16: catalog.service.v1.GetEIPResponse.eip:type_name -> catalog.service.v1.EIP
-	18, // 17: catalog.service.v1.ListEIPsResponse.items:type_name -> catalog.service.v1.EIP
-	18, // 18: catalog.service.v1.CreateEIPResponse.eip:type_name -> catalog.service.v1.EIP
-	18, // 19: catalog.service.v1.DeleteEIPResponse.eip:type_name -> catalog.service.v1.EIP
-	66, // 20: catalog.service.v1.VPCSnat.created_at:type_name -> google.protobuf.Timestamp
-	66, // 21: catalog.service.v1.VPCSnat.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 22: catalog.service.v1.VPCSnat.observed_at:type_name -> google.protobuf.Timestamp
-	29, // 23: catalog.service.v1.GetVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
-	29, // 24: catalog.service.v1.BindVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
-	66, // 25: catalog.service.v1.Subnet.created_at:type_name -> google.protobuf.Timestamp
-	66, // 26: catalog.service.v1.Subnet.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 27: catalog.service.v1.Subnet.observed_at:type_name -> google.protobuf.Timestamp
-	33, // 28: catalog.service.v1.CreateSubnetResponse.subnet:type_name -> catalog.service.v1.Subnet
-	33, // 29: catalog.service.v1.GetSubnetResponse.subnet:type_name -> catalog.service.v1.Subnet
-	33, // 30: catalog.service.v1.ListSubnetsResponse.items:type_name -> catalog.service.v1.Subnet
-	33, // 31: catalog.service.v1.DeleteSubnetResponse.subnet:type_name -> catalog.service.v1.Subnet
-	29, // 32: catalog.service.v1.GetVPCSnatBindingResponse.snat:type_name -> catalog.service.v1.VPCSnat
-	29, // 33: catalog.service.v1.SetVPCSnatEnabledResponse.snat:type_name -> catalog.service.v1.VPCSnat
-	29, // 34: catalog.service.v1.DeleteVPCSnatBindingResponse.snat:type_name -> catalog.service.v1.VPCSnat
-	1,  // 35: catalog.service.v1.LoadBalancerListenerInput.protocol:type_name -> catalog.service.v1.LoadBalancerListenerProtocol
-	1,  // 36: catalog.service.v1.LoadBalancerListener.protocol:type_name -> catalog.service.v1.LoadBalancerListenerProtocol
-	66, // 37: catalog.service.v1.LoadBalancerBackendMember.observed_at:type_name -> google.protobuf.Timestamp
-	3,  // 38: catalog.service.v1.LoadBalancerHealthCheck.protocol:type_name -> catalog.service.v1.LoadBalancerHealthCheckProtocol
-	0,  // 39: catalog.service.v1.LoadBalancer.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
-	49, // 40: catalog.service.v1.LoadBalancer.listener:type_name -> catalog.service.v1.LoadBalancerListener
-	51, // 41: catalog.service.v1.LoadBalancer.backends:type_name -> catalog.service.v1.LoadBalancerBackendMember
-	52, // 42: catalog.service.v1.LoadBalancer.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
-	2,  // 43: catalog.service.v1.LoadBalancer.algorithm:type_name -> catalog.service.v1.LoadBalancerAlgorithm
-	4,  // 44: catalog.service.v1.LoadBalancer.configuration_state:type_name -> catalog.service.v1.LoadBalancerConfigurationState
-	5,  // 45: catalog.service.v1.LoadBalancer.data_plane_state:type_name -> catalog.service.v1.LoadBalancerDataPlaneState
-	66, // 46: catalog.service.v1.LoadBalancer.observed_at:type_name -> google.protobuf.Timestamp
-	66, // 47: catalog.service.v1.LoadBalancer.created_at:type_name -> google.protobuf.Timestamp
-	66, // 48: catalog.service.v1.LoadBalancer.updated_at:type_name -> google.protobuf.Timestamp
-	66, // 49: catalog.service.v1.LoadBalancer.data_plane_observed_at:type_name -> google.protobuf.Timestamp
-	0,  // 50: catalog.service.v1.CreateLoadBalancerRequest.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
-	48, // 51: catalog.service.v1.CreateLoadBalancerRequest.listener:type_name -> catalog.service.v1.LoadBalancerListenerInput
-	50, // 52: catalog.service.v1.CreateLoadBalancerRequest.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
-	52, // 53: catalog.service.v1.CreateLoadBalancerRequest.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
-	53, // 54: catalog.service.v1.CreateLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
-	16, // 55: catalog.service.v1.CreateLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
-	53, // 56: catalog.service.v1.GetLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
-	0,  // 57: catalog.service.v1.ListLoadBalancersRequest.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
-	53, // 58: catalog.service.v1.ListLoadBalancersResponse.items:type_name -> catalog.service.v1.LoadBalancer
-	50, // 59: catalog.service.v1.UpdateLoadBalancerRequest.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
-	52, // 60: catalog.service.v1.UpdateLoadBalancerRequest.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
-	53, // 61: catalog.service.v1.UpdateLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
-	16, // 62: catalog.service.v1.UpdateLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
-	53, // 63: catalog.service.v1.DeleteLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
-	16, // 64: catalog.service.v1.DeleteLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
-	16, // 65: catalog.service.v1.GetLoadBalancerOperationResponse.operation:type_name -> catalog.service.v1.Operation
-	66, // [66:66] is the sub-list for method output_type
-	66, // [66:66] is the sub-list for method input_type
-	66, // [66:66] is the sub-list for extension type_name
-	66, // [66:66] is the sub-list for extension extendee
-	0,  // [0:66] is the sub-list for field type_name
+	73, // 0: catalog.service.v1.VPC.created_at:type_name -> google.protobuf.Timestamp
+	73, // 1: catalog.service.v1.VPC.updated_at:type_name -> google.protobuf.Timestamp
+	73, // 2: catalog.service.v1.VPC.observed_at:type_name -> google.protobuf.Timestamp
+	8,  // 3: catalog.service.v1.GetVPCResponse.vpc:type_name -> catalog.service.v1.VPC
+	8,  // 4: catalog.service.v1.ListVPCsResponse.items:type_name -> catalog.service.v1.VPC
+	8,  // 5: catalog.service.v1.CreateVPCResponse.vpc:type_name -> catalog.service.v1.VPC
+	8,  // 6: catalog.service.v1.DeleteVPCResponse.vpc:type_name -> catalog.service.v1.VPC
+	73, // 7: catalog.service.v1.Operation.created_at:type_name -> google.protobuf.Timestamp
+	73, // 8: catalog.service.v1.Operation.updated_at:type_name -> google.protobuf.Timestamp
+	73, // 9: catalog.service.v1.Operation.completed_at:type_name -> google.protobuf.Timestamp
+	73, // 10: catalog.service.v1.Operation.next_attempt_at:type_name -> google.protobuf.Timestamp
+	17, // 11: catalog.service.v1.GetOperationResponse.operation:type_name -> catalog.service.v1.Operation
+	73, // 12: catalog.service.v1.EIP.created_at:type_name -> google.protobuf.Timestamp
+	73, // 13: catalog.service.v1.EIP.updated_at:type_name -> google.protobuf.Timestamp
+	73, // 14: catalog.service.v1.EIP.observed_at:type_name -> google.protobuf.Timestamp
+	20, // 15: catalog.service.v1.EIP.binding_target:type_name -> catalog.service.v1.EIPBindingTarget
+	19, // 16: catalog.service.v1.GetEIPResponse.eip:type_name -> catalog.service.v1.EIP
+	19, // 17: catalog.service.v1.ListEIPsResponse.items:type_name -> catalog.service.v1.EIP
+	19, // 18: catalog.service.v1.CreateEIPResponse.eip:type_name -> catalog.service.v1.EIP
+	19, // 19: catalog.service.v1.DeleteEIPResponse.eip:type_name -> catalog.service.v1.EIP
+	73, // 20: catalog.service.v1.VPCSnat.created_at:type_name -> google.protobuf.Timestamp
+	73, // 21: catalog.service.v1.VPCSnat.updated_at:type_name -> google.protobuf.Timestamp
+	73, // 22: catalog.service.v1.VPCSnat.observed_at:type_name -> google.protobuf.Timestamp
+	30, // 23: catalog.service.v1.GetVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	30, // 24: catalog.service.v1.BindVPCSnatResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	73, // 25: catalog.service.v1.Subnet.created_at:type_name -> google.protobuf.Timestamp
+	73, // 26: catalog.service.v1.Subnet.updated_at:type_name -> google.protobuf.Timestamp
+	73, // 27: catalog.service.v1.Subnet.observed_at:type_name -> google.protobuf.Timestamp
+	34, // 28: catalog.service.v1.CreateSubnetResponse.subnet:type_name -> catalog.service.v1.Subnet
+	34, // 29: catalog.service.v1.GetSubnetResponse.subnet:type_name -> catalog.service.v1.Subnet
+	34, // 30: catalog.service.v1.ListSubnetsResponse.items:type_name -> catalog.service.v1.Subnet
+	34, // 31: catalog.service.v1.DeleteSubnetResponse.subnet:type_name -> catalog.service.v1.Subnet
+	30, // 32: catalog.service.v1.GetVPCSnatBindingResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	30, // 33: catalog.service.v1.SetVPCSnatEnabledResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	30, // 34: catalog.service.v1.DeleteVPCSnatBindingResponse.snat:type_name -> catalog.service.v1.VPCSnat
+	6,  // 35: catalog.service.v1.LoadBalancerSessionPersistence.mode:type_name -> catalog.service.v1.LoadBalancerSessionMode
+	1,  // 36: catalog.service.v1.LoadBalancerListenerInput.protocol:type_name -> catalog.service.v1.LoadBalancerListenerProtocol
+	53, // 37: catalog.service.v1.LoadBalancerListenerInput.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
+	55, // 38: catalog.service.v1.LoadBalancerListenerInput.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	49, // 39: catalog.service.v1.LoadBalancerListenerInput.certificate_ref:type_name -> catalog.service.v1.LoadBalancerCertificateRef
+	2,  // 40: catalog.service.v1.LoadBalancerListenerInput.algorithm:type_name -> catalog.service.v1.LoadBalancerAlgorithm
+	50, // 41: catalog.service.v1.LoadBalancerListenerInput.session_persistence:type_name -> catalog.service.v1.LoadBalancerSessionPersistence
+	1,  // 42: catalog.service.v1.LoadBalancerListener.protocol:type_name -> catalog.service.v1.LoadBalancerListenerProtocol
+	54, // 43: catalog.service.v1.LoadBalancerListener.backends:type_name -> catalog.service.v1.LoadBalancerBackendMember
+	55, // 44: catalog.service.v1.LoadBalancerListener.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	49, // 45: catalog.service.v1.LoadBalancerListener.certificate_ref:type_name -> catalog.service.v1.LoadBalancerCertificateRef
+	2,  // 46: catalog.service.v1.LoadBalancerListener.algorithm:type_name -> catalog.service.v1.LoadBalancerAlgorithm
+	50, // 47: catalog.service.v1.LoadBalancerListener.session_persistence:type_name -> catalog.service.v1.LoadBalancerSessionPersistence
+	73, // 48: catalog.service.v1.LoadBalancerBackendMember.observed_at:type_name -> google.protobuf.Timestamp
+	3,  // 49: catalog.service.v1.LoadBalancerHealthCheck.protocol:type_name -> catalog.service.v1.LoadBalancerHealthCheckProtocol
+	0,  // 50: catalog.service.v1.LoadBalancer.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
+	52, // 51: catalog.service.v1.LoadBalancer.listener:type_name -> catalog.service.v1.LoadBalancerListener
+	54, // 52: catalog.service.v1.LoadBalancer.backends:type_name -> catalog.service.v1.LoadBalancerBackendMember
+	55, // 53: catalog.service.v1.LoadBalancer.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	2,  // 54: catalog.service.v1.LoadBalancer.algorithm:type_name -> catalog.service.v1.LoadBalancerAlgorithm
+	4,  // 55: catalog.service.v1.LoadBalancer.configuration_state:type_name -> catalog.service.v1.LoadBalancerConfigurationState
+	5,  // 56: catalog.service.v1.LoadBalancer.data_plane_state:type_name -> catalog.service.v1.LoadBalancerDataPlaneState
+	73, // 57: catalog.service.v1.LoadBalancer.observed_at:type_name -> google.protobuf.Timestamp
+	73, // 58: catalog.service.v1.LoadBalancer.created_at:type_name -> google.protobuf.Timestamp
+	73, // 59: catalog.service.v1.LoadBalancer.updated_at:type_name -> google.protobuf.Timestamp
+	73, // 60: catalog.service.v1.LoadBalancer.data_plane_observed_at:type_name -> google.protobuf.Timestamp
+	52, // 61: catalog.service.v1.LoadBalancer.listeners:type_name -> catalog.service.v1.LoadBalancerListener
+	0,  // 62: catalog.service.v1.CreateLoadBalancerRequest.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
+	51, // 63: catalog.service.v1.CreateLoadBalancerRequest.listener:type_name -> catalog.service.v1.LoadBalancerListenerInput
+	53, // 64: catalog.service.v1.CreateLoadBalancerRequest.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
+	55, // 65: catalog.service.v1.CreateLoadBalancerRequest.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	69, // 66: catalog.service.v1.CreateLoadBalancerRequest.listeners:type_name -> catalog.service.v1.LoadBalancerListenerSet
+	56, // 67: catalog.service.v1.CreateLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	17, // 68: catalog.service.v1.CreateLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
+	56, // 69: catalog.service.v1.GetLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	0,  // 70: catalog.service.v1.ListLoadBalancersRequest.exposure:type_name -> catalog.service.v1.LoadBalancerExposure
+	56, // 71: catalog.service.v1.ListLoadBalancersResponse.items:type_name -> catalog.service.v1.LoadBalancer
+	53, // 72: catalog.service.v1.UpdateLoadBalancerRequest.backends:type_name -> catalog.service.v1.LoadBalancerBackendInput
+	55, // 73: catalog.service.v1.UpdateLoadBalancerRequest.health_check:type_name -> catalog.service.v1.LoadBalancerHealthCheck
+	69, // 74: catalog.service.v1.UpdateLoadBalancerRequest.listeners:type_name -> catalog.service.v1.LoadBalancerListenerSet
+	74, // 75: catalog.service.v1.UpdateLoadBalancerRequest.update_mask:type_name -> google.protobuf.FieldMask
+	70, // 76: catalog.service.v1.UpdateLoadBalancerRequest.data:type_name -> catalog.service.v1.LoadBalancerMutableData
+	56, // 77: catalog.service.v1.UpdateLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	17, // 78: catalog.service.v1.UpdateLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
+	56, // 79: catalog.service.v1.DeleteLoadBalancerResponse.load_balancer:type_name -> catalog.service.v1.LoadBalancer
+	17, // 80: catalog.service.v1.DeleteLoadBalancerResponse.operation:type_name -> catalog.service.v1.Operation
+	17, // 81: catalog.service.v1.GetLoadBalancerOperationResponse.operation:type_name -> catalog.service.v1.Operation
+	51, // 82: catalog.service.v1.LoadBalancerListenerSet.items:type_name -> catalog.service.v1.LoadBalancerListenerInput
+	69, // 83: catalog.service.v1.LoadBalancerMutableData.listeners:type_name -> catalog.service.v1.LoadBalancerListenerSet
+	84, // [84:84] is the sub-list for method output_type
+	84, // [84:84] is the sub-list for method input_type
+	84, // [84:84] is the sub-list for extension type_name
+	84, // [84:84] is the sub-list for extension extendee
+	0,  // [0:84] is the sub-list for field type_name
 }
 
 func init() { file_catalog_service_v1_vpc_proto_init() }
@@ -4925,17 +5634,19 @@ func file_catalog_service_v1_vpc_proto_init() {
 		return
 	}
 	file_catalog_service_v1_vpc_proto_msgTypes[23].OneofWrappers = []any{}
+	file_catalog_service_v1_vpc_proto_msgTypes[27].OneofWrappers = []any{}
 	file_catalog_service_v1_vpc_proto_msgTypes[28].OneofWrappers = []any{}
-	file_catalog_service_v1_vpc_proto_msgTypes[42].OneofWrappers = []any{}
 	file_catalog_service_v1_vpc_proto_msgTypes[44].OneofWrappers = []any{}
+	file_catalog_service_v1_vpc_proto_msgTypes[45].OneofWrappers = []any{}
 	file_catalog_service_v1_vpc_proto_msgTypes[46].OneofWrappers = []any{}
+	file_catalog_service_v1_vpc_proto_msgTypes[48].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_catalog_service_v1_vpc_proto_rawDesc), len(file_catalog_service_v1_vpc_proto_rawDesc)),
-			NumEnums:      6,
-			NumMessages:   60,
+			NumEnums:      7,
+			NumMessages:   66,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

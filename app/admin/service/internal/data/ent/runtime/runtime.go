@@ -6,6 +6,7 @@ import (
 	"context"
 	permissionpb "go-wind-admin/api/gen/go/permission/service/v1"
 	"go-wind-admin/app/admin/service/internal/data/ent/accesskey"
+	"go-wind-admin/app/admin/service/internal/data/ent/accesskeyidempotency"
 	"go-wind-admin/app/admin/service/internal/data/ent/api"
 	"go-wind-admin/app/admin/service/internal/data/ent/apiauditlog"
 	"go-wind-admin/app/admin/service/internal/data/ent/dataaccessauditlog"
@@ -108,6 +109,64 @@ func init() {
 	accesskeyDescID := accesskeyMixinFields0[0].Descriptor()
 	// accesskey.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	accesskey.IDValidator = accesskeyDescID.Validators[0].(func(uint32) error)
+	accesskeyidempotencyMixin := schema.AccessKeyIdempotency{}.Mixin()
+	accesskeyidempotency.Policy = privacy.NewPolicies(accesskeyidempotencyMixin[1], schema.AccessKeyIdempotency{})
+	accesskeyidempotency.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := accesskeyidempotency.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	accesskeyidempotencyMixinFields0 := accesskeyidempotencyMixin[0].Fields()
+	_ = accesskeyidempotencyMixinFields0
+	accesskeyidempotencyMixinFields1 := accesskeyidempotencyMixin[1].Fields()
+	_ = accesskeyidempotencyMixinFields1
+	accesskeyidempotencyFields := schema.AccessKeyIdempotency{}.Fields()
+	_ = accesskeyidempotencyFields
+	// accesskeyidempotencyDescTenantID is the schema descriptor for tenant_id field.
+	accesskeyidempotencyDescTenantID := accesskeyidempotencyMixinFields1[0].Descriptor()
+	// accesskeyidempotency.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	accesskeyidempotency.TenantIDValidator = accesskeyidempotencyDescTenantID.Validators[0].(func(uint32) error)
+	// accesskeyidempotencyDescActorID is the schema descriptor for actor_id field.
+	accesskeyidempotencyDescActorID := accesskeyidempotencyFields[0].Descriptor()
+	// accesskeyidempotency.ActorIDValidator is a validator for the "actor_id" field. It is called by the builders before save.
+	accesskeyidempotency.ActorIDValidator = accesskeyidempotencyDescActorID.Validators[0].(func(uint32) error)
+	// accesskeyidempotencyDescAction is the schema descriptor for action field.
+	accesskeyidempotencyDescAction := accesskeyidempotencyFields[1].Descriptor()
+	// accesskeyidempotency.ActionValidator is a validator for the "action" field. It is called by the builders before save.
+	accesskeyidempotency.ActionValidator = accesskeyidempotencyDescAction.Validators[0].(func(string) error)
+	// accesskeyidempotencyDescIdempotencyKey is the schema descriptor for idempotency_key field.
+	accesskeyidempotencyDescIdempotencyKey := accesskeyidempotencyFields[2].Descriptor()
+	// accesskeyidempotency.IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
+	accesskeyidempotency.IdempotencyKeyValidator = func() func(string) error {
+		validators := accesskeyidempotencyDescIdempotencyKey.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(idempotency_key string) error {
+			for _, fn := range fns {
+				if err := fn(idempotency_key); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// accesskeyidempotencyDescRequestFingerprint is the schema descriptor for request_fingerprint field.
+	accesskeyidempotencyDescRequestFingerprint := accesskeyidempotencyFields[3].Descriptor()
+	// accesskeyidempotency.RequestFingerprintValidator is a validator for the "request_fingerprint" field. It is called by the builders before save.
+	accesskeyidempotency.RequestFingerprintValidator = accesskeyidempotencyDescRequestFingerprint.Validators[0].(func(string) error)
+	// accesskeyidempotencyDescAccessKeyID is the schema descriptor for access_key_id field.
+	accesskeyidempotencyDescAccessKeyID := accesskeyidempotencyFields[4].Descriptor()
+	// accesskeyidempotency.AccessKeyIDValidator is a validator for the "access_key_id" field. It is called by the builders before save.
+	accesskeyidempotency.AccessKeyIDValidator = accesskeyidempotencyDescAccessKeyID.Validators[0].(func(uint32) error)
+	// accesskeyidempotencyDescID is the schema descriptor for id field.
+	accesskeyidempotencyDescID := accesskeyidempotencyMixinFields0[0].Descriptor()
+	// accesskeyidempotency.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	accesskeyidempotency.IDValidator = accesskeyidempotencyDescID.Validators[0].(func(uint32) error)
 	apiMixin := schema.Api{}.Mixin()
 	apiMixinFields0 := apiMixin[0].Fields()
 	_ = apiMixinFields0

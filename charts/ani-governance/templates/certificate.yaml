@@ -12,8 +12,6 @@ spec:
     kind: {{ .Values.certificate.issuerRef.kind }}
   dnsNames:
     {{- toYaml .Values.certificate.dnsNames | nindent 4 }}
-  uris:
-    - spiffe://ani.internal/service/ani-governance
   usages:
     - digital signature
     - client auth

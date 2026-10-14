@@ -42,6 +42,7 @@ type InferenceModelClient interface {
 type InferenceGpuAcceptance interface {
 	AcceptGpuCreate(context.Context, string, *acc.GpuRequest, proto.Message) (*data.QuotaOccupyResult, error)
 	AcceptGpuDelete(context.Context, string, string) (*attachment.GpuDeleteAcceptance, error)
+	HasGpuCreate(context.Context, string) (bool, error)
 }
 
 type inferenceTrustedOwnerClient interface {
@@ -56,10 +57,14 @@ type InferenceActionAuthorizer interface {
 type InferenceGpuBinding struct {
 	client        InferenceOwnerClient
 	authorization InferenceActionAuthorizer
+	model         InferenceModelClient
 }
 
 func NewInferenceGpuBinding(client InferenceOwnerClient, authorization InferenceActionAuthorizer) *InferenceGpuBinding {
 	return &InferenceGpuBinding{client: client, authorization: authorization}
+}
+func NewInferenceGpuBindingWithModel(client InferenceOwnerClient, authorization InferenceActionAuthorizer, model InferenceModelClient) *InferenceGpuBinding {
+	return &InferenceGpuBinding{client: client, authorization: authorization, model: model}
 }
 func (*InferenceGpuBinding) OwnerService() string { return "ani-inference" }
 func (*InferenceGpuBinding) CreateAction() string { return InferenceCreateAction }
@@ -99,6 +104,23 @@ func (*InferenceGpuBinding) CanonicalGpuBusiness(message proto.Message) ([]byte,
 		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference user business")
 	}
 	return inferencev1.CanonicalBusinessPayload(request)
+}
+
+// Model readiness is a new-admission dependency. GpuAcceptance invokes this
+// resolver only after current authorization and the durable replay gate.
+func (b *InferenceGpuBinding) ResolveGpuBusiness(ctx context.Context, p *auth.Principal, tenant string, message proto.Message) (*acc.GpuRequest, proto.Message, error) {
+	request, ok := message.(*inferencev1.CreateInferenceServiceRequest)
+	if !ok || request == nil || request.GetResource().GetGpu() == nil || p == nil {
+		return nil, nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference user business")
+	}
+	actor, err := p.Actor()
+	if err != nil {
+		return nil, nil, status.Error(codes.Unauthenticated, "login required")
+	}
+	if err := checkInferenceModelReady(ctx, b.model, tenant, actor, request.ModelVersionId); err != nil {
+		return nil, nil, err
+	}
+	return inferenceGpuRequest(request.Resource.Gpu), request, nil
 }
 
 func (*InferenceGpuBinding) ValidateGpuBusiness(_ context.Context, message proto.Message) ([]data.QuotaOccupyItem, error) {
@@ -239,35 +261,42 @@ func (s *InferenceService) CreateInference(ctx context.Context, in *view.CreateI
 	if err != nil {
 		return nil, err
 	}
-	if s == nil || s.model == nil {
-		return nil, status.Error(codes.Unavailable, "MODEL_ADAPTER_UNAVAILABLE")
+	if request.Resource.GetGpu() != nil {
+		if s == nil || s.acceptance == nil {
+			return nil, quotapb.ErrorQuotaAdapterUnavailable("%s", "inference unavailable")
+		}
+		result, err := s.acceptance.AcceptGpuCreate(ctx, d.IdempotencyKey, inferenceGpuRequest(request.Resource.Gpu), request)
+		if err != nil {
+			return nil, err
+		}
+		return &view.InferenceAcceptance{OperationId: result.OperationID, ResourceId: result.ResourceID, Replayed: result.Replayed, Result: "ACCEPTED", DispatchOperationId: result.OperationID}, nil
 	}
 	tenant, actor, err := s.trustedInferenceOperator(ctx)
 	if err != nil {
 		return nil, err
 	}
-	modelReply, err := s.model.GetModelVersion(ctx, tenant, actor, &modelv1.GetModelVersionRequest{ModelVersionId: d.ModelVersionId})
+	if err := checkInferenceModelReady(ctx, s.model, tenant, actor, d.ModelVersionId); err != nil {
+		return nil, err
+	}
+	return s.createDirect(ctx, d, request, tenant, actor)
+}
+
+func checkInferenceModelReady(ctx context.Context, model InferenceModelClient, tenant, actor, versionID string) error {
+	if model == nil {
+		return status.Error(codes.Unavailable, "MODEL_ADAPTER_UNAVAILABLE")
+	}
+	modelReply, err := model.GetModelVersion(ctx, tenant, actor, &modelv1.GetModelVersionRequest{ModelVersionId: versionID})
 	if err != nil {
 		code := status.Code(err)
 		if code == codes.OK || code == codes.Unknown {
 			code = codes.Unavailable
 		}
-		return nil, status.Error(code, "model readiness check failed")
+		return status.Error(code, "model readiness check failed")
 	}
-	if modelReply == nil || modelReply.Version == nil || modelReply.Version.Id != d.ModelVersionId || !strings.EqualFold(strings.TrimSpace(modelReply.Version.Status), "ready") {
-		return nil, status.Error(codes.FailedPrecondition, "MODEL_NOT_READY")
+	if modelReply == nil || modelReply.Version == nil || modelReply.Version.Id != versionID || !strings.EqualFold(strings.TrimSpace(modelReply.Version.Status), "ready") {
+		return status.Error(codes.FailedPrecondition, "MODEL_NOT_READY")
 	}
-	if request.Resource.GetGpu() == nil {
-		return s.createDirect(ctx, d, request, tenant, actor)
-	}
-	if s == nil || s.acceptance == nil {
-		return nil, quotapb.ErrorQuotaAdapterUnavailable("%s", "inference unavailable")
-	}
-	result, err := s.acceptance.AcceptGpuCreate(ctx, d.IdempotencyKey, inferenceGpuRequest(request.Resource.Gpu), request)
-	if err != nil {
-		return nil, err
-	}
-	return &view.InferenceAcceptance{OperationId: result.OperationID, ResourceId: result.ResourceID, Replayed: result.Replayed, Result: "ACCEPTED", DispatchOperationId: result.OperationID}, nil
+	return nil
 }
 
 func (s *InferenceService) buildCreateRequest(d *view.CreateInferenceData) (*inferencev1.CreateInferenceServiceRequest, error) {
@@ -339,7 +368,18 @@ func (s *InferenceService) DeleteInference(ctx context.Context, in *view.DeleteI
 	if in == nil || in.Data == nil {
 		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "inference data is required")
 	}
-	if s != nil && s.owner != nil && s.tenants != nil {
+	managedGPU := false
+	principal, _ := auth.PrincipalFromContext(ctx)
+	// API Key commands retain the trusted CPU owner path. GPU deletion remains
+	// subject to GpuAcceptance's tenant-user authorization below.
+	if s != nil && s.acceptance != nil && (principal == nil || principal.Type != auth.SubjectAPIKey) {
+		var err error
+		managedGPU, err = s.acceptance.HasGpuCreate(ctx, in.Data.ResourceId)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if !managedGPU && s != nil && s.owner != nil && s.tenants != nil {
 		if trusted, ok := s.owner.(interface {
 			GetTrusted(context.Context, string, string, *inferencev1.GetInferenceServiceRequest) (*inferencev1.InferenceService, error)
 		}); ok {

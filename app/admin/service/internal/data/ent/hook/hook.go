@@ -20,6 +20,18 @@ func (f AccessKeyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AccessKeyMutation", m)
 }
 
+// The AccessKeyIdempotencyFunc type is an adapter to allow the use of ordinary
+// function as AccessKeyIdempotency mutator.
+type AccessKeyIdempotencyFunc func(context.Context, *ent.AccessKeyIdempotencyMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AccessKeyIdempotencyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AccessKeyIdempotencyMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AccessKeyIdempotencyMutation", m)
+}
+
 // The ApiFunc type is an adapter to allow the use of ordinary
 // function as Api mutator.
 type ApiFunc func(context.Context, *ent.APIMutation) (ent.Value, error)

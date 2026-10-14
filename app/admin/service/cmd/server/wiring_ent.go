@@ -14,6 +14,7 @@ import (
 	"go-wind-admin/app/admin/service/internal/service"
 	"go-wind-admin/pkg/authorizer"
 	"go-wind-admin/pkg/crypto"
+	pagination "go-wind-admin/pkg/localdeps/go-crud/pagination"
 )
 
 // initApp 手写装配整个应用,是唯一后端构建的依赖注入点。
@@ -53,6 +54,12 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
+
+	// 游标分页（/api/v1/admin/users 的 limit+cursor）签名密钥：由同一份 AK/SK 主密钥
+	// 派生，因此所有加载同一密钥文件的副本派生结果一致，A 副本签发的游标可在
+	// B 副本校验。刻意不复用 token 游标密钥（SetTokenSecret）：后者未配置时保留
+	// "接受未签名 token"的兼容语义，不能把新游标的签名要求绑在它上面。
+	pagination.SetCursorSecret(accessKeyCipher.DeriveSubkey("ani-governance/pagination-cursor/v1"))
 
 	redisClient, cleanupRedis, err := data.NewRedisClient(ctx)
 	if err != nil {
@@ -115,6 +122,17 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	// ═══════════════════════ 二、仓储层(internal/data) ═══════════════════════
 
 	// 身份与账号
+	// RBAC:权限 → 角色(聚合权限),Api/Menu 为权限挂载点
+	// 需先于 userRepo 构造：userRepo 按 role_code 解析角色 ID 时依赖 roleRepo。
+	permissionApiRepo := data.NewPermissionApiRepo(ctx, entClient)
+	permissionMenuRepo := data.NewPermissionMenuRepo(ctx, entClient)
+	rolePermissionRepo := data.NewRolePermissionRepo(ctx, entClient)
+	roleOrgUnitRepo := data.NewRoleOrgUnitRepo(ctx, entClient)
+	roleFieldPermissionRepo := data.NewRoleFieldPermissionRepo(ctx, entClient)
+	roleMetadataRepo := data.NewRoleMetadataRepo(ctx, entClient)
+	permissionRepo := data.NewPermissionRepo(ctx, entClient, permissionApiRepo, permissionMenuRepo)
+	roleRepo := data.NewRoleRepo(ctx, entClient, rolePermissionRepo, roleOrgUnitRepo, permissionRepo, roleMetadataRepo, roleFieldPermissionRepo)
+
 	userRoleRepo := data.NewUserRoleRepo(ctx, entClient)
 	userOrgUnitRepo := data.NewUserOrgUnitRepo(ctx, entClient)
 	userPositionRepo := data.NewUserPositionRepo(ctx, entClient)
@@ -122,7 +140,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	membershipPositionRepo := data.NewMembershipPositionRepo(ctx, entClient)
 	membershipOrgUnitRepo := data.NewMembershipOrgUnitRepo(ctx, entClient)
 	membershipRepo := data.NewMembershipRepo(ctx, entClient, membershipRoleRepo, membershipPositionRepo, membershipOrgUnitRepo)
-	userRepo := data.NewUserRepo(ctx, entClient, userRoleRepo, userOrgUnitRepo, userPositionRepo, membershipRepo)
+	userRepo := data.NewUserRepo(ctx, entClient, userRoleRepo, userOrgUnitRepo, userPositionRepo, membershipRepo, roleRepo)
 	configRepo := data.NewConfigRepo(ctx, entClient, redisClient)
 	cleanups = append(cleanups, configRepo.Close)
 	userCredentialRepo := data.NewUserCredentialRepo(ctx, entClient, passwordCrypto, configRepo)
@@ -138,15 +156,8 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	modeldevAcceptanceRepo := data.NewModelDevAcceptanceRepo(entClient)
 	modeldevBindingRepo := data.NewModelDevReleaseBindingRepo(entClient)
 
-	// RBAC:权限 → 角色(聚合权限),Api/Menu 为权限挂载点
-	permissionApiRepo := data.NewPermissionApiRepo(ctx, entClient)
-	permissionMenuRepo := data.NewPermissionMenuRepo(ctx, entClient)
-	rolePermissionRepo := data.NewRolePermissionRepo(ctx, entClient)
-	roleOrgUnitRepo := data.NewRoleOrgUnitRepo(ctx, entClient)
-	roleFieldPermissionRepo := data.NewRoleFieldPermissionRepo(ctx, entClient)
-	roleMetadataRepo := data.NewRoleMetadataRepo(ctx, entClient)
-	permissionRepo := data.NewPermissionRepo(ctx, entClient, permissionApiRepo, permissionMenuRepo)
-	roleRepo := data.NewRoleRepo(ctx, entClient, rolePermissionRepo, roleOrgUnitRepo, permissionRepo, roleMetadataRepo, roleFieldPermissionRepo)
+	// RBAC：permission/role 相关仓储已提前到「身份与账号」段构造
+	// （userRepo 按 role_code 解析角色 ID 依赖 roleRepo）。此处仅补充其余挂载点。
 	permissionGroupRepo := data.NewPermissionGroupRepo(ctx, entClient)
 	apiRepo := data.NewApiRepo(ctx, entClient)
 	menuRepo := data.NewMenuRepo(ctx, entClient)
@@ -205,7 +216,24 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanups = append(cleanups, closeInference)
 		inferenceClient = client
 	}
-	inferenceBinding := service.NewInferenceGpuBinding(inferenceClient, data.NewInferenceAuthorizationRepo(entClient))
+	inferenceBinding := service.NewInferenceGpuBindingWithModel(inferenceClient, data.NewInferenceAuthorizationRepo(entClient), modelClient)
+	instanceOwner, closeInstance, err := data.NewInstanceClientFromEnv()
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	cleanups = append(cleanups, closeInstance)
+	var instanceClient service.InstanceOwnerClient
+	if instanceOwner != nil {
+		instanceClient = instanceOwner
+	}
+	instanceBinding := service.NewInstanceGpuBinding(instanceClient, data.NewInstanceAuthorizationRepo(entClient))
+	if instanceClient != nil && data.InstanceModuleRegistered() {
+		if err = quotaRegistry.Register(instanceBinding); err != nil {
+			rollback()
+			return nil, nil, err
+		}
+	}
 	// A client configuration cannot invent the authoritative module registry.
 	// Historical replay still performs current authorization before reading.
 	if inferenceClient != nil && data.InferenceModuleRegistered() {
@@ -288,6 +316,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	var networkClient service.NetworkTenantClient
+	var platformNetworkClient service.NetworkPlatformClient
 	if networkConfig.Address != "" {
 		client, closeNetwork, err := data.NewNetworkClient(networkConfig)
 		if err != nil {
@@ -296,8 +325,10 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		}
 		cleanups = append(cleanups, closeNetwork)
 		networkClient = client
+		platformNetworkClient = client
 	}
 	networkService := service.NewNetworkService(networkClient, tenantRepo)
+	platformNetworkService := service.NewPlatformNetworkService(platformNetworkClient)
 	imageConfig, err := data.ImageConfigFromEnv()
 	if err != nil {
 		rollback()
@@ -342,6 +373,22 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	inferenceService := service.NewInferenceServiceWithOwnerAndModel(inferenceAcceptance, inferenceClient, tenantRepo, modelClient)
 	modelService := service.NewModelService(modelClient, tenantRepo)
+	instanceAcceptance, err := service.NewGpuAcceptance(quotaLedgerRepo, quotaRegistry, tenantRepo, gpuPlans, instanceBinding, quotaWorker)
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	instanceSession, closeInstanceSession, err := data.NewInstanceSessionClientFromEnv()
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	cleanups = append(cleanups, closeInstanceSession)
+	var instanceSessions service.InstanceSessionClient
+	if instanceSession != nil {
+		instanceSessions = instanceSession
+	}
+	instanceService := service.NewInstanceService(instanceAcceptance, instanceBinding, tenantRepo, quotaLedgerRepo, instanceSessions)
 	modeldevService := service.NewModelDevService(modeldevAuthorizationRepo, tenantRepo, modeldevAcceptanceRepo, modeldevBindingRepo, modeldevClient)
 
 	// ═══════════════════════ 五、传输层(internal/server) ═══════════════════════
@@ -376,11 +423,13 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		accessKeyService,
 		configService,
 		networkService,
+		platformNetworkService,
 		acceleratorService,
 		imageService,
 		modeldevService,
 		inferenceService,
 		modelService,
+		instanceService,
 	)
 	if err != nil {
 		rollback()

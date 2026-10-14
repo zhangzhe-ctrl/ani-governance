@@ -456,6 +456,8 @@ func (m *ListUserResponse) validate(all bool) error {
 
 	// no validation rules for Total
 
+	// no validation rules for NextCursor
+
 	if len(errors) > 0 {
 		return ListUserResponseMultiError(errors)
 	}

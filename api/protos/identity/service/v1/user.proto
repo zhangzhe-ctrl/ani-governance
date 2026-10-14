@@ -219,6 +219,9 @@ message ListUserResponse {
   ];
 
   uint64 total = 2;
+
+  // 下一页游标：有下一页时返回，末页为空。客户端原样回传，不得解析或修改。
+  string next_cursor = 3 [json_name = "next_cursor"];
 }
 
 // 获取用户数据 - 请求

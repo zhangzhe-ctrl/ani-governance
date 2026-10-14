@@ -51,7 +51,7 @@ func NewInferenceClient(c InferenceClientConfig) (*InferenceClient, func(), erro
 		return nil, nil, errors.New("inference client certificate unavailable")
 	}
 	leaf, err := x509.ParseCertificate(certificate.Certificate[0])
-	if err != nil || !inferenceGovernanceCertificate(leaf) {
+	if err != nil || !governanceClientCertificate(leaf) {
 		return nil, nil, errors.New("inference client requires the registered Governance DNS identity")
 	}
 	pem, err := os.ReadFile(c.CAFile)
@@ -67,12 +67,10 @@ func NewInferenceClient(c InferenceClientConfig) (*InferenceClient, func(), erro
 			if len(state.VerifiedChains) == 0 || len(state.PeerCertificates) == 0 {
 				return errors.New("unverified inference server identity")
 			}
-			for _, name := range state.PeerCertificates[0].DNSNames {
-				if name == c.ServerName {
-					return nil
-				}
+			if !hasExactDNSName(state.PeerCertificates[0], c.ServerName) {
+				return errors.New("inference server exact DNS SAN mismatch")
 			}
-			return errors.New("inference server exact DNS SAN mismatch")
+			return nil
 		},
 	}
 	connection, err := grpc.NewClient(c.Address, grpc.WithDisableServiceConfig(), grpc.WithDisableRetry(), grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
@@ -104,13 +102,6 @@ type InferenceTrustedOwnerClient interface {
 	GetTrusted(context.Context, string, string, *inferencev1.GetInferenceServiceRequest) (*inferencev1.InferenceService, error)
 	ListTrusted(context.Context, string, string, *inferencev1.ListInferenceServicesRequest) (*inferencev1.ListInferenceServicesResponse, error)
 	GetOperationTrusted(context.Context, string, string, *inferencev1.GetOperationRequest) (*inferencev1.Operation, error)
-}
-
-func inferenceGovernanceCertificate(cert *x509.Certificate) bool {
-	if cert == nil || len(cert.DNSNames) != 1 {
-		return false
-	}
-	return cert.DNSNames[0] == "ani-governance.ani.internal" || cert.DNSNames[0] == "ani-governance"
 }
 
 func validInferenceIdentity(tenant, actor string) bool {

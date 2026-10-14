@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// AccessKey is the client for interacting with the AccessKey builders.
 	AccessKey *AccessKeyClient
+	// AccessKeyIdempotency is the client for interacting with the AccessKeyIdempotency builders.
+	AccessKeyIdempotency *AccessKeyIdempotencyClient
 	// Api is the client for interacting with the Api builders.
 	Api *APIClient
 	// ApiAuditLog is the client for interacting with the ApiAuditLog builders.
@@ -254,6 +256,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.AccessKey = NewAccessKeyClient(tx.config)
+	tx.AccessKeyIdempotency = NewAccessKeyIdempotencyClient(tx.config)
 	tx.Api = NewAPIClient(tx.config)
 	tx.ApiAuditLog = NewApiAuditLogClient(tx.config)
 	tx.DataAccessAuditLog = NewDataAccessAuditLogClient(tx.config)

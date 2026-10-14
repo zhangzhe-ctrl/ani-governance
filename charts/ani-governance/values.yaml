@@ -108,6 +108,6 @@ certificate:
     kind: ClusterIssuer
   secretName: governance-client-tls
   dnsNames:
-    - ani-governance.ani.internal
+    - ani-governance
   duration: 72h
   renewBefore: 24h

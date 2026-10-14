@@ -188,9 +188,14 @@ helm upgrade --install ani-governance charts/ani-governance \
 ```
 
 `certificate.enabled=true` 会在 `ani-system` 请求 DNS SAN 为
-`ani-governance.ani.internal` 的 Gov 客户端证书；Model 和 Inference Chart 分别创建服务端证书。
+`ani-governance` 的 Gov 客户端证书，不混入其他 DNS、URI、IP 或 email SAN；Model 和 Inference
+接收端必须登记该客户端身份和允许的 RPC，双方身份兼容需要独立联调验收。服务端证书的字面 DNS SAN
+必须匹配各自受管的 `serverName`。
 服务端与客户端都要求 TLS 1.3 和 mTLS。没有完整证书配置时，客户端保持关闭或服务启动失败，不能
 退化成明文连接。
+
+Accelerator 的存量客户端仍使用独立 URI 身份，启用时应通过
+`downstream.accelerator.clientCertificateSecret` 指定其证书 Secret，不能复用上面的 DNS 证书。
 
 Gov 的 Model BFF 负责模型、模型版本、ModelScope 导入任务和任务查询；Inference BFF 负责
 CPU/KServe 服务的创建、查询、列表、操作查询和删除。请求中的 tenant/actor 不会透传为权限
