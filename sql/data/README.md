@@ -21,3 +21,9 @@ no implicit grants, reader/publisher separation, revocation and module denial.
 `POST /api/v1/models:search-external` catalog row after the Model BFF has been
 synced. It keeps the row for audit history and marks it `OFF`; the active
 search endpoint is `GET /api/v1/models:search`.
+
+Run `20261015_retire_legacy_model_inference_manage_links.sql` before the
+explicit Model/Inference permission registration scripts when upgrading an
+installation that still has the old umbrella `*:service:manage` API links.
+It removes only those stale API relations and leaves permission points,
+roles, plans and quotas unchanged.
