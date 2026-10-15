@@ -1669,6 +1669,9 @@ Governance 原 CREATE，再执行原本地取消或持久 DELETE 流程；未投
 | 创建推理 | `POST /api/v1/inference/services` | `inference:service:create` |
 | 推理查询 | `GET /api/v1/inference/services`、`GET /api/v1/inference/services/{resource_id}`、`GET /api/v1/inference/operations/{operation_id}` | `inference:service:read` |
 | 删除推理 | `POST /api/v1/inference/services/{data.resource_id}:delete` | `inference:service:delete` |
+| 更新推理 | `POST /api/v1/inference/services/{data.resource_id}:update` | `inference:service:update` |
+| 启停/重启推理 | `POST /api/v1/inference/services/{data.resource_id}:start`、`:stop`、`:restart` | 对应 `inference:service:start`、`inference:service:stop`、`inference:service:restart` |
+| 推理操作记录 | `GET /api/v1/inference/services/{resource_id}/operations` | `inference:service:read` |
 
 请求体沿用各自 `data` 公开报文。推理创建使用 `engine_type`、`engine_image`、
 完整的单字符串 `command` 和 `served_model_name`；不再有 `engine.command[]` 或

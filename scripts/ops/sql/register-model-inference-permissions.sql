@@ -32,7 +32,12 @@ BEGIN
       ('GET',  '/api/v1/inference/services/{resource_id}',            'inference:service:read',   'INFERENCE'),
       ('GET',  '/api/v1/inference/operations/{operation_id}',         'inference:service:read',   'INFERENCE'),
       ('POST', '/api/v1/inference/services',                          'inference:service:create', 'INFERENCE'),
-      ('POST', '/api/v1/inference/services/{data.resource_id}:delete','inference:service:delete', 'INFERENCE')
+      ('POST', '/api/v1/inference/services/{data.resource_id}:delete','inference:service:delete', 'INFERENCE'),
+      ('POST', '/api/v1/inference/services/{data.resource_id}:update','inference:service:update', 'INFERENCE'),
+      ('POST', '/api/v1/inference/services/{data.resource_id}:start', 'inference:service:start',  'INFERENCE'),
+      ('POST', '/api/v1/inference/services/{data.resource_id}:stop',  'inference:service:stop',   'INFERENCE'),
+      ('POST', '/api/v1/inference/services/{data.resource_id}:restart','inference:service:restart','INFERENCE'),
+      ('GET',  '/api/v1/inference/services/{resource_id}/operations', 'inference:service:read',   'INFERENCE')
     ) AS routes(method, path, permission_code, business_module)
   LOOP
     SELECT a.id INTO STRICT v_api_id
