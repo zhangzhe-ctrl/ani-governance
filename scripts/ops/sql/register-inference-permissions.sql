@@ -6,6 +6,9 @@ DO $$
 DECLARE r record; aid bigint; pid bigint; route_count bigint;
 BEGIN
  FOR r IN SELECT * FROM (VALUES
+  ('GET','/api/v1/inference/services','inference:service:read'),
+  ('GET','/api/v1/inference/services/{resource_id}','inference:service:read'),
+  ('GET','/api/v1/inference/operations/{operation_id}','inference:service:read'),
   ('POST','/api/v1/inference/services','inference:service:create'),
   ('POST','/api/v1/inference/services/{data.resource_id}:delete','inference:service:delete'),
   ('POST','/api/v1/inference/services/{data.resource_id}:update','inference:service:update'),
