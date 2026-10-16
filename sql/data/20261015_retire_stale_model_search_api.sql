@@ -1,5 +1,5 @@
 -- Retire the pre-search API catalog entry that is no longer exposed by the
--- Model BFF. The current endpoint is GET /api/v1/models:search.
+-- Model BFF. The current endpoint is GET /api/v1/models/search.
 --
 -- Run once with the migration/operator identity after the API catalog sync:
 --   psql "$DSN" -v ON_ERROR_STOP=1 \

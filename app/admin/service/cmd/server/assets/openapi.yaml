@@ -7952,15 +7952,6 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: page.limit
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: page.cursor
-                  in: query
-                  schema:
-                    type: string
                 - name: keyword
                   in: query
                   schema:
@@ -7973,6 +7964,16 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK
@@ -8039,6 +8040,49 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/RetryImportTaskResponse'
+    /api/v1/models/search:
+        get:
+            tags:
+                - ModelService
+            operationId: ModelService_SearchExternalModels
+            parameters:
+                - name: source
+                  in: query
+                  schema:
+                    type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: owner
+                  in: query
+                  schema:
+                    type: string
+                - name: task
+                  in: query
+                  schema:
+                    type: string
+                - name: library
+                  in: query
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SearchExternalModelsResponse'
     /api/v1/models/{model_id}:
         get:
             tags:
@@ -8106,15 +8150,16 @@ paths:
                   required: true
                   schema:
                     type: string
-                - name: page.limit
+                - name: page
                   in: query
                   schema:
                     type: integer
                     format: int32
-                - name: page.cursor
+                - name: pageSize
                   in: query
                   schema:
-                    type: string
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK
@@ -8140,48 +8185,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ImportModelResponse'
-    /api/v1/models:search:
-        get:
-            tags:
-                - ModelService
-            operationId: ModelService_SearchExternalModels
-            parameters:
-                - name: source
-                  in: query
-                  schema:
-                    type: string
-                - name: keyword
-                  in: query
-                  schema:
-                    type: string
-                - name: owner
-                  in: query
-                  schema:
-                    type: string
-                - name: task
-                  in: query
-                  schema:
-                    type: string
-                - name: library
-                  in: query
-                  schema:
-                    type: string
-                - name: page.limit
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: page.cursor
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/SearchExternalModelsResponse'
     /api/v1/networks/eips:
         get:
             tags:
@@ -10830,13 +10833,6 @@ components:
                     type: string
                     description: 绑定当前逻辑会话的 CSRF 证明，写请求时放入 X-CSRF-Token 头；不含身份授权
             description: 获取 CSRF 证明 - 回应
-        CursorPageMeta:
-            type: object
-            properties:
-                next_cursor:
-                    type: string
-                has_more:
-                    type: boolean
         DashboardOverviewResponse:
             type: object
             properties:
@@ -12985,21 +12981,21 @@ components:
         ListModelVersionsResponse:
             type: object
             properties:
-                versions:
+                items:
                     type: array
                     items:
                         $ref: '#/components/schemas/ModelVersion'
-                meta:
-                    $ref: '#/components/schemas/CursorPageMeta'
+                total:
+                    type: string
         ListModelsResponse:
             type: object
             properties:
-                models:
+                items:
                     type: array
                     items:
                         $ref: '#/components/schemas/Model'
-                meta:
-                    $ref: '#/components/schemas/CursorPageMeta'
+                total:
+                    type: string
         ListNodeInterfacesResponse:
             type: object
             properties:
@@ -16206,12 +16202,12 @@ components:
         SearchExternalModelsResponse:
             type: object
             properties:
-                candidates:
+                items:
                     type: array
                     items:
                         $ref: '#/components/schemas/ExternalModelCandidate'
-                meta:
-                    $ref: '#/components/schemas/CursorPageMeta'
+                hasMore:
+                    type: boolean
         SecurityRequirement:
             type: object
             properties:

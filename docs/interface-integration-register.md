@@ -1660,12 +1660,14 @@ Governance 原 CREATE，再执行原本地取消或持久 DELETE 流程；未投
 | 业务 | 方法与路径 | 权限 |
 |---|---|---|
 | 模型列表/详情 | `GET /api/v1/models`、`GET /api/v1/models/{model_id}` | `model:service:read` |
-| 外部模型搜索 | `GET /api/v1/models:search` | `model:service:read` |
+| 外部模型搜索 | `GET /api/v1/models/search` | `model:service:read` |
 | 模型版本 | `GET /api/v1/models/{model_id}/versions`、`GET /api/v1/model-versions/{model_version_id}` | `model:service:read` |
 | 导入任务查询 | `GET /api/v1/models/import-tasks/{task_id}` | `model:service:read` |
 | 模型下载地址 | `GET /api/v1/model-versions/{model_version_id}/download-url` | `model:service:read`（由 Governance 通过受信任的 Model gRPC 调用） |
 | 创建模型/版本、上传地址、发起导入、重试 | `POST /api/v1/models`、`POST /api/v1/model-versions`、`POST /api/v1/models/{model_id}/upload-url`、`POST /api/v1/models:import`、`POST /api/v1/models/import-tasks/{task_id}:retry` | `model:service:manage` |
 | 删除模型/版本 | `DELETE /api/v1/models/{model_id}`、`DELETE /api/v1/model-versions/{model_version_id}` | `model:service:manage` |
+
+Model 列表、外部模型搜索和模型版本列表统一使用 `page`、`pageSize`。模型列表和版本列表返回 `items`、`total`；外部模型搜索因 ModelScope/Hugging Face 不保证可用总数，返回 `items`、`hasMore`，不返回 `total`。
 | 创建推理 | `POST /api/v1/inference/services` | `inference:service:create` |
 | 推理查询 | `GET /api/v1/inference/services`、`GET /api/v1/inference/services/{resource_id}`、`GET /api/v1/inference/operations/{operation_id}` | `inference:service:read` |
 | 删除推理 | `POST /api/v1/inference/services/{data.resource_id}:delete` | `inference:service:delete` |

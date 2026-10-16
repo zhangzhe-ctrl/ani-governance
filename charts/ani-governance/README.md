@@ -134,7 +134,7 @@ kubectl config current-context
 kubectl get nodes
 ```
 
-先确认三个业务镜像已经推送到当前集群可访问的镜像仓库，并使用不可变摘要或明确标签：
+先确认三个业务镜像已经推送到当前集群可访问的镜像仓库，并使用明确 tag：
 
 ```bash
 helm lint charts/ani-governance \
@@ -144,14 +144,13 @@ helm lint charts/ani-governance \
 
 helm upgrade --install ani-governance charts/ani-governance \
   --namespace ani-system --create-namespace \
-  --set-string image.digest=sha256:6153868f5e3f16e79026f7050a13aaebd6a265c3fe5bde4eb6a6cc1d11d83133 \
-  --set-string adminImage.digest=sha256:2bc561fbb3d7eb5d857492c3b42d80aa9aa08f0b22a8649292b321d47591dcc8 \
-  --set-string atlasImage.digest=sha256:8a53d310007316dd33a6a3382887af5b3be5a18651bf1bcb5a43152c4ed0ced2 \
+  --set-string image.tag=<server-tag> \
+  --set-string adminImage.tag=<admin-tag> \
+  --set-string atlasImage.tag=<atlas-tag> \
   --wait --timeout 15m
 ```
 
-上面的摘要是本次新集群验证使用的镜像；换版本时必须同时替换三个摘要。也可以使用明确的
-镜像 tag，但不能省略 `image`、`adminImage` 和 `atlasImage` 的版本。
+三个镜像都必须传入明确 tag，不能省略 `image`、`adminImage` 和 `atlasImage` 的版本。
 
 Helm 会按以下顺序执行：
 

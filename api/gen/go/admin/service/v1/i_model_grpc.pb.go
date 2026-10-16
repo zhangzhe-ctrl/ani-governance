@@ -22,9 +22,9 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ModelService_CreateModel_FullMethodName          = "/admin.service.v1.ModelService/CreateModel"
+	ModelService_SearchExternalModels_FullMethodName = "/admin.service.v1.ModelService/SearchExternalModels"
 	ModelService_GetModel_FullMethodName             = "/admin.service.v1.ModelService/GetModel"
 	ModelService_ListModels_FullMethodName           = "/admin.service.v1.ModelService/ListModels"
-	ModelService_SearchExternalModels_FullMethodName = "/admin.service.v1.ModelService/SearchExternalModels"
 	ModelService_DeleteModel_FullMethodName          = "/admin.service.v1.ModelService/DeleteModel"
 	ModelService_CreateModelVersion_FullMethodName   = "/admin.service.v1.ModelService/CreateModelVersion"
 	ModelService_GetModelVersion_FullMethodName      = "/admin.service.v1.ModelService/GetModelVersion"
@@ -46,9 +46,9 @@ const (
 // accepted in the public DTOs.
 type ModelServiceClient interface {
 	CreateModel(ctx context.Context, in *v1.CreateModelRequest, opts ...grpc.CallOption) (*v1.CreateModelResponse, error)
+	SearchExternalModels(ctx context.Context, in *v1.SearchExternalModelsRequest, opts ...grpc.CallOption) (*v1.SearchExternalModelsResponse, error)
 	GetModel(ctx context.Context, in *v1.GetModelRequest, opts ...grpc.CallOption) (*v1.GetModelResponse, error)
 	ListModels(ctx context.Context, in *v1.ListModelsRequest, opts ...grpc.CallOption) (*v1.ListModelsResponse, error)
-	SearchExternalModels(ctx context.Context, in *v1.SearchExternalModelsRequest, opts ...grpc.CallOption) (*v1.SearchExternalModelsResponse, error)
 	DeleteModel(ctx context.Context, in *v1.DeleteModelRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateModelVersion(ctx context.Context, in *v1.CreateModelVersionRequest, opts ...grpc.CallOption) (*v1.CreateModelVersionResponse, error)
 	GetModelVersion(ctx context.Context, in *v1.GetModelVersionRequest, opts ...grpc.CallOption) (*v1.GetModelVersionResponse, error)
@@ -79,6 +79,16 @@ func (c *modelServiceClient) CreateModel(ctx context.Context, in *v1.CreateModel
 	return out, nil
 }
 
+func (c *modelServiceClient) SearchExternalModels(ctx context.Context, in *v1.SearchExternalModelsRequest, opts ...grpc.CallOption) (*v1.SearchExternalModelsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.SearchExternalModelsResponse)
+	err := c.cc.Invoke(ctx, ModelService_SearchExternalModels_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *modelServiceClient) GetModel(ctx context.Context, in *v1.GetModelRequest, opts ...grpc.CallOption) (*v1.GetModelResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(v1.GetModelResponse)
@@ -93,16 +103,6 @@ func (c *modelServiceClient) ListModels(ctx context.Context, in *v1.ListModelsRe
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(v1.ListModelsResponse)
 	err := c.cc.Invoke(ctx, ModelService_ListModels_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *modelServiceClient) SearchExternalModels(ctx context.Context, in *v1.SearchExternalModelsRequest, opts ...grpc.CallOption) (*v1.SearchExternalModelsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.SearchExternalModelsResponse)
-	err := c.cc.Invoke(ctx, ModelService_SearchExternalModels_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -218,9 +218,9 @@ func (c *modelServiceClient) GetModelDownloadURL(ctx context.Context, in *v1.Get
 // accepted in the public DTOs.
 type ModelServiceServer interface {
 	CreateModel(context.Context, *v1.CreateModelRequest) (*v1.CreateModelResponse, error)
+	SearchExternalModels(context.Context, *v1.SearchExternalModelsRequest) (*v1.SearchExternalModelsResponse, error)
 	GetModel(context.Context, *v1.GetModelRequest) (*v1.GetModelResponse, error)
 	ListModels(context.Context, *v1.ListModelsRequest) (*v1.ListModelsResponse, error)
-	SearchExternalModels(context.Context, *v1.SearchExternalModelsRequest) (*v1.SearchExternalModelsResponse, error)
 	DeleteModel(context.Context, *v1.DeleteModelRequest) (*emptypb.Empty, error)
 	CreateModelVersion(context.Context, *v1.CreateModelVersionRequest) (*v1.CreateModelVersionResponse, error)
 	GetModelVersion(context.Context, *v1.GetModelVersionRequest) (*v1.GetModelVersionResponse, error)
@@ -244,14 +244,14 @@ type UnimplementedModelServiceServer struct{}
 func (UnimplementedModelServiceServer) CreateModel(context.Context, *v1.CreateModelRequest) (*v1.CreateModelResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateModel not implemented")
 }
+func (UnimplementedModelServiceServer) SearchExternalModels(context.Context, *v1.SearchExternalModelsRequest) (*v1.SearchExternalModelsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SearchExternalModels not implemented")
+}
 func (UnimplementedModelServiceServer) GetModel(context.Context, *v1.GetModelRequest) (*v1.GetModelResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetModel not implemented")
 }
 func (UnimplementedModelServiceServer) ListModels(context.Context, *v1.ListModelsRequest) (*v1.ListModelsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListModels not implemented")
-}
-func (UnimplementedModelServiceServer) SearchExternalModels(context.Context, *v1.SearchExternalModelsRequest) (*v1.SearchExternalModelsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method SearchExternalModels not implemented")
 }
 func (UnimplementedModelServiceServer) DeleteModel(context.Context, *v1.DeleteModelRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteModel not implemented")
@@ -322,6 +322,24 @@ func _ModelService_CreateModel_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ModelService_SearchExternalModels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.SearchExternalModelsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelServiceServer).SearchExternalModels(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelService_SearchExternalModels_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelServiceServer).SearchExternalModels(ctx, req.(*v1.SearchExternalModelsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ModelService_GetModel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(v1.GetModelRequest)
 	if err := dec(in); err != nil {
@@ -354,24 +372,6 @@ func _ModelService_ListModels_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ModelServiceServer).ListModels(ctx, req.(*v1.ListModelsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ModelService_SearchExternalModels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v1.SearchExternalModelsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ModelServiceServer).SearchExternalModels(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ModelService_SearchExternalModels_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ModelServiceServer).SearchExternalModels(ctx, req.(*v1.SearchExternalModelsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -568,16 +568,16 @@ var ModelService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ModelService_CreateModel_Handler,
 		},
 		{
+			MethodName: "SearchExternalModels",
+			Handler:    _ModelService_SearchExternalModels_Handler,
+		},
+		{
 			MethodName: "GetModel",
 			Handler:    _ModelService_GetModel_Handler,
 		},
 		{
 			MethodName: "ListModels",
 			Handler:    _ModelService_ListModels_Handler,
-		},
-		{
-			MethodName: "SearchExternalModels",
-			Handler:    _ModelService_SearchExternalModels_Handler,
 		},
 		{
 			MethodName: "DeleteModel",

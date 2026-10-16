@@ -20,7 +20,13 @@ no implicit grants, reader/publisher separation, revocation and module denial.
 `20261015_retire_stale_model_search_api.sql` retires the historical
 `POST /api/v1/models:search-external` catalog row after the Model BFF has been
 synced. It keeps the row for audit history and marks it `OFF`; the active
-search endpoint is `GET /api/v1/models:search`.
+search endpoint is `GET /api/v1/models/search`.
+
+`20261016_retire_colon_model_search_api.sql` disables the historical
+`GET /api/v1/models:search` catalog row after the new `GET /api/v1/models/search`
+route has been synchronized. Run it before the explicit Model/Inference
+permission registration script; it changes no permissions, roles, plans,
+tenants or quotas.
 
 Run `20261015_retire_legacy_model_inference_manage_links.sql` before the
 explicit Model/Inference permission registration scripts when upgrading an

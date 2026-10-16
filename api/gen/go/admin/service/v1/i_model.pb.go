@@ -29,11 +29,11 @@ const file_admin_service_v1_i_model_proto_rawDesc = "" +
 	"\n" +
 	"\x1eadmin/service/v1/i_model.proto\x12\x10admin.service.v1\x1a\x1ecatalog/service/v1/model.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto2\xfa\x0f\n" +
 	"\fModelService\x12y\n" +
-	"\vCreateModel\x12&.catalog.service.v1.CreateModelRequest\x1a'.catalog.service.v1.CreateModelResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/api/v1/models\x12x\n" +
+	"\vCreateModel\x12&.catalog.service.v1.CreateModelRequest\x1a'.catalog.service.v1.CreateModelResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/api/v1/models\x12\x98\x01\n" +
+	"\x14SearchExternalModels\x12/.catalog.service.v1.SearchExternalModelsRequest\x1a0.catalog.service.v1.SearchExternalModelsResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/models/search\x12x\n" +
 	"\bGetModel\x12#.catalog.service.v1.GetModelRequest\x1a$.catalog.service.v1.GetModelResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/models/{model_id}\x12s\n" +
 	"\n" +
-	"ListModels\x12%.catalog.service.v1.ListModelsRequest\x1a&.catalog.service.v1.ListModelsResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/api/v1/models\x12\x98\x01\n" +
-	"\x14SearchExternalModels\x12/.catalog.service.v1.SearchExternalModelsRequest\x1a0.catalog.service.v1.SearchExternalModelsResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/models:search\x12p\n" +
+	"ListModels\x12%.catalog.service.v1.ListModelsRequest\x1a&.catalog.service.v1.ListModelsResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/api/v1/models\x12p\n" +
 	"\vDeleteModel\x12&.catalog.service.v1.DeleteModelRequest\x1a\x16.google.protobuf.Empty\"!\x82\xd3\xe4\x93\x02\x1b*\x19/api/v1/models/{model_id}\x12\x96\x01\n" +
 	"\x12CreateModelVersion\x12-.catalog.service.v1.CreateModelVersionRequest\x1a..catalog.service.v1.CreateModelVersionResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/v1/model-versions\x12\x9d\x01\n" +
 	"\x0fGetModelVersion\x12*.catalog.service.v1.GetModelVersionRequest\x1a+.catalog.service.v1.GetModelVersionResponse\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/model-versions/{model_version_id}\x12\x9c\x01\n" +
@@ -48,9 +48,9 @@ const file_admin_service_v1_i_model_proto_rawDesc = "" +
 
 var file_admin_service_v1_i_model_proto_goTypes = []any{
 	(*v1.CreateModelRequest)(nil),           // 0: catalog.service.v1.CreateModelRequest
-	(*v1.GetModelRequest)(nil),              // 1: catalog.service.v1.GetModelRequest
-	(*v1.ListModelsRequest)(nil),            // 2: catalog.service.v1.ListModelsRequest
-	(*v1.SearchExternalModelsRequest)(nil),  // 3: catalog.service.v1.SearchExternalModelsRequest
+	(*v1.SearchExternalModelsRequest)(nil),  // 1: catalog.service.v1.SearchExternalModelsRequest
+	(*v1.GetModelRequest)(nil),              // 2: catalog.service.v1.GetModelRequest
+	(*v1.ListModelsRequest)(nil),            // 3: catalog.service.v1.ListModelsRequest
 	(*v1.DeleteModelRequest)(nil),           // 4: catalog.service.v1.DeleteModelRequest
 	(*v1.CreateModelVersionRequest)(nil),    // 5: catalog.service.v1.CreateModelVersionRequest
 	(*v1.GetModelVersionRequest)(nil),       // 6: catalog.service.v1.GetModelVersionRequest
@@ -62,9 +62,9 @@ var file_admin_service_v1_i_model_proto_goTypes = []any{
 	(*v1.RetryImportTaskRequest)(nil),       // 12: catalog.service.v1.RetryImportTaskRequest
 	(*v1.GetModelDownloadURLRequest)(nil),   // 13: catalog.service.v1.GetModelDownloadURLRequest
 	(*v1.CreateModelResponse)(nil),          // 14: catalog.service.v1.CreateModelResponse
-	(*v1.GetModelResponse)(nil),             // 15: catalog.service.v1.GetModelResponse
-	(*v1.ListModelsResponse)(nil),           // 16: catalog.service.v1.ListModelsResponse
-	(*v1.SearchExternalModelsResponse)(nil), // 17: catalog.service.v1.SearchExternalModelsResponse
+	(*v1.SearchExternalModelsResponse)(nil), // 15: catalog.service.v1.SearchExternalModelsResponse
+	(*v1.GetModelResponse)(nil),             // 16: catalog.service.v1.GetModelResponse
+	(*v1.ListModelsResponse)(nil),           // 17: catalog.service.v1.ListModelsResponse
 	(*emptypb.Empty)(nil),                   // 18: google.protobuf.Empty
 	(*v1.CreateModelVersionResponse)(nil),   // 19: catalog.service.v1.CreateModelVersionResponse
 	(*v1.GetModelVersionResponse)(nil),      // 20: catalog.service.v1.GetModelVersionResponse
@@ -77,9 +77,9 @@ var file_admin_service_v1_i_model_proto_goTypes = []any{
 }
 var file_admin_service_v1_i_model_proto_depIdxs = []int32{
 	0,  // 0: admin.service.v1.ModelService.CreateModel:input_type -> catalog.service.v1.CreateModelRequest
-	1,  // 1: admin.service.v1.ModelService.GetModel:input_type -> catalog.service.v1.GetModelRequest
-	2,  // 2: admin.service.v1.ModelService.ListModels:input_type -> catalog.service.v1.ListModelsRequest
-	3,  // 3: admin.service.v1.ModelService.SearchExternalModels:input_type -> catalog.service.v1.SearchExternalModelsRequest
+	1,  // 1: admin.service.v1.ModelService.SearchExternalModels:input_type -> catalog.service.v1.SearchExternalModelsRequest
+	2,  // 2: admin.service.v1.ModelService.GetModel:input_type -> catalog.service.v1.GetModelRequest
+	3,  // 3: admin.service.v1.ModelService.ListModels:input_type -> catalog.service.v1.ListModelsRequest
 	4,  // 4: admin.service.v1.ModelService.DeleteModel:input_type -> catalog.service.v1.DeleteModelRequest
 	5,  // 5: admin.service.v1.ModelService.CreateModelVersion:input_type -> catalog.service.v1.CreateModelVersionRequest
 	6,  // 6: admin.service.v1.ModelService.GetModelVersion:input_type -> catalog.service.v1.GetModelVersionRequest
@@ -91,9 +91,9 @@ var file_admin_service_v1_i_model_proto_depIdxs = []int32{
 	12, // 12: admin.service.v1.ModelService.RetryImportTask:input_type -> catalog.service.v1.RetryImportTaskRequest
 	13, // 13: admin.service.v1.ModelService.GetModelDownloadURL:input_type -> catalog.service.v1.GetModelDownloadURLRequest
 	14, // 14: admin.service.v1.ModelService.CreateModel:output_type -> catalog.service.v1.CreateModelResponse
-	15, // 15: admin.service.v1.ModelService.GetModel:output_type -> catalog.service.v1.GetModelResponse
-	16, // 16: admin.service.v1.ModelService.ListModels:output_type -> catalog.service.v1.ListModelsResponse
-	17, // 17: admin.service.v1.ModelService.SearchExternalModels:output_type -> catalog.service.v1.SearchExternalModelsResponse
+	15, // 15: admin.service.v1.ModelService.SearchExternalModels:output_type -> catalog.service.v1.SearchExternalModelsResponse
+	16, // 16: admin.service.v1.ModelService.GetModel:output_type -> catalog.service.v1.GetModelResponse
+	17, // 17: admin.service.v1.ModelService.ListModels:output_type -> catalog.service.v1.ListModelsResponse
 	18, // 18: admin.service.v1.ModelService.DeleteModel:output_type -> google.protobuf.Empty
 	19, // 19: admin.service.v1.ModelService.CreateModelVersion:output_type -> catalog.service.v1.CreateModelVersionResponse
 	20, // 20: admin.service.v1.ModelService.GetModelVersion:output_type -> catalog.service.v1.GetModelVersionResponse

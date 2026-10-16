@@ -12,14 +12,14 @@ service ModelService {
   rpc CreateModel(catalog.service.v1.CreateModelRequest) returns (catalog.service.v1.CreateModelResponse) {
     option (google.api.http) = { post: "/api/v1/models" body: "*" };
   }
+  rpc SearchExternalModels(catalog.service.v1.SearchExternalModelsRequest) returns (catalog.service.v1.SearchExternalModelsResponse) {
+    option (google.api.http) = { get: "/api/v1/models/search" };
+  }
   rpc GetModel(catalog.service.v1.GetModelRequest) returns (catalog.service.v1.GetModelResponse) {
     option (google.api.http) = { get: "/api/v1/models/{model_id}" };
   }
   rpc ListModels(catalog.service.v1.ListModelsRequest) returns (catalog.service.v1.ListModelsResponse) {
     option (google.api.http) = { get: "/api/v1/models" };
-  }
-  rpc SearchExternalModels(catalog.service.v1.SearchExternalModelsRequest) returns (catalog.service.v1.SearchExternalModelsResponse) {
-    option (google.api.http) = { get: "/api/v1/models:search" };
   }
   rpc DeleteModel(catalog.service.v1.DeleteModelRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = { delete: "/api/v1/models/{model_id}" };

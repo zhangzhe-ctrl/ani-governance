@@ -16,7 +16,7 @@ BEGIN
     SELECT * FROM (VALUES
       ('GET',  '/api/v1/models',                                      'model:service:read',   'MODEL'),
       ('GET',  '/api/v1/models/{model_id}',                           'model:service:read',   'MODEL'),
-      ('GET',  '/api/v1/models:search',                               'model:service:read',   'MODEL'),
+      ('GET',  '/api/v1/models/search',                                'model:service:read',   'MODEL'),
       ('GET',  '/api/v1/models/{model_id}/versions',                  'model:service:read',   'MODEL'),
       ('GET',  '/api/v1/model-versions/{model_version_id}',           'model:service:read',   'MODEL'),
       ('GET',  '/api/v1/model-versions/{model_version_id}/download-url','model:service:read',   'MODEL'),

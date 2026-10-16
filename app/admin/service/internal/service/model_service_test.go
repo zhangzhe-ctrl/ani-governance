@@ -7,6 +7,7 @@ import (
 	modelv1 "github.com/liangzai006/ani-model-service/api/model/v1"
 	catalogv1 "go-wind-admin/api/gen/go/catalog/service/v1"
 	"go-wind-admin/pkg/middleware/auth"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -59,15 +60,23 @@ func (*modelOwnerProbe) GetModelDownloadURL(context.Context, string, string, *mo
 
 type modelOwnerExtraProbe struct {
 	modelOwnerProbe
+	list     func(context.Context, string, string, *modelv1.ListModelsRequest) (*modelv1.ListModelsResponse, error)
 	search   func(context.Context, string, string, *modelv1.SearchExternalModelsRequest) (*modelv1.SearchExternalModelsResponse, error)
+	listVers func(context.Context, string, string, *modelv1.ListModelVersionsRequest) (*modelv1.ListModelVersionsResponse, error)
 	delete   func(context.Context, string, string, *modelv1.DeleteModelRequest) (*emptypb.Empty, error)
 	version  func(context.Context, string, string, *modelv1.DeleteModelVersionRequest) (*modelv1.DeleteModelVersionResponse, error)
 	upload   func(context.Context, string, string, *modelv1.GetUploadURLRequest) (*modelv1.GetUploadURLResponse, error)
 	download func(context.Context, string, string, *modelv1.GetModelDownloadURLRequest) (*modelv1.GetModelDownloadURLResponse, error)
 }
 
+func (p *modelOwnerExtraProbe) ListModels(ctx context.Context, tenant, actor string, req *modelv1.ListModelsRequest) (*modelv1.ListModelsResponse, error) {
+	return p.list(ctx, tenant, actor, req)
+}
 func (p *modelOwnerExtraProbe) SearchExternalModels(ctx context.Context, tenant, actor string, req *modelv1.SearchExternalModelsRequest) (*modelv1.SearchExternalModelsResponse, error) {
 	return p.search(ctx, tenant, actor, req)
+}
+func (p *modelOwnerExtraProbe) ListModelVersions(ctx context.Context, tenant, actor string, req *modelv1.ListModelVersionsRequest) (*modelv1.ListModelVersionsResponse, error) {
+	return p.listVers(ctx, tenant, actor, req)
 }
 func (p *modelOwnerExtraProbe) DeleteModel(ctx context.Context, tenant, actor string, req *modelv1.DeleteModelRequest) (*emptypb.Empty, error) {
 	return p.delete(ctx, tenant, actor, req)
@@ -134,19 +143,55 @@ func TestModelServiceCreatesVersionWithCallerSuppliedEngine(t *testing.T) {
 
 func TestModelServiceForwardsExternalSearchIdentityAndFilters(t *testing.T) {
 	client := &modelOwnerExtraProbe{search: func(_ context.Context, tenant, actor string, req *modelv1.SearchExternalModelsRequest) (*modelv1.SearchExternalModelsResponse, error) {
-		if tenant != "11111111-1111-4111-8111-111111111111" || actor != "governance:user:7" || req.Source != "modelscope" || req.Keyword != "qwen" || req.Owner != "Qwen" || req.Page.GetLimit() != 10 {
+		if tenant != "11111111-1111-4111-8111-111111111111" || actor != "governance:user:7" || req.Source != "modelscope" || req.Keyword != "qwen" || req.Owner != "Qwen" || req.Page == nil || req.PageSize == nil || *req.Page != 2 || *req.PageSize != 10 {
 			t.Fatalf("unexpected search delegation: tenant=%q actor=%q req=%#v", tenant, actor, req)
 		}
-		return &modelv1.SearchExternalModelsResponse{Candidates: []*modelv1.ExternalModelCandidate{{Source: "modelscope", RepoId: "Qwen/Qwen2-0.5B", Name: "Qwen2-0.5B", Revision: "master"}}, Meta: &modelv1.CursorPageMeta{HasMore: true, NextCursor: "next"}}, nil
+		return &modelv1.SearchExternalModelsResponse{Items: []*modelv1.ExternalModelCandidate{{Source: "modelscope", RepoId: "Qwen/Qwen2-0.5B", Name: "Qwen2-0.5B", Revision: "master"}}, HasMore: true}, nil
 	}}
 	s := NewModelService(client, modelTenantProbe{})
 	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{ID: 7, TenantID: 42, Type: auth.SubjectUser})
-	reply, err := s.SearchExternalModels(ctx, &catalogv1.SearchExternalModelsRequest{Source: "modelscope", Keyword: "qwen", Owner: "Qwen", Page: &catalogv1.CursorPage{Limit: 10}})
+	reply, err := s.SearchExternalModels(ctx, &catalogv1.SearchExternalModelsRequest{Source: "modelscope", Keyword: "qwen", Owner: "Qwen", Page: proto.Int32(2), PageSize: proto.Int32(10)})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(reply.GetCandidates()) != 1 || reply.GetCandidates()[0].GetRepoId() != "Qwen/Qwen2-0.5B" || !reply.GetMeta().GetHasMore() || reply.GetMeta().GetNextCursor() != "next" {
+	if len(reply.GetItems()) != 1 || reply.GetItems()[0].GetRepoId() != "Qwen/Qwen2-0.5B" || !reply.GetHasMore() {
 		t.Fatalf("unexpected search response: %#v", reply)
+	}
+}
+
+func TestModelServiceForwardsModelListPageAndTotal(t *testing.T) {
+	client := &modelOwnerExtraProbe{list: func(_ context.Context, tenant, actor string, req *modelv1.ListModelsRequest) (*modelv1.ListModelsResponse, error) {
+		if tenant != "11111111-1111-4111-8111-111111111111" || actor != "governance:user:7" || req.Page == nil || req.PageSize == nil || *req.Page != 3 || *req.PageSize != 4 {
+			t.Fatalf("unexpected model list delegation: tenant=%q actor=%q req=%#v", tenant, actor, req)
+		}
+		return &modelv1.ListModelsResponse{Items: []*modelv1.Model{{TenantId: tenant, Id: "model-1", Name: "qwen"}}, Total: 9}, nil
+	}}
+	s := NewModelService(client, modelTenantProbe{})
+	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{ID: 7, TenantID: 42, Type: auth.SubjectUser})
+	reply, err := s.ListModels(ctx, &catalogv1.ListModelsRequest{Page: proto.Int32(3), PageSize: proto.Int32(4)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(reply.GetItems()) != 1 || reply.GetTotal() != 9 {
+		t.Fatalf("unexpected model list response: %#v", reply)
+	}
+}
+
+func TestModelServiceForwardsVersionListPageAndTotal(t *testing.T) {
+	client := &modelOwnerExtraProbe{listVers: func(_ context.Context, tenant, actor string, req *modelv1.ListModelVersionsRequest) (*modelv1.ListModelVersionsResponse, error) {
+		if tenant != "11111111-1111-4111-8111-111111111111" || actor != "governance:user:7" || req.ModelId != "model-1" || req.Page == nil || req.PageSize == nil || *req.Page != 2 || *req.PageSize != 5 {
+			t.Fatalf("unexpected version list delegation: tenant=%q actor=%q req=%#v", tenant, actor, req)
+		}
+		return &modelv1.ListModelVersionsResponse{Items: []*modelv1.ModelVersion{{Id: "version-1", Version: "main", ModelId: "model-1"}}, Total: 6}, nil
+	}}
+	s := NewModelService(client, modelTenantProbe{})
+	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{ID: 7, TenantID: 42, Type: auth.SubjectUser})
+	reply, err := s.ListModelVersions(ctx, &catalogv1.ListModelVersionsRequest{ModelId: "model-1", Page: proto.Int32(2), PageSize: proto.Int32(5)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(reply.GetItems()) != 1 || reply.GetTotal() != 6 {
+		t.Fatalf("unexpected version list response: %#v", reply)
 	}
 }
 

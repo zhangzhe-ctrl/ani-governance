@@ -1,18 +1,15 @@
-# server、admin CLI、Atlas 迁移镜像；使用明确 tag 或 digest。
+# server、admin CLI、Atlas 迁移镜像；只使用明确 tag。
 image:
   repository: docker.changqingyun.cn/ani/governance
   tag: ""
-  digest: ""
   pullPolicy: IfNotPresent
 adminImage:
   repository: docker.changqingyun.cn/ani/governance-admin
   tag: ""
-  digest: ""
   pullPolicy: IfNotPresent
 atlasImage:
   repository: docker.changqingyun.cn/ani/governance-atlas
   tag: ""
-  digest: ""
   pullPolicy: IfNotPresent
 imagePullSecrets: []
 nameOverride: ""

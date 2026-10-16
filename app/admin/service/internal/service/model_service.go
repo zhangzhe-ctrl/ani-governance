@@ -111,27 +111,21 @@ func (s *ModelService) ListModels(ctx context.Context, in *catalogv1.ListModelsR
 	if err != nil {
 		return nil, err
 	}
-	var page *modelv1.CursorPageRequest
-	if in.Page != nil {
-		page = &modelv1.CursorPageRequest{Limit: in.Page.Limit, Cursor: in.Page.Cursor}
-	}
-	models, err := s.client.ListModels(ctx, tenant, actor, &modelv1.ListModelsRequest{Status: in.Status, Page: page, Keyword: in.Keyword, Source: in.Source, Capability: in.Capability})
+	models, err := s.client.ListModels(ctx, tenant, actor, &modelv1.ListModelsRequest{Status: in.Status, Page: in.Page, PageSize: in.PageSize, Keyword: in.Keyword, Source: in.Source, Capability: in.Capability})
 	if err != nil {
 		return nil, mapModelError(err)
 	}
-	if models == nil || len(models.Models) > 100 {
+	if models == nil || len(models.Items) > 100 {
 		return nil, modelInvalidReply()
 	}
-	out := &catalogv1.ListModelsResponse{Models: make([]*catalogv1.Model, 0, len(models.Models))}
-	for _, item := range models.Models {
+	out := &catalogv1.ListModelsResponse{Items: make([]*catalogv1.Model, 0, len(models.Items)), Total: models.Total}
+	for _, item := range models.Items {
 		if err := validateModelReply(item, tenant, ""); err != nil {
 			return nil, err
 		}
-		out.Models = append(out.Models, wireModel(item))
+		out.Items = append(out.Items, wireModel(item))
 	}
-	if models.Meta != nil {
-		out.Meta = &catalogv1.CursorPageMeta{NextCursor: models.Meta.NextCursor, HasMore: models.Meta.HasMore}
-	}
+	// The public catalog response uses items/total; do not reintroduce cursor metadata here.
 	return out, nil
 }
 
@@ -143,32 +137,25 @@ func (s *ModelService) SearchExternalModels(ctx context.Context, in *catalogv1.S
 	if err != nil {
 		return nil, err
 	}
-	var page *modelv1.CursorPageRequest
-	if in.Page != nil {
-		page = &modelv1.CursorPageRequest{Limit: in.Page.Limit, Cursor: in.Page.Cursor}
-	}
 	reply, err := s.client.SearchExternalModels(ctx, tenant, actor, &modelv1.SearchExternalModelsRequest{
-		Source: in.Source, Keyword: in.Keyword, Owner: in.Owner, Task: in.Task, Library: in.Library, Page: page,
+		Source: in.Source, Keyword: in.Keyword, Owner: in.Owner, Task: in.Task, Library: in.Library, Page: in.Page, PageSize: in.PageSize,
 	})
 	if err != nil {
 		return nil, mapModelError(err)
 	}
-	if reply == nil || len(reply.Candidates) > 50 {
+	if reply == nil || len(reply.Items) > 50 {
 		return nil, modelInvalidReply()
 	}
-	out := &catalogv1.SearchExternalModelsResponse{Candidates: make([]*catalogv1.ExternalModelCandidate, 0, len(reply.Candidates))}
-	for _, candidate := range reply.Candidates {
+	out := &catalogv1.SearchExternalModelsResponse{Items: make([]*catalogv1.ExternalModelCandidate, 0, len(reply.Items)), HasMore: reply.HasMore}
+	for _, candidate := range reply.Items {
 		if candidate == nil || strings.TrimSpace(candidate.Source) == "" || strings.TrimSpace(candidate.RepoId) == "" || strings.TrimSpace(candidate.Name) == "" || strings.TrimSpace(candidate.Revision) == "" {
 			return nil, modelInvalidReply()
 		}
-		out.Candidates = append(out.Candidates, &catalogv1.ExternalModelCandidate{
+		out.Items = append(out.Items, &catalogv1.ExternalModelCandidate{
 			Source: candidate.Source, RepoId: candidate.RepoId, Name: candidate.Name, DisplayName: candidate.DisplayName,
 			Description: candidate.Description, Revision: candidate.Revision, SizeBytes: candidate.SizeBytes,
 			Tags: append([]string(nil), candidate.Tags...), UpdatedAt: candidate.UpdatedAt,
 		})
-	}
-	if reply.Meta != nil {
-		out.Meta = &catalogv1.CursorPageMeta{NextCursor: reply.Meta.NextCursor, HasMore: reply.Meta.HasMore}
 	}
 	return out, nil
 }
@@ -244,26 +231,19 @@ func (s *ModelService) ListModelVersions(ctx context.Context, in *catalogv1.List
 	if err != nil {
 		return nil, err
 	}
-	var page *modelv1.CursorPageRequest
-	if in.Page != nil {
-		page = &modelv1.CursorPageRequest{Limit: in.Page.Limit, Cursor: in.Page.Cursor}
-	}
-	reply, err := s.client.ListModelVersions(ctx, tenant, actor, &modelv1.ListModelVersionsRequest{ModelId: in.ModelId, Page: page})
+	reply, err := s.client.ListModelVersions(ctx, tenant, actor, &modelv1.ListModelVersionsRequest{ModelId: in.ModelId, Page: in.Page, PageSize: in.PageSize})
 	if err != nil {
 		return nil, mapModelError(err)
 	}
-	if reply == nil || len(reply.Versions) > 100 {
+	if reply == nil || len(reply.Items) > 100 {
 		return nil, modelInvalidReply()
 	}
-	out := &catalogv1.ListModelVersionsResponse{Versions: make([]*catalogv1.ModelVersion, 0, len(reply.Versions))}
-	for _, version := range reply.Versions {
+	out := &catalogv1.ListModelVersionsResponse{Items: make([]*catalogv1.ModelVersion, 0, len(reply.Items)), Total: reply.Total}
+	for _, version := range reply.Items {
 		if err := validateModelVersionReply(version); err != nil {
 			return nil, err
 		}
-		out.Versions = append(out.Versions, wireModelVersion(version))
-	}
-	if reply.Meta != nil {
-		out.Meta = &catalogv1.CursorPageMeta{NextCursor: reply.Meta.NextCursor, HasMore: reply.Meta.HasMore}
+		out.Items = append(out.Items, wireModelVersion(version))
 	}
 	return out, nil
 }

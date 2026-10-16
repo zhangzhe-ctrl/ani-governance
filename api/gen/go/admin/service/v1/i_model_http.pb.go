@@ -56,9 +56,9 @@ type ModelServiceHTTPServer interface {
 func RegisterModelServiceHTTPServer(s *http.Server, srv ModelServiceHTTPServer) {
 	r := s.Route("/")
 	r.POST("/api/v1/models", _ModelService_CreateModel0_HTTP_Handler(srv))
+	r.GET("/api/v1/models/search", _ModelService_SearchExternalModels0_HTTP_Handler(srv))
 	r.GET("/api/v1/models/{model_id}", _ModelService_GetModel0_HTTP_Handler(srv))
 	r.GET("/api/v1/models", _ModelService_ListModels0_HTTP_Handler(srv))
-	r.GET("/api/v1/models:search", _ModelService_SearchExternalModels0_HTTP_Handler(srv))
 	r.DELETE("/api/v1/models/{model_id}", _ModelService_DeleteModel0_HTTP_Handler(srv))
 	r.POST("/api/v1/model-versions", _ModelService_CreateModelVersion0_HTTP_Handler(srv))
 	r.GET("/api/v1/model-versions/{model_version_id}", _ModelService_GetModelVersion0_HTTP_Handler(srv))
@@ -89,6 +89,25 @@ func _ModelService_CreateModel0_HTTP_Handler(srv ModelServiceHTTPServer) func(ct
 			return err
 		}
 		reply := out.(*v1.CreateModelResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ModelService_SearchExternalModels0_HTTP_Handler(srv ModelServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.SearchExternalModelsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationModelServiceSearchExternalModels)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SearchExternalModels(ctx, req.(*v1.SearchExternalModelsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.SearchExternalModelsResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -130,25 +149,6 @@ func _ModelService_ListModels0_HTTP_Handler(srv ModelServiceHTTPServer) func(ctx
 			return err
 		}
 		reply := out.(*v1.ListModelsResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _ModelService_SearchExternalModels0_HTTP_Handler(srv ModelServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in v1.SearchExternalModelsRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationModelServiceSearchExternalModels)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SearchExternalModels(ctx, req.(*v1.SearchExternalModelsRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*v1.SearchExternalModelsResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -575,7 +575,7 @@ func (c *ModelServiceHTTPClientImpl) RetryImportTask(ctx context.Context, in *v1
 
 func (c *ModelServiceHTTPClientImpl) SearchExternalModels(ctx context.Context, in *v1.SearchExternalModelsRequest, opts ...http.CallOption) (*v1.SearchExternalModelsResponse, error) {
 	var out v1.SearchExternalModelsResponse
-	pattern := "/api/v1/models:search"
+	pattern := "/api/v1/models/search"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationModelServiceSearchExternalModels))
 	opts = append(opts, http.PathTemplate(pattern))

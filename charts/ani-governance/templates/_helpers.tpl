@@ -29,9 +29,5 @@ app.kubernetes.io/component: server
 {{- end -}}
 {{- end }}
 {{- define "ani-governance.image" -}}
-{{- if .digest -}}
-{{- printf "%s@%s" .repository .digest -}}
-{{- else -}}
-{{- printf "%s:%s" .repository (required "image tag or digest is required" .tag) -}}
-{{- end -}}
+{{- printf "%s:%s" .repository (required "image tag is required" .tag) -}}
 {{- end }}
