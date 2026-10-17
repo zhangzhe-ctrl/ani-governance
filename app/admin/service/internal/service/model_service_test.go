@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	kratoserrors "github.com/go-kratos/kratos/v2/errors"
 	modelv1 "github.com/liangzai006/ani-model-service/api/model/v1"
 	catalogv1 "go-wind-admin/api/gen/go/catalog/service/v1"
 	"go-wind-admin/pkg/middleware/auth"
@@ -51,6 +52,9 @@ func (*modelOwnerProbe) ImportModel(context.Context, string, string, *modelv1.Im
 func (*modelOwnerProbe) GetImportTask(context.Context, string, string, *modelv1.GetImportTaskRequest) (*modelv1.GetImportTaskResponse, error) {
 	panic("unused")
 }
+func (*modelOwnerProbe) GetImportTaskLogs(context.Context, string, string, *modelv1.GetImportTaskLogsRequest) (*modelv1.GetImportTaskLogsResponse, error) {
+	panic("unused")
+}
 func (*modelOwnerProbe) RetryImportTask(context.Context, string, string, *modelv1.RetryImportTaskRequest) (*modelv1.RetryImportTaskResponse, error) {
 	panic("unused")
 }
@@ -60,6 +64,7 @@ func (*modelOwnerProbe) GetModelDownloadURL(context.Context, string, string, *mo
 
 type modelOwnerExtraProbe struct {
 	modelOwnerProbe
+	logs     func(context.Context, string, string, *modelv1.GetImportTaskLogsRequest) (*modelv1.GetImportTaskLogsResponse, error)
 	list     func(context.Context, string, string, *modelv1.ListModelsRequest) (*modelv1.ListModelsResponse, error)
 	search   func(context.Context, string, string, *modelv1.SearchExternalModelsRequest) (*modelv1.SearchExternalModelsResponse, error)
 	listVers func(context.Context, string, string, *modelv1.ListModelVersionsRequest) (*modelv1.ListModelVersionsResponse, error)
@@ -67,6 +72,10 @@ type modelOwnerExtraProbe struct {
 	version  func(context.Context, string, string, *modelv1.DeleteModelVersionRequest) (*modelv1.DeleteModelVersionResponse, error)
 	upload   func(context.Context, string, string, *modelv1.GetUploadURLRequest) (*modelv1.GetUploadURLResponse, error)
 	download func(context.Context, string, string, *modelv1.GetModelDownloadURLRequest) (*modelv1.GetModelDownloadURLResponse, error)
+}
+
+func (p *modelOwnerExtraProbe) GetImportTaskLogs(ctx context.Context, tenant, actor string, req *modelv1.GetImportTaskLogsRequest) (*modelv1.GetImportTaskLogsResponse, error) {
+	return p.logs(ctx, tenant, actor, req)
 }
 
 func (p *modelOwnerExtraProbe) ListModels(ctx context.Context, tenant, actor string, req *modelv1.ListModelsRequest) (*modelv1.ListModelsResponse, error) {
@@ -174,6 +183,36 @@ func TestModelServiceForwardsModelListPageAndTotal(t *testing.T) {
 	}
 	if len(reply.GetItems()) != 1 || reply.GetTotal() != 9 {
 		t.Fatalf("unexpected model list response: %#v", reply)
+	}
+}
+
+func TestModelServiceForwardsImportTaskLogsIdentityAndMapsReply(t *testing.T) {
+	client := &modelOwnerExtraProbe{logs: func(_ context.Context, tenant, actor string, req *modelv1.GetImportTaskLogsRequest) (*modelv1.GetImportTaskLogsResponse, error) {
+		if tenant != "11111111-1111-4111-8111-111111111111" || actor != "governance:user:7" || req.TaskId != "task-1" {
+			t.Fatalf("unexpected logs delegation: tenant=%q actor=%q req=%#v", tenant, actor, req)
+		}
+		return &modelv1.GetImportTaskLogsResponse{TaskId: "task-1", Status: "running", Logs: "line 1\n", Available: true}, nil
+	}}
+	s := NewModelService(client, modelTenantProbe{})
+	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{ID: 7, TenantID: 42, Type: auth.SubjectUser})
+	reply, err := s.GetImportTaskLogs(ctx, &catalogv1.GetImportTaskLogsRequest{TaskId: "task-1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reply.GetTaskId() != "task-1" || reply.GetStatus() != "running" || reply.GetLogs() != "line 1\n" || !reply.GetAvailable() {
+		t.Fatalf("unexpected logs response: %#v", reply)
+	}
+}
+
+func TestModelServiceMapsCleanedUpImportTaskLogsToConflict(t *testing.T) {
+	client := &modelOwnerExtraProbe{logs: func(context.Context, string, string, *modelv1.GetImportTaskLogsRequest) (*modelv1.GetImportTaskLogsResponse, error) {
+		return nil, kratoserrors.Conflict("IMPORT_LOGS_UNAVAILABLE", "private cleanup detail")
+	}}
+	s := NewModelService(client, modelTenantProbe{})
+	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{ID: 7, TenantID: 42, Type: auth.SubjectUser})
+	_, err := s.GetImportTaskLogs(ctx, &catalogv1.GetImportTaskLogsRequest{TaskId: "task-1"})
+	if err == nil || kratoserrors.Code(err) != 409 || kratoserrors.Reason(err) != "IMPORT_LOGS_UNAVAILABLE" {
+		t.Fatalf("unexpected cleanup error: %v (code=%d reason=%q)", err, kratoserrors.Code(err), kratoserrors.Reason(err))
 	}
 }
 
