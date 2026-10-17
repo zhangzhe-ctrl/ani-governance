@@ -51,8 +51,14 @@ message InferenceAcceptance {
 }
 message GetInferenceRequest { string resource_id = 1 [json_name = "resource_id"]; }
 message ListInferenceRequest {
-  int32 page_size = 1 [json_name = "page_size"];
-  string page_token = 2 [json_name = "page_token"];
+  // Keep the public Governance list request aligned with the owner service
+  // contract. The reserved slots retain the wire history of the old
+  // page_size/page_token window; callers use page/pageSize now.
+  reserved 1, 2;
+  optional int32 page = 3;
+  optional int32 page_size = 4 [json_name = "pageSize"];
+  string status = 5;
+  string capability = 6;
 }
 // InferenceView is the Governance-owned read projection for UI consumers.
 // It intentionally keeps the business-facing flat fields while hiding
@@ -80,8 +86,10 @@ message InferenceView {
   int64 applied_generation = 20 [json_name = "applied_generation"];
 }
 message ListInferenceResponse {
-  repeated InferenceView services = 1;
-  string next_page_token = 2 [json_name = "next_page_token"];
+  reserved 1, 2;
+  reserved "services", "next_page_token";
+  repeated InferenceView items = 3;
+  int64 total = 4;
 }
 message GetInferenceOperationRequest { string operation_id = 1 [json_name = "operation_id"]; }
 
@@ -116,10 +124,13 @@ message InferenceServiceCommandData {
 
 message ListInferenceOperationsRequest {
   string resource_id = 1 [json_name = "resource_id"];
-  int32 page_size = 2 [json_name = "page_size"];
-  string page_token = 3 [json_name = "page_token"];
+  reserved 2, 3;
+  optional int32 page = 4;
+  optional int32 page_size = 5 [json_name = "pageSize"];
 }
 message ListInferenceOperationsResponse {
-  repeated inference.v1.Operation operations = 1;
-  string next_page_token = 2 [json_name = "next_page_token"];
+  reserved 1, 2;
+  reserved "operations", "next_page_token";
+  repeated inference.v1.Operation items = 3;
+  int64 total = 4;
 }

@@ -16,6 +16,7 @@ import (
 type inferenceReadOwnerProbe struct {
 	service *inferencev1.InferenceService
 	list    *inferencev1.ListInferenceServicesResponse
+	request *inferencev1.ListInferenceServicesRequest
 }
 
 func (*inferenceReadOwnerProbe) Create(context.Context, *inferencev1.CreateInferenceServiceRequest) (*inferencev1.OperationResponse, error) {
@@ -30,13 +31,14 @@ func (p *inferenceReadOwnerProbe) GetTrusted(context.Context, string, string, *i
 	return p.service, nil
 }
 
-func (p *inferenceReadOwnerProbe) ListTrusted(context.Context, string, string, *inferencev1.ListInferenceServicesRequest) (*inferencev1.ListInferenceServicesResponse, error) {
+func (p *inferenceReadOwnerProbe) ListTrusted(_ context.Context, _, _ string, request *inferencev1.ListInferenceServicesRequest) (*inferencev1.ListInferenceServicesResponse, error) {
+	p.request = request
 	return p.list, nil
 }
 
 func TestInferenceServiceGetAndListProjectFlatViews(t *testing.T) {
 	source := &inferencev1.InferenceService{Id: "svc-1", Name: "qwen", Generation: 9, Engine: &inferencev1.EngineSpec{Command: "exec serve"}}
-	owner := &inferenceReadOwnerProbe{service: source, list: &inferencev1.ListInferenceServicesResponse{Services: []*inferencev1.InferenceService{source}, NextPageToken: "next"}}
+	owner := &inferenceReadOwnerProbe{service: source, list: &inferencev1.ListInferenceServicesResponse{Items: []*inferencev1.InferenceService{source}, Total: 1}}
 	s := NewInferenceServiceWithOwner(nil, owner, directInferenceTenantProbe{})
 	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42})
 
@@ -45,11 +47,16 @@ func TestInferenceServiceGetAndListProjectFlatViews(t *testing.T) {
 	require.Equal(t, "exec serve", got.GetCommand())
 	require.Nil(t, got.ProtoReflect().Descriptor().Fields().ByName("engine"))
 
-	list, err := s.ListInference(ctx, &view.ListInferenceRequest{PageSize: 10, PageToken: "current"})
+	page, pageSize := int32(1), int32(10)
+	list, err := s.ListInference(ctx, &view.ListInferenceRequest{Page: &page, PageSize: &pageSize, Status: "running", Capability: "embedding"})
 	require.NoError(t, err)
-	require.Equal(t, "next", list.GetNextPageToken())
-	require.Len(t, list.GetServices(), 1)
-	require.Equal(t, "svc-1", list.GetServices()[0].GetId())
+	require.Equal(t, int64(1), list.GetTotal())
+	require.Len(t, list.GetItems(), 1)
+	require.Equal(t, "svc-1", list.GetItems()[0].GetId())
+	require.Equal(t, int32(1), owner.request.GetPage())
+	require.Equal(t, int32(10), owner.request.GetPageSize())
+	require.Equal(t, "running", owner.request.GetStatus())
+	require.Equal(t, "embedding", owner.request.GetCapability())
 }
 
 func TestMapInferenceViewProjectsFlatCommandAndGPU(t *testing.T) {

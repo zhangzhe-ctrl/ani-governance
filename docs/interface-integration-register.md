@@ -1675,6 +1675,11 @@ Model 列表、外部模型搜索和模型版本列表统一使用 `page`、`pag
 | 启停/重启推理 | `POST /api/v1/inference/services/{data.resource_id}:start`、`:stop`、`:restart` | 对应 `inference:service:start`、`inference:service:stop`、`inference:service:restart` |
 | 推理操作记录 | `GET /api/v1/inference/services/{resource_id}/operations` | `inference:service:read` |
 
+推理服务列表和服务操作列表使用 `page`、`pageSize`，响应统一为
+`items`、`total`；推理服务列表另外支持 `status` 和 `capability` 筛选，筛选条件在
+Inference 分页前应用并由下游负责租户隔离和状态/能力匹配。Governance 透传这四个查询
+字段，不再使用旧的 `page_size`、`page_token`、`services` 或 `next_page_token`。
+
 请求体沿用各自 `data` 公开报文。推理创建使用 `engine_type`、`engine_image`、
 完整的单字符串 `command` 和 `served_model_name`；不再有 `engine.command[]` 或
 `engine.args[]` 数组。Governance、Model 和 Inference 都不会解析、拼接、替换或

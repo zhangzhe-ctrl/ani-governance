@@ -581,18 +581,20 @@ func (s *InferenceService) ListInference(ctx context.Context, in *view.ListInfer
 	if in == nil {
 		in = &view.ListInferenceRequest{}
 	}
-	result, err := trusted.ListTrusted(ctx, tenant, actor, &inferencev1.ListInferenceServicesRequest{PageSize: in.PageSize, PageToken: in.PageToken})
+	result, err := trusted.ListTrusted(ctx, tenant, actor, &inferencev1.ListInferenceServicesRequest{
+		Page: in.Page, PageSize: in.PageSize, Status: in.Status, Capability: in.Capability,
+	})
 	if err != nil {
 		return nil, mapInferenceOwnerError(err)
 	}
-	if result == nil || len(result.Services) > 100 {
+	if result == nil || len(result.Items) > 100 {
 		return nil, status.Error(codes.Unavailable, "INVALID_INFERENCE_RESPONSE")
 	}
-	services := make([]*view.InferenceView, 0, len(result.Services))
-	for _, service := range result.Services {
+	services := make([]*view.InferenceView, 0, len(result.Items))
+	for _, service := range result.Items {
 		services = append(services, mapInferenceView(service))
 	}
-	return &view.ListInferenceResponse{Services: services, NextPageToken: result.NextPageToken}, nil
+	return &view.ListInferenceResponse{Items: services, Total: result.Total}, nil
 }
 
 func (s *InferenceService) GetInferenceOperation(ctx context.Context, in *view.GetInferenceOperationRequest) (*inferencev1.Operation, error) {
@@ -737,12 +739,14 @@ func (s *InferenceService) ListInferenceOperations(ctx context.Context, in *view
 	if err != nil {
 		return nil, err
 	}
-	result, err := trusted.ListOperationsTrusted(ctx, tenant, actor, &inferencev1.ListOperationsRequest{ResourceId: in.ResourceId, PageSize: in.PageSize, PageToken: in.PageToken})
+	result, err := trusted.ListOperationsTrusted(ctx, tenant, actor, &inferencev1.ListOperationsRequest{ResourceId: in.ResourceId, Page: in.Page, PageSize: in.PageSize})
 	if err != nil {
 		return nil, mapInferenceOwnerError(err)
 	}
-	if result == nil || len(result.Operations) > 100 {
+	if result == nil || len(result.Items) > 100 {
 		return nil, status.Error(codes.Unavailable, "INVALID_INFERENCE_RESPONSE")
 	}
-	return &view.ListInferenceOperationsResponse{Operations: result.Operations, NextPageToken: result.NextPageToken}, nil
+	items := make([]*inferencev1.Operation, 0, len(result.Items))
+	items = append(items, result.Items...)
+	return &view.ListInferenceOperationsResponse{Items: items, Total: result.Total}, nil
 }

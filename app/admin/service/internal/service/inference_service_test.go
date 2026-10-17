@@ -75,7 +75,7 @@ func (p *directInferenceOwnerProbe) RestartTrusted(context.Context, string, stri
 	return &inferencev1.OperationResponse{Resource: &inferencev1.InferenceService{Id: "svc-1"}, Operation: &inferencev1.Operation{Id: "op-restart"}}, nil
 }
 func (p *directInferenceOwnerProbe) ListOperationsTrusted(context.Context, string, string, *inferencev1.ListOperationsRequest) (*inferencev1.ListOperationsResponse, error) {
-	return &inferencev1.ListOperationsResponse{Operations: []*inferencev1.Operation{{Id: "op-1", ServiceId: "svc-1"}}}, nil
+	return &inferencev1.ListOperationsResponse{Items: []*inferencev1.Operation{{Id: "op-1", ServiceId: "svc-1"}}}, nil
 }
 
 type directInferenceTenantProbe struct{}
@@ -187,7 +187,7 @@ func TestInferenceServiceExposesTrustedLifecycleCommands(t *testing.T) {
 	}
 	operations, err := s.ListInferenceOperations(ctx, &view.ListInferenceOperationsRequest{ResourceId: "svc-1"})
 	require.NoError(t, err)
-	require.Len(t, operations.Operations, 1)
+	require.Len(t, operations.Items, 1)
 }
 
 func TestInferenceServiceDerivesGPUPlacementForDeploymentAndLWS(t *testing.T) {

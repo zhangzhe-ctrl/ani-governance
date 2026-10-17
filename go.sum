@@ -217,6 +217,8 @@ github.com/liangzai006/ani-inference-service v0.0.0-20261013084555-79beaaf5cf0b 
 github.com/liangzai006/ani-inference-service v0.0.0-20261013084555-79beaaf5cf0b/go.mod h1:7fdIKerjfAx1S1VpzQ7Z0ji1RpriYaL6NOG6C+xQVEQ=
 github.com/liangzai006/ani-inference-service v0.0.0-20261015020740-ceacc4063742 h1:EqS5GPWDaTY68TzimuzgA2mfu1daVNBJGAcztPnefIs=
 github.com/liangzai006/ani-inference-service v0.0.0-20261015020740-ceacc4063742/go.mod h1:7fdIKerjfAx1S1VpzQ7Z0ji1RpriYaL6NOG6C+xQVEQ=
+github.com/liangzai006/ani-inference-service v0.0.0-20261016170833-34c9fd9387ea h1:BBxCOWg/oyRZOIw+dNmNQk+m0u1jXxJk4Hb0NAnivvk=
+github.com/liangzai006/ani-inference-service v0.0.0-20261016170833-34c9fd9387ea/go.mod h1:7fdIKerjfAx1S1VpzQ7Z0ji1RpriYaL6NOG6C+xQVEQ=
 github.com/liangzai006/ani-model-service v0.0.0-20261013092523-8951c85bc150 h1:x1nM5IjZG1RMOWVRPtEtFhd3zgX/4S0hDt0adle3AgU=
 github.com/liangzai006/ani-model-service v0.0.0-20261013092523-8951c85bc150/go.mod h1:VevRKxXFVVH2NmUmWJTWcBWkZSiOJEYTRNGvQjlMxgs=
 github.com/liangzai006/ani-model-service v0.0.0-20261015020710-37fe22076832 h1:J+r52VP7YQif6/9FNdgS3dQWRPqRQim+BEzA0nvBIxs=

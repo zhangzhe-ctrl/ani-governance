@@ -7251,12 +7251,21 @@ paths:
                 - InferenceService
             operationId: InferenceService_ListInference
             parameters:
-                - name: page_size
+                - name: page
                   in: query
                   schema:
                     type: integer
                     format: int32
-                - name: page_token
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: status
+                  in: query
+                  schema:
+                    type: string
+                - name: capability
                   in: query
                   schema:
                     type: string
@@ -7433,15 +7442,16 @@ paths:
                   required: true
                   schema:
                     type: string
-                - name: page_size
+                - name: page
                   in: query
                   schema:
                     type: integer
                     format: int32
-                - name: page_token
+                - name: pageSize
                   in: query
                   schema:
-                    type: string
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK
@@ -12890,20 +12900,20 @@ components:
         ListInferenceOperationsResponse:
             type: object
             properties:
-                operations:
+                items:
                     type: array
                     items:
                         $ref: '#/components/schemas/Operation'
-                next_page_token:
+                total:
                     type: string
         ListInferenceResponse:
             type: object
             properties:
-                services:
+                items:
                     type: array
                     items:
                         $ref: '#/components/schemas/InferenceView'
-                next_page_token:
+                total:
                     type: string
         ListInputVersionsResponse:
             type: object
