@@ -112,6 +112,8 @@ func newInferenceGPUFixture(t *testing.T) *inferenceGPUFixture {
 	requestCtx = auth.NewPrincipalContext(requestCtx, &auth.Principal{Type: auth.SubjectUser, ID: operator.ID, TenantID: tenant.ID})
 	plan, _, _ := gpuVector(t)
 	plan.Request.ContainerName = "kserve-container"
+	plan.Request.Replicas = 2
+	plan.Resolved.QuotaItems[0].Units = 16384
 	modelVersionID := uuid.NewString()
 	model := &inferenceModelProbe{response: &modelv1.GetModelVersionResponse{Model: &modelv1.Model{TenantId: tenant.ResourceTenantID}, Version: &modelv1.ModelVersion{Id: modelVersionID, Status: "ready"}}}
 	owner := &inferenceMissingOwner{}
