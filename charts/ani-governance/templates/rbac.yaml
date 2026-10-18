@@ -1,4 +1,5 @@
-{{- if .Values.rbac.create }}
+{{- $rbac := .Values.rbac | default (dict "create" true) }}
+{{- if $rbac.create }}
 {{- if lookup "v1" "Namespace" "" "volcano-system" }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
