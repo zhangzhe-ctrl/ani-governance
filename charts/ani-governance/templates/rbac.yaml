@@ -11,7 +11,7 @@ rules:
   - apiGroups: [""]
     resources: ["configmaps"]
     resourceNames: ["ani-volcano-scheduler-configmap"]
-    verbs: ["get"]
+    verbs: ["get", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
