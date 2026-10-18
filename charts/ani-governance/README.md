@@ -203,7 +203,23 @@ Accelerator 的存量客户端仍使用独立 URI 身份，启用时应通过
 
 Gov 的 Model BFF 负责模型、模型版本、ModelScope 导入任务和任务查询。请求中的 tenant/actor 不会透传为权限依据，而是从 Gov 登录主体解析后由 mTLS 服务间调用重新注入。
 
-本期不提供普通或 GPU Inference 管理接口，也不保留 `downstream.inference` 开关、环境变量或证书挂载；后续重新对接另行发布配置。Model 和 Accelerator 配置保持各自合同。
+启用 Inference 管理接口时，必须显式配置 `downstream.inference`：
+
+```yaml
+downstream:
+  inference:
+    enabled: true
+    address: ani-inference-grpc.ani-system.svc.cluster.local:19090
+    serverName: ani-inference.ani.internal
+    caSecret: ani-inference-server-tls
+    clientCertificateSecret: governance-client-tls
+certificate:
+  enabled: true
+```
+
+这会挂载 Governance 的客户端证书和 Inference 服务端 CA，并注入
+`ANI_INFERENCE_ADDR`、`ANI_INFERENCE_SERVER_NAME` 及证书路径；未启用时，Inference
+管理请求会返回适配器不可用。Model 和 Accelerator 配置保持各自合同。
 
 ## 认证来源与 Cookie 环境要求
 
