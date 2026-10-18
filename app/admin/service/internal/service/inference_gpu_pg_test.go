@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	inferencev1 "github.com/liangzai006/ani-inference-service/api/inference/v1"
 	modelv1 "github.com/liangzai006/ani-model-service/api/model/v1"
 	"github.com/stretchr/testify/require"
-	inferencev1 "github.com/liangzai006/ani-inference-service/api/inference/v1"
 	view "go-wind-admin/api/gen/go/inference/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
@@ -118,7 +118,7 @@ func newInferenceGPUFixture(t *testing.T) *inferenceGPUFixture {
 	plans := &instancePlanPeer{plan: plan}
 	binding := NewInferenceGpuBindingWithModel(owner, data.NewInferenceAuthorizationRepo(c), model)
 	registry := NewQuotaAdapterRegistry()
-	// The Inference owner has no new-contract execution capability.
+	require.NoError(t, registry.Register(binding))
 	ledger := data.NewQuotaLedgerRepo(bctx, c)
 	acceptance, err := NewGpuAcceptance(ledger, registry, data.NewTenantRepo(bctx, c), plans, binding, nil)
 	require.NoError(t, err)
@@ -148,15 +148,30 @@ func (f *inferenceGPUFixture) otherAuthorizedTenant(t *testing.T) (context.Conte
 	return auth.NewPrincipalContext(ctx, &auth.Principal{Type: auth.SubjectUser, ID: operator.ID, TenantID: tenant.ID}), tenant.ResourceTenantID
 }
 
-func TestInferenceGPUDisabledBeforeModelResolution(t *testing.T) {
+func TestInferenceGPUAdmissionAndPublicReplay(t *testing.T) {
 	f := newInferenceGPUFixture(t)
-	_, err := f.service.CreateInference(f.ctx, f.request)
-	require.Error(t, err)
-	require.Zero(t, f.model.calls)
-	require.Zero(t, f.plans.calls)
+	first, err := f.service.CreateInference(f.ctx, f.request)
+	require.NoError(t, err)
+	require.Equal(t, "ACCEPTED", first.Result)
+	require.False(t, first.Replayed)
+	require.NotEmpty(t, first.OperationId)
+	require.NotEmpty(t, first.ResourceId)
+	require.Equal(t, 1, f.model.calls)
+	require.Equal(t, 1, f.plans.calls)
+
+	// A retry with the same public idempotency key and unchanged request must
+	// replay the durable operation without re-resolving the model or GPU plan.
+	replay, err := f.service.CreateInference(f.ctx, f.request)
+	require.NoError(t, err)
+	require.True(t, replay.Replayed)
+	require.Equal(t, first.OperationId, replay.OperationId)
+	require.Equal(t, first.ResourceId, replay.ResourceId)
+	require.Equal(t, 1, f.model.calls)
+	require.Equal(t, 1, f.plans.calls)
+
 	charges, err := f.client.QuotaCharge.Query().All(appViewer.NewSystemViewerContext(context.Background()))
 	require.NoError(t, err)
-	require.Empty(t, charges, "disabled owner cannot occupy quota")
+	require.NotEmpty(t, charges, "accepted inference GPU create must reserve quota")
 }
 func TestInferenceCPUActorsRemainTrusted(t *testing.T) {
 	f := newInferenceGPUFixture(t)
