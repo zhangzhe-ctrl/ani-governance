@@ -293,16 +293,6 @@ func (s *GpuAcceptance) AcceptGpuCreate(ctx context.Context, key string, gpu *ac
 		if err != nil {
 			return nil, err
 		}
-		if s.binding.OwnerService() == "ani-inference" {
-			managed, decodeErr := runtimev1.DecodeBusinessPayload(businessBytes)
-			if decodeErr != nil {
-				return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid finalized inference business")
-			}
-			requestHash, err = runtimev1.ManagedCreateRequestHash(managed, tenant, string(p.Type), actorID)
-			if err != nil {
-				return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid finalized inference request hash")
-			}
-		}
 	}
 
 	supported := false

@@ -201,9 +201,12 @@ func (b *InferenceGpuBinding) Dispatch(ctx context.Context, command *QuotaDispat
 		// it from the durable Governance command and verify the exact managed
 		// request hash before sending the trusted owner RPC.
 		managedHash, hashErr := runtimev1.ManagedCreateRequestHash(business, command.ResourceTenantID, actorType, actorID)
-		if hashErr != nil || managedHash != command.RequestHash {
-			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "inference command digest mismatch")
+		if hashErr != nil {
+			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference managed request")
 		}
+		// command.RequestHash is the public request hash used by Governance
+		// idempotency. The owner digest is derived from the frozen payload and
+		// verified by Inference; comparing the two would reject a valid replay.
 		business.Context = &runtimev1.CommandContext{TenantId: command.ResourceTenantID, ResourceId: command.ResourceID, OperationId: command.OperationID, RequestDigest: managedHash}
 		if err := runtimev1.ValidateBusinessPayload(business); err != nil {
 			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference GPU payload")
