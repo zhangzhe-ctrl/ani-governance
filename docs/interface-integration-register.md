@@ -24,7 +24,7 @@
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
 | Network 租户面读写对接 | NET-01～NET-25；复用 AK-*、AUTH-* | 当前 25 方法支持 JWT/AK；NET-01～24 的历史三条主链验收和 NET-25 增量结果分批记录 | 当前合同见下方增量与 [AK/SK 合同](contracts/aksk-signature.md)；真实环境按批次验收 |
 | Gov → Resource 调用规范收敛 | S2S-RES-01；复用 NET-01～NET-25 与既有 Image 11 RPC | Network/Image 调用端与 Resource 接收端已修改；隔离真实业务链路通过，生产验收未执行 | 传输与可信上下文即时修复，见下方结果；不调整 HTTP 风格 |
-| 通用配额与 GPU 实例接入 | QUOTA-01～03；历史 INF-01/02、QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 保留 ACC 目录与 Resource 实例的新执行/释放合同；Inference 管理接口、API 依赖和配置本期移除，后续重新对接；旧模拟 owner 入口退役 | 当前合同见 [GPU owner 指南](contracts/gpu-owner-integration-guide.md)；源码、部署与真实 GPU 验收分别记录 |
+| 通用配额、GPU 实例与 Inference 接入 | QUOTA-01～03；INF-01/02；QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 保留 ACC 目录与 Resource 实例执行/释放合同；Inference 管理由 Governance BFF 接入并通过受信 mTLS 客户端投递；旧模拟 owner 入口退役 | 当前合同见 [GPU owner 指南](contracts/gpu-owner-integration-guide.md)；源码、部署与真实 GPU 验收分别记录 |
 | ModelDev CPU 主干受理及受管入口 | MODELDEV-01～MODELDEV-08；服务间调用登记 S2S-MODELDEV-CPUP01-01 | 当前授权、可信解析、持久受理/投递、查询及受管目录/输入/运行操作已装配；启用/回退经真实鉴权/PG CAS 验证；Gov→ModelDev 传输/身份/白名单三个差异收敛已实施并在 ani-system 真实环境完成正/负向验证 | CPU-P01，进行中 |
 
 ## 风格改动批次
@@ -1574,7 +1574,7 @@ roles 取页后需逐条回填权限/组织单元/字段权限，故 keyset 采�
 
 ## GOV-ACC-INF-V12-WIRING-01：推理创建与删除接线（2026-10-09）
 
-本节为历史接线记录。2026-10-18 起 INF-01/02 及普通推理管理接口均已撤下，不是当前可调用合同；Inference API 模块与出站配置也不保留。以下旧权限登记、启用及退款映射步骤不再适用，后续重新对接另行登记。
+本节记录当前接线。INF-01/02 为治理 BFF 的创建和删除入口；其余列表、详情、操作和生命周期路由见当前 Proto。旧的“已撤下”描述已废弃，权限登记和模块 `INFERENCE=15` 以当前生成目录及 SQL 登记脚本为准。
 
 用户明确批准本仓登记 `INFERENCE=15`。新增推理模块和两项独立动作；当前源码登记与实际授权/部署分别验收，不据此向基础套餐、所有角色或生产环境自动开放。
 
@@ -1703,4 +1703,4 @@ Governance 根据已认证的租户用户建立下游 Model mTLS gRPC 请求，�
 
 管理 Profile 创建仍为 `POST /api/v1/admin/accelerator/profiles`，正式 RPC 改为 `CreateProfile`；新增 `GET .../profiles:preview`、`POST .../profiles/{profile_id}:set-state` 和 `POST .../profiles/{profile_id}:delete`。写请求保持 `{data:{...}}`，平台 JWT、当前权限与 ACC 对应 action/cluster grant 必须齐全。API 目录同步只登记接口，不自动授予权限。
 
-用户 Preset 返回每卡显存值、selectable 与 unavailable_reason；CPU 查询不依赖 ACC，GPU 仍须通过租户目录授权过滤。Inference 的普通及 GPU 管理接口、API 依赖和出站配置均移除，后续重新对接。编码、软件回归和真实 GPU 验收分别记证，不能沿用旧结果宣称新合同已验收。
+用户 Preset 返回每卡显存值、selectable 与 unavailable_reason；CPU 查询不依赖 ACC，GPU 仍须通过租户目录授权过滤。Inference 普通及 GPU 管理接口现由 Governance BFF 提供，API 依赖和出站 mTLS 配置按当前接线维护。编码、软件回归和真实 GPU 验收分别记证，不能沿用旧结果宣称新合同已验收。

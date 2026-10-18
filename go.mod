@@ -16,6 +16,7 @@ require (
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/jinzhu/inflection v1.0.0
+	github.com/liangzai006/ani-inference-service/api v0.0.0-20261018033121-4f084c9f5f25
 	github.com/liangzai006/ani-model-service v0.0.0-20261015020710-37fe22076832
 	github.com/lib/pq v1.12.3
 	github.com/mileusna/useragent v1.3.5
@@ -23,7 +24,7 @@ require (
 	github.com/redis/go-redis/v9 v9.22.0
 	github.com/stretchr/testify v1.12.1
 	github.com/xiaoqidun/entps v1.50.1
-	github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20261017194326-24820240a6b0
+	github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20261018033121-4f084c9f5f25
 	github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261014073039-acd8a5cb2b25
 	github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261017195047-4f341a0ae98d
 	github.com/zhangzhe-ctrl/ani-resource-service/api/instance/terminal v0.0.0-20261013075021-0937f5aa9c6c
@@ -204,3 +205,5 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
 )
+
+replace github.com/liangzai006/ani-inference-service/api => /tmp/ani-contract-20261018/inference/api

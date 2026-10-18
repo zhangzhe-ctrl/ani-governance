@@ -54,7 +54,10 @@ type QuotaOccupyItem struct {
 type QuotaOccupyInput struct {
 	TenantID                                                                                                              uint32
 	ResourceTenantID, ResourceID, ActorType, ActorID, OwnerService, Action, IdempotencyKey, RequestHash, CanonicalRequest string
-	Items                                                                                                                 []QuotaOccupyItem
+	// OperationID is optional for legacy callers; managed owner adapters use it
+	// to bind the frozen command context before the durable ledger row exists.
+	OperationID string
+	Items       []QuotaOccupyItem
 }
 type QuotaOccupyResult struct {
 	OperationID, ResourceID string
@@ -235,7 +238,12 @@ func (r *QuotaLedgerRepo) Occupy(ctx context.Context, in *QuotaOccupyInput) (out
 				return quotapb.ErrorQuotaExceeded("%s", "quota exceeded: "+it.QuotaCode)
 			}
 		}
-		op, err = tx.QuotaOperation.Create().SetCreatedAt(databaseNow).SetUpdatedAt(databaseNow).SetOperationID(generateUUID()).SetTenantID(in.TenantID).SetResourceTenantID(in.ResourceTenantID).SetResourceID(in.ResourceID).SetActorType(in.ActorType).SetActorID(in.ActorID).SetOwnerService(in.OwnerService).SetAction(in.Action).SetIdempotencyKey(in.IdempotencyKey).SetRequestHash(in.RequestHash).SetCanonicalRequest(in.CanonicalRequest).SetDispatchState(quotaoperation.DispatchState("QUEUED")).Save(ctx)
+		op, err = tx.QuotaOperation.Create().SetCreatedAt(databaseNow).SetUpdatedAt(databaseNow).SetOperationID(func() string {
+			if in.OperationID != "" {
+				return in.OperationID
+			}
+			return generateUUID()
+		}()).SetTenantID(in.TenantID).SetResourceTenantID(in.ResourceTenantID).SetResourceID(in.ResourceID).SetActorType(in.ActorType).SetActorID(in.ActorID).SetOwnerService(in.OwnerService).SetAction(in.Action).SetIdempotencyKey(in.IdempotencyKey).SetRequestHash(in.RequestHash).SetCanonicalRequest(in.CanonicalRequest).SetDispatchState(quotaoperation.DispatchState("QUEUED")).Save(ctx)
 		if err != nil {
 			return err
 		}

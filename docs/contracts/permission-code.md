@@ -10,7 +10,7 @@
 
 ## 1 范围和两类 code
 
-覆盖 Network 租户、Network 平台、Image、Accelerator、Instance 和 Model 的现行接口，以及前缀迁移涉及的管理接口。Inference 管理接口本期整体下线，相关路由已从现行能力映射撤下，后续重新对接另行登记。Quota 使用独立业务域；ModelDev 等其他业务接口遵循本规范的映射要求，不能因为原地址为 `/admin/v1` 就按普通管理 CRUD 处理。
+覆盖 Network 租户、Network 平台、Image、Accelerator、Instance 和 Model 的现行接口，以及前缀迁移涉及的管理接口。Inference 管理接口现由 Governance BFF 提供，相关路由和 `INFERENCE=15` 模块已登记在现行能力映射中；权限仍需显式同步和授权。Quota 使用独立业务域；ModelDev 等其他业务接口遵循本规范的映射要求，不能因为原地址为 `/admin/v1` 就按普通管理 CRUD 处理。
 
 | 名称 | 载体 | 含义 |
 | --- | --- | --- |

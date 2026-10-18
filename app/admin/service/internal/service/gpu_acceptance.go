@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	runtimev1 "github.com/liangzai006/ani-inference-service/api/inference/v1"
 	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"sort"
 	"strconv"
@@ -41,6 +42,12 @@ type GpuPlanResolver interface {
 // only after current authorization and the original public-request replay gate.
 type GpuBusinessResolver interface {
 	ResolveGpuBusiness(context.Context, *auth.Principal, string, proto.Message) (*acc.GpuRequest, proto.Message, error)
+}
+
+// GpuBusinessFinalizer binds an ACC plan and immutable command identity into
+// the owner's canonical business payload before it is written to the ledger.
+type GpuBusinessFinalizer interface {
+	FinalizeGpuBusiness(context.Context, string, string, string, string, string, proto.Message, *acc.ResolvedGpuRequest) ([]byte, error)
 }
 
 type GpuAcceptance struct {
@@ -103,9 +110,10 @@ func (r *QuotaAdapterRegistry) EnforcesQuota(code string) bool {
 	return false
 }
 
-// Only the explicitly integrated instance owner can enable GPU business admission.
+// GPU admission is enabled only for compiled owner adapters. The owner name
+// is stable ledger identity; no request may select an arbitrary destination.
 func supportedGpuOwner(owner string) bool {
-	return owner == InstanceOwner
+	return owner == InstanceOwner || owner == "ani-inference"
 }
 
 func gpuPrincipal(ctx context.Context) (*auth.Principal, error) {
@@ -251,6 +259,7 @@ func (s *GpuAcceptance) AcceptGpuCreate(ctx context.Context, key string, gpu *ac
 	if err != nil {
 		return nil, err
 	}
+	var operationID, resourceID string
 	if instance, ok := business.(*res.CreateSpec); ok {
 		if plan.Selection == nil || plan.Selection.ProfileId != gpu.ProfileId || plan.Selection.ProfileVersion != gpu.ProfileVersion {
 			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "resolved selection mismatch")
@@ -273,7 +282,27 @@ func (s *GpuAcceptance) AcceptGpuCreate(ctx context.Context, key string, gpu *ac
 			return nil, err
 		}
 	} else {
-		return nil, quotapb.ErrorQuotaAdapterUnavailable("%s", "GPU owner execution is not integrated")
+		finalizer, ok := s.binding.(GpuBusinessFinalizer)
+		if !ok {
+			return nil, quotapb.ErrorQuotaAdapterUnavailable("%s", "GPU owner execution is not integrated")
+		}
+		// The operation/resource IDs are part of Inference's immutable command
+		// context, so allocate them before canonicalizing the owner payload.
+		operationID, resourceID = uuid.NewString(), uuid.NewString()
+		businessBytes, err = finalizer.FinalizeGpuBusiness(ctx, tenant, string(p.Type), actorID, operationID, resourceID, business, plan)
+		if err != nil {
+			return nil, err
+		}
+		if s.binding.OwnerService() == "ani-inference" {
+			managed, decodeErr := runtimev1.DecodeBusinessPayload(businessBytes)
+			if decodeErr != nil {
+				return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid finalized inference business")
+			}
+			requestHash, err = runtimev1.ManagedCreateRequestHash(managed, tenant, string(p.Type), actorID)
+			if err != nil {
+				return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid finalized inference request hash")
+			}
+		}
 	}
 
 	supported := false
@@ -299,7 +328,10 @@ func (s *GpuAcceptance) AcceptGpuCreate(ctx context.Context, key string, gpu *ac
 	if _, err = DecodeGpuCanonical(canonical); err != nil {
 		return nil, err
 	}
-	result, err := s.ledger.Occupy(ctx, &data.QuotaOccupyInput{TenantID: p.TenantID, ResourceTenantID: tenant, ResourceID: uuid.NewString(), ActorType: string(p.Type), ActorID: actorID, OwnerService: s.binding.OwnerService(), Action: s.binding.CreateAction(), IdempotencyKey: key, RequestHash: requestHash, CanonicalRequest: string(canonical), Items: items})
+	if resourceID == "" {
+		resourceID = uuid.NewString()
+	}
+	result, err := s.ledger.Occupy(ctx, &data.QuotaOccupyInput{TenantID: p.TenantID, ResourceTenantID: tenant, ResourceID: resourceID, OperationID: operationID, ActorType: string(p.Type), ActorID: actorID, OwnerService: s.binding.OwnerService(), Action: s.binding.CreateAction(), IdempotencyKey: key, RequestHash: requestHash, CanonicalRequest: string(canonical), Items: items})
 	if err == nil && s.worker != nil {
 		s.worker.Notify()
 	}

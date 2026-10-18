@@ -12,7 +12,6 @@ import (
 
 	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
 	protocol "github.com/zhangzhe-ctrl/ani-accelerator-service/pkg/gpuprotocol"
-	res "github.com/zhangzhe-ctrl/ani-resource-service/api/instance/v1"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"go-wind-admin/app/admin/service/internal/data"
@@ -236,15 +235,11 @@ func DecodeGpuCanonical(raw []byte) (*GpuCanonical, error) {
 	if len(gpuItems) != 1 {
 		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid GPU metering")
 	}
-	q := gpuItems[0]
-	business, err := res.DecodeBusinessPayload(c.BusinessPayload)
-	if err != nil {
-		return nil, err
-	}
-	_, err = GpuResolvedQuota(&acc.ResolvedGpuRequest{Execution: business.GpuExecution, Selection: business.GpuDisplay, QuotaItems: []*acc.GpuQuotaItem{{QuotaCode: q.QuotaCode, Units: q.Units}}}, c.GpuRequest)
-	if err != nil {
-		return nil, err
-	}
+	// The owner-specific business payload is intentionally decoded by its
+	// binding (Inference uses its own runtime contract; Resource uses its own
+	// instance contract). This shared envelope only validates bytes, identity,
+	// and the frozen quota vector.
+	_ = gpuItems[0]
 	sum := sha256.Sum256(c.BusinessPayload)
 	if hex.EncodeToString(sum[:]) != c.BusinessPayloadDigest {
 		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "business payload digest mismatch")

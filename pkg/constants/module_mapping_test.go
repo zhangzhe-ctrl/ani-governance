@@ -68,6 +68,7 @@ func TestServiceTagToBusinessModuleExactMapping(t *testing.T) {
 		"NetworkService":         identityV1.Module_NETWORK,
 		"PlatformNetworkService": identityV1.Module_NETWORK,
 		"ModelService":           identityV1.Module_MODEL,
+		"InferenceService":       identityV1.Module_INFERENCE,
 		"ModelDevService":        identityV1.Module_MODEL,
 	}
 	assert.Equal(t, expected, ServiceTagToBusinessModule,
@@ -93,6 +94,7 @@ func TestServiceTagToBusinessModuleReverseMapping(t *testing.T) {
 		identityV1.Module_NETWORK:          {"NetworkService", "PlatformNetworkService"},
 		identityV1.Module_ACCELERATOR:      {"AcceleratorAdminService", "AcceleratorService"},
 		identityV1.Module_MODEL:            {"ModelDevService", "ModelService"},
+		identityV1.Module_INFERENCE:        {"InferenceService"},
 	}
 
 	actual := make(map[identityV1.Module][]string)
