@@ -24,6 +24,10 @@ serviceAccount:
   create: true
   annotations: {}
   name: ""
+rbac:
+  # The server reads the registered Volcano scheduling configuration and
+  # validates scheduling options through the Kubernetes API.
+  create: true
 podAnnotations: {}
 podLabels: {}
 podSecurityContext:
