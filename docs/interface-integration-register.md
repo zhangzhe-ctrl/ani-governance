@@ -1657,12 +1657,13 @@ main 发布使用 Resource `e7b5a8a3435996181bff62e025a21224c97d2464`，Gov 依�
 
 ## GOV-MODEL-INF-20261012：Model / Inference BFF 接入
 
-本登记当前只保留 Model 模型目录、版本和导入 BFF。Inference 管理接入已整体撤下，
-包括普通及 GPU 推理的创建、查询、操作查询、更新、启停/重启和删除；本仓不再依赖
-Inference Go API 模块，后续重新对接另行登记。调用方通过 Governance HTTP 管理模型，
-Governance 根据已认证的租户用户建立下游 Model mTLS gRPC 请求，不信任客户端提交的
-租户或 actor。ModelScope 导入仍由 Model Service 创建一次性 Kubernetes Job 完成，
-文件写入当前 Model Service 配置的 S3-compatible 存储。
+本登记同时覆盖 Model 模型目录、版本、导入 BFF 和 Inference 推理服务管理 BFF。
+Inference 的普通及 GPU 推理创建、查询、操作查询、更新、启停/重启和删除均由
+Governance HTTP 入口提供；Governance 根据已认证的租户用户建立下游 Model/Inference
+mTLS gRPC 请求，不信任客户端提交的租户或 actor。Higress 只承载 OpenAI 兼容推理
+数据面（例如 `/v1/completions`），不得承载下列 `/api/v1/...` 管理路由。ModelScope
+导入仍由 Model Service 创建一次性 Kubernetes Job 完成，文件写入当前 Model Service
+配置的 S3-compatible 存储。
 
 ### HTTP 入口
 
@@ -1675,6 +1676,17 @@ Governance 根据已认证的租户用户建立下游 Model mTLS gRPC 请求，�
 | 模型下载地址 | `GET /api/v1/model-versions/{model_version_id}/download-url` | `model:service:read`（由 Governance 通过受信任的 Model gRPC 调用） |
 | 创建模型/版本、上传地址、发起导入、重试 | `POST /api/v1/models`、`POST /api/v1/model-versions`、`POST /api/v1/models/{model_id}/upload-url`、`POST /api/v1/models:import`、`POST /api/v1/models/import-tasks/{task_id}:retry` | `model:service:manage` |
 | 删除模型/版本 | `DELETE /api/v1/models/{model_id}`、`DELETE /api/v1/model-versions/{model_version_id}` | `model:service:manage` |
+
+| 推理服务列表/详情 | `GET /api/v1/inference/services`、`GET /api/v1/inference/services/{resource_id}` | `inference:service:read` |
+| 推理服务创建/删除 | `POST /api/v1/inference/services`、`POST /api/v1/inference/services/{resource_id}:delete` | `inference:service:create` / `inference:service:delete` |
+| 推理操作查询 | `GET /api/v1/inference/operations/{operation_id}`、`GET /api/v1/inference/services/{resource_id}/operations` | `inference:service:read` |
+| 推理更新/启停/重启 | `POST /api/v1/inference/services/{resource_id}:update`、`:start`、`:stop`、`:restart` | `inference:service:manage` |
+
+Inference 列表请求使用 `page`/`pageSize`（默认 20，最大 100），筛选条件在分页前
+应用；响应为 `{items, total}`，其中 `total` 按 HTTP JSON 合同编码为十进制字符串。
+旧的 `page_token`/`next_page_token`/`services` 不是 Inference BFF 合同。推理 DTO
+中的 `served_model_name`、模型版本、状态、运行时和能力字段由下游 Inference
+返回，Governance 只做租户、权限和分页适配。
 ### 新环境启用步骤
 
 1. 先对本版本 OpenAPI 执行 `admin sync-apis --dry-run`，人工确认后执行
@@ -1688,13 +1700,21 @@ Governance 根据已认证的租户用户建立下游 Model mTLS gRPC 请求，�
 4. 配置 Governance → Model 的证书、精确服务 DNS 和地址；调用者证书只含
    DNS SAN `ani-governance`，不混入其他 DNS、URI、IP 或 email。重启 Governance
    使 Casbin 策略重新加载；配置缺失时 BFF 应返回下游不可用，不退化为直连或明文。
+5. 执行 [Inference 权限目录登记](../scripts/ops/sql/register-inference-permissions.sql)，
+   再按目标租户执行 [Inference 启用脚本](../scripts/ops/sql/enable-inference-access.sql)。
+   两个脚本只登记或启用指定租户的 API、角色和 `INFERENCE` 模块，不修改其他租户、
+   套餐或配额。配置 Governance → Inference 的 TLS 1.3 双向证书和精确 DNS SAN
+   `ani-inference`，缺少证书或 SAN 校验失败时 BFF 返回下游不可用。
 
 ### 业务链路验收
 
 `登录 → POST /api/v1/models → POST /api/v1/model-versions → POST /api/v1/models:import
 → 轮询导入任务 → 读取已就绪版本`。导入任务状态可以在版本就绪前为
 `importing`；`GET /api/v1/model-versions/{id}` 只返回已就绪版本，不能把导入中的
-404 当作导入失败。该链路不包含推理服务管理或推理数据面验收；Model 当前功能范围保持不变。
+404 当作导入失败。推理管理链路在模型版本就绪后为
+`POST /api/v1/inference/services → GET /api/v1/inference/services/{id} →
+GET /api/v1/inference/operations/{operation_id}`；该链路需要单独验证 Inference
+owner 的 mTLS 和运行时状态，不能据此宣称推理数据面（Higress `/v1/completions`）已验收。
 
 
 ### GOV-ACC-INF-V12-WIRING-01：2026-10-18 显存值合同替换
