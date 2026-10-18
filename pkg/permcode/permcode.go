@@ -244,5 +244,5 @@ func SplitKey(k string) (method, path string) {
 // ManagementCount 返回管理面权威表条目数（供 dry-run 摘要与测试）。
 func ManagementCount() int { return len(managementOperations) }
 
-// CapabilityCount 返回六域/Quota 权威表条目数。
+// CapabilityCount 返回各业务域/Quota 权威表条目数。
 func CapabilityCount() int { return len(capabilityOperations) }
