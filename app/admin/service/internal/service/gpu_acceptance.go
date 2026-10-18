@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	runtimev1 "github.com/liangzai006/ani-inference-service/api/inference/v1"
 	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
 	"sort"
 	"strconv"
