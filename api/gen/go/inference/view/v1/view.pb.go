@@ -83,8 +83,11 @@ type Operation struct {
 	ErrorMessage     string                 `protobuf:"bytes,8,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
 	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	CompletedAt      *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=completed_at,json=completedAt,proto3" json:"completed_at,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	GovDispatchState string                 `protobuf:"bytes,11,opt,name=gov_dispatch_state,proto3" json:"gov_dispatch_state,omitempty"`
+	// NONE for CPU; GPU accounting is independent of owner cleanup completion.
+	RefundState   string `protobuf:"bytes,12,opt,name=refund_state,proto3" json:"refund_state,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Operation) Reset() {
@@ -187,11 +190,25 @@ func (x *Operation) GetCompletedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Operation) GetGovDispatchState() string {
+	if x != nil {
+		return x.GovDispatchState
+	}
+	return ""
+}
+
+func (x *Operation) GetRefundState() string {
+	if x != nil {
+		return x.RefundState
+	}
+	return ""
+}
+
 var File_inference_view_v1_view_proto protoreflect.FileDescriptor
 
 const file_inference_view_v1_view_proto_rawDesc = "" +
 	"\n" +
-	"\x1cinference/view/v1/view.proto\x12\x11inference.view.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe3\x02\n" +
+	"\x1cinference/view/v1/view.proto\x12\x11inference.view.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb7\x03\n" +
 	"\tOperation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -206,7 +223,9 @@ const file_inference_view_v1_view_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12=\n" +
 	"\fcompleted_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\vcompletedAt*l\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\vcompletedAt\x12.\n" +
+	"\x12gov_dispatch_state\x18\v \x01(\tR\x12gov_dispatch_state\x12\"\n" +
+	"\frefund_state\x18\f \x01(\tR\frefund_state*l\n" +
 	"\vRuntimeMode\x12\x1c\n" +
 	"\x18RUNTIME_MODE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17RUNTIME_MODE_DEPLOYMENT\x10\x01\x12\"\n" +

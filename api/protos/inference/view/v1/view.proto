@@ -22,4 +22,8 @@ message Operation {
   string error_message = 8;
   google.protobuf.Timestamp created_at = 9;
   google.protobuf.Timestamp completed_at = 10;
+  string gov_dispatch_state = 11 [json_name = "gov_dispatch_state"];
+  // NONE for CPU; GPU accounting is independent of owner cleanup completion.
+  string refund_state = 12 [json_name = "refund_state"];
+
 }

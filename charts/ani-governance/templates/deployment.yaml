@@ -23,8 +23,8 @@ spec:
         {{- end }}
     spec:
       serviceAccountName: {{ include "ani-governance.serviceAccountName" . }}
-      # The server uses in-cluster credentials for read-only scheduling
-      # capability checks. Bootstrap Jobs remain token-free.
+      # The server uses in-cluster credentials for scheduling configuration
+      # and capability checks. Bootstrap Jobs remain token-free.
       automountServiceAccountToken: true
       terminationGracePeriodSeconds: 30
       {{- with .Values.imagePullSecrets }}

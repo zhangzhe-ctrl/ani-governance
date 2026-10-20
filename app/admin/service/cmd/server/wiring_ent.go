@@ -217,13 +217,20 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanups = append(cleanups, closeInference)
 		inferenceClient = client
 	}
-	inferenceBinding := service.NewInferenceGpuBindingWithModel(inferenceClient, data.NewInferenceAuthorizationRepo(entClient), modelClient)
-	instanceOwner, closeInstance, err := data.NewInstanceClientFromEnv()
+
+	instanceOwner, computeOwner, closeResource, err := data.NewResourceClientsFromEnv()
 	if err != nil {
 		rollback()
 		return nil, nil, err
 	}
-	cleanups = append(cleanups, closeInstance)
+	cleanups = append(cleanups, closeResource)
+	inferenceBinding := service.NewInferenceComputeBinding(inferenceClient, data.NewInferenceAuthorizationRepo(entClient), modelClient, computeOwner)
+	observabilityClient, closeObservability, err := data.NewObservabilityClientFromEnv()
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	cleanups = append(cleanups, closeObservability)
 	var instanceClient service.InstanceOwnerClient
 	if instanceOwner != nil {
 		instanceClient = instanceOwner
@@ -394,11 +401,21 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		instanceSessions = instanceSession
 	}
 	instanceCatalog := service.InstanceCatalogConfig{ClusterID: os.Getenv("ANI_INSTANCE_CLUSTER_ID"), Cluster: instanceCluster, Settings: instanceScheduling}
+	computeCatalog := service.ComputeCatalogConfig{ClusterID: os.Getenv("ANI_INSTANCE_CLUSTER_ID"), Resolver: tenantRepo, Authorization: data.NewComputeCatalogAuthorizationRepo(entClient)}
+	var computeClient service.ComputePresetOwner
+	if computeOwner != nil {
+		computeClient = computeOwner
+		computeCatalog.Compute = computeOwner
+	}
+	if observabilityClient != nil {
+		instanceCatalog.Monitoring = observabilityClient
+	}
 	if acceleratorClient != nil {
-		instanceCatalog.Admin = acceleratorClient.Admin
-		instanceCatalog.Catalog = acceleratorClient.Catalog
+		computeCatalog.Admin = acceleratorClient.Admin
+		computeCatalog.Catalog = acceleratorClient.Catalog
 	}
 	instanceService := service.NewInstanceService(instanceAcceptance, instanceBinding, tenantRepo, quotaLedgerRepo, instanceSessions, instanceCatalog)
+	computeService := service.NewComputePresetService(computeClient, computeCatalog)
 	modeldevService := service.NewModelDevService(modeldevAuthorizationRepo, tenantRepo, modeldevAcceptanceRepo, modeldevBindingRepo, modeldevClient)
 
 	// ═══════════════════════ 五、传输层(internal/server) ═══════════════════════
@@ -439,6 +456,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		modeldevService,
 		inferenceService,
 		modelService,
+		computeService,
 		instanceService,
 	)
 	if err != nil {

@@ -42,11 +42,11 @@ func TestInferenceDeletePathResourceIDUsesNestedRouteVariable(t *testing.T) {
 }
 
 func TestInferencePublicHTTPRejectsTrustedFieldsAndAmbiguousJSON(t *testing.T) {
-	valid := `{"data":{"idempotency_key":"20000000-0000-4000-8000-000000000001","name":"wire","model_version_id":"m","served_model_name":"wire","engine_image":"image","engine_type":"vllm","command":"server","cpu":"1","memory":"1Gi","replicas":1,"gpu":{"cluster_id":"c","pool_id":"p","profile_id":"v","profile_version":"1"}}}`
+	valid := `{"data":{"idempotency_key":"20000000-0000-4000-8000-000000000001","name":"wire","model_version_id":"m","served_model_name":"wire","engine_image":"image","engine_type":"vllm","command":"server","preset_id":"40000000-0000-4000-8000-000000000001","replicas":1}}`
 	request := httptest.NewRequest("POST", "/api/v1/inference/services", strings.NewReader(valid))
 	request.Header.Set("Content-Type", "application/json")
 	require.NoError(t, decodeInferenceHTTP(request, new(view.CreateInferenceRequest)))
-	for _, body := range []string{`{"data":{"tenant_id":"forged"}}`, `{"data":{"gpu_owner_attachment":{}}}`, `{"data":{"original_charges":[]}}`, `{"data":{"plan":{}}}`, `{"data":{"name":"a","name":"b"}}`, `{"data":{}} {"data":{}}`} {
+	for _, body := range []string{`{"data":{"tenant_id":"forged"}}`, `{"data":{"gpu_owner_attachment":{}}}`, `{"data":{"original_charges":[]}}`, `{"data":{"plan":{}}}`, `{"data":{"cpu":""}}`, `{"data":{"memory":""}}`, `{"data":{"gpu":null}}`, `{"data":{"name":"a","name":"b"}}`, `{"data":{}} {"data":{}}`} {
 		request = httptest.NewRequest("POST", "/api/v1/inference/services", strings.NewReader(body))
 		request.Header.Set("Content-Type", "application/json")
 		require.Error(t, decodeInferenceHTTP(request, new(view.CreateInferenceRequest)))

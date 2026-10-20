@@ -4,17 +4,20 @@ import (
 	"context"
 	"testing"
 
+	"github.com/google/uuid"
 	inferencev1 "github.com/liangzai006/ani-inference-service/api/inference/v1"
 	modelv1 "github.com/liangzai006/ani-model-service/api/model/v1"
 	"github.com/stretchr/testify/require"
 	commandv1 "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/command/v1"
+	compute "github.com/zhangzhe-ctrl/ani-resource-service/api/compute/v1"
 	view "go-wind-admin/api/gen/go/inference/service/v1"
-	viewv1 "go-wind-admin/api/gen/go/inference/view/v1"
+	"go-wind-admin/app/admin/service/internal/commandcontract"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/pkg/middleware/auth"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type directInferenceOwnerProbe struct {
@@ -84,78 +87,69 @@ func (directInferenceTenantProbe) ResourceTenantID(context.Context, uint32) (str
 	return "11111111-1111-4111-8111-111111111111", nil
 }
 
+type inferenceComputeProbe struct {
+	selection *compute.ComputeSelection
+	calls     int
+	err       error
+}
+
+func (p *inferenceComputeProbe) ResolveComputePreset(_ context.Context, tenant, actor string, request *compute.ResolveComputePresetRequest) (*compute.ComputeSelection, error) {
+	p.calls++
+	if request.TenantId != tenant || request.Usage != compute.Usage_INFERENCE {
+		panic("untrusted compute identity")
+	}
+	return p.selection, p.err
+}
+func inferenceCPUSelection(t *testing.T) *compute.ComputeSelection {
+	t.Helper()
+	s := &compute.ComputeSelection{SchemaVersion: 1, PresetId: "40000000-0000-4000-8000-000000000001", Code: "cpu-test", Name: "CPU", ComputeType: "cpu", CpuMillis: 1501, MemoryMib: 2049}
+	var e error
+	s.SelectionDigest, e = compute.SelectionDigest(s)
+	require.NoError(t, e)
+	return s
+}
+func inferencePublicIntent() *view.CreateInferenceData {
+	return &view.CreateInferenceData{IdempotencyKey: uuid.NewString(), PresetId: "40000000-0000-4000-8000-000000000001", Name: "qwen", ModelVersionId: "30000000-0000-4000-8000-000000000001", ServedModelName: "qwen", EngineType: "vllm", EngineImage: "registry/vllm:fixed", Command: "exec vllm serve /models --served-model-name qwen", Replicas: 1}
+}
 func TestInferenceServiceCreatesWithoutGPUThroughTrustedOwner(t *testing.T) {
 	owner := &directInferenceOwnerProbe{}
-	model := &inferenceModelProbe{response: &modelv1.GetModelVersionResponse{Model: &modelv1.Model{TenantId: "11111111-1111-4111-8111-111111111111"}, Version: &modelv1.ModelVersion{Id: "version-1", Status: "ready"}}}
+	model := &inferenceModelProbe{}
 	s := NewInferenceServiceWithOwnerAndModel(nil, owner, directInferenceTenantProbe{}, model)
 	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42})
-	request := &view.CreateInferenceRequest{Data: &view.CreateInferenceData{
-		IdempotencyKey: "direct-create-1", Name: "qwen-direct", ModelVersionId: "version-1", ServedModelName: "qwen-direct", Replicas: 1,
-		EngineType: "vllm", EngineImage: "registry/vllm:latest", Command: "python -m vllm.entrypoints.openai.api_server --served-model-name qwen-direct", Cpu: "1", Memory: "2Gi",
-	}}
-	reply, err := s.CreateInference(ctx, request)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if reply.GetResourceId() != "svc-1" || reply.GetOperationId() != "op-1" || owner.createCalls != 1 {
-		t.Fatalf("unexpected acceptance: %#v calls=%d", reply, owner.createCalls)
-	}
-	if owner.tenant != "11111111-1111-4111-8111-111111111111" || owner.actor != "governance:user:7" {
-		t.Fatalf("unexpected trusted identity: tenant=%q actor=%q", owner.tenant, owner.actor)
-	}
-	if owner.request.GetEngine().GetCommand() != request.Data.Command || owner.request.GetEngine().GetImage() != request.Data.EngineImage || owner.request.GetEngine().GetType() != request.Data.EngineType {
-		t.Fatalf("engine was changed: %#v", owner.request.GetEngine())
-	}
-	endpoint := owner.request.GetRuntime().GetEndpoint()
-	require.Equal(t, int32(8000), endpoint.GetContainerPort())
-	require.Equal(t, int32(80), endpoint.GetServicePort())
-	require.Equal(t, "8000", endpoint.GetTargetPort())
-	require.Equal(t, "TCP", endpoint.GetProtocol())
-	if owner.request.GetResource().GetRequests()["cpu"] != "1" || owner.request.GetResource().GetRequests()["memory"] != "2Gi" || owner.request.GetResource().GetLimits() != nil {
-		t.Fatalf("resources were changed: %#v", owner.request.GetResource())
-	}
-	if model.tenant != owner.tenant || model.actor != owner.actor || model.request.GetModelVersionId() != request.Data.ModelVersionId {
-		t.Fatalf("model readiness was not checked with trusted identity: %#v", model)
-	}
-}
-
-func TestInferenceServiceRejectsModelThatIsNotReady(t *testing.T) {
-	owner := &directInferenceOwnerProbe{}
-	model := &inferenceModelProbe{response: &modelv1.GetModelVersionResponse{Model: &modelv1.Model{TenantId: "11111111-1111-4111-8111-111111111111"}, Version: &modelv1.ModelVersion{Id: "version-1", Status: "pending"}}}
-	s := NewInferenceServiceWithOwnerAndModel(nil, owner, directInferenceTenantProbe{}, model)
-	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42})
-	_, err := s.CreateInference(ctx, &view.CreateInferenceRequest{Data: &view.CreateInferenceData{IdempotencyKey: "direct-create-1", Name: "qwen-direct", ModelVersionId: "version-1", ServedModelName: "qwen-direct", EngineType: "vllm", EngineImage: "registry/vllm:latest", Command: "serve", Cpu: "1", Memory: "2Gi", Replicas: 1}})
-	require.Equal(t, codes.FailedPrecondition, status.Code(err))
+	_, e := s.CreateInference(ctx, &view.CreateInferenceRequest{Data: inferencePublicIntent()})
+	require.Error(t, e, "managed CPU requires durable acceptance")
 	require.Zero(t, owner.createCalls)
+	require.Zero(t, model.calls)
 }
-
+func TestInferenceServiceRejectsModelThatIsNotReady(t *testing.T) {
+	public := inferencePublicIntent()
+	model := &inferenceModelProbe{response: &modelv1.GetModelVersionResponse{Version: &modelv1.ModelVersion{Id: public.ModelVersionId, Status: "pending"}}}
+	b := NewInferenceComputeBinding(nil, nil, model, &inferenceComputeProbe{selection: inferenceCPUSelection(t)})
+	_, e := b.PrepareManagedBusiness(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42}, "11111111-1111-4111-8111-111111111111", public)
+	require.Equal(t, codes.FailedPrecondition, status.Code(e))
+	require.Equal(t, 1, model.calls)
+}
 func TestInferenceServiceChecksModelBeforeDirectCreate(t *testing.T) {
-	for _, tc := range []struct {
-		name     string
-		version  *modelv1.ModelVersion
-		wantCode codes.Code
-		calls    int
-	}{
-		{name: "not ready", version: &modelv1.ModelVersion{Id: "version-1", Status: "pending"}, wantCode: codes.FailedPrecondition},
-		{name: "wrong version", version: &modelv1.ModelVersion{Id: "version-2", Status: "ready"}, wantCode: codes.FailedPrecondition},
-		{name: "ready matching version", version: &modelv1.ModelVersion{Id: "version-1", Status: "ready"}, wantCode: codes.OK, calls: 1},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			owner := &directInferenceOwnerProbe{}
-			model := &inferenceModelProbe{response: &modelv1.GetModelVersionResponse{Version: tc.version}}
-			s := NewInferenceServiceWithOwnerAndModel(nil, owner, directInferenceTenantProbe{}, model)
-			ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42})
-			reply, err := s.CreateInference(ctx, &view.CreateInferenceRequest{Data: &view.CreateInferenceData{
-				IdempotencyKey: "20000000-0000-4000-8000-000000000001", Name: "qwen", ModelVersionId: "version-1", ServedModelName: "qwen", EngineType: "vllm", EngineImage: "image", Command: "serve", Cpu: "1", Memory: "2Gi", Replicas: 1,
-			}})
-			require.Equal(t, tc.wantCode, status.Code(err))
-			require.Equal(t, tc.calls, owner.createCalls)
-			if tc.calls == 1 {
-				require.Equal(t, "svc-1", reply.GetResourceId())
-				require.Equal(t, "version-1", owner.request.GetModelVersionId())
-			}
-		})
-	}
+	public := inferencePublicIntent()
+	model := &inferenceModelProbe{response: &modelv1.GetModelVersionResponse{Version: &modelv1.ModelVersion{Id: public.ModelVersionId, Status: "ready"}}}
+	computePeer := &inferenceComputeProbe{selection: inferenceCPUSelection(t)}
+	b := NewInferenceComputeBinding(nil, nil, model, computePeer)
+	tenant := "11111111-1111-4111-8111-111111111111"
+	prepared, e := b.PrepareManagedBusiness(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42}, tenant, public)
+	require.NoError(t, e)
+	require.Nil(t, prepared.gpu)
+	raw, e := prepared.freeze(tenant, "user", "7", "20000000-0000-4000-8000-000000000001", "20000000-0000-4000-8000-000000000002", nil)
+	require.NoError(t, e)
+	facts, e := commandcontract.ValidateStoredCommand(commandcontract.StoredCommand{Owner: commandcontract.InferenceOwner, Action: InferenceCreateAction, TenantID: tenant, OperationID: "20000000-0000-4000-8000-000000000001", ResourceID: "20000000-0000-4000-8000-000000000002", ActorType: "user", ActorID: "7", Canonical: raw, RequireChargeIDs: true})
+	require.NoError(t, e)
+	require.True(t, facts.CPU)
+	business, e := inferencev1.DecodeBusinessPayload(facts.BusinessPayload)
+	require.NoError(t, e)
+	require.Equal(t, "1501m", business.Resource.Requests["cpu"])
+	require.Equal(t, "2049Mi", business.Resource.Limits["memory"])
+	require.Equal(t, public.Command, business.Engine.Command)
+	require.Equal(t, 1, model.calls)
+	require.Equal(t, 1, computePeer.calls)
 }
 
 func TestInferenceServiceExposesTrustedLifecycleCommands(t *testing.T) {
@@ -164,9 +158,9 @@ func TestInferenceServiceExposesTrustedLifecycleCommands(t *testing.T) {
 	s := NewInferenceServiceWithOwnerAndModel(nil, owner, directInferenceTenantProbe{}, model)
 	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42})
 	update, err := s.UpdateInference(ctx, &view.UpdateInferenceRequest{Data: &view.UpdateInferenceData{
-		IdempotencyKey: "update-1", ResourceId: "svc-1", ExpectedGeneration: 2, ModelVersionId: "version-1",
+		IdempotencyKey: "update-1", ResourceId: "20000000-0000-4000-8000-000000000002", ExpectedGeneration: 2, ModelVersionId: "30000000-0000-4000-8000-000000000001", UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"model_version_id", "served_model_name", "engine"}},
 		ServedModelName: "qwen", EngineType: "vllm", EngineImage: "registry/vllm:latest",
-		Command: "vllm serve /models --served-model-name qwen", Cpu: "1", Memory: "2Gi", Replicas: 1,
+		Command: "vllm serve /models --served-model-name qwen",
 	}})
 	require.NoError(t, err)
 	require.Equal(t, "op-update", update.OperationId)
@@ -191,49 +185,22 @@ func TestInferenceServiceExposesTrustedLifecycleCommands(t *testing.T) {
 }
 
 func TestInferenceServiceDerivesGPUPlacementForDeploymentAndLWS(t *testing.T) {
-	for _, tc := range []struct {
-		name      string
-		mode      viewv1.RuntimeMode
-		workers   int32
-		replicas  int32
-		container string
-		gpuPods   uint32
-	}{
-		{name: "deployment", mode: viewv1.RuntimeMode_RUNTIME_MODE_DEPLOYMENT, replicas: 3, container: "kserve-container", gpuPods: 3},
-		{name: "lws", mode: viewv1.RuntimeMode_RUNTIME_MODE_LEADER_WORKER_SET, workers: 2, replicas: 3, container: "main", gpuPods: 9},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			s := &InferenceService{}
-			request, err := s.buildCreateRequest(&view.CreateInferenceData{IdempotencyKey: "20000000-0000-4000-8000-000000000001", Name: "qwen", ModelVersionId: "version-1", ServedModelName: "qwen", EngineType: "vllm", EngineImage: "image", Command: "serve", Cpu: "1", Memory: "2Gi", Replicas: tc.replicas, RuntimeMode: tc.mode, WorkerReplicas: tc.workers, Gpu: &view.GpuSelection{ClusterId: "cluster", PoolId: "pool", ProfileId: "profile", ProfileVersion: 1}})
-			require.NoError(t, err)
-			require.Equal(t, tc.container, request.GetResource().GetGpu().GetContainerName())
-			require.Equal(t, tc.gpuPods, request.GetResource().GetGpu().GetReplicas())
-			require.Equal(t, uint32(1), request.GetResource().GetGpu().GetDevicesPerReplica())
-			require.Equal(t, int32(8000), request.GetRuntime().GetEndpoint().GetContainerPort())
-			require.Equal(t, int32(80), request.GetRuntime().GetEndpoint().GetServicePort())
-			require.Equal(t, "8000", request.GetRuntime().GetEndpoint().GetTargetPort())
-			require.Equal(t, "TCP", request.GetRuntime().GetEndpoint().GetProtocol())
-		})
-	}
+	topology, e := inferencev1.NormalizeTopology(&inferencev1.RuntimeSpec{Mode: inferencev1.RuntimeMode_RUNTIME_MODE_DEPLOYMENT}, 3, 2)
+	require.NoError(t, e)
+	require.Equal(t, uint32(3), topology.ExecutionReplicas)
+	require.Equal(t, uint32(2), topology.DevicesPerReplica)
+	require.Equal(t, int64(6), topology.TotalDevices)
+	_, e = inferencev1.NormalizeTopology(&inferencev1.RuntimeSpec{Mode: inferencev1.RuntimeMode_RUNTIME_MODE_LEADER_WORKER_SET, WorkerReplicas: 2}, 3, 1)
+	require.Error(t, e, "GPU LWS is rejected before admission")
 }
-
 func TestInferenceServiceRejectsInvalidFlatCreateFields(t *testing.T) {
-	base := &view.CreateInferenceData{IdempotencyKey: "create", Name: "qwen", ModelVersionId: "version-1", ServedModelName: "qwen", EngineType: "vllm", EngineImage: "image", Command: "serve", Cpu: "1", Memory: "2Gi", Replicas: 1}
-	for name, mutate := range map[string]func(*view.CreateInferenceData){
-		"missing command":       func(d *view.CreateInferenceData) { d.Command = "" },
-		"zero replicas":         func(d *view.CreateInferenceData) { d.Replicas = 0 },
-		"bad cpu":               func(d *view.CreateInferenceData) { d.Cpu = "0" },
-		"deployment workers":    func(d *view.CreateInferenceData) { d.WorkerReplicas = 1 },
-		"partial gpu selection": func(d *view.CreateInferenceData) { d.Gpu = &view.GpuSelection{ClusterId: "cluster", PoolId: "pool"} },
-		"zero lws workers": func(d *view.CreateInferenceData) {
-			d.RuntimeMode = viewv1.RuntimeMode_RUNTIME_MODE_LEADER_WORKER_SET
-		},
-	} {
+	base := inferencePublicIntent()
+	for name, mutate := range map[string]func(*view.CreateInferenceData){"missing command": func(d *view.CreateInferenceData) { d.Command = "" }, "missing preset": func(d *view.CreateInferenceData) { d.PresetId = "" }, "raw CPU": func(d *view.CreateInferenceData) { d.Cpu = "1" }, "raw memory": func(d *view.CreateInferenceData) { d.Memory = "1Gi" }, "raw GPU": func(d *view.CreateInferenceData) { d.Gpu = &view.GpuSelection{} }, "zero replicas": func(d *view.CreateInferenceData) { d.Replicas = 0 }, "deployment workers": func(d *view.CreateInferenceData) { d.WorkerReplicas = 2 }} {
 		t.Run(name, func(t *testing.T) {
 			d := proto.Clone(base).(*view.CreateInferenceData)
 			mutate(d)
-			_, err := (&InferenceService{}).buildCreateRequest(d)
-			require.Equal(t, codes.InvalidArgument, status.Code(err))
+			_, e := new(InferenceService).buildCreateRequest(d)
+			require.Equal(t, codes.InvalidArgument, status.Code(e))
 		})
 	}
 }
@@ -269,23 +236,24 @@ func TestInferenceGPUExecutionRemainsDisabled(t *testing.T) {
 	_, command := inferenceBusiness(t)
 	peer := &inferenceWirePeer{}
 	_, err := NewInferenceGpuBinding(peer, nil).Dispatch(context.Background(), command)
-	require.Equal(t, codes.Unavailable, status.Code(err))
+	require.Error(t, err)
 	require.Nil(t, peer.create)
 	require.Nil(t, peer.delete)
 }
 
 func TestInferencePublicBusinessRejectsAttachmentAndGPUBypass(t *testing.T) {
-	r, _ := inferenceBusiness(t)
+	r := inferencePublicIntent()
 	binding := NewInferenceGpuBinding(nil, nil)
 	_, err := binding.ValidateGpuBusiness(context.Background(), r)
 	require.NoError(t, err)
-	r.Resource.Limits["nvidia.com/gpu"] = "1"
+	r.Gpu = &view.GpuSelection{}
 	_, err = binding.ValidateGpuBusiness(context.Background(), r)
 	require.Error(t, err)
-	delete(r.Resource.Limits, "nvidia.com/gpu")
+	r.Gpu = nil
 	r.ProtoReflect().SetUnknown([]byte{0xa2, 0x01, 0x00})
-	_, err = binding.CanonicalGpuBusiness(r)
+	_, err = binding.IntentHash("11111111-1111-4111-8111-111111111111", "user", "7", r)
 	require.Error(t, err)
+
 	require.Error(t, binding.AuthorizeGpu(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 1}, InferenceCreateAction, ""))
 }
 

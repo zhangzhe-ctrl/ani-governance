@@ -61,3 +61,10 @@ func inferenceAuthorizedPath(path string) bool {
 		return false
 	}
 }
+
+func (r *InferenceAuthorizationRepo) AuthorizeGpuUse(ctx context.Context, tenant, user uint32) error {
+	if r == nil || r.actions == nil {
+		return ErrActionAuthorizationUnavailable
+	}
+	return NewGpuUseAuthorizationRepo(r.actions.entClient).AuthorizeGpuUse(ctx, tenant, user)
+}

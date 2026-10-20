@@ -16,6 +16,7 @@ func TestServiceTagToBusinessModuleExactMapping(t *testing.T) {
 	expected := map[string]identityV1.Module{
 		"ImageService":            identityV1.Module_IMAGE,
 		"InstanceService":         identityV1.Module_INSTANCE,
+		"ComputePresetService":    identityV1.Module_SYSTEM,
 		"AcceleratorAdminService": identityV1.Module_ACCELERATOR,
 		"AcceleratorService":      identityV1.Module_ACCELERATOR,
 		"QuotaSelfService":        identityV1.Module_TENANT,
@@ -86,7 +87,7 @@ func TestServiceTagToBusinessModuleReverseMapping(t *testing.T) {
 		identityV1.Module_OPM:              {"UserService", "OrgUnitService", "PositionService", "UserProfileService", "RoleService"},
 		identityV1.Module_PERMISSION:       {"MenuService", "ApiService", "PermissionService", "PermissionGroupService"},
 		identityV1.Module_DICT:             {"DictTypeService", "DictEntryService"},
-		identityV1.Module_SYSTEM:           {"MfaService", "LanguageService", "LoginPolicyService", "ConfigService", "AccessKeyService", "ServerMonitorService", "NotificationChannelService", "OnlineSessionService"},
+		identityV1.Module_SYSTEM:           {"ComputePresetService", "MfaService", "LanguageService", "LoginPolicyService", "ConfigService", "AccessKeyService", "ServerMonitorService", "NotificationChannelService", "OnlineSessionService"},
 		identityV1.Module_TASK:             {"TaskService"},
 		identityV1.Module_TENANT:           {"TenantService", "PlanService", "PlanQuotaService", "PlanModuleService", "QuotaAdminService", "QuotaLabService", "QuotaSelfService"},
 		identityV1.Module_LOG:              {"ApiAuditLogService", "LoginAuditLogService", "OperationAuditLogService", "DataAccessAuditLogService", "PermissionAuditLogService", "PolicyEvaluationLogService", "RedisCacheMonitorService"},

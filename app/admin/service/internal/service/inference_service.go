@@ -2,11 +2,8 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"strings"
-
-	"github.com/google/uuid"
 
 	kratoserrors "github.com/go-kratos/kratos/v2/errors"
 	runtimev1 "github.com/liangzai006/ani-inference-service/api/inference/v1"
@@ -17,13 +14,13 @@ import (
 	view "go-wind-admin/api/gen/go/inference/service/v1"
 	viewv1 "go-wind-admin/api/gen/go/inference/view/v1"
 	quotapb "go-wind-admin/api/gen/go/quota/service/v1"
+	"go-wind-admin/app/admin/service/internal/commandcontract"
 	"go-wind-admin/app/admin/service/internal/data"
+	"go-wind-admin/app/admin/service/internal/data/ent"
 	"go-wind-admin/pkg/middleware/auth"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
-	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 // Command actions are the owner's authoritative RPC methods; public callers
@@ -62,6 +59,7 @@ type InferenceGpuBinding struct {
 	client        InferenceOwnerClient
 	authorization InferenceActionAuthorizer
 	model         InferenceModelClient
+	compute       InferenceComputeClient
 }
 
 func NewInferenceGpuBinding(client InferenceOwnerClient, authorization InferenceActionAuthorizer) *InferenceGpuBinding {
@@ -100,162 +98,15 @@ func (b *InferenceGpuBinding) AuthorizeGpu(ctx context.Context, p *auth.Principa
 	return err
 }
 
-// CanonicalGpuBusiness selects the shared public API canonicalization. Trusted
-// attachments and immediate command IDs never enter the original business hash.
-func (*InferenceGpuBinding) CanonicalGpuBusiness(message proto.Message) ([]byte, error) {
-	request, ok := message.(*runtimev1.CreateInferenceServiceRequest)
-	if !ok || request == nil || request.GetRequestId() != "" {
-		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference user business")
-	}
-	return runtimev1.CanonicalBusinessPayload(request)
-}
-
-// Model readiness is a new-admission dependency. GpuAcceptance invokes this
-// resolver only after current authorization and the durable replay gate.
-func (b *InferenceGpuBinding) ResolveGpuBusiness(ctx context.Context, p *auth.Principal, tenant string, message proto.Message) (*acc.GpuRequest, proto.Message, error) {
-	request, ok := message.(*runtimev1.CreateInferenceServiceRequest)
-	if !ok || request == nil || request.GetResource().GetGpu() == nil || p == nil {
-		return nil, nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference user business")
-	}
-	actor, err := p.Actor()
-	if err != nil {
-		return nil, nil, status.Error(codes.Unauthenticated, "login required")
-	}
-	if err := checkInferenceModelReady(ctx, b.model, tenant, actor, request.ModelVersionId); err != nil {
-		return nil, nil, err
-	}
-	return inferenceGpuRequest(request.Resource.Gpu), request, nil
-}
-
 func (*InferenceGpuBinding) ValidateGpuBusiness(_ context.Context, message proto.Message) ([]data.QuotaOccupyItem, error) {
-	r, ok := message.(*runtimev1.CreateInferenceServiceRequest)
-	if !ok || r == nil || r.GetResource().GetGpu() == nil || r.GetRequestId() != "" {
-		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference user business")
+	d, ok := message.(*view.CreateInferenceData)
+	if !ok {
+		return nil, commandcontract.Invalid("public inference intent is required")
 	}
-	if err := runtimev1.ValidateBusinessPayload(r); err != nil {
-		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference business or GPU topology")
-	}
-	// This slice adds the established GPU meter. Dispatch below preserves all
-	// original mixed charges already present in a frozen business command.
-	return nil, nil
+	return nil, validateInferenceCreateIntent(d)
 }
-
-// FinalizeGpuBusiness binds the ACC resolved execution/display snapshot to the
-// immutable Inference business payload. Governance keeps the original quota
-// vector in its ledger; Inference receives only this frozen owner payload.
-func (b *InferenceGpuBinding) FinalizeGpuBusiness(_ context.Context, tenant, actorType, actorID, operationID, resourceID string, message proto.Message, plan *acc.ResolvedGpuRequest) ([]byte, error) {
-	request, ok := proto.Clone(message).(*runtimev1.CreateInferenceServiceRequest)
-	if !ok || request == nil || plan == nil || plan.Execution == nil || plan.Selection == nil {
-		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid resolved inference GPU plan")
-	}
-	for _, identity := range []string{tenant, operationID, resourceID} {
-		if parsed, err := uuid.Parse(identity); err != nil || parsed == uuid.Nil || parsed.String() != identity {
-			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference command identity")
-		}
-	}
-	request.Context = &runtimev1.CommandContext{TenantId: tenant, ResourceId: resourceID, OperationId: operationID}
-	request.ClusterId = request.GetResource().GetGpu().GetClusterId()
-	request.GpuExecution = proto.Clone(plan.Execution).(*acc.GpuExecution)
-	request.GpuDisplay = proto.Clone(plan.Selection).(*acc.GpuDisplay)
-	digest, err := runtimev1.ManagedCreateRequestHash(request, tenant, actorType, actorID)
-	if err != nil {
-		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference managed request")
-	}
-	request.Context.RequestDigest = digest
-	if err := runtimev1.ValidateBusinessPayload(request); err != nil {
-		return nil, quotapb.ErrorInvalidQuotaRequest("%s", err.Error())
-	}
-	return runtimev1.CanonicalBusinessPayload(request)
-}
-
 func (b *InferenceGpuBinding) Dispatch(ctx context.Context, command *QuotaDispatchCommand) ([]byte, error) {
-	if b == nil || b.client == nil || command == nil {
-		return nil, status.Error(codes.Unavailable, "INFERENCE_ADAPTER_UNAVAILABLE")
-	}
-	actorType, actorID := command.Actor.Type, command.Actor.ID
-	actor := quotaActorString(command.Actor)
-	if actor == "" {
-		return nil, status.Error(codes.Unavailable, "INFERENCE_TRUSTED_IDENTITY_UNAVAILABLE")
-	}
-	trusted, ok := b.client.(inferenceTrustedOwnerClient)
-	if !ok || trusted == nil {
-		return nil, status.Error(codes.Unavailable, "INFERENCE_TRUSTED_OWNER_UNAVAILABLE")
-	}
-	frozen, err := DecodeGpuCanonical(command.CanonicalRequest)
-	if err != nil {
-		return nil, err
-	}
-	if err = ValidateGpuCharges(frozen, command.Charges); err != nil {
-		return nil, err
-	}
-	switch command.Action {
-	case InferenceCreateAction:
-		if command.CreateOperationID != "" {
-			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference create origin")
-		}
-		business, err := runtimev1.DecodeBusinessPayload(frozen.BusinessPayload)
-		if err != nil {
-			return nil, err
-		}
-		// CanonicalBusinessPayload intentionally excludes command context. Rebind
-		// it from the durable Governance command and verify the exact managed
-		// request hash before sending the trusted owner RPC.
-		managedHash, hashErr := runtimev1.ManagedCreateRequestHash(business, command.ResourceTenantID, actorType, actorID)
-		if hashErr != nil {
-			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference managed request")
-		}
-		// command.RequestHash is the public request hash used by Governance
-		// idempotency. The owner digest is derived from the frozen payload and
-		// verified by Inference; comparing the two would reject a valid replay.
-		business.Context = &runtimev1.CommandContext{TenantId: command.ResourceTenantID, ResourceId: command.ResourceID, OperationId: command.OperationID, RequestDigest: managedHash}
-		if err := runtimev1.ValidateBusinessPayload(business); err != nil {
-			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference GPU payload")
-		}
-		var gpuQuota *acc.GpuQuotaItem
-		for _, item := range frozen.QuotaItems {
-			if item.QuotaCode == GpuPhysicalQuotaCode || item.QuotaCode == GpuSharedQuotaCode {
-				gpuQuota = &acc.GpuQuotaItem{QuotaCode: item.QuotaCode, Units: item.Units}
-				break
-			}
-		}
-		if gpuQuota == nil {
-			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "missing inference GPU meter")
-		}
-		if _, err := GpuResolvedQuota(&acc.ResolvedGpuRequest{Execution: business.GpuExecution, Selection: business.GpuDisplay, QuotaItems: []*acc.GpuQuotaItem{gpuQuota}}, frozen.GpuRequest); err != nil {
-			return nil, err
-		}
-		business.RequestId = command.OperationID
-		reply, err := trusted.CreateTrusted(ctx, command.ResourceTenantID, actor, business)
-		if err != nil {
-			return nil, err
-		}
-		if err = validateInferenceDurableAck(command, reply); err != nil {
-			return nil, err
-		}
-	case InferenceDeleteAction:
-		if command.CreateOperationID == "" {
-			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference delete origin")
-		}
-		digest, err := runtimev1.ManagedDeleteRequestHash(command.ResourceTenantID, command.ResourceID, command.CreateOperationID, actorType, actorID)
-		if err != nil {
-			return nil, err
-		}
-		request := &runtimev1.DeleteInferenceServiceRequest{RequestId: command.OperationID, ResourceId: command.ResourceID, CreateOperationId: command.CreateOperationID, Context: &runtimev1.CommandContext{TenantId: command.ResourceTenantID, ResourceId: command.ResourceID, OperationId: command.OperationID, RequestDigest: digest}}
-		reply, err := trusted.DeleteTrusted(ctx, command.ResourceTenantID, actor, request)
-		if err != nil {
-			return nil, err
-		}
-		if err = validateInferenceDurableAck(command, reply); err != nil {
-			return nil, err
-		}
-	default:
-		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference GPU action")
-	}
-	raw, err := json.Marshal(map[string]any{"operation_id": command.OperationID, "resource_id": command.ResourceID, "accepted": true})
-	if err != nil {
-		return nil, err
-	}
-	return raw, ValidateDurableOwnerAck(command, raw)
+	return b.dispatchManaged(ctx, command)
 }
 
 func validateInferenceDurableAck(command *QuotaDispatchCommand, reply *runtimev1.OperationResponse) error {
@@ -308,28 +159,17 @@ func (s *InferenceService) CreateInference(ctx context.Context, in *view.CreateI
 		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "inference data is required")
 	}
 	d := in.Data
-	request, err := s.buildCreateRequest(d)
+	if err := validateInferenceCreateIntent(d); err != nil {
+		return nil, err
+	}
+	if s == nil || s.acceptance == nil {
+		return nil, quotapb.ErrorQuotaAdapterUnavailable("%s", "inference unavailable")
+	}
+	result, err := s.acceptance.AcceptGpuCreate(ctx, d.IdempotencyKey, nil, d)
 	if err != nil {
 		return nil, err
 	}
-	if request.Resource.GetGpu() != nil {
-		if s == nil || s.acceptance == nil {
-			return nil, quotapb.ErrorQuotaAdapterUnavailable("%s", "inference unavailable")
-		}
-		result, err := s.acceptance.AcceptGpuCreate(ctx, d.IdempotencyKey, inferenceGpuRequest(request.Resource.Gpu), request)
-		if err != nil {
-			return nil, err
-		}
-		return &view.InferenceAcceptance{OperationId: result.OperationID, ResourceId: result.ResourceID, Replayed: result.Replayed, Result: "ACCEPTED", DispatchOperationId: result.OperationID}, nil
-	}
-	tenant, actor, err := s.trustedInferenceOperator(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if err := checkInferenceModelReady(ctx, s.model, tenant, actor, d.ModelVersionId); err != nil {
-		return nil, err
-	}
-	return s.createDirect(ctx, d, request, tenant, actor)
+	return &view.InferenceAcceptance{OperationId: result.OperationID, ResourceId: result.ResourceID, Replayed: result.Replayed, Result: "ACCEPTED", DispatchOperationId: result.OperationID}, nil
 }
 
 func checkInferenceModelReady(ctx context.Context, model InferenceModelClient, tenant, actor, versionID string) error {
@@ -354,83 +194,35 @@ func (s *InferenceService) buildCreateRequest(d *view.CreateInferenceData) (*run
 	if d == nil {
 		return nil, status.Error(codes.InvalidArgument, "inference data is required")
 	}
-	for field, value := range map[string]string{"idempotency_key": d.IdempotencyKey, "name": d.Name, "model_version_id": d.ModelVersionId, "served_model_name": d.ServedModelName, "engine_image": d.EngineImage, "engine_type": d.EngineType, "command": d.Command, "cpu": d.Cpu, "memory": d.Memory} {
-		if strings.TrimSpace(value) == "" {
-			return nil, status.Errorf(codes.InvalidArgument, "%s is required", field)
-		}
-	}
-	if d.Replicas <= 0 {
-		return nil, status.Error(codes.InvalidArgument, "replicas must be positive")
-	}
-	for field, value := range map[string]string{"cpu": d.Cpu, "memory": d.Memory} {
-		quantity, err := resource.ParseQuantity(value)
-		if err != nil || quantity.Sign() <= 0 {
-			return nil, status.Errorf(codes.InvalidArgument, "%s must be a positive quantity", field)
-		}
+	if err := validateInferenceCreateIntent(d); err != nil {
+		return nil, err
 	}
 	mode := runtimev1.RuntimeMode(d.RuntimeMode)
 	if mode == runtimev1.RuntimeMode_RUNTIME_MODE_UNSPECIFIED {
 		mode = runtimev1.RuntimeMode_RUNTIME_MODE_DEPLOYMENT
 	}
-	switch mode {
-	case runtimev1.RuntimeMode_RUNTIME_MODE_DEPLOYMENT:
-		if d.WorkerReplicas != 0 {
-			return nil, status.Error(codes.InvalidArgument, "worker_replicas is only valid for leader worker set")
-		}
-	case runtimev1.RuntimeMode_RUNTIME_MODE_LEADER_WORKER_SET:
-		if d.WorkerReplicas <= 0 {
-			return nil, status.Error(codes.InvalidArgument, "worker_replicas must be positive")
-		}
-	default:
-		return nil, status.Error(codes.InvalidArgument, "invalid runtime_mode")
+	if _, err := runtimev1.NormalizeTopology(&runtimev1.RuntimeSpec{Mode: mode, WorkerReplicas: d.WorkerReplicas, Provider: "kserve"}, d.Replicas, 0); err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
-	var gpu *runtimev1.GpuRequest
-	if d.Gpu != nil {
-		if strings.TrimSpace(d.Gpu.ClusterId) == "" || strings.TrimSpace(d.Gpu.PoolId) == "" || strings.TrimSpace(d.Gpu.ProfileId) == "" || d.Gpu.ProfileVersion == 0 {
-			return nil, status.Error(codes.InvalidArgument, "gpu selection must include cluster_id, pool_id, profile_id and profile_version")
-		}
-		gpuReplicas := int64(d.Replicas)
-		container := "kserve-container"
-		if mode == runtimev1.RuntimeMode_RUNTIME_MODE_LEADER_WORKER_SET {
-			gpuReplicas *= int64(d.WorkerReplicas) + 1
-			container = "main"
-		}
-		if gpuReplicas <= 0 || gpuReplicas > int64(^uint32(0)) {
-			return nil, status.Error(codes.InvalidArgument, "GPU replica count is out of range")
-		}
-		gpu = &runtimev1.GpuRequest{ClusterId: d.Gpu.ClusterId, PoolId: d.Gpu.PoolId, ProfileId: d.Gpu.ProfileId, ProfileVersion: d.Gpu.ProfileVersion, Replicas: uint32(gpuReplicas), DevicesPerReplica: 1, ContainerName: container}
-	}
-	return &runtimev1.CreateInferenceServiceRequest{
-		Name: d.Name, ModelVersionId: d.ModelVersionId, ServedModelName: d.ServedModelName, Replicas: d.Replicas,
-		Resource: &runtimev1.ResourceSpec{Requests: map[string]string{"cpu": d.Cpu, "memory": d.Memory}, Gpu: gpu},
-		// Governance exposes the business-facing flat request. The inference
-		// runtime still needs an explicit HTTP endpoint to mount the verified
-		// model PVC and publish the KServe predictor. Keep this transport
-		// contract separate from the caller-owned startup command.
-		Runtime: &runtimev1.RuntimeSpec{
-			Mode: mode, WorkerReplicas: d.WorkerReplicas, Provider: "kserve",
-			Endpoint: &runtimev1.EndpointSpec{ContainerPort: 8000, ServicePort: 80, TargetPort: "8000", Protocol: "TCP"},
-		},
-		Engine: &runtimev1.EngineSpec{Type: d.EngineType, Image: d.EngineImage, Command: d.Command},
-	}, nil
+	return &runtimev1.CreateInferenceServiceRequest{Name: d.Name, ModelVersionId: d.ModelVersionId, ServedModelName: d.ServedModelName, Replicas: d.Replicas, Runtime: &runtimev1.RuntimeSpec{Mode: mode, WorkerReplicas: d.WorkerReplicas, Provider: "kserve", Endpoint: &runtimev1.EndpointSpec{ContainerPort: 8000, ServicePort: 80, TargetPort: "8000", Protocol: "TCP"}}, Engine: &runtimev1.EngineSpec{Type: d.EngineType, Image: d.EngineImage, Command: d.Command}}, nil
 }
 
 func (s *InferenceService) DeleteInference(ctx context.Context, in *view.DeleteInferenceRequest) (*view.InferenceAcceptance, error) {
 	if in == nil || in.Data == nil {
 		return nil, quotapb.ErrorInvalidQuotaRequest("%s", "inference data is required")
 	}
-	managedGPU := false
+	managed := false
 	principal, _ := auth.PrincipalFromContext(ctx)
-	// API Key commands retain the trusted CPU owner path. GPU deletion remains
-	// subject to GpuAcceptance's tenant-user authorization below.
+	// Historical ordinary CPU resources retain the owner path. Current public
+	// Inference routes continue to require tenant-user authorization.
 	if s != nil && s.acceptance != nil && (principal == nil || principal.Type != auth.SubjectAPIKey) {
 		var err error
-		managedGPU, err = s.acceptance.HasGpuCreate(ctx, in.Data.ResourceId)
+		managed, err = s.acceptance.HasGpuCreate(ctx, in.Data.ResourceId)
 		if err != nil {
 			return nil, err
 		}
 	}
-	if !managedGPU && s != nil && s.owner != nil && s.tenants != nil {
+	if !managed && s != nil && s.owner != nil && s.tenants != nil {
 		if trusted, ok := s.owner.(interface {
 			GetTrusted(context.Context, string, string, *runtimev1.GetInferenceServiceRequest) (*runtimev1.InferenceService, error)
 		}); ok {
@@ -461,32 +253,6 @@ func (s *InferenceService) DeleteInference(ctx context.Context, in *view.DeleteI
 		return nil, err
 	}
 	return &view.InferenceAcceptance{OperationId: result.DeleteOperationId, ResourceId: result.ResourceId, Result: result.Result, DispatchOperationId: result.DispatchOperationId}, nil
-}
-
-// createDirect forwards an inference request without a GPU reservation. It
-// preserves the caller-owned complete engine command byte-for-byte.
-func (s *InferenceService) createDirect(ctx context.Context, data *view.CreateInferenceData, request *runtimev1.CreateInferenceServiceRequest, tenant, actor string) (*view.InferenceAcceptance, error) {
-	if s == nil || s.owner == nil || s.tenants == nil {
-		return nil, status.Error(codes.Unavailable, "INFERENCE_ADAPTER_UNAVAILABLE")
-	}
-	trusted, ok := s.owner.(interface {
-		CreateTrusted(context.Context, string, string, *runtimev1.CreateInferenceServiceRequest) (*runtimev1.OperationResponse, error)
-	})
-	if !ok {
-		return nil, status.Error(codes.Unavailable, "INFERENCE_ADAPTER_UNAVAILABLE")
-	}
-	if strings.TrimSpace(data.IdempotencyKey) == "" {
-		return nil, status.Error(codes.InvalidArgument, "idempotency_key is required")
-	}
-	request.RequestId = data.IdempotencyKey
-	result, err := trusted.CreateTrusted(ctx, tenant, actor, request)
-	if err != nil {
-		return nil, mapInferenceOwnerError(err)
-	}
-	if result == nil || result.Resource == nil || result.Operation == nil || result.Resource.Id == "" || result.Operation.Id == "" {
-		return nil, status.Error(codes.Unavailable, "INVALID_INFERENCE_RESPONSE")
-	}
-	return &view.InferenceAcceptance{OperationId: result.Operation.Id, ResourceId: result.Resource.Id, Result: "ACCEPTED", DispatchOperationId: result.Operation.Id}, nil
 }
 
 func (s *InferenceService) deleteDirect(ctx context.Context, in *view.DeleteInferenceRequest, tenant, actor string, generation int64) (*view.InferenceAcceptance, error) {
@@ -597,6 +363,18 @@ func (s *InferenceService) GetInference(ctx context.Context, in *view.GetInferen
 	if in == nil || strings.TrimSpace(in.ResourceId) == "" {
 		return nil, status.Error(codes.InvalidArgument, "resource_id is required")
 	}
+	var original *ent.QuotaOperation
+	var frozen *commandcontract.InferenceCanonical
+	if admission, ok := s.acceptance.(*GpuAcceptance); ok {
+		var e error
+		original, frozen, e = admission.inferenceOriginal(ctx, in.ResourceId)
+		if e != nil && !ent.IsNotFound(e) {
+			return nil, e
+		}
+		if original != nil && original.DispatchState != "ACKED" {
+			return acceptedInferenceView(original, frozen), nil
+		}
+	}
 	trusted, ok := s.owner.(interface {
 		GetTrusted(context.Context, string, string, *runtimev1.GetInferenceServiceRequest) (*runtimev1.InferenceService, error)
 	})
@@ -614,7 +392,9 @@ func (s *InferenceService) GetInference(ctx context.Context, in *view.GetInferen
 	if result == nil || result.Id != in.ResourceId {
 		return nil, status.Error(codes.Unavailable, "INVALID_INFERENCE_RESPONSE")
 	}
-	return mapInferenceView(result), nil
+	out := mapInferenceView(result)
+	applyInferenceSource(out, frozen)
+	return out, nil
 }
 
 func resolveInferencePage(page, pageSize *int32) (*int32, *int32, error) {
@@ -667,6 +447,18 @@ func (s *InferenceService) GetInferenceOperation(ctx context.Context, in *view.G
 	if in == nil || strings.TrimSpace(in.OperationId) == "" {
 		return nil, status.Error(codes.InvalidArgument, "operation_id is required")
 	}
+	var accepted *ent.QuotaOperation
+	refund := ""
+	if admission, ok := s.acceptance.(*GpuAcceptance); ok {
+		var e error
+		accepted, refund, e = admission.inferenceOperation(ctx, in.OperationId)
+		if e != nil && !ent.IsNotFound(e) {
+			return nil, e
+		}
+		if accepted != nil && accepted.DispatchState != "ACKED" {
+			return acceptedInferenceOperation(accepted, refund), nil
+		}
+	}
 	trusted, ok := s.owner.(interface {
 		GetOperationTrusted(context.Context, string, string, *runtimev1.GetOperationRequest) (*runtimev1.Operation, error)
 	})
@@ -679,12 +471,20 @@ func (s *InferenceService) GetInferenceOperation(ctx context.Context, in *view.G
 	}
 	result, err := trusted.GetOperationTrusted(ctx, tenant, actor, &runtimev1.GetOperationRequest{OperationId: in.OperationId})
 	if err != nil {
+		if accepted != nil && status.Code(err) == codes.NotFound {
+			return acceptedInferenceOperation(accepted, refund), nil
+		}
 		return nil, mapInferenceOwnerError(err)
 	}
 	if result == nil || result.Id != in.OperationId {
 		return nil, status.Error(codes.Unavailable, "INVALID_INFERENCE_RESPONSE")
 	}
-	return mapInferenceOperation(result), nil
+	out := mapInferenceOperation(result)
+	if accepted != nil {
+		out.GovDispatchState = string(accepted.DispatchState)
+		out.RefundState = refund
+	}
+	return out, nil
 }
 
 func mapInferenceOperation(source *runtimev1.Operation) *viewv1.Operation {
@@ -710,29 +510,17 @@ func (s *InferenceService) UpdateInference(ctx context.Context, in *view.UpdateI
 	if strings.TrimSpace(d.ResourceId) == "" || strings.TrimSpace(d.IdempotencyKey) == "" || d.ExpectedGeneration < 1 {
 		return nil, status.Error(codes.InvalidArgument, "idempotency_key, resource_id and positive expected_generation are required")
 	}
-	// The owner update contract requires a complete resource/runtime snapshot
-	// for an atomic generation. Keep all engine fields caller supplied and do
-	// not derive or rewrite the startup command.
-	createData := &view.CreateInferenceData{
-		IdempotencyKey: d.IdempotencyKey, Name: "update", ModelVersionId: d.ModelVersionId,
-		ServedModelName: d.ServedModelName, EngineImage: d.EngineImage, EngineType: d.EngineType,
-		Command: d.Command, Cpu: d.Cpu, Memory: d.Memory, Replicas: d.Replicas, Gpu: d.Gpu,
-		RuntimeMode: d.RuntimeMode, WorkerReplicas: d.WorkerReplicas,
+	if d.Cpu != "" || d.Memory != "" || d.Replicas != 0 || d.Gpu != nil || d.RuntimeMode != 0 || d.WorkerReplicas != 0 {
+		return nil, status.Error(codes.InvalidArgument, "inference resources and topology are frozen")
 	}
-	createRequest, err := s.buildCreateRequest(createData)
-	if err != nil {
-		return nil, err
+	request := &runtimev1.UpdateInferenceServiceRequest{RequestId: d.IdempotencyKey, ResourceId: d.ResourceId, ExpectedGeneration: d.ExpectedGeneration, UpdateMask: d.UpdateMask, ModelVersionId: d.ModelVersionId, ServedModelName: d.ServedModelName}
+	if d.EngineImage != "" || d.EngineType != "" || d.Command != "" {
+		request.Engine = &runtimev1.EngineSpec{Image: d.EngineImage, Type: d.EngineType, Command: d.Command}
 	}
-	mask := d.UpdateMask
-	if mask == nil || len(mask.Paths) == 0 {
-		mask = &fieldmaskpb.FieldMask{Paths: []string{"resource", "replicas", "runtime", "engine", "served_model_name", "model_version_id"}}
+	if err := runtimev1.ValidateUpdatePatch(request); err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
-	requestID := d.IdempotencyKey
-	request := &runtimev1.UpdateInferenceServiceRequest{
-		RequestId: requestID, ResourceId: d.ResourceId, ExpectedGeneration: d.ExpectedGeneration,
-		UpdateMask: mask, Resource: createRequest.Resource, Replicas: createRequest.Replicas, Runtime: createRequest.Runtime,
-		Engine: createRequest.Engine, ServedModelName: createRequest.ServedModelName, ModelVersionId: createRequest.ModelVersionId,
-	}
+
 	trusted, ok := s.owner.(inferenceLifecycleOwner)
 	if !ok {
 		return nil, status.Error(codes.Unavailable, "INFERENCE_ADAPTER_UNAVAILABLE")

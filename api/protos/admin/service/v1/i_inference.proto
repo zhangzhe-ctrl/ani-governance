@@ -7,7 +7,8 @@ import "inference/view/v1/view.proto";
 
 // Requires trusted tenant-user Principal, active tenant and the separately
 // registered INFERENCE module/action/role/plan grants. Accelerator read grants
-// cannot admit inference commands. CRUD retains the public data envelope.
+// cannot admit inference commands. CREATE requires preset_id; only model,
+// served name and whole engine patches may be updated. CRUD retains data.
 service InferenceService {
   rpc CreateInference(inference.service.v1.CreateInferenceRequest) returns (inference.service.v1.InferenceAcceptance) {
     option (google.api.http) = {post: "/api/v1/inference/services" body: "*"};

@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"mime"
 	nethttp "net/http"
@@ -208,6 +209,27 @@ func decodeInferenceHTTP(request *nethttp.Request, message proto.Message) error 
 	raw, err := io.ReadAll(io.LimitReader(request.Body, 65537))
 	if err != nil || len(raw) == 0 || len(raw) > 65536 {
 		return invalid
+	}
+	switch message.(type) {
+	case *view.CreateInferenceRequest, *view.UpdateInferenceRequest:
+		var envelope struct {
+			Data map[string]json.RawMessage `json:"data"`
+		}
+		if json.Unmarshal(raw, &envelope) != nil {
+			return invalid
+		}
+		for _, key := range []string{"cpu", "memory", "gpu"} {
+			if _, exists := envelope.Data[key]; exists {
+				return invalid
+			}
+		}
+		if _, update := message.(*view.UpdateInferenceRequest); update {
+			for _, key := range []string{"replicas", "runtime_mode", "runtimeMode", "worker_replicas", "workerReplicas"} {
+				if _, exists := envelope.Data[key]; exists {
+					return invalid
+				}
+			}
+		}
 	}
 	if err = (protojson.UnmarshalOptions{DiscardUnknown: false}).Unmarshal(raw, message); err != nil {
 		return invalid
