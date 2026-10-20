@@ -17,7 +17,7 @@ require (
 	github.com/jinzhu/copier v0.4.0
 	github.com/jinzhu/inflection v1.0.0
 	github.com/liangzai006/ani-inference-service/api v0.1.0
-	github.com/liangzai006/ani-model-service v0.0.0-20261015020710-37fe22076832
+	github.com/liangzai006/ani-model-service v0.0.0-20261017101444-a6c9c4dd2021
 	github.com/lib/pq v1.12.3
 	github.com/mileusna/useragent v1.3.5
 	github.com/pquerna/otp v1.5.0

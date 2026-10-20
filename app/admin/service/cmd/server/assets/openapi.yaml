@@ -8308,15 +8308,6 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: page.limit
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: page.cursor
-                  in: query
-                  schema:
-                    type: string
                 - name: keyword
                   in: query
                   schema:
@@ -8329,6 +8320,16 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK
@@ -8462,15 +8463,16 @@ paths:
                   required: true
                   schema:
                     type: string
-                - name: page.limit
+                - name: page
                   in: query
                   schema:
                     type: integer
                     format: int32
-                - name: page.cursor
+                - name: pageSize
                   in: query
                   schema:
-                    type: string
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK
@@ -8496,6 +8498,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ImportModelResponse'
+    /api/v1/models:import-bundle:
+        post:
+            tags:
+                - ModelService
+            operationId: ModelService_ImportModelBundle
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ImportModelBundleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ImportModelBundleResponse'
     /api/v1/models:search:
         get:
             tags:
@@ -8522,15 +8542,16 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: page.limit
+                - name: page
                   in: query
                   schema:
                     type: integer
                     format: int32
-                - name: page.cursor
+                - name: pageSize
                   in: query
                   schema:
-                    type: string
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK
@@ -11270,13 +11291,6 @@ components:
                     type: string
                     description: 绑定当前逻辑会话的 CSRF 证明，写请求时放入 X-CSRF-Token 头；不含身份授权
             description: 获取 CSRF 证明 - 回应
-        CursorPageMeta:
-            type: object
-            properties:
-                next_cursor:
-                    type: string
-                has_more:
-                    type: boolean
         DashboardOverviewResponse:
             type: object
             properties:
@@ -12602,6 +12616,72 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+        ImportModelBundleData:
+            type: object
+            properties:
+                idempotency_key:
+                    type: string
+                model:
+                    $ref: '#/components/schemas/ImportModelBundleModelData'
+                version:
+                    $ref: '#/components/schemas/ImportModelBundleVersionData'
+                source:
+                    $ref: '#/components/schemas/ImportModelBundleSourceData'
+        ImportModelBundleModelData:
+            type: object
+            properties:
+                name:
+                    type: string
+                display_name:
+                    type: string
+                description:
+                    type: string
+                capabilities:
+                    type: array
+                    items:
+                        type: string
+                external_model_id:
+                    type: string
+            description: |-
+                ImportModelBundleRequest creates the model, version and remote import task
+                 in one idempotent Model-service operation. Tenant identity is resolved by
+                 the Governance BFF and is intentionally absent from this public DTO.
+        ImportModelBundleRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/ImportModelBundleData'
+        ImportModelBundleResponse:
+            type: object
+            properties:
+                model:
+                    $ref: '#/components/schemas/Model'
+                version:
+                    $ref: '#/components/schemas/ModelVersion'
+                task:
+                    $ref: '#/components/schemas/ImportTask'
+        ImportModelBundleSourceData:
+            type: object
+            properties:
+                provider:
+                    type: string
+                repo_id:
+                    type: string
+                revision:
+                    type: string
+        ImportModelBundleVersionData:
+            type: object
+            properties:
+                version:
+                    type: string
+                format:
+                    type: string
+                engine_type:
+                    type: string
+                engine_image:
+                    type: string
+                startup_command:
+                    type: string
         ImportModelData:
             type: object
             properties:
@@ -13547,21 +13627,21 @@ components:
         ListModelVersionsResponse:
             type: object
             properties:
-                versions:
+                items:
                     type: array
                     items:
                         $ref: '#/components/schemas/ModelVersion'
-                meta:
-                    $ref: '#/components/schemas/CursorPageMeta'
+                total:
+                    type: string
         ListModelsResponse:
             type: object
             properties:
-                models:
+                items:
                     type: array
                     items:
                         $ref: '#/components/schemas/Model'
-                meta:
-                    $ref: '#/components/schemas/CursorPageMeta'
+                total:
+                    type: string
         ListNodeInterfacesResponse:
             type: object
             properties:
@@ -16885,12 +16965,12 @@ components:
         SearchExternalModelsResponse:
             type: object
             properties:
-                candidates:
+                items:
                     type: array
                     items:
                         $ref: '#/components/schemas/ExternalModelCandidate'
-                meta:
-                    $ref: '#/components/schemas/CursorPageMeta'
+                hasMore:
+                    type: boolean
         SecurityRequirement:
             type: object
             properties:

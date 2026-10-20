@@ -1675,6 +1675,7 @@ mTLS gRPC 请求，不信任客户端提交的租户或 actor。Higress 只承�
 | 导入任务查询 | `GET /api/v1/models/import-tasks/{task_id}` | `model:service:read` |
 | 模型下载地址 | `GET /api/v1/model-versions/{model_version_id}/download-url` | `model:service:read`（由 Governance 通过受信任的 Model gRPC 调用） |
 | 创建模型/版本、上传地址、发起导入、重试 | `POST /api/v1/models`、`POST /api/v1/model-versions`、`POST /api/v1/models/{model_id}/upload-url`、`POST /api/v1/models:import`、`POST /api/v1/models/import-tasks/{task_id}:retry` | `model:service:manage` |
+| 聚合创建模型、版本并发起导入 | `POST /api/v1/models:import-bundle`；请求体使用 `data.model`、`data.version`、`data.source` 和 `data.idempotency_key`，一次幂等委托 Model Service | `model:service:manage` |
 | 删除模型/版本 | `DELETE /api/v1/models/{model_id}`、`DELETE /api/v1/model-versions/{model_version_id}` | `model:service:manage` |
 
 | 推理服务列表/详情 | `GET /api/v1/inference/services`、`GET /api/v1/inference/services/{resource_id}` | `inference:service:read` |
@@ -1708,6 +1709,8 @@ Inference 列表请求使用 `page`/`pageSize`（默认 20，最大 100），筛
 
 ### 业务链路验收
 
+`登录 → POST /api/v1/models:import-bundle
+→ 轮询导入任务 → 读取已就绪版本`。聚合导入请求必须同时提供模型能力、版本格式、引擎类型、引擎镜像、完整启动命令以及 provider/repo_id/revision；Governance 原样转发这些运行时字段，不拼接启动命令。兼容的分步链路仍为
 `登录 → POST /api/v1/models → POST /api/v1/model-versions → POST /api/v1/models:import
 → 轮询导入任务 → 读取已就绪版本`。导入任务状态可以在版本就绪前为
 `importing`；`GET /api/v1/model-versions/{id}` 只返回已就绪版本，不能把导入中的
