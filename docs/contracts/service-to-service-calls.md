@@ -256,3 +256,14 @@ TLS 校验与拦截器行为参照 [Go TLS 文档](https://pkg.go.dev/crypto/tls
 | Gov 退额已有客户端 DNS → 固定 `ani-inference` owner 映射 | 保留显式映射和原账本 owner；按真实证书登记收敛配置，不开放任意 owner |
 
 业务合同继续以 [GPU owner 指南](gpu-owner-integration-guide.md)、[AK/SK 合同](aksk-signature.md)等领域文档为准；本文对新接入和修改调用的传输、身份、授权和上下文规则有优先权。专项文档中的现有 URI SAN、listener 等实现记录应与迁移目标分开阅读。迁移需要独立的实现、证书配置和双方联调；**2026-10-10 制定规范的批次只将正文入仓，没有修改运行逻辑或宣称存量服务已符合新规。后续实现以各批次结果为准。**
+
+### Model 操作历史查询登记（2026-10-21）
+
+`ani-governance` → `ani-model-service` 的
+`/model.v1.ModelService/ListModelOperations` 是用户委托只读调用（完整 Proto
+package 以 Model 发布的 API 为准）。公网通过 `model:service:read` 和 `MODEL`
+套餐后，从认证 Principal 解析 actor、持久租户映射解析 Model tenant UUID；
+ModelClient 重建 `x-ani-tenant-id`、`x-ani-actor` 和 `x-ani-request-id`，替换请求
+中的 tenant，保留调用取消并使用现有受管 Model timeout。不透传 Authorization。
+Model 服务端只允许登记的 Governance mTLS 身份读取当前租户所属模型的历史，
+Inference 身份不获得该 RPC 权限。查询不产生副作用，不使用业务幂等键。

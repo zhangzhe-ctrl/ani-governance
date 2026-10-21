@@ -1580,8 +1580,8 @@ roles 取页后需逐条回填权限/组织单元/字段权限，故 keyset 采�
 
 | 编号 | 入口 | 报文与可靠受理 | 当前授权条件 |
 |---|---|---|---|
-| INF-01 | `POST /api/v1/inference/services` | `data` 使用扁平推理字段（UUID idempotency_key、model_version_id、engine_image、engine_type、完整单字符串 command、cpu、memory、replicas、四字段 gpu）；不暴露内部附件、Kubernetes 数组或嵌套 resource/runtime/engine。调用现有 AcceptGpuCreate：授权、重放、Resolve、冻结、Ent一次占额、持久 dispatch；返回原 operation/resource、replayed、ACCEPTED | 可信 tenant-user Principal；活跃当前用户/租户/角色；当前套餐 INFERENCE；独立 `inference:service:create` → 当前 API route grant；对应 GPU PlanQuota；实际 Acc delegation 与已装配 Inference adapter |
-| INF-02 | `POST /api/v1/inference/services/{data.resource_id}:delete` | `data.idempotency_key`；resource由路径绑定，正文若有须一致。调用现有 AcceptGpuDelete：未发可本地原子取消，否则持久 DELETE 关联并可靠投递；ACK不是释放完成 | 同一可信租户与独立 `inference:service:delete` 动作；权限先于原创建读取/幂等重放，不能用 Accelerator 读权或历史原记录绕过 |
+| INF-01 | `POST /api/v1/inference/services` | 请求顶层使用扁平推理字段（UUID idempotency_key、model_version_id、engine_image、engine_type、完整单字符串 command、cpu、memory、replicas、四字段 gpu）；不暴露内部附件、Kubernetes 数组或嵌套 resource/runtime/engine。调用现有 AcceptGpuCreate：授权、重放、Resolve、冻结、Ent一次占额、持久 dispatch；返回原 operation/resource、replayed、ACCEPTED | 可信 tenant-user Principal；活跃当前用户/租户/角色；当前套餐 INFERENCE；独立 `inference:service:create` → 当前 API route grant；对应 GPU PlanQuota；实际 Acc delegation 与已装配 Inference adapter |
+| INF-02 | `POST /api/v1/inference/services/{resource_id}:delete` | 顶层 `idempotency_key`；resource由路径绑定，正文若有须一致。调用现有 AcceptGpuDelete：未发可本地原子取消，否则持久 DELETE 关联并可靠投递；ACK不是释放完成 | 同一可信租户与独立 `inference:service:delete` 动作；权限先于原创建读取/幂等重放，不能用 Accelerator 读权或历史原记录绕过 |
 
 ledger adapter action固定为权威 Inference RPC full method `CreateInferenceService` / `DeleteInferenceService`；目的地址和服务端精确 DNS SAN 只来自受管配置。真实 Inference RPC保留原业务tags，加入公共Acc附件与原全量charges；唯一业务摘要来自 Inference API公开helper，adapter核对durable ACK并映射既有三个snake_case字段。完整字段/单位/身份/错误/恢复见 [GPU owner接入指南](contracts/gpu-owner-integration-guide.md)。
 
@@ -1675,7 +1675,7 @@ mTLS gRPC 请求，不信任客户端提交的租户或 actor。Higress 只承�
 | 导入任务查询 | `GET /api/v1/models/import-tasks/{task_id}` | `model:service:read` |
 | 模型下载地址 | `GET /api/v1/model-versions/{model_version_id}/download-url` | `model:service:read`（由 Governance 通过受信任的 Model gRPC 调用） |
 | 创建模型/版本、上传地址、发起导入、重试 | `POST /api/v1/models`、`POST /api/v1/model-versions`、`POST /api/v1/models/{model_id}/upload-url`、`POST /api/v1/models:import`、`POST /api/v1/models/import-tasks/{task_id}:retry` | `model:service:manage` |
-| 聚合创建模型、版本并发起导入 | `POST /api/v1/models:import-bundle`；请求体使用 `data.model`、`data.version`、`data.source` 和 `data.idempotency_key`，一次幂等委托 Model Service | `model:service:manage` |
+| 聚合创建模型、版本并发起导入 | `POST /api/v1/models:import-bundle`；请求体使用顶层 `model`、`version`、`source` 和 `idempotency_key`，一次幂等委托 Model Service | `model:service:manage` |
 | 删除模型/版本 | `DELETE /api/v1/models/{model_id}`、`DELETE /api/v1/model-versions/{model_version_id}` | `model:service:manage` |
 
 | 推理服务列表/详情 | `GET /api/v1/inference/services`、`GET /api/v1/inference/services/{resource_id}` | `inference:service:read` |
@@ -1727,3 +1727,18 @@ owner 的 mTLS 和运行时状态，不能据此宣称推理数据面（Higress 
 管理 Profile 创建仍为 `POST /api/v1/admin/accelerator/profiles`，正式 RPC 改为 `CreateProfile`；新增 `GET .../profiles:preview`、`POST .../profiles/{profile_id}:set-state` 和 `POST .../profiles/{profile_id}:delete`。写请求保持 `{data:{...}}`，平台 JWT、当前权限与 ACC 对应 action/cluster grant 必须齐全。API 目录同步只登记接口，不自动授予权限。
 
 用户 Preset 返回每卡显存值、selectable 与 unavailable_reason；CPU 查询不依赖 ACC，GPU 仍须通过租户目录授权过滤。Inference 普通及 GPU 管理接口现由 Governance BFF 提供，API 依赖和出站 mTLS 配置按当前接线维护。编码、软件回归和真实 GPU 验收分别记证，不能沿用旧结果宣称新合同已验收。
+
+### 模型与推理写请求去除 data 包装
+
+模型创建、版本创建、导入、组合导入，以及推理创建、删除、更新、启动、停止、重启共 10 个接口，业务字段移至请求 JSON 顶层；响应保持原合同。租户与操作人仍仅来自可信认证上下文，推理保留严格字段校验、幂等键、预期版本与部分更新掩码。真实 URL 不变，推理路由模板变量从 `{data.resource_id}` 改为 `{resource_id}`；已有环境部署前应显式运行 [`migrate-inference-flat-request-routes.sql`](../scripts/ops/sql/migrate-inference-flat-request-routes.sql)，保留 API ID、启停状态、权限与套餐关联，再按部署文档刷新策略，禁止通过重新建目录丢失既有授权。前后端需协同发布，本记录不代表已经部署。
+
+### 2026-10-21 Model 版本筛选与操作记录补齐
+
+在已有 Model BFF 接入范围内新增 `GET /api/v1/models/{model_id}/operations`，
+沿用 `model:service:read`、`MODEL` 模块以及原 `enable-model-access.sql` 的显式
+租户角色授权。目录通过生成的 HTTP 路由发现；部署时先 `admin sync-apis --dry-run`
+审查，再同步并执行 `register-model-permissions.sql`，未登记时维持拒绝。
+版本列表增加 `status`，透传给 Model 在分页前筛选，不能以当前页本地筛选替代。
+报文、页码边界和事件结果语义见 [HTTP 合同](contracts/frontend-http-api.md)。
+新增 RPC 与服务端 Model migration 000009、API 版本发布和消费者版本更新需要
+同批交付；本地临时模块校验不代表已发布或集群已具备新接口。

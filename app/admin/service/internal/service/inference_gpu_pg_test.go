@@ -125,10 +125,10 @@ func newInferenceGPUFixture(t *testing.T) *inferenceGPUFixture {
 	acceptance, err := NewGpuAcceptance(ledger, registry, data.NewTenantRepo(bctx, c), plans, binding, nil)
 	require.NoError(t, err)
 	service := NewInferenceServiceWithOwnerAndModel(acceptance, owner, data.NewTenantRepo(bctx, c), model)
-	request := &view.CreateInferenceRequest{Data: &view.CreateInferenceData{
+	request := &view.CreateInferenceRequest{
 		IdempotencyKey: uuid.NewString(), Name: "qwen", ModelVersionId: modelVersionID, ServedModelName: "qwen", EngineType: "vllm", EngineImage: "registry.invalid/vllm:fixture", Command: "exec vllm serve /models", Cpu: "1", Memory: "2Gi", Replicas: 2,
 		Gpu: &view.GpuSelection{ClusterId: plan.Request.ClusterId, PoolId: plan.Request.PoolId, ProfileId: plan.Request.ProfileId, ProfileVersion: plan.Request.ProfileVersion},
-	}}
+	}
 	return &inferenceGPUFixture{service: service, ledger: ledger, client: c.Client(), model: model, plans: plans, owner: owner, ctx: requestCtx, tenantID: tenant.ID, membership: membership, request: request, planID: planRow.ID, permissions: permissions}
 }
 
@@ -182,7 +182,7 @@ func TestInferenceCPUActorsRemainTrusted(t *testing.T) {
 	for _, subject := range []auth.SubjectType{auth.SubjectUser, auth.SubjectAPIKey} {
 		ctx := auth.NewPrincipalContext(f.ctx, &auth.Principal{Type: subject, ID: principal.ID, TenantID: principal.TenantID})
 		f.owner.service = &inferencev1.InferenceService{Id: "cpu-" + uuid.NewString(), Generation: 7}
-		_, err := f.service.DeleteInference(ctx, &view.DeleteInferenceRequest{Data: &view.DeleteInferenceData{IdempotencyKey: uuid.NewString(), ResourceId: f.owner.service.Id}})
+		_, err := f.service.DeleteInference(ctx, &view.DeleteInferenceRequest{IdempotencyKey: uuid.NewString(), ResourceId: f.owner.service.Id})
 		require.NoError(t, err)
 		actor, err := (&auth.Principal{Type: subject, ID: principal.ID, TenantID: principal.TenantID}).Actor()
 		require.NoError(t, err)

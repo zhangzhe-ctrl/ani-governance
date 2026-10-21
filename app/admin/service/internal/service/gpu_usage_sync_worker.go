@@ -10,7 +10,7 @@ import (
 
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/google/uuid"
-	runtimev1 "github.com/liangzai006/ani-inference-service/api/inference/v1"
+	contractv1 "github.com/liangzai006/ani-inference-service/api/inference/contract/v1"
 	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
 	res "github.com/zhangzhe-ctrl/ani-resource-service/api/instance/v1"
 	"go-wind-admin/app/admin/service/internal/data"
@@ -206,11 +206,11 @@ func deriveGpuProjection(op *ent.QuotaOperation, charges []*ent.QuotaCharge, has
 	var clusterID string
 	switch op.OwnerService {
 	case "ani-inference":
-		business, decodeErr := runtimev1.DecodeBusinessPayload(c.BusinessPayload)
+		business, decodeErr := contractv1.DecodeBusinessPayload(c.BusinessPayload)
 		if decodeErr != nil || business == nil || business.GpuExecution == nil || business.GpuDisplay == nil {
 			return nil, quotapb.ErrorInvalidQuotaRequest("%s", "invalid inference GPU payload")
 		}
-		if validateErr := runtimev1.ValidateBusinessPayload(business); validateErr != nil {
+		if validateErr := contractv1.ValidateBusinessPayload(business); validateErr != nil {
 			return nil, validateErr
 		}
 		g, d, clusterID = business.GpuExecution, business.GpuDisplay, business.ClusterId

@@ -7559,126 +7559,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/InferenceAcceptance'
-    /api/v1/inference/services/{data.resource_id}:delete:
-        post:
-            tags:
-                - InferenceService
-            operationId: InferenceService_DeleteInference
-            parameters:
-                - name: data.resource_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/DeleteInferenceRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/InferenceAcceptance'
-    /api/v1/inference/services/{data.resource_id}:restart:
-        post:
-            tags:
-                - InferenceService
-            operationId: InferenceService_RestartInference
-            parameters:
-                - name: data.resource_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/InferenceServiceCommandRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/InferenceAcceptance'
-    /api/v1/inference/services/{data.resource_id}:start:
-        post:
-            tags:
-                - InferenceService
-            operationId: InferenceService_StartInference
-            parameters:
-                - name: data.resource_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/InferenceServiceCommandRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/InferenceAcceptance'
-    /api/v1/inference/services/{data.resource_id}:stop:
-        post:
-            tags:
-                - InferenceService
-            operationId: InferenceService_StopInference
-            parameters:
-                - name: data.resource_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/InferenceServiceCommandRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/InferenceAcceptance'
-    /api/v1/inference/services/{data.resource_id}:update:
-        post:
-            tags:
-                - InferenceService
-            operationId: InferenceService_UpdateInference
-            parameters:
-                - name: data.resource_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UpdateInferenceRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/InferenceAcceptance'
     /api/v1/inference/services/{resource_id}:
         get:
             tags:
@@ -7697,6 +7577,129 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/InferenceView'
+    /api/v1/inference/services/{resource_id}/events:
+        get:
+            tags:
+                - InferenceDiagnosticsService
+            operationId: InferenceDiagnosticsService_ListRuntimeEvents
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: since
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: until
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: type
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListRuntimeEventsResponse'
+    /api/v1/inference/services/{resource_id}/logs:
+        get:
+            tags:
+                - InferenceDiagnosticsService
+            operationId: InferenceDiagnosticsService_GetRuntimeLogs
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: instance
+                  in: query
+                  schema:
+                    type: string
+                - name: container
+                  in: query
+                  schema:
+                    type: string
+                - name: since
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: until
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: tail_lines
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RuntimeLogsResponse'
+    /api/v1/inference/services/{resource_id}/logs:stream:
+        get:
+            tags:
+                - InferenceDiagnosticsService
+            description: Served as bounded SSE by the custom HTTP handler.
+            operationId: InferenceDiagnosticsService_StreamRuntimeLogs
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: instance
+                  in: query
+                  schema:
+                    type: string
+                - name: container
+                  in: query
+                  schema:
+                    type: string
+                - name: since
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: until
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: tail_lines
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RuntimeLogLine'
     /api/v1/inference/services/{resource_id}/operations:
         get:
             tags:
@@ -7725,6 +7728,144 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListInferenceOperationsResponse'
+    /api/v1/inference/services/{resource_id}/runtime:
+        get:
+            tags:
+                - InferenceDiagnosticsService
+            operationId: InferenceDiagnosticsService_GetRuntimeDiagnostics
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RuntimeDiagnostics'
+    /api/v1/inference/services/{resource_id}:delete:
+        post:
+            tags:
+                - InferenceService
+            operationId: InferenceService_DeleteInference
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/DeleteInferenceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InferenceAcceptance'
+    /api/v1/inference/services/{resource_id}:restart:
+        post:
+            tags:
+                - InferenceService
+            operationId: InferenceService_RestartInference
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/InferenceServiceCommandRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InferenceAcceptance'
+    /api/v1/inference/services/{resource_id}:start:
+        post:
+            tags:
+                - InferenceService
+            operationId: InferenceService_StartInference
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/InferenceServiceCommandRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InferenceAcceptance'
+    /api/v1/inference/services/{resource_id}:stop:
+        post:
+            tags:
+                - InferenceService
+            operationId: InferenceService_StopInference
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/InferenceServiceCommandRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InferenceAcceptance'
+    /api/v1/inference/services/{resource_id}:update:
+        post:
+            tags:
+                - InferenceService
+            operationId: InferenceService_UpdateInference
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateInferenceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InferenceAcceptance'
     /api/v1/instance-operations/{operation_id}:
         get:
             tags:
@@ -8428,6 +8569,37 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/models/{model_id}/operations:
+        get:
+            tags:
+                - ModelService
+            description: |-
+                Authenticated tenant principal, model:service:read and MODEL plan required.
+                 Model verifies ownership; inaccessible models return 404.
+            operationId: ModelService_ListModelOperations
+            parameters:
+                - name: model_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListModelOperationsResponse'
     /api/v1/models/{model_id}/upload-url:
         post:
             tags:
@@ -8473,6 +8645,10 @@ paths:
                   schema:
                     type: integer
                     format: int32
+                - name: status
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -10830,7 +11006,8 @@ components:
             description: |-
                 Returned only after Governance has durably accepted the frozen intent.
                  Acceptance does not establish a KFP Run or successful training.
-        CreateInferenceData:
+        CreateInferenceRequest:
+            example: {"idempotency_key": "req-001", "name": "qwen-inference", "model_version_id": "version-1", "served_model_name": "qwen2.5-1.5b-instruct", "engine_image": "registry.example/vllm:latest", "engine_type": "vllm", "command": "exec vllm serve /models --served-model-name qwen2.5-1.5b-instruct --max-model-len 4096", "cpu": "8", "memory": "32Gi", "replicas": 1}
             type: object
             properties:
                 idempotency_key:
@@ -10866,12 +11043,6 @@ components:
                 worker_replicas:
                     type: integer
                     format: int32
-        CreateInferenceRequest:
-            example: {"data": {"idempotency_key": "req-001", "name": "qwen-inference", "model_version_id": "version-1", "served_model_name": "qwen2.5-1.5b-instruct", "engine_image": "registry.example/vllm:latest", "engine_type": "vllm", "command": "exec vllm serve /models --served-model-name qwen2.5-1.5b-instruct --max-model-len 4096", "cpu": "8", "memory": "32Gi", "replicas": 1}}
-            type: object
-            properties:
-                data:
-                    $ref: '#/components/schemas/CreateInferenceData'
             description: |-
                 Public user intent. Trusted attachments, charges, identity and destination
                  are assembled by Governance and have no representation in this DTO.
@@ -10998,7 +11169,7 @@ components:
                 data:
                     $ref: '#/components/schemas/Menu'
             description: 创建菜单 - 请求
-        CreateModelData:
+        CreateModelRequest:
             type: object
             properties:
                 name:
@@ -11015,17 +11186,12 @@ components:
                     type: string
                 model_id:
                     type: string
-        CreateModelRequest:
-            type: object
-            properties:
-                data:
-                    $ref: '#/components/schemas/CreateModelData'
         CreateModelResponse:
             type: object
             properties:
                 model:
                     $ref: '#/components/schemas/Model'
-        CreateModelVersionData:
+        CreateModelVersionRequest:
             type: object
             properties:
                 model_id:
@@ -11054,11 +11220,6 @@ components:
                     type: string
                 engine_image:
                     type: string
-        CreateModelVersionRequest:
-            type: object
-            properties:
-                data:
-                    $ref: '#/components/schemas/CreateModelVersionData'
         CreateModelVersionResponse:
             type: object
             properties:
@@ -11486,7 +11647,7 @@ components:
             properties:
                 resource:
                     $ref: '#/components/schemas/PlatformResource'
-        DeleteInferenceData:
+        DeleteInferenceRequest:
             type: object
             properties:
                 idempotency_key:
@@ -11495,11 +11656,6 @@ components:
                     type: string
                 expected_generation:
                     type: string
-        DeleteInferenceRequest:
-            type: object
-            properties:
-                data:
-                    $ref: '#/components/schemas/DeleteInferenceData'
         DeleteIntranetAddressPoolResponse:
             type: object
             properties:
@@ -12616,17 +12772,6 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
-        ImportModelBundleData:
-            type: object
-            properties:
-                idempotency_key:
-                    type: string
-                model:
-                    $ref: '#/components/schemas/ImportModelBundleModelData'
-                version:
-                    $ref: '#/components/schemas/ImportModelBundleVersionData'
-                source:
-                    $ref: '#/components/schemas/ImportModelBundleSourceData'
         ImportModelBundleModelData:
             type: object
             properties:
@@ -12649,8 +12794,14 @@ components:
         ImportModelBundleRequest:
             type: object
             properties:
-                data:
-                    $ref: '#/components/schemas/ImportModelBundleData'
+                idempotency_key:
+                    type: string
+                model:
+                    $ref: '#/components/schemas/ImportModelBundleModelData'
+                version:
+                    $ref: '#/components/schemas/ImportModelBundleVersionData'
+                source:
+                    $ref: '#/components/schemas/ImportModelBundleSourceData'
         ImportModelBundleResponse:
             type: object
             properties:
@@ -12682,7 +12833,7 @@ components:
                     type: string
                 startup_command:
                     type: string
-        ImportModelData:
+        ImportModelRequest:
             type: object
             properties:
                 source:
@@ -12699,11 +12850,6 @@ components:
                     type: string
                 model_version_id:
                     type: string
-        ImportModelRequest:
-            type: object
-            properties:
-                data:
-                    $ref: '#/components/schemas/ImportModelData'
         ImportModelResponse:
             type: object
             properties:
@@ -12752,7 +12898,7 @@ components:
                     description: Durable Governance admission; this is not model readiness.
                 dispatch_operation_id:
                     type: string
-        InferenceServiceCommandData:
+        InferenceServiceCommandRequest:
             type: object
             properties:
                 idempotency_key:
@@ -12761,11 +12907,6 @@ components:
                     type: string
                 expected_generation:
                     type: string
-        InferenceServiceCommandRequest:
-            type: object
-            properties:
-                data:
-                    $ref: '#/components/schemas/InferenceServiceCommandData'
         InferenceView:
             type: object
             properties:
@@ -13624,6 +13765,15 @@ components:
                 total:
                     type: string
             description: 查询菜单列表 - 回应
+        ListModelOperationsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ModelOperation'
+                total:
+                    type: string
         ListModelVersionsResponse:
             type: object
             properties:
@@ -13840,6 +13990,15 @@ components:
                     items:
                         $ref: '#/components/schemas/MenuRouteItem'
             description: 查询路由列表 - 回应
+        ListRuntimeEventsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RuntimeEvent'
+                total:
+                    type: string
         ListSubnetsResponse:
             type: object
             properties:
@@ -14764,6 +14923,34 @@ components:
                     type: string
                     format: date-time
                 model_id:
+                    type: string
+        ModelOperation:
+            type: object
+            properties:
+                id:
+                    type: string
+                model_id:
+                    type: string
+                model_version_id:
+                    type: string
+                action:
+                    type: string
+                actor:
+                    type: string
+                result:
+                    type: string
+                before_state:
+                    type: string
+                after_state:
+                    type: string
+                error_class:
+                    type: string
+                request_id:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+                task_id:
                     type: string
         ModelVersion:
             type: object
@@ -16774,6 +16961,75 @@ components:
                         type: string
                     description: 隐藏字段列表（proto 字段 json_name，如 email）
             description: 角色字段权限条目：角色在某资源上隐藏的字段集（黑名单语义）
+        RuntimeDiagnostics:
+            type: object
+            properties:
+                invocation_health:
+                    type: string
+                health_reason:
+                    type: string
+                health_observed_at:
+                    type: string
+                    description: Absent until an invocation probe with its own timestamp is recorded.
+                    format: date-time
+                runtime_observed_at:
+                    type: string
+                    format: date-time
+                instances:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RuntimeInstance'
+                observed_at:
+                    type: string
+                    format: date-time
+        RuntimeEvent:
+            type: object
+            properties:
+                id:
+                    type: string
+                type:
+                    type: string
+                reason:
+                    type: string
+                message:
+                    type: string
+                timestamp:
+                    type: string
+                    format: date-time
+                instance:
+                    type: string
+                count:
+                    type: string
+        RuntimeInstance:
+            type: object
+            properties:
+                name:
+                    type: string
+                uid:
+                    type: string
+                phase:
+                    type: string
+                containers:
+                    type: array
+                    items:
+                        type: string
+        RuntimeLogLine:
+            type: object
+            properties:
+                timestamp:
+                    type: string
+                    format: date-time
+                message:
+                    type: string
+        RuntimeLogsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RuntimeLogLine'
+                truncated:
+                    type: boolean
         RuntimeMount:
             type: object
             properties:
@@ -17780,7 +18036,7 @@ components:
             properties:
                 image:
                     $ref: '#/components/schemas/ImageRegistration'
-        UpdateInferenceData:
+        UpdateInferenceRequest:
             type: object
             properties:
                 idempotency_key:
@@ -17821,11 +18077,6 @@ components:
                 worker_replicas:
                     type: integer
                     format: int32
-        UpdateInferenceRequest:
-            type: object
-            properties:
-                data:
-                    $ref: '#/components/schemas/UpdateInferenceData'
             description: |-
                 UpdateInferenceRequest is the tenant-facing partial update. Fields named by
                  update_mask are forwarded as supplied; Governance never derives or edits an
@@ -18570,11 +18821,13 @@ tags:
     - name: DictTypeService
       description: 数据字典分类管理服务
     - name: ImageService
+    - name: InferenceDiagnosticsService
+      description: Tenant-authenticated management diagnostics; inference calls remain on Higress.
     - name: InferenceService
       description: |-
         Requires trusted tenant-user Principal, active tenant and the separately
          registered INFERENCE module/action/role/plan grants. Accelerator read grants
-         cannot admit inference commands. CRUD retains the public data envelope.
+         cannot admit inference commands. Business fields are top-level in the public request.
     - name: InstanceService
     - name: InternalMessageCategoryService
       description: 站内信消息分类管理服务
