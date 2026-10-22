@@ -9,7 +9,7 @@ Governance 当前通过 BFF 提供 Inference 管理接口。普通和 GPU 推理
 `inference:service:create`；GPU 新建另外检查当前 `ACCELERATOR` 资格。
 当前公网管理接口只接受租户用户 JWT，签名 API Key 仍返回 `USER_REQUIRED`。
 
-`POST /api/v1/inference/services` 保持 `{data:{...}}`。data 必须带 UUID
+`POST /api/v1/inference/services` 接受扁平 JSON 请求体，字段直接位于顶层，不接受 `data` 包装。必须带 UUID
 `idempotency_key`、UUID `preset_id`、`name`、`model_version_id`、
 `served_model_name`、`engine_image`、`engine_type`、完整 `command` 和正数
 `replicas`。`runtime_mode` 默认 Deployment；`worker_replicas` 由正式 Inference
@@ -22,7 +22,7 @@ CPU 无 charges、GPU Usage 或退款；GPU 仅按 ACC 返回的唯一计量向�
 同键同意图复用原身份与快照，不重新访问 Res、Model 或新 GPU 资格。
 202 和 owner 的 durable ACK 均不表示 Ready。
 
-`POST /api/v1/inference/services/{resource_id}:update` 的 data 必填
+`POST /api/v1/inference/services/{resource_id}:update` 的顶层字段必填
 `idempotency_key/resource_id/expected_generation/update_mask`。mask 只允许
 `model_version_id`、`served_model_name`、`engine`；engine 是
 `engine_image/engine_type/command` 三项整体替换。选中的值不可为空，mask 不可为空、

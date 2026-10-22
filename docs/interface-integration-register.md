@@ -1753,3 +1753,11 @@ actor 和 request ID 从可信上下文重建。HTTP 入口执行正常认证、
 
 运行部署以当前现场基线 `3806ae5` 的独立策略分支构建，保留该基线既有创建合同；
 本工作区的算力规格迁移没有随此次策略部署发布。源码与运行版本分别验证。
+
+### GOV-MODEL-INF-20261012：详情与查询修正（2026-10-22）
+
+模型详情 HTTP 直接返回 Model，内部 RPC 包装不变；版本与操作查询页码不再限制
+100，每页仍为 1..100，SQL offset 超过 int32 存储边界时拒绝。公开请求顶层字段
+不再使用 data 包装。真实环境复验使用模型 UUID：status=error 返回 total=0，
+status=ready 返回 total=1/ready，operations 返回 total=1。含斜杠的公开模型名不能
+替代 HTTP path 的资源 UUID。源码修改、部署与前端验收分别记录。

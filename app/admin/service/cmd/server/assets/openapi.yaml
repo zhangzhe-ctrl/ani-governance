@@ -7701,6 +7701,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: level
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -7742,6 +7746,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: level
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -7749,6 +7757,39 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/RuntimeLogLine'
+    /api/v1/inference/services/{resource_id}/metrics:
+        get:
+            tags:
+                - InferenceDiagnosticsService
+            operationId: InferenceDiagnosticsService_GetInferenceMetrics
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: start
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: end
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: step
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InferenceMetricsResponse'
     /api/v1/inference/services/{resource_id}/operations:
         get:
             tags:
@@ -13131,6 +13172,42 @@ components:
                     description: Durable Governance admission; this is not model readiness.
                 dispatch_operation_id:
                     type: string
+        InferenceMetricPoint:
+            type: object
+            properties:
+                timestamp:
+                    type: string
+                    format: date-time
+                value:
+                    type: number
+                    format: double
+        InferenceMetricSeries:
+            type: object
+            properties:
+                name:
+                    type: string
+                unit:
+                    type: string
+                points:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/InferenceMetricPoint'
+        InferenceMetricsResponse:
+            type: object
+            properties:
+                series:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/InferenceMetricSeries'
+                start:
+                    type: string
+                    format: date-time
+                end:
+                    type: string
+                    format: date-time
+                step:
+                    type: integer
+                    format: int32
         InferenceServiceCommandRequest:
             type: object
             properties:
@@ -17378,6 +17455,8 @@ components:
                 observed_at:
                     type: string
                     format: date-time
+                invocation_endpoint:
+                    type: string
         RuntimeEvent:
             type: object
             properties:
@@ -17412,6 +17491,8 @@ components:
         RuntimeLogLine:
             type: object
             properties:
+                level:
+                    type: string
                 timestamp:
                     type: string
                     format: date-time
