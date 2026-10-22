@@ -1680,6 +1680,7 @@ mTLS gRPC 请求，不信任客户端提交的租户或 actor。Higress 只承�
 
 | 推理服务列表/详情 | `GET /api/v1/inference/services`、`GET /api/v1/inference/services/{resource_id}` | `inference:service:read` |
 | 推理服务创建/删除 | `POST /api/v1/inference/services`、`POST /api/v1/inference/services/{resource_id}:delete` | `inference:service:create` / `inference:service:delete` |
+| 服务访问策略 | `GET/PUT /api/v1/inference/services/{resource_id}/policy` | `inference:policy:read` / `inference:policy:update` |
 | 推理操作查询 | `GET /api/v1/inference/operations/{operation_id}`、`GET /api/v1/inference/services/{resource_id}/operations` | `inference:service:read` |
 | 推理更新/启停/重启 | `POST /api/v1/inference/services/{resource_id}:update`、`:start`、`:stop`、`:restart` | `inference:service:manage` |
 
@@ -1742,3 +1743,13 @@ owner 的 mTLS 和运行时状态，不能据此宣称推理数据面（Higress 
 报文、页码边界和事件结果语义见 [HTTP 合同](contracts/frontend-http-api.md)。
 新增 RPC 与服务端 Model migration 000009、API 版本发布和消费者版本更新需要
 同批交付；本地临时模块校验不代表已发布或集群已具备新接口。
+
+### GOV-MODEL-INF-20261012：服务访问策略（2026-10-22）
+
+已实现按服务查询和完整替换访问策略，通过已有 mTLS Inference API 调用，租户、
+actor 和 request ID 从可信上下文重建。HTTP 入口执行正常认证、权限和 INFERENCE
+模块闸门，并拒绝未知/重复字段、query、公网身份和路径冲突。
+合同和启用顺序见 [Inference 管理接口状态](contracts/inference-flat-api.md#服务访问策略)。
+
+运行部署以当前现场基线 `3806ae5` 的独立策略分支构建，保留该基线既有创建合同；
+本工作区的算力规格迁移没有随此次策略部署发布。源码与运行版本分别验证。

@@ -7777,6 +7777,49 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListInferenceOperationsResponse'
+    /api/v1/inference/services/{resource_id}/policy:
+        get:
+            tags:
+                - InferenceService
+            description: Requires inference:policy:read and an active INFERENCE subscription.
+            operationId: InferenceService_GetServicePolicy
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetServicePolicyResponse'
+        put:
+            tags:
+                - InferenceService
+            description: Requires inference:policy:update. Full replacement; empty allowlist denies all.
+            operationId: InferenceService_UpdateServicePolicy
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateServicePolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UpdateServicePolicyResponse'
     /api/v1/inference/services/{resource_id}/runtime:
         get:
             tags:
@@ -12671,6 +12714,11 @@ components:
             properties:
                 credential:
                     $ref: '#/components/schemas/PublisherCredential'
+        GetServicePolicyResponse:
+            type: object
+            properties:
+                policy:
+                    $ref: '#/components/schemas/ServicePolicy'
         GetSubnetResponse:
             type: object
             properties:
@@ -17690,6 +17738,31 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/NamedServerVariable'
+        ServicePolicy:
+            type: object
+            properties:
+                resource_id:
+                    type: string
+                allowed_tenants:
+                    type: array
+                    items:
+                        type: string
+                rate_limits:
+                    type: object
+                    additionalProperties:
+                        $ref: '#/components/schemas/ServiceRateLimit'
+                updated_at:
+                    type: string
+                    format: date-time
+        ServiceRateLimit:
+            type: object
+            properties:
+                requests_per_minute:
+                    type: integer
+                    format: int32
+                requests_per_hour:
+                    type: integer
+                    format: int32
         SetAcceleratorAdmissionData:
             type: object
             properties:
@@ -18716,6 +18789,19 @@ components:
             properties:
                 data:
                     $ref: '#/components/schemas/SchedulerConfigData'
+        UpdateServicePolicyRequest:
+            type: object
+            properties:
+                resource_id:
+                    type: string
+                policy:
+                    $ref: '#/components/schemas/ServicePolicy'
+            description: Replaces the whole policy bound to this service. Empty allowlist denies all.
+        UpdateServicePolicyResponse:
+            type: object
+            properties:
+                policy:
+                    $ref: '#/components/schemas/ServicePolicy'
         UpdateTaskRequest:
             type: object
             properties:
