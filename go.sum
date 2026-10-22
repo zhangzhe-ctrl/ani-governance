@@ -398,6 +398,8 @@ github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261021233353-ea047cc3029f
 github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261021233353-ea047cc3029f/go.mod h1:QgtF4otGrWIL6EDsparyvGPzQHwzkg/bgoWVah1YSPs=
 github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261022132906-e0d9743379a6 h1:pjvmD+fCwKtpvUfckXi8Fxh8SctB3z5b5PtQBPuQddA=
 github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261022132906-e0d9743379a6/go.mod h1:TGZCuPqFHcVLsc7mdSqTHMqXJ5oOFywcnkftloYzC3c=
+github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261022185239-0814ae3ef0b7 h1:m/3QQ2iSvuUn+BJNBc9kjohUf724WoYwSR3NN5A1jzA=
+github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261022185239-0814ae3ef0b7/go.mod h1:TGZCuPqFHcVLsc7mdSqTHMqXJ5oOFywcnkftloYzC3c=
 github.com/zhangzhe-ctrl/ani-observability-service/api v0.1.1 h1:SEr70/++V17GJrSzZMG6pEChKj+y9R7kThLe0bYmewQ=
 github.com/zhangzhe-ctrl/ani-observability-service/api v0.1.1/go.mod h1:a+WDRsjGC2HUmncHBgkHfUKaRfsfMqvFr+uJzJW2T4A=
 github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261019174951-733f625995f8 h1:EohHkLtEobLRQAEH3MT64z6Y/3nosH8+9tsy4QQsKZU=
