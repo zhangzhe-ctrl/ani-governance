@@ -451,7 +451,7 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 | PERM-01 | `GET /api/v1/admin/permissions` | 权限点分页；租户调用者仅见自身角色可达的权限点，平台调用者见全部 |
 | PERM-02 | `GET /api/v1/admin/permissions/{id}` | 权限点详情；租户调用者对越权权限点返回 403 |
 | PERM-03 | `POST /api/v1/admin/permissions` | `data`（code/name/groupId/status）；写后 `ResetPolicies` 失败会向上返回错误 |
-| PERM-04 | `PUT /api/v1/admin/permissions/{id}` | `data`、`updateMask`；当前关联更新存在丢失风险，完整数组也不能规避 mask 过滤，见 [已知实现缺陷](api-role-permission-ops.md#permission-update-mask-risk) 和 MGMT-09 |
+| PERM-04 | `PUT /api/v1/admin/permissions/{id}` | `data`、`updateMask`；关联更新缺陷已于 2026-10-21 修复（掩码含关联字段则整体替换、不含则不动、nil 则全量替换），见 [关联更新语义](api-role-permission-ops.md#permission-update-mask-risk) 和 MGMT-09 |
 | PERM-05 | `DELETE /api/v1/admin/permissions/{id}` | 删除权限点；`sys:*` 受保护清单未在本路径强制（见 MGMT-10） |
 | PERM-06 | `POST /api/v1/admin/permissions/sync:perms` | 无请求体；先截断再重建非 `sys:*` 的权限组/权限点，破坏性同步，执行前需备份 |
 | PERMGROUP-01 | `GET /api/v1/admin/permission-groups` | 权限组分页；`query` 支持顶层 `exclude_subtree`（排除某分组自身及全部后代），详见 [PERMGROUP-SUBTREE-01](#permgroup-subtree-01) |
@@ -478,7 +478,7 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 | MGMT-06 | 用户名删除路由虽已注册，UserService.Delete 总是先按 `req.GetId()` 查目标，用户名路由未提供该 ID；平台管理应使用 ACCOUNT-05 | 源码缺口；别名 HTTP 验收 not_verified |
 | MGMT-07 | UserService.Update 无论 updateMask 是否涉及角色都校验非空 roleIds；创建普通用户的立即激活分支先提交用户，再创建密码凭证，后者失败不自动回滚已建用户 | 接入限制已确认；待指定修复，未修改 |
 | MGMT-08 | 在线会话 4 条路由中，自助两条 `my-sessions`、`my-sessions/revoke` 在首次种子里只授给 `sys:platform_admin`；`sys:tenant_manager` 没有任何 online-session 授权，菜单 `OnlineSessionManagement` 的 `authority` 也只有 `sys:platform_admin`。因此租户管理员（及一般自服务场景）无法查看/下线自己的会话 | 源码与种子已确认；租户管理员是否放行自助会话待用户指定，未修改 |
-| MGMT-09 | 仓储从 mask 移除关联字段后，通用更新原地过滤 DTO，再无条件替换 API / 菜单关联；HTTP PUT 的非 nil mask 经 Service 追加 updated_by，因此即使回传完整数组也会被清空，详见 [静态执行链](api-role-permission-ops.md#permission-update-mask-risk) | 2026-10-11 文档更正；此前“回传完整数组”建议无效。实现仍待修，未运行复现，不标已符合关联 mask 合同 |
+| MGMT-09 | 仓储从 mask 移除关联字段后，通用更新原地过滤 DTO，再无条件替换 API / 菜单关联；HTTP PUT 的非 nil mask 经 Service 追加 updated_by，因此即使回传完整数组也会被清空，详见 [静态执行链](api-role-permission-ops.md#permission-update-mask-risk) | **2026-10-21 已修复**：`PermissionRepo.Update` 在剔除关联路径前先快照关联载荷，并按 `hasPath` 条件调用 `AssignApis`/`AssignMenus`（掩码含关联字段才替换、不含则不动）。回归测试 `TestPermissionRepoSqlite_UpdateKeepsRelationGrants` 4 子测试通过，且修复前该测试 FAIL（已复现缺陷）。遗留：主表与关联非同事务、三处 nil mask 语义不统一，未并入本次 |
 | MGMT-10 | `constants.ProtectedPermissionCodes`（`sys:*` 共 7 个）在 `PermissionService.Delete` 路径未被强制校验，删除保护只落在角色层（`ROLE-05`） | 受保护权限点可被直接删除，导致鉴权与菜单静默失效；是否补删除保护待指定 |
 | MGMT-11 | `PUT /api/v1/admin/me`（`UserProfileService.UpdateUser`，`user_profile_service.go:81-96`）直接调 `userRepo.Update`，跳过 `UserService.Update` 的角色类型/租户校验与"至少一个角色"约束；而 `user_repo.go` 在掩码含 `role_ids` 时会应用 `roleIds` | 源码观察（**未运行验证**）：本人可借自助接口改动自身角色集合，形成自助提权面；是否收紧待用户指定 |
 | MGMT-12 | `tenant.admin_user_id` 是自由指针（`TenantRepo.AssignTenantAdmin`），无外键/级联或一致性校验；`UserService.Delete` 删除主管理员用户后**不清空**该指针 | 租户记录留下悬空主管理员引用，`List`/`Get` 的 `adminUserName` 静默为空；与 MGMT-01（移交缺失）是不同问题 |
@@ -732,7 +732,7 @@ const url = `${BASE_URL}/api/v1/admin/users?${params.toString()}`;
 | ACCOUNT-07 `POST /api/v1/admin/users/{user_id}/password` | 仍要求 AES+Base64，且 HTTP 路径模板与 API 目录不一致（MGMT-05）；建议本批先不开放重置密码按钮 |
 | ACCOUNT-04 顶层 password、AUTH-16 `POST /api/v1/admin/me/password` | 同样仍是旧 AES 协议；不能复用创建/登录明文提交，也不以普通 PUT 夹带密码绕过前述问题 |
 | ACCOUNT-08/09 用户名详情/删除别名 | 使用 ID 入口；用户名删除有实现缺口，平台同名账号存在跨租户歧义（MGMT-06） |
-| ROLE-03～05、PERM-*、PERMGROUP-* 自定义角色与权限写入 | 四类页面先选择已有角色。运营/只读权限矩阵待定；权限点 PUT 丢数组会清绑定，删除保护不完整（MGMT-09/10/18） |
+| ROLE-03～05、PERM-*、PERMGROUP-* 自定义角色与权限写入 | 四类页面先选择已有角色。运营/只读权限矩阵待定；删除保护不完整（MGMT-10/18）。权限点 PUT 清绑定一条（MGMT-09）已于 2026-10-21 修复，不再构成暂缓理由 |
 | TENANT-05 `DELETE /api/v1/admin/tenants/{id}` | 仅删除租户记录，不等于关联数据及下游资源清理；首批普通管理流程不开放 |
 | TENANT-09 `POST /api/v1/admin/tenants/{id}/cleanup` | 删除实现列出的 Governance 本地数据，保留租户并置 OFF；不清下游资源，code/name 仍占用，需单独设计操作流程 |
 | 主管理员移交 | 产品明确不提供，不调用通用更新改 adminUserId 代替移交 |
@@ -1135,6 +1135,55 @@ x-ani-authz:
 
 ## 功能组：Accelerator v1.2 管理与租户 BFF（GOV-ACC-V12-01）
 
+### 节点发现与初始化增量（2026-10-21）
+
+| 编号 | 方法/路径 | 下游完整 RPC 后缀 / 语义 | 权限 |
+| --- | --- | --- | --- |
+| ACC-20 | GET /api/v1/admin/accelerator/initialization | GetInitialization；受管连接、登记状态、带来源检查项、配置完成及最新操作 | accelerator:initialization:read |
+| ACC-21 | GET /api/v1/admin/accelerator/discovered-nodes | ListDiscoveredNodes；只接受 page/pageSize，默认 1/20，pageSize 上限 200，按节点 name/UID 排序，items/total/discovery_revision | accelerator:discovery:list |
+| ACC-22 | POST /api/v1/admin/accelerator/initializations | CreateInitialization；data.idempotency_key/discovery_revision/pools/groups/profiles，一次持久受理 | accelerator:initialization:create + 实际组件能力 |
+| ACC-23 | GET /api/v1/admin/accelerator/initializations/{operation_id} | GetInitializationOperation；路径 ID 权威，持久操作及部分成功结果 | accelerator:initialization:read |
+| ACC-24 | POST /api/v1/admin/accelerator/initializations/{operation_id}:retry | RetryInitializationOperation；data.idempotency_key/expected_version，不修改原请求 | accelerator:initialization:retry + 冻结 required_actions |
+
+完整下游前缀固定 `/accelerator.v1.AcceleratorAdminService/`，调用者为唯一 DNS SAN
+`ani-governance`，接收者为受管 Accelerator 服务，全部属于平台用户委托。
+actor 从已认证平台 user Principal 构造，不发送租户身份或公网 Authorization。
+沿用现有 mTLS 客户端正超时（默认 3 秒）及父取消；不自动重试写入。
+新方法逐一登记客户端完整 RPC 分类，未知完整方法拒绝。
+
+平台角色/action 由现有 Authorizer.Engine 在 project=0 下检查。Create 按实际请求额外检查
+cluster:register（可信概况未登记时）、pool:create、supply-group:adopt、profile:publish，
+以及会自动 OPEN 的新组所需 supply-group:set-admission；以上短名均带 `accelerator:` 前缀。
+Retry 先读取原 operation 的 required_actions，再按固定 action→已登记 method/path 重新检查，
+不能把下游任意字符串解释成路由。权限登记不授予角色、不启用套餐、不创建额度。
+
+五方法成功均为 HTTP 200，直接返回 Proto JSON DTO；Create/Retry 的 200 表示受理，不能当作
+初始化完成。写请求保持 `{data:{...}}`，64 位整数为十进制字符串。
+仅新发现列表使用 page/pageSize；存量 ACC 列表仍 page_size/page_token。
+概况/操作 GET 及两个 POST 不接受 query；发现 GET 仅接受单值规范正整数 page/pageSize。
+路径 operation_id 不接受 query 覆盖，额外 body 字段不能进入可信下游上下文。
+下游服务拒绝仍映射 503 `ACCELERATOR_SERVICE_ACCESS_DENIED`；Gov 当前用户拒绝为 401/403。
+
+前端接入使用 `api/protos/catalog/service/v1/accelerator.proto` 及生成 OpenAPI 的独立 DTO：
+前两步检查/编辑草稿，第三步仅提交一次 CreateInitialization，并以 operation_id 恢复查询；
+BLOCKED 且 retryable 时用当前 version 和新幂等键显式 Retry，CONFLICT 不自动 rebase。
+operation 的历史配置完成、当前 Group admission 和容量分别展示；算力规格须在既有管理入口
+显式关联并启用。新组 2/4/8 等分仅使用相同且已知的逐卡安全预算，以整数计算绝对 MiB/core；
+已有组继续 PreviewProfile。本批前端由专人接入，不修改前端代码。
+
+联合验证复用 `TestAcceleratorJointHTTP` 的真实 JWT、会话缓存、数据库策略、Casbin 与生成
+HTTP handler；设置 `GOV_ACC_INITIALIZATION_JOINT_SEED_FILE` 时运行本增量，并将平台 fixture
+限定为实际所需八项权限。ACC 侧显式门控的 `TestPostgresInitializationJointHelper` 使用真实
+领域、受限 PG 运行身份、mTLS/委托和 worker，仅 Kubernetes 发现/标签是外部边界替身。
+联合用例观察同键重放、BLOCKED、显式 Retry、ACTIVE/OPEN 与最终概况，不将其算作实机验收。
+
+公共 ACC API 固定正式模块 `v0.0.0-20261021055754-9969638c907a`，Origin.Hash 为
+`9969638c907a806e895751ac71740d52f8592954`；使用 `GOWORK=off` 正常下载和校验，
+不提交 `replace` 或工作树依赖。Gov 构建基准升至 Go 1.26.10，避免旧标准库已知漏洞。
+
+本节登记合同与源码接点；正式 ACC 依赖版本、软件测试和真实环境部署按本批结果分别记录，
+不以本节存在宣称主链验收完成。
+
 2026-09-23 本批新增独立 `ACCELERATOR=13` 模块，保留旧枚举。正式依赖固定为
 `github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20260923100416-9f9712198488`；
 实际测试/后续升级版本以本批证据锁为准。以下为实现合同登记，运行通过状态须引用本批证据，不能继承历史 QUOTA-LAB 结论。
@@ -1252,95 +1301,19 @@ Image AK 使用现有 ANI-HMAC-SHA256 七行形式：算法、HTTP method、规�
 
 环境变量为独立 `ANI_IMAGE_ADDR/CA/CERT/KEY/TIMEOUT`，空ADDR保持未配置；固定 Resource server SAN 仍为 `ani-network-service`。本段是源码合同；Fedora测试结果由 Resource 唯一 Image 账本关联，不代表部署或真Harbor通过。
 
-## 功能组：ModelDev CPU 主干（CPU-P01）
+## 功能组：ModelDev 训练与微调（MODELDEV-01～08）
 
-本组沿用 v0.4 的 `/api/v1/modeldev` 路由，只增加 CPU-P01 明确启用的能力。
-共享 Intent、Snapshot、Proto 和规范测试向量由 ani-modeldev-service 单点维护；
-Governance 通过 go.mod/go.sum 固定精确模块版本，生产代码不导入 conformance fixture。
-当前已装配 Create HTTP、当前数据库授权、可信 ModelDev 解析、PostgreSQL 持久受理和原键重放；
-当前绑定 CAS 有配套 Ent/Atlas schema。此处记录源码能力，不表示已部署、已同步真实 API 目录或已授予权限。
+当前活动合同为单一typed Intent，规则查询与请求见[前端合同](frontend-cpu-training-handoff.md)。同键原意图重放先于新目录解析；当前授权→固定候选 operation/execution/accepted_at→Res TRAINING→ModelDev Prepare/Finalize→Gov单事务持久受理及唯一ModelDevDispatch。网络不进入受理事务，CPU不写GPU原账。
 
-| 编号 | 路由与方法 | 请求与响应合同 | 鉴权与范围 | 当前边界 |
-| --- | --- | --- | --- | --- |
-| MODELDEV-01 | `POST /api/v1/modeldev/executions` | lower_snake_case 的 name、kind、preset_id、dataset_version_id、可选 image_version_id/general_parameters 及 idempotency_key；只允许 GENERAL_TRAINING。source_execution_id 暂不支持非空关联，当前必须省略。持久受理后返回 202、原 operation/execution、resolved_release_id、replayed 和四组正交状态 | 复用 Principal、TenantAccess、Casbin，并重查当前数据库的有效租户、用户、成员角色、ALL 数据范围及 MODEL/POST 权限；通过 ResourceTenantResolver 取得 resource tenant UUID。body 不含 tenant/actor/cluster/SA/command/raw CRD，旧 actor 仅审计 | 实际 JWT/Redis、当前授权、mTLS 解析、PG commit 后 202、暂停后重放、异参冲突及撤权拒绝已获隔离 Fedora 证据；可靠投递、其他数据范围和目标集群业务验收仍未完成 |
-| MODELDEV-02 | 受管 T02 作业：`admin modeldev-import-release`、`modeldev-enable`、`modeldev-pause`；回退复用 enable | enable/pause 请求只含 preset_id、release_id、release_digest、expected_generation、reason、evidence_reference；返回 operator、before/after（含 generation）和 replayed，首次 before=null。导入使用 typed immutable canonical_release | 实际 admin ACCESS JWT 与 Redis session/blacklist、当前有效租户与用户、当前 ALL 数据范围及独立 `modeldev:manage_release_binding` 权限；租户和操作者只来自可信上下文，同目标重放仍重新授权 | enable 经 exact-method mTLS ValidateRelease 验证已导入目标与当前环境，再重查授权并复用原唯一绑定 CAS；首次 generation=1。已获真实 JWT/Redis/PG 的首次启用、切换、stale 拒绝和同指针回退 RED/GREEN；该测试只替代外部 ModelDev RPC 边界，实际目录验证及目标集群业务验收另行证明。pause 不要求 ModelDev 在线，详见[操作合同](deployment.md#暂停-modeldev-新受理) |
-| MODELDEV-03 | `GET /api/v1/modeldev/executions/{execution_id}`；`GET /api/v1/modeldev/executions/{execution_id}/artifacts` | 详情白名单含四组状态及 observed_at；产物仅返回已发布文件 ID、文件名、角色、大小、摘要和验证时间。产物分页仅接受 limit（上限 100）、cursor（上限 2048 字节） | 每次经过 JWT/session、TenantAccess、Casbin，并重新读取当前有效租户、用户、角色、ALL 范围与对应独立 GET API 授权；新签发 mTLS query delegation，剥离公网同名身份/委派头。非 ALL 拒绝，不使用受理时 actor 授权 | 仅源码与隔离测试，不表示真实 API 目录已同步；执行列表与日志见 MODELDEV-06 |
-| MODELDEV-04 | `GET /api/v1/modeldev/artifacts/{artifact_id}/content` | 仅接受 artifact_id，返回已发布 ArtifactView、短期 HTTPS download_url 和 expires_at；响应及错误均 no-store/no-cache/no-referrer。下载 URL 不进入快照或本服务日志 | 独立当前 GET 授权；ModelDev 按可信租户解析 artifact 固定版本，不允许调用方选择 bucket/key/Pod/namespace；拒绝未发布、过期、非 HTTPS、含用户凭据或超过 15 分钟的签发结果 | 下载链接为短期凭据，仅交授权调用者；BFF 不代理任意 URL、不向用户发长期 AK/SK。真实存储/ENV 验收仍需独立验证 |
-| MODELDEV-05 | `POST /api/v1/modeldev/executions/{execution_id}:stop` | 仅 path selector，无请求体或 query；PG 持久停止意图后返回202：operation_id、execution_id、stop_requested、intent_generation、replayed；重复请求回原代次，不返回未观察到的 CLOSED | 每次当前 JWT/session、TenantAccess、Casbin、PG ALL范围及独立 POST API 授权；不使用历史 actor 授权，拒绝公网身份/代次注入；内部 ApplyCloseIntent 使用保存的本次 actor，独立租约投递及回执；尚未投递的 create 等待关闭墓碑 ACK | 202只代表受理，实际关闭经查询观察；G意图代次与M创建门闩 close_generation 独立；新增API需显式目录同步及授权，目标环境验收另行执行 |
-| MODELDEV-06 | `GET /api/v1/modeldev/executions`；`GET /api/v1/modeldev/executions/{execution_id}/logs` | 列表仅 limit（默认20，上限100）、cursor（上限2048字节），返回 ExecutionView 与 next_cursor/total；日志仅 tail_lines（默认200，上限1000）、max_bytes（默认16384，上限65536），返回 log_id、实际 timestamp/text、truncated、observed_at | 每次当前 JWT/session、TenantAccess、Casbin、PG ALL范围及各自独立 GET API授权；可信租户下查询，日志位置由 ModelDev 已观察训练资源确定；拒绝重复/未知参数、请求体及 Pod/namespace/log_id 等选择器；响应和错误 no-store | 不返回 Pod UID/container/object key；不可读、资源身份变化、无法完整选择历史日志均返回不可用，不伪造空成功。新增 API 需显式目录同步及授权，真实环境验收另行执行 |
-| MODELDEV-07 | `GET /api/v1/modeldev/presets`；`GET /api/v1/modeldev/input-versions`、`/{input_version_id}`；受管 `admin modeldev-import-csv` | 目录/输入白名单与注册参数；分页 limit 上限100/cursor 2048字节，返回 items/next_cursor/total，输入列表可用固定状态过滤。preset active_release_id/generation/gate 只由 G 当前唯一绑定填充；没有绑定则不宣称已启用。CSV 导入 typed 固定对象与 immutable Release ID/digest | 三个查询各自独立当前 GET API 授权和 ALL；导入使用当前 `modeldev:manage_release_binding` 和 ALL，再委派 exact-method mTLS；来源 object scope 由 M owner-approved admission facts 验证 | HTTP/CLI 入口与真实 JWT/Redis/PG 的跨客户端导入重放 RED/GREEN 已通过。仅 CSV 导入以 tenant/actor/input ID 派生稳定委派请求 ID，固定 requested_at/body 重放；已确认不可变冲突保留 AlreadyExists，FailedPrecondition 保留原分类，未知来源失败仍拒绝。隔离 LIVE 已证明真实固定 CSV 1024×16 导入 READY、同请求重放、异摘要 FAILED、不存在版本 VALIDATING，以及正常 BFF Get/List；完整计算/关闭/发布仍需独立验收 |
-| MODELDEV-08 | 受管 `admin modeldev-inspect`、`modeldev-reconcile`、`modeldev-cleanup-plan`、`modeldev-cleanup-apply` | 前三仅 execution_id；apply 仅 execution_id 和 plan_sha256；输出 typed inspection/plan/audit receipt | inspect 重查独立 execution GET grant 与 ALL；reconcile/cleanup 重查 `modeldev:manage_execution` 与 ALL；所有委派 exact RPC method，CLI 无调用者可选 tenant/actor/namespace/resource | M 重建 exact-UID cleanup plan，只允许已关闭且 PUBLISHED、无活动写者的停止训练资源，保留 PVC/Workflow/Pod/DB/S3；G 已装配受认证 typed 入口，真正观察/删除与租户隔离需真实环境验收，不以编译或 CLI 私有文件检查替代 |
+| 编号 | 入口/职责 | 当前合同 |
+| --- | --- | --- |
+| MODELDEV-01 | 创建执行 | implementation/compute/typed parameters/总时长；拒绝旧Release字段；202为持久受理 |
+| MODELDEV-02 | 已退役Release操作 | import-release/enable/pause/binding/generation不再注册；历史证据不作为新受理许可 |
+| MODELDEV-03～06 | 详情、产物、下载、停止、列表、日志 | 原当前授权/租户隔离和正交状态保留；下载不缓存、不存有效URL |
+| MODELDEV-07 | 实现规则与输入 | `/api/v1/modeldev/implementations`；公共compute复用TRAINING目录；输入独立 `modeldev:manage_input`；不要求Release导入批准 |
+| MODELDEV-08 | inspect/reconcile/cleanup | 当前独立execution权限，精确原UID清理；不自动删PVC/publication/模型 |
 
-`general_parameters` 保留缺省与显式 `[]` 的区别，外部 JSON 不直接套用 ProtoJSON。
-内部共享 `ParameterSelection` 仅负责 wire presence；BFF 的严格 JSON 适配负责
-拒绝重复键、null、未知字段和用户越权配置。原键先查受理记录，再读当前启用绑定；
-同意图返回原快照和 IDs，异参冲突。新受理暂停不能阻断原键找回、查询与停止。
-
-`source_execution_id` 的原合同要求源执行可访问；当前尚无受权查询可证明这一点，
-因此任何提供该字段的合法意图都在原键查找和受理前返回固定 `403 SOURCE_EXECUTION_UNAVAILABLE`，
-不区分是否存在，也不查询或暴露其他租户的执行。省略该字段可继续正常受理；null 仍是非法输入。
-这是尚未支持关联的明确边界，不是完成了源执行访问授权。当前 ALL 数据范围要求也只是
-本切片的保守实现选择，不声称支持 SELF/组织范围。尚未保存 owner ACK 时，202 的四轴初态
-`ACCEPTED/PENDING/OPEN/NOT_APPLICABLE` 只代表 Governance 已持久接受；保存 ACK 后，
-原键重放投影同一持久回执的四轴，不混入单独查询的结果。
-
-MODELDEV-01 的内部前置查询为 `ModelDevAcceptanceRepo.FindAccepted(ctx, scope, intent)`：
-只接收当前可信租户映射、actor/action/key 和用户意图，不要求候选快照或当前目录可用。
-命中返回原受理对象；不存在返回明确 NotFound，同键异意图返回既有幂等冲突。
-查询不消耗 key、不写入投递记录、不检查当前新受理开关。BFF 在该查询之前完成
-当前身份、TenantAccess、动作和上述数据范围检查；原记录 actor 不是访问票据。
-这是原 CreateExecution 的内部查询接缝，不新增公开按 key 查询路由。仓储实现已通过
-真实 PG RED/GREEN 及后续回归：未绑定时原键未命中不占键，当前绑定切换或暂停后仍
-找回原件；同键异意图冲突，非法 scope/intent 及真实租户映射错配拒绝，tenant、actor、
-key 相互隔离。查询不修改原受理、当前指针或投递状态。仓储检查和新增 BFF 隔离软件
-验证分别留证，仍不证明可靠投递、真实目录启用或目标集群业务链已完成。
-
-Governance 是唯一当前 Release binding/generation 权威；ModelDev 持有 immutable
-catalogue，以 Governance 专用受理解析能力按指定 Release/Input/Image ID
-返回固定事实。普通 Query 不因此暴露后端存储引用，也不在 Governance 复制第二套目录。
-
-本切片当前绑定按 `(resource_tenant_id, preset_id)` 唯一；本地 tenant_id 与 resource
-UUID 由复合外键保持对应。这是 CPU05 租户受管启用的实现选择，不是按 actor 保存
-默认值，也不是全平台通用设置。`sys_modeldev_release_bindings` 只保存当前指针、
-generation、新受理开关及最近一次生效变更的审计字段。初次 expected_generation=0
-建立 generation=1；目标变化要求当前代际并增加一次，同目标重放保留代际和原审计。
-Governance 当前指针代际受 PostgreSQL bigint 限制，范围为 `1..MaxInt64`；
-首次建立要求 expected_generation=0；范围内的旧代际可用于同目标重放。
-超出范围的请求必须拒绝，最大代际仍可
-同目标重放，但更换目标必须原子拒绝而不改写任何字段；该边界已通过独立真实 PG 验证。
-此存储范围不改变共享 snapshot/wire 的 uint64，也不限制 ModelDev 的关闭代际合同。
-绑定的 resource tenant、preset 和 release ID 使用标准 36 字符非零 UUID，写入及
-查询前归一化为小写；不接受 compact、URN 等别名。release_digest 是 64 位小写
-十六进制摘要。审计 actor 复用共享 `ValidAuditActor`，requested_at 要求非零、
-UTC 年份 1..9999 且精确到微秒；reason/evidence_reference 必须为非空白 UTF-8，
-且不能含 PostgreSQL text 不支持的 NUL。
-这些持久边界校验已通过真实 PG 验证；它们不证明引用对象存在、已核验或操作者当前有权。
-当前仓储测试中的证据引用是合成 fixture，不证明真实 Release 已验收。
-受理消费绑定已取得固定版本真实 PG RED → GREEN。
-新键受理在同一事务按 tenant → binding 顺序加锁并复核：缺绑定返回 NotFound，
-暂停返回 Disabled，generation 或 release ID/digest 不一致返回 GenerationConflict；
-这些错误不占用幂等键或排入投递。原键同意图先返回旧快照，异参先报幂等冲突；
-每次当前授权仍由上游检查。不可变目录远程解析始终在本地事务之外。
-
-CPU 受理持久化使用 `sys_modeldev_acceptances`，保存 scope、双摘要和完整冻结
-规范字节，并同时记录 QUEUED 投递意图。它不创建 GPU operation/account/charge。
-tenant/resource tenant 关联通过导出器中的复合外键约束；迁移经 Atlas 显式执行。
-新键持久化前和原记录读取时使用提供方的 `cpup01.AdmissionEnvelope` 校验身份、
-双摘要及意图与快照的对应关系；拒绝亚微秒 accepted_at，不能静默截断审计时间。
-Governance 不维护第二套快照对应规则，非法候选不得占用幂等键。
-首片只验证已解析候选的持久保存与原键重放，不能代替 binding 切换/CAS、worker
-重试与重启、ModelDev durable ACK 或目标集群业务验收。
-
-可靠投递候选继续使用该受理行，状态为 QUEUED/DISPATCHING/UNKNOWN/ACKED，
-保存有限重试原因、数据库时钟的到期时间、worker 租约与代际，以及完整 owner 回执。
-每次领取先锁 tenant 再锁原受理；过期租约可接管，ACK 和失败回写均检查两种 tenant
-身份、operation、租约 owner/代际/有效期。事务未提交不返回领取成功或持久 ACK。
-命令损坏或明确的 owner 合同冲突保留原件并停止自动重试，暂时不可达与无效 ACK 有界退避。
-worker 仅在显式 ModelDev mTLS client 已配置时装配；构造不访问网络或数据库。
-投递使用原 intent/snapshot/IDs/accepted_at/deadline，不重查当前默认值或续期；
-只重建可信 tenant/actor/request-id 元数据，不携带用户 JWT。ACK 的 identity、四轴和
-完整 uint64 revision 同时验证并以私有版本化规范字节保存。此候选仍待固定版本
-生成、迁移、模块与真实 owner 软件集成验证，不代表目标集群运行或整卡完成。
+源码实现、提供方正式模块、Fedora PG/负载、目标集群身份/执行、BFF页面和GPU原账分别验收。本轮具体来源与实际结果在唯一活动方案 records 中，不沿用旧CPU-P01/Release实验作为本轮完成证据。
 
 ## 服务间调用登记：Governance → ModelDev（CPU-P01，S2S-MODELDEV-CPUP01-01）
 
@@ -1354,7 +1327,7 @@ worker 仅在显式 ModelDev mTLS client 已配置时装配；构造不访问网
 | 接收服务身份 | 服务器字面 DNS SAN `ani-modeldev-service`（固定 `ServerName` 校验） | `data/modeldev_client.go` |
 | 传输 | TLS 1.3、双向证书、`RequireAndVerifyClientCert`，无明文 fallback | 双方 |
 | 允许清单 | 接收方按精确 `FullMethod` 白名单，未知方法默认 `PermissionDenied`，流式一律拒绝 | `internal/server/governance_command.go` |
-| 用户委托 | `ResolveAdmission`（解析）；Query/Management/Operations 各方法（新签发 mTLS 委派，附 `x-ani-authorized-method` 与 `x-ani-data-scope=tenant-all`） | 见下 RPC 列表 |
+| 用户委托 | `PrepareAdmission`、`FinalizeAdmission`（两次只读计划）；Query/Management/Operations 各方法（新签发 mTLS 委派，附 `x-ani-authorized-method` 与 `x-ani-data-scope=tenant-all`） | 见下 RPC 列表 |
 | 后台事实 | `AcceptExecution`、`ApplyCloseIntent`（持久投递事实，不伪造用户 Principal） | `data/modeldev_dispatch_client.go`、`data/modeldev_close_client.go` |
 | 允许业务范围 | CPU-P01 受管入口 | 本组 |
 | 租户来源 | Governance 已持久化的内部租户主键 → 业务租户 UUID 映射（ResourceTenantResolver），不使用公网 tenant | MODELDEV-01 |
@@ -1365,13 +1338,13 @@ worker 仅在显式 ModelDev mTLS client 已配置时装配；构造不访问网
 
 RPC 方法清单（接收方白名单，精确 FullMethod）：
 
-- `ModelDevAdmissionService/ResolveAdmission`
+- `ModelDevAdmissionService/PrepareAdmission`、`ModelDevAdmissionService/FinalizeAdmission`
 - `ModelDevCommandService/AcceptExecution`、`ModelDevCommandService/ApplyCloseIntent`
-- `ModelDevQueryService/GetExecution`、`ListExecutions`、`GetExecutionLogs`、`ListExecutionArtifacts`、`AuthorizeArtifactDownload`、`ListPresets`、`GetInputVersion`、`ListInputVersions`
-- `ModelDevManagementService/ImportRelease`、`ValidateRelease`、`ImportCSV`
+- `ModelDevQueryService/GetExecution`、`ListExecutions`、`GetExecutionLogs`、`ListExecutionArtifacts`、`AuthorizeArtifactDownload`、`ListImplementations`、`GetInputVersion`、`ListInputVersions`
+- `ModelDevManagementService/ImportCSV`、`ImportFinetuningDataset`
 - `ModelDevOperationsService/InspectExecution`、`ReconcileExecution`、`PlanExecutionCleanup`、`ApplyExecutionCleanup`
 
-配置依赖定性（本轮评审确认）：Governance 对 ModelDev 为**可选依赖**。`ANI_MODELDEV_*` 全空时客户端置 nil，仅禁用远程解析/投递并返回不可用，不启动失败；命令 `modeldev-pause` 不依赖 ModelDev 在线。
+配置依赖定性（本轮评审确认）：Governance 对 ModelDev 为**可选依赖**。`ANI_MODELDEV_*` 全空时客户端置 nil，仅禁用远程解析/投递并返回不可用，不启动失败。
 
 与 [服务间调用规则](contracts/service-to-service-calls.md) 的差异收敛（三个差异均已实施并部署，源码改动 + 真实环境验证见下节）：
 
@@ -1385,7 +1358,7 @@ RPC 方法清单（接收方白名单，精确 FullMethod）：
 
 身份命名约定：客户端 DNS 名固定 `ani-governance`，服务器 DNS 名固定 `ani-modeldev-service`，与部署侧 `GOVERNANCE_DNS_NAME` 取值登记一致。本链路使用 DNS SAN，不改为 URI SAN；已发布字段（`ResourceTenantId`/`AdmittedActorId`/`RequestedActorId`、`ErrorDetail.CorrelationId`、状态枚举）保持不变。
 
-### 2026-10-12 真实环境验证（ani-system @ ani-01）
+### 历史验证：2026-10-12 CPU-P01（已退役合同，不代表当前交付）
 
 以含上述三个差异收敛的新镜像部署到 `ani-system` 后验证。两个服务新镜像 tag 均为 `20261012-s2s-modeldev`：
 
@@ -1606,6 +1579,8 @@ Resource 通过新迁移 0013 增加可空 text 列，保留历史迁移与原 c
 <a id="gov-platform-network-01"></a>
 ## GOV-PLATFORM-NETWORK-01：平台网络 BFF
 
+2026-10-21 KCN 网络平台化在该编号下追加虚拟交换机四动作、独立 unbound DTO 和 `page/pageSize`，二层网络 v2 一次提交集群/交换机/网卡，并加入旧设备登记受限退役的两个独立平台动作、默认 VPC 出口的三个独立平台动作；旧 `device_id` 第 3 字段保留并与 v2 互斥。请求与授权的唯一合同仍见[平台网络接入](contracts/platform-network.md)，新增权限只通过[交换机权限增量](../sql/data/20261021_virtual_switch_permissions.sql)及[退役权限增量](../sql/data/20261021_device_retirement_permissions.sql)及[默认出口权限增量](../sql/data/20261021_default_egress_permissions.sql)建立关联，不自动授予角色。Provider 已正式发布为 `267c2d29c6119f03a4ea9c90303a2a9ac7af9a0a`，Gov 固定模块 `v0.0.0-20261021072547-267c2d29c611`；标准 Go 与 sum.golang.org 已验证 Origin.Hash、module sum 及 go.mod sum，见[正式 API 发布回执](https://github.com/zhangzhe-ctrl/ani-resource-service/blob/5c458c2102e4093ba23be24db001171f0d1b13ac/docs/execution/records/KCN-NETWORK-PLATFORM-20261021/formal-api-publication.json)。本次执行与验收证据统一由 Resource 的[执行状态](https://github.com/zhangzhe-ctrl/ani-resource-service/blob/codex/kcn-network-platform-20261021/docs/execution/status.md)索引；源码与受控测试不表示目标部署、真实接管或公网验收。
+
 2026-10-12 用户要求接入 Public/Intranet 地址池、VLAN 网络与配套接口，并参考 VPC 核对分页、响应。本批新增 27 个平台用户 JWT 接口；同轮按用户要求将 HTTP 前缀统一为 `/api/v1/admin/networks`。入口、权限、请求、内部委托及分页的唯一合同见 [平台网络接入](contracts/platform-network.md)；完整路由清单引用平台策略和 Proto，不在登记复制。角色与生产目录授权不自动改变，部署/真实数据面验收独立记录。
 
 实现包含 Gov HTTP/BFF/客户端/权限目录步骤，以及 Resource 平台范围校验和注册。Fedora Go 1.26.9 的完整 make api、受影响包定向测试/vet、生产入口构建及 platform_network 真实 HTTP/JWT/Casbin/mTLS/PostgreSQL/worker 场景通过，覆盖 27 平台方法。KC/Envoy/NodeFacts/owner 仅在外部边界受控；租户 JWT、AK 与 VPC 等定向流程也通过。共享夹具整批 Network 回归仍失败：LB 更新停留 PROVIDER_NOT_READY，后续占用/清理失败保留；原始两仓基线同序列也有子网起始事实和后段 AK DEPENDENCY_UNAVAILABLE 失败，但没有复现相同 LB 更新失败，不能归并成同一原因。子网用例通过外部 status API 建立未知起点，原断言保留。未执行真实物理网络/公网转发、业务库目录授权或部署；受控验收快照未提交或推送，用户随后授权发布两仓 main，最终版本以 Git 历史和远端引用为准。实际命令/日志/快照保留在仓库外任务工件目录 `/home/chabking/workspace/platform-network-gov-artifacts-20261012-01a124d1`，不由本登记称整仓已绿。
@@ -1680,7 +1655,6 @@ mTLS gRPC 请求，不信任客户端提交的租户或 actor。Higress 只承�
 
 | 推理服务列表/详情 | `GET /api/v1/inference/services`、`GET /api/v1/inference/services/{resource_id}` | `inference:service:read` |
 | 推理服务创建/删除 | `POST /api/v1/inference/services`、`POST /api/v1/inference/services/{resource_id}:delete` | `inference:service:create` / `inference:service:delete` |
-| 服务访问策略 | `GET/PUT /api/v1/inference/services/{resource_id}/policy` | `inference:policy:read` / `inference:policy:update` |
 | 推理操作查询 | `GET /api/v1/inference/operations/{operation_id}`、`GET /api/v1/inference/services/{resource_id}/operations` | `inference:service:read` |
 | 推理更新/启停/重启 | `POST /api/v1/inference/services/{resource_id}:update`、`:start`、`:stop`、`:restart` | `inference:service:manage` |
 

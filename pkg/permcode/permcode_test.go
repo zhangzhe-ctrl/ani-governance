@@ -5,6 +5,28 @@ import (
 	"testing"
 )
 
+// TestNormalizePath 路径参数段名不同但结构相同的模板必须归一为同一字符串。
+func TestNormalizePath(t *testing.T) {
+	cases := []struct {
+		in   string
+		want string
+	}{
+		{"/api/v1/admin/users/{user_id}/password", "/api/v1/admin/users/{}/password"},
+		{"/api/v1/admin/users/{userId}/password", "/api/v1/admin/users/{}/password"},
+		{"/api/v1/admin/mfa/{credentialId}", "/api/v1/admin/mfa/{}"},
+		{"/api/v1/admin/mfa/{credential_id}", "/api/v1/admin/mfa/{}"},
+		{"/api/v1/inference/services/{data.resource_id}:start", "/api/v1/inference/services/{}:start"},
+		{"/api/v1/inference/services/{resource_id}:start", "/api/v1/inference/services/{}:start"},
+		{"/api/v1/admin/users", "/api/v1/admin/users"},
+		{"  /api/v1/admin/roles/{id}  ", "/api/v1/admin/roles/{}"},
+	}
+	for _, tc := range cases {
+		if got := NormalizePath(tc.in); got != tc.want {
+			t.Errorf("NormalizePath(%q) = %q, want %q", tc.in, got, tc.want)
+		}
+	}
+}
+
 // TestResolveAuthoritativeCodes 核对两张权威表的代表性命中与取码来源。
 func TestResolveAuthoritativeCodes(t *testing.T) {
 	cases := []struct {
@@ -24,6 +46,11 @@ func TestResolveAuthoritativeCodes(t *testing.T) {
 		{"GET", "/api/v1/admin/accelerator/profiles:preview", "accelerator:profile:preview", SourceCapability},
 		{"POST", "/api/v1/admin/accelerator/profiles/{profile_id}:set-state", "accelerator:profile:set-state", SourceCapability},
 		{"POST", "/api/v1/admin/accelerator/profiles/{profile_id}:delete", "accelerator:profile:delete", SourceCapability},
+		{"GET", "/api/v1/admin/accelerator/initialization", "accelerator:initialization:read", SourceManagement},
+		{"GET", "/api/v1/admin/accelerator/discovered-nodes", "accelerator:discovery:list", SourceManagement},
+		{"POST", "/api/v1/admin/accelerator/initializations", "accelerator:initialization:create", SourceManagement},
+		{"GET", "/api/v1/admin/accelerator/initializations/{operation_id}", "accelerator:initialization:read", SourceManagement},
+		{"POST", "/api/v1/admin/accelerator/initializations/{operation_id}:retry", "accelerator:initialization:retry", SourceManagement},
 	}
 	for _, tc := range cases {
 		exp, err := Resolve(tc.method, tc.path)
@@ -143,11 +170,11 @@ func TestNoConflicts(t *testing.T) {
 
 // TestCountsAndKeys 表体量与键集合自检，防止生成物与实现脱节。
 func TestCountsAndKeys(t *testing.T) {
-	if ManagementCount() != 194 {
-		t.Errorf("ManagementCount() = %d, want 194", ManagementCount())
+	if ManagementCount() != 199 {
+		t.Errorf("ManagementCount() = %d, want 199", ManagementCount())
 	}
-	if CapabilityCount() != 135 {
-		t.Errorf("CapabilityCount() = %d, want 135", CapabilityCount())
+	if CapabilityCount() != 140 {
+		t.Errorf("CapabilityCount() = %d, want 140", CapabilityCount())
 	}
 	keys := AllKeys()
 	if len(keys) < 262 {
