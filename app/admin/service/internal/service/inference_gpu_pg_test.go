@@ -10,6 +10,7 @@ import (
 	inferencev1 "github.com/liangzai006/ani-inference-service/api/inference/v1"
 	modelv1 "github.com/liangzai006/ani-model-service/api/model/v1"
 	"github.com/stretchr/testify/require"
+	compute "github.com/zhangzhe-ctrl/ani-resource-service/api/compute/v1"
 	view "go-wind-admin/api/gen/go/inference/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent"
@@ -29,7 +30,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Only Model, Accelerator and Inference RPCs are boundary substitutes. The BFF,
+// Only Compute, Model, Accelerator and Inference RPCs are boundary substitutes. The BFF,
 // current route authorization, acceptance and PostgreSQL ledger are real.
 type inferenceMissingOwner struct {
 	directInferenceOwnerProbe
@@ -61,6 +62,7 @@ type inferenceGPUFixture struct {
 	ledger      *data.QuotaLedgerRepo
 	client      *ent.Client
 	model       *inferenceModelProbe
+	compute     *inferenceComputeProbe
 	plans       *instancePlanPeer
 	owner       *inferenceMissingOwner
 	ctx         context.Context
@@ -89,6 +91,7 @@ func newInferenceGPUFixture(t *testing.T) *inferenceGPUFixture {
 	require.NoError(t, err)
 	require.NoError(t, c.Client().PlanQuota.Create().SetPlanID(planRow.ID).SetQuotaCode(GpuSharedQuotaCode).SetQuotaValue(20000).Exec(sys))
 	require.NoError(t, c.Client().PlanModule.Create().SetPlanID(planRow.ID).SetModule(planmodule.Module("INFERENCE")).Exec(sys))
+	require.NoError(t, c.Client().PlanModule.Create().SetPlanID(planRow.ID).SetModule(planmodule.ModuleAccelerator).Exec(sys))
 	operator, err := c.Client().User.Create().SetTenantID(tenant.ID).SetUsername("inference-" + id).SetStatus(user.StatusNormal).Save(sys)
 	require.NoError(t, err)
 	r, err := c.Client().Role.Create().SetTenantID(tenant.ID).SetName("inference-" + id).SetCode("tenant:inference:" + id).SetType(role.TypeTenant).SetStatus(role.StatusOn).SetDataScope(role.DataScopeAll).Save(sys)
@@ -118,7 +121,13 @@ func newInferenceGPUFixture(t *testing.T) *inferenceGPUFixture {
 	model := &inferenceModelProbe{response: &modelv1.GetModelVersionResponse{Model: &modelv1.Model{TenantId: tenant.ResourceTenantID}, Version: &modelv1.ModelVersion{Id: modelVersionID, Status: "ready"}}}
 	owner := &inferenceMissingOwner{}
 	plans := &instancePlanPeer{plan: plan}
-	binding := NewInferenceGpuBindingWithModel(owner, data.NewInferenceAuthorizationRepo(c), model)
+	selection := inferenceCPUSelection(t)
+	selection.ComputeType = "gpu"
+	selection.Gpu = &compute.GpuSelection{ProfileId: plan.Request.ProfileId, ProfileVersion: plan.Request.ProfileVersion, SpecDigest: plan.Profile.SpecDigest, DevicesPerUnit: 1, ClusterId: plan.Request.ClusterId, PoolId: plan.Request.PoolId, Mode: plan.Resolved.Selection.Mode, ModelKey: plan.Resolved.Selection.ModelKey, MemoryMibPerDevice: 8192, CoreLimitPercent: 25}
+	selection.SelectionDigest, err = compute.SelectionDigest(selection)
+	require.NoError(t, err)
+	computePeer := &inferenceComputeProbe{selection: selection}
+	binding := NewInferenceComputeBinding(owner, data.NewInferenceAuthorizationRepo(c), model, computePeer)
 	registry := NewQuotaAdapterRegistry()
 	require.NoError(t, registry.Register(binding))
 	ledger := data.NewQuotaLedgerRepo(bctx, c)
@@ -126,10 +135,9 @@ func newInferenceGPUFixture(t *testing.T) *inferenceGPUFixture {
 	require.NoError(t, err)
 	service := NewInferenceServiceWithOwnerAndModel(acceptance, owner, data.NewTenantRepo(bctx, c), model)
 	request := &view.CreateInferenceRequest{
-		IdempotencyKey: uuid.NewString(), Name: "qwen", ModelVersionId: modelVersionID, ServedModelName: "qwen", EngineType: "vllm", EngineImage: "registry.invalid/vllm:fixture", Command: "exec vllm serve /models", Cpu: "1", Memory: "2Gi", Replicas: 2,
-		Gpu: &view.GpuSelection{ClusterId: plan.Request.ClusterId, PoolId: plan.Request.PoolId, ProfileId: plan.Request.ProfileId, ProfileVersion: plan.Request.ProfileVersion},
+		IdempotencyKey: uuid.NewString(), PresetId: selection.PresetId, Name: "qwen", ModelVersionId: modelVersionID, ServedModelName: "qwen", EngineType: "vllm", EngineImage: "registry.invalid/vllm:fixture", Command: "exec vllm serve /models", Replicas: 2,
 	}
-	return &inferenceGPUFixture{service: service, ledger: ledger, client: c.Client(), model: model, plans: plans, owner: owner, ctx: requestCtx, tenantID: tenant.ID, membership: membership, request: request, planID: planRow.ID, permissions: permissions}
+	return &inferenceGPUFixture{service: service, ledger: ledger, client: c.Client(), model: model, compute: computePeer, plans: plans, owner: owner, ctx: requestCtx, tenantID: tenant.ID, membership: membership, request: request, planID: planRow.ID, permissions: permissions}
 }
 
 func (f *inferenceGPUFixture) otherAuthorizedTenant(t *testing.T) (context.Context, string) {
@@ -158,6 +166,7 @@ func TestInferenceGPUAdmissionAndPublicReplay(t *testing.T) {
 	require.False(t, first.Replayed)
 	require.NotEmpty(t, first.OperationId)
 	require.NotEmpty(t, first.ResourceId)
+	require.Equal(t, 1, f.compute.calls)
 	require.Equal(t, 1, f.model.calls)
 	require.Equal(t, 1, f.plans.calls)
 
@@ -168,6 +177,7 @@ func TestInferenceGPUAdmissionAndPublicReplay(t *testing.T) {
 	require.True(t, replay.Replayed)
 	require.Equal(t, first.OperationId, replay.OperationId)
 	require.Equal(t, first.ResourceId, replay.ResourceId)
+	require.Equal(t, 1, f.compute.calls)
 	require.Equal(t, 1, f.model.calls)
 	require.Equal(t, 1, f.plans.calls)
 
