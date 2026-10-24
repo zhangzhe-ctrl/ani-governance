@@ -170,11 +170,11 @@ func TestNoConflicts(t *testing.T) {
 
 // TestCountsAndKeys 表体量与键集合自检，防止生成物与实现脱节。
 func TestCountsAndKeys(t *testing.T) {
-	if ManagementCount() != 199 {
-		t.Errorf("ManagementCount() = %d, want 199", ManagementCount())
+	if ManagementCount() != 202 {
+		t.Errorf("ManagementCount() = %d, want 202", ManagementCount())
 	}
-	if CapabilityCount() != 140 {
-		t.Errorf("CapabilityCount() = %d, want 140", CapabilityCount())
+	if CapabilityCount() != 143 {
+		t.Errorf("CapabilityCount() = %d, want 143", CapabilityCount())
 	}
 	keys := AllKeys()
 	if len(keys) < 262 {
@@ -204,6 +204,9 @@ func TestLookup(t *testing.T) {
 	for _, route := range []struct{ method, path, code string }{
 		{"GET", "/api/v1/inference/services", "inference:service:read"},
 		{"POST", "/api/v1/inference/services/{resource_id}:delete", "inference:service:delete"},
+		{"GET", "/api/v1/inference/services/{resource_id}/policy", "inference:policy:read"},
+		{"PUT", "/api/v1/inference/services/{resource_id}/policy", "inference:policy:update"},
+		{"GET", "/api/v1/inference/services/{resource_id}/metrics", "inference:service:read"},
 	} {
 		if code, ok := Lookup(route.method, route.path); !ok || code != route.code {
 			t.Errorf("Lookup(%s %s) = (%q,%v), want %q", route.method, route.path, code, ok, route.code)
