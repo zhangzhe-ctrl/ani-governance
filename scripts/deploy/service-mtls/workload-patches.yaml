@@ -56,7 +56,8 @@ spec:
                 path: server.crt
               - key: tls.key
                 path: server.key
-        $patch: replace
+        secret: null
+        configMap: null
       - name: vm-client-ca-input
         projected:
           defaultMode: 288
@@ -66,7 +67,8 @@ spec:
               items:
               - key: ca.crt
                 path: client-ca.crt
-        $patch: replace
+        secret: null
+        configMap: null
       - name: image-runtime-tls
         projected:
           defaultMode: 288
@@ -83,7 +85,8 @@ spec:
               items:
               - key: ca.crt
                 path: ca.crt
-        $patch: replace
+        secret: null
+        configMap: null
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -143,7 +146,8 @@ spec:
                 path: server.crt
               - key: tls.key
                 path: server.key
-        $patch: replace
+        secret: null
+        configMap: null
       - name: vm-client-ca-input
         projected:
           defaultMode: 288
@@ -153,7 +157,8 @@ spec:
               items:
               - key: ca.crt
                 path: client-ca.crt
-        $patch: replace
+        secret: null
+        configMap: null
       - name: image-runtime-tls
         projected:
           defaultMode: 288
@@ -170,7 +175,8 @@ spec:
               items:
               - key: ca.crt
                 path: ca.crt
-        $patch: replace
+        secret: null
+        configMap: null
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -211,7 +217,8 @@ spec:
                 path: server.pem
               - key: tls.key
                 path: server.key
-        $patch: replace
+        secret: null
+        configMap: null
       - name: modeldev-public-trust
         projected:
           defaultMode: 292
@@ -231,7 +238,8 @@ spec:
               items:
               - key: ca.crt
                 path: modeldev-server-ca.pem
-        $patch: replace
+        secret: null
+        configMap: null
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -253,7 +261,8 @@ spec:
               audience: ani-node-agent
               expirationSeconds: 600
               path: token
-        $patch: replace
+        secret: null
+        configMap: null
       - name: tls
         projected:
           defaultMode: 256
@@ -270,7 +279,8 @@ spec:
               items:
               - key: ca.crt
                 path: ca.crt
-        $patch: replace
+        secret: null
+        configMap: null
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -312,7 +322,8 @@ spec:
                 path: client.crt
               - key: tls.key
                 path: client.key
-        $patch: replace
+        secret: null
+        configMap: null
       containers:
       - name: session-gateway
         env:
@@ -363,7 +374,8 @@ spec:
                 path: gov-server.crt
               - key: tls.key
                 path: gov-server.key
-        $patch: replace
+        secret: null
+        configMap: null
       - name: modeldev-public-trust
         projected:
           defaultMode: 292
@@ -383,7 +395,8 @@ spec:
               items:
               - key: ca.crt
                 path: modeldev-server-ca.pem
-        $patch: replace
+        secret: null
+        configMap: null
       - name: vm-sg-mtls
         projected:
           defaultMode: 288
@@ -400,7 +413,8 @@ spec:
               items:
               - key: ca.crt
                 path: ca.crt
-        $patch: replace
+        secret: null
+        configMap: null
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -444,7 +458,8 @@ spec:
                 path: gov-server.crt
               - key: tls.key
                 path: gov-server.key
-        $patch: replace
+        secret: null
+        configMap: null
       - name: modeldev-public-trust
         projected:
           defaultMode: 292
@@ -464,7 +479,8 @@ spec:
               items:
               - key: ca.crt
                 path: modeldev-server-ca.pem
-        $patch: replace
+        secret: null
+        configMap: null
       - name: vm-sg-mtls
         projected:
           defaultMode: 288
@@ -481,7 +497,8 @@ spec:
               items:
               - key: ca.crt
                 path: ca.crt
-        $patch: replace
+        secret: null
+        configMap: null
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -531,7 +548,8 @@ spec:
               items:
               - key: ca.crt
                 path: grpc-ca.crt
-        $patch: replace
+        secret: null
+        configMap: null
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -554,7 +572,8 @@ spec:
               items:
               - key: ca.crt
                 path: ca.crt
-        $patch: replace
+        secret: null
+        configMap: null
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -577,7 +596,8 @@ spec:
               items:
               - key: ca.crt
                 path: ca.crt
-        $patch: replace
+        secret: null
+        configMap: null
       - name: image-runtime-tls
         projected:
           defaultMode: 288
@@ -594,4 +614,5 @@ spec:
               items:
               - key: ca.crt
                 path: ca.crt
-        $patch: replace
+        secret: null
+        configMap: null
