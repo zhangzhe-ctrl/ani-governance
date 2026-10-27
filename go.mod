@@ -2,6 +2,10 @@ module go-wind-admin
 
 go 1.26.10
 
+// Temporary local integration reference. Remove before pushing and use the
+// published ani-resource-service module version.
+replace github.com/zhangzhe-ctrl/ani-resource-service => ../ani-resource-service
+
 require (
 	entgo.io/ent v0.14.6
 	github.com/alicebob/miniredis/v2 v2.39.0
@@ -17,7 +21,7 @@ require (
 	github.com/jinzhu/copier v0.4.0
 	github.com/jinzhu/inflection v1.0.0
 	github.com/liangzai006/ani-inference-service/api v0.1.2-0.20261021113945-1356085e3d92
-	github.com/liangzai006/ani-model-service/api v0.0.0-20261021113912-a21befaaa5e5
+	github.com/liangzai006/ani-model-service/api v0.0.0-20261022121005-cf833e370815
 	github.com/lib/pq v1.12.3
 	github.com/mileusna/useragent v1.3.5
 	github.com/pquerna/otp v1.5.0

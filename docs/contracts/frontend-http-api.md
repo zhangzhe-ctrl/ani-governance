@@ -4,6 +4,8 @@
 
 Governance BFF 当前提供 `/api/v1/inference/...` 推理服务管理接口，包括普通及 GPU 推理的创建、列表/详情、操作查询、更新、启停/重启和删除。业务管理请求直接访问 Governance；Higress 仅承载 OpenAI 兼容推理数据面（例如 `/v1/completions`），不得把这些 `/api/v1/...` 路由加入 Higress。Inference BFF 的列表请求使用 `page`/`pageSize`，响应使用 `items`/`total`；`total` 在 JSON 中是十进制字符串。
 
+Sandbox 管理同样只从 Governance BFF 进入，Resource 不暴露公网 HTTP。接口位于实例子资源路径：`POST /api/v1/instances/{instance_id}/sandbox`、`GET /api/v1/instances/{instance_id}/sandbox`、`GET /api/v1/instances/{instance_id}/sandbox/{sandbox_id}`、`GET /api/v1/instances/{instance_id}/sandbox/operations/{operation_id}`，以及带 `:pause`、`:resume` 的 POST 和 DELETE。创建和生命周期请求使用 `data` 对象，成功返回异步受理的 `operation_id`/`resource_id`；列表返回 `items`/`total`。实例归属、租户映射、权限和套餐检查在 Gov 完成，镜像必须是受 Resource allowlist 接受的 immutable digest。 列表沿用本文的 `page/pageSize` 正整数协议及独立默认值 `1/20`，不接受其他查询参数或查询请求体；路径与请求体重复的实例/Sandbox ID 必须一致。创建重放先按稳定资源 ID 读取持久意图摘要，不重新解析当前规格目录；预读未命中后若解析、受理失败或响应无效，请求未取消时重查同租户、父实例和稳定 ID 的持久记录，只有匹配已受理意图才回放；无记录保留原错误，查询故障保持失败。相同意图返回原创建操作且 `replayed=true`，不同意图返回 `409 SANDBOX_IDEMPOTENCY_CONFLICT`。旧记录没有意图摘要时只按冻结的名称、镜像、规格 ID 和工作盘匹配，不查询当前目录。生命周期重放也保留 Resource 的 `replayed` 标志；版本或状态前置冲突返回 409，依赖故障返回 503，业务原因始终写入 `reason`。
+
 ## 推理服务管理接口
 
 当前注册的管理路由如下；创建、更新、删除、启动、停止和重启请求的业务字段直接位于 JSON 顶层，不使用 `data` 包装：

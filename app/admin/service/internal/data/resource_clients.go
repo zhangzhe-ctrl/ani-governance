@@ -6,6 +6,7 @@ import (
 
 	compute "github.com/zhangzhe-ctrl/ani-resource-service/api/compute/v1"
 	instance "github.com/zhangzhe-ctrl/ani-resource-service/api/instance/v1"
+	sandbox "github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -25,7 +26,7 @@ func NewResourceClientsFromEnv() (*InstanceClient, *ComputeClient, func(), error
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	return &InstanceClient{client: instance.NewInstanceServiceClient(connection)},
+	return &InstanceClient{client: instance.NewInstanceServiceClient(connection), sandbox: sandbox.NewSandboxServiceClient(connection)},
 		&ComputeClient{client: compute.NewComputePresetServiceClient(connection)},
 		func() { _ = connection.Close() }, nil
 }

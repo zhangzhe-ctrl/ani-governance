@@ -252,6 +252,8 @@ github.com/liangzai006/ani-inference-service/api v0.1.2-0.20261021113945-1356085
 github.com/liangzai006/ani-inference-service/api v0.1.2-0.20261021113945-1356085e3d92/go.mod h1:LL8ApWoysh2oFryZhi+2A07DfyVoIVd8m0Lpu1vCcbk=
 github.com/liangzai006/ani-model-service/api v0.0.0-20261021113912-a21befaaa5e5 h1:0VFzXXMs7dy9AmDMMqoD6UJZhjD7QNDrPAMKUY/Ytg0=
 github.com/liangzai006/ani-model-service/api v0.0.0-20261021113912-a21befaaa5e5/go.mod h1:JsFcJK23M4jXHkXdX9U28lEArWVkp9SS6h2hGroLjIM=
+github.com/liangzai006/ani-model-service/api v0.0.0-20261022121005-cf833e370815 h1:qGtbMNzopK4Pczb6XjXcDrvRq4MR1TEBY1uUVCRXCqI=
+github.com/liangzai006/ani-model-service/api v0.0.0-20261022121005-cf833e370815/go.mod h1:JsFcJK23M4jXHkXdX9U28lEArWVkp9SS6h2hGroLjIM=
 github.com/lib/pq v1.12.3 h1:tTWxr2YLKwIvK90ZXEw8GP7UFHtcbTtty8zsI+YjrfQ=
 github.com/lib/pq v1.12.3/go.mod h1:/p+8NSbOcwzAEI7wiMXFlgydTwcgTr3OSKMsD2BitpA=
 github.com/lithammer/shortuuid/v4 v4.3.0 h1:XRr80OYPOlqxgnCv2/iuElkl/ZtXtPtLKk2AvpXGdWA=

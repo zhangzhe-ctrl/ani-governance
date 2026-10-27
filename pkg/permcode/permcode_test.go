@@ -122,7 +122,7 @@ func TestComputePresetPlatformPermissions(t *testing.T) {
 	if _, err := Resolve("GET", "/api/v1/instance-presets"); err == nil {
 		t.Fatal("removed route remains in permission table")
 	}
-	for _, usage := range []string{"CONTAINER_INSTANCE", "TRAINING", "INFERENCE"} {
+	for _, usage := range []string{"CONTAINER_INSTANCE", "TRAINING", "SANDBOX", "INFERENCE"} {
 		module, code, ok := ComputeCatalogGrant(usage)
 		if !ok || module == "" || code == "" {
 			t.Fatal("missing usage grant", usage)
@@ -173,8 +173,8 @@ func TestCountsAndKeys(t *testing.T) {
 	if ManagementCount() != 202 {
 		t.Errorf("ManagementCount() = %d, want 202", ManagementCount())
 	}
-	if CapabilityCount() != 143 {
-		t.Errorf("CapabilityCount() = %d, want 143", CapabilityCount())
+	if CapabilityCount() != 150 {
+		t.Errorf("CapabilityCount() = %d, want 150", CapabilityCount())
 	}
 	keys := AllKeys()
 	if len(keys) < 262 {
@@ -214,5 +214,26 @@ func TestLookup(t *testing.T) {
 	}
 	if _, ok := Lookup("GET", "/api/v1/nope"); ok {
 		t.Error("Lookup unregistered route should miss")
+	}
+}
+
+func TestSandboxCapabilities(t *testing.T) {
+	for _, r := range []struct{ method, path, action string }{
+		{"POST", "/api/v1/instances/{data.instance_id}/sandbox", "create"},
+		{"GET", "/api/v1/instances/{instance_id}/sandbox", "list"},
+		{"GET", "/api/v1/instances/{instance_id}/sandbox/{sandbox_id}", "read"},
+		{"GET", "/api/v1/instances/{instance_id}/sandbox/operations/{operation_id}", "operation:read"},
+		{"POST", "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:pause", "pause"},
+		{"POST", "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:resume", "resume"},
+		{"DELETE", "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}", "delete"},
+	} {
+		exp, err := Resolve(r.method, r.path)
+		if err != nil || exp.Code != "sandbox:"+r.action || exp.BusinessModule != "INSTANCE" || exp.ScopeKind != "tenant" {
+			t.Fatalf("Sandbox capability %s %s: %+v %v", r.method, r.path, exp, err)
+		}
+	}
+	module, code, ok := ComputeCatalogGrant("SANDBOX")
+	if !ok || module != "INSTANCE" || code != "sandbox:preset:read" {
+		t.Fatalf("Sandbox catalog grant: %s %s %v", module, code, ok)
 	}
 }

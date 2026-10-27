@@ -21,6 +21,13 @@ const InstanceEventsPath = "/api/v1/instances/{instance_id}/events"
 const InstanceLogsPath = "/api/v1/instances/{instance_id}/logs"
 const InstanceMetricsQueryPath = "/api/v1/instances/{instance_id}/metrics/query"
 const InstanceMetricsLatestPath = "/api/v1/instances/{instance_id}/metrics/latest"
+const SandboxCreatePath = "/api/v1/instances/{data.instance_id}/sandbox"
+const SandboxListPath = "/api/v1/instances/{instance_id}/sandbox"
+const SandboxGetPath = "/api/v1/instances/{instance_id}/sandbox/{sandbox_id}"
+const SandboxOperationPath = "/api/v1/instances/{instance_id}/sandbox/operations/{operation_id}"
+const SandboxPausePath = "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:pause"
+const SandboxResumePath = "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:resume"
+const SandboxDeletePath = "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}"
 
 func InstanceModuleRegistered() bool {
 	id, ok := identity.Module_value["INSTANCE"]
@@ -45,6 +52,12 @@ func (r *InstanceAuthorizationRepo) Authorize(ctx context.Context, tenant, user 
 	case InstanceStartPath, InstanceStopPath, InstanceExecPath, InstanceMetricsQueryPath:
 		allowed = method == "POST"
 	case InstanceGetPath, InstanceOperationPath, InstanceRuntimePath, InstanceEventsPath, InstanceLogsPath, InstanceMountablePVCsPath, InstanceConfigurationPath, InstanceMetricsLatestPath:
+		allowed = method == "GET"
+	case SandboxCreatePath, SandboxPausePath, SandboxResumePath:
+		allowed = method == "POST"
+	case SandboxDeletePath:
+		allowed = method == "DELETE"
+	case SandboxListPath, SandboxGetPath, SandboxOperationPath:
 		allowed = method == "GET"
 	}
 	if !allowed || r == nil || r.current == nil {

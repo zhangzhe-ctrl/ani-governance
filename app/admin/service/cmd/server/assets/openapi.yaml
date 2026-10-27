@@ -7519,10 +7519,11 @@ paths:
                 - name: usage
                   in: query
                   required: true
-                  description: 'Required: CONTAINER_INSTANCE, TRAINING (including fine-tuning), or INFERENCE.'
+                  description: Required business usage. SANDBOX currently supports CPU presets only.
                   schema:
                     type: string
                     enum:
+                        - SANDBOX
                         - CONTAINER_INSTANCE
                         - TRAINING
                         - INFERENCE
@@ -8467,6 +8468,117 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ExecInstanceResponse'
+    /api/v1/instances/{data.instance_id}/sandbox:
+        post:
+            tags:
+                - SandboxService
+            operationId: SandboxService_CreateSandbox
+            parameters:
+                - name: data.instance_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateSandboxRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxAcceptance'
+    /api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:
+        delete:
+            tags:
+                - SandboxService
+            operationId: SandboxService_DeleteSandbox
+            parameters:
+                - name: data.instance_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: data.sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/DeleteSandboxRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxAcceptance'
+    /api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:pause:
+        post:
+            tags:
+                - SandboxService
+            operationId: SandboxService_PauseSandbox
+            parameters:
+                - name: data.instance_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: data.sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PauseSandboxRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxAcceptance'
+    /api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:resume:
+        post:
+            tags:
+                - SandboxService
+            operationId: SandboxService_ResumeSandbox
+            parameters:
+                - name: data.instance_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: data.sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ResumeSandboxRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxAcceptance'
     /api/v1/instances/{data.instance_id}:start:
         post:
             tags:
@@ -8629,6 +8741,80 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/InstanceRuntime'
+    /api/v1/instances/{instance_id}/sandbox:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_ListSandboxes
+            parameters:
+                - name: instance_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSandboxesResponse'
+    /api/v1/instances/{instance_id}/sandbox/operations/{operation_id}:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_GetSandboxOperation
+            parameters:
+                - name: instance_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: operation_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxOperation'
+    /api/v1/instances/{instance_id}/sandbox/{sandbox_id}:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_GetSandbox
+            parameters:
+                - name: instance_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Sandbox'
     /api/v1/me/quota-accounts:
         get:
             tags:
@@ -12173,6 +12359,26 @@ components:
                 data:
                     $ref: '#/components/schemas/Role'
             description: 创建角色 - 请求
+        CreateSandboxData:
+            type: object
+            properties:
+                idempotency_key:
+                    type: string
+                name:
+                    type: string
+                image_reference:
+                    type: string
+                preset_id:
+                    type: string
+                workspace_size:
+                    type: string
+                instance_id:
+                    type: string
+        CreateSandboxRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/CreateSandboxData'
         CreateSubnetRequest:
             type: object
             properties:
@@ -12629,6 +12835,11 @@ components:
             properties:
                 resource:
                     $ref: '#/components/schemas/PlatformResource'
+        DeleteSandboxRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/SandboxActionData'
         DeleteSubnetResponse:
             type: object
             properties:
@@ -15269,6 +15480,15 @@ components:
                         $ref: '#/components/schemas/RuntimeEvent'
                 total:
                     type: string
+        ListSandboxesResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Sandbox'
+                total:
+                    type: string
         ListSubnetsResponse:
             type: object
             properties:
@@ -16997,6 +17217,11 @@ components:
                     items:
                         $ref: '#/components/schemas/NamedAny'
             description: Describes the operations available on a single path. A Path Item MAY be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.
+        PauseSandboxRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/SandboxActionData'
         Permission:
             type: object
             properties:
@@ -17736,6 +17961,25 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/NamedSchemaOrReference'
+        ProviderRefs:
+            type: object
+            properties:
+                pvc_name:
+                    type: string
+                pvc_uid:
+                    type: string
+                pod_name:
+                    type: string
+                pod_uid:
+                    type: string
+                resource_version:
+                    type: string
+                cleanup_receipt:
+                    type: string
+                pvc_resource_version:
+                    type: string
+                pod_resource_version:
+                    type: string
         PublicAddressPool:
             type: object
             properties:
@@ -18135,6 +18379,11 @@ components:
                     type: integer
                     format: int32
             description: 重启调度任务 - 回应
+        ResumeSandboxRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/SandboxActionData'
         RetireNetworkDeviceData:
             type: object
             properties:
@@ -18486,6 +18735,107 @@ components:
                     type: string
                 code:
                     type: string
+        Sandbox:
+            type: object
+            properties:
+                id:
+                    type: string
+                instance_id:
+                    type: string
+                version:
+                    type: string
+                desired_state:
+                    type: string
+                observed_state:
+                    type: string
+                reason:
+                    type: string
+                create_operation_id:
+                    type: string
+                last_operation_id:
+                    type: string
+                snapshot:
+                    $ref: '#/components/schemas/SandboxSnapshot'
+                provider_refs:
+                    $ref: '#/components/schemas/ProviderRefs'
+                observed_at:
+                    type: string
+                    format: date-time
+        SandboxAcceptance:
+            type: object
+            properties:
+                operation_id:
+                    type: string
+                resource_id:
+                    type: string
+                accepted:
+                    type: boolean
+                replayed:
+                    type: boolean
+        SandboxActionData:
+            type: object
+            properties:
+                sandbox_id:
+                    type: string
+                idempotency_key:
+                    type: string
+                expected_version:
+                    type: string
+                instance_id:
+                    type: string
+        SandboxOperation:
+            type: object
+            properties:
+                id:
+                    type: string
+                sandbox_id:
+                    type: string
+                instance_id:
+                    type: string
+                action:
+                    type: string
+                intent_version:
+                    type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+        SandboxSnapshot:
+            type: object
+            properties:
+                name:
+                    type: string
+                image_reference:
+                    type: string
+                preset_id:
+                    type: string
+                image_digest:
+                    type: string
+                cpu_millis:
+                    type: string
+                memory_mib:
+                    type: string
+                compute_type:
+                    type: string
+                cluster_id:
+                    type: string
+                namespace:
+                    type: string
+                runtime_class:
+                    type: string
+                selection_digest:
+                    type: string
+                preset_code:
+                    type: string
+                preset_name:
+                    type: string
+                spec_digest:
+                    type: string
+                workspace:
+                    $ref: '#/components/schemas/WorkspaceSpec'
         SchedulerConfig:
             type: object
             properties:
@@ -20233,6 +20583,17 @@ components:
                     type: string
                 rpId:
                     type: string
+        WorkspaceSpec:
+            type: object
+            properties:
+                mount_path:
+                    type: string
+                size:
+                    type: string
+                storage_class:
+                    type: string
+                reclaim_policy:
+                    type: string
         Xml:
             type: object
             properties:
@@ -20396,6 +20757,7 @@ tags:
       description: Redis缓存监控管理服务（只读）
     - name: RoleService
       description: 角色管理服务
+    - name: SandboxService
     - name: ServerMonitorService
       description: 服务监控管理服务（只读）
     - name: TaskService

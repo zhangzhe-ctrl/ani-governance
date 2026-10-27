@@ -241,6 +241,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	instanceScheduling := service.NewInstanceSchedulingPolicy(configRepo, tenantRepo, instanceCluster, os.Getenv("ANI_INSTANCE_CLUSTER_ID"))
 	instanceBinding := service.NewInstanceGpuBinding(instanceClient, data.NewInstanceAuthorizationRepo(entClient), os.Getenv("ANI_INSTANCE_CLUSTER_ID"), instanceScheduling)
+	sandboxService := service.NewSandboxService(instanceOwner, instanceOwner, data.NewInstanceAuthorizationRepo(entClient), tenantRepo)
 	if instanceClient != nil && data.InstanceModuleRegistered() {
 		if err = quotaRegistry.Register(instanceBinding); err != nil {
 			rollback()
@@ -468,6 +469,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		inferenceService,
 		modelService,
 		computeService,
+		sandboxService,
 		instanceService,
 	)
 	if err != nil {
