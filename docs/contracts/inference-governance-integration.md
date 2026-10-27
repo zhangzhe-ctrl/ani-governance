@@ -94,6 +94,8 @@ curl -N "$GOV/api/v1/inference/services/$RESOURCE_ID/logs:stream?level=error" \
 
 响应 `Content-Type` 为 `text/event-stream`。事件类型为 `log`、`heartbeat`、`done` 和 `error`；`log` 的 data 是 ProtoJSON 日志行，heartbeat 和 done 的 data 为空对象。单个连接最长 5 分钟，建立上游流最多等待 10 秒；进程最多 32 条并发流、每个租户最多 4 条。客户端应处理 heartbeat、断线和重复查询，不要把 SSE 断开解释为 owner 已完成。
 
+上游返回首个原始日志帧即视为连接就绪，即使该帧因 `level` 过滤不会产生 `log` 事件；就绪确认后才开始应用等级过滤，后续仍持续发送匹配日志和 heartbeat。因此，`level=error` 不会因为上游持续发送 INFO 而在 10 秒后误报 503。
+
 ### 3.4 运行事件
 
 `GET /api/v1/inference/services/{resource_id}/events` 支持 `since`、`until`、`type`、`page` 和 `pageSize`。`page` 必须为正数，`pageSize` 为 1～100；重复参数、未知参数、空值、非规范数字和与路径不一致的资源 ID 均拒绝。响应为 `{items:[...],total:"..."}`，事件项包含 `id/type/reason/message/timestamp/instance/count`。

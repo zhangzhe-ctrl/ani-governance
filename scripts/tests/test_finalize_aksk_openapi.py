@@ -143,10 +143,13 @@ components:
 """
         result = finalizer.require_compute_usage(text)
         self.assertIn("required: true", result)
-        for usage in ["CONTAINER_INSTANCE", "TRAINING", "INFERENCE", "VIRTUAL_MACHINE"]:
+        for usage in ["SANDBOX", "CONTAINER_INSTANCE", "TRAINING", "INFERENCE", "VIRTUAL_MACHINE"]:
             self.assertIn("- " + usage, result)
         with self.assertRaises(SystemExit):
             finalizer.require_compute_usage(text, 'string usage = 7;')
+        for enum in ['', 'enum: [{yaml: "SANDBOX"}, {yaml: "SANDBOX"}]']:
+            with self.assertRaises(SystemExit):
+                finalizer.require_compute_usage(text, 'string usage = 7 [(google.api.field_behavior) = REQUIRED, ' + enum + '];')
 
 
 if __name__ == '__main__':

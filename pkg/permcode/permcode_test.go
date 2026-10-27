@@ -123,7 +123,7 @@ func TestComputePresetPlatformPermissions(t *testing.T) {
 	if _, err := Resolve("GET", "/api/v1/instance-presets"); err == nil {
 		t.Fatal("removed route remains in permission table")
 	}
-	for _, usage := range []string{"CONTAINER_INSTANCE", "TRAINING", "INFERENCE", "VIRTUAL_MACHINE"} {
+	for _, usage := range []string{"SANDBOX", "CONTAINER_INSTANCE", "TRAINING", "INFERENCE", "VIRTUAL_MACHINE"} {
 		module, code, ok := ComputeCatalogGrant(usage)
 		if !ok || module == "" || code == "" {
 			t.Fatal("missing usage grant", usage)
@@ -171,11 +171,11 @@ func TestNoConflicts(t *testing.T) {
 
 // TestCountsAndKeys 表体量与键集合自检，防止生成物与实现脱节。
 func TestCountsAndKeys(t *testing.T) {
-	if ManagementCount() != 199 {
-		t.Errorf("ManagementCount() = %d, want 199", ManagementCount())
+	if ManagementCount() != 202 {
+		t.Errorf("ManagementCount() = %d, want 202", ManagementCount())
 	}
-	if CapabilityCount() != 166 {
-		t.Errorf("CapabilityCount() = %d, want 166", CapabilityCount())
+	if CapabilityCount() != 176 {
+		t.Errorf("CapabilityCount() = %d, want 176", CapabilityCount())
 	}
 	keys := AllKeys()
 	if len(keys) < 262 {
@@ -205,6 +205,9 @@ func TestLookup(t *testing.T) {
 	for _, route := range []struct{ method, path, code string }{
 		{"GET", "/api/v1/inference/services", "inference:service:read"},
 		{"POST", "/api/v1/inference/services/{resource_id}:delete", "inference:service:delete"},
+		{"GET", "/api/v1/inference/services/{resource_id}/policy", "inference:policy:read"},
+		{"PUT", "/api/v1/inference/services/{resource_id}/policy", "inference:policy:update"},
+		{"GET", "/api/v1/inference/services/{resource_id}/metrics", "inference:service:read"},
 	} {
 		if code, ok := Lookup(route.method, route.path); !ok || code != route.code {
 			t.Errorf("Lookup(%s %s) = (%q,%v), want %q", route.method, route.path, code, ok, route.code)
@@ -212,5 +215,26 @@ func TestLookup(t *testing.T) {
 	}
 	if _, ok := Lookup("GET", "/api/v1/nope"); ok {
 		t.Error("Lookup unregistered route should miss")
+	}
+}
+
+func TestSandboxCapabilities(t *testing.T) {
+	for _, r := range []struct{ method, path, action string }{
+		{"POST", "/api/v1/instances/{data.instance_id}/sandbox", "create"},
+		{"GET", "/api/v1/instances/{instance_id}/sandbox", "list"},
+		{"GET", "/api/v1/instances/{instance_id}/sandbox/{sandbox_id}", "read"},
+		{"GET", "/api/v1/instances/{instance_id}/sandbox/operations/{operation_id}", "operation:read"},
+		{"POST", "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:pause", "pause"},
+		{"POST", "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:resume", "resume"},
+		{"DELETE", "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}", "delete"},
+	} {
+		exp, err := Resolve(r.method, r.path)
+		if err != nil || exp.Code != "sandbox:"+r.action || exp.BusinessModule != "INSTANCE" || exp.ScopeKind != "tenant" {
+			t.Fatalf("Sandbox capability %s %s: %+v %v", r.method, r.path, exp, err)
+		}
+	}
+	module, code, ok := ComputeCatalogGrant("SANDBOX")
+	if !ok || module != "INSTANCE" || code != "sandbox:preset:read" {
+		t.Fatalf("Sandbox catalog grant: %s %s %v", module, code, ok)
 	}
 }

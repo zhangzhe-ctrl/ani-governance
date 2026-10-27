@@ -24,6 +24,7 @@
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
 | Network 租户面读写对接 | NET-01～NET-25；复用 AK-*、AUTH-* | 当前 25 方法支持 JWT/AK；NET-01～24 的历史三条主链验收和 NET-25 增量结果分批记录 | 当前合同见下方增量与 [AK/SK 合同](contracts/aksk-signature.md)；真实环境按批次验收 |
 | Gov → Resource 调用规范收敛 | S2S-RES-01；复用 NET-01～NET-25 与既有 Image 11 RPC | Network/Image 调用端与 Resource 接收端已修改；隔离真实业务链路通过，生产验收未执行 | 传输与可信上下文即时修复，见下方结果；不调整 HTTP 风格 |
+| Gov → Resource Sandbox 生命周期 | SANDBOX-01～08 | Gov BFF、Resource RPC、目录/权限映射已接入；真实完整 HTTP/DB/worker/Kata 主链已留证，当前复核修复的验证及未部署边界见 Resource 唯一状态 | 联调期间 Governance `go.mod` 使用未提交 `replace`，推送前切回正式 Resource API module |
 | 通用配额、GPU 实例与 Inference 接入 | QUOTA-01～03；INF-01/02；QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 保留 ACC 目录与 Resource 实例执行/释放合同；Inference 管理由 Governance BFF 接入并通过受信 mTLS 客户端投递；旧模拟 owner 入口退役 | 当前合同见 [GPU owner 指南](contracts/gpu-owner-integration-guide.md)；源码、部署与真实 GPU 验收分别记录 |
 | ModelDev 训练、微调及原登记恢复 | MODELDEV-01～MODELDEV-08、MODELDEV-12；服务间调用登记 S2S-MODELDEV-CPUP01-01 | 单一 typed 受理/查询及当前授权恢复已实现；原登记 Resume 的 HTTP/JWT/PG/mTLS 边界 GREEN，真实 provider Resume 与完整微调/GPU分别验收；历史 CPU-P01 结果保留原范围 | v2.1，进行中 |
 
@@ -1825,3 +1826,17 @@ Linux `DISK_IMAGE` 仅在 Resource 媒体目录 `initializationCapability=CLOUD_
 实际 CODE/PG/BOUNDARY/LIVE/GUEST/BROWSER 结果统一见 Resource `docs/execution/status.md#vm-mvp` 及 `docs/execution/records/VM-MVP/`；此登记不是执行通过记录。
 
 组合编译核验发现既有 ModelDev 根 SDK `v0.0.0-20261021184454-44188466290f` 仍引入 Model 根 SDK `v0.0.0-20261013092523-8951c85bc150`，其 `api/model/v1` 与本仓已固定的 Model/api 子模块同路径冲突。Gov 显式将该间接父模块固定到与现有 Model/api 同一提交的 `v0.0.0-20261021113912-a21befaaa5e5`；该提交含 `api/go.mod`，父模块不再导出该子树。不更改 Model/ModelDev 源码，不回退既有 API，也不以本地 replace 作为正式依赖修复。
+
+## Sandbox 规格目录与权限接入（2026-10-27）
+
+管理入口为 Governance BFF；七条路由以 `api/protos/admin/service/v1/i_sandbox.proto` 为准，写请求保留 `data` 包装。各动作使用独立 `sandbox:create/list/read/operation:read/pause/resume/delete` 权限，均检查当前 INSTANCE 套餐、真实父实例租户归属，再经 mTLS 委托 Resource。映射维护于 `docs/contracts/permission-code-capability-map.tsv`。
+
+`GET /api/v1/compute-presets?usage=SANDBOX` 使用 INSTANCE 套餐及独立 `sandbox:preset:read` 权限；默认 `compute_type=cpu`，显式 GPU 类型或非空 `gpu_mode` 返回 400。保持 SANDBOX 用途传给 Resource，不复用容器实例用途或权限。目录同步不自动授权；`scripts/ops/sql/register-sandbox-permissions.sql` 只准备默认 OFF 的权限及 API 关系，角色/套餐通过正常管理入口单独配置。
+
+**联调前历史检查点（由下节后续结果替代）：** 集群 Provider 的 Kata 生命周期已验证；Governance 独立候选 r7 的 SANDBOX 目录查询已由 400 进入授权检查并返回 403。tenant-a/admin 登录 200，但缺 Sandbox 授权且实例为空；完整租户 HTTP → Governance → Resource DB/worker → Kata 生命周期尚待平台管理身份准备测试授权和合法父实例，不能据此段登记声称验收通过。原仓与候选的完整 API 生成、相关 Go 包/HTTP 用例及独占 PostgreSQL 授权/登记回归已定向验证；完整验收证据统一见 Resource 的 `docs/execution/records/SANDBOX-20261027/cluster-integration.json`。
+
+### Sandbox 接口复核修正（2026-10-27）
+
+原先登记的“待平台管理身份/合法父实例”是联调前检查点；随后已通过正常管理入口准备临时租户，完成完整 HTTP 生命周期、工作盘保留、重放与清理。真实证据和当前验收边界统一见 Resource `docs/execution/status.md` 与 `docs/execution/records/SANDBOX-20261027/http-lifecycle/result.json`，不由下述源码修正扩展原验收结论。
+
+本次复核修正创建重放受当前 preset 变化影响、公共页码偏移与默认值、错误 `reason` 丢失及重放标志恒 false。HTTP 路径和 `data` 结构保留；严格校验 query/body、路径重复身份，错误映射回稳定业务原因。新意图摘要使用 Resource API helper；旧记录从冻结快照匹配。修正后的源码测试、生成和候选部署结果只在上述 Resource 唯一状态登记；原 Kata 实测不自动覆盖本轮新源码。

@@ -253,6 +253,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	vmBinding := service.NewVMBinding(vmClient, data.NewVMAuthorizationRepo(entClient), os.Getenv("ANI_INSTANCE_CLUSTER_ID"), vmGuestCipher)
 	var dispatchInstance *service.InstanceGpuBinding
 	var dispatchVM service.QuotaDispatchAdapter
+	sandboxService := service.NewSandboxService(instanceOwner, instanceOwner, data.NewInstanceAuthorizationRepo(entClient), tenantRepo)
 	if instanceClient != nil && data.InstanceModuleRegistered() {
 		dispatchInstance = instanceBinding
 	}
@@ -500,6 +501,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		inferenceService,
 		modelService,
 		computeService,
+		sandboxService,
 		instanceService,
 	)
 	if err != nil {
