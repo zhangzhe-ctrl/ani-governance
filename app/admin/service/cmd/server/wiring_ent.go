@@ -253,7 +253,6 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	vmBinding := service.NewVMBinding(vmClient, data.NewVMAuthorizationRepo(entClient), os.Getenv("ANI_INSTANCE_CLUSTER_ID"), vmGuestCipher)
 	var dispatchInstance *service.InstanceGpuBinding
 	var dispatchVM service.QuotaDispatchAdapter
-	sandboxService := service.NewSandboxService(instanceOwner, instanceOwner, data.NewInstanceAuthorizationRepo(entClient), tenantRepo)
 	if instanceClient != nil && data.InstanceModuleRegistered() {
 		dispatchInstance = instanceBinding
 	}
@@ -445,6 +444,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		computeCatalog.Catalog = acceleratorClient.Catalog
 	}
 	instanceService := service.NewInstanceService(instanceAcceptance, instanceBinding, tenantRepo, quotaLedgerRepo, instanceSessions, instanceCatalog)
+	sandboxService := service.NewSandboxService(instanceOwner, instanceOwner, data.NewInstanceAuthorizationRepo(entClient), tenantRepo, instanceService)
 	vmAcceptance, err := service.NewGpuAcceptance(quotaLedgerRepo, quotaRegistry, tenantRepo, nil, vmBinding, quotaWorker)
 	if err != nil {
 		rollback()

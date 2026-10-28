@@ -6,11 +6,11 @@ import (
 
 	kratoserrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/google/uuid"
+	instancepb "github.com/zhangzhe-ctrl/ani-resource-service/api/instance/v1"
 	res "github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/v1"
 	admin "go-wind-admin/api/gen/go/admin/service/v1"
 	view "go-wind-admin/api/gen/go/sandbox/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
-	"go-wind-admin/pkg/middleware/auth"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -28,19 +28,33 @@ type SandboxOwnerClient interface {
 	DeleteSandbox(context.Context, string, string, *res.DeleteRequest) (*res.DeleteResponse, error)
 }
 
+type SandboxParentAdmission interface {
+	CanCreateSandbox(context.Context, string) error
+}
+
+// CanCreateSandbox reuses the Instance admission fence, including a durable
+// DELETE accepted by Governance but not yet delivered to Resource.
+func (s *InstanceService) CanCreateSandbox(ctx context.Context, instanceID string) error {
+	if s == nil || s.ledger == nil {
+		return kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "instance admission is not configured")
+	}
+	return s.canOperate(ctx, instanceID)
+}
+
 type SandboxService struct {
 	admin.UnimplementedSandboxServiceServer
 	client        SandboxOwnerClient
 	parent        InstanceOwnerClient
 	authorization InstanceActionAuthorizer
 	tenants       ResourceTenantResolver
+	admission     SandboxParentAdmission
 }
 
-func NewSandboxService(client SandboxOwnerClient, parent InstanceOwnerClient, authorization InstanceActionAuthorizer, tenants ResourceTenantResolver) *SandboxService {
-	return &SandboxService{client: client, parent: parent, authorization: authorization, tenants: tenants}
+func NewSandboxService(client SandboxOwnerClient, parent InstanceOwnerClient, authorization InstanceActionAuthorizer, tenants ResourceTenantResolver, admission SandboxParentAdmission) *SandboxService {
+	return &SandboxService{client: client, parent: parent, authorization: authorization, tenants: tenants, admission: admission}
 }
 
-func (s *SandboxService) scope(ctx context.Context, path, method, instanceID string) (string, string, *auth.Principal, error) {
+func (s *SandboxService) scope(ctx context.Context, path, method, instanceID string) (string, string, *instancepb.Instance, error) {
 	p, err := gpuPrincipal(ctx)
 	if err != nil {
 		return "", "", nil, err
@@ -63,7 +77,22 @@ func (s *SandboxService) scope(ctx context.Context, path, method, instanceID str
 	if parent == nil || parent.Id != instanceID {
 		return "", "", nil, kratoserrors.NotFound("INSTANCE_NOT_FOUND", "instance not found")
 	}
-	return tenant, actor, p, nil
+	return tenant, actor, parent, nil
+}
+
+func (s *SandboxService) admitCreate(ctx context.Context, instanceID string, parent *instancepb.Instance) error {
+	if parent == nil || parent.Id != instanceID {
+		return kratoserrors.NotFound("INSTANCE_NOT_FOUND", "instance not found")
+	}
+	for _, state := range []string{parent.DesiredState, parent.ObservedState} {
+		if state == "deleted" || state == "deleting" {
+			return kratoserrors.Conflict("INSTANCE_DELETING", "instance final deletion already accepted")
+		}
+	}
+	if s.admission == nil {
+		return kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "instance admission is not configured")
+	}
+	return s.admission.CanCreateSandbox(ctx, instanceID)
 }
 
 func sandboxKey(v string) error {
@@ -84,7 +113,7 @@ func (s *SandboxService) CreateSandbox(ctx context.Context, r *view.CreateSandbo
 	if err := sandboxKey(r.Data.IdempotencyKey); err != nil {
 		return nil, err
 	}
-	tenant, actor, _, err := s.scope(ctx, data.SandboxCreatePath, "POST", r.Data.InstanceId)
+	tenant, actor, parent, err := s.scope(ctx, data.SandboxCreatePath, "POST", r.Data.InstanceId)
 	if err != nil {
 		return nil, err
 	}
@@ -118,6 +147,9 @@ func (s *SandboxService) CreateSandbox(ctx context.Context, r *view.CreateSandbo
 		}
 		return nil, cause
 	}
+	if err = s.admitCreate(ctx, r.Data.InstanceId, parent); err != nil {
+		return replayAccepted(err)
+	}
 	resolved, err := s.client.ResolveSandbox(ctx, tenant, actor, &res.ResolveCreateSpecRequest{TenantId: tenant, InstanceId: r.Data.InstanceId, ContractVersion: 1, Data: input})
 	if err != nil {
 		return replayAccepted(err)
@@ -129,6 +161,15 @@ func (s *SandboxService) CreateSandbox(ctx context.Context, r *view.CreateSandbo
 	command.RequestDigest, err = res.CommandDigest(command, r.Data.InstanceId, resolved, intentDigest)
 	if err != nil {
 		return nil, kratoserrors.InternalServer("SANDBOX_DIGEST_FAILED", "sandbox command digest failed")
+	}
+	// Recheck after resolution so an already-visible parent DELETE cannot admit
+	// a new child. This check and the owner RPC are not an atomic cross-service lock.
+	parent, err = s.parent.Get(ctx, tenant, actor, r.Data.InstanceId)
+	if err != nil {
+		return replayAccepted(err)
+	}
+	if err = s.admitCreate(ctx, r.Data.InstanceId, parent); err != nil {
+		return replayAccepted(err)
 	}
 	ack, err := s.client.AcceptSandboxCreate(ctx, tenant, actor, &res.AcceptCreateRequest{Context: command, Spec: resolved, InstanceId: r.Data.InstanceId, CreateIntentDigest: intentDigest})
 	if err != nil {

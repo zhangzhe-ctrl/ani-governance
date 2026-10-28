@@ -19919,6 +19919,10 @@ components:
                     type: string
                 pod_resource_version:
                     type: string
+                pv_name:
+                    type: string
+                pv_uid:
+                    type: string
         PublicAddressPool:
             type: object
             properties:

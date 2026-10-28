@@ -69,6 +69,8 @@ message ProviderRefs {
   string cleanup_receipt = 6 [json_name = "cleanup_receipt"];
   string pvc_resource_version = 7 [json_name = "pvc_resource_version"];
   string pod_resource_version = 8 [json_name = "pod_resource_version"];
+  string pv_name = 9 [json_name = "pv_name"];
+  string pv_uid = 10 [json_name = "pv_uid"];
 }
 message GetSandboxResponse { Sandbox sandbox = 1; }
 message ListSandboxesResponse { repeated Sandbox items = 1; int64 total = 2; }

@@ -37,6 +37,10 @@ func (a *sandboxHTTPAuthorization) Authorize(context.Context, uint32, uint32, st
 	return nil
 }
 
+type sandboxHTTPAdmission struct{}
+
+func (sandboxHTTPAdmission) CanCreateSandbox(context.Context, string) error { return nil }
+
 type sandboxHTTPTenants struct{}
 
 func (sandboxHTTPTenants) ResourceTenantID(context.Context, uint32) (string, error) {
@@ -101,7 +105,7 @@ func TestSandboxHTTPPaginationAndCommandBoundary(t *testing.T) {
 			return next(auth.NewPrincipalContext(ctx, &auth.Principal{Type: auth.SubjectUser, ID: 9, TenantID: 7}), r)
 		}
 	}))
-	RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, sandboxHTTPParent{}, authorization, sandboxHTTPTenants{}))
+	RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, sandboxHTTPParent{}, authorization, sandboxHTTPTenants{}, sandboxHTTPAdmission{}))
 	collection := "/api/v1/instances/" + sandboxHTTPParentID + "/sandbox"
 	detail := collection + "/" + sandboxHTTPResourceID
 	fire := func(method, path, body string, code int) *httptest.ResponseRecorder {
@@ -173,7 +177,7 @@ func TestSandboxHTTPErrorsPreservePublicReasons(t *testing.T) {
 			return next(auth.NewPrincipalContext(ctx, &auth.Principal{Type: auth.SubjectUser, ID: 9, TenantID: 7}), r)
 		}
 	}))
-	RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, sandboxHTTPParent{}, new(sandboxHTTPAuthorization), sandboxHTTPTenants{}))
+	RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, sandboxHTTPParent{}, new(sandboxHTTPAuthorization), sandboxHTTPTenants{}, sandboxHTTPAdmission{}))
 	for _, tc := range []struct {
 		code            codes.Code
 		message, reason string
@@ -238,7 +242,7 @@ func TestSandboxHTTPFailedResolutionReconcilesAcceptedIntent(t *testing.T) {
 					return next(auth.NewPrincipalContext(ctx, &auth.Principal{Type: auth.SubjectUser, ID: 9, TenantID: 7}), r)
 				}
 			}))
-			RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, sandboxHTTPParent{}, new(sandboxHTTPAuthorization), sandboxHTTPTenants{}))
+			RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, sandboxHTTPParent{}, new(sandboxHTTPAuthorization), sandboxHTTPTenants{}, sandboxHTTPAdmission{}))
 			collection := "/api/v1/instances/" + sandboxHTTPParentID + "/sandbox"
 			body := `{"data":{"idempotency_key":"race-create","name":"demo","preset_id":"44444444-4444-4444-8444-444444444444","image_reference":"registry.example/sandbox@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}}`
 			fire := func(body string) *httptest.ResponseRecorder {

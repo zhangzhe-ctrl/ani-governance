@@ -6,6 +6,8 @@ Governance BFF 当前提供 `/api/v1/inference/...` 推理服务管理接口，�
 
 Sandbox 管理同样只从 Governance BFF 进入，Resource 不暴露公网 HTTP。接口位于实例子资源路径：`POST /api/v1/instances/{instance_id}/sandbox`、`GET /api/v1/instances/{instance_id}/sandbox`、`GET /api/v1/instances/{instance_id}/sandbox/{sandbox_id}`、`GET /api/v1/instances/{instance_id}/sandbox/operations/{operation_id}`，以及带 `:pause`、`:resume` 的 POST 和 DELETE。创建和生命周期请求使用 `data` 对象，成功返回异步受理的 `operation_id`/`resource_id`；列表返回 `items`/`total`。实例归属、租户映射、权限和套餐检查在 Gov 完成，镜像必须是受 Resource allowlist 接受的 immutable digest。 列表沿用本文的 `page/pageSize` 正整数协议及独立默认值 `1/20`，不接受其他查询参数或查询请求体；路径与请求体重复的实例/Sandbox ID 必须一致。创建重放先按稳定资源 ID 读取持久意图摘要，不重新解析当前规格目录；预读未命中后若解析、受理失败或响应无效，请求未取消时重查同租户、父实例和稳定 ID 的持久记录，只有匹配已受理意图才回放；无记录保留原错误，查询故障保持失败。相同意图返回原创建操作且 `replayed=true`，不同意图返回 `409 SANDBOX_IDEMPOTENCY_CONFLICT`。旧记录没有意图摘要时只按冻结的名称、镜像、规格 ID 和工作盘匹配，不查询当前目录。生命周期重放也保留 Resource 的 `replayed` 标志；版本或状态前置冲突返回 409，依赖故障返回 503，业务原因始终写入 `reason`。
 
+全新 Sandbox 创建在规格解析前及受理 RPC 前检查父实例状态与 Gov 持久删除栅栏；父实例的 desired/observed 为 `deleted`、`deleting`，或 Gov 已受理父实例最终删除时，返回 `409 INSTANCE_DELETING`。正常停止的父实例仍可创建。已受理的同意图创建重放优先于上述准入检查；父实例墓碑不阻断原 Sandbox 的查询或清理。检查与下游受理 RPC 不在同一事务，不提供父删除与子创建的原子排序，也不自动级联删除 Sandbox。详情和列表的 `provider_refs` 保留 Resource 返回的 Pod/PVC/PV 名称、UID 及观察引用；PV 身份不表示已经回收。
+
 ## 推理服务管理接口
 
 当前注册的管理路由如下；创建、更新、删除、启动、停止和重启请求的业务字段直接位于 JSON 顶层，不使用 `data` 包装：

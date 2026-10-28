@@ -688,6 +688,8 @@ type ProviderRefs struct {
 	CleanupReceipt     string                 `protobuf:"bytes,6,opt,name=cleanup_receipt,proto3" json:"cleanup_receipt,omitempty"`
 	PvcResourceVersion string                 `protobuf:"bytes,7,opt,name=pvc_resource_version,proto3" json:"pvc_resource_version,omitempty"`
 	PodResourceVersion string                 `protobuf:"bytes,8,opt,name=pod_resource_version,proto3" json:"pod_resource_version,omitempty"`
+	PvName             string                 `protobuf:"bytes,9,opt,name=pv_name,proto3" json:"pv_name,omitempty"`
+	PvUid              string                 `protobuf:"bytes,10,opt,name=pv_uid,proto3" json:"pv_uid,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -774,6 +776,20 @@ func (x *ProviderRefs) GetPvcResourceVersion() string {
 func (x *ProviderRefs) GetPodResourceVersion() string {
 	if x != nil {
 		return x.PodResourceVersion
+	}
+	return ""
+}
+
+func (x *ProviderRefs) GetPvName() string {
+	if x != nil {
+		return x.PvName
+	}
+	return ""
+}
+
+func (x *ProviderRefs) GetPvUid() string {
+	if x != nil {
+		return x.PvUid
 	}
 	return ""
 }
@@ -1299,7 +1315,7 @@ const file_sandbox_service_v1_sandbox_proto_rawDesc = "" +
 	"mount_path\x12\x12\n" +
 	"\x04size\x18\x02 \x01(\tR\x04size\x12$\n" +
 	"\rstorage_class\x18\x03 \x01(\tR\rstorage_class\x12&\n" +
-	"\x0ereclaim_policy\x18\x04 \x01(\tR\x0ereclaim_policy\"\xb8\x02\n" +
+	"\x0ereclaim_policy\x18\x04 \x01(\tR\x0ereclaim_policy\"\xea\x02\n" +
 	"\fProviderRefs\x12\x1a\n" +
 	"\bpvc_name\x18\x01 \x01(\tR\bpvc_name\x12\x18\n" +
 	"\apvc_uid\x18\x02 \x01(\tR\apvc_uid\x12\x1a\n" +
@@ -1308,7 +1324,10 @@ const file_sandbox_service_v1_sandbox_proto_rawDesc = "" +
 	"\x10resource_version\x18\x05 \x01(\tR\x10resource_version\x12(\n" +
 	"\x0fcleanup_receipt\x18\x06 \x01(\tR\x0fcleanup_receipt\x122\n" +
 	"\x14pvc_resource_version\x18\a \x01(\tR\x14pvc_resource_version\x122\n" +
-	"\x14pod_resource_version\x18\b \x01(\tR\x14pod_resource_version\"K\n" +
+	"\x14pod_resource_version\x18\b \x01(\tR\x14pod_resource_version\x12\x18\n" +
+	"\apv_name\x18\t \x01(\tR\apv_name\x12\x16\n" +
+	"\x06pv_uid\x18\n" +
+	" \x01(\tR\x06pv_uid\"K\n" +
 	"\x12GetSandboxResponse\x125\n" +
 	"\asandbox\x18\x01 \x01(\v2\x1b.sandbox.service.v1.SandboxR\asandbox\"`\n" +
 	"\x15ListSandboxesResponse\x121\n" +
