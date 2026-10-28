@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"strconv"
+	"time"
 
 	kratoserrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/google/uuid"
@@ -30,6 +31,28 @@ type SandboxOwnerClient interface {
 
 type SandboxParentAdmission interface {
 	CanCreateSandbox(context.Context, string) error
+	FindSandboxCreateIntent(context.Context, uint32, string) (*data.SandboxCreateIntent, error)
+	RegisterSandboxCreateIntent(context.Context, data.SandboxCreateIntent) (*data.SandboxCreateIntent, bool, error)
+	AcknowledgeSandboxCreate(context.Context, uint32, string, string) error
+}
+
+func (s *InstanceService) FindSandboxCreateIntent(ctx context.Context, tenant uint32, id string) (*data.SandboxCreateIntent, error) {
+	if s == nil || s.ledger == nil {
+		return nil, kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "instance admission is not configured")
+	}
+	return s.ledger.FindSandboxCreateIntent(ctx, tenant, id)
+}
+func (s *InstanceService) RegisterSandboxCreateIntent(ctx context.Context, in data.SandboxCreateIntent) (*data.SandboxCreateIntent, bool, error) {
+	if s == nil || s.ledger == nil {
+		return nil, false, kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "instance admission is not configured")
+	}
+	return s.ledger.RegisterSandboxCreateIntent(ctx, in)
+}
+func (s *InstanceService) AcknowledgeSandboxCreate(ctx context.Context, tenant uint32, id, operation string) error {
+	if s == nil || s.ledger == nil {
+		return kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "instance admission is not configured")
+	}
+	return s.ledger.AcknowledgeSandboxCreate(ctx, tenant, id, operation)
 }
 
 // CanCreateSandbox reuses the Instance admission fence, including a durable
@@ -124,6 +147,23 @@ func (s *SandboxService) CreateSandbox(ctx context.Context, r *view.CreateSandbo
 	if err != nil {
 		return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid sandbox create intent")
 	}
+	p, err := gpuPrincipal(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if s.admission == nil {
+		return nil, kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "sandbox admission is not configured")
+	}
+	intent, err := s.admission.FindSandboxCreateIntent(ctx, p.TenantID, resourceID)
+	if err != nil {
+		return nil, err
+	}
+	if intent != nil {
+		if intent.ResourceTenantID != tenant || intent.InstanceID != r.Data.InstanceId || intent.OperationID != operationID || intent.IntentDigest != intentDigest {
+			return nil, kratoserrors.Conflict("SANDBOX_IDEMPOTENCY_CONFLICT", "sandbox create intent changed")
+		}
+		return s.deliverSandboxCreate(ctx, intent, true)
+	}
 	previous, err := s.client.GetSandbox(ctx, tenant, actor, &res.GetSandboxRequest{TenantId: tenant, InstanceId: r.Data.InstanceId, SandboxId: resourceID})
 	if err == nil {
 		return sandboxCreateReplay(previous, r.Data.InstanceId, resourceID, operationID, input, intentDigest)
@@ -171,14 +211,97 @@ func (s *SandboxService) CreateSandbox(ctx context.Context, r *view.CreateSandbo
 	if err = s.admitCreate(ctx, r.Data.InstanceId, parent); err != nil {
 		return replayAccepted(err)
 	}
-	ack, err := s.client.AcceptSandboxCreate(ctx, tenant, actor, &res.AcceptCreateRequest{Context: command, Spec: resolved, InstanceId: r.Data.InstanceId, CreateIntentDigest: intentDigest})
+	request := &res.AcceptCreateRequest{Context: command, Spec: resolved, InstanceId: r.Data.InstanceId, CreateIntentDigest: intentDigest}
+	raw, err := protojson.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+	intent, replayed, err := s.admission.RegisterSandboxCreateIntent(ctx, data.SandboxCreateIntent{TenantID: p.TenantID, ResourceTenantID: tenant, InstanceID: r.Data.InstanceId, SandboxID: resourceID, OperationID: operationID, IntentDigest: intentDigest, Actor: actor, Command: raw})
 	if err != nil {
 		return replayAccepted(err)
 	}
-	if ack == nil || ack.Ack == nil || ack.Ack.ResourceId != resourceID || ack.Ack.OperationId != operationID || !ack.Ack.Accepted {
-		return replayAccepted(kratoserrors.ServiceUnavailable("SANDBOX_INVALID_ACK", "invalid sandbox acceptance"))
+	return s.deliverSandboxCreate(ctx, intent, replayed)
+}
+
+func (s *SandboxService) deliverSandboxCreate(ctx context.Context, intent *data.SandboxCreateIntent, replay bool) (*view.SandboxAcceptance, error) {
+	if intent == nil {
+		return nil, kratoserrors.ServiceUnavailable("SANDBOX_INVALID_INTENT", "sandbox intent missing")
 	}
-	return &view.SandboxAcceptance{OperationId: operationID, ResourceId: resourceID, Accepted: true, Replayed: ack.Ack.Replayed}, nil
+	var req res.AcceptCreateRequest
+	if err := protojson.Unmarshal(intent.Command, &req); err != nil {
+		return nil, err
+	}
+	if req.Context == nil || req.Spec == nil || req.Context.TenantId != intent.ResourceTenantID || req.Context.ResourceId != intent.SandboxID || req.Context.OperationId != intent.OperationID || req.InstanceId != intent.InstanceID || req.CreateIntentDigest != intent.IntentDigest {
+		return nil, kratoserrors.ServiceUnavailable("SANDBOX_INVALID_INTENT", "sandbox intent identity mismatch")
+	}
+	digest, err := res.CommandDigest(req.Context, req.InstanceId, req.Spec, req.CreateIntentDigest)
+	if err != nil || digest != req.Context.RequestDigest {
+		return nil, kratoserrors.ServiceUnavailable("SANDBOX_INVALID_INTENT", "sandbox intent digest mismatch")
+	}
+	lookup := func() (*view.SandboxAcceptance, error) {
+		previous, lookupErr := s.client.GetSandbox(ctx, intent.ResourceTenantID, intent.Actor, &res.GetSandboxRequest{TenantId: intent.ResourceTenantID, InstanceId: intent.InstanceID, SandboxId: intent.SandboxID})
+		if lookupErr != nil {
+			return nil, lookupErr
+		}
+		if previous == nil || previous.Sandbox == nil || previous.Sandbox.TenantId != intent.ResourceTenantID || previous.Sandbox.Id != intent.SandboxID || previous.Sandbox.InstanceId != intent.InstanceID || previous.Sandbox.CreateOperationId != intent.OperationID {
+			return nil, kratoserrors.ServiceUnavailable("SANDBOX_INVALID_RESPONSE", "invalid sandbox response")
+		}
+		stored := previous.Sandbox
+		matches := stored.CreateIntentDigest == intent.IntentDigest
+		if stored.CreateIntentDigest == "" && stored.Snapshot != nil && stored.Snapshot.Workspace != nil {
+			for _, size := range []string{"", stored.Snapshot.Workspace.Size} {
+				legacy, e := res.CreateIntentDigest(intent.InstanceID, &res.CreateSandboxData{Name: stored.Snapshot.Name, ImageReference: stored.Snapshot.ImageReference, PresetId: stored.Snapshot.PresetId, WorkspaceSize: size})
+				matches = matches || e == nil && legacy == intent.IntentDigest
+			}
+		}
+		if !matches {
+			return nil, kratoserrors.Conflict("SANDBOX_IDEMPOTENCY_CONFLICT", "sandbox create intent changed")
+		}
+		ackCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+		defer cancel()
+		if err := s.admission.AcknowledgeSandboxCreate(ackCtx, intent.TenantID, intent.SandboxID, intent.OperationID); err != nil {
+			return nil, err
+		}
+		return &view.SandboxAcceptance{OperationId: intent.OperationID, ResourceId: intent.SandboxID, Accepted: true, Replayed: true}, nil
+	}
+	if replay {
+		if prior, lookupErr := lookup(); lookupErr == nil {
+			return prior, nil
+		} else if status.Code(lookupErr) != codes.NotFound {
+			return nil, lookupErr
+		}
+	}
+	ack, err := s.client.AcceptSandboxCreate(ctx, intent.ResourceTenantID, intent.Actor, &req)
+	if err != nil {
+		if ctx.Err() == nil {
+			prior, lookupErr := lookup()
+			if lookupErr == nil {
+				return prior, nil
+			}
+			if status.Code(lookupErr) != codes.NotFound {
+				return nil, lookupErr
+			}
+		}
+		return nil, err
+	}
+	if ack == nil || ack.Ack == nil || !ack.Ack.Accepted || ack.Ack.ResourceId != intent.SandboxID || ack.Ack.OperationId != intent.OperationID {
+		if ctx.Err() == nil {
+			prior, lookupErr := lookup()
+			if lookupErr == nil {
+				return prior, nil
+			}
+			if status.Code(lookupErr) != codes.NotFound {
+				return nil, lookupErr
+			}
+		}
+		return nil, kratoserrors.ServiceUnavailable("SANDBOX_INVALID_ACK", "invalid sandbox acceptance")
+	}
+	ackCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+	defer cancel()
+	if err = s.admission.AcknowledgeSandboxCreate(ackCtx, intent.TenantID, intent.SandboxID, intent.OperationID); err != nil {
+		return nil, err
+	}
+	return &view.SandboxAcceptance{OperationId: intent.OperationID, ResourceId: intent.SandboxID, Accepted: true, Replayed: replay || ack.Ack.Replayed}, nil
 }
 
 func sandboxCreateReplay(previous *res.GetSandboxResponse, instanceID, resourceID, operationID string, input *res.CreateSandboxData, intentDigest string) (*view.SandboxAcceptance, error) {

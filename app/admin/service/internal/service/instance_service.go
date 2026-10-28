@@ -13,6 +13,7 @@ import (
 	acc "github.com/zhangzhe-ctrl/ani-accelerator-service/api/gen/go/accelerator/v1"
 	terminal "github.com/zhangzhe-ctrl/ani-resource-service/api/instance/terminal/v1"
 	res "github.com/zhangzhe-ctrl/ani-resource-service/api/instance/v1"
+	sandboxpb "github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/v1"
 	sessionpb "github.com/zhangzhe-ctrl/ani-session-gateway/api/gen/session/v1"
 	admin "go-wind-admin/api/gen/go/admin/service/v1"
 	view "go-wind-admin/api/gen/go/instance/service/v1"
@@ -306,11 +307,91 @@ func (s *InstanceService) DeleteInstance(ctx context.Context, r *view.ChangeInst
 	if r == nil || r.Data == nil || r.Data.ExpectedVersion < 1 {
 		return nil, quota.ErrorInvalidQuotaRequest("%s", "instance delete data required")
 	}
+	p, e := gpuPrincipal(ctx)
+	if e != nil {
+		return nil, e
+	}
+	tenant, actor, e := s.scope(ctx, data.InstanceDeletePath, "DELETE")
+	if e != nil {
+		return nil, e
+	}
+	if _, e = uuid.Parse(r.Data.IdempotencyKey); e != nil {
+		return nil, quota.ErrorInvalidQuotaRequest("%s", "invalid delete key")
+	}
+	if _, e = uuid.Parse(r.Data.InstanceId); e != nil {
+		return nil, quota.ErrorInvalidQuotaRequest("%s", "invalid resource")
+	}
+	old, e := s.ledger.FindIdempotentOperation(ctx, p.TenantID, string(p.Type), strconv.FormatUint(uint64(p.ID), 10), InstanceDeleteAction, r.Data.IdempotencyKey)
+	if e != nil && !ent.IsNotFound(e) {
+		return nil, e
+	}
+	if old != nil {
+		accepted, e := s.acceptance.AcceptGpuDeleteVersion(ctx, r.Data.IdempotencyKey, r.Data.InstanceId, r.Data.ExpectedVersion)
+		if e != nil {
+			return nil, e
+		}
+		return &view.Acceptance{OperationId: accepted.DeleteOperationId, ResourceId: accepted.ResourceId, Result: accepted.Result}, nil
+	}
+	owner, ok := s.binding.client.(SandboxOwnerClient)
+	if !ok || owner == nil {
+		return nil, kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "sandbox check unavailable")
+	}
+	checkID, e := s.ledger.BeginSandboxParentDelete(ctx, p.TenantID, r.Data.InstanceId)
+	if e != nil {
+		return nil, e
+	}
+	defer func() {
+		cleanup, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+		defer cancel()
+		_ = s.ledger.CancelSandboxParentDelete(cleanup, p.TenantID, r.Data.InstanceId, checkID)
+	}()
+	if e = checkSandboxChildrenDeleted(ctx, owner, tenant, actor, r.Data.InstanceId); e != nil {
+		return nil, e
+	}
+	ctx = context.WithValue(ctx, sandboxDeleteCheckKey{}, checkID)
 	accepted, e := s.acceptance.AcceptGpuDeleteVersion(ctx, r.Data.IdempotencyKey, r.Data.InstanceId, r.Data.ExpectedVersion)
 	if e != nil {
 		return nil, e
 	}
 	return &view.Acceptance{OperationId: accepted.DeleteOperationId, ResourceId: accepted.ResourceId, Result: accepted.Result}, nil
+}
+
+type sandboxDeleteCheckKey struct{}
+
+func sandboxDeleteCheckID(ctx context.Context) string {
+	v, _ := ctx.Value(sandboxDeleteCheckKey{}).(string)
+	return v
+}
+
+func checkSandboxChildrenDeleted(ctx context.Context, owner SandboxOwnerClient, tenant, actor, instanceID string) error {
+	const size = 100
+	var total int64 = -1
+	seen := make(map[string]bool)
+	for page := uint32(1); ; page++ {
+		out, err := owner.ListSandboxes(ctx, tenant, actor, &sandboxpb.ListSandboxesRequest{TenantId: tenant, InstanceId: instanceID, Page: page, PageSize: size})
+		if err != nil {
+			return kratoserrors.ServiceUnavailable("SANDBOX_CHECK_UNAVAILABLE", "cannot verify sandbox cleanup")
+		}
+		if out == nil || out.Total < 0 || len(out.Items) > size || (total >= 0 && total != out.Total) {
+			return kratoserrors.ServiceUnavailable("SANDBOX_CHECK_UNAVAILABLE", "inconsistent sandbox list")
+		}
+		total = out.Total
+		for _, child := range out.Items {
+			if child == nil || child.Id == "" || child.TenantId != tenant || child.InstanceId != instanceID || seen[child.Id] {
+				return kratoserrors.ServiceUnavailable("SANDBOX_CHECK_UNAVAILABLE", "invalid sandbox list")
+			}
+			seen[child.Id] = true
+			if child.DesiredState != "deleted" || child.ObservedState != "deleted" {
+				return kratoserrors.Conflict("INSTANCE_SANDBOX_NOT_DELETED", "delete all sandboxes before deleting the instance")
+			}
+		}
+		if int64(len(seen)) == total {
+			return nil
+		}
+		if int64(len(seen)) > total || len(out.Items) < size || page == ^uint32(0) {
+			return kratoserrors.ServiceUnavailable("SANDBOX_CHECK_UNAVAILABLE", "incomplete sandbox list")
+		}
+	}
 }
 func (s *InstanceService) canOperate(ctx context.Context, id string) error {
 	p, e := gpuPrincipal(ctx)

@@ -40,6 +40,15 @@ func (a *sandboxHTTPAuthorization) Authorize(context.Context, uint32, uint32, st
 type sandboxHTTPAdmission struct{}
 
 func (sandboxHTTPAdmission) CanCreateSandbox(context.Context, string) error { return nil }
+func (sandboxHTTPAdmission) FindSandboxCreateIntent(context.Context, uint32, string) (*data.SandboxCreateIntent, error) {
+	return nil, nil
+}
+func (sandboxHTTPAdmission) RegisterSandboxCreateIntent(_ context.Context, in data.SandboxCreateIntent) (*data.SandboxCreateIntent, bool, error) {
+	return &in, false, nil
+}
+func (sandboxHTTPAdmission) AcknowledgeSandboxCreate(context.Context, uint32, string, string) error {
+	return nil
+}
 
 type sandboxHTTPTenants struct{}
 

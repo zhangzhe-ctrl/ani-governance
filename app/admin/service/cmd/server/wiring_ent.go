@@ -525,6 +525,9 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	// disabled 时 quotaInternalServer 为 nil：typed-nil 不能进入 transport.Server
 	// 接口切片，否则 Start 空指针崩溃。
 	extraServers := []transport.Server{quotaWorker}
+	if instanceOwner != nil {
+		extraServers = append(extraServers, service.NewSandboxDispatchWorker(quotaLedgerRepo, sandboxService))
+	}
 	if modeldevClient != nil {
 		extraServers = append(extraServers, service.NewModelDevDispatchWorker(ctx, modeldevAcceptanceRepo, modeldevClient))
 	}

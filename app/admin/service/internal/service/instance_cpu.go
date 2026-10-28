@@ -48,7 +48,7 @@ func (s *GpuAcceptance) acceptInstanceCPUDelete(ctx context.Context, p *auth.Pri
 	if e != nil {
 		return nil, e
 	}
-	result, e := s.ledger.CreateDeleteOperation(ctx, &data.QuotaDeleteInput{TenantID: p.TenantID, ActorType: string(p.Type), ActorID: actorID, OwnerService: InstanceOwner, Action: InstanceDeleteAction, IdempotencyKey: key, RequestHash: hash, CanonicalRequest: string(raw), ResourceID: resource})
+	result, e := s.ledger.CreateDeleteOperation(ctx, &data.QuotaDeleteInput{TenantID: p.TenantID, ActorType: string(p.Type), ActorID: actorID, OwnerService: InstanceOwner, Action: InstanceDeleteAction, IdempotencyKey: key, RequestHash: hash, CanonicalRequest: string(raw), ResourceID: resource, SandboxDeleteCheckID: sandboxDeleteCheckID(ctx)})
 	if e != nil {
 		return nil, e
 	}

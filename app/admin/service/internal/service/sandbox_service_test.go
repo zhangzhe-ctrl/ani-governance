@@ -30,8 +30,29 @@ func (a *sandboxTestAuth) Authorize(_ context.Context, _ uint32, _ uint32, path,
 }
 
 type sandboxTestAdmission struct {
-	calls []string
-	check func(context.Context, string) error
+	calls   []string
+	check   func(context.Context, string) error
+	intents map[string]*data.SandboxCreateIntent
+}
+
+func (a *sandboxTestAdmission) FindSandboxCreateIntent(_ context.Context, tenant uint32, id string) (*data.SandboxCreateIntent, error) {
+	return a.intents[id], nil
+}
+func (a *sandboxTestAdmission) RegisterSandboxCreateIntent(_ context.Context, in data.SandboxCreateIntent) (*data.SandboxCreateIntent, bool, error) {
+	if a.intents == nil {
+		a.intents = make(map[string]*data.SandboxCreateIntent)
+	}
+	if old := a.intents[in.SandboxID]; old != nil {
+		return old, true, nil
+	}
+	a.intents[in.SandboxID] = &in
+	return &in, false, nil
+}
+func (a *sandboxTestAdmission) AcknowledgeSandboxCreate(_ context.Context, tenant uint32, id, operation string) error {
+	if a.intents[id] != nil {
+		a.intents[id].Acknowledged = true
+	}
+	return nil
 }
 
 func (a *sandboxTestAdmission) CanCreateSandbox(ctx context.Context, id string) error {
@@ -129,7 +150,7 @@ func (c *sandboxTestClient) AcceptSandboxCreate(_ context.Context, _ string, _ s
 		c.getErr = c.acceptLookupErr
 		return nil, c.acceptErr
 	}
-	c.stored = &res.Sandbox{Id: r.Context.ResourceId, InstanceId: r.InstanceId, CreateOperationId: r.Context.OperationId, CreateIntentDigest: r.CreateIntentDigest, Snapshot: &res.SandboxSnapshot{Name: r.Spec.Name, ImageReference: r.Spec.ImageReference, PresetId: r.Spec.PresetId, Workspace: r.Spec.Workspace}}
+	c.stored = &res.Sandbox{TenantId: r.Context.TenantId, Id: r.Context.ResourceId, InstanceId: r.InstanceId, CreateOperationId: r.Context.OperationId, CreateIntentDigest: r.CreateIntentDigest, Snapshot: &res.SandboxSnapshot{Name: r.Spec.Name, ImageReference: r.Spec.ImageReference, PresetId: r.Spec.PresetId, Workspace: r.Spec.Workspace}}
 	return &res.AcceptCreateResponse{Ack: &res.OperationAck{OperationId: r.Context.OperationId, ResourceId: r.Context.ResourceId, Accepted: true, Replayed: c.replayed}}, nil
 }
 func (c *sandboxTestClient) GetSandbox(context.Context, string, string, *res.GetSandboxRequest) (*res.GetSandboxResponse, error) {
@@ -264,7 +285,7 @@ func TestSandboxConcurrentCreateCatalogChangeReplaysWinner(t *testing.T) {
 	s, client, ctx, request := sandboxReplayFixture()
 	intent, err := res.CreateIntentDigest(request.Data.InstanceId, &res.CreateSandboxData{Name: request.Data.Name, ImageReference: request.Data.ImageReference, PresetId: request.Data.PresetId})
 	require.NoError(t, err)
-	client.winner = &res.Sandbox{Id: stableSandboxID(sandboxTestTenant, "create-1", "resource"), InstanceId: sandboxTestInstance, CreateOperationId: stableSandboxID(sandboxTestTenant, "create-1", "operation"), CreateIntentDigest: intent, Snapshot: &res.SandboxSnapshot{Name: "demo", CpuMillis: 500}}
+	client.winner = &res.Sandbox{TenantId: sandboxTestTenant, Id: stableSandboxID(sandboxTestTenant, "create-1", "resource"), InstanceId: sandboxTestInstance, CreateOperationId: stableSandboxID(sandboxTestTenant, "create-1", "operation"), CreateIntentDigest: intent, Snapshot: &res.SandboxSnapshot{Name: "demo", CpuMillis: 500}}
 	client.resolved.CpuMillis = 2000
 	client.acceptErr = status.Error(codes.AlreadyExists, "SANDBOX_IDEMPOTENCY_CONFLICT")
 	got, err := s.CreateSandbox(ctx, request)
@@ -680,4 +701,22 @@ func TestSandboxDetailAndListPreserveProviderReferences(t *testing.T) {
 		require.NoError(t, err)
 		require.JSONEq(t, string(want), string(encoded))
 	}
+}
+
+func TestSandboxCreateFailsClosedWithoutLedger(t *testing.T) {
+	s, _, ctx, request := sandboxReplayFixture()
+	s.admission = &InstanceService{}
+	_, err := s.CreateSandbox(ctx, request)
+	require.Equal(t, 503, kratoserrors.Code(err))
+	require.Equal(t, "SANDBOX_UNAVAILABLE", kratoserrors.Reason(err))
+}
+
+func TestSandboxCreateReplayRejectsForeignTenantOwnerResponse(t *testing.T) {
+	s, client, ctx, request := sandboxReplayFixture()
+	_, err := s.CreateSandbox(ctx, request)
+	require.NoError(t, err)
+	client.stored.TenantId = "foreign-tenant"
+	_, err = s.CreateSandbox(ctx, request)
+	require.Equal(t, 503, kratoserrors.Code(err))
+	require.Equal(t, "SANDBOX_INVALID_RESPONSE", kratoserrors.Reason(err))
 }
