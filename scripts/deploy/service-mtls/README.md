@@ -20,6 +20,7 @@ Issuer、工作负载名称和原配置 Secret/ConfigMap 引用；补丁不包�
 | ani-governance-session-client-tls | 既有 VM 会话控制 | URI `spiffe://ani.internal/service/ani-governance`，clientAuth |
 | ani-session-gateway-client-tls | 既有 Res 终端 listener | URI `spiffe://ani.internal/service/ani-session-gateway`，clientAuth |
 | ani-session-gateway-server-tls | 既有 SG 控制 listener | DNS `ani-session-gateway`，serverAuth |
+| ani-inference-gateway-authz-mtls | Higress 鉴权 companion 调用 Inference | DNS `ani-inference-gateway.ani.internal`，clientAuth |
 
 VM 会话仍按当前接收端合同检查唯一 URI；该身份专用证书与 DNS 业务客户端分开。
 本迁移只统一其签发与信任，不宣称这两条存量协议已完成 DNS 身份改造。
@@ -67,6 +68,8 @@ Role 仅能读取登记的证书 Secret、信任 ConfigMap，以及 get/patch �
 
 镜像由 `Reload.Dockerfile`、`reload.sh` 和经校验的固定 kubectl 二进制构建；清单中的镜像固定到
 发布摘要。调整服务名称或证书 Secret 时，同时更新 bindings 和 Role 的 resourceNames。
+`ani-inference-service` 的绑定也包含鉴权 companion 的客户端证书；该叶证书续期时，
+同一 Pod 中的 Inference 和 companion 一起滚动重启，重新建立 mTLS 连接。
 该 Job 只负责叶证书续期后的加载，不执行根 CA 轮换。
 
 ```sh

@@ -26,6 +26,7 @@ rules:
   - ani-session-gateway-client-tls
   - ani-session-gateway-server-tls
   - ani-inference-server-tls
+  - ani-inference-gateway-authz-mtls
   - inference-accelerator-mtls
   - inference-model-mtls
   - ani-model-v21-server-tls
@@ -109,7 +110,7 @@ data:
     deployment|ani-session-gateway|ani-session-gateway-client-tls ani-session-gateway-server-tls
 
     deployment|ani-inference-service|ani-inference-server-tls inference-model-mtls
-    inference-accelerator-mtls
+    inference-accelerator-mtls ani-inference-gateway-authz-mtls
 
     deployment|ani-model-service|ani-model-v21-server-tls
 
