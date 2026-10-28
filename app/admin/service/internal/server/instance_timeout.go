@@ -9,6 +9,9 @@ import (
 
 var instanceLogsHTTPPath = regexp.MustCompile(`^/api/v1/instances/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/logs$`)
 var instanceMetricsHTTPPath = regexp.MustCompile(`^/api/v1/instances/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/metrics/(query|latest)$`)
+var inferenceRuntimeHTTPPath = regexp.MustCompile(`^/api/v1/inference/services/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/runtime$`)
+var inferenceMetricsHTTPPath = regexp.MustCompile(`^/api/v1/inference/services/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/metrics$`)
+var inferenceLogsStreamHTTPPath = regexp.MustCompile(`^/api/v1/inference/services/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/logs:stream$`)
 var modelDevArtifactHTTPPath = regexp.MustCompile(`^/api/v1/modeldev/artifacts/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/content$`)
 var modelDevRegistrationHTTPPath = regexp.MustCompile(`^/api/v1/modeldev/executions/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:resume-model-registration$`)
 var modelUploadHTTPPath = regexp.MustCompile(`^/api/v1/models/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/upload-url$`)
@@ -34,7 +37,13 @@ func instanceHTTPTimeoutFilter(ordinary time.Duration, ownerBudgets ...time.Dura
 			metrics := instanceMetricsHTTPPath.MatchString(r.URL.Path) && (r.Method == http.MethodPost && r.URL.Path[len(r.URL.Path)-6:] == "/query" || r.Method == http.MethodGet && r.URL.Path[len(r.URL.Path)-7:] == "/latest")
 			modeldev := r.Method == http.MethodPost && (r.URL.Path == "/api/v1/modeldev/executions" || modelDevRegistrationHTTPPath.MatchString(r.URL.Path)) || r.Method == http.MethodGet && modelDevArtifactHTTPPath.MatchString(r.URL.Path)
 			modelImport := r.Method == http.MethodPost && (r.URL.Path == "/api/v1/model-versions" || modelUploadHTTPPath.MatchString(r.URL.Path))
-			if gpuHTTPPath.MatchString(r.URL.Path) {
+			if r.Method == http.MethodGet && inferenceRuntimeHTTPPath.MatchString(r.URL.Path) {
+				// The owner may spend up to fifteen seconds on invocation health.
+				ctx, cancel = context.WithTimeout(ctx, 20*time.Second)
+			} else if r.Method == http.MethodGet && inferenceMetricsHTTPPath.MatchString(r.URL.Path) {
+				// Runtime identity lookup precedes two bounded Prometheus reads.
+				ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
+			} else if gpuHTTPPath.MatchString(r.URL.Path) {
 				ctx, cancel = context.WithTimeout(ctx, 35*time.Second)
 			} else if modelImport && modelImportBudget > 0 {
 				// CreateModelVersion verifies the entire immutable archive before
@@ -46,7 +55,7 @@ func instanceHTTPTimeoutFilter(ordinary time.Duration, ownerBudgets ...time.Dura
 				ctx, cancel = context.WithTimeout(ctx, admissionBudget)
 			} else if metrics {
 				ctx, cancel = context.WithTimeout(ctx, 10*time.Second)
-			} else if ordinary > 0 && !(r.Method == http.MethodGet && instanceLogsHTTPPath.MatchString(r.URL.Path)) {
+			} else if ordinary > 0 && !(r.Method == http.MethodGet && (instanceLogsHTTPPath.MatchString(r.URL.Path) || inferenceLogsStreamHTTPPath.MatchString(r.URL.Path))) {
 				ctx, cancel = context.WithTimeout(ctx, ordinary)
 			} else {
 				ctx, cancel = context.WithCancel(ctx)

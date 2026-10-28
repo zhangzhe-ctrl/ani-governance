@@ -56,6 +56,8 @@ Inference 的管理面统一由 Governance BFF 提供，入口是 `/api/v1/infer
 
 `invocation_endpoint` 只来自 Governance 受管配置，不能由请求传入。没有独立调用探针观测时，`health_observed_at` 可以为空；不能把运行时 Ready 当成推理调用成功。
 
+运行诊断可能包含真实推理健康探测，owner RPC 使用独立的 15 秒预算，`/runtime` HTTP 请求预算为 20 秒；其他普通 Inference RPC 仍为 3 秒。调用方更早的 deadline 和取消始终生效。
+
 ### 3.2 Prometheus 指标
 
 请求示例：
@@ -72,6 +74,8 @@ curl -G "$GOV/api/v1/inference/services/$RESOURCE_ID/metrics" \
 
 Prometheus 查询按 owner 返回的 Pod UID 和配置的 namespace 限定，不按 Pod 名称猜测历史实例。未配置指标源时返回依赖不可用；Prometheus 地址只在 Governance 服务端使用，不能暴露给浏览器。
 
+`/metrics` HTTP 请求预算为 30 秒，覆盖一次 owner 运行诊断和两个各自有界的 Prometheus 查询；指标源未配置时，完成可信身份和租户映射校验后直接返回不可用，不触发健康探测。
+
 ### 3.3 日志查询和 SSE
 
 一次性日志：
@@ -83,12 +87,15 @@ GET /api/v1/inference/services/{resource_id}/logs
   &tail_lines=200&level=error
 ```
 
-允许的参数为 `instance`、`container`、`since`、`until`、`tail_lines` 和 `level`。`tail_lines` 为 1～1000；`level` 为 `trace/debug/info/warn/error/fatal/unknown`。响应为 `{items:[{timestamp,message,level}],truncated}`。日志等级由结构化 `level/severity` 或文本首字段归一化，无法判断时为 `unknown`。
+允许的参数为 `instance`、`container`、`since`、`until`、`tail_lines` 和 `level`。`instance` 必须使用 `/runtime` 返回的真实实例名称；多容器实例须同时选择返回的 `container`，不能使用推理服务 ID 代替 Pod 名称。`tail_lines` 为 1～1000；`level` 为 `trace/debug/info/warn/error/fatal/unknown`。响应为 `{items:[{timestamp,message,level}],truncated}`。日志等级由结构化 `level/severity` 或文本首字段归一化，无法判断时为 `unknown`。
 
 SSE 使用相同的过滤参数：
 
 ```bash
-curl -N "$GOV/api/v1/inference/services/$RESOURCE_ID/logs:stream?level=error" \
+curl -N -G "$GOV/api/v1/inference/services/$RESOURCE_ID/logs:stream" \
+  --data-urlencode "instance=$INSTANCE" \
+  --data-urlencode "container=$CONTAINER" \
+  --data-urlencode 'level=error' \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -175,7 +182,7 @@ downstream:
 
 ## 7. 发布和验收顺序
 
-1. 发布带上述 owner RPC 和消息的 Inference API，确认模块版本和服务端 mTLS listener 已就绪。
+1. 发布带上述 owner RPC 和消息的 Inference API，确认模块版本和服务端 mTLS listener 已就绪。策略接口要求 Inference 自有数据库已应用 `000023_inference_service_policies.sql`；仍处于第 21 版的环境须先补第 22 版，再应用第 23 版。以 owner 的迁移目录、实际表结构和迁移记录为准，更新 Gov 不会替 Inference 建表。
 2. 部署 Governance，并设置 Inference 地址、server name、CA、客户端证书和可选诊断配置。
 3. 执行 `admin sync-apis --dry-run`，审核 17 条 Inference 管理/诊断/策略路由后再执行同步。
 4. 执行 `register-inference-permissions.sql`、`register-inference-diagnostics-permissions.sql` 和 `register-inference-policy-permissions.sql`；目录同步不会替角色授权。
