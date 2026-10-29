@@ -1,5 +1,7 @@
 # 推理调用 Key 管理
 
+前端页面迁移、接口示例及推理调用流程见[推理 AK 与策略前端对接](../frontend-inference-ak-policy.md)。
+
 Governance 提供以下 HTTP 管理入口，使用租户用户 Bearer JWT、明确的
 `inference:key:*` 权限和有效的 `INFERENCE` 套餐模块。平台租户 0、平台 AK/SK
 机器主体和推理 Key 都不能管理这些凭证。接口与 `/api/v1/auth/api-keys` 独立，

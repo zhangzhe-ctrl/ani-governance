@@ -1980,6 +1980,9 @@ Contract: [GPU monitoring](contracts/gpu-monitoring.md); authority: [accepted v1
 [推理调用 Key 和策略合同](contracts/inference-keys.md)。所有管理请求由 Governance
 认证并重建租户/actor，mTLS 转发 Inference；Higress 仅处理 `/v1/...`。
 API 目录、权限和套餐关系须按部署流程显式登记，不能仅凭代码生成推断已部署。
+
+前端页面迁移与请求示例见[推理 AK 与策略前端对接](frontend-inference-ak-policy.md)。
+
 ## USAGE-01：平台受管业务工作负载使用统计
 
 平台管理员 JWT（tenant=0）及现行 Casbin `resource-usage:read`，模块 DASHBOARD。

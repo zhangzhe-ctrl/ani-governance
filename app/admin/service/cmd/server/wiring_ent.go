@@ -460,7 +460,11 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		computeCatalog.Catalog = acceleratorClient.Catalog
 	}
 	instanceService := service.NewInstanceService(instanceAcceptance, instanceBinding, tenantRepo, quotaLedgerRepo, instanceSessions, instanceCatalog)
-	sandboxService := service.NewSandboxService(instanceOwner, data.NewInstanceAuthorizationRepo(entClient), tenantRepo, quotaLedgerRepo)
+	var sandboxOwner service.SandboxOwnerClient
+	if instanceOwner != nil {
+		sandboxOwner = instanceOwner
+	}
+	sandboxService := service.NewSandboxService(sandboxOwner, data.NewInstanceAuthorizationRepo(entClient), tenantRepo, quotaLedgerRepo)
 	overviewService := service.NewOverviewService(
 		ctx.NewLoggerHelper("overview/service/admin-service"),
 		instanceService,
