@@ -11,6 +11,7 @@ var instanceLogsHTTPPath = regexp.MustCompile(`^/api/v1/instances/[0-9a-f]{8}-[0
 var instanceMetricsHTTPPath = regexp.MustCompile(`^/api/v1/instances/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/metrics/(query|latest)$`)
 var inferenceRuntimeHTTPPath = regexp.MustCompile(`^/api/v1/inference/services/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/runtime$`)
 var inferenceMetricsHTTPPath = regexp.MustCompile(`^/api/v1/inference/services/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/metrics$`)
+var inferenceLogsHTTPPath = regexp.MustCompile(`^/api/v1/inference/services/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/logs$`)
 var inferenceLogsStreamHTTPPath = regexp.MustCompile(`^/api/v1/inference/services/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/logs:stream$`)
 var modelDevArtifactHTTPPath = regexp.MustCompile(`^/api/v1/modeldev/artifacts/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/content$`)
 var modelDevRegistrationHTTPPath = regexp.MustCompile(`^/api/v1/modeldev/executions/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:resume-model-registration$`)
@@ -37,8 +38,8 @@ func instanceHTTPTimeoutFilter(ordinary time.Duration, ownerBudgets ...time.Dura
 			metrics := instanceMetricsHTTPPath.MatchString(r.URL.Path) && (r.Method == http.MethodPost && r.URL.Path[len(r.URL.Path)-6:] == "/query" || r.Method == http.MethodGet && r.URL.Path[len(r.URL.Path)-7:] == "/latest")
 			modeldev := r.Method == http.MethodPost && (r.URL.Path == "/api/v1/modeldev/executions" || modelDevRegistrationHTTPPath.MatchString(r.URL.Path)) || r.Method == http.MethodGet && modelDevArtifactHTTPPath.MatchString(r.URL.Path)
 			modelImport := r.Method == http.MethodPost && (r.URL.Path == "/api/v1/model-versions" || modelUploadHTTPPath.MatchString(r.URL.Path))
-			if r.Method == http.MethodGet && inferenceRuntimeHTTPPath.MatchString(r.URL.Path) {
-				// The owner may spend up to fifteen seconds on invocation health.
+			if r.Method == http.MethodGet && (inferenceRuntimeHTTPPath.MatchString(r.URL.Path) || inferenceLogsHTTPPath.MatchString(r.URL.Path)) {
+				// Runtime probes and log reads have a fifteen-second owner budget.
 				ctx, cancel = context.WithTimeout(ctx, 20*time.Second)
 			} else if r.Method == http.MethodGet && inferenceMetricsHTTPPath.MatchString(r.URL.Path) {
 				// Runtime identity lookup precedes two bounded Prometheus reads.

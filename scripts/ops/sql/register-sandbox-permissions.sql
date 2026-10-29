@@ -9,13 +9,13 @@ DO $$
 DECLARE r record; aid bigint; pid bigint;
 BEGIN
  FOR r IN SELECT * FROM (VALUES
-  ('POST','/api/v1/instances/{data.instance_id}/sandbox','sandbox:create','SandboxService','INSTANCE','CreateSandbox'),
-  ('GET','/api/v1/instances/{instance_id}/sandbox','sandbox:list','SandboxService','INSTANCE','ListSandboxes'),
-  ('GET','/api/v1/instances/{instance_id}/sandbox/{sandbox_id}','sandbox:read','SandboxService','INSTANCE','GetSandbox'),
-  ('GET','/api/v1/instances/{instance_id}/sandbox/operations/{operation_id}','sandbox:operation:read','SandboxService','INSTANCE','GetSandboxOperation'),
-  ('POST','/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:pause','sandbox:pause','SandboxService','INSTANCE','PauseSandbox'),
-  ('POST','/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:resume','sandbox:resume','SandboxService','INSTANCE','ResumeSandbox'),
-  ('DELETE','/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}','sandbox:delete','SandboxService','INSTANCE','DeleteSandbox'),
+  ('POST','/api/v1/sandbox','sandbox:create','SandboxService','INSTANCE','CreateSandbox'),
+  ('GET','/api/v1/sandbox','sandbox:list','SandboxService','INSTANCE','ListSandboxes'),
+  ('GET','/api/v1/sandbox/{sandbox_id}','sandbox:read','SandboxService','INSTANCE','GetSandbox'),
+  ('GET','/api/v1/sandbox/operations/{operation_id}','sandbox:operation:read','SandboxService','INSTANCE','GetSandboxOperation'),
+  ('POST','/api/v1/sandbox/{data.sandbox_id}:pause','sandbox:pause','SandboxService','INSTANCE','PauseSandbox'),
+  ('POST','/api/v1/sandbox/{data.sandbox_id}:resume','sandbox:resume','SandboxService','INSTANCE','ResumeSandbox'),
+  ('DELETE','/api/v1/sandbox/{data.sandbox_id}','sandbox:delete','SandboxService','INSTANCE','DeleteSandbox'),
   ('GET','/api/v1/compute-presets','sandbox:preset:read','ComputePresetService','SYSTEM','ListPresets')
  ) AS routes(method,path,code,module,business_module,rpc) LOOP
   IF (SELECT count(*) FROM sys_apis WHERE path=r.path AND method=r.method) <> 1 THEN

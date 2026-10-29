@@ -7,24 +7,24 @@ import "sandbox/service/v1/sandbox.proto";
 
 service SandboxService {
   rpc CreateSandbox(sandbox.service.v1.CreateSandboxRequest) returns (sandbox.service.v1.SandboxAcceptance) {
-    option (google.api.http) = { post: "/api/v1/instances/{data.instance_id}/sandbox" body: "*" };
+    option (google.api.http) = { post: "/api/v1/sandbox" body: "*" };
   }
   rpc ListSandboxes(sandbox.service.v1.ListSandboxesRequest) returns (sandbox.service.v1.ListSandboxesResponse) {
-    option (google.api.http) = { get: "/api/v1/instances/{instance_id}/sandbox" };
+    option (google.api.http) = { get: "/api/v1/sandbox" };
   }
   rpc GetSandbox(sandbox.service.v1.GetSandboxRequest) returns (sandbox.service.v1.Sandbox) {
-    option (google.api.http) = { get: "/api/v1/instances/{instance_id}/sandbox/{sandbox_id}" };
+    option (google.api.http) = { get: "/api/v1/sandbox/{sandbox_id}" };
   }
   rpc GetSandboxOperation(sandbox.service.v1.GetSandboxOperationRequest) returns (sandbox.service.v1.SandboxOperation) {
-    option (google.api.http) = { get: "/api/v1/instances/{instance_id}/sandbox/operations/{operation_id}" };
+    option (google.api.http) = { get: "/api/v1/sandbox/operations/{operation_id}" };
   }
   rpc PauseSandbox(sandbox.service.v1.PauseSandboxRequest) returns (sandbox.service.v1.SandboxAcceptance) {
-    option (google.api.http) = { post: "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:pause" body: "*" };
+    option (google.api.http) = { post: "/api/v1/sandbox/{data.sandbox_id}:pause" body: "*" };
   }
   rpc ResumeSandbox(sandbox.service.v1.ResumeSandboxRequest) returns (sandbox.service.v1.SandboxAcceptance) {
-    option (google.api.http) = { post: "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:resume" body: "*" };
+    option (google.api.http) = { post: "/api/v1/sandbox/{data.sandbox_id}:resume" body: "*" };
   }
   rpc DeleteSandbox(sandbox.service.v1.DeleteSandboxRequest) returns (sandbox.service.v1.SandboxAcceptance) {
-    option (google.api.http) = { delete: "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}" body: "*" };
+    option (google.api.http) = { delete: "/api/v1/sandbox/{data.sandbox_id}" body: "*" };
   }
 }

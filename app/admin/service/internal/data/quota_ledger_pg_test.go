@@ -773,8 +773,6 @@ func TestQuotaPostgresInstanceCPUCommands(t *testing.T) {
 	deletionJSON, e := MarshalInstanceCPUCanonical(&frozen)
 	require.NoError(t, e)
 	deletion := &QuotaDeleteInput{TenantID: tid, ActorType: input.ActorType, ActorID: input.ActorID, OwnerService: instanceCPUOwner, Action: instanceCPUDeleteAction, IdempotencyKey: uuid.NewString(), RequestHash: "cpu-delete-v4", CanonicalRequest: string(deletionJSON), ResourceID: first.ResourceID}
-	deletion.SandboxDeleteCheckID, e = repo.BeginSandboxParentDelete(context.Background(), tid, first.ResourceID)
-	require.NoError(t, e)
 	deleted, e := repo.CreateDeleteOperation(context.Background(), deletion)
 	require.NoError(t, e)
 	require.False(t, deleted.LocalCanceled)
@@ -795,8 +793,6 @@ func TestQuotaPostgresInstanceCPUCommands(t *testing.T) {
 	canceled := *deletion
 	canceled.ResourceID, canceled.IdempotencyKey = queued.ResourceID, uuid.NewString()
 	canceled.RequestHash = "cpu-cancel-unsent"
-	canceled.SandboxDeleteCheckID, e = repo.BeginSandboxParentDelete(context.Background(), tid, queued.ResourceID)
-	require.NoError(t, e)
 	out, e := repo.CreateDeleteOperation(context.Background(), &canceled)
 	require.NoError(t, e)
 	require.True(t, out.LocalCanceled)

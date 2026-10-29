@@ -341,7 +341,7 @@ func (s *GpuAcceptance) acceptGpuDeleteWithReplay(ctx context.Context, key, reso
 		}
 		canonical = string(raw)
 	}
-	result, err := s.ledger.CreateDeleteOperation(ctx, &data.QuotaDeleteInput{TenantID: p.TenantID, ActorType: string(p.Type), ActorID: actorID, OwnerService: old.OwnerService, Action: s.binding.DeleteAction(), IdempotencyKey: key, RequestHash: hash, CanonicalRequest: canonical, ResourceID: resource, SandboxDeleteCheckID: sandboxDeleteCheckID(ctx)})
+	result, err := s.ledger.CreateDeleteOperation(ctx, &data.QuotaDeleteInput{TenantID: p.TenantID, ActorType: string(p.Type), ActorID: actorID, OwnerService: old.OwnerService, Action: s.binding.DeleteAction(), IdempotencyKey: key, RequestHash: hash, CanonicalRequest: canonical, ResourceID: resource})
 	if err != nil {
 		return nil, err
 	}

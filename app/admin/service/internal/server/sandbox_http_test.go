@@ -10,7 +10,6 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/stretchr/testify/require"
-	instance "github.com/zhangzhe-ctrl/ani-resource-service/api/instance/v1"
 	res "github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/service"
@@ -19,14 +18,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const sandboxHTTPParentID = "11111111-1111-4111-8111-111111111111"
 const sandboxHTTPResourceID = "22222222-2222-4222-8222-222222222222"
-
-type sandboxHTTPParent struct{ service.InstanceOwnerClient }
-
-func (sandboxHTTPParent) Get(_ context.Context, _, _, id string) (*instance.Instance, error) {
-	return &instance.Instance{Id: id}, nil
-}
 
 type sandboxHTTPAuthorization struct{ denied bool }
 
@@ -90,7 +82,7 @@ func (o *sandboxHTTPResource) ResolveSandbox(_ context.Context, _, _ string, r *
 func (o *sandboxHTTPResource) AcceptSandboxCreate(_ context.Context, _, _ string, r *res.AcceptCreateRequest) (*res.AcceptCreateResponse, error) {
 	o.calls++
 	o.create = r
-	o.created = &res.Sandbox{Id: r.Context.ResourceId, InstanceId: r.InstanceId, CreateOperationId: r.Context.OperationId, CreateIntentDigest: r.CreateIntentDigest}
+	o.created = &res.Sandbox{TenantId: r.Context.TenantId, Id: r.Context.ResourceId, InstanceId: r.InstanceId, CreateOperationId: r.Context.OperationId, CreateIntentDigest: r.CreateIntentDigest}
 	return &res.AcceptCreateResponse{Ack: &res.OperationAck{Accepted: true, ResourceId: r.Context.ResourceId, OperationId: r.Context.OperationId}}, nil
 }
 func (o *sandboxHTTPResource) PauseSandbox(_ context.Context, _, _ string, r *res.PauseRequest) (*res.PauseResponse, error) {
@@ -114,8 +106,8 @@ func TestSandboxHTTPPaginationAndCommandBoundary(t *testing.T) {
 			return next(auth.NewPrincipalContext(ctx, &auth.Principal{Type: auth.SubjectUser, ID: 9, TenantID: 7}), r)
 		}
 	}))
-	RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, sandboxHTTPParent{}, authorization, sandboxHTTPTenants{}, sandboxHTTPAdmission{}))
-	collection := "/api/v1/instances/" + sandboxHTTPParentID + "/sandbox"
+	RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, authorization, sandboxHTTPTenants{}, sandboxHTTPAdmission{}))
+	collection := "/api/v1/sandbox"
 	detail := collection + "/" + sandboxHTTPResourceID
 	fire := func(method, path, body string, code int) *httptest.ResponseRecorder {
 		t.Helper()
@@ -168,7 +160,7 @@ func TestSandboxHTTPPaginationAndCommandBoundary(t *testing.T) {
 	fire("DELETE", detail, `{"data":{"idempotency_key":"k","expected_version":"1"}}`, 200)
 	createBody := `{"data":{"idempotency_key":"create-1","name":"demo","preset_id":"44444444-4444-4444-8444-444444444444","image_reference":"registry.example/sandbox@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}}`
 	fire("POST", collection, createBody, 200)
-	require.Equal(t, sandboxHTTPParentID, owner.create.InstanceId)
+	require.Empty(t, owner.create.InstanceId)
 	require.NotEmpty(t, owner.create.CreateIntentDigest)
 	response = fire("POST", collection, createBody, 200)
 	require.NoError(t, json.Unmarshal(response.Body.Bytes(), &result))
@@ -186,7 +178,7 @@ func TestSandboxHTTPErrorsPreservePublicReasons(t *testing.T) {
 			return next(auth.NewPrincipalContext(ctx, &auth.Principal{Type: auth.SubjectUser, ID: 9, TenantID: 7}), r)
 		}
 	}))
-	RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, sandboxHTTPParent{}, new(sandboxHTTPAuthorization), sandboxHTTPTenants{}, sandboxHTTPAdmission{}))
+	RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, new(sandboxHTTPAuthorization), sandboxHTTPTenants{}, sandboxHTTPAdmission{}))
 	for _, tc := range []struct {
 		code            codes.Code
 		message, reason string
@@ -199,7 +191,7 @@ func TestSandboxHTTPErrorsPreservePublicReasons(t *testing.T) {
 		{codes.Unavailable, "postgres://private-password@database", "SANDBOX_DEPENDENCY_UNAVAILABLE", 503},
 	} {
 		owner.failure = status.Error(tc.code, tc.message)
-		r := httptest.NewRequest("POST", "/api/v1/instances/"+sandboxHTTPParentID+"/sandbox/"+sandboxHTTPResourceID+":pause", strings.NewReader(`{"data":{"idempotency_key":"k","expected_version":"1"}}`))
+		r := httptest.NewRequest("POST", "/api/v1/sandbox/"+sandboxHTTPResourceID+":pause", strings.NewReader(`{"data":{"idempotency_key":"k","expected_version":"1"}}`))
 		r.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		server.ServeHTTP(w, r)
@@ -251,8 +243,8 @@ func TestSandboxHTTPFailedResolutionReconcilesAcceptedIntent(t *testing.T) {
 					return next(auth.NewPrincipalContext(ctx, &auth.Principal{Type: auth.SubjectUser, ID: 9, TenantID: 7}), r)
 				}
 			}))
-			RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, sandboxHTTPParent{}, new(sandboxHTTPAuthorization), sandboxHTTPTenants{}, sandboxHTTPAdmission{}))
-			collection := "/api/v1/instances/" + sandboxHTTPParentID + "/sandbox"
+			RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, new(sandboxHTTPAuthorization), sandboxHTTPTenants{}, sandboxHTTPAdmission{}))
+			collection := "/api/v1/sandbox"
 			body := `{"data":{"idempotency_key":"race-create","name":"demo","preset_id":"44444444-4444-4444-8444-444444444444","image_reference":"registry.example/sandbox@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}}`
 			fire := func(body string) *httptest.ResponseRecorder {
 				r := httptest.NewRequest("POST", collection, strings.NewReader(body))

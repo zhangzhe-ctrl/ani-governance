@@ -444,7 +444,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		computeCatalog.Catalog = acceleratorClient.Catalog
 	}
 	instanceService := service.NewInstanceService(instanceAcceptance, instanceBinding, tenantRepo, quotaLedgerRepo, instanceSessions, instanceCatalog)
-	sandboxService := service.NewSandboxService(instanceOwner, instanceOwner, data.NewInstanceAuthorizationRepo(entClient), tenantRepo, instanceService)
+	sandboxService := service.NewSandboxService(instanceOwner, data.NewInstanceAuthorizationRepo(entClient), tenantRepo, quotaLedgerRepo)
 	vmAcceptance, err := service.NewGpuAcceptance(quotaLedgerRepo, quotaRegistry, tenantRepo, nil, vmBinding, quotaWorker)
 	if err != nil {
 		rollback()

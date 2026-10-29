@@ -29,9 +29,10 @@ type CreateSandboxData struct {
 	ImageReference string                 `protobuf:"bytes,3,opt,name=image_reference,proto3" json:"image_reference,omitempty"`
 	PresetId       string                 `protobuf:"bytes,4,opt,name=preset_id,proto3" json:"preset_id,omitempty"`
 	WorkspaceSize  string                 `protobuf:"bytes,5,opt,name=workspace_size,proto3" json:"workspace_size,omitempty"`
-	InstanceId     string                 `protobuf:"bytes,6,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
+	InstanceId    string `protobuf:"bytes,6,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateSandboxData) Reset() {
@@ -99,6 +100,7 @@ func (x *CreateSandboxData) GetWorkspaceSize() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
 func (x *CreateSandboxData) GetInstanceId() string {
 	if x != nil {
 		return x.InstanceId
@@ -219,9 +221,10 @@ func (x *SandboxAcceptance) GetReplayed() bool {
 }
 
 type GetSandboxRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	InstanceId    string                 `protobuf:"bytes,1,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
-	SandboxId     string                 `protobuf:"bytes,2,opt,name=sandbox_id,proto3" json:"sandbox_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
+	InstanceId    string `protobuf:"bytes,1,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
+	SandboxId     string `protobuf:"bytes,2,opt,name=sandbox_id,proto3" json:"sandbox_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -256,6 +259,7 @@ func (*GetSandboxRequest) Descriptor() ([]byte, []int) {
 	return file_sandbox_service_v1_sandbox_proto_rawDescGZIP(), []int{3}
 }
 
+// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
 func (x *GetSandboxRequest) GetInstanceId() string {
 	if x != nil {
 		return x.InstanceId
@@ -271,10 +275,11 @@ func (x *GetSandboxRequest) GetSandboxId() string {
 }
 
 type ListSandboxesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	InstanceId    string                 `protobuf:"bytes,1,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
-	Page          *uint32                `protobuf:"varint,2,opt,name=page,proto3,oneof" json:"page,omitempty"`
-	PageSize      *uint32                `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
+	InstanceId    string  `protobuf:"bytes,1,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
+	Page          *uint32 `protobuf:"varint,2,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	PageSize      *uint32 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -309,6 +314,7 @@ func (*ListSandboxesRequest) Descriptor() ([]byte, []int) {
 	return file_sandbox_service_v1_sandbox_proto_rawDescGZIP(), []int{4}
 }
 
+// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
 func (x *ListSandboxesRequest) GetInstanceId() string {
 	if x != nil {
 		return x.InstanceId
@@ -331,8 +337,9 @@ func (x *ListSandboxesRequest) GetPageSize() uint32 {
 }
 
 type Sandbox struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
 	InstanceId        string                 `protobuf:"bytes,2,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
 	Version           int64                  `protobuf:"varint,3,opt,name=version,proto3" json:"version,omitempty"`
 	DesiredState      string                 `protobuf:"bytes,4,opt,name=desired_state,proto3" json:"desired_state,omitempty"`
@@ -384,6 +391,7 @@ func (x *Sandbox) GetId() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
 func (x *Sandbox) GetInstanceId() string {
 	if x != nil {
 		return x.InstanceId
@@ -895,9 +903,10 @@ type SandboxActionData struct {
 	SandboxId       string                 `protobuf:"bytes,1,opt,name=sandbox_id,proto3" json:"sandbox_id,omitempty"`
 	IdempotencyKey  string                 `protobuf:"bytes,2,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
 	ExpectedVersion int64                  `protobuf:"varint,3,opt,name=expected_version,proto3" json:"expected_version,omitempty"`
-	InstanceId      string                 `protobuf:"bytes,4,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
+	InstanceId    string `protobuf:"bytes,4,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SandboxActionData) Reset() {
@@ -951,6 +960,7 @@ func (x *SandboxActionData) GetExpectedVersion() int64 {
 	return 0
 }
 
+// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
 func (x *SandboxActionData) GetInstanceId() string {
 	if x != nil {
 		return x.InstanceId
@@ -1091,9 +1101,10 @@ func (x *DeleteSandboxRequest) GetData() *SandboxActionData {
 }
 
 type GetSandboxOperationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	InstanceId    string                 `protobuf:"bytes,1,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
-	OperationId   string                 `protobuf:"bytes,2,opt,name=operation_id,proto3" json:"operation_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
+	InstanceId    string `protobuf:"bytes,1,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
+	OperationId   string `protobuf:"bytes,2,opt,name=operation_id,proto3" json:"operation_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1128,6 +1139,7 @@ func (*GetSandboxOperationRequest) Descriptor() ([]byte, []int) {
 	return file_sandbox_service_v1_sandbox_proto_rawDescGZIP(), []int{15}
 }
 
+// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
 func (x *GetSandboxOperationRequest) GetInstanceId() string {
 	if x != nil {
 		return x.InstanceId
@@ -1143,9 +1155,10 @@ func (x *GetSandboxOperationRequest) GetOperationId() string {
 }
 
 type SandboxOperation struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	SandboxId     string                 `protobuf:"bytes,2,opt,name=sandbox_id,proto3" json:"sandbox_id,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Id        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	SandboxId string                 `protobuf:"bytes,2,opt,name=sandbox_id,proto3" json:"sandbox_id,omitempty"`
+	// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
 	InstanceId    string                 `protobuf:"bytes,3,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
 	Action        string                 `protobuf:"bytes,4,opt,name=action,proto3" json:"action,omitempty"`
 	IntentVersion int64                  `protobuf:"varint,5,opt,name=intent_version,proto3" json:"intent_version,omitempty"`
@@ -1200,6 +1213,7 @@ func (x *SandboxOperation) GetSandboxId() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in sandbox/service/v1/sandbox.proto.
 func (x *SandboxOperation) GetInstanceId() string {
 	if x != nil {
 		return x.InstanceId
@@ -1246,36 +1260,36 @@ var File_sandbox_service_v1_sandbox_proto protoreflect.FileDescriptor
 
 const file_sandbox_service_v1_sandbox_proto_rawDesc = "" +
 	"\n" +
-	" sandbox/service/v1/sandbox.proto\x12\x12sandbox.service.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe3\x01\n" +
+	" sandbox/service/v1/sandbox.proto\x12\x12sandbox.service.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe7\x01\n" +
 	"\x11CreateSandboxData\x12(\n" +
 	"\x0fidempotency_key\x18\x01 \x01(\tR\x0fidempotency_key\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12(\n" +
 	"\x0fimage_reference\x18\x03 \x01(\tR\x0fimage_reference\x12\x1c\n" +
 	"\tpreset_id\x18\x04 \x01(\tR\tpreset_id\x12&\n" +
-	"\x0eworkspace_size\x18\x05 \x01(\tR\x0eworkspace_size\x12 \n" +
-	"\vinstance_id\x18\x06 \x01(\tR\vinstance_id\"Q\n" +
+	"\x0eworkspace_size\x18\x05 \x01(\tR\x0eworkspace_size\x12$\n" +
+	"\vinstance_id\x18\x06 \x01(\tB\x02\x18\x01R\vinstance_id\"Q\n" +
 	"\x14CreateSandboxRequest\x129\n" +
 	"\x04data\x18\x01 \x01(\v2%.sandbox.service.v1.CreateSandboxDataR\x04data\"\x91\x01\n" +
 	"\x11SandboxAcceptance\x12\"\n" +
 	"\foperation_id\x18\x01 \x01(\tR\foperation_id\x12 \n" +
 	"\vresource_id\x18\x02 \x01(\tR\vresource_id\x12\x1a\n" +
 	"\baccepted\x18\x03 \x01(\bR\baccepted\x12\x1a\n" +
-	"\breplayed\x18\x04 \x01(\bR\breplayed\"U\n" +
-	"\x11GetSandboxRequest\x12 \n" +
-	"\vinstance_id\x18\x01 \x01(\tR\vinstance_id\x12\x1e\n" +
+	"\breplayed\x18\x04 \x01(\bR\breplayed\"Y\n" +
+	"\x11GetSandboxRequest\x12$\n" +
+	"\vinstance_id\x18\x01 \x01(\tB\x02\x18\x01R\vinstance_id\x12\x1e\n" +
 	"\n" +
 	"sandbox_id\x18\x02 \x01(\tR\n" +
-	"sandbox_id\"\x8a\x01\n" +
-	"\x14ListSandboxesRequest\x12 \n" +
-	"\vinstance_id\x18\x01 \x01(\tR\vinstance_id\x12\x17\n" +
+	"sandbox_id\"\x8e\x01\n" +
+	"\x14ListSandboxesRequest\x12$\n" +
+	"\vinstance_id\x18\x01 \x01(\tB\x02\x18\x01R\vinstance_id\x12\x17\n" +
 	"\x04page\x18\x02 \x01(\rH\x00R\x04page\x88\x01\x01\x12 \n" +
 	"\tpage_size\x18\x03 \x01(\rH\x01R\bpageSize\x88\x01\x01B\a\n" +
 	"\x05_pageB\f\n" +
 	"\n" +
-	"_page_size\"\xe2\x03\n" +
+	"_page_size\"\xe6\x03\n" +
 	"\aSandbox\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12 \n" +
-	"\vinstance_id\x18\x02 \x01(\tR\vinstance_id\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12$\n" +
+	"\vinstance_id\x18\x02 \x01(\tB\x02\x18\x01R\vinstance_id\x12\x18\n" +
 	"\aversion\x18\x03 \x01(\x03R\aversion\x12$\n" +
 	"\rdesired_state\x18\x04 \x01(\tR\rdesired_state\x12&\n" +
 	"\x0eobserved_state\x18\x05 \x01(\tR\x0eobserved_state\x12\x16\n" +
@@ -1332,29 +1346,29 @@ const file_sandbox_service_v1_sandbox_proto_rawDesc = "" +
 	"\asandbox\x18\x01 \x01(\v2\x1b.sandbox.service.v1.SandboxR\asandbox\"`\n" +
 	"\x15ListSandboxesResponse\x121\n" +
 	"\x05items\x18\x01 \x03(\v2\x1b.sandbox.service.v1.SandboxR\x05items\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"\xab\x01\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\xaf\x01\n" +
 	"\x11SandboxActionData\x12\x1e\n" +
 	"\n" +
 	"sandbox_id\x18\x01 \x01(\tR\n" +
 	"sandbox_id\x12(\n" +
 	"\x0fidempotency_key\x18\x02 \x01(\tR\x0fidempotency_key\x12*\n" +
-	"\x10expected_version\x18\x03 \x01(\x03R\x10expected_version\x12 \n" +
-	"\vinstance_id\x18\x04 \x01(\tR\vinstance_id\"P\n" +
+	"\x10expected_version\x18\x03 \x01(\x03R\x10expected_version\x12$\n" +
+	"\vinstance_id\x18\x04 \x01(\tB\x02\x18\x01R\vinstance_id\"P\n" +
 	"\x13PauseSandboxRequest\x129\n" +
 	"\x04data\x18\x01 \x01(\v2%.sandbox.service.v1.SandboxActionDataR\x04data\"Q\n" +
 	"\x14ResumeSandboxRequest\x129\n" +
 	"\x04data\x18\x01 \x01(\v2%.sandbox.service.v1.SandboxActionDataR\x04data\"Q\n" +
 	"\x14DeleteSandboxRequest\x129\n" +
-	"\x04data\x18\x01 \x01(\v2%.sandbox.service.v1.SandboxActionDataR\x04data\"b\n" +
-	"\x1aGetSandboxOperationRequest\x12 \n" +
-	"\vinstance_id\x18\x01 \x01(\tR\vinstance_id\x12\"\n" +
-	"\foperation_id\x18\x02 \x01(\tR\foperation_id\"\x8e\x02\n" +
+	"\x04data\x18\x01 \x01(\v2%.sandbox.service.v1.SandboxActionDataR\x04data\"f\n" +
+	"\x1aGetSandboxOperationRequest\x12$\n" +
+	"\vinstance_id\x18\x01 \x01(\tB\x02\x18\x01R\vinstance_id\x12\"\n" +
+	"\foperation_id\x18\x02 \x01(\tR\foperation_id\"\x92\x02\n" +
 	"\x10SandboxOperation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
 	"\n" +
 	"sandbox_id\x18\x02 \x01(\tR\n" +
-	"sandbox_id\x12 \n" +
-	"\vinstance_id\x18\x03 \x01(\tR\vinstance_id\x12\x16\n" +
+	"sandbox_id\x12$\n" +
+	"\vinstance_id\x18\x03 \x01(\tB\x02\x18\x01R\vinstance_id\x12\x16\n" +
 	"\x06action\x18\x04 \x01(\tR\x06action\x12&\n" +
 	"\x0eintent_version\x18\x05 \x01(\x03R\x0eintent_version\x12\x14\n" +
 	"\x05state\x18\x06 \x01(\tR\x05state\x12\x16\n" +

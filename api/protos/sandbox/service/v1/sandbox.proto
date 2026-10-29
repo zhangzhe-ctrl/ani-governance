@@ -9,7 +9,7 @@ message CreateSandboxData {
   string image_reference = 3 [json_name = "image_reference"];
   string preset_id = 4 [json_name = "preset_id"];
   string workspace_size = 5 [json_name = "workspace_size"];
-  string instance_id = 6 [json_name = "instance_id"];
+  string instance_id = 6 [json_name = "instance_id", deprecated = true];
 }
 message CreateSandboxRequest { CreateSandboxData data = 1; }
 message SandboxAcceptance {
@@ -18,15 +18,15 @@ message SandboxAcceptance {
   bool accepted = 3;
   bool replayed = 4;
 }
-message GetSandboxRequest { string instance_id = 1 [json_name = "instance_id"]; string sandbox_id = 2 [json_name = "sandbox_id"]; }
+message GetSandboxRequest { string instance_id = 1 [json_name = "instance_id", deprecated = true]; string sandbox_id = 2 [json_name = "sandbox_id"]; }
 message ListSandboxesRequest {
-  string instance_id = 1 [json_name = "instance_id"];
+  string instance_id = 1 [json_name = "instance_id", deprecated = true];
   optional uint32 page = 2;
   optional uint32 page_size = 3 [json_name = "pageSize"];
 }
 message Sandbox {
   string id = 1;
-  string instance_id = 2 [json_name = "instance_id"];
+  string instance_id = 2 [json_name = "instance_id", deprecated = true];
   int64 version = 3;
   string desired_state = 4 [json_name = "desired_state"];
   string observed_state = 5 [json_name = "observed_state"];
@@ -78,16 +78,16 @@ message SandboxActionData {
   string sandbox_id = 1 [json_name = "sandbox_id"];
   string idempotency_key = 2 [json_name = "idempotency_key"];
   int64 expected_version = 3 [json_name = "expected_version"];
-  string instance_id = 4 [json_name = "instance_id"];
+  string instance_id = 4 [json_name = "instance_id", deprecated = true];
 }
 message PauseSandboxRequest { SandboxActionData data = 1; }
 message ResumeSandboxRequest { SandboxActionData data = 1; }
 message DeleteSandboxRequest { SandboxActionData data = 1; }
-message GetSandboxOperationRequest { string instance_id = 1 [json_name = "instance_id"]; string operation_id = 2 [json_name = "operation_id"]; }
+message GetSandboxOperationRequest { string instance_id = 1 [json_name = "instance_id", deprecated = true]; string operation_id = 2 [json_name = "operation_id"]; }
 message SandboxOperation {
   string id = 1;
   string sandbox_id = 2 [json_name = "sandbox_id"];
-  string instance_id = 3 [json_name = "instance_id"];
+  string instance_id = 3 [json_name = "instance_id", deprecated = true];
   string action = 4;
   int64 intent_version = 5 [json_name = "intent_version"];
   string state = 6;

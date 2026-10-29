@@ -89,19 +89,17 @@ func decodeSandboxQuery(r *nethttp.Request, message proto.Message) error {
 func bindSandboxPath(request, bound proto.Message) error {
 	invalid := kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "sandbox path mismatch")
 	bind := func(in, path *view.SandboxActionData) error {
-		if in == nil || path == nil || in.InstanceId != "" && in.InstanceId != path.InstanceId || in.SandboxId != "" && in.SandboxId != path.SandboxId {
+		if in == nil || path == nil || in.InstanceId != "" || in.SandboxId != "" && in.SandboxId != path.SandboxId {
 			return invalid
 		}
-		in.InstanceId, in.SandboxId = path.InstanceId, path.SandboxId
+		in.SandboxId = path.SandboxId
 		return nil
 	}
 	switch in := request.(type) {
 	case *view.CreateSandboxRequest:
-		path := bound.(*view.CreateSandboxRequest)
-		if in.Data == nil || path.Data == nil || in.Data.InstanceId != "" && in.Data.InstanceId != path.Data.InstanceId {
+		if in.Data == nil || in.Data.InstanceId != "" {
 			return invalid
 		}
-		in.Data.InstanceId = path.Data.InstanceId
 	case *view.PauseSandboxRequest:
 		return bind(in.Data, bound.(*view.PauseSandboxRequest).Data)
 	case *view.ResumeSandboxRequest:

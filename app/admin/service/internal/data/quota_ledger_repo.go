@@ -27,7 +27,6 @@ import (
 	"go-wind-admin/app/admin/service/internal/data/ent/quotacharge"
 	"go-wind-admin/app/admin/service/internal/data/ent/quotaoperation"
 	"go-wind-admin/app/admin/service/internal/data/ent/quotareleasereceipt"
-	"go-wind-admin/app/admin/service/internal/data/ent/tenant"
 	appViewer "go-wind-admin/pkg/entgo/viewer"
 )
 
@@ -82,7 +81,6 @@ type QuotaReleaseResult struct {
 type QuotaDeleteInput struct {
 	TenantID                                                                                            uint32
 	ActorType, ActorID, OwnerService, Action, IdempotencyKey, RequestHash, CanonicalRequest, ResourceID string
-	SandboxDeleteCheckID                                                                                string
 }
 type QuotaDeleteResult struct {
 	OperationID, CreateOperationID, ChargeID, ResourceID string
@@ -640,25 +638,6 @@ func createDeleteOperationTx(ctx context.Context, tx *ent.Tx, in *QuotaDeleteInp
 		*out = deleteResult(existing, charges, true)
 		return nil
 	}
-	if in.OwnerService == commandcontract.InstanceOwner && in.Action == commandcontract.InstanceDeleteAction {
-		// The owner child scan is performed outside the transaction. Require its
-		// still-current token under the same tenant lock as the DELETE insert.
-		if in.SandboxDeleteCheckID == "" {
-			return kratosErrors.Conflict("INSTANCE_SANDBOX_CHECK_REQUIRED", "sandbox deletion check required")
-		}
-		valid, checkErr := tx.Tenant.Query().Where(tenant.IDEQ(tid)).Modify(func(s *entsql.Selector) {
-			checks := entsql.Table("sys_sandbox_parent_delete_checks")
-			s.Where(entsql.Exists(entsql.Select().From(checks).Where(entsql.And(
-				entsql.EQ(checks.C("tenant_id"), tid), entsql.EQ(checks.C("instance_id"), in.ResourceID), entsql.EQ(checks.C("check_id"), in.SandboxDeleteCheckID),
-			))))
-		}).Exist(ctx)
-		if checkErr != nil {
-			return checkErr
-		}
-		if !valid {
-			return kratosErrors.Conflict("INSTANCE_SANDBOX_CHECK_EXPIRED", "sandbox deletion check must be repeated")
-		}
-	}
 	if in.Action == commandcontract.VMDeleteAction {
 		active, e := tx.QuotaOperation.Query().Where(quotaoperation.TenantIDEQ(tid), quotaoperation.OwnerServiceEQ(in.OwnerService), quotaoperation.ActionEQ(commandcontract.VMDeleteAction), quotaoperation.ResourceIDEQ(in.ResourceID), quotaoperation.CreateOperationIDEQ(original.OperationID), quotaoperation.DispatchStateNEQ(quotaoperation.DispatchStateRejected)).Exist(ctx)
 		if e != nil {
@@ -690,11 +669,6 @@ func createDeleteOperationTx(ctx context.Context, tx *ent.Tx, in *QuotaDeleteInp
 	op, e := tx.QuotaOperation.Create().SetInstanceContractVersion(original.InstanceContractVersion).SetCreatedAt(databaseNow).SetUpdatedAt(databaseNow).SetOperationID(generateUUID()).SetTenantID(tid).SetResourceTenantID(original.ResourceTenantID).SetResourceID(original.ResourceID).SetNillableCreateOperationID(&original.OperationID).SetActorType(in.ActorType).SetActorID(in.ActorID).SetOwnerService(in.OwnerService).SetAction(in.Action).SetIdempotencyKey(in.IdempotencyKey).SetRequestHash(in.RequestHash).SetCanonicalRequest(canonical).SetDispatchState(quotaoperation.DispatchState(state)).Save(ctx)
 	if e != nil {
 		return e
-	}
-	if in.OwnerService == commandcontract.InstanceOwner && in.Action == commandcontract.InstanceDeleteAction {
-		if e = tx.RecordSandboxGuardedDelete(ctx, tid, in.ResourceID, op.OperationID, in.SandboxDeleteCheckID); e != nil {
-			return e
-		}
 	}
 	if e = validateOperationCharges(op, charges); e != nil {
 		return e

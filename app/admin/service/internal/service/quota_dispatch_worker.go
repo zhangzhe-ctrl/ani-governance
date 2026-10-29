@@ -161,19 +161,6 @@ func (w *QuotaDispatchWorker) drain(ctx context.Context) {
 
 // dispatchOne 投递单个已领取操作：先提交领取（ClaimDispatchable 已提交），再发 RPC。
 func (w *QuotaDispatchWorker) dispatchOne(ctx context.Context, op *data.ClaimedOperation) {
-	if op.OwnerService == commandcontract.InstanceOwner && op.Action == commandcontract.InstanceDeleteAction {
-		guarded, err := w.ledger.IsSandboxGuardedInstanceDelete(ctx, op.TenantID, op.ResourceID, op.OperationID)
-		if err != nil || !guarded {
-			code := "SANDBOX_DELETE_CHECK_MISSING"
-			if err != nil {
-				code = "SANDBOX_DELETE_CHECK_UNAVAILABLE"
-			}
-			if _, markErr := w.ledger.MarkUnknown(ctx, op.TenantID, op.OperationID, op.LeaseGeneration, time.Now().Add(30*time.Second), code, err == nil); markErr != nil {
-				w.log.Errorf(context.Background(), "sandbox delete guard writeback failed operation=%s", op.OperationID)
-			}
-			return
-		}
-	}
 	adapter := w.registry.Lookup(op.OwnerService, op.Action)
 	if adapter == nil {
 		// 恢复遇到缺失 adapter：保留账本并报错，不退额、不改余额（§8.2）。

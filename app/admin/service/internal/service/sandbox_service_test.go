@@ -7,8 +7,6 @@ import (
 
 	kratoserrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/stretchr/testify/require"
-	terminalpb "github.com/zhangzhe-ctrl/ani-resource-service/api/instance/terminal/v1"
-	instancepb "github.com/zhangzhe-ctrl/ani-resource-service/api/instance/v1"
 	res "github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/v1"
 	view "go-wind-admin/api/gen/go/sandbox/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
@@ -30,8 +28,6 @@ func (a *sandboxTestAuth) Authorize(_ context.Context, _ uint32, _ uint32, path,
 }
 
 type sandboxTestAdmission struct {
-	calls   []string
-	check   func(context.Context, string) error
 	intents map[string]*data.SandboxCreateIntent
 }
 
@@ -55,71 +51,10 @@ func (a *sandboxTestAdmission) AcknowledgeSandboxCreate(_ context.Context, tenan
 	return nil
 }
 
-func (a *sandboxTestAdmission) CanCreateSandbox(ctx context.Context, id string) error {
-	a.calls = append(a.calls, id)
-	if a.check != nil {
-		return a.check(ctx, id)
-	}
-	return nil
-}
-
-type sandboxStateParent struct {
-	InstanceOwnerClient
-	states []*instancepb.Instance
-	calls  int
-	err    error
-	errAt  int
-}
-
-func (p *sandboxStateParent) Get(_ context.Context, tenant, actor, id string) (*instancepb.Instance, error) {
-	if tenant != sandboxTestTenant || actor != "governance:user:7" || id != sandboxTestInstance {
-		return nil, status.Error(codes.PermissionDenied, "unexpected parent scope")
-	}
-	p.calls++
-	if p.err != nil && p.calls >= p.errAt {
-		return nil, p.err
-	}
-	index := p.calls - 1
-	if index >= len(p.states) {
-		index = len(p.states) - 1
-	}
-	return p.states[index], nil
-}
-
 type sandboxTenantResolver struct{}
 
 func (sandboxTenantResolver) ResourceTenantID(context.Context, uint32) (string, error) {
 	return sandboxTestTenant, nil
-}
-
-type sandboxTestParent struct{}
-
-func (sandboxTestParent) Resolve(context.Context, string, string, *instancepb.CreateInstanceData, *instancepb.SchedulingOptions) (*instancepb.CreateSpec, error) {
-	return nil, nil
-}
-func (sandboxTestParent) Create(context.Context, *instancepb.AcceptCreateRequest) (*instancepb.OperationResponse, error) {
-	return nil, nil
-}
-func (sandboxTestParent) Delete(context.Context, *instancepb.AcceptDeleteRequest) (*instancepb.OperationResponse, error) {
-	return nil, nil
-}
-func (sandboxTestParent) Change(context.Context, string, string, *instancepb.ChangeInstanceRequest, bool) (*instancepb.OperationResponse, error) {
-	return nil, nil
-}
-func (sandboxTestParent) Get(context.Context, string, string, string) (*instancepb.Instance, error) {
-	return &instancepb.Instance{Id: sandboxTestInstance}, nil
-}
-func (sandboxTestParent) ResolveInstanceMetricScope(context.Context, string, string, string) (*instancepb.InstanceMetricScope, error) {
-	return nil, nil
-}
-func (sandboxTestParent) List(context.Context, string, string, *instancepb.ListInstancesRequest) (*instancepb.ListInstancesResponse, error) {
-	return nil, nil
-}
-func (sandboxTestParent) Operation(context.Context, string, string, string) (*instancepb.Operation, error) {
-	return nil, nil
-}
-func (sandboxTestParent) Target(context.Context, string, string, string, int64) (*terminalpb.TerminalTarget, error) {
-	return nil, nil
 }
 
 type sandboxTestClient struct {
@@ -189,15 +124,15 @@ func TestSandboxCreateUsesMappedTenantAndResourceDigest(t *testing.T) {
 		RuntimeClass: "kata", ContractVersion: 1, SpecDigest: "spec", Workspace: &res.WorkspaceSpec{MountPath: "/workspace", Size: "10Gi", StorageClass: "fast", ReclaimPolicy: "Delete"},
 	}}
 	authz := new(sandboxTestAuth)
-	s := NewSandboxService(client, sandboxTestParent{}, authz, sandboxTenantResolver{}, new(sandboxTestAdmission))
+	s := NewSandboxService(client, authz, sandboxTenantResolver{}, new(sandboxTestAdmission))
 	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42})
-	got, err := s.CreateSandbox(ctx, &view.CreateSandboxRequest{Data: &view.CreateSandboxData{InstanceId: sandboxTestInstance, IdempotencyKey: "create-1", Name: "demo", ImageReference: client.resolved.ImageReference, PresetId: sandboxTestPreset}})
+	got, err := s.CreateSandbox(ctx, &view.CreateSandboxRequest{Data: &view.CreateSandboxData{IdempotencyKey: "create-1", Name: "demo", ImageReference: client.resolved.ImageReference, PresetId: sandboxTestPreset}})
 	require.NoError(t, err)
 	require.True(t, got.Accepted)
 	require.Equal(t, sandboxTestTenant, client.command.Context.TenantId)
 	require.Equal(t, got.ResourceId, client.command.Context.ResourceId)
 	require.Equal(t, got.OperationId, client.command.Context.OperationId)
-	wantDigest, err := res.CommandDigest(client.command.Context, sandboxTestInstance, client.resolved, client.command.CreateIntentDigest)
+	wantDigest, err := res.CommandDigest(client.command.Context, "", client.resolved, client.command.CreateIntentDigest)
 	require.NoError(t, err)
 	require.Equal(t, wantDigest, client.command.Context.RequestDigest)
 	require.Contains(t, authz.calls, "POST "+data.SandboxCreatePath)
@@ -205,9 +140,9 @@ func TestSandboxCreateUsesMappedTenantAndResourceDigest(t *testing.T) {
 
 func sandboxReplayFixture() (*SandboxService, *sandboxTestClient, context.Context, *view.CreateSandboxRequest) {
 	client := &sandboxTestClient{resolved: &res.ResolveCreateSpecResponse{Name: "demo", ImageReference: "registry.example/sandbox@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", PresetId: sandboxTestPreset, Workspace: &res.WorkspaceSpec{Size: "10Gi"}}}
-	s := NewSandboxService(client, sandboxTestParent{}, new(sandboxTestAuth), sandboxTenantResolver{}, new(sandboxTestAdmission))
+	s := NewSandboxService(client, new(sandboxTestAuth), sandboxTenantResolver{}, new(sandboxTestAdmission))
 	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42})
-	request := &view.CreateSandboxRequest{Data: &view.CreateSandboxData{InstanceId: sandboxTestInstance, IdempotencyKey: "create-1", Name: "demo", ImageReference: client.resolved.ImageReference, PresetId: sandboxTestPreset}}
+	request := &view.CreateSandboxRequest{Data: &view.CreateSandboxData{IdempotencyKey: "create-1", Name: "demo", ImageReference: client.resolved.ImageReference, PresetId: sandboxTestPreset}}
 	return s, client, ctx, request
 }
 func TestSandboxCreateReplayUsesFrozenIntent(t *testing.T) {
@@ -262,12 +197,12 @@ func TestSandboxConcurrentCreateReplayAck(t *testing.T) {
 }
 func TestSandboxServicePaginationDefaultsAndValidation(t *testing.T) {
 	s, client, ctx, _ := sandboxReplayFixture()
-	_, err := s.ListSandboxes(ctx, &view.ListSandboxesRequest{InstanceId: sandboxTestInstance})
+	_, err := s.ListSandboxes(ctx, &view.ListSandboxesRequest{})
 	require.NoError(t, err)
 	require.EqualValues(t, 1, client.listRequest.Page)
 	require.EqualValues(t, 20, client.listRequest.PageSize)
 	for _, pair := range [][2]uint32{{1, 0}, {0, 20}, {1, 101}} {
-		_, err = s.ListSandboxes(ctx, &view.ListSandboxesRequest{InstanceId: sandboxTestInstance, Page: &pair[0], PageSize: &pair[1]})
+		_, err = s.ListSandboxes(ctx, &view.ListSandboxesRequest{Page: &pair[0], PageSize: &pair[1]})
 		require.Equal(t, 400, kratoserrors.Code(err))
 	}
 }
@@ -283,7 +218,7 @@ func TestSandboxCreateLookupFailureDoesNotResolve(t *testing.T) {
 
 func TestSandboxConcurrentCreateCatalogChangeReplaysWinner(t *testing.T) {
 	s, client, ctx, request := sandboxReplayFixture()
-	intent, err := res.CreateIntentDigest(request.Data.InstanceId, &res.CreateSandboxData{Name: request.Data.Name, ImageReference: request.Data.ImageReference, PresetId: request.Data.PresetId})
+	intent, err := res.CreateIntentDigest("", &res.CreateSandboxData{Name: request.Data.Name, ImageReference: request.Data.ImageReference, PresetId: request.Data.PresetId})
 	require.NoError(t, err)
 	client.winner = &res.Sandbox{TenantId: sandboxTestTenant, Id: stableSandboxID(sandboxTestTenant, "create-1", "resource"), InstanceId: sandboxTestInstance, CreateOperationId: stableSandboxID(sandboxTestTenant, "create-1", "operation"), CreateIntentDigest: intent, Snapshot: &res.SandboxSnapshot{Name: "demo", CpuMillis: 500}}
 	client.resolved.CpuMillis = 2000
@@ -357,7 +292,7 @@ func (c *sandboxFailedDeliveryClient) AcceptSandboxCreate(ctx context.Context, t
 func failedSandboxDelivery(t *testing.T, stage string, failure error) (*SandboxService, *sandboxFailedDeliveryClient, context.Context, *view.CreateSandboxRequest) {
 	t.Helper()
 	s, base, ctx, request := sandboxReplayFixture()
-	intent, err := res.CreateIntentDigest(request.Data.InstanceId, &res.CreateSandboxData{Name: request.Data.Name, ImageReference: request.Data.ImageReference, PresetId: request.Data.PresetId})
+	intent, err := res.CreateIntentDigest("", &res.CreateSandboxData{Name: request.Data.Name, ImageReference: request.Data.ImageReference, PresetId: request.Data.PresetId})
 	require.NoError(t, err)
 	c := &sandboxFailedDeliveryClient{sandboxTestClient: base, stage: stage, failure: failure,
 		winner: &res.Sandbox{TenantId: sandboxTestTenant, Id: stableSandboxID(sandboxTestTenant, request.Data.IdempotencyKey, "resource"), InstanceId: request.Data.InstanceId, CreateOperationId: stableSandboxID(sandboxTestTenant, request.Data.IdempotencyKey, "operation"), CreateIntentDigest: intent}}
@@ -392,7 +327,7 @@ func TestSandboxFailedDeliveryReplaysPersistedWinner(t *testing.T) {
 				require.Equal(t, sandboxTestTenant, client.tenants[i])
 				require.Equal(t, sandboxTestTenant, lookup.TenantId)
 				require.Equal(t, "governance:user:7", client.actors[i])
-				require.Equal(t, request.Data.InstanceId, lookup.InstanceId)
+				require.Empty(t, lookup.InstanceId)
 				require.Equal(t, got.ResourceId, lookup.SandboxId)
 			}
 			require.Equal(t, 1, client.resolveCalls)
@@ -431,15 +366,6 @@ func TestSandboxFailedDeliveryDoesNotInventAcceptance(t *testing.T) {
 				got, err := s.CreateSandbox(ctx, request)
 				require.Nil(t, got)
 				require.Equal(t, client.lookupErr, err)
-			})
-			t.Run("wrong_parent", func(t *testing.T) {
-				s, client, ctx, request := failedSandboxDelivery(t, stage, original)
-				client.winner.InstanceId = "other-parent"
-				got, err := s.CreateSandbox(ctx, request)
-				require.Nil(t, got)
-				require.Equal(t, 503, kratoserrors.Code(err))
-				require.Equal(t, "SANDBOX_INVALID_RESPONSE", kratoserrors.Reason(err))
-				require.Len(t, client.lookups, 2)
 			})
 			t.Run("foreign_tenant_resource", func(t *testing.T) {
 				s, client, ctx, request := failedSandboxDelivery(t, stage, original)
@@ -484,130 +410,17 @@ func TestSandboxEmptyDeliveryResponseWithoutWinnerRemainsFailure(t *testing.T) {
 	}
 }
 
-func TestSandboxNewCreateRejectsDeletingParent(t *testing.T) {
-	for _, state := range []string{"deleted", "deleting"} {
-		for _, field := range []string{"desired", "observed"} {
-			t.Run(field+"_"+state, func(t *testing.T) {
-				s, client, ctx, request := sandboxReplayFixture()
-				parent := &instancepb.Instance{Id: sandboxTestInstance, DesiredState: "running", ObservedState: "running"}
-				if field == "desired" {
-					parent.DesiredState = state
-				} else {
-					parent.ObservedState = state
-				}
-				s.parent = &sandboxStateParent{states: []*instancepb.Instance{parent}}
-				admission := new(sandboxTestAdmission)
-				s.admission = admission
-				got, err := s.CreateSandbox(ctx, request)
-				require.Nil(t, got)
-				require.Equal(t, 409, kratoserrors.Code(err))
-				require.Equal(t, "INSTANCE_DELETING", kratoserrors.Reason(err))
-				require.Zero(t, client.resolveCalls)
-				require.Zero(t, client.acceptCalls)
-				require.Empty(t, admission.calls)
-			})
-		}
-	}
-}
-
-func TestSandboxNewCreateAllowsStoppedParent(t *testing.T) {
+// A Sandbox is independent of existing instances; no instance ID is sent downstream.
+func TestSandboxCreateDoesNotRequireAnotherInstance(t *testing.T) {
 	s, client, ctx, request := sandboxReplayFixture()
-	s.parent = &sandboxStateParent{states: []*instancepb.Instance{{Id: sandboxTestInstance, DesiredState: "stopped", ObservedState: "stopped"}}}
-	admission := new(sandboxTestAdmission)
-	s.admission = admission
 	got, err := s.CreateSandbox(ctx, request)
 	require.NoError(t, err)
 	require.True(t, got.Accepted)
-	require.Equal(t, 1, client.resolveCalls)
-	require.Equal(t, 1, client.acceptCalls)
-	require.Equal(t, []string{sandboxTestInstance, sandboxTestInstance}, admission.calls)
+	require.Empty(t, client.command.InstanceId)
+	require.Equal(t, sandboxTestTenant, client.command.Context.TenantId)
 }
 
-func TestSandboxNewCreateRequiresParentAdmission(t *testing.T) {
-	for _, failure := range []error{
-		kratoserrors.Conflict("INSTANCE_DELETING", "durable parent delete accepted"),
-		status.Error(codes.Unavailable, "parent ledger unavailable"),
-	} {
-		t.Run(failure.Error(), func(t *testing.T) {
-			s, client, ctx, request := sandboxReplayFixture()
-			admission := &sandboxTestAdmission{check: func(callCtx context.Context, id string) error {
-				principal, err := gpuPrincipal(callCtx)
-				require.NoError(t, err)
-				require.EqualValues(t, 42, principal.TenantID)
-				require.Equal(t, sandboxTestInstance, id)
-				return failure
-			}}
-			s.admission = admission
-			got, err := s.CreateSandbox(ctx, request)
-			require.Nil(t, got)
-			require.Equal(t, failure, err)
-			require.Len(t, admission.calls, 1)
-			require.Zero(t, client.resolveCalls)
-			require.Zero(t, client.acceptCalls)
-		})
-	}
-	t.Run("not_configured", func(t *testing.T) {
-		s, client, ctx, request := sandboxReplayFixture()
-		s.admission = nil
-		got, err := s.CreateSandbox(ctx, request)
-		require.Nil(t, got)
-		require.Equal(t, 503, kratoserrors.Code(err))
-		require.Zero(t, client.resolveCalls)
-		require.Zero(t, client.acceptCalls)
-	})
-}
-
-func TestSandboxInstanceAdmissionRequiresConfiguredLedger(t *testing.T) {
-	for _, parent := range []*InstanceService{nil, {}} {
-		err := parent.CanCreateSandbox(context.Background(), sandboxTestInstance)
-		require.Equal(t, 503, kratoserrors.Code(err))
-		require.Equal(t, "SANDBOX_UNAVAILABLE", kratoserrors.Reason(err))
-	}
-}
-
-func TestSandboxNewCreateRechecksParentAfterResolution(t *testing.T) {
-	for _, change := range []string{"owner_deleted", "durable_delete", "parent_lookup_failed", "parent_identity_changed"} {
-		t.Run(change, func(t *testing.T) {
-			s, client, ctx, request := sandboxReplayFixture()
-			parent := &sandboxStateParent{states: []*instancepb.Instance{
-				{Id: sandboxTestInstance, DesiredState: "running", ObservedState: "running"},
-				{Id: sandboxTestInstance, DesiredState: "running", ObservedState: "running"},
-			}}
-			admission := new(sandboxTestAdmission)
-			s.parent, s.admission = parent, admission
-			switch change {
-			case "owner_deleted":
-				parent.states[1].DesiredState = "deleted"
-			case "durable_delete":
-				admission.check = func(context.Context, string) error {
-					if len(admission.calls) == 2 {
-						return kratoserrors.Conflict("INSTANCE_DELETING", "durable parent delete accepted")
-					}
-					return nil
-				}
-			case "parent_lookup_failed":
-				parent.errAt, parent.err = 2, status.Error(codes.Unavailable, "parent lookup failed")
-			case "parent_identity_changed":
-				parent.states[1].Id = "another-instance"
-			}
-			got, err := s.CreateSandbox(ctx, request)
-			require.Nil(t, got)
-			switch change {
-			case "parent_lookup_failed":
-				require.Equal(t, parent.err, err)
-			case "parent_identity_changed":
-				require.Equal(t, "INSTANCE_NOT_FOUND", kratoserrors.Reason(err))
-			default:
-				require.Equal(t, "INSTANCE_DELETING", kratoserrors.Reason(err))
-			}
-			require.Equal(t, 2, parent.calls)
-			require.Equal(t, 1, client.resolveCalls)
-			require.Zero(t, client.acceptCalls)
-		})
-	}
-}
-
-func TestSandboxCreateReplaySurvivesParentDeletion(t *testing.T) {
+func TestSandboxCreateReplayRetainsFrozenIntent(t *testing.T) {
 	for _, legacy := range []bool{false, true} {
 		t.Run(map[bool]string{false: "intent_digest", true: "legacy_snapshot"}[legacy], func(t *testing.T) {
 			s, client, ctx, request := sandboxReplayFixture()
@@ -616,16 +429,12 @@ func TestSandboxCreateReplaySurvivesParentDeletion(t *testing.T) {
 			if legacy {
 				client.stored.CreateIntentDigest = ""
 			}
-			s.parent = &sandboxStateParent{states: []*instancepb.Instance{{Id: sandboxTestInstance, DesiredState: "deleted", ObservedState: "deleted"}}}
-			admission := &sandboxTestAdmission{check: func(context.Context, string) error {
-				return kratoserrors.Conflict("INSTANCE_DELETING", "durable parent delete accepted")
-			}}
+			admission := new(sandboxTestAdmission)
 			s.admission = admission
 			replay, err := s.CreateSandbox(ctx, request)
 			require.NoError(t, err)
 			require.True(t, replay.Replayed)
 			require.Equal(t, first.OperationId, replay.OperationId)
-			require.Empty(t, admission.calls)
 			request.Data.Name = "changed"
 			_, err = s.CreateSandbox(ctx, request)
 			require.Equal(t, "SANDBOX_IDEMPOTENCY_CONFLICT", kratoserrors.Reason(err))
@@ -635,51 +444,24 @@ func TestSandboxCreateReplaySurvivesParentDeletion(t *testing.T) {
 	}
 }
 
-func TestSandboxAdmissionFailureReplaysConcurrentAcceptedIntent(t *testing.T) {
-	for _, denyAt := range []int{1, 2} {
-		t.Run(map[int]string{1: "before_resolution", 2: "before_acceptance"}[denyAt], func(t *testing.T) {
-			s, client, ctx, request := failedSandboxDelivery(t, "admission", nil)
-			admission := new(sandboxTestAdmission)
-			admission.check = func(context.Context, string) error {
-				if len(admission.calls) == denyAt {
-					return kratoserrors.Conflict("INSTANCE_DELETING", "durable parent delete accepted")
-				}
-				return nil
-			}
-			s.admission = admission
-			got, err := s.CreateSandbox(ctx, request)
-			require.NoError(t, err)
-			require.True(t, got.Replayed)
-			require.Equal(t, client.winner.CreateOperationId, got.OperationId)
-			require.Len(t, client.lookups, 2)
-			require.Equal(t, denyAt-1, client.resolveCalls)
-			require.Zero(t, client.acceptCalls)
-		})
-	}
-}
-
-func TestSandboxDeletedParentStillAllowsReadsAndCleanup(t *testing.T) {
+func TestSandboxIndependentReadsAndCleanup(t *testing.T) {
 	s, client, ctx, request := sandboxReplayFixture()
 	created, err := s.CreateSandbox(ctx, request)
 	require.NoError(t, err)
-	s.parent = &sandboxStateParent{states: []*instancepb.Instance{{Id: sandboxTestInstance, DesiredState: "deleted", ObservedState: "deleted"}}}
-	admission := &sandboxTestAdmission{check: func(context.Context, string) error {
-		return kratoserrors.Conflict("INSTANCE_DELETING", "durable parent delete accepted")
-	}}
+	admission := new(sandboxTestAdmission)
 	s.admission = admission
 	client.listItems = []*res.Sandbox{client.stored}
-	got, err := s.GetSandbox(ctx, &view.GetSandboxRequest{InstanceId: sandboxTestInstance, SandboxId: created.ResourceId})
+	got, err := s.GetSandbox(ctx, &view.GetSandboxRequest{SandboxId: created.ResourceId})
 	require.NoError(t, err)
 	require.Equal(t, created.ResourceId, got.Id)
-	listed, err := s.ListSandboxes(ctx, &view.ListSandboxesRequest{InstanceId: sandboxTestInstance})
+	listed, err := s.ListSandboxes(ctx, &view.ListSandboxesRequest{})
 	require.NoError(t, err)
 	require.Len(t, listed.Items, 1)
-	deleted, err := s.DeleteSandbox(ctx, &view.DeleteSandboxRequest{Data: &view.SandboxActionData{InstanceId: sandboxTestInstance, SandboxId: created.ResourceId, IdempotencyKey: "delete-1", ExpectedVersion: 1}})
+	deleted, err := s.DeleteSandbox(ctx, &view.DeleteSandboxRequest{Data: &view.SandboxActionData{SandboxId: created.ResourceId, IdempotencyKey: "delete-1", ExpectedVersion: 1}})
 	require.NoError(t, err)
 	require.True(t, deleted.Accepted)
 	require.Equal(t, sandboxTestTenant, client.deleteRequest.TenantId)
-	require.Equal(t, sandboxTestInstance, client.deleteRequest.InstanceId)
-	require.Empty(t, admission.calls)
+	require.Empty(t, client.deleteRequest.InstanceId)
 }
 
 func TestSandboxDetailAndListPreserveProviderReferences(t *testing.T) {
@@ -689,9 +471,9 @@ func TestSandboxDetailAndListPreserveProviderReferences(t *testing.T) {
 	client.listItems = []*res.Sandbox{client.stored}
 	want, err := protojson.Marshal(refs)
 	require.NoError(t, err)
-	detail, err := s.GetSandbox(ctx, &view.GetSandboxRequest{InstanceId: sandboxTestInstance, SandboxId: "sandbox-1"})
+	detail, err := s.GetSandbox(ctx, &view.GetSandboxRequest{SandboxId: "sandbox-1"})
 	require.NoError(t, err)
-	listed, err := s.ListSandboxes(ctx, &view.ListSandboxesRequest{InstanceId: sandboxTestInstance})
+	listed, err := s.ListSandboxes(ctx, &view.ListSandboxesRequest{})
 	require.NoError(t, err)
 	require.Len(t, listed.Items, 1)
 	for _, got := range []*view.Sandbox{detail, listed.Items[0]} {
@@ -703,9 +485,47 @@ func TestSandboxDetailAndListPreserveProviderReferences(t *testing.T) {
 	}
 }
 
+func TestSandboxReplayHistoricalDigestWithoutParent(t *testing.T) {
+	s, client, ctx, request := sandboxReplayFixture()
+	input := &res.CreateSandboxData{Name: request.Data.Name, ImageReference: request.Data.ImageReference, PresetId: request.Data.PresetId, WorkspaceSize: request.Data.WorkspaceSize}
+	digest, err := res.CreateIntentDigest(sandboxTestInstance, input)
+	require.NoError(t, err)
+	client.stored = &res.Sandbox{TenantId: sandboxTestTenant, Id: stableSandboxID(sandboxTestTenant, request.Data.IdempotencyKey, "resource"), InstanceId: sandboxTestInstance, CreateOperationId: stableSandboxID(sandboxTestTenant, request.Data.IdempotencyKey, "operation"), CreateIntentDigest: digest}
+	got, err := s.CreateSandbox(ctx, request)
+	require.NoError(t, err)
+	require.True(t, got.Replayed)
+	require.Equal(t, client.stored.CreateOperationId, got.OperationId)
+	require.Zero(t, client.resolveCalls)
+	request.Data.Name = "different"
+	_, err = s.CreateSandbox(ctx, request)
+	require.Equal(t, "SANDBOX_IDEMPOTENCY_CONFLICT", kratoserrors.Reason(err))
+}
+
+func TestSandboxHistoricalPendingCommandIsNotRewrittenOnFailure(t *testing.T) {
+	s, client, ctx, request := sandboxReplayFixture()
+	resourceID := stableSandboxID(sandboxTestTenant, request.Data.IdempotencyKey, "resource")
+	operationID := stableSandboxID(sandboxTestTenant, request.Data.IdempotencyKey, "operation")
+	input := &res.CreateSandboxData{Name: request.Data.Name, ImageReference: request.Data.ImageReference, PresetId: request.Data.PresetId, WorkspaceSize: request.Data.WorkspaceSize}
+	intentDigest, err := res.CreateIntentDigest(sandboxTestInstance, input)
+	require.NoError(t, err)
+	command := &res.AcceptCreateRequest{Context: &res.CommandContext{TenantId: sandboxTestTenant, ResourceId: resourceID, OperationId: operationID}, Spec: client.resolved, InstanceId: sandboxTestInstance, CreateIntentDigest: intentDigest}
+	command.Context.RequestDigest, err = res.CommandDigest(command.Context, command.InstanceId, command.Spec, intentDigest)
+	require.NoError(t, err)
+	raw, err := protojson.Marshal(command)
+	require.NoError(t, err)
+	admission := s.admission.(*sandboxTestAdmission)
+	admission.intents = map[string]*data.SandboxCreateIntent{resourceID: {TenantID: 42, ResourceTenantID: sandboxTestTenant, InstanceID: sandboxTestInstance, SandboxID: resourceID, OperationID: operationID, IntentDigest: intentDigest, Actor: "governance:user:7", Command: raw}}
+	client.acceptErr = status.Error(codes.FailedPrecondition, "legacy command requires reconciliation")
+	_, err = s.CreateSandbox(ctx, request)
+	require.Equal(t, codes.FailedPrecondition, status.Code(err))
+	require.Equal(t, sandboxTestInstance, client.command.InstanceId)
+	require.Equal(t, raw, admission.intents[resourceID].Command)
+	require.False(t, admission.intents[resourceID].Acknowledged)
+}
+
 func TestSandboxCreateFailsClosedWithoutLedger(t *testing.T) {
 	s, _, ctx, request := sandboxReplayFixture()
-	s.admission = &InstanceService{}
+	s.admission = nil
 	_, err := s.CreateSandbox(ctx, request)
 	require.Equal(t, 503, kratoserrors.Code(err))
 	require.Equal(t, "SANDBOX_UNAVAILABLE", kratoserrors.Reason(err))

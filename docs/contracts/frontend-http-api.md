@@ -4,11 +4,9 @@
 
 Governance BFF 当前提供 `/api/v1/inference/...` 推理服务管理接口，包括普通及 GPU 推理的创建、列表/详情、操作查询、更新、启停/重启和删除。业务管理请求直接访问 Governance；Higress 仅承载 OpenAI 兼容推理数据面（例如 `/v1/completions`），不得把这些 `/api/v1/...` 路由加入 Higress。Inference BFF 的列表请求使用 `page`/`pageSize`，响应使用 `items`/`total`；`total` 在 JSON 中是十进制字符串。
 
-Sandbox 管理同样只从 Governance BFF 进入，Resource 不暴露公网 HTTP。接口位于实例子资源路径：`POST /api/v1/instances/{instance_id}/sandbox`、`GET /api/v1/instances/{instance_id}/sandbox`、`GET /api/v1/instances/{instance_id}/sandbox/{sandbox_id}`、`GET /api/v1/instances/{instance_id}/sandbox/operations/{operation_id}`，以及带 `:pause`、`:resume` 的 POST 和 DELETE。创建和生命周期请求使用 `data` 对象，成功返回异步受理的 `operation_id`/`resource_id`；列表返回 `items`/`total`。实例归属、租户映射、权限和套餐检查在 Gov 完成，镜像必须是受 Resource allowlist 接受的 immutable digest。 列表沿用本文的 `page/pageSize` 正整数协议及独立默认值 `1/20`，不接受其他查询参数或查询请求体；路径与请求体重复的实例/Sandbox ID 必须一致。创建重放先按稳定资源 ID 读取持久意图摘要，不重新解析当前规格目录；预读未命中后若解析、受理失败或响应无效，请求未取消时重查同租户、父实例和稳定 ID 的持久记录，只有匹配已受理意图才回放；无记录保留原错误，查询故障保持失败。相同意图返回原创建操作且 `replayed=true`，不同意图返回 `409 SANDBOX_IDEMPOTENCY_CONFLICT`。旧记录没有意图摘要时只按冻结的名称、镜像、规格 ID 和工作盘匹配，不查询当前目录。生命周期重放也保留 Resource 的 `replayed` 标志；版本或状态前置冲突返回 409，依赖故障返回 503，业务原因始终写入 `reason`。
+Sandbox 管理从 Governance BFF 进入，Resource 不暴露公网 HTTP。接口为 `POST /api/v1/sandbox`、`GET /api/v1/sandbox`、`GET /api/v1/sandbox/{sandbox_id}`、`GET /api/v1/sandbox/operations/{operation_id}`，以及带 `:pause`、`:resume` 的 POST 和 DELETE。创建和生命周期请求使用 `data` 对象，返回异步受理的 `operation_id`/`resource_id`；列表返回 `items`/`total`。Sandbox 是独立资源，不要求其他实例。Gov 完成认证、权限、INSTANCE 套餐检查和可信租户映射；Resource 按租户和 Sandbox ID 检查归属。列表使用 `page/pageSize` 和默认值 `1/20`。
 
-新建 Sandbox 在 Gov 的租户锁内持久登记冻结创建命令，与父实例最终删除受理排序；父实例已受理删除时，全新创建返回 `409 INSTANCE_DELETING`。同意图重放保留原操作和冻结规格。Gov 对未确认命令使用固定身份持续重试；未知结果不会因超时解除父删除屏障，查询操作在 Resource 尚未受理时可能暂时查不到。正常停止的父实例仍可创建，父实例墓碑不阻断原 Sandbox 的查询或清理。
-
-删除父实例前，Gov 持久建立可撤销的检查凭据，在没有未确认创建时检查 Resource 下该父实例的全部 Sandbox；仅 `desired_state` 和 `observed_state` 均为 `deleted` 才允许删除。存在未清理 Sandbox 返回 `409 INSTANCE_SANDBOX_NOT_DELETED`，存在待确认创建返回 `409 INSTANCE_SANDBOX_PENDING`，Resource 核查失败返回 `503 SANDBOX_CHECK_UNAVAILABLE`。检查期间若新建请求先登记，会撤销该检查凭据，父删除须重新发起；若父删除先持久受理，新建请求被拒绝。父删除的同键重放不重新核查子资源，不自动级联删除。详情和列表的 `provider_refs` 保留 Resource 返回的 Pod/PVC/PV 名称、UID 及观察引用；PV 身份不表示已经回收。
+创建命令在 Gov 持久登记，投递超时保持原命令和幂等身份重试；未知结果不能仅凭超时清除。历史命令保留原摘要及旧引用，不在投递时改写。创建重放依照冻结意图匹配，冲突返回 `409 SANDBOX_IDEMPOTENCY_CONFLICT`；生命周期重放保留 Resource 返回标志。历史验证基于旧父实例模型，不代表独立创建已完成真实验收。
 
 ## 推理服务管理接口
 

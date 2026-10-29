@@ -27,16 +27,16 @@ var File_admin_service_v1_i_sandbox_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_sandbox_proto_rawDesc = "" +
 	"\n" +
-	" admin/service/v1/i_sandbox.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a sandbox/service/v1/sandbox.proto2\xa3\t\n" +
-	"\x0eSandboxService\x12\x99\x01\n" +
-	"\rCreateSandbox\x12(.sandbox.service.v1.CreateSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"7\x82\xd3\xe4\x93\x021:\x01*\",/api/v1/instances/{data.instance_id}/sandbox\x12\x95\x01\n" +
-	"\rListSandboxes\x12(.sandbox.service.v1.ListSandboxesRequest\x1a).sandbox.service.v1.ListSandboxesResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/instances/{instance_id}/sandbox\x12\x8e\x01\n" +
+	" admin/service/v1/i_sandbox.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a sandbox/service/v1/sandbox.proto2\xe4\a\n" +
+	"\x0eSandboxService\x12|\n" +
+	"\rCreateSandbox\x12(.sandbox.service.v1.CreateSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/api/v1/sandbox\x12}\n" +
+	"\rListSandboxes\x12(.sandbox.service.v1.ListSandboxesRequest\x1a).sandbox.service.v1.ListSandboxesResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/api/v1/sandbox\x12v\n" +
 	"\n" +
-	"GetSandbox\x12%.sandbox.service.v1.GetSandboxRequest\x1a\x1b.sandbox.service.v1.Sandbox\"<\x82\xd3\xe4\x93\x026\x124/api/v1/instances/{instance_id}/sandbox/{sandbox_id}\x12\xb6\x01\n" +
-	"\x13GetSandboxOperation\x12..sandbox.service.v1.GetSandboxOperationRequest\x1a$.sandbox.service.v1.SandboxOperation\"I\x82\xd3\xe4\x93\x02C\x12A/api/v1/instances/{instance_id}/sandbox/operations/{operation_id}\x12\xaf\x01\n" +
-	"\fPauseSandbox\x12'.sandbox.service.v1.PauseSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"O\x82\xd3\xe4\x93\x02I:\x01*\"D/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:pause\x12\xb2\x01\n" +
-	"\rResumeSandbox\x12(.sandbox.service.v1.ResumeSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"P\x82\xd3\xe4\x93\x02J:\x01*\"E/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:resume\x12\xab\x01\n" +
-	"\rDeleteSandbox\x12(.sandbox.service.v1.DeleteSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"I\x82\xd3\xe4\x93\x02C:\x01**>/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}B\xba\x01\n" +
+	"GetSandbox\x12%.sandbox.service.v1.GetSandboxRequest\x1a\x1b.sandbox.service.v1.Sandbox\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/sandbox/{sandbox_id}\x12\x9e\x01\n" +
+	"\x13GetSandboxOperation\x12..sandbox.service.v1.GetSandboxOperationRequest\x1a$.sandbox.service.v1.SandboxOperation\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/sandbox/operations/{operation_id}\x12\x92\x01\n" +
+	"\fPauseSandbox\x12'.sandbox.service.v1.PauseSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/api/v1/sandbox/{data.sandbox_id}:pause\x12\x95\x01\n" +
+	"\rResumeSandbox\x12(.sandbox.service.v1.ResumeSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"3\x82\xd3\xe4\x93\x02-:\x01*\"(/api/v1/sandbox/{data.sandbox_id}:resume\x12\x8e\x01\n" +
+	"\rDeleteSandbox\x12(.sandbox.service.v1.DeleteSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\",\x82\xd3\xe4\x93\x02&:\x01**!/api/v1/sandbox/{data.sandbox_id}B\xba\x01\n" +
 	"\x14com.admin.service.v1B\rISandboxProtoP\x01Z1go-wind-admin/api/gen/go/admin/service/v1;adminpb\xa2\x02\x03ASX\xaa\x02\x10Admin.Service.V1\xca\x02\x10Admin\\Service\\V1\xe2\x02\x1cAdmin\\Service\\V1\\GPBMetadata\xea\x02\x12Admin::Service::V1b\x06proto3"
 
 var file_admin_service_v1_i_sandbox_proto_goTypes = []any{

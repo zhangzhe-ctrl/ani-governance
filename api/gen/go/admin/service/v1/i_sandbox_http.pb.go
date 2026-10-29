@@ -40,13 +40,13 @@ type SandboxServiceHTTPServer interface {
 
 func RegisterSandboxServiceHTTPServer(s *http.Server, srv SandboxServiceHTTPServer) {
 	r := s.Route("/")
-	r.POST("/api/v1/instances/{data.instance_id}/sandbox", _SandboxService_CreateSandbox0_HTTP_Handler(srv))
-	r.GET("/api/v1/instances/{instance_id}/sandbox", _SandboxService_ListSandboxes0_HTTP_Handler(srv))
-	r.GET("/api/v1/instances/{instance_id}/sandbox/{sandbox_id}", _SandboxService_GetSandbox0_HTTP_Handler(srv))
-	r.GET("/api/v1/instances/{instance_id}/sandbox/operations/{operation_id}", _SandboxService_GetSandboxOperation0_HTTP_Handler(srv))
-	r.POST("/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:pause", _SandboxService_PauseSandbox0_HTTP_Handler(srv))
-	r.POST("/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:resume", _SandboxService_ResumeSandbox0_HTTP_Handler(srv))
-	r.DELETE("/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}", _SandboxService_DeleteSandbox0_HTTP_Handler(srv))
+	r.POST("/api/v1/sandbox", _SandboxService_CreateSandbox0_HTTP_Handler(srv))
+	r.GET("/api/v1/sandbox", _SandboxService_ListSandboxes0_HTTP_Handler(srv))
+	r.GET("/api/v1/sandbox/{sandbox_id}", _SandboxService_GetSandbox0_HTTP_Handler(srv))
+	r.GET("/api/v1/sandbox/operations/{operation_id}", _SandboxService_GetSandboxOperation0_HTTP_Handler(srv))
+	r.POST("/api/v1/sandbox/{data.sandbox_id}:pause", _SandboxService_PauseSandbox0_HTTP_Handler(srv))
+	r.POST("/api/v1/sandbox/{data.sandbox_id}:resume", _SandboxService_ResumeSandbox0_HTTP_Handler(srv))
+	r.DELETE("/api/v1/sandbox/{data.sandbox_id}", _SandboxService_DeleteSandbox0_HTTP_Handler(srv))
 }
 
 func _SandboxService_CreateSandbox0_HTTP_Handler(srv SandboxServiceHTTPServer) func(ctx http.Context) error {
@@ -56,9 +56,6 @@ func _SandboxService_CreateSandbox0_HTTP_Handler(srv SandboxServiceHTTPServer) f
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationSandboxServiceCreateSandbox)
@@ -78,9 +75,6 @@ func _SandboxService_ListSandboxes0_HTTP_Handler(srv SandboxServiceHTTPServer) f
 	return func(ctx http.Context) error {
 		var in v1.ListSandboxesRequest
 		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationSandboxServiceListSandboxes)
@@ -235,7 +229,7 @@ func NewSandboxServiceHTTPClient(client *http.Client) SandboxServiceHTTPClient {
 
 func (c *SandboxServiceHTTPClientImpl) CreateSandbox(ctx context.Context, in *v1.CreateSandboxRequest, opts ...http.CallOption) (*v1.SandboxAcceptance, error) {
 	var out v1.SandboxAcceptance
-	pattern := "/api/v1/instances/{data.instance_id}/sandbox"
+	pattern := "/api/v1/sandbox"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationSandboxServiceCreateSandbox))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -248,7 +242,7 @@ func (c *SandboxServiceHTTPClientImpl) CreateSandbox(ctx context.Context, in *v1
 
 func (c *SandboxServiceHTTPClientImpl) DeleteSandbox(ctx context.Context, in *v1.DeleteSandboxRequest, opts ...http.CallOption) (*v1.SandboxAcceptance, error) {
 	var out v1.SandboxAcceptance
-	pattern := "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}"
+	pattern := "/api/v1/sandbox/{data.sandbox_id}"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationSandboxServiceDeleteSandbox))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -261,7 +255,7 @@ func (c *SandboxServiceHTTPClientImpl) DeleteSandbox(ctx context.Context, in *v1
 
 func (c *SandboxServiceHTTPClientImpl) GetSandbox(ctx context.Context, in *v1.GetSandboxRequest, opts ...http.CallOption) (*v1.Sandbox, error) {
 	var out v1.Sandbox
-	pattern := "/api/v1/instances/{instance_id}/sandbox/{sandbox_id}"
+	pattern := "/api/v1/sandbox/{sandbox_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationSandboxServiceGetSandbox))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -274,7 +268,7 @@ func (c *SandboxServiceHTTPClientImpl) GetSandbox(ctx context.Context, in *v1.Ge
 
 func (c *SandboxServiceHTTPClientImpl) GetSandboxOperation(ctx context.Context, in *v1.GetSandboxOperationRequest, opts ...http.CallOption) (*v1.SandboxOperation, error) {
 	var out v1.SandboxOperation
-	pattern := "/api/v1/instances/{instance_id}/sandbox/operations/{operation_id}"
+	pattern := "/api/v1/sandbox/operations/{operation_id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationSandboxServiceGetSandboxOperation))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -287,7 +281,7 @@ func (c *SandboxServiceHTTPClientImpl) GetSandboxOperation(ctx context.Context, 
 
 func (c *SandboxServiceHTTPClientImpl) ListSandboxes(ctx context.Context, in *v1.ListSandboxesRequest, opts ...http.CallOption) (*v1.ListSandboxesResponse, error) {
 	var out v1.ListSandboxesResponse
-	pattern := "/api/v1/instances/{instance_id}/sandbox"
+	pattern := "/api/v1/sandbox"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationSandboxServiceListSandboxes))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -300,7 +294,7 @@ func (c *SandboxServiceHTTPClientImpl) ListSandboxes(ctx context.Context, in *v1
 
 func (c *SandboxServiceHTTPClientImpl) PauseSandbox(ctx context.Context, in *v1.PauseSandboxRequest, opts ...http.CallOption) (*v1.SandboxAcceptance, error) {
 	var out v1.SandboxAcceptance
-	pattern := "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:pause"
+	pattern := "/api/v1/sandbox/{data.sandbox_id}:pause"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationSandboxServicePauseSandbox))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -313,7 +307,7 @@ func (c *SandboxServiceHTTPClientImpl) PauseSandbox(ctx context.Context, in *v1.
 
 func (c *SandboxServiceHTTPClientImpl) ResumeSandbox(ctx context.Context, in *v1.ResumeSandboxRequest, opts ...http.CallOption) (*v1.SandboxAcceptance, error) {
 	var out v1.SandboxAcceptance
-	pattern := "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:resume"
+	pattern := "/api/v1/sandbox/{data.sandbox_id}:resume"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationSandboxServiceResumeSandbox))
 	opts = append(opts, http.PathTemplate(pattern))

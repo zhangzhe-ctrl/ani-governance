@@ -164,16 +164,6 @@ func gpuDelete(t *testing.T, in *QuotaOccupyInput) *QuotaDeleteInput {
 	return &QuotaDeleteInput{TenantID: in.TenantID, ActorType: in.ActorType, ActorID: in.ActorID, OwnerService: in.OwnerService, Action: commandcontract.InstanceDeleteAction, IdempotencyKey: uuid.NewString(), RequestHash: "delete-" + in.ResourceID + "-v1", ResourceID: in.ResourceID, CanonicalRequest: string(canonical)}
 }
 
-// These quota repository tests begin after the service's child-resource scan;
-// the real fence transaction still supplies the token enforced by the ledger.
-func gpuDeleteWithSandboxCheck(t *testing.T, repo *QuotaLedgerRepo, in *QuotaOccupyInput) *QuotaDeleteInput {
-	t.Helper()
-	deletion := gpuDelete(t, in)
-	token, err := repo.BeginSandboxParentDelete(context.Background(), in.TenantID, in.ResourceID)
-	require.NoError(t, err)
-	deletion.SandboxDeleteCheckID = token
-	return deletion
-}
 func gpuProjectionPayload(in *QuotaOccupyInput, id string, rev int64, hash string) string {
 	b, _ := json.Marshal(map[string]any{"ref": map[string]string{"tenant_id": in.ResourceTenantID, "owner_service": in.OwnerService, "resource_id": in.ResourceID, "create_operation_id": id}, "revision": rev, "state": rev, "payload_digest": hash})
 	return string(b)
@@ -245,7 +235,7 @@ func TestQuotaGpuDeleteReleaseAndProjectionRecovery(t *testing.T) {
 	claimed, e := r.ClaimDispatchable(ctx, "owner-worker", time.Minute, 1)
 	require.NoError(t, e)
 	require.Len(t, claimed, 1)
-	deleted, e := r.CreateDeleteOperation(ctx, gpuDeleteWithSandboxCheck(t, r, in))
+	deleted, e := r.CreateDeleteOperation(ctx, gpuDelete(t, in))
 	require.NoError(t, e)
 	require.False(t, deleted.LocalCanceled)
 	require.Len(t, deleted.ChargeIDs, 2)
@@ -335,7 +325,7 @@ func TestQuotaGpuAtomicCancelAndSameKey(t *testing.T) {
 		}
 		require.Equal(t, id, v.OperationID)
 	}
-	del := gpuDeleteWithSandboxCheck(t, r, in)
+	del := gpuDelete(t, in)
 	v, e := r.CreateDeleteOperation(ctx, del)
 	require.NoError(t, e)
 	require.True(t, v.LocalCanceled)

@@ -56,8 +56,20 @@ func (s *inferenceDiagnosticsEndpoint) GetInferenceService(ctx context.Context, 
 	return &runtimev1.InferenceService{Id: in.ResourceId}, nil
 }
 
-func (s *inferenceDiagnosticsEndpoint) GetRuntimeLogs(ctx context.Context, _ *runtimev1.RuntimeLogsRequest) (*runtimev1.RuntimeLogsResponse, error) {
+func (s *inferenceDiagnosticsEndpoint) GetRuntimeLogs(ctx context.Context, in *runtimev1.RuntimeLogsRequest) (*runtimev1.RuntimeLogsResponse, error) {
 	s.observe(ctx)
+	if in.ResourceId == "slow-logs" {
+		timer := time.NewTimer(3100 * time.Millisecond)
+		defer timer.Stop()
+		select {
+		case <-timer.C:
+		case <-ctx.Done():
+			return nil, status.FromContextError(ctx.Err()).Err()
+		}
+	} else if in.ResourceId == "wait-for-caller" {
+		<-ctx.Done()
+		return nil, status.FromContextError(ctx.Err()).Err()
+	}
 	return &runtimev1.RuntimeLogsResponse{}, nil
 }
 
@@ -117,10 +129,6 @@ func TestInferenceRuntimeDiagnosticsHasSeparateBudgetAndTrustedMetadata(t *testi
 			return err
 		},
 		func() error {
-			_, err := c.RuntimeLogsTrusted(ctx, tenant, actor, &runtimev1.RuntimeLogsRequest{})
-			return err
-		},
-		func() error {
 			_, err := c.RuntimeEventsTrusted(ctx, tenant, actor, &runtimev1.ListRuntimeEventsRequest{})
 			return err
 		},
@@ -129,6 +137,46 @@ func TestInferenceRuntimeDiagnosticsHasSeparateBudgetAndTrustedMetadata(t *testi
 		call := <-seen
 		require.Greater(t, call.remaining, 2*time.Second)
 		require.LessOrEqual(t, call.remaining, 3*time.Second, "ordinary unary calls must retain their three-second cap")
+	}
+}
+
+func TestInferenceRuntimeLogsBudgetAndCallerCancellation(t *testing.T) {
+	c, seen := inferenceDiagnosticsTestClient(t)
+	tenant, actor := "11111111-1111-4111-8111-111111111111", "governance:user:7"
+	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("authorization", "public bearer", "x-ani-tenant-id", "forged"))
+	_, err := c.RuntimeLogsTrusted(ctx, tenant, actor, &runtimev1.RuntimeLogsRequest{ResourceId: "slow-logs"})
+	require.NoError(t, err, "log read taking more than three seconds must finish")
+	call := <-seen
+	require.Greater(t, call.remaining, 14*time.Second)
+	require.LessOrEqual(t, call.remaining, 15*time.Second)
+	require.Equal(t, []string{tenant}, call.metadata.Get("x-ani-tenant-id"))
+	require.Equal(t, []string{actor}, call.metadata.Get("x-ani-actor"))
+	require.Empty(t, call.metadata.Get("authorization"))
+
+	ctx, cancel := context.WithTimeout(context.Background(), 150*time.Millisecond)
+	defer cancel()
+	_, err = c.RuntimeLogsTrusted(ctx, tenant, actor, &runtimev1.RuntimeLogsRequest{ResourceId: "wait-for-caller"})
+	require.Equal(t, codes.DeadlineExceeded, status.Code(err))
+	require.LessOrEqual(t, (<-seen).remaining, 150*time.Millisecond)
+
+	ctx, cancelCall := context.WithCancel(context.Background())
+	defer cancelCall()
+	done := make(chan error, 1)
+	go func() {
+		_, err := c.RuntimeLogsTrusted(ctx, tenant, actor, &runtimev1.RuntimeLogsRequest{ResourceId: "wait-for-caller"})
+		done <- err
+	}()
+	select {
+	case <-seen:
+	case <-time.After(time.Second):
+		t.Fatal("log request did not start")
+	}
+	cancelCall()
+	select {
+	case err := <-done:
+		require.Equal(t, codes.Canceled, status.Code(err))
+	case <-time.After(time.Second):
+		t.Fatal("log request ignored caller cancellation")
 	}
 }
 

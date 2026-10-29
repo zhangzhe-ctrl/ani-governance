@@ -188,7 +188,9 @@ func TestInferenceDiagnosticHTTPBudgetsOnlyApplyToExactGETRoutes(t *testing.T) {
 		{"POST", base + "/metrics", 3 * time.Second},
 		{"GET", base + "/runtime/extra", 3 * time.Second},
 		{"GET", base + "/metrics/latest", 3 * time.Second},
-		{"GET", base + "/logs", 3 * time.Second},
+		{"GET", base + "/logs", 20 * time.Second},
+		{"POST", base + "/logs", 3 * time.Second},
+		{"GET", base + "/logs/extra", 3 * time.Second},
 		{"GET", base + "/events", 3 * time.Second},
 		{"GET", base + "/policy", 3 * time.Second},
 		{"GET", "/api/v1/inference/services/not-a-uuid/runtime", 3 * time.Second},
@@ -204,7 +206,7 @@ func TestInferenceDiagnosticHTTPBudgetsOnlyApplyToExactGETRoutes(t *testing.T) {
 			})).ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(tc.method, tc.path, nil))
 		})
 	}
-	for _, suffix := range []string{"/runtime", "/metrics"} {
+	for _, suffix := range []string{"/runtime", "/metrics", "/logs"} {
 		parent, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 		instanceHTTPTimeoutFilter(3*time.Second)(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 			actual, _ := r.Context().Deadline()

@@ -24,7 +24,7 @@
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
 | Network 租户面读写对接 | NET-01～NET-25；复用 AK-*、AUTH-* | 当前 25 方法支持 JWT/AK；NET-01～24 的历史三条主链验收和 NET-25 增量结果分批记录 | 当前合同见下方增量与 [AK/SK 合同](contracts/aksk-signature.md)；真实环境按批次验收 |
 | Gov → Resource 调用规范收敛 | S2S-RES-01；复用 NET-01～NET-25 与既有 Image 11 RPC | Network/Image 调用端与 Resource 接收端已修改；隔离真实业务链路通过，生产验收未执行 | 传输与可信上下文即时修复，见下方结果；不调整 HTTP 风格 |
-| Gov → Resource Sandbox 生命周期 | SANDBOX-01～08 | Gov BFF、Resource RPC、目录/权限映射已接入；隔离候选 HTTP/DB/worker/Kata 主链已留证，当前修复验证及未部署边界见 Resource 唯一状态 | 已固定正式 Resource API module，无本地 `replace`；合并后主环境整体验收仍需独立执行 |
+| Gov → Resource Sandbox 生命周期 | SANDBOX-01～08 | 当前需求为独立 Sandbox：源码调整、跨仓兼容和验收结果见 Resource 唯一状态；旧父实例模型的历史证据不能代表新模型已验收 | Gov 需固定支持独立创建的 Resource 正式版本；升级前执行切换门禁，整体验收待完成 |
 | 通用配额、GPU 实例与 Inference 接入 | QUOTA-01～03；INF-01/02；QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 保留 ACC 目录与 Resource 实例执行/释放合同；Inference 管理由 Governance BFF 接入并通过受信 mTLS 客户端投递；旧模拟 owner 入口退役 | 当前合同见 [GPU owner 指南](contracts/gpu-owner-integration-guide.md)；源码、部署与真实 GPU 验收分别记录 |
 | ModelDev 训练、微调及原登记恢复 | MODELDEV-01～MODELDEV-08、MODELDEV-12；服务间调用登记 S2S-MODELDEV-CPUP01-01 | 单一 typed 受理/查询及当前授权恢复已实现；原登记 Resume 的 HTTP/JWT/PG/mTLS 边界 GREEN，真实 provider Resume 与完整微调/GPU分别验收；历史 CPU-P01 结果保留原范围 | v2.1，进行中 |
 
@@ -1871,6 +1871,8 @@ Linux `DISK_IMAGE` 仅在 Resource 媒体目录 `initializationCapability=CLOUD_
 
 ## Sandbox 规格目录与权限接入（2026-10-27）
 
+**当前合同更新：** Sandbox 是独立资源，接口及安全边界见[前端 HTTP 合同](contracts/frontend-http-api.md)。以下为历史记录，父实例相关规则已被本次需求取代，历史验收不能证明独立创建已验证。
+
 管理入口为 Governance BFF；七条路由以 `api/protos/admin/service/v1/i_sandbox.proto` 为准，写请求保留 `data` 包装。各动作使用独立 `sandbox:create/list/read/operation:read/pause/resume/delete` 权限，均检查当前 INSTANCE 套餐、真实父实例租户归属，再经 mTLS 委托 Resource。新建与重放的父实例删除准入、查询/清理边界及 Pod/PVC/PV 引用响应见[前端 HTTP 合同](contracts/frontend-http-api.md)。映射维护于 `docs/contracts/permission-code-capability-map.tsv`。
 
 `GET /api/v1/compute-presets?usage=SANDBOX` 使用 INSTANCE 套餐及独立 `sandbox:preset:read` 权限；默认 `compute_type=cpu`，显式 GPU 类型或非空 `gpu_mode` 返回 400。保持 SANDBOX 用途传给 Resource，不复用容器实例用途或权限。目录同步不自动授权；`scripts/ops/sql/register-sandbox-permissions.sql` 只准备默认 OFF 的权限及 API 关系，角色/套餐通过正常管理入口单独配置。
@@ -1888,3 +1890,12 @@ Linux `DISK_IMAGE` 仅在 Resource 媒体目录 `initializationCapability=CLOUD_
 Contract: [GPU monitoring](contracts/gpu-monitoring.md); authority: [accepted v1.1 plan](plans/gpu-monitoring-backend-phase1-plan.md). Implements dedicated physical, tenant and authorized-resource reads, retained ACC attribution and readonly quota summaries. Container and inference detail types use original UsageRef; ModelDev execution is a reviewed extension contract. GPU transport/response and budget rules are separate from existing CPU/training reads. Implementation, Fedora checks and real-cluster acceptance are tracked separately in the task's single execution index; registration does not assert live completion. API/permission catalogue synchronization is explicit, with no user/role/policy changes.
 
 `GET /api/v1/admin/tenants/quota-account-summaries` additionally returns `summary` with configured-tenant counts and per-quota limit/occupied/available totals. Aggregation retains platform-only `tenant:quota-read`, existing filters and the current read-only snapshot; it is independent of pagination. Shared-plan limits count per tenant, unconfigured account occupation is retained, and every aggregate number is a decimal string. No route, database migration, new permission or quota mutation is added; complete field semantics are maintained in the contract linked above.
+
+### GOV-MODEL-INF-20261012：AK 策略合同更新（2026-10-29）
+
+策略为独立租户资源，通过 `/api/v1/inference-policies` 创建、列表、查询、
+完整更新和删除；AK 创建必带 `policy_id`，`POST /api/v1/inference-keys/{key_id}:bind-policy`
+可重新绑定。旧服务策略接口退役。请求与权限及迁移边界见
+[推理调用 Key 和策略合同](contracts/inference-keys.md)。所有管理请求由 Governance
+认证并重建租户/actor，mTLS 转发 Inference；Higress 仅处理 `/v1/...`。
+API 目录、权限和套餐关系须按部署流程显式登记，不能仅凭代码生成推断已部署。

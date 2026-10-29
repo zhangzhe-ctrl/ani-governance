@@ -197,16 +197,16 @@ func TestCountsAndKeys(t *testing.T) {
 		"GET /api/v1/admin/networks/eips/{eip_id}":    {Code: "network:platform:eip:get", Source: eipSource, BusinessModule: "NETWORK", ScopeKind: "platform"},
 		"DELETE /api/v1/admin/networks/eips/{eip_id}": {Code: "network:platform:eip:release", Source: eipSource, BusinessModule: "NETWORK", ScopeKind: "platform"},
 	}
-	// Five separately authorized Inference Key HTTP routes are in both maps.
-	if want := 202 + len(gpuReads) + 5; ManagementCount() != want {
+	// The independent Inference policy routes replace two service policy routes.
+	if want := 202 + len(gpuReads) + 9; ManagementCount() != want {
 		t.Errorf("ManagementCount() = %d, want %d", ManagementCount(), want)
 	}
-	if want := 176 + len(platformEIPReadsAndRelease) + 5; CapabilityCount() != want {
+	if want := 176 + len(platformEIPReadsAndRelease) + 9; CapabilityCount() != want {
 		t.Errorf("CapabilityCount() = %d, want %d", CapabilityCount(), want)
 	}
 	keys := AllKeys()
-	if len(keys) != 365 {
-		t.Errorf("AllKeys() = %d, want 365", len(keys))
+	if len(keys) != 369 {
+		t.Errorf("AllKeys() = %d, want 369", len(keys))
 	}
 	keySet := make(map[string]bool, len(keys))
 	for _, k := range keys {
@@ -260,8 +260,12 @@ func TestLookup(t *testing.T) {
 	for _, route := range []struct{ method, path, code string }{
 		{"GET", "/api/v1/inference/services", "inference:service:read"},
 		{"POST", "/api/v1/inference/services/{resource_id}:delete", "inference:service:delete"},
-		{"GET", "/api/v1/inference/services/{resource_id}/policy", "inference:policy:read"},
-		{"PUT", "/api/v1/inference/services/{resource_id}/policy", "inference:policy:update"},
+		{"POST", "/api/v1/inference-policies", "inference:policy:create"},
+		{"GET", "/api/v1/inference-policies", "inference:policy:read"},
+		{"GET", "/api/v1/inference-policies/{policy_id}", "inference:policy:read"},
+		{"PUT", "/api/v1/inference-policies/{policy_id}", "inference:policy:update"},
+		{"DELETE", "/api/v1/inference-policies/{policy_id}", "inference:policy:delete"},
+		{"POST", "/api/v1/inference-keys/{key_id}:bind-policy", "inference:key:bind-policy"},
 		{"GET", "/api/v1/inference/services/{resource_id}/metrics", "inference:service:read"},
 		{"POST", "/api/v1/inference-keys", "inference:key:create"},
 		{"GET", "/api/v1/inference-keys", "inference:key:read"},
@@ -280,13 +284,13 @@ func TestLookup(t *testing.T) {
 
 func TestSandboxCapabilities(t *testing.T) {
 	for _, r := range []struct{ method, path, action string }{
-		{"POST", "/api/v1/instances/{data.instance_id}/sandbox", "create"},
-		{"GET", "/api/v1/instances/{instance_id}/sandbox", "list"},
-		{"GET", "/api/v1/instances/{instance_id}/sandbox/{sandbox_id}", "read"},
-		{"GET", "/api/v1/instances/{instance_id}/sandbox/operations/{operation_id}", "operation:read"},
-		{"POST", "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:pause", "pause"},
-		{"POST", "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}:resume", "resume"},
-		{"DELETE", "/api/v1/instances/{data.instance_id}/sandbox/{data.sandbox_id}", "delete"},
+		{"POST", "/api/v1/sandbox", "create"},
+		{"GET", "/api/v1/sandbox", "list"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}", "read"},
+		{"GET", "/api/v1/sandbox/operations/{operation_id}", "operation:read"},
+		{"POST", "/api/v1/sandbox/{data.sandbox_id}:pause", "pause"},
+		{"POST", "/api/v1/sandbox/{data.sandbox_id}:resume", "resume"},
+		{"DELETE", "/api/v1/sandbox/{data.sandbox_id}", "delete"},
 	} {
 		exp, err := Resolve(r.method, r.path)
 		if err != nil || exp.Code != "sandbox:"+r.action || exp.BusinessModule != "INSTANCE" || exp.ScopeKind != "tenant" {
