@@ -8403,6 +8403,32 @@ paths:
                                 $ref: '#/components/schemas/InferenceKey'
             security:
                 - BearerAuth: []
+    /api/v1/inference-keys/{key_id}:bind-policy:
+        post:
+            tags:
+                - InferenceKeyService
+            operationId: InferenceKeyService_BindInferenceKeyPolicy
+            parameters:
+                - name: key_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BindInferenceKeyPolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InferenceKey'
+            security:
+                - BearerAuth: []
     /api/v1/inference-keys/{key_id}:rotate:
         post:
             tags:
@@ -8427,6 +8453,114 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/InferenceKeyCredentials'
+            security:
+                - BearerAuth: []
+    /api/v1/inference-policies:
+        get:
+            tags:
+                - InferenceKeyService
+            operationId: InferenceKeyService_ListInferencePolicies
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListInferencePoliciesResponse'
+            security:
+                - BearerAuth: []
+        post:
+            tags:
+                - InferenceKeyService
+            operationId: InferenceKeyService_CreateInferencePolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateInferencePolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InferenceAccessPolicy'
+            security:
+                - BearerAuth: []
+    /api/v1/inference-policies/{policy_id}:
+        get:
+            tags:
+                - InferenceKeyService
+            operationId: InferenceKeyService_GetInferencePolicy
+            parameters:
+                - name: policy_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InferenceAccessPolicy'
+            security:
+                - BearerAuth: []
+        put:
+            tags:
+                - InferenceKeyService
+            operationId: InferenceKeyService_UpdateInferencePolicy
+            parameters:
+                - name: policy_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateInferencePolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InferenceAccessPolicy'
+            security:
+                - BearerAuth: []
+        delete:
+            tags:
+                - InferenceKeyService
+            operationId: InferenceKeyService_DeleteInferencePolicy
+            parameters:
+                - name: policy_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/DeleteInferencePolicyResponse'
             security:
                 - BearerAuth: []
     /api/v1/inference/operations/{operation_id}:
@@ -8705,49 +8839,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListInferenceOperationsResponse'
-    /api/v1/inference/services/{resource_id}/policy:
-        get:
-            tags:
-                - InferenceService
-            description: Requires inference:policy:read and an active INFERENCE subscription.
-            operationId: InferenceService_GetServicePolicy
-            parameters:
-                - name: resource_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GetServicePolicyResponse'
-        put:
-            tags:
-                - InferenceService
-            description: Requires inference:policy:update. Full replacement; empty allowlist denies all.
-            operationId: InferenceService_UpdateServicePolicy
-            parameters:
-                - name: resource_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UpdateServicePolicyRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/UpdateServicePolicyResponse'
     /api/v1/inference/services/{resource_id}/runtime:
         get:
             tags:
@@ -12900,6 +12991,18 @@ components:
                 verificationCode:
                     type: string
                     description: 邮箱验证码（可选）
+        BindInferenceKeyPolicyData:
+            type: object
+            properties:
+                policy_id:
+                    type: string
+        BindInferenceKeyPolicyRequest:
+            type: object
+            properties:
+                key_id:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/BindInferenceKeyPolicyData'
         BindPhoneRequest:
             type: object
             properties:
@@ -13372,34 +13475,24 @@ components:
             properties:
                 name:
                     type: string
-                allowed_service_ids:
-                    type: array
-                    items:
-                        type: string
-                allowed_model_names:
-                    type: array
-                    items:
-                        type: string
-                requests_per_second:
-                    type: integer
-                    format: int32
-                requests_per_minute:
-                    type: integer
-                    format: int32
-                requests_per_hour:
-                    type: integer
-                    format: int32
                 expires_at:
                     type: string
                     format: date-time
                 idempotency_key:
                     type: string
                     description: Required on this HTTP surface. Replays never return the secret again.
+                policy_id:
+                    type: string
         CreateInferenceKeyRequest:
             type: object
             properties:
                 data:
                     $ref: '#/components/schemas/CreateInferenceKeyData'
+        CreateInferencePolicyRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/InferenceAccessPolicyData'
         CreateInferenceRequest:
             example: {"idempotency_key": "req-001", "name": "qwen-inference", "model_version_id": "version-1", "served_model_name": "qwen2.5-1.5b-instruct", "engine_image": "registry.example/vllm:latest", "engine_type": "vllm", "command": "exec vllm serve /models --served-model-name qwen2.5-1.5b-instruct --max-model-len 4096", "cpu": "8", "memory": "32Gi", "replicas": 1, "preset_id": "40000000-0000-4000-8000-000000000001"}
             type: object
@@ -14225,6 +14318,9 @@ components:
             properties:
                 resource:
                     $ref: '#/components/schemas/PlatformResource'
+        DeleteInferencePolicyResponse:
+            type: object
+            properties: {}
         DeleteInferenceRequest:
             type: object
             properties:
@@ -15236,11 +15332,6 @@ components:
             properties:
                 credential:
                     $ref: '#/components/schemas/PublisherCredential'
-        GetServicePolicyResponse:
-            type: object
-            properties:
-                policy:
-                    $ref: '#/components/schemas/ServicePolicy'
         GetSubnetResponse:
             type: object
             properties:
@@ -15933,19 +16024,13 @@ components:
                     description: Durable Governance admission; this is not model readiness.
                 dispatch_operation_id:
                     type: string
-        InferenceKey:
+        InferenceAccessPolicy:
             type: object
             properties:
                 id:
                     type: string
                 name:
                     type: string
-                key_prefix:
-                    type: string
-                allowed_service_ids:
-                    type: array
-                    items:
-                        type: string
                 allowed_model_names:
                     type: array
                     items:
@@ -15959,6 +16044,35 @@ components:
                 requests_per_hour:
                     type: integer
                     format: int32
+                version:
+                    type: string
+        InferenceAccessPolicyData:
+            type: object
+            properties:
+                name:
+                    type: string
+                allowed_model_names:
+                    type: array
+                    items:
+                        type: string
+                requests_per_second:
+                    type: integer
+                    format: int32
+                requests_per_minute:
+                    type: integer
+                    format: int32
+                requests_per_hour:
+                    type: integer
+                    format: int32
+        InferenceKey:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                key_prefix:
+                    type: string
                 expires_at:
                     type: string
                     format: date-time
@@ -15978,6 +16092,8 @@ components:
                 secret:
                     type: string
                     description: Legacy hashes have no secret until successful use or explicit rotation.
+                policy_id:
+                    type: string
             description: |-
                 Inference-owned data-plane credential. Authorized list/detail responses
                  include the full secret; hashes and encryption material are never exposed.
@@ -16948,6 +17064,15 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Operation'
+                total:
+                    type: string
+        ListInferencePoliciesResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/InferenceAccessPolicy'
                 total:
                     type: string
         ListInferenceResponse:
@@ -21068,31 +21193,6 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/NamedServerVariable'
-        ServicePolicy:
-            type: object
-            properties:
-                resource_id:
-                    type: string
-                allowed_tenants:
-                    type: array
-                    items:
-                        type: string
-                rate_limits:
-                    type: object
-                    additionalProperties:
-                        $ref: '#/components/schemas/ServiceRateLimit'
-                updated_at:
-                    type: string
-                    format: date-time
-        ServiceRateLimit:
-            type: object
-            properties:
-                requests_per_minute:
-                    type: integer
-                    format: int32
-                requests_per_hour:
-                    type: integer
-                    format: int32
         SetAcceleratorAdmissionData:
             type: object
             properties:
@@ -21817,6 +21917,13 @@ components:
             properties:
                 image:
                     $ref: '#/components/schemas/ImageRegistration'
+        UpdateInferencePolicyRequest:
+            type: object
+            properties:
+                policy_id:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/InferenceAccessPolicyData'
         UpdateInferenceRequest:
             type: object
             properties:
@@ -22153,19 +22260,6 @@ components:
             properties:
                 data:
                     $ref: '#/components/schemas/SchedulerConfigData'
-        UpdateServicePolicyRequest:
-            type: object
-            properties:
-                resource_id:
-                    type: string
-                policy:
-                    $ref: '#/components/schemas/ServicePolicy'
-            description: Replaces the whole policy bound to this service. Empty allowlist denies all.
-        UpdateServicePolicyResponse:
-            type: object
-            properties:
-                policy:
-                    $ref: '#/components/schemas/ServicePolicy'
         UpdateTaskRequest:
             type: object
             properties:

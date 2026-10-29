@@ -31,8 +31,8 @@ Inference 的管理面统一由 Governance BFF 提供，入口是 `/api/v1/infer
 | `GET /api/v1/inference/services/{resource_id}/logs` | 一次性日志查询 | `inference:service:read` |
 | `GET /api/v1/inference/services/{resource_id}/logs:stream` | SSE 日志流 | `inference:service:read` |
 | `GET /api/v1/inference/services/{resource_id}/events` | 运行事件列表 | `inference:service:read` |
-| `GET /api/v1/inference/services/{resource_id}/policy` | 查询数据面访问策略 | `inference:policy:read` |
-| `PUT /api/v1/inference/services/{resource_id}/policy` | 完整替换访问策略 | `inference:policy:update` |
+| `/api/v1/inference-policies` | AK 策略 CRUD | `inference:policy:*` |
+| `POST /api/v1/inference-keys/{key_id}:bind-policy` | 绑定 AK 策略 | `inference:key:bind-policy` |
 
 接口目录登记和权限关系不是自动授权。新增诊断路由使用 `scripts/ops/sql/register-inference-diagnostics-permissions.sql`；访问策略使用 `scripts/ops/sql/register-inference-policy-permissions.sql`。登记后仍需按目标租户、角色和套餐明确启用。
 
@@ -107,43 +107,12 @@ curl -N -G "$GOV/api/v1/inference/services/$RESOURCE_ID/logs:stream" \
 
 `GET /api/v1/inference/services/{resource_id}/events` 支持 `since`、`until`、`type`、`page` 和 `pageSize`。`page` 必须为正数，`pageSize` 为 1～100；重复参数、未知参数、空值、非规范数字和与路径不一致的资源 ID 均拒绝。响应为 `{items:[...],total:"..."}`，事件项包含 `id/type/reason/message/timestamp/instance/count`。
 
-## 4. 服务访问策略
+## 4. AK 访问策略
 
-策略控制 Inference 数据面允许哪些租户调用当前服务。管理面权限只控制谁能读写策略，不能替代数据面自身的调用鉴权。
-
-查询：
-
-```bash
-curl "$GOV/api/v1/inference/services/$RESOURCE_ID/policy" \
-  -H "Authorization: Bearer $TOKEN"
-```
-
-返回形状为：
-
-```json
-{
-  "policy": {
-    "resource_id": "<resource-uuid>",
-    "allowed_tenants": ["<tenant-uuid>"],
-    "rate_limits": {
-      "<tenant-uuid>": {"requests_per_minute": 2, "requests_per_hour": 30}
-    },
-    "updated_at": "2026-10-23T08:00:00Z"
-  }
-}
-```
-
-更新是完整替换：
-
-```bash
-curl -X PUT "$GOV/api/v1/inference/services/$RESOURCE_ID/policy" \
-  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-  -d '{"policy":{"allowed_tenants":["<tenant-uuid>"],"rate_limits":{"<tenant-uuid>":{"requests_per_minute":2,"requests_per_hour":30}}}}'
-```
-
-路径中的 `resource_id` 是权威值；正文若带顶层或 policy 内 `resource_id`，必须与路径一致。`updated_at` 只读，不能提交。空 `allowed_tenants` 表示拒绝所有数据面调用；省略 `rate_limits` 会移除额度限制，值为 0 表示该维度不限。首次没有策略时，默认只允许服务所属租户。此接口没有版本号或幂等字段，不要自行添加 token。
-
-请求不接受 query、重复 JSON key、未知字段或 `X-Ani-Tenant-Id`、`X-Tenant-Id`、`X-Ani-Actor` 等公网身份 header。
+策略是独立的同租户资源，控制允许调用的模型及 QPS、RPM、RPH。每个 AK 绑定
+一个策略，多把 AK 绑定同一策略时分别计数。策略目录的创建、列表、详情、完整
+更新、删除，以及 AK 绑定接口的报文和权限见 [推理调用 Key 和策略](inference-keys.md)。
+旧的服务绑定策略入口已退役。
 
 ## 5. Inference owner 对接要求
 

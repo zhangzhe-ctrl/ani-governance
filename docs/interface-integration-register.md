@@ -1888,3 +1888,12 @@ Linux `DISK_IMAGE` 仅在 Resource 媒体目录 `initializationCapability=CLOUD_
 Contract: [GPU monitoring](contracts/gpu-monitoring.md); authority: [accepted v1.1 plan](plans/gpu-monitoring-backend-phase1-plan.md). Implements dedicated physical, tenant and authorized-resource reads, retained ACC attribution and readonly quota summaries. Container and inference detail types use original UsageRef; ModelDev execution is a reviewed extension contract. GPU transport/response and budget rules are separate from existing CPU/training reads. Implementation, Fedora checks and real-cluster acceptance are tracked separately in the task's single execution index; registration does not assert live completion. API/permission catalogue synchronization is explicit, with no user/role/policy changes.
 
 `GET /api/v1/admin/tenants/quota-account-summaries` additionally returns `summary` with configured-tenant counts and per-quota limit/occupied/available totals. Aggregation retains platform-only `tenant:quota-read`, existing filters and the current read-only snapshot; it is independent of pagination. Shared-plan limits count per tenant, unconfigured account occupation is retained, and every aggregate number is a decimal string. No route, database migration, new permission or quota mutation is added; complete field semantics are maintained in the contract linked above.
+
+### GOV-MODEL-INF-20261012：AK 策略合同更新（2026-10-29）
+
+策略为独立租户资源，通过 `/api/v1/inference-policies` 创建、列表、查询、
+完整更新和删除；AK 创建必带 `policy_id`，`POST /api/v1/inference-keys/{key_id}:bind-policy`
+可重新绑定。旧服务策略接口退役。请求与权限及迁移边界见
+[推理调用 Key 和策略合同](contracts/inference-keys.md)。所有管理请求由 Governance
+认证并重建租户/actor，mTLS 转发 Inference；Higress 仅处理 `/v1/...`。
+API 目录、权限和套餐关系须按部署流程显式登记，不能仅凭代码生成推断已部署。
