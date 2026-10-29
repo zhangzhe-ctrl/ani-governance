@@ -374,6 +374,22 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		imageClient = client
 	}
 	imageService := service.NewImageService(imageClient, tenantRepo)
+	storageConfig, err := data.StorageConfigFromEnv()
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	var storageClient *data.StorageClient
+	if storageConfig.Address != "" {
+		client, closeStorage, err := data.NewStorageClient(storageConfig)
+		if err != nil {
+			rollback()
+			return nil, nil, err
+		}
+		cleanups = append(cleanups, closeStorage)
+		storageClient = client
+	}
+	storageService := service.NewStorageService(storageClient, tenantRepo)
 	acceleratorConfig, err := data.AcceleratorConfigFromEnv()
 	if err != nil {
 		rollback()
@@ -445,6 +461,13 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	instanceService := service.NewInstanceService(instanceAcceptance, instanceBinding, tenantRepo, quotaLedgerRepo, instanceSessions, instanceCatalog)
 	sandboxService := service.NewSandboxService(instanceOwner, data.NewInstanceAuthorizationRepo(entClient), tenantRepo, quotaLedgerRepo)
+	overviewService := service.NewOverviewService(
+		ctx.NewLoggerHelper("overview/service/admin-service"),
+		instanceService,
+		inferenceService,
+		modelService,
+		data.NewInstanceAuthorizationRepo(entClient),
+	)
 	vmAcceptance, err := service.NewGpuAcceptance(quotaLedgerRepo, quotaRegistry, tenantRepo, nil, vmBinding, quotaWorker)
 	if err != nil {
 		rollback()
@@ -461,6 +484,9 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		modeldevGPU.Plans = acceleratorClient.Catalog
 	}
 	modeldevService := service.NewModelDevService(modeldevAuthorizationRepo, tenantRepo, modeldevAcceptanceRepo, modeldevClient, computeOwner, modeldevGPU)
+	if observabilityClient != nil {
+		modeldevService.SetMonitoring(observabilityClient)
+	}
 
 	// ═══════════════════════ 五、传输层(internal/server) ═══════════════════════
 
@@ -497,11 +523,13 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		platformNetworkService,
 		acceleratorService,
 		imageService,
+		storageService,
 		modeldevService,
 		inferenceService,
 		modelService,
 		computeService,
 		sandboxService,
+		overviewService,
 		instanceService,
 	)
 	if err != nil {
@@ -513,6 +541,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		gpuMonitoringService := service.NewGpuMonitoringService(acceleratorService, observabilityClient, instanceService, inferenceService, data.NewGpuResourceReadAuthorizationRepo(entClient))
 		server.RegisterGpuHTTPServer(restServer, gpuMonitoringService)
 		server.RegisterGpuTenantHTTPServer(restServer, service.NewGpuTenantAdminService(quotaAdminRepo, gpuMonitoringService, acceleratorService))
+		server.RegisterResourceUsageHTTPServer(restServer, service.NewResourceUsageAdminService(tenantRepo, gpuMonitoringService, observabilityClient))
 	}
 	asynqServer, err := server.NewAsynqServer(ctx, taskService, internalMessageService)
 	if err != nil {
