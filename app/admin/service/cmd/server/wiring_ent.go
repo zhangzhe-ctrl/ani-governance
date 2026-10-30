@@ -602,6 +602,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	extraServers := []transport.Server{quotaWorker}
 	if instanceOwner != nil {
 		extraServers = append(extraServers, service.NewSandboxDispatchWorker(quotaLedgerRepo, sandboxService))
+		extraServers = append(extraServers, service.NewTenantSpaceDispatchWorker(tenantRepo, instanceOwner))
 	}
 	if modeldevClient != nil {
 		extraServers = append(extraServers, service.NewModelDevDispatchWorker(ctx, modeldevAcceptanceRepo, modeldevClient))

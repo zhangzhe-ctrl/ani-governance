@@ -22,6 +22,7 @@
 | 平台运营账号管理 | 复用 ACCOUNT-01～ACCOUNT-09、ROLE-01～ROLE-05、AUTH-02/12；AUTH-15～AUTH-18；SESSION-01～SESSION-04；PERM-01～PERM-06、PERMGROUP-01～PERMGROUP-05 | 支持多个平台账号；运营/只读角色模板待 API 接入后再加；自助会话与权限点/权限组接口本轮补登，缺口见 MGMT-08～MGMT-15 | 待指定 |
 | API Key / AK-SK | AK-01～AK-07；AK-IDEM-01（创建幂等，2026-10-10）；AK-ROLE-INFO-01（响应回填角色名称/描述，2026-10-13） | 签名、角色绑定、加密与可信审计已完成，真实 VPC 闭环 PASS；创建幂等已在 ani-system 真实环境实测（HTTP 20/20 PASS + 8 并发 ALL PASS）；AK-ROLE-INFO-01 已在 ani-system 实测 14/14 PASS 且既有三脚本回归不退化 | AKSK-VPC-20260922 已完成本批；幂等与角色信息回填属向后兼容增强，未并入风格批次 |
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
+| Network 安全组与实例绑定 | NET-SG-01～NET-SG-15 | 正式 SDK 固定；Fedora 定向测试、构建与 HTTP/mTLS/PG/worker 闭环通过；真实流量验收待执行 | 新接口遵守 data 包装；既有 Network 接口格式保留 |
 | Network 租户面读写对接 | NET-01～NET-25；复用 AK-*、AUTH-* | 当前 25 方法支持 JWT/AK；NET-01～24 的历史三条主链验收和 NET-25 增量结果分批记录 | 当前合同见下方增量与 [AK/SK 合同](contracts/aksk-signature.md)；真实环境按批次验收 |
 | Gov → Resource 调用规范收敛 | S2S-RES-01；复用 NET-01～NET-25 与既有 Image 11 RPC | Network/Image 调用端与 Resource 接收端已修改；隔离真实业务链路通过，生产验收未执行 | 传输与可信上下文即时修复，见下方结果；不调整 HTTP 风格 |
 | Gov → Resource Sandbox 生命周期 | SANDBOX-01～08 | 当前需求为独立 Sandbox：源码调整、跨仓兼容和验收结果见 Resource 唯一状态；旧父实例模型的历史证据不能代表新模型已验收 | Gov 需固定支持独立创建的 Resource 正式版本；升级前执行切换门禁，整体验收待完成 |
@@ -1673,11 +1674,13 @@ Resource 通过新迁移 0013 增加可空 text 列，保留历史迁移与原 c
 <a id="gov-platform-network-01"></a>
 ## GOV-PLATFORM-NETWORK-01：平台网络 BFF
 
+2026-10-30 移除 NodeFacts 网卡发现、独立设备登记/查询及旧登记退出共 5 个公共方法，其专属 DTO、平台客户端、权限映射和目录种子同步删除。平台接口现为 35 个；管理员手工提交网卡名，经 Resource 受理后交给 KCN 接管。正常交换机、二层网络、公网池与默认出口入口保持原合同；历史验证记录不代表这些已移除入口仍可调用。当前合同见[平台网络接入](contracts/platform-network.md)。源码清理、生成/测试和目标部署分别确认，本登记不预先声明通过。
+
 2026-10-27 追加平台默认 VPC 当前出口查询，复用 `network:platform:default-egress:get`；平台 EIP 清单纳入无租户的系统出口地址并保留所属生命周期释放约束。契约见[当前平台默认出口](contracts/platform-network.md#当前平台默认出口)。
 
 2026-10-27 在本编号追加平台 EIP 全租户列表、详情和受保护释放三个接口；使用 `page/pageSize`、组合筛选、真实租户映射和独立动作权限，合同见 [平台 EIP 管理](contracts/platform-network.md#平台-eip-管理)。生命周期与活动绑定保护仍由 Resource 拥有。
 
-2026-10-21 KCN 网络平台化在该编号下追加虚拟交换机四动作、独立 unbound DTO 和 `page/pageSize`，二层网络 v2 一次提交集群/交换机/网卡，并加入旧设备登记受限退役的两个独立平台动作、默认 VPC 出口的三个独立平台动作；旧 `device_id` 第 3 字段保留并与 v2 互斥。请求与授权的唯一合同仍见[平台网络接入](contracts/platform-network.md)，新增权限只通过[交换机权限增量](../sql/data/20261021_virtual_switch_permissions.sql)及[退役权限增量](../sql/data/20261021_device_retirement_permissions.sql)及[默认出口权限增量](../sql/data/20261021_default_egress_permissions.sql)建立关联，不自动授予角色。Provider 已正式发布为 `267c2d29c6119f03a4ea9c90303a2a9ac7af9a0a`，Gov 固定模块 `v0.0.0-20261021072547-267c2d29c611`；标准 Go 与 sum.golang.org 已验证 Origin.Hash、module sum 及 go.mod sum，见[正式 API 发布回执](https://github.com/zhangzhe-ctrl/ani-resource-service/blob/5c458c2102e4093ba23be24db001171f0d1b13ac/docs/execution/records/KCN-NETWORK-PLATFORM-20261021/formal-api-publication.json)。本次执行与验收证据统一由 Resource 的[执行状态](https://github.com/zhangzhe-ctrl/ani-resource-service/blob/codex/kcn-network-platform-20261021/docs/execution/status.md)索引；源码与受控测试不表示目标部署、真实接管或公网验收。
+2026-10-21 KCN 网络平台化在该编号下追加虚拟交换机四动作、独立 unbound DTO 和 `page/pageSize`，二层网络 v2 一次提交集群/交换机/网卡，并加入旧设备登记受限退役的两个独立平台动作、默认 VPC 出口的三个独立平台动作；旧 `device_id` 第 3 字段保留并与 v2 互斥。请求与授权的唯一合同仍见[平台网络接入](contracts/platform-network.md)，新增权限只通过[交换机权限增量](../sql/data/20261021_virtual_switch_permissions.sql)及[默认出口权限增量](../sql/data/20261021_default_egress_permissions.sql)建立关联，不自动授予角色。Provider 已正式发布为 `267c2d29c6119f03a4ea9c90303a2a9ac7af9a0a`，Gov 固定模块 `v0.0.0-20261021072547-267c2d29c611`；标准 Go 与 sum.golang.org 已验证 Origin.Hash、module sum 及 go.mod sum，见[正式 API 发布回执](https://github.com/zhangzhe-ctrl/ani-resource-service/blob/5c458c2102e4093ba23be24db001171f0d1b13ac/docs/execution/records/KCN-NETWORK-PLATFORM-20261021/formal-api-publication.json)。本次执行与验收证据统一由 Resource 的[执行状态](https://github.com/zhangzhe-ctrl/ani-resource-service/blob/codex/kcn-network-platform-20261021/docs/execution/status.md)索引；源码与受控测试不表示目标部署、真实接管或公网验收。
 
 2026-10-12 用户要求接入 Public/Intranet 地址池、VLAN 网络与配套接口，并参考 VPC 核对分页、响应。本批新增 27 个平台用户 JWT 接口；同轮按用户要求将 HTTP 前缀统一为 `/api/v1/admin/networks`。入口、权限、请求、内部委托及分页的唯一合同见 [平台网络接入](contracts/platform-network.md)；完整路由清单引用平台策略和 Proto，不在登记复制。角色与生产目录授权不自动改变，部署/真实数据面验收独立记录。
 
@@ -2093,3 +2096,27 @@ Deployment/StatefulSet/DaemonSet），并额外 `must_not` 排除 Pod 名含 `sa
 
 保留期 3 天；一期不含跨连接断点续传、深分页、历史回补、全量导出与日志正文脱敏
 （正文可能含凭据，靠权限授予范围控制，见方案 §4.2 / §14.1）。
+
+## NET-SG-01～NET-SG-15：租户安全组与实例绑定（2026-10-30）
+
+新接口经既有 `NetworkService` 提供 JWT / AK 的 NETWORK 模块入口；容器与 VM 修改经各自 INSTANCE / VIRTUAL_MACHINE 模块及当前用户权限。Resource tenant UUID 和 actor 均由认证上下文与持久租户映射重建，出站复用已验证的 Resource mTLS 连接，公网不能指定租户、actor 或 provider 对象名。Resource 所有权、规则校验、持久化、幂等与 provider 变更由 Resource 承担，Gov 不访问 KCN 或 Resource 数据库。
+
+| 编号 | HTTP | 请求、响应及权限 |
+| --- | --- | --- |
+| NET-SG-01～05 | POST / GET `/api/v1/networks/security-groups`；GET / PATCH / DELETE `/{security_group_id}` | `network:security-group:create/list/get/update/delete`；创建 `{data:{name,description,idempotency_key,rules?}}` 原子提交初始规则。详情直接返回安全组；变更保留 `{security_group,operation}`。metadata PATCH 使用完整 name+description 及 `update_mask:"name,description"`，description 为空表示清空。 |
+| NET-SG-06～09 | GET / POST `/{security_group_id}/rules`；PATCH / DELETE `/{security_group_id}/rules/{rule_id}` | `network:security-group:rule:list/create/update/delete`；写入 `{data:{rule:{direction,protocol,remote_addresses,port_ranges:[{min,max}],action,priority,description},expected_version,idempotency_key}}`；版本属于安全组。DELETE 无 body/query。变更保留 `{security_group,rule?,operation}`。 |
+| NET-SG-10 | GET `/{security_group_id}/bindings` | `network:security-group:binding:list`；项为 target_type/target_id、期望及已应用安全组列表、版本、状态、原因和观测时间。 |
+| NET-SG-11～12 | GET / PUT `/api/v1/networks/eips/{eip_id}/security-groups` | `network:eip:security-groups:get/set`；PUT `{data:{security_group_ids,expected_version,idempotency_key}}`，返回 `{binding,operation?}`。绑定数据独立于既有 EIP 详情 DTO。 |
+| NET-SG-13 | GET `/api/v1/networks/security-groups/operations/{operation_id}` | `network:security-group:operation:get`；直接返回既有 Operation DTO。受理与真正生效分别查询。 |
+| NET-SG-14 | PUT `/api/v1/instances/{data.instance_id}/security-groups` | `instance:security-groups:set`；INSTANCE 当前权限及删除 fence；`{data:{security_group_ids,expected_version,idempotency_key}}`；保留原 command Lookup 与 canonical intent，返回 Acceptance。 |
+| NET-SG-15 | PUT `/api/v1/virtual-machines/{data.vm_id}/security-groups` | `vm:security-groups:set`；VIRTUAL_MACHINE 当前权限及删除 fence；同字段并保持原 command Lookup，返回 VMOperation。 |
+
+所有安全组、规则和绑定列表均用 `page/pageSize`，默认 1/20，pageSize 上限 100，未知/重复/非规范参数拒绝；返回 `items/total`，int64 为十进制字符串。规则支持 `direction=ingress|egress`，Resource 一次返回至多 200 条匹配规则及组 version，Gov 对该同次响应快照切片，因此 total 不受页码影响；不会用多次 RPC 拼凑分页。其他安全组与绑定分页由 Resource 执行。
+
+创建容器和 VM 的既有 data 增加可选 `security_group_ids`，进入原冻结创建意图。详情和容器 configuration 保留当前持久安全组列表。替换接口要求显式 `security_group_ids:[]` 才能解绑全部；省略或 null 拒绝。产品不暴露组内默认互信选项，Resource 显式固定 KCN `allowSameGroupTraffic=false`。安全组不强制归属某一 VPC。每组由 Resource 自动保留一条 `ingress/all/drop/priority=1` 的默认规则，返回 `is_default=true`，客户端不可编辑、删除或伪造；用户规则优先级为 2～4000，数值越大优先级越高。创建 rules 仅传用户规则；出站未匹配流量保持 KCN 默认放行。
+
+权限源为 [权限能力表](contracts/permission-code-capability-map.tsv)，运行目录先 `admin sync-apis --dry-run` 再显式同步，并按 [专项权限脚本](../scripts/ops/sql/register-security-group-permissions.sql) 增量关联权限；该脚本不开放套餐或授予角色。源码与生成、定向测试、部署、真实容器/VM/EIP 新连接放行和拒绝均独立报告，当前不以本登记证明运行验收。
+
+本批源码验证：Fedora Go 1.26.10 的完整 `make api`、auth/data/service/server 定向行为测试、`go test ./pkg/permcode` 均 pass。正式 Resource SDK 固定为 `v0.0.0-20261030064014-84d2cee37810`（提交 `84d2cee378106a4cb7d0fbb3fc765c50e07c4120`）。在 `GOWORK=off` 下，`go mod tidy -diff`、上述受影响测试与完整 `go build -mod=readonly -trimpath ./app/admin/service/cmd/server` 均 pass；发布依赖没有 go.work 或 replace。证据为 Fedora `/home/chabking/task-runs/network-security-groups-20261030/governance-formal-sdk-02.log`。
+
+`TestNetworkJointHTTP/security_groups` 的真实 HTTP/JWT/AK/Casbin/plan/tenant → mTLS Resource → PostgreSQL → 持久 worker 闭环 pass，覆盖默认拒绝规则、规则版本变化、EIP 未绑定等待与绑定后应用、幂等、跨租户拒绝、占用删除拒绝、清空解绑和产品清理。该用例复用隔离联合工作区，仅替身 Kubernetes/KCN 外部边界，证据为同目录 `governance-joint-sg-02.log`；权限目录同步/角色授权、Governance 部署和容器/VM/EIP 真实新连接允许及拒绝不由该替身用例证明，仍独立验收。

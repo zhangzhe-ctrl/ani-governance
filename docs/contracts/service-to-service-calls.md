@@ -4,6 +4,8 @@ Governance 当前通过受信 Inference API 客户端提供推理服务管理 BF
 
 适用：Gov → svc、svc → Gov、svc → svc 的内部业务 RPC。本文是新接入及修改服务间调用时必须遵守的统一规范；存量差异须在明确范围的独立迁移中处理，见[当前差异与迁移边界](#current-differences)。规范入仓不表示当前运行实现已全部符合。本文不改变各服务的业务职责、已发布字段或历史验收结论。
 
+租户空间开通的目标调用为 Gov → Resource 同一 mTLS listener 的 `/sandbox.v1.SandboxService/OpenTenantSpace`、`CloseTenantSpace`、`GetTenantSpace`，使用专用后台 actor `governance:tenant-space`、已持久租户 UUID、原开通 operation ID 和新 request ID；Resource 必须按完整方法限制此 actor，不把它当作用户或放行其他业务。`open` 仅为持久受理，`closing` 仍有未确认 Provider 写入，`closed` 仅证明开通栅栏关闭，不证明 namespace 或其他业务资源已删除。后台派发、关闭保护及实际验收状态以 Resource 的执行状态为准，本合同不表示该链已上线。
+
 ## 1. 三种方向，一套规则
 
 | 方向 | 可以调用什么 | 必须验证什么 |
@@ -273,3 +275,18 @@ Inference 身份不获得该 RPC 权限。查询不产生副作用，不使用�
 ### Sandbox 独立模型切换门禁
 
 新 Gov 不传 Sandbox 的 `instance_id`；Resource 新版本拒绝携带该字段的读取和动作。发布两个版本前必须先停止旧 Gov 的 Sandbox 新建及全部旧投递 worker，并保持停用直到完成协调切换；对目标 Gov 数据库执行只读 [旧创建意图检查](../../scripts/ops/sql/preflight-sandbox-independent.sql)。存在未确认且带旧实例引用的命令时脚本报错，禁止切换，须逐条查明并安全处理。只读检查通过不代表两版本可以混用；升级期间还需限制旧客户端和旧 worker。历史命令保留摘要与原字段，超时或查无对象不证明命令未执行；不得自动清除或重建幂等键。
+
+## Network 安全组用户委托（2026-10-30）
+
+Gov 复用已登记的 Resource TLS 1.3 双向连接和精确 DNS SAN，新增接收面为 `network.v1.NetworkSecurityGroupService`。下表方法均以 `/network.v1.NetworkSecurityGroupService/` 为完整 RPC 前缀；调用者 `ani-governance`，接收者 `ani-resource-service`，只允许用户或 API Key 经当前 Network 权限与 NETWORK 套餐检查后的租户业务委托。`target_tenant_id` 每次覆写为持久映射的 Resource tenant UUID；出站 metadata 整体重建 tenant、actor 和独立 request ID，不透传公网身份。超时沿 `ANI_NETWORK_TIMEOUT`（默认 3 秒），无明文或旧接口 fallback。
+
+| 精确 RPC 短名 | 范围与幂等 |
+| --- | --- |
+| CreateSecurityGroup / UpdateSecurityGroup / DeleteSecurityGroup | 只操作可信当前租户安全组；创建/更新保留客户端业务 idempotency_key，更新检查 expected_version；删除依 Resource 既有受理与重复删除合同。 |
+| GetSecurityGroup / ListSecurityGroups | 可信当前租户只读；前者校验返回 tenant/id，后者保留 Resource 数据库分页及 total；无业务幂等键。 |
+| CreateSecurityGroupRule / UpdateSecurityGroupRule / DeleteSecurityGroupRule | 规则所属安全组与租户由 Resource 检查；创建/更新使用组 expected_version 与业务幂等键，默认规则不可变；删除无客户端 provider ID。 |
+| ListSecurityGroupRules / ListSecurityGroupBindings | 当前租户安全组的规则完整有界快照或绑定页；不跨租户补查、不从 KCN 拼装。 |
+| SetEIPSecurityGroups / GetEIPSecurityGroups | 当前租户 EIP 的期望/已应用安全组配置；写入保留 expected_version 与 idempotency_key；读写均只返回 Resource 公共绑定视图。 |
+| GetSecurityGroupOperation | 当前租户安全组或 EIP 安全组操作；响应 tenant 和 operation_id 必须与请求一致。 |
+
+实例与 VM 的创建字段 `security_group_ids` 进入原冻结意图和 owner 持久幂等。修改分别调用 `/instance.v1.InstanceService/SetSecurityGroups`、`/vm.v1.VMService/SetSecurityGroups`，复用原 INSTANCE / VIRTUAL_MACHINE 用户权限、删除 fence、canonical command 和 `LookupCommandReplay`，action 为 `set-security-groups`，30 秒 unary 超时与原 client metadata 重建合同不变。用户清空必须显式发送空列表；不能用省略或 null 触发解绑。SDK 最终须固定支持这些 RPC 的正式 Resource 模块版本；临时 go.work 联合验证不是正式发布依赖。

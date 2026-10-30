@@ -3599,99 +3599,6 @@ paths:
                                 $ref: '#/components/schemas/DeleteDefaultVPCEgressResponse'
             security:
                 - BearerAuth: []
-    /api/v1/admin/networks/devices:
-        post:
-            tags:
-                - PlatformNetworkService
-            summary: AdoptNetworkDevice
-            description: Requires platform user JWT and network:platform:device:adopt. Write acceptance is asynchronous; inspect resource state and last_operation_id. Tenant identities and API keys are denied.
-            operationId: PlatformNetworkService_AdoptNetworkDevice
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/AdoptNetworkDeviceRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AdoptNetworkDeviceResponse'
-            security:
-                - BearerAuth: []
-    /api/v1/admin/networks/devices/{device_id}:
-        get:
-            tags:
-                - PlatformNetworkService
-            summary: GetNetworkDevice
-            description: Requires platform user JWT and network:platform:device:get. Tenant identities and API keys are denied.
-            operationId: PlatformNetworkService_GetNetworkDevice
-            parameters:
-                - name: device_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GetNetworkDeviceResponse'
-            security:
-                - BearerAuth: []
-    /api/v1/admin/networks/devices/{device_id}/retirement:
-        get:
-            tags:
-                - PlatformNetworkService
-            summary: GetNetworkDeviceRetirement
-            description: Requires platform user JWT and network:platform:device-retirement:get. Restricted legacy registration closure preserves history and fencing; blocked or unknown outcomes are not completion. Tenant identities and API keys are denied.
-            operationId: PlatformNetworkService_GetNetworkDeviceRetirement
-            parameters:
-                - name: device_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GetNetworkDeviceRetirementResponse'
-            security:
-                - BearerAuth: []
-        post:
-            tags:
-                - PlatformNetworkService
-            summary: RetireNetworkDevice
-            description: Requires platform user JWT and network:platform:device-retirement:create. Restricted legacy registration closure preserves history and fencing; blocked or unknown outcomes are not completion. Tenant identities and API keys are denied.
-            operationId: PlatformNetworkService_RetireNetworkDevice
-            parameters:
-                - name: device_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/RetireNetworkDeviceRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/RetireNetworkDeviceResponse'
-            security:
-                - BearerAuth: []
     /api/v1/admin/networks/egress-gateways:
         get:
             tags:
@@ -4065,35 +3972,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/RecordIntranetPoolVerificationResponse'
-            security:
-                - BearerAuth: []
-    /api/v1/admin/networks/node-interfaces:
-        get:
-            tags:
-                - PlatformNetworkService
-            summary: ListNodeInterfaces
-            description: Requires platform user JWT and network:platform:device:list. Tenant identities and API keys are denied.
-            operationId: PlatformNetworkService_ListNodeInterfaces
-            parameters:
-                - name: node_name
-                  in: query
-                  schema:
-                    type: string
-                - name: cluster_id
-                  in: query
-                  schema:
-                    type: string
-                - name: virtual_switch_id
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListNodeInterfacesResponse'
             security:
                 - BearerAuth: []
     /api/v1/admin/networks/operations/{operation_id}:
@@ -9236,6 +9114,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ExecInstanceResponse'
+    /api/v1/instances/{data.instance_id}/security-groups:
+        put:
+            tags:
+                - InstanceService
+            operationId: InstanceService_SetInstanceSecurityGroups
+            parameters:
+                - name: data.instance_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetInstanceSecurityGroupsRequest'
+                required: true
+            responses:
+                "202":
+                    description: Accepted
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Acceptance'
     /api/v1/instances/{data.instance_id}:attach-pvc:
         post:
             tags:
@@ -10492,6 +10394,61 @@ paths:
                 - AccessKeyAuth: []
                   SignatureAuth: []
                   SignatureTime: []
+    /api/v1/networks/eips/{eip_id}/security-groups:
+        get:
+            tags:
+                - NetworkService
+            summary: GetEIPSecurityGroups in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_GetEIPSecurityGroups
+            parameters:
+                - name: eip_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SetEIPSecurityGroupsResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        put:
+            tags:
+                - NetworkService
+            summary: SetEIPSecurityGroups in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_SetEIPSecurityGroups
+            parameters:
+                - name: eip_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetEIPSecurityGroupsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SetEIPSecurityGroupsResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
     /api/v1/networks/load-balancers:
         get:
             tags:
@@ -10803,6 +10760,345 @@ paths:
                     description: Network dependency or trusted identity unavailable
                 "504":
                     description: Connected Network call timed out
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/security-groups:
+        get:
+            tags:
+                - NetworkService
+            summary: ListSecurityGroups in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_ListSecurityGroups
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSecurityGroupsResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        post:
+            tags:
+                - NetworkService
+            summary: CreateSecurityGroup in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_CreateSecurityGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateSecurityGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SecurityGroupResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/security-groups/operations/{operation_id}:
+        get:
+            tags:
+                - NetworkService
+            summary: GetSecurityGroupOperation in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_GetSecurityGroupOperation
+            parameters:
+                - name: operation_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NetworkOperation'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/security-groups/{security_group_id}:
+        get:
+            tags:
+                - NetworkService
+            summary: GetSecurityGroup in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_GetSecurityGroup
+            parameters:
+                - name: security_group_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SecurityGroupResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        delete:
+            tags:
+                - NetworkService
+            summary: DeleteSecurityGroup in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_DeleteSecurityGroup
+            parameters:
+                - name: security_group_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SecurityGroupResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        patch:
+            tags:
+                - NetworkService
+            summary: UpdateSecurityGroup in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_UpdateSecurityGroup
+            parameters:
+                - name: security_group_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateSecurityGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SecurityGroupResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/security-groups/{security_group_id}/bindings:
+        get:
+            tags:
+                - NetworkService
+            summary: ListSecurityGroupBindings in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_ListSecurityGroupBindings
+            parameters:
+                - name: security_group_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: target_type
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSecurityGroupBindingsResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/security-groups/{security_group_id}/rules:
+        get:
+            tags:
+                - NetworkService
+            summary: ListSecurityGroupRules in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_ListSecurityGroupRules
+            parameters:
+                - name: security_group_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: direction
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSecurityGroupRulesResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        post:
+            tags:
+                - NetworkService
+            summary: CreateSecurityGroupRule in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_CreateSecurityGroupRule
+            parameters:
+                - name: security_group_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateSecurityGroupRuleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SecurityGroupRuleResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+    /api/v1/networks/security-groups/{security_group_id}/rules/{rule_id}:
+        delete:
+            tags:
+                - NetworkService
+            summary: DeleteSecurityGroupRule in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_DeleteSecurityGroupRule
+            parameters:
+                - name: security_group_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: rule_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SecurityGroupRuleResponse'
+            security:
+                - BearerAuth: []
+                - AccessKeyAuth: []
+                  SignatureAuth: []
+                  SignatureTime: []
+        patch:
+            tags:
+                - NetworkService
+            summary: UpdateSecurityGroupRule in the authenticated tenant
+            description: Requires current user or API Key permission and NETWORK subscription. Tenant and actor are reconstructed from the authenticated context. Mutations preserve persisted resource and operation snapshots; acceptance does not prove data-plane enforcement.
+            operationId: NetworkService_UpdateSecurityGroupRule
+            parameters:
+                - name: security_group_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: rule_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateSecurityGroupRuleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SecurityGroupRuleResponse'
             security:
                 - BearerAuth: []
                 - AccessKeyAuth: []
@@ -12576,6 +12872,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/VMOperation'
+    /api/v1/virtual-machines/{data.vm_id}/security-groups:
+        put:
+            tags:
+                - VMService
+            operationId: VMService_SetVMSecurityGroups
+            parameters:
+                - name: data.vm_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ChangeVMRequest'
+                required: true
+            responses:
+                "202":
+                    description: Accepted
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/VMOperation'
     /api/v1/virtual-machines/{data.vm_id}/snapshots:
         post:
             tags:
@@ -13948,27 +14268,6 @@ components:
             properties:
                 data:
                     $ref: '#/components/schemas/AdoptAcceleratorSupplyData'
-        AdoptNetworkDeviceData:
-            type: object
-            properties:
-                name:
-                    type: string
-                device_name:
-                    type: string
-                inventory_fingerprint:
-                    type: string
-                idempotency_key:
-                    type: string
-        AdoptNetworkDeviceRequest:
-            type: object
-            properties:
-                data:
-                    $ref: '#/components/schemas/AdoptNetworkDeviceData'
-        AdoptNetworkDeviceResponse:
-            type: object
-            properties:
-                resource:
-                    $ref: '#/components/schemas/PlatformResource'
         Any:
             type: object
             properties:
@@ -14377,6 +14676,10 @@ components:
                     type: string
                 previewDigest:
                     type: string
+                security_group_ids:
+                    type: array
+                    items:
+                        type: string
         ChangeVMRequest:
             type: object
             properties:
@@ -14961,6 +15264,10 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/InstanceEnvVar'
+                security_group_ids:
+                    type: array
+                    items:
+                        type: string
         CreateInstanceRequest:
             type: object
             properties:
@@ -15268,6 +15575,40 @@ components:
             properties:
                 data:
                     $ref: '#/components/schemas/CreateSandboxTokenData'
+        CreateSecurityGroupData:
+            type: object
+            properties:
+                name:
+                    type: string
+                description:
+                    type: string
+                idempotency_key:
+                    type: string
+                rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SecurityGroupRuleInput'
+        CreateSecurityGroupRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/CreateSecurityGroupData'
+        CreateSecurityGroupRuleData:
+            type: object
+            properties:
+                rule:
+                    $ref: '#/components/schemas/SecurityGroupRuleInput'
+                expected_version:
+                    type: string
+                idempotency_key:
+                    type: string
+        CreateSecurityGroupRuleRequest:
+            type: object
+            properties:
+                security_group_id:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/CreateSecurityGroupRuleData'
         CreateSubnetRequest:
             type: object
             properties:
@@ -15359,6 +15700,10 @@ components:
                     $ref: '#/components/schemas/CreateGuestInitialization'
                 dns:
                     $ref: '#/components/schemas/VMDNSSelection'
+                security_group_ids:
+                    type: array
+                    items:
+                        type: string
         CreateVMRequest:
             type: object
             properties:
@@ -15978,37 +16323,6 @@ components:
                     type: string
                     description: 内核版本
             description: 设备信息
-        DeviceRetirement:
-            type: object
-            properties:
-                device_id:
-                    type: string
-                operation_id:
-                    type: string
-                state:
-                    type: string
-                reason:
-                    type: string
-                version:
-                    type: string
-                expected_version:
-                    type: string
-                config_uid:
-                    type: string
-                fence_version:
-                    type: string
-                pending_unknown:
-                    type: boolean
-                created_at:
-                    type: string
-                    format: date-time
-                updated_at:
-                    type: string
-                    format: date-time
-                completed_at:
-                    type: string
-                    format: date-time
-            description: A restricted legacy registration closure has a durable fence and keeps history.
         DictEntry:
             type: object
             properties:
@@ -17259,16 +17573,6 @@ components:
                     $ref: '#/components/schemas/Model'
                 version:
                     $ref: '#/components/schemas/ModelVersion'
-        GetNetworkDeviceResponse:
-            type: object
-            properties:
-                resource:
-                    $ref: '#/components/schemas/PlatformResource'
-        GetNetworkDeviceRetirementResponse:
-            type: object
-            properties:
-                retirement:
-                    $ref: '#/components/schemas/DeviceRetirement'
         GetOperationResponse:
             type: object
             properties:
@@ -18346,6 +18650,10 @@ components:
                     type: string
                 appliedMountVersion:
                     type: string
+                security_group_ids:
+                    type: array
+                    items:
+                        type: string
         InstanceConfiguration:
             type: object
             properties:
@@ -18381,6 +18689,10 @@ components:
                     type: string
                 pending_change:
                     $ref: '#/components/schemas/PendingMountChange'
+                security_group_ids:
+                    type: array
+                    items:
+                        type: string
         InstanceEnvVar:
             type: object
             properties:
@@ -19264,17 +19576,6 @@ components:
                         $ref: '#/components/schemas/MountablePVC'
                 total:
                     type: string
-        ListNodeInterfacesResponse:
-            type: object
-            properties:
-                items:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/NodeInterface'
-                inventory_fingerprint:
-                    type: string
-                total:
-                    type: string
         ListNotificationChannelResponse:
             type: object
             properties:
@@ -19502,6 +19803,35 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Sandbox'
+                total:
+                    type: string
+        ListSecurityGroupBindingsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SecurityGroupBinding'
+                total:
+                    type: string
+        ListSecurityGroupRulesResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SecurityGroupRule'
+                total:
+                    type: string
+                version:
+                    type: string
+        ListSecurityGroupsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SecurityGroup'
                 total:
                     type: string
         ListSnapshotsResponse:
@@ -20787,17 +21117,6 @@ components:
                         - $ref: '#/components/schemas/StringArray'
                     description: Mapped value
             description: Automatically-generated message used to represent maps of StringArray as ordered (name,value) pairs.
-        NetworkDevice:
-            type: object
-            properties:
-                device_name:
-                    type: string
-                inventory_fingerprint:
-                    type: string
-                nodes:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/NodeInterface'
         NetworkSelection:
             type: object
             properties:
@@ -20805,53 +21124,6 @@ components:
                     type: string
                 subnet_id:
                     type: string
-        NodeInterface:
-            type: object
-            properties:
-                node_name:
-                    type: string
-                node_uid:
-                    type: string
-                name:
-                    type: string
-                kind:
-                    type: string
-                mac:
-                    type: string
-                mtu:
-                    type: integer
-                    format: int32
-                link_up:
-                    type: boolean
-                carrier:
-                    type: boolean
-                addresses:
-                    type: array
-                    items:
-                        type: string
-                master:
-                    type: string
-                ovs_managed:
-                    type: boolean
-                kc_managed:
-                    type: boolean
-                default_route:
-                    type: boolean
-                management:
-                    type: boolean
-                selectable:
-                    type: boolean
-                unavailable_reasons:
-                    type: array
-                    items:
-                        type: string
-                observed_at:
-                    type: string
-                    format: date-time
-                vlan_network_ids:
-                    type: array
-                    items:
-                        type: string
         NotificationChannel:
             type: object
             properties:
@@ -22028,8 +22300,6 @@ components:
                     type: boolean
                 last_operation_id:
                     type: string
-                device:
-                    $ref: '#/components/schemas/NetworkDevice'
                 vlan:
                     $ref: '#/components/schemas/VlanNetwork'
                 gateway:
@@ -22886,25 +23156,6 @@ components:
             properties:
                 data:
                     $ref: '#/components/schemas/SandboxActionData'
-        RetireNetworkDeviceData:
-            type: object
-            properties:
-                expected_version:
-                    type: string
-                idempotency_key:
-                    type: string
-        RetireNetworkDeviceRequest:
-            type: object
-            properties:
-                device_id:
-                    type: string
-                data:
-                    $ref: '#/components/schemas/RetireNetworkDeviceData'
-        RetireNetworkDeviceResponse:
-            type: object
-            properties:
-                retirement:
-                    $ref: '#/components/schemas/DeviceRetirement'
         RetryAcceleratorInitializationOperationData:
             type: object
             properties:
@@ -23601,6 +23852,139 @@ components:
                         $ref: '#/components/schemas/ExternalModelCandidate'
                 hasMore:
                     type: boolean
+        SecurityGroup:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                description:
+                    type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                version:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+                observed_at:
+                    type: string
+                    format: date-time
+                last_operation_id:
+                    type: string
+                bound_resource_count:
+                    type: string
+                rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SecurityGroupRule'
+        SecurityGroupBinding:
+            type: object
+            properties:
+                target_type:
+                    type: string
+                target_id:
+                    type: string
+                security_group_ids:
+                    type: array
+                    items:
+                        type: string
+                applied_security_group_ids:
+                    type: array
+                    items:
+                        type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                version:
+                    type: string
+                last_operation_id:
+                    type: string
+                observed_at:
+                    type: string
+                    format: date-time
+        SecurityGroupPortRange:
+            type: object
+            properties:
+                min:
+                    type: integer
+                    format: uint32
+                max:
+                    type: integer
+                    format: uint32
+        SecurityGroupResponse:
+            type: object
+            properties:
+                security_group:
+                    $ref: '#/components/schemas/SecurityGroup'
+                operation:
+                    $ref: '#/components/schemas/NetworkOperation'
+        SecurityGroupRule:
+            type: object
+            properties:
+                id:
+                    type: string
+                security_group_id:
+                    type: string
+                direction:
+                    type: string
+                protocol:
+                    type: string
+                remote_addresses:
+                    type: array
+                    items:
+                        type: string
+                port_ranges:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SecurityGroupPortRange'
+                action:
+                    type: string
+                priority:
+                    type: integer
+                    format: uint32
+                description:
+                    type: string
+                is_default:
+                    type: boolean
+        SecurityGroupRuleInput:
+            type: object
+            properties:
+                direction:
+                    type: string
+                protocol:
+                    type: string
+                remote_addresses:
+                    type: array
+                    items:
+                        type: string
+                port_ranges:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SecurityGroupPortRange'
+                action:
+                    type: string
+                priority:
+                    type: integer
+                    format: uint32
+                description:
+                    type: string
+        SecurityGroupRuleResponse:
+            type: object
+            properties:
+                security_group:
+                    $ref: '#/components/schemas/SecurityGroup'
+                rule:
+                    $ref: '#/components/schemas/SecurityGroupRule'
+                operation:
+                    $ref: '#/components/schemas/NetworkOperation'
         SecurityRequirement:
             type: object
             properties:
@@ -23788,6 +24172,49 @@ components:
             properties:
                 resource:
                     $ref: '#/components/schemas/PlatformResource'
+        SetEIPSecurityGroupsData:
+            type: object
+            properties:
+                security_group_ids:
+                    type: array
+                    items:
+                        type: string
+                expected_version:
+                    type: string
+                idempotency_key:
+                    type: string
+        SetEIPSecurityGroupsRequest:
+            type: object
+            properties:
+                eip_id:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/SetEIPSecurityGroupsData'
+        SetEIPSecurityGroupsResponse:
+            type: object
+            properties:
+                binding:
+                    $ref: '#/components/schemas/SecurityGroupBinding'
+                operation:
+                    $ref: '#/components/schemas/NetworkOperation'
+        SetInstanceSecurityGroupsData:
+            type: object
+            properties:
+                instanceId:
+                    type: string
+                idempotencyKey:
+                    type: string
+                expectedVersion:
+                    type: string
+                security_group_ids:
+                    type: array
+                    items:
+                        type: string
+        SetInstanceSecurityGroupsRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/SetInstanceSecurityGroupsData'
         SetIntranetPoolAllocationEnabledData:
             type: object
             properties:
@@ -24815,6 +25242,36 @@ components:
             properties:
                 data:
                     $ref: '#/components/schemas/SchedulerConfigData'
+        UpdateSecurityGroupData:
+            type: object
+            properties:
+                name:
+                    type: string
+                description:
+                    type: string
+                expected_version:
+                    type: string
+                idempotency_key:
+                    type: string
+        UpdateSecurityGroupRequest:
+            type: object
+            properties:
+                security_group_id:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/UpdateSecurityGroupData'
+                update_mask:
+                    type: string
+                    format: field-mask
+        UpdateSecurityGroupRuleRequest:
+            type: object
+            properties:
+                security_group_id:
+                    type: string
+                rule_id:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/CreateSecurityGroupRuleData'
         UpdateTaskRequest:
             type: object
             properties:
@@ -25462,6 +25919,10 @@ components:
                     type: string
                 dns:
                     $ref: '#/components/schemas/VMFrozenDNS'
+                security_group_ids:
+                    type: array
+                    items:
+                        type: string
         VirtualSwitch:
             type: object
             properties:
@@ -25506,8 +25967,6 @@ components:
                 node_name:
                     type: string
                 node_uid:
-                    type: string
-                mac:
                     type: string
                 priority:
                     type: integer
