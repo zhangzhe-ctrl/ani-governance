@@ -1740,6 +1740,11 @@ mTLS gRPC 请求，不信任客户端提交的租户或 actor。Higress 只承�
 导入仍由 Model Service 创建一次性 Kubernetes Job 完成，文件写入当前 Model Service
 配置的 S3-compatible 存储。
 
+Gov → Inference 同步请求按服务间调用规范附带 `x-ani-origin-request-id`，
+用于将 Gov 的 HTTP request ID 关联到 Inference 日志；它不是身份凭据。
+异步派发使用创建响应中的 `operation_id` 关联 Gov 与 Inference 日志，
+该 ID 不替代每次 RPC 的 `x-ani-request-id` 或链路 trace ID。
+
 ### 2026-10-26 默认镜像目录与拒绝收尾
 
 模型版本创建、整包导入 version 和查询投影增加成对可选的
@@ -1950,6 +1955,10 @@ Linux `DISK_IMAGE` 仅在 Resource 媒体目录 `initializationCapability=CLOUD_
 
 **当前合同更新：** Sandbox 是独立资源，接口及安全边界见[前端 HTTP 合同](contracts/frontend-http-api.md)。以下为历史记录，父实例相关规则已被本次需求取代，历史验收不能证明独立创建已验证。
 
+Sandbox 创建可以传 `image_id` + `image_scope`，也可以传已登记的租户或平台镜像 `image_reference`；两者不可混用。Resource Image 校验登记及权限并冻结不可变引用。修改的实现和实际验收以 Resource 执行状态为准。
+
+二期新增文件、代码执行及 Sandbox Token 路由；请求、响应、作用范围和独立授权以[前端 HTTP 合同](contracts/frontend-http-api.md)及 Proto 为准。目录同步后仍须显式配置权限和套餐关系。
+
 管理入口为 Governance BFF；七条路由以 `api/protos/admin/service/v1/i_sandbox.proto` 为准，写请求保留 `data` 包装。各动作使用独立 `sandbox:create/list/read/operation:read/pause/resume/delete` 权限，均检查当前 INSTANCE 套餐、真实父实例租户归属，再经 mTLS 委托 Resource。新建与重放的父实例删除准入、查询/清理边界及 Pod/PVC/PV 引用响应见[前端 HTTP 合同](contracts/frontend-http-api.md)。映射维护于 `docs/contracts/permission-code-capability-map.tsv`。
 
 `GET /api/v1/compute-presets?usage=SANDBOX` 使用 INSTANCE 套餐及独立 `sandbox:preset:read` 权限；默认 `compute_type=cpu`，显式 GPU 类型或非空 `gpu_mode` 返回 400。保持 SANDBOX 用途传给 Resource，不复用容器实例用途或权限。目录同步不自动授权；`scripts/ops/sql/register-sandbox-permissions.sql` 只准备默认 OFF 的权限及 API 关系，角色/套餐通过正常管理入口单独配置。
@@ -1993,6 +2002,9 @@ Contract: [GPU monitoring](contracts/gpu-monitoring.md); authority: [accepted v1
 [推理调用 Key 和策略合同](contracts/inference-keys.md)。所有管理请求由 Governance
 认证并重建租户/actor，mTLS 转发 Inference；Higress 仅处理 `/v1/...`。
 API 目录、权限和套餐关系须按部署流程显式登记，不能仅凭代码生成推断已部署。
+
+AK 列表支持 `served_model_name`，在 Inference 按当前绑定策略的模型精确筛选后
+分页和计数；不传时保留原列表语义。报文和校验见上述合同。
 
 前端页面迁移与请求示例见[推理 AK 与策略前端对接](frontend-inference-ak-policy.md)。
 

@@ -365,6 +365,15 @@ func TestSandboxCapabilities(t *testing.T) {
 		{"POST", "/api/v1/sandbox/{data.sandbox_id}:pause", "pause"},
 		{"POST", "/api/v1/sandbox/{data.sandbox_id}:resume", "resume"},
 		{"DELETE", "/api/v1/sandbox/{data.sandbox_id}", "delete"},
+		{"POST", "/api/v1/sandbox/{data.sandbox_id}/code-runs", "code:run"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}/code-runs/{run_id}", "code:read"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}/files", "files:list"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}/files/content", "files:read"},
+		{"POST", "/api/v1/sandbox/{data.sandbox_id}/files", "files:write"},
+		{"DELETE", "/api/v1/sandbox/{data.sandbox_id}/files", "files:delete"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}/file-operations/{operation_id}", "files:operation:read"},
+		{"POST", "/api/v1/sandbox/{data.sandbox_id}/tokens", "token:create"},
+		{"DELETE", "/api/v1/sandbox/{sandbox_id}/tokens/{token_id}", "token:revoke"},
 	} {
 		exp, err := Resolve(r.method, r.path)
 		if err != nil || exp.Code != "sandbox:"+r.action || exp.BusinessModule != "INSTANCE" || exp.ScopeKind != "tenant" {

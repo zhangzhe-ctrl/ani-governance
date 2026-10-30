@@ -5,6 +5,7 @@ import (
 	conf "go-wind-admin/pkg/localdeps/kratos-bootstrap/api/gen/go/conf/v1"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -29,5 +30,8 @@ func TestAdditionalHTTPFilterPreservesCORS(t *testing.T) {
 	srv.ServeHTTP(w, r)
 	if w.Code != 204 || !called || w.Header().Get("X-Boundary") != "checked" || w.Header().Get("Access-Control-Allow-Origin") != "https://console.example.test" {
 		t.Fatal("additional filter displaced CORS", w.Code, w.Header())
+	}
+	if got := w.Header().Get("Access-Control-Expose-Headers"); !strings.EqualFold(got, "X-Request-ID") {
+		t.Fatalf("request ID not exposed to browser: %q", got)
 	}
 }

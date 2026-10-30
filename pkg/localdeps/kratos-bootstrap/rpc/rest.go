@@ -62,6 +62,7 @@ func initRestConfigWithFilters(cfg *conf.Bootstrap, extra []kratosRest.FilterFun
 			handlers.AllowedHeaders(cfg.Server.Rest.Cors.Headers),
 			handlers.AllowedMethods(cfg.Server.Rest.Cors.Methods),
 			handlers.AllowedOrigins(cfg.Server.Rest.Cors.Origins),
+			handlers.ExposedHeaders([]string{"X-Request-ID"}),
 		}
 		// 前端以 HttpOnly Cookie 传 refresh token 时（withCredentials=true），
 		// 浏览器要求预检响应携带 Access-Control-Allow-Credentials: true
