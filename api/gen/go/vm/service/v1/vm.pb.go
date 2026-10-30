@@ -387,6 +387,7 @@ type CreateVMData struct {
 	StartAfterCreate    *bool                      `protobuf:"varint,9,opt,name=start_after_create,json=startAfterCreate,proto3,oneof" json:"start_after_create,omitempty"`
 	GuestInitialization *CreateGuestInitialization `protobuf:"bytes,10,opt,name=guest_initialization,json=guestInitialization,proto3" json:"guest_initialization,omitempty"`
 	Dns                 *VMDNSSelection            `protobuf:"bytes,11,opt,name=dns,proto3" json:"dns,omitempty"`
+	SecurityGroupIds    []string                   `protobuf:"bytes,12,rep,name=security_group_ids,proto3" json:"security_group_ids,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -494,6 +495,13 @@ func (x *CreateVMData) GetGuestInitialization() *CreateGuestInitialization {
 func (x *CreateVMData) GetDns() *VMDNSSelection {
 	if x != nil {
 		return x.Dns
+	}
+	return nil
+}
+
+func (x *CreateVMData) GetSecurityGroupIds() []string {
+	if x != nil {
+		return x.SecurityGroupIds
 	}
 	return nil
 }
@@ -617,6 +625,7 @@ type ChangeVMData struct {
 	BootDevice                string                 `protobuf:"bytes,11,opt,name=boot_device,json=bootDevice,proto3" json:"boot_device,omitempty"`
 	SnapshotId                string                 `protobuf:"bytes,12,opt,name=snapshot_id,json=snapshotId,proto3" json:"snapshot_id,omitempty"`
 	PreviewDigest             string                 `protobuf:"bytes,13,opt,name=preview_digest,json=previewDigest,proto3" json:"preview_digest,omitempty"`
+	SecurityGroupIds          []string               `protobuf:"bytes,14,rep,name=security_group_ids,proto3" json:"security_group_ids,omitempty"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -740,6 +749,13 @@ func (x *ChangeVMData) GetPreviewDigest() string {
 		return x.PreviewDigest
 	}
 	return ""
+}
+
+func (x *ChangeVMData) GetSecurityGroupIds() []string {
+	if x != nil {
+		return x.SecurityGroupIds
+	}
+	return nil
 }
 
 type ChangeVMRequest struct {
@@ -1266,6 +1282,7 @@ type VirtualMachine struct {
 	SourceKind       string                 `protobuf:"bytes,20,opt,name=source_kind,json=sourceKind,proto3" json:"source_kind,omitempty"`
 	MediaKey         string                 `protobuf:"bytes,21,opt,name=media_key,json=mediaKey,proto3" json:"media_key,omitempty"`
 	Dns              *VMFrozenDNS           `protobuf:"bytes,22,opt,name=dns,proto3" json:"dns,omitempty"`
+	SecurityGroupIds []string               `protobuf:"bytes,23,rep,name=security_group_ids,proto3" json:"security_group_ids,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -1450,6 +1467,13 @@ func (x *VirtualMachine) GetMediaKey() string {
 func (x *VirtualMachine) GetDns() *VMFrozenDNS {
 	if x != nil {
 		return x.Dns
+	}
+	return nil
+}
+
+func (x *VirtualMachine) GetSecurityGroupIds() []string {
+	if x != nil {
+		return x.SecurityGroupIds
 	}
 	return nil
 }
@@ -2462,7 +2486,7 @@ const file_vm_service_v1_vm_proto_rawDesc = "" +
 	"\x0fInitialDataDisk\x12&\n" +
 	"\x0fclient_disk_key\x18\x01 \x01(\tR\rclientDiskKey\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x17\n" +
-	"\asize_gb\x18\x03 \x01(\x03R\x06sizeGb\"\xa9\x04\n" +
+	"\asize_gb\x18\x03 \x01(\x03R\x06sizeGb\"\xd9\x04\n" +
 	"\fCreateVMData\x12'\n" +
 	"\x0fidempotency_key\x18\x01 \x01(\tR\x0eidempotencyKey\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1b\n" +
@@ -2477,14 +2501,15 @@ const file_vm_service_v1_vm_proto_rawDesc = "" +
 	"\x12start_after_create\x18\t \x01(\bH\x00R\x10startAfterCreate\x88\x01\x01\x12[\n" +
 	"\x14guest_initialization\x18\n" +
 	" \x01(\v2(.vm.service.v1.CreateGuestInitializationR\x13guestInitialization\x12/\n" +
-	"\x03dns\x18\v \x01(\v2\x1d.vm.service.v1.VMDNSSelectionR\x03dnsB\x15\n" +
+	"\x03dns\x18\v \x01(\v2\x1d.vm.service.v1.VMDNSSelectionR\x03dns\x12.\n" +
+	"\x12security_group_ids\x18\f \x03(\tR\x12security_group_idsB\x15\n" +
 	"\x13_start_after_create\"\x81\x01\n" +
 	"\x19CreateGuestInitialization\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\"\n" +
 	"\bpassword\x18\x02 \x01(\tB\x06ڶ\x1a\x02z\x00R\bpassword\x12$\n" +
 	"\x0essh_public_key\x18\x03 \x01(\tR\fsshPublicKey\"B\n" +
 	"\x0fCreateVMRequest\x12/\n" +
-	"\x04data\x18\x01 \x01(\v2\x1b.vm.service.v1.CreateVMDataR\x04data\"\xd2\x03\n" +
+	"\x04data\x18\x01 \x01(\v2\x1b.vm.service.v1.CreateVMDataR\x04data\"\x82\x04\n" +
 	"\fChangeVMData\x12\x13\n" +
 	"\x05vm_id\x18\x01 \x01(\tR\x04vmId\x12'\n" +
 	"\x0fidempotency_key\x18\x02 \x01(\tR\x0eidempotencyKey\x12)\n" +
@@ -2501,7 +2526,8 @@ const file_vm_service_v1_vm_proto_rawDesc = "" +
 	"bootDevice\x12\x1f\n" +
 	"\vsnapshot_id\x18\f \x01(\tR\n" +
 	"snapshotId\x12%\n" +
-	"\x0epreview_digest\x18\r \x01(\tR\rpreviewDigest\"B\n" +
+	"\x0epreview_digest\x18\r \x01(\tR\rpreviewDigest\x12.\n" +
+	"\x12security_group_ids\x18\x0e \x03(\tR\x12security_group_ids\"B\n" +
 	"\x0fChangeVMRequest\x12/\n" +
 	"\x04data\x18\x01 \x01(\v2\x1b.vm.service.v1.ChangeVMDataR\x04data\"$\n" +
 	"\fGetVMRequest\x12\x14\n" +
@@ -2538,7 +2564,7 @@ const file_vm_service_v1_vm_proto_rawDesc = "" +
 	"\bnic_name\x18\x01 \x01(\tR\anicName\x12\x18\n" +
 	"\aaddress\x18\x02 \x01(\tR\aaddress\x12\x1f\n" +
 	"\vobserved_at\x18\x03 \x01(\tR\n" +
-	"observedAt\"\x8b\x06\n" +
+	"observedAt\"\xbb\x06\n" +
 	"\x0eVirtualMachine\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -2568,7 +2594,8 @@ const file_vm_service_v1_vm_proto_rawDesc = "" +
 	"\vsource_kind\x18\x14 \x01(\tR\n" +
 	"sourceKind\x12\x1b\n" +
 	"\tmedia_key\x18\x15 \x01(\tR\bmediaKey\x12,\n" +
-	"\x03dns\x18\x16 \x01(\v2\x1a.vm.service.v1.VMFrozenDNSR\x03dns\"\\\n" +
+	"\x03dns\x18\x16 \x01(\v2\x1a.vm.service.v1.VMFrozenDNSR\x03dns\x12.\n" +
+	"\x12security_group_ids\x18\x17 \x03(\tR\x12security_group_ids\"\\\n" +
 	"\x0fListVMsResponse\x123\n" +
 	"\x05items\x18\x01 \x03(\v2\x1d.vm.service.v1.VirtualMachineR\x05items\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"\xdd\x02\n" +

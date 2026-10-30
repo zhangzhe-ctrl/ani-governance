@@ -94,7 +94,7 @@ func (s *VMService) CreateVM(ctx context.Context, r *view.CreateVMRequest) (*vie
 		return nil, vmInvalid()
 	}
 	d := r.Data
-	intent := &vm.CreateVMData{Name: d.Name, PresetId: d.PresetId, SourceKind: d.SourceKind, MediaKey: d.MediaKey, SystemDiskSizeGb: d.SystemDiskSizeGb, StartAfterCreate: d.StartAfterCreate}
+	intent := &vm.CreateVMData{Name: d.Name, PresetId: d.PresetId, SourceKind: d.SourceKind, MediaKey: d.MediaKey, SystemDiskSizeGb: d.SystemDiskSizeGb, StartAfterCreate: d.StartAfterCreate, SecurityGroupIds: append([]string(nil), d.SecurityGroupIds...)}
 	if d.Dns != nil {
 		var err error
 		intent.Dns, err = vm.NormalizeDNSSelection(&vm.DNSSelection{Mode: d.Dns.Mode, Nameservers: d.Dns.Nameservers})
@@ -301,6 +301,9 @@ func validVMChange(d *view.ChangeVMData, action string) bool {
 	if d == nil || !canonicalCatalogUUID(d.VmId) || !canonicalCatalogUUID(d.IdempotencyKey) || d.ExpectedVersion < 1 {
 		return false
 	}
+	if len(d.SecurityGroupIds) != 0 && action != "set-security-groups" {
+		return false
+	}
 	if d.DestructiveConfirmation && action != "force-stop" && action != "restore-snapshot" {
 		return false
 	}
@@ -336,6 +339,8 @@ func validVMChange(d *view.ChangeVMData, action string) bool {
 func vmChangeIntent(tenant, action string, d *view.ChangeVMData) proto.Message {
 	base := &vm.ChangeVMRequest{TenantId: tenant, VmId: d.VmId, IdempotencyKey: d.IdempotencyKey, ExpectedVersion: d.ExpectedVersion}
 	switch action {
+	case "set-security-groups":
+		return &vm.SetSecurityGroupsRequest{TenantId: tenant, VmId: d.VmId, IdempotencyKey: d.IdempotencyKey, ExpectedVersion: d.ExpectedVersion, SecurityGroupIds: append([]string(nil), d.SecurityGroupIds...)}
 	case "start", "stop", "restart":
 		return base
 	case "force-stop":
@@ -396,6 +401,9 @@ func (s *VMService) change(ctx context.Context, r *view.ChangeVMRequest, action 
 	out := new(view.VMOperation)
 	err = vmWire(result, out)
 	return out, err
+}
+func (s *VMService) SetVMSecurityGroups(c context.Context, r *view.ChangeVMRequest) (*view.VMOperation, error) {
+	return s.change(c, r, "set-security-groups")
 }
 func (s *VMService) StartVM(c context.Context, r *view.ChangeVMRequest) (*view.VMOperation, error) {
 	return s.change(c, r, "start")

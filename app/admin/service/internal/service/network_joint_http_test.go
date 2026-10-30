@@ -114,6 +114,12 @@ func TestNetworkJointHTTP(t *testing.T) {
 		_, err = fixtureDB.ExecContext(ctx, string(seed))
 		require.NoError(t, err)
 	}
+	securityGroupSeed, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "..", "scripts", "ops", "sql", "register-security-group-permissions.sql"))
+	require.NoError(t, err)
+	for i := 0; i < 2; i++ {
+		_, err = fixtureDB.ExecContext(ctx, string(securityGroupSeed))
+		require.NoError(t, err)
+	}
 	count, err := client.RolePermission.Query().Count(sys)
 	require.NoError(t, err)
 	require.Zero(t, count, "catalog import must not grant roles")
@@ -235,6 +241,9 @@ func TestNetworkJointHTTP(t *testing.T) {
 		if combined, ok := out["load_balancer"].(map[string]any); ok {
 			resource = combined
 		}
+		if combined, ok := out["security_group"].(map[string]any); ok {
+			resource = combined
+		}
 		resourceID, _ := resource["id"].(string)
 		if resourceID == "" {
 			return
@@ -256,6 +265,9 @@ func TestNetworkJointHTTP(t *testing.T) {
 			resourcePath = path + "/" + resourceID
 		case path == "/api/v1/networks/subnets":
 			kind = "subnet"
+			resourcePath = path + "/" + resourceID
+		case path == "/api/v1/networks/security-groups":
+			kind = "security-group"
 			resourcePath = path + "/" + resourceID
 		case path == "/api/v1/networks/eips":
 			kind = "eip"
@@ -327,7 +339,7 @@ func TestNetworkJointHTTP(t *testing.T) {
 			return response.StatusCode, out, err
 		}
 		deadline := time.Now().Add(40 * time.Second)
-		for _, kind := range []string{"load-balancer", "snat", "subnet", "eip", "vpc", "platform-default-egress", "platform-pool", "platform-vlan", "platform-gateway", "platform-switch"} {
+		for _, kind := range []string{"load-balancer", "snat", "subnet", "eip", "security-group", "vpc", "platform-default-egress", "platform-pool", "platform-vlan", "platform-gateway", "platform-switch"} {
 			for resourceID, resource := range admitted[kind] {
 				finished := false
 				lastStatus := 0
@@ -419,6 +431,8 @@ func TestNetworkJointHTTP(t *testing.T) {
 		if operationID, _ := last["last_operation_id"].(string); operationID != "" {
 			operationBase := "/api/v1/networks/operations/"
 			switch {
+			case strings.HasPrefix(path, "/api/v1/networks/security-groups/"):
+				operationBase = "/api/v1/networks/security-groups/operations/"
 			case strings.HasPrefix(path, "/api/v1/networks/load-balancers/"):
 				operationBase = "/api/v1/networks/load-balancers/operations/"
 			case strings.HasPrefix(path, "/api/v1/admin/networks/"):
@@ -493,6 +507,155 @@ func TestNetworkJointHTTP(t *testing.T) {
 		return count
 	}
 	const base = "/api/v1/networks"
+
+	t.Run("security_groups", func(t *testing.T) {
+		// This route uses the real authentication, Casbin/plan gate, tenant
+		// resolver, mTLS client, Resource service, PostgreSQL and SG worker.
+		// Only the Kubernetes/controller side belongs to the external fixture.
+		const groupsPath = base + "/security-groups"
+		// Worker leases can briefly exclude admission. Retry only its explicit
+		// transient RESOURCE_BUSY response with the exact same command/key;
+		// stale versions and all other preconditions remain terminal assertions.
+		request := func(t *testing.T, id identity, method, path, body string, mutate func(*http.Request), want int) map[string]any {
+			t.Helper()
+			deadline := time.Now().Add(5 * time.Second)
+			for {
+				status, out := send(t, id, method, path, body, mutate)
+				if status == 412 && out["reason"] == "RESOURCE_BUSY" && time.Now().Before(deadline) {
+					time.Sleep(40 * time.Millisecond)
+					continue
+				}
+				require.Equal(t, want, status, "%s %s response=%v", method, path, out)
+				return out
+			}
+		}
+		createBody := `{"data":{"name":"joint-security-group","description":"real BFF persistent SG","idempotency_key":"joint-security-group-create"}}`
+		admissionRows := func() int {
+			var count int
+			require.NoError(t, peer.DB.QueryRowContext(ctx, `SELECT (SELECT count(*) FROM network_security_groups)+(SELECT count(*) FROM network_security_group_operations)+(SELECT count(*) FROM network_security_group_idempotency)+(SELECT count(*) FROM network_security_group_targets)+(SELECT count(*) FROM network_security_group_references)`).Scan(&count))
+			return count
+		}
+		before := admissionRows()
+		request(t, identity{}, "POST", groupsPath, createBody, nil, 401)
+		request(t, identity{bearer: readerToken}, "POST", groupsPath, createBody, nil, 403)
+		require.Equal(t, before, admissionRows(), "auth denial must precede all persistent admissions")
+		accepted := request(t, jwtIdentity, "POST", groupsPath, createBody, nil, 200)
+		group := accepted["security_group"].(map[string]any)
+		groupID := group["id"].(string)
+		path := groupsPath + "/" + groupID
+		require.Equal(t, "1", group["version"])
+		defaults := group["rules"].([]any)
+		require.Len(t, defaults, 1)
+		defaultRule := defaults[0].(map[string]any)
+		require.Equal(t, "sgr_default_ingress_drop", defaultRule["id"])
+		require.Equal(t, true, defaultRule["is_default"])
+		require.Equal(t, "ingress", defaultRule["direction"])
+		require.Equal(t, "all", defaultRule["protocol"])
+		require.Equal(t, "drop", defaultRule["action"])
+		require.Equal(t, float64(1), defaultRule["priority"])
+		group = poll(t, akIdentity, path, state("available"))
+		operationPath := groupsPath + "/operations/" + accepted["operation"].(map[string]any)["id"].(string)
+		poll(t, jwtIdentity, operationPath, state("succeeded"))
+		assertPersisted(t, "network_security_groups", "security_group_id", groupID, peer.TenantID, "available")
+		page := get(t, akIdentity, groupsPath+"?name=joint-security-group&page=1&pageSize=1")
+		require.Equal(t, "1", page["total"])
+		require.Len(t, page["items"], 1)
+		emptyPage := get(t, jwtIdentity, groupsPath+"?name=joint-security-group&page=2&pageSize=1")
+		require.Equal(t, "1", emptyPage["total"])
+		require.Equal(t, []any{}, emptyPage["items"])
+		foreign := identity{bearer: otherToken}
+		denied := request(t, foreign, "GET", path, "", nil, 404)
+		missing := request(t, jwtIdentity, "GET", groupsPath+"/sg_ffffffffffffffffffffffffffffffff", "", nil, 404)
+		require.Equal(t, missing["reason"], denied["reason"])
+		request(t, foreign, "GET", operationPath, "", nil, 404)
+		rulesPath := path + "/rules"
+		rules := get(t, akIdentity, rulesPath+"?direction=ingress&page=1&pageSize=10")
+		require.Equal(t, "1", rules["total"])
+		require.Equal(t, "1", rules["version"])
+		request(t, akIdentity, "DELETE", rulesPath+"/sgr_default_ingress_drop", "", nil, 400)
+		reservedPriority := `{"data":{"rule":{"direction":"ingress","protocol":"all","action":"allow","priority":1},"expected_version":"1","idempotency_key":"reserved-priority"}}`
+		request(t, jwtIdentity, "POST", rulesPath, reservedPriority, nil, 400)
+		createRule := `{"data":{"rule":{"direction":"ingress","protocol":"tcp","remote_addresses":["192.0.2.0/24"],"port_ranges":[{"min":443,"max":443}],"action":"allow","priority":3000,"description":"TLS"},"expected_version":"1","idempotency_key":"joint-sg-rule-create"}}`
+		ruleAccepted := request(t, akIdentity, "POST", rulesPath, createRule, nil, 200)
+		ruleID := ruleAccepted["rule"].(map[string]any)["id"].(string)
+		require.Equal(t, "2", ruleAccepted["security_group"].(map[string]any)["version"])
+		poll(t, jwtIdentity, path, state("available"))
+		// The original accepted receipt is immutable after a subsequent edit.
+		require.Equal(t, accepted, request(t, akIdentity, "POST", groupsPath, createBody, nil, 200))
+		staleRule := strings.Replace(createRule, "joint-sg-rule-create", "joint-sg-rule-stale", 1)
+		require.Equal(t, "VERSION_CONFLICT", request(t, jwtIdentity, "POST", rulesPath, staleRule, nil, 412)["reason"])
+		updateRule := `{"data":{"rule":{"direction":"ingress","protocol":"tcp","remote_addresses":["192.0.2.0/24"],"port_ranges":[{"min":8443,"max":8443}],"action":"allow","priority":3500},"expected_version":"2","idempotency_key":"joint-sg-rule-update"}}`
+		updated := request(t, jwtIdentity, "PATCH", rulesPath+"/"+ruleID, updateRule, nil, 200)
+		require.Equal(t, "3", updated["security_group"].(map[string]any)["version"])
+		poll(t, akIdentity, path, state("available"))
+		removed := request(t, akIdentity, "DELETE", rulesPath+"/"+ruleID, "", nil, 200)
+		require.Equal(t, "4", removed["security_group"].(map[string]any)["version"])
+		group = poll(t, jwtIdentity, path, state("available"))
+		require.Len(t, group["rules"], 1)
+		vpc := request(t, jwtIdentity, "POST", base+"/vpcs", `{"name":"joint-security-vpc","cidr":"10.61.0.0/16","idempotency_key":"joint-security-vpc"}`, nil, 200)
+		vpcID := vpc["id"].(string)
+		poll(t, jwtIdentity, base+"/vpcs/"+vpcID, state("available"))
+		eip := request(t, jwtIdentity, "POST", base+"/eips", `{"name":"joint-security-eip","idempotency_key":"joint-security-eip"}`, nil, 200)
+		eipID := eip["id"].(string)
+		eipPath := base + "/eips/" + eipID
+		poll(t, jwtIdentity, eipPath, state("available"))
+		bindingPath := eipPath + "/security-groups"
+		binding := get(t, jwtIdentity, bindingPath)["binding"].(map[string]any)
+		require.Equal(t, "1", binding["version"])
+		require.Equal(t, []any{}, binding["security_group_ids"])
+		setBody := fmt.Sprintf(`{"data":{"security_group_ids":[%q],"expected_version":"1","idempotency_key":"joint-eip-security-set"}}`, groupID)
+		set := request(t, akIdentity, "PUT", bindingPath, setBody, nil, 200)
+		require.Equal(t, "2", set["binding"].(map[string]any)["version"])
+		require.Equal(t, set, request(t, akIdentity, "PUT", bindingPath, setBody, nil, 200))
+		binding = poll(t, jwtIdentity, bindingPath, func(out map[string]any) bool {
+			return out["binding"].(map[string]any)["state"] == "waiting_for_binding"
+		})["binding"].(map[string]any)
+		require.Equal(t, []any{}, binding["applied_security_group_ids"], "unbound EIP has persisted intent but no traffic application")
+		var bindingVersion int64
+		require.NoError(t, peer.DB.QueryRowContext(ctx, `SELECT version FROM network_security_group_targets WHERE tenant_id=$1 AND target_type='eip' AND target_id=$2`, peer.TenantID, eipID).Scan(&bindingVersion))
+		require.Equal(t, int64(2), bindingVersion)
+		var actor, caller string
+		require.NoError(t, peer.DB.QueryRowContext(ctx, `SELECT actor_ref,caller_ref FROM network_security_group_operations WHERE tenant_id=$1 AND operation_id=$2`, peer.TenantID, set["operation"].(map[string]any)["id"]).Scan(&actor, &caller))
+		require.Equal(t, fmt.Sprintf("governance:access-key:%d", publisherAK.ID), actor)
+		require.Equal(t, "ani-governance", caller)
+		request(t, jwtIdentity, "DELETE", path, "", nil, 412)
+		request(t, foreign, "GET", bindingPath, "", nil, 404)
+		staleSet := strings.Replace(setBody, "joint-eip-security-set", "joint-eip-security-stale", 1)
+		require.Equal(t, "VERSION_CONFLICT", request(t, jwtIdentity, "PUT", bindingPath, staleSet, nil, 412)["reason"])
+		snat := request(t, jwtIdentity, "POST", base+"/vpcs/"+vpcID+"/snat/bindings", fmt.Sprintf(`{"eip_id":%q,"idempotency_key":"joint-security-snat"}`, eipID), nil, 200)
+		snatID := snat["id"].(string)
+		poll(t, jwtIdentity, base+"/snat/bindings/"+snatID, func(out map[string]any) bool { return out["state"] == "available" && out["applied_enabled"] == true })
+		binding = poll(t, akIdentity, bindingPath, func(out map[string]any) bool { return out["binding"].(map[string]any)["state"] == "applied" })["binding"].(map[string]any)
+		require.Equal(t, []any{groupID}, binding["applied_security_group_ids"])
+		poll(t, jwtIdentity, groupsPath+"/operations/"+set["operation"].(map[string]any)["id"].(string), state("succeeded"))
+		bindings := get(t, akIdentity, path+"/bindings?target_type=eip&page=1&pageSize=10")
+		require.Equal(t, "1", bindings["total"])
+		require.Equal(t, eipID, bindings["items"].([]any)[0].(map[string]any)["target_id"])
+		require.Equal(t, "1", get(t, jwtIdentity, path)["bound_resource_count"])
+		cleared := request(t, jwtIdentity, "PUT", bindingPath, `{"data":{"security_group_ids":[],"expected_version":"2","idempotency_key":"joint-eip-security-clear"}}`, nil, 200)
+		require.Equal(t, "3", cleared["binding"].(map[string]any)["version"])
+		binding = poll(t, akIdentity, bindingPath, func(out map[string]any) bool {
+			v := out["binding"].(map[string]any)
+			return v["state"] == "applied" && len(v["applied_security_group_ids"].([]any)) == 0
+		})["binding"].(map[string]any)
+		require.Equal(t, []any{}, binding["security_group_ids"])
+		require.Equal(t, "0", get(t, jwtIdentity, path+"/bindings")["total"])
+		deleted := request(t, akIdentity, "DELETE", path, "", nil, 200)
+		poll(t, jwtIdentity, path, state("deleted"))
+		poll(t, jwtIdentity, groupsPath+"/operations/"+deleted["operation"].(map[string]any)["id"].(string), state("succeeded"))
+		request(t, jwtIdentity, "DELETE", base+"/snat/bindings/"+snatID, "", nil, 200)
+		poll(t, jwtIdentity, base+"/snat/bindings/"+snatID, state("deleted"))
+		request(t, jwtIdentity, "DELETE", eipPath, "", nil, 200)
+		poll(t, jwtIdentity, eipPath, state("deleted"))
+		request(t, jwtIdentity, "DELETE", base+"/vpcs/"+vpcID, "", nil, 200)
+		poll(t, jwtIdentity, base+"/vpcs/"+vpcID, state("deleted"))
+		require.Equal(t, "0", get(t, jwtIdentity, groupsPath+"?name=joint-security-group")["total"])
+		var references int
+		require.NoError(t, peer.DB.QueryRowContext(ctx, `SELECT count(*) FROM network_security_group_references WHERE tenant_id=$1 AND security_group_id=$2 AND NOT released`, peer.TenantID, groupID).Scan(&references))
+		require.Zero(t, references)
+		t.Log("real Gov HTTP auth/Casbin/plan -> mTLS Resource -> PostgreSQL SG/operation/version/reference -> durable worker lifecycle PASS; KCN controller and packet enforcement remain external-boundary acceptance")
+	})
+
 	t.Run("vpc_pages", func(t *testing.T) {
 		ids := []string{}
 		for i := 0; i < 7; i++ {

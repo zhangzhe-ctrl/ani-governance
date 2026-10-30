@@ -288,7 +288,7 @@ func (s *InstanceService) CreateInstance(ctx context.Context, r *view.CreateInst
 			scheduling.PodPlacement = &value
 		}
 	}
-	business := &res.CreateInstanceData{Name: d.Name, ImageId: d.ImageId, ImageScope: d.ImageScope, PresetId: d.PresetId, Scheduling: scheduling, WorkspaceMountPath: d.WorkspaceMountPath, Labels: d.Labels, Annotations: d.Annotations}
+	business := &res.CreateInstanceData{Name: d.Name, ImageId: d.ImageId, ImageScope: d.ImageScope, PresetId: d.PresetId, Scheduling: scheduling, WorkspaceMountPath: d.WorkspaceMountPath, Labels: d.Labels, Annotations: d.Annotations, SecurityGroupIds: append([]string(nil), d.SecurityGroupIds...)}
 	for _, mount := range d.VolumeMounts {
 		if mount == nil {
 			return nil, quota.ErrorInvalidQuotaRequest("%s", "invalid volume mount")
