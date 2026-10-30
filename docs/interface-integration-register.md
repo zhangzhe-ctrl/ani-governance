@@ -186,6 +186,10 @@ HTTP 方法、字段、签名与请求限制以 [Network 路由输入](../api/pr
 
 HTTP 成功表示 Resource 返回了持久资源或受理快照；资源生命周期与 operation 结果分别查询。SNAT 的 `desired_enabled` 与可选 `applied_enabled` 保留期望、实际观测和未知状态，解绑保留独立 EIP。LB 的 `state/configuration_state/data_plane_state` 与 `desired_version/provider_target_version/applied_version`、监听器只读部署事实、观测时间分别保留，不能把受理、配置完成或 operation 成功解释为流量健康；删除结果仍含资源与 operation，并由 Resource 释放关联、保留独立 EIP 和工作负载。公开错误保留 Resource 的领域 reason 和适当 HTTP 码，不暴露下游私有错误详情。
 
+VPC 列表与详情的可选 `public_egress` 来自 Resource 同一读取快照，保留 `binding_id/eip_id/eip_address/binding_state`、绑定生命周期和 `desired_enabled/applied_enabled`，没有关联时为空。公网出口绑定及重新启用不要求先创建或绑定 Intranet 基础出口；已有基础出口的生命周期保持独立。EIP 的 `binding_state` 表示占用关联，`binding_target.id` 仍是绑定 ID，新增 `binding_target.vpc_id` 供跳转到所属 VPC。禁用、应用中和删除中的关联继续展示，不能从 `state=available` 推断未绑定。
+
+NET-08 `CreateEIP` 增加可选 `security_group_ids`，随同一次 Resource 创建命令持久受理，禁止 BFF 创建后再串联设置安全组造成部分成功。创建仍用既有平铺 JSON 对象并保留原幂等键；安全组替换/清空复用 NET-SG 的 `PUT /api/v1/networks/eips/{eip_id}/security-groups`，保留版本、幂等、可信租户、权限和 NETWORK 套餐约束。
+
 平台 Network 27 方法、Attachment 四个方法、ImageRuntime 两个方法和实例 owner 的 GetSubmission 不属于此租户 HTTP/AK 接入范围。
 
 ### 十个既有单对象响应展开

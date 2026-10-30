@@ -595,14 +595,30 @@ func TestNetworkJointHTTP(t *testing.T) {
 		vpc := request(t, jwtIdentity, "POST", base+"/vpcs", `{"name":"joint-security-vpc","cidr":"10.61.0.0/16","idempotency_key":"joint-security-vpc"}`, nil, 200)
 		vpcID := vpc["id"].(string)
 		poll(t, jwtIdentity, base+"/vpcs/"+vpcID, state("available"))
-		eip := request(t, jwtIdentity, "POST", base+"/eips", `{"name":"joint-security-eip","idempotency_key":"joint-security-eip"}`, nil, 200)
+		if os.Getenv("NETWORK_JOINT_WITHOUT_NEW_VPC_BASE") == "1" {
+			require.Equal(t, "true", peer.NewVPCBaseDisabled, "dedicated no-base scenario must configure the Resource fixture")
+		}
+		if peer.NewVPCBaseDisabled == "true" {
+			var baseAssociations int
+			require.NoError(t, peer.DB.QueryRowContext(ctx, `SELECT count(*) FROM network_vpc_base_connectivity WHERE tenant_id=$1 AND vpc_id=$2`, peer.TenantID, vpcID).Scan(&baseAssociations))
+			require.Zero(t, baseAssociations, "this VPC must have no Intranet base EIP/SNAT")
+		}
+		initialAccepted := request(t, akIdentity, "POST", groupsPath, `{"data":{"name":"joint-eip-initial-group","idempotency_key":"joint-eip-initial-group"}}`, nil, 200)
+		initialGroupID := initialAccepted["security_group"].(map[string]any)["id"].(string)
+		initialGroupPath := groupsPath + "/" + initialGroupID
+		poll(t, jwtIdentity, initialGroupPath, state("available"))
+		eipBody := fmt.Sprintf(`{"name":"joint-security-eip","idempotency_key":"joint-security-eip","security_group_ids":[%q]}`, initialGroupID)
+		eip := request(t, jwtIdentity, "POST", base+"/eips", eipBody, nil, 200)
 		eipID := eip["id"].(string)
 		eipPath := base + "/eips/" + eipID
 		poll(t, jwtIdentity, eipPath, state("available"))
+		require.Equal(t, eip, request(t, akIdentity, "POST", base+"/eips", eipBody, nil, 200), "initial SG intent must share the durable EIP create receipt")
+		request(t, jwtIdentity, "POST", base+"/eips", strings.Replace(eipBody, initialGroupID, groupID, 1), nil, 409)
 		bindingPath := eipPath + "/security-groups"
 		binding := get(t, jwtIdentity, bindingPath)["binding"].(map[string]any)
 		require.Equal(t, "1", binding["version"])
-		require.Equal(t, []any{}, binding["security_group_ids"])
+		require.Equal(t, []any{initialGroupID}, binding["security_group_ids"])
+		request(t, jwtIdentity, "DELETE", initialGroupPath, "", nil, 412)
 		setBody := fmt.Sprintf(`{"data":{"security_group_ids":[%q],"expected_version":"1","idempotency_key":"joint-eip-security-set"}}`, groupID)
 		set := request(t, akIdentity, "PUT", bindingPath, setBody, nil, 200)
 		require.Equal(t, "2", set["binding"].(map[string]any)["version"])
@@ -624,9 +640,54 @@ func TestNetworkJointHTTP(t *testing.T) {
 		require.Equal(t, "VERSION_CONFLICT", request(t, jwtIdentity, "PUT", bindingPath, staleSet, nil, 412)["reason"])
 		snat := request(t, jwtIdentity, "POST", base+"/vpcs/"+vpcID+"/snat/bindings", fmt.Sprintf(`{"eip_id":%q,"idempotency_key":"joint-security-snat"}`, eipID), nil, 200)
 		snatID := snat["id"].(string)
-		poll(t, jwtIdentity, base+"/snat/bindings/"+snatID, func(out map[string]any) bool { return out["state"] == "available" && out["applied_enabled"] == true })
+		snatPath := base + "/snat/bindings/" + snatID
+		poll(t, jwtIdentity, snatPath, func(out map[string]any) bool { return out["state"] == "available" && out["applied_enabled"] == true })
+		assertAssociation := func(enabled bool) {
+			t.Helper()
+			v := poll(t, jwtIdentity, base+"/vpcs/"+vpcID, func(out map[string]any) bool {
+				e, ok := out["public_egress"].(map[string]any)
+				return ok && e["binding_id"] == snatID && e["binding_state"] == "bound" && e["applied_enabled"] == enabled
+			})["public_egress"].(map[string]any)
+			require.Equal(t, eipID, v["eip_id"])
+			require.Equal(t, enabled, v["desired_enabled"])
+			require.NotEmpty(t, v["eip_address"])
+			page := get(t, akIdentity, base+"/vpcs?name=joint-security-vpc&page=1&pageSize=10")
+			require.Equal(t, snatID, page["items"].([]any)[0].(map[string]any)["public_egress"].(map[string]any)["binding_id"])
+			e := get(t, akIdentity, eipPath)
+			require.Equal(t, "bound", e["binding_state"])
+			require.Equal(t, vpcID, e["binding_target"].(map[string]any)["vpc_id"])
+			require.Equal(t, snatID, e["binding_target"].(map[string]any)["id"])
+			eips := get(t, jwtIdentity, base+"/eips?name=joint-security-eip&limit=10")
+			require.Equal(t, "1", eips["total"])
+			listed := eips["items"].([]any)[0].(map[string]any)
+			require.Equal(t, "bound", listed["binding_state"])
+			require.Equal(t, vpcID, listed["binding_target"].(map[string]any)["vpc_id"])
+		}
+		assertAssociation(true)
+		for _, enabled := range []bool{false, true} {
+			// SNAT and address observations converge independently. Toggling
+			// still requires the public EIP's own current readiness.
+			poll(t, jwtIdentity, eipPath, state("available"))
+			deadline := time.Now().Add(5 * time.Second)
+			for {
+				current := get(t, jwtIdentity, snatPath)
+				body := fmt.Sprintf(`{"enabled":%t,"expected_version":%q,"idempotency_key":"joint-security-toggle-%t"}`, enabled, current["version"], enabled)
+				code, out := send(t, jwtIdentity, "PATCH", snatPath, body, nil)
+				if code == 412 && (out["reason"] == "RESOURCE_BUSY" || out["reason"] == "VERSION_CONFLICT") && time.Now().Before(deadline) {
+					time.Sleep(40 * time.Millisecond)
+					continue
+				}
+				require.Equal(t, 200, code, "toggle response=%v", out)
+				break
+			}
+			poll(t, jwtIdentity, snatPath, func(out map[string]any) bool { return out["state"] == "available" && out["applied_enabled"] == enabled })
+			assertAssociation(enabled)
+		}
 		binding = poll(t, akIdentity, bindingPath, func(out map[string]any) bool { return out["binding"].(map[string]any)["state"] == "applied" })["binding"].(map[string]any)
 		require.Equal(t, []any{groupID}, binding["applied_security_group_ids"])
+		poll(t, jwtIdentity, initialGroupPath+"/bindings", func(out map[string]any) bool { return out["total"] == "0" })
+		request(t, jwtIdentity, "DELETE", initialGroupPath, "", nil, 200)
+		poll(t, jwtIdentity, initialGroupPath, state("deleted"))
 		poll(t, jwtIdentity, groupsPath+"/operations/"+set["operation"].(map[string]any)["id"].(string), state("succeeded"))
 		bindings := get(t, akIdentity, path+"/bindings?target_type=eip&page=1&pageSize=10")
 		require.Equal(t, "1", bindings["total"])
@@ -645,6 +706,9 @@ func TestNetworkJointHTTP(t *testing.T) {
 		poll(t, jwtIdentity, groupsPath+"/operations/"+deleted["operation"].(map[string]any)["id"].(string), state("succeeded"))
 		request(t, jwtIdentity, "DELETE", base+"/snat/bindings/"+snatID, "", nil, 200)
 		poll(t, jwtIdentity, base+"/snat/bindings/"+snatID, state("deleted"))
+		unbound := poll(t, jwtIdentity, eipPath, func(out map[string]any) bool { return out["binding_state"] == "unbound" })
+		require.Nil(t, unbound["binding_target"])
+		require.Nil(t, get(t, jwtIdentity, base+"/vpcs/"+vpcID)["public_egress"])
 		request(t, jwtIdentity, "DELETE", eipPath, "", nil, 200)
 		poll(t, jwtIdentity, eipPath, state("deleted"))
 		request(t, jwtIdentity, "DELETE", base+"/vpcs/"+vpcID, "", nil, 200)

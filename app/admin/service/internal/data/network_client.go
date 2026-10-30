@@ -188,13 +188,13 @@ func (c *NetworkClient) ListEIPs(ctx context.Context, tenant, actor string, name
 	})
 }
 
-func (c *NetworkClient) CreateEIP(ctx context.Context, tenant, actor string, name, description, idempotencyKey string) (*networkv1.CreateEIPResponse, error) {
+func (c *NetworkClient) CreateEIP(ctx context.Context, tenant, actor string, name, description, idempotencyKey string, securityGroupIDs []string) (*networkv1.CreateEIPResponse, error) {
 	tc, err := c.trusted(tenant, actor)
 	if err != nil {
 		return nil, err
 	}
 	return outCall(c, ctx, tc, func(ctx context.Context) (*networkv1.CreateEIPResponse, error) {
-		return c.egress.CreateEIP(ctx, &networkv1.CreateEIPRequest{TargetTenantId: tc.tenant, Name: name, Description: description, IdempotencyKey: idempotencyKey})
+		return c.egress.CreateEIP(ctx, &networkv1.CreateEIPRequest{TargetTenantId: tc.tenant, Name: name, Description: description, IdempotencyKey: idempotencyKey, SecurityGroupIds: append([]string(nil), securityGroupIDs...)})
 	})
 }
 
