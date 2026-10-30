@@ -9019,7 +9019,7 @@ paths:
             tags:
                 - InstanceService
             description: |-
-                创建使用服务器固定的当前配置合同 2；可选配置省略时正常解析默认值。
+                创建使用统一的容器配置；可选配置省略时正常解析默认值。
                  新建维护闸门关闭返回 503 INSTANCE_CREATE_DISABLED，同键重放不受影响。
             operationId: InstanceService_CreateInstance
             requestBody:
@@ -18430,10 +18430,6 @@ components:
             properties:
                 instance_id:
                     type: string
-                instance_contract_version:
-                    type: integer
-                    description: 服务器保存的当前配置合同版本，固定为 2。
-                    format: uint32
                 workspace_mount_path:
                     type: string
                 volume_mounts:

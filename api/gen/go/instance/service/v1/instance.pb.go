@@ -1558,22 +1558,20 @@ func (x *ListMountablePVCsResponse) GetTotal() int64 {
 }
 
 type InstanceConfiguration struct {
-	state      protoimpl.MessageState `protogen:"open.v1"`
-	InstanceId string                 `protobuf:"bytes,1,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
-	// 服务器保存的当前配置合同版本，固定为 2。
-	InstanceContractVersion uint32              `protobuf:"varint,2,opt,name=instance_contract_version,proto3" json:"instance_contract_version,omitempty"`
-	WorkspaceMountPath      string              `protobuf:"bytes,3,opt,name=workspace_mount_path,proto3" json:"workspace_mount_path,omitempty"`
-	VolumeMounts            []*VolumeMount      `protobuf:"bytes,4,rep,name=volume_mounts,proto3" json:"volume_mounts,omitempty"`
-	Network                 *NetworkSelection   `protobuf:"bytes,5,opt,name=network,proto3" json:"network,omitempty"`
-	Labels                  map[string]string   `protobuf:"bytes,6,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Annotations             map[string]string   `protobuf:"bytes,7,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Env                     []*InstanceEnvVar   `protobuf:"bytes,8,rep,name=env,proto3" json:"env,omitempty"`
-	Version                 int64               `protobuf:"varint,9,opt,name=version,proto3" json:"version,omitempty"`
-	AppliedMountVersion     int64               `protobuf:"varint,10,opt,name=applied_mount_version,proto3" json:"applied_mount_version,omitempty"`
-	PendingChange           *PendingMountChange `protobuf:"bytes,11,opt,name=pending_change,proto3" json:"pending_change,omitempty"`
-	SecurityGroupIds        []string            `protobuf:"bytes,12,rep,name=security_group_ids,proto3" json:"security_group_ids,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	InstanceId          string                 `protobuf:"bytes,1,opt,name=instance_id,proto3" json:"instance_id,omitempty"`
+	WorkspaceMountPath  string                 `protobuf:"bytes,3,opt,name=workspace_mount_path,proto3" json:"workspace_mount_path,omitempty"`
+	VolumeMounts        []*VolumeMount         `protobuf:"bytes,4,rep,name=volume_mounts,proto3" json:"volume_mounts,omitempty"`
+	Network             *NetworkSelection      `protobuf:"bytes,5,opt,name=network,proto3" json:"network,omitempty"`
+	Labels              map[string]string      `protobuf:"bytes,6,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Annotations         map[string]string      `protobuf:"bytes,7,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Env                 []*InstanceEnvVar      `protobuf:"bytes,8,rep,name=env,proto3" json:"env,omitempty"`
+	Version             int64                  `protobuf:"varint,9,opt,name=version,proto3" json:"version,omitempty"`
+	AppliedMountVersion int64                  `protobuf:"varint,10,opt,name=applied_mount_version,proto3" json:"applied_mount_version,omitempty"`
+	PendingChange       *PendingMountChange    `protobuf:"bytes,11,opt,name=pending_change,proto3" json:"pending_change,omitempty"`
+	SecurityGroupIds    []string               `protobuf:"bytes,12,rep,name=security_group_ids,proto3" json:"security_group_ids,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *InstanceConfiguration) Reset() {
@@ -1611,13 +1609,6 @@ func (x *InstanceConfiguration) GetInstanceId() string {
 		return x.InstanceId
 	}
 	return ""
-}
-
-func (x *InstanceConfiguration) GetInstanceContractVersion() uint32 {
-	if x != nil {
-		return x.InstanceContractVersion
-	}
-	return 0
 }
 
 func (x *InstanceConfiguration) GetWorkspaceMountPath() string {
@@ -4453,10 +4444,9 @@ const file_instance_service_v1_instance_proto_rawDesc = "" +
 	"_page_size\"j\n" +
 	"\x19ListMountablePVCsResponse\x127\n" +
 	"\x05items\x18\x01 \x03(\v2!.instance.service.v1.MountablePVCR\x05items\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"\xe6\x06\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\xc9\x06\n" +
 	"\x15InstanceConfiguration\x12 \n" +
-	"\vinstance_id\x18\x01 \x01(\tR\vinstance_id\x12<\n" +
-	"\x19instance_contract_version\x18\x02 \x01(\rR\x19instance_contract_version\x122\n" +
+	"\vinstance_id\x18\x01 \x01(\tR\vinstance_id\x122\n" +
 	"\x14workspace_mount_path\x18\x03 \x01(\tR\x14workspace_mount_path\x12F\n" +
 	"\rvolume_mounts\x18\x04 \x03(\v2 .instance.service.v1.VolumeMountR\rvolume_mounts\x12?\n" +
 	"\anetwork\x18\x05 \x01(\v2%.instance.service.v1.NetworkSelectionR\anetwork\x12N\n" +
@@ -4473,7 +4463,7 @@ const file_instance_service_v1_instance_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
 	"\x10AnnotationsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\\\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x02\x10\x03R\x19instance_contract_version\"\\\n" +
 	"\x12MountConfiguration\x12F\n" +
 	"\rvolume_mounts\x18\x01 \x03(\v2 .instance.service.v1.VolumeMountR\rvolume_mounts\"\xd3\x01\n" +
 	"\x12PendingMountChange\x12\"\n" +

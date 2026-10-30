@@ -66,7 +66,7 @@ type InstanceServiceClient interface {
 	// HTTP is a dedicated SSE handler. OpenAPI is supplied by the source
 	// postprocessor rather than representing this stream as a unary JSON reply.
 	StreamInstanceLogs(ctx context.Context, in *v1.InstanceLogsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1.InstanceLogFrame], error)
-	// 创建使用服务器固定的当前配置合同 2；可选配置省略时正常解析默认值。
+	// 创建使用统一的容器配置；可选配置省略时正常解析默认值。
 	// 新建维护闸门关闭返回 503 INSTANCE_CREATE_DISABLED，同键重放不受影响。
 	CreateInstance(ctx context.Context, in *v1.CreateInstanceRequest, opts ...grpc.CallOption) (*v1.Acceptance, error)
 	SetInstanceSecurityGroups(ctx context.Context, in *v1.SetInstanceSecurityGroupsRequest, opts ...grpc.CallOption) (*v1.Acceptance, error)
@@ -369,7 +369,7 @@ type InstanceServiceServer interface {
 	// HTTP is a dedicated SSE handler. OpenAPI is supplied by the source
 	// postprocessor rather than representing this stream as a unary JSON reply.
 	StreamInstanceLogs(*v1.InstanceLogsRequest, grpc.ServerStreamingServer[v1.InstanceLogFrame]) error
-	// 创建使用服务器固定的当前配置合同 2；可选配置省略时正常解析默认值。
+	// 创建使用统一的容器配置；可选配置省略时正常解析默认值。
 	// 新建维护闸门关闭返回 503 INSTANCE_CREATE_DISABLED，同键重放不受影响。
 	CreateInstance(context.Context, *v1.CreateInstanceRequest) (*v1.Acceptance, error)
 	SetInstanceSecurityGroups(context.Context, *v1.SetInstanceSecurityGroupsRequest) (*v1.Acceptance, error)
