@@ -242,15 +242,27 @@ func TestCountsAndKeys(t *testing.T) {
 		"GET /api/v1/networks/eips/{eip_id}/security-groups":                          {Code: "network:eip:security-groups:get", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
 		"GET /api/v1/networks/security-groups/operations/{operation_id}":              {Code: "network:security-group:operation:get", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
 	}
+	storageStats := map[string]expectation{
+		"GET /api/v1/storage/buckets/{bucket_id}/stats": {Code: "storage:bucket:list", Source: "sql/data/20261030_storage_bucket_stats_permission.sql", BusinessModule: "STORAGE", ScopeKind: "tenant"},
+	}
+	const storageWriteSource = "sql/data/20261029_storage_write_permissions.sql"
+	storageWrites := map[string]expectation{
+		"POST /api/v1/storage/buckets":                                     {Code: "storage:bucket:create", Source: storageWriteSource, BusinessModule: "STORAGE", ScopeKind: "tenant"},
+		"POST /api/v1/storage/buckets/{data.bucket_id}/objects:upload-url": {Code: "storage:object:upload", Source: storageWriteSource, BusinessModule: "STORAGE", ScopeKind: "tenant"},
+		"POST /api/v1/storage/buckets/{data.bucket_id}/objects:delete":     {Code: "storage:object:delete", Source: storageWriteSource, BusinessModule: "STORAGE", ScopeKind: "tenant"},
+	}
 	if want := 227; ManagementCount() != want {
 		t.Errorf("ManagementCount() = %d, want %d", ManagementCount(), want)
 	}
-	if want := 204 - 3 + len(platformComponentReads) + len(platformComponentLogStreams) + len(securityGroupCapabilities); CapabilityCount() != want {
+	// The Sandbox code, file and token APIs add nine capabilities to the
+	// lifecycle-only baseline used by this cross-branch count.
+	const sandboxPhaseTwoCapabilities = 9
+	if want := 204 - 3 + len(platformComponentReads) + len(platformComponentLogStreams) + len(securityGroupCapabilities) + len(storageWrites) + len(storageStats) + sandboxPhaseTwoCapabilities; CapabilityCount() != want {
 		t.Errorf("CapabilityCount() = %d, want %d", CapabilityCount(), want)
 	}
 	keys := AllKeys()
-	if len(keys) != 390-3+len(securityGroupCapabilities) {
-		t.Errorf("AllKeys() = %d, want %d", len(keys), 390-3+len(securityGroupCapabilities))
+	if want := 390 - 3 + len(securityGroupCapabilities) + len(storageWrites) + len(storageStats) + sandboxPhaseTwoCapabilities; len(keys) != want {
+		t.Errorf("AllKeys() = %d, want %d", len(keys), want)
 	}
 	keySet := make(map[string]bool, len(keys))
 	for _, k := range keys {
@@ -263,6 +275,8 @@ func TestCountsAndKeys(t *testing.T) {
 		{"gpu-read-management", gpuSource, managementOperations, gpuReads},
 		{"platform-eip-capability", eipSource, capabilityOperations, platformEIPReadsAndRelease},
 		{"security-group-capability", securityGroupSource, capabilityOperations, securityGroupCapabilities},
+		{"storage-write-capability", storageWriteSource, capabilityOperations, storageWrites},
+		{"storage-stats-capability", "sql/data/20261030_storage_bucket_stats_permission.sql", capabilityOperations, storageStats},
 	} {
 		t.Run(table.name, func(t *testing.T) {
 			actual := make(map[string]expectation)
