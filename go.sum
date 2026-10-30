@@ -264,6 +264,8 @@ github.com/liangzai006/ani-model-service/api v0.0.0-20261028165608-620bcb1503a6 
 github.com/liangzai006/ani-model-service/api v0.0.0-20261028165608-620bcb1503a6/go.mod h1:JsFcJK23M4jXHkXdX9U28lEArWVkp9SS6h2hGroLjIM=
 github.com/liangzai006/ani-resource-service v0.0.0-20261030021042-c6893c669989 h1:HF4gkGTLRk8ZE4OXZ8UAlcofZQ7L8W1rHyoX0P79TzY=
 github.com/liangzai006/ani-resource-service v0.0.0-20261030021042-c6893c669989/go.mod h1:6ZJcttlKHaHiKhdPJ3EZZo66xM4wxrsyK7k5MMdvERg=
+github.com/liangzai006/ani-resource-service v0.0.0-20261030022945-f910c6e711dd h1:jT4IoxtcAJDOSyxRqo16VK37wLvQVQz6sZf2pnBcmTE=
+github.com/liangzai006/ani-resource-service v0.0.0-20261030022945-f910c6e711dd/go.mod h1:6ZJcttlKHaHiKhdPJ3EZZo66xM4wxrsyK7k5MMdvERg=
 github.com/lib/pq v1.12.3 h1:tTWxr2YLKwIvK90ZXEw8GP7UFHtcbTtty8zsI+YjrfQ=
 github.com/lib/pq v1.12.3/go.mod h1:/p+8NSbOcwzAEI7wiMXFlgydTwcgTr3OSKMsD2BitpA=
 github.com/lithammer/shortuuid/v4 v4.3.0 h1:XRr80OYPOlqxgnCv2/iuElkl/ZtXtPtLKk2AvpXGdWA=

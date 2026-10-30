@@ -27,7 +27,7 @@ require (
 	github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20261027163656-86ce81af852a
 	github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261029062749-c99c9f1081c7
 	github.com/zhangzhe-ctrl/ani-observability-service/api v0.1.3-0.20261028072444-5377d534eac6
-	github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261030021042-c6893c669989
+	github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261030022945-f910c6e711dd
 	github.com/zhangzhe-ctrl/ani-resource-service/api/instance/terminal v0.0.0-20261013075021-0937f5aa9c6c
 	github.com/zhangzhe-ctrl/ani-resource-service/api/vm/console v0.0.0-20261023185414-0a53b99c8d9f
 	github.com/zhangzhe-ctrl/ani-session-gateway/api v0.1.1-0.20261024051540-811cc3839244
@@ -208,4 +208,4 @@ require (
 	modernc.org/memory v1.12.1 // indirect
 )
 
-replace github.com/zhangzhe-ctrl/ani-resource-service => github.com/liangzai006/ani-resource-service v0.0.0-20261030021042-c6893c669989
+replace github.com/zhangzhe-ctrl/ani-resource-service => github.com/liangzai006/ani-resource-service v0.0.0-20261030022945-f910c6e711dd
