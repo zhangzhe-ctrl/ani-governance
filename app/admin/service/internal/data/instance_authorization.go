@@ -7,6 +7,7 @@ import (
 	entCrud "go-wind-admin/pkg/localdeps/go-crud/entgo"
 )
 
+const InstanceSecurityGroupsPath = "/api/v1/instances/{data.instance_id}/security-groups"
 const InstanceCreatePath = "/api/v1/instances"
 const InstanceDeletePath = "/api/v1/instances/{data.instance_id}"
 const InstanceStartPath = "/api/v1/instances/{data.instance_id}:start"
@@ -63,6 +64,8 @@ func (r *InstanceAuthorizationRepo) Authorize(ctx context.Context, tenant, user 
 	switch path {
 	case InstanceCreatePath:
 		allowed = method == "POST" || method == "GET"
+	case InstanceSecurityGroupsPath:
+		allowed = method == "PUT"
 	case InstanceDeletePath:
 		allowed = method == "DELETE"
 	case InstanceStartPath, InstanceStopPath, InstanceRestartPath, InstanceAttachPVCPath, InstanceDetachPVCPath, InstanceExecPath, InstanceMetricsQueryPath:

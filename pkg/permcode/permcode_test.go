@@ -223,15 +223,34 @@ func TestCountsAndKeys(t *testing.T) {
 		"POST /api/v1/instances/{data.instance_id}:detach-pvc": {Code: "instance:pvc:detach", Source: instanceRestartPVCSource, BusinessModule: "INSTANCE", ScopeKind: "tenant"},
 		"GET /api/v1/instances/{instance_id}/mountable-pvcs":   {Code: "instance:pvc:attach", Source: instanceRestartPVCSource, BusinessModule: "INSTANCE", ScopeKind: "tenant"},
 	}
+	// main retired three physical-device entries; this slice adds fifteen exact SG grants.
+	const securityGroupSource = "scripts/ops/sql/register-security-group-permissions.sql"
+	securityGroupCapabilities := map[string]expectation{
+		"POST /api/v1/networks/security-groups":                                       {Code: "network:security-group:create", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"GET /api/v1/networks/security-groups/{security_group_id}":                    {Code: "network:security-group:get", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"GET /api/v1/networks/security-groups":                                        {Code: "network:security-group:list", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"PATCH /api/v1/networks/security-groups/{security_group_id}":                  {Code: "network:security-group:update", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"DELETE /api/v1/networks/security-groups/{security_group_id}":                 {Code: "network:security-group:delete", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"GET /api/v1/networks/security-groups/{security_group_id}/rules":              {Code: "network:security-group:rule:list", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"POST /api/v1/networks/security-groups/{security_group_id}/rules":             {Code: "network:security-group:rule:create", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"PATCH /api/v1/networks/security-groups/{security_group_id}/rules/{rule_id}":  {Code: "network:security-group:rule:update", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"DELETE /api/v1/networks/security-groups/{security_group_id}/rules/{rule_id}": {Code: "network:security-group:rule:delete", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"GET /api/v1/networks/security-groups/{security_group_id}/bindings":           {Code: "network:security-group:binding:list", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"PUT /api/v1/networks/eips/{eip_id}/security-groups":                          {Code: "network:eip:security-groups:set", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"PUT /api/v1/instances/{data.instance_id}/security-groups":                    {Code: "instance:security-groups:set", Source: securityGroupSource, BusinessModule: "INSTANCE", ScopeKind: "tenant"},
+		"PUT /api/v1/virtual-machines/{data.vm_id}/security-groups":                   {Code: "vm:security-groups:set", Source: securityGroupSource, BusinessModule: "VIRTUAL_MACHINE", ScopeKind: "tenant"},
+		"GET /api/v1/networks/eips/{eip_id}/security-groups":                          {Code: "network:eip:security-groups:get", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+		"GET /api/v1/networks/security-groups/operations/{operation_id}":              {Code: "network:security-group:operation:get", Source: securityGroupSource, BusinessModule: "NETWORK", ScopeKind: "tenant"},
+	}
 	if want := 227; ManagementCount() != want {
 		t.Errorf("ManagementCount() = %d, want %d", ManagementCount(), want)
 	}
-	if want := 204 + len(platformComponentReads) + len(platformComponentLogStreams); CapabilityCount() != want {
+	if want := 204 - 3 + len(platformComponentReads) + len(platformComponentLogStreams) + len(securityGroupCapabilities); CapabilityCount() != want {
 		t.Errorf("CapabilityCount() = %d, want %d", CapabilityCount(), want)
 	}
 	keys := AllKeys()
-	if len(keys) != 390 {
-		t.Errorf("AllKeys() = %d, want 390", len(keys))
+	if len(keys) != 390-3+len(securityGroupCapabilities) {
+		t.Errorf("AllKeys() = %d, want %d", len(keys), 390-3+len(securityGroupCapabilities))
 	}
 	keySet := make(map[string]bool, len(keys))
 	for _, k := range keys {
@@ -243,6 +262,7 @@ func TestCountsAndKeys(t *testing.T) {
 	}{
 		{"gpu-read-management", gpuSource, managementOperations, gpuReads},
 		{"platform-eip-capability", eipSource, capabilityOperations, platformEIPReadsAndRelease},
+		{"security-group-capability", securityGroupSource, capabilityOperations, securityGroupCapabilities},
 	} {
 		t.Run(table.name, func(t *testing.T) {
 			actual := make(map[string]expectation)

@@ -15,6 +15,7 @@ message CreateVMData {
  VMNetworkSelection network=8; optional bool start_after_create=9;
  CreateGuestInitialization guest_initialization=10;
  VMDNSSelection dns=11;
+ repeated string security_group_ids=12 [json_name="security_group_ids"];
 }
 message CreateGuestInitialization { string username=1; string password=2 [(redact.value).string=""]; string ssh_public_key=3; }
 message CreateVMRequest { CreateVMData data=1; }
@@ -23,6 +24,7 @@ message ChangeVMData {
  bool destructive_confirmation=4; string disk_id=5; bool guest_prepared_confirmation=6;
  string name=7; int64 size_gb=8; string slot=9; string media_key=10; string boot_device=11;
  string snapshot_id=12; string preview_digest=13;
+ repeated string security_group_ids=14 [json_name="security_group_ids"];
 }
 message ChangeVMRequest { ChangeVMData data=1; }
 message GetVMRequest { string vm_id=1 [json_name="vm_id"]; }
@@ -41,6 +43,7 @@ message VirtualMachine {
  string preset_id=16; int64 cpu_millis=17; int64 memory_mib=18;
  int64 system_disk_size_gb=19; string source_kind=20; string media_key=21;
  VMFrozenDNS dns=22;
+ repeated string security_group_ids=23 [json_name="security_group_ids"];
 }
 message ListVMsResponse { repeated VirtualMachine items=1; int64 total=2; }
 message VMDisk {

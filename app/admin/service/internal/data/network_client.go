@@ -22,13 +22,14 @@ type NetworkClientConfig struct {
 	Timeout                            time.Duration
 }
 type NetworkClient struct {
-	platformEIPs  networkv1.PlatformEIPServiceClient
-	platform      networkv1.PlatformNetworkServiceClient
-	defaultEgress networkv1.PlatformDefaultEgressServiceClient
-	client        networkv1.NetworkServiceClient
-	egress        networkv1.TenantEgressServiceClient
-	loadBalancers networkv1.TenantLoadBalancerServiceClient
-	timeout       time.Duration
+	securityGroups networkv1.NetworkSecurityGroupServiceClient
+	platformEIPs   networkv1.PlatformEIPServiceClient
+	platform       networkv1.PlatformNetworkServiceClient
+	defaultEgress  networkv1.PlatformDefaultEgressServiceClient
+	client         networkv1.NetworkServiceClient
+	egress         networkv1.TenantEgressServiceClient
+	loadBalancers  networkv1.TenantLoadBalancerServiceClient
+	timeout        time.Duration
 }
 
 // NewNetworkClient constructs a fail-closed mTLS client; server identity is fixed.
@@ -45,7 +46,7 @@ func NewNetworkClient(c NetworkClientConfig) (*NetworkClient, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	return &NetworkClient{platformEIPs: networkv1.NewPlatformEIPServiceClient(conn), platform: networkv1.NewPlatformNetworkServiceClient(conn), defaultEgress: networkv1.NewPlatformDefaultEgressServiceClient(conn), client: networkv1.NewNetworkServiceClient(conn), egress: networkv1.NewTenantEgressServiceClient(conn), loadBalancers: networkv1.NewTenantLoadBalancerServiceClient(conn), timeout: c.Timeout}, func() { _ = conn.Close() }, nil
+	return &NetworkClient{securityGroups: networkv1.NewNetworkSecurityGroupServiceClient(conn), platformEIPs: networkv1.NewPlatformEIPServiceClient(conn), platform: networkv1.NewPlatformNetworkServiceClient(conn), defaultEgress: networkv1.NewPlatformDefaultEgressServiceClient(conn), client: networkv1.NewNetworkServiceClient(conn), egress: networkv1.NewTenantEgressServiceClient(conn), loadBalancers: networkv1.NewTenantLoadBalancerServiceClient(conn), timeout: c.Timeout}, func() { _ = conn.Close() }, nil
 }
 
 func NetworkConfigFromEnv() (NetworkClientConfig, error) {

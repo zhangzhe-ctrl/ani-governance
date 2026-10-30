@@ -39,6 +39,7 @@ const OperationInstanceServiceListMountablePVCs = "/admin.service.v1.InstanceSer
 const OperationInstanceServiceQueryInstanceMetrics = "/admin.service.v1.InstanceService/QueryInstanceMetrics"
 const OperationInstanceServiceQueryResourceTrend = "/admin.service.v1.InstanceService/QueryResourceTrend"
 const OperationInstanceServiceRestartInstance = "/admin.service.v1.InstanceService/RestartInstance"
+const OperationInstanceServiceSetInstanceSecurityGroups = "/admin.service.v1.InstanceService/SetInstanceSecurityGroups"
 const OperationInstanceServiceStartInstance = "/admin.service.v1.InstanceService/StartInstance"
 const OperationInstanceServiceStopInstance = "/admin.service.v1.InstanceService/StopInstance"
 const OperationInstanceServiceUpdateInstanceSchedulingSettings = "/admin.service.v1.InstanceService/UpdateInstanceSchedulingSettings"
@@ -67,6 +68,7 @@ type InstanceServiceHTTPServer interface {
 	// QueryResourceTrend 首页资源趋势：HTTP 是专用 GET handler，查询参数在 handler 内严格校验。
 	QueryResourceTrend(context.Context, *v1.QueryResourceTrendRequest) (*v1.QueryResourceTrendResponse, error)
 	RestartInstance(context.Context, *v1.ChangeInstanceRequest) (*v1.Acceptance, error)
+	SetInstanceSecurityGroups(context.Context, *v1.SetInstanceSecurityGroupsRequest) (*v1.Acceptance, error)
 	StartInstance(context.Context, *v1.ChangeInstanceRequest) (*v1.Acceptance, error)
 	StopInstance(context.Context, *v1.ChangeInstanceRequest) (*v1.Acceptance, error)
 	UpdateInstanceSchedulingSettings(context.Context, *v1.UpdateInstanceSchedulingSettingsRequest) (*v1.InstanceSchedulingSettings, error)
@@ -87,6 +89,7 @@ func RegisterInstanceServiceHTTPServer(s *http.Server, srv InstanceServiceHTTPSe
 	r.GET("/api/v1/instances/{instance_id}/runtime", _InstanceService_GetInstanceRuntime0_HTTP_Handler(srv))
 	r.GET("/api/v1/instances/{instance_id}/events", _InstanceService_ListInstanceEvents0_HTTP_Handler(srv))
 	r.POST("/api/v1/instances", _InstanceService_CreateInstance0_HTTP_Handler(srv))
+	r.PUT("/api/v1/instances/{data.instance_id}/security-groups", _InstanceService_SetInstanceSecurityGroups0_HTTP_Handler(srv))
 	r.GET("/api/v1/instances", _InstanceService_ListInstances0_HTTP_Handler(srv))
 	r.GET("/api/v1/instances/{instance_id}", _InstanceService_GetInstance0_HTTP_Handler(srv))
 	r.POST("/api/v1/instances/{data.instance_id}:start", _InstanceService_StartInstance0_HTTP_Handler(srv))
@@ -345,6 +348,31 @@ func _InstanceService_CreateInstance0_HTTP_Handler(srv InstanceServiceHTTPServer
 		http.SetOperation(ctx, OperationInstanceServiceCreateInstance)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.CreateInstance(ctx, req.(*v1.CreateInstanceRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.Acceptance)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _InstanceService_SetInstanceSecurityGroups0_HTTP_Handler(srv InstanceServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.SetInstanceSecurityGroupsRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationInstanceServiceSetInstanceSecurityGroups)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetInstanceSecurityGroups(ctx, req.(*v1.SetInstanceSecurityGroupsRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -638,6 +666,7 @@ type InstanceServiceHTTPClient interface {
 	// QueryResourceTrend 首页资源趋势：HTTP 是专用 GET handler，查询参数在 handler 内严格校验。
 	QueryResourceTrend(ctx context.Context, req *v1.QueryResourceTrendRequest, opts ...http.CallOption) (rsp *v1.QueryResourceTrendResponse, err error)
 	RestartInstance(ctx context.Context, req *v1.ChangeInstanceRequest, opts ...http.CallOption) (rsp *v1.Acceptance, err error)
+	SetInstanceSecurityGroups(ctx context.Context, req *v1.SetInstanceSecurityGroupsRequest, opts ...http.CallOption) (rsp *v1.Acceptance, err error)
 	StartInstance(ctx context.Context, req *v1.ChangeInstanceRequest, opts ...http.CallOption) (rsp *v1.Acceptance, err error)
 	StopInstance(ctx context.Context, req *v1.ChangeInstanceRequest, opts ...http.CallOption) (rsp *v1.Acceptance, err error)
 	UpdateInstanceSchedulingSettings(ctx context.Context, req *v1.UpdateInstanceSchedulingSettingsRequest, opts ...http.CallOption) (rsp *v1.InstanceSchedulingSettings, err error)
@@ -896,6 +925,19 @@ func (c *InstanceServiceHTTPClientImpl) RestartInstance(ctx context.Context, in 
 	opts = append(opts, http.Operation(OperationInstanceServiceRestartInstance))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *InstanceServiceHTTPClientImpl) SetInstanceSecurityGroups(ctx context.Context, in *v1.SetInstanceSecurityGroupsRequest, opts ...http.CallOption) (*v1.Acceptance, error) {
+	var out v1.Acceptance
+	pattern := "/api/v1/instances/{data.instance_id}/security-groups"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationInstanceServiceSetInstanceSecurityGroups))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

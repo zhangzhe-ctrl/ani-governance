@@ -131,6 +131,8 @@ func (x *CreateVMData) Redact() {
 	// Safe field: GuestInitialization
 
 	// Safe field: Dns
+
+	// Safe field: SecurityGroupIds
 }
 
 // Ensure CreateGuestInitialization implements the Redactor interface at compile time.
@@ -196,6 +198,8 @@ func (x *ChangeVMData) Redact() {
 	// Safe field: SnapshotId
 
 	// Safe field: PreviewDigest
+
+	// Safe field: SecurityGroupIds
 }
 
 // Ensure ChangeVMRequest implements the Redactor interface at compile time.
@@ -384,6 +388,8 @@ func (x *VirtualMachine) Redact() {
 	// Safe field: MediaKey
 
 	// Safe field: Dns
+
+	// Safe field: SecurityGroupIds
 }
 
 // Ensure ListVMsResponse implements the Redactor interface at compile time.
