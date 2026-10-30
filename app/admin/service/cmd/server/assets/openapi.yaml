@@ -17749,6 +17749,34 @@ components:
                     format: uint32
                 data:
                     $ref: '#/components/schemas/GpuQueryData'
+        GuestFilesystem:
+            type: object
+            properties:
+                diskName:
+                    type: string
+                mountPoint:
+                    type: string
+                fileSystemType:
+                    type: string
+                totalBytes:
+                    type: string
+                usedBytes:
+                    type: string
+        GuestInterface:
+            type: object
+            properties:
+                name:
+                    type: string
+                guestName:
+                    type: string
+                mac:
+                    type: string
+                addresses:
+                    type: array
+                    items:
+                        type: string
+                infoSource:
+                    type: string
         HeadObjectData:
             type: object
             properties:
@@ -22792,6 +22820,16 @@ components:
                 replayUntil:
                     type: string
                     format: date-time
+        ResourceReference:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                state:
+                    type: string
+            description: Read-only detail projection. Runtime is collected only by GetVM, never by ListVMs.
         ResourceTrendData:
             type: object
             properties:
@@ -25221,6 +25259,42 @@ components:
                     type: array
                     items:
                         type: string
+        VMHardware:
+            type: object
+            properties:
+                sockets:
+                    type: integer
+                    format: uint32
+                cores:
+                    type: integer
+                    format: uint32
+                threads:
+                    type: integer
+                    format: uint32
+                architecture:
+                    type: string
+                firmware:
+                    type: string
+                rootBus:
+                    type: string
+                dataBus:
+                    type: string
+                nicModel:
+                    type: string
+                persistentTpm:
+                    type: boolean
+                persistentUefi:
+                    type: boolean
+        VMInitialization:
+            type: object
+            properties:
+                method:
+                    type: string
+                username:
+                    type: string
+                sshKeyFingerprint:
+                    type: string
+            description: No password, credential digest, or raw public key is returned.
         VMLogFrame:
             type: object
             properties:
@@ -25310,6 +25384,17 @@ components:
                     type: string
                 observedAt:
                     type: string
+        VMRelations:
+            type: object
+            properties:
+                vpc:
+                    $ref: '#/components/schemas/ResourceReference'
+                subnet:
+                    $ref: '#/components/schemas/ResourceReference'
+                securityGroups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ResourceReference'
         VMRestoreDiskImpact:
             type: object
             properties:
@@ -25334,6 +25419,44 @@ components:
                         $ref: '#/components/schemas/VMRestoreDiskImpact'
                 previewDigest:
                     type: string
+        VMRuntime:
+            type: object
+            properties:
+                state:
+                    type: string
+                    description: AVAILABLE, NOT_RUNNING, AGENT_NOT_CONNECTED, UNAVAILABLE, or CHANGED.
+                agentState:
+                    type: string
+                observedAt:
+                    type: string
+                nodeName:
+                    type: string
+                startedAt:
+                    type: string
+                    description: VMI Running phase transition, not guest OS boot time.
+                hostname:
+                    type: string
+                agentVersion:
+                    type: string
+                osName:
+                    type: string
+                osVersion:
+                    type: string
+                kernelRelease:
+                    type: string
+                kernelVersion:
+                    type: string
+                interfaces:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GuestInterface'
+                filesystemsState:
+                    type: string
+                    description: AVAILABLE, UNSUPPORTED, UNAVAILABLE, or NOT_QUERIED. Empty AVAILABLE is a successful empty result.
+                filesystems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GuestFilesystem'
         VMSnapshot:
             type: object
             properties:
@@ -25366,6 +25489,10 @@ components:
                 observedAt:
                     type: string
                 reason:
+                    type: string
+                name:
+                    type: string
+                createdAt:
                     type: string
         VPC:
             type: object
@@ -25569,6 +25696,20 @@ components:
                     type: array
                     items:
                         type: string
+                createdAt:
+                    type: string
+                presetName:
+                    type: string
+                hardware:
+                    $ref: '#/components/schemas/VMHardware'
+                initialization:
+                    $ref: '#/components/schemas/VMInitialization'
+                sourceMedia:
+                    $ref: '#/components/schemas/VMMedia'
+                runtime:
+                    $ref: '#/components/schemas/VMRuntime'
+                relations:
+                    $ref: '#/components/schemas/VMRelations'
         VirtualSwitch:
             type: object
             properties:

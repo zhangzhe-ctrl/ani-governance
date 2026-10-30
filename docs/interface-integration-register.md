@@ -1949,6 +1949,10 @@ Linux `DISK_IMAGE` 仅在 Resource 媒体目录 `initializationCapability=CLOUD_
 
 密码不进入普通 Resource CreateSpec、operation 查询或日志。Gov 使用既有强制副本共享的 AccessKeyCipher 主密钥分别派生凭据意图 HMAC 和 AES-GCM 子密钥；普通 intent 仅含 PasswordSet 与 HMAC，私密 payload 在受理事务内加密进原 outbox canonical，AAD 绑定可信 tenant、actor、原 operation/resource 与冻结 spec digest。进程重开从同一持久记录解密后，仅随 mTLS AcceptCreate 的独立 guest_credentials 参数投递；原键重放保留原 ciphertext 与原结果，改变密码仍是异意图冲突。DELETE 不解密密码。现有主密钥是该持久 outbox 的恢复依赖，不能在仍有待投递记录时丢失或任意替换。
 
+2026-10-30 详情扩展沿用 GET `/api/v1/virtual-machines/{vm_id}`、现有 `vm:read`、VIRTUAL_MACHINE 套餐与受管 Resource `/vm.v1.VMService/GetVM`；没有新路由或额外权限。新增 `createdAt`、`presetName`、`sourceMedia`、`hardware`、`initialization`、`relations`、`runtime`，JSON 字段及完整状态枚举以本节正式 Proto 为准。冻结摘要同时覆盖 owner 尚未接管时的原 CREATE 回显；运行信息只来自 owner 当前读取，不在 Gov 猜测或查询目录回填。
+
+初始化只公开方式、用户名和公钥指纹；不公开原始公钥、密码、密码标志、HMAC、native namespace/PVC。关联名称是当前租户的当前名称，ID 保留原关系；来宾未连接、读取失败、换代与未知容量分别展示。只读快照 DTO 增补 name/createdAt，透传 owner 的真实来源。VM 列表继续只读持久投影，不触发 QGA fanout。Resource SDK 固定为 `v0.0.0-20261030112612-81c625f0532f`，对应本次 Resource 提交 `81c625f0532f1189a50470d6ae01831038c27184`。候选模块由该提交的完整源树通过标准 Go module zip 打包，在仓外文件代理中核验；`GOWORK=off`、不使用 replace。候选验证与向远程发布、部署、真实来宾验收分别确认，提交未推送前其他环境不能从远程拉取该 SDK。
+
 实际 CODE/PG/BOUNDARY/LIVE/GUEST/BROWSER 结果统一见 Resource `docs/execution/status.md#vm-mvp` 及 `docs/execution/records/VM-MVP/`；此登记不是执行通过记录。
 
 组合编译核验发现既有 ModelDev 根 SDK `v0.0.0-20261021184454-44188466290f` 仍引入 Model 根 SDK `v0.0.0-20261013092523-8951c85bc150`，其 `api/model/v1` 与本仓已固定的 Model/api 子模块同路径冲突。Gov 显式将该间接父模块固定到与现有 Model/api 同一提交的 `v0.0.0-20261021113912-a21befaaa5e5`；该提交含 `api/go.mod`，父模块不再导出该子树。不更改 Model/ModelDev 源码，不回退既有 API，也不以本地 replace 作为正式依赖修复。
