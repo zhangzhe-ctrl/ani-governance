@@ -207,5 +207,3 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
 )
-
-replace github.com/zhangzhe-ctrl/ani-resource-service => github.com/liangzai006/ani-resource-service v0.0.0-20261030022945-f910c6e711dd
