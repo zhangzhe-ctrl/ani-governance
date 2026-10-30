@@ -123,8 +123,8 @@ message ListInstanceMountablePVCsRequest {
 message ListMountablePVCsResponse { repeated MountablePVC items = 1; int64 total = 2; }
 message InstanceConfiguration {
  string instance_id = 1 [json_name = "instance_id"];
- // 服务器保存的当前配置合同版本，固定为 2。
- uint32 instance_contract_version = 2 [json_name = "instance_contract_version"];
+ reserved 2;
+ reserved "instance_contract_version";
  string workspace_mount_path = 3 [json_name = "workspace_mount_path"];
  repeated VolumeMount volume_mounts = 4 [json_name = "volume_mounts"];
  NetworkSelection network = 5;

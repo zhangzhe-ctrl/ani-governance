@@ -47,7 +47,7 @@ const OperationInstanceServiceUpdateSchedulerConfig = "/admin.service.v1.Instanc
 
 type InstanceServiceHTTPServer interface {
 	AttachInstancePVC(context.Context, *v1.AttachInstancePVCRequest) (*v1.Acceptance, error)
-	// CreateInstance 创建使用服务器固定的当前配置合同 2；可选配置省略时正常解析默认值。
+	// CreateInstance 创建使用统一的容器配置；可选配置省略时正常解析默认值。
 	// 新建维护闸门关闭返回 503 INSTANCE_CREATE_DISABLED，同键重放不受影响。
 	CreateInstance(context.Context, *v1.CreateInstanceRequest) (*v1.Acceptance, error)
 	DeleteInstance(context.Context, *v1.ChangeInstanceRequest) (*v1.Acceptance, error)
@@ -645,7 +645,7 @@ func _InstanceService_ExecInstance0_HTTP_Handler(srv InstanceServiceHTTPServer) 
 
 type InstanceServiceHTTPClient interface {
 	AttachInstancePVC(ctx context.Context, req *v1.AttachInstancePVCRequest, opts ...http.CallOption) (rsp *v1.Acceptance, err error)
-	// CreateInstance 创建使用服务器固定的当前配置合同 2；可选配置省略时正常解析默认值。
+	// CreateInstance 创建使用统一的容器配置；可选配置省略时正常解析默认值。
 	// 新建维护闸门关闭返回 503 INSTANCE_CREATE_DISABLED，同键重放不受影响。
 	CreateInstance(ctx context.Context, req *v1.CreateInstanceRequest, opts ...http.CallOption) (rsp *v1.Acceptance, err error)
 	DeleteInstance(ctx context.Context, req *v1.ChangeInstanceRequest, opts ...http.CallOption) (rsp *v1.Acceptance, err error)
@@ -694,7 +694,7 @@ func (c *InstanceServiceHTTPClientImpl) AttachInstancePVC(ctx context.Context, i
 	return &out, nil
 }
 
-// CreateInstance 创建使用服务器固定的当前配置合同 2；可选配置省略时正常解析默认值。
+// CreateInstance 创建使用统一的容器配置；可选配置省略时正常解析默认值。
 // 新建维护闸门关闭返回 503 INSTANCE_CREATE_DISABLED，同键重放不受影响。
 func (c *InstanceServiceHTTPClientImpl) CreateInstance(ctx context.Context, in *v1.CreateInstanceRequest, opts ...http.CallOption) (*v1.Acceptance, error) {
 	var out v1.Acceptance
