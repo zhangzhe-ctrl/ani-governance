@@ -14838,6 +14838,10 @@ components:
                     type: string
                 idempotency_key:
                     type: string
+                security_group_ids:
+                    type: array
+                    items:
+                        type: string
         CreateEIPResponse:
             type: object
             properties:
@@ -16319,6 +16323,8 @@ components:
                 id:
                     type: string
                 state:
+                    type: string
+                vpc_id:
                     type: string
         EditUserPasswordRequest:
             type: object
@@ -25393,7 +25399,42 @@ components:
                     type: string
                 subnet_count:
                     type: string
+                public_egress:
+                    $ref: '#/components/schemas/VPCPublicEgress'
             description: Public product fields only; tenant identity and provider placement stay internal.
+        VPCPublicEgress:
+            type: object
+            properties:
+                binding_id:
+                    type: string
+                eip_id:
+                    type: string
+                eip_address:
+                    type: string
+                binding_state:
+                    type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                reason_message:
+                    type: string
+                desired_enabled:
+                    type: boolean
+                applied_enabled:
+                    type: boolean
+                observed_at:
+                    type: string
+                    format: date-time
+                observation_stale:
+                    type: boolean
+                version:
+                    type: string
+                last_operation_id:
+                    type: string
+            description: |-
+                Persisted public EIP association from the same VPC read snapshot. Lifecycle
+                 state and observed applied_enabled remain distinct from binding ownership.
         VPCSnat:
             type: object
             properties:
