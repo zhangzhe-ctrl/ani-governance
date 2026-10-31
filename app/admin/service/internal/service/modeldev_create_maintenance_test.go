@@ -7,11 +7,16 @@ import (
 
 	kerrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/stretchr/testify/require"
+	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/pkg/middleware/auth"
 )
 
 func TestModelDevCreateMaintenanceRejectsAdmissionAndPublisherBeforeDependencies(t *testing.T) {
-	gate := NewModelDevCreateMaintenance(true)
+	t.Setenv("ANI_MODELDEV_CREATE_PAUSED", "")
+	paused, err := data.ModelDevCreatePausedFromEnv()
+	require.NoError(t, err)
+	require.True(t, paused, "the dedicated candidate must pause without deployment ENV")
+	gate := NewModelDevCreateMaintenance(paused)
 	s := NewModelDevService(nil, nil, nil, nil, nil)
 	s.SetCreateMaintenance(gate)
 	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 1, TenantID: 1})

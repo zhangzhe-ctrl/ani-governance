@@ -6,13 +6,14 @@ import (
 )
 
 // ModelDevCreatePausedFromEnv affects only new ModelDev Create admission and
-// publisher claims. It is independent of connection and Stop/release settings.
+// publisher claims. This dedicated maintenance candidate pauses by default;
+// explicit false resumes Create. Connection and Stop/release settings are independent.
 func ModelDevCreatePausedFromEnv() (bool, error) {
 	switch os.Getenv("ANI_MODELDEV_CREATE_PAUSED") {
-	case "", "false":
-		return false, nil
-	case "true":
+	case "", "true":
 		return true, nil
+	case "false":
+		return false, nil
 	default:
 		return false, errors.New("invalid ANI_MODELDEV_CREATE_PAUSED configuration")
 	}
