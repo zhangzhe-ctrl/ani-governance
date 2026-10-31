@@ -179,3 +179,9 @@ Gov 通过 [go.mod](https://github.com/zhangzhe-ctrl/ani-governance/blob/ba7db4c
 
 模型详情 `GET /api/v1/models/{model_id}` 的 HTTP 响应直接返回 Model 资源，
 没有 `model` 外层；内部 RPC 的 GetModelResponse 保持原形状。
+
+During the one-time ModelDev environment maintenance window, startup setting
+`ANI_MODELDEV_CREATE_PAUSED=true` returns HTTP 503 with reason
+`MODELDEV_CREATE_MAINTENANCE` only for the ModelDev Create action. Existing
+authentication and tenant-user restrictions still run; Ensure/Get, queries,
+Stop and quota release do not use that gate.

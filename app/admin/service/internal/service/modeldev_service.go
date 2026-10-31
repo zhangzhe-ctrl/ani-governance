@@ -40,14 +40,15 @@ type ModelDevComputeResolver interface {
 }
 
 type ModelDevService struct {
-	authorization *data.ModelDevAuthorizationRepo
-	tenants       ResourceTenantResolver
-	acceptances   *data.ModelDevAcceptanceRepo
-	compute       ModelDevComputeResolver
-	resolver      *data.ModelDevClient
-	gpu           ModelDevGPUAdmission
-	monitoring    ModelDevMonitoringClient
-	metricGate    *modelDevMetricGate
+	createMaintenance *ModelDevCreateMaintenance
+	authorization     *data.ModelDevAuthorizationRepo
+	tenants           ResourceTenantResolver
+	acceptances       *data.ModelDevAcceptanceRepo
+	compute           ModelDevComputeResolver
+	resolver          *data.ModelDevClient
+	gpu               ModelDevGPUAdmission
+	monitoring        ModelDevMonitoringClient
+	metricGate        *modelDevMetricGate
 }
 
 type ModelDevGPUAdmission struct {
@@ -104,6 +105,13 @@ func (s *ModelDevService) CreateExecution(ctx context.Context, in ModelDevCreate
 	}
 	if principal.Type != auth.SubjectUser || principal.TenantID == 0 {
 		return nil, errors.Forbidden("FORBIDDEN", "tenant user required")
+	}
+	if s != nil {
+		finish, allowed := s.createMaintenance.begin()
+		if !allowed {
+			return nil, errors.ServiceUnavailable("MODELDEV_CREATE_MAINTENANCE", "modeldev create is paused for maintenance")
+		}
+		defer finish()
 	}
 	if s == nil || s.authorization == nil || s.tenants == nil || s.acceptances == nil {
 		return nil, modelDevCreateUnavailable()
