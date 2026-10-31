@@ -14,7 +14,8 @@ import (
 )
 
 func TestNetworkAuditRedactsRawRequestForEveryTenantOperation(t *testing.T) {
-	require.Len(t, auth.NetworkOperations, 25)
+	// Security groups add 13 operations to the original 25 Network routes.
+	require.Len(t, auth.NetworkOperations, 38)
 	for operation, policy := range auth.NetworkOperations {
 		t.Run(operation, func(t *testing.T) {
 			var record *auditV1.ApiAuditLog
