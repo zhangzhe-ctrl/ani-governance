@@ -245,12 +245,12 @@ func TestCountsAndKeys(t *testing.T) {
 	if want := 227; ManagementCount() != want {
 		t.Errorf("ManagementCount() = %d, want %d", ManagementCount(), want)
 	}
-	if want := 204 - 3 + len(platformComponentReads) + len(platformComponentLogStreams) + len(securityGroupCapabilities); CapabilityCount() != want {
+	if want := 204 - 3 + 2 + len(platformComponentReads) + len(platformComponentLogStreams) + len(securityGroupCapabilities); CapabilityCount() != want {
 		t.Errorf("CapabilityCount() = %d, want %d", CapabilityCount(), want)
 	}
 	keys := AllKeys()
-	if len(keys) != 390-3+len(securityGroupCapabilities) {
-		t.Errorf("AllKeys() = %d, want %d", len(keys), 390-3+len(securityGroupCapabilities))
+	if len(keys) != 390-3+2+len(securityGroupCapabilities) {
+		t.Errorf("AllKeys() = %d, want %d", len(keys), 390-3+2+len(securityGroupCapabilities))
 	}
 	keySet := make(map[string]bool, len(keys))
 	for _, k := range keys {
