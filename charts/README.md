@@ -37,3 +37,7 @@ kubectl get nodes
 
 Governance 业务 API 通过 NodePort 对外提供，不经过 Higress。Higress 只承载 AI OpenAPI
 （例如 `/v1/completions`）；Chart 不会把 `/api/v1/...` 业务路由加入 Higress。
+
+## 离线部署示例
+
+新的离线环境可使用 [Gov 离线部署指南](ani-governance/README-offline.md)、[Redis Chart 指南](ani-governance-redis/README.md) 和对应的 `values-offline.example.yaml`。示例显式配置 `ani-system`、Redis 服务名和存储类；原有 Chart 默认值保持兼容。镜像、证书、Secret 和实际业务验收须按目标环境准备。

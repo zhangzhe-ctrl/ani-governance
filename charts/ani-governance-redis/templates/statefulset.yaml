@@ -18,6 +18,10 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       terminationGracePeriodSeconds: 30
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: redis
           {{- if .Values.image.digest }}
@@ -28,8 +32,10 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh", "-c"]
           args:
-            - exec redis-server --appendonly yes --requirepass "$REDIS_PASSWORD"
+            - exec redis-server --port "$REDIS_PORT" --appendonly yes --requirepass "$REDIS_PASSWORD"
           env:
+            - name: REDIS_PORT
+              value: {{ .Values.service.port | quote }}
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -41,13 +47,13 @@ spec:
               protocol: TCP
           readinessProbe:
             exec:
-              command: ["/bin/sh", "-c", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep -q PONG"]
+              command: ["/bin/sh", "-c", "redis-cli -p \"$REDIS_PORT\" -a \"$REDIS_PASSWORD\" ping | grep -q PONG"]
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 12
           livenessProbe:
             exec:
-              command: ["/bin/sh", "-c", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep -q PONG"]
+              command: ["/bin/sh", "-c", "redis-cli -p \"$REDIS_PORT\" -a \"$REDIS_PASSWORD\" ping | grep -q PONG"]
             periodSeconds: 20
             timeoutSeconds: 3
             failureThreshold: 6

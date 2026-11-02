@@ -1,0 +1,15 @@
+# Copy outside Git and set the image already imported into the target registry.
+fullnameOverride: ani-governance-redis
+image:
+  repository: registry.example.invalid/ani/redis
+  # Keep the approved linux/amd64 manifest; this is Redis 7.4.11.
+  digest: sha256:ca0acbb137c1dc3339c8b147a58fd6f42775d4599327b50e7b116c23de501af2
+imagePullSecrets: []
+existingSecret: ani-governance-redis
+passwordKey: password
+service:
+  port: 6379
+persistence:
+  enabled: true
+  storageClass: ani-block
+  size: 2Gi

@@ -21,6 +21,7 @@ import unittest
 
 REPO = Path(__file__).resolve().parents[2]
 CHART = REPO / "charts/ani-governance"
+REDIS_CHART = REPO / "charts/ani-governance-redis"
 RBAC_KINDS = {"Role", "RoleBinding", "ClusterRole", "ClusterRoleBinding"}
 
 
@@ -99,7 +100,7 @@ class GovernanceChartTests(unittest.TestCase):
         cls.helm = os.environ["ANI_CHART_HELM"]
         subprocess.run([cls.helm, "version", "--short"], check=True, capture_output=True)
 
-    def render(self, *, chart=CHART, present=None, upgrade=False, values=()):
+    def render(self, *, chart=CHART, present=None, upgrade=False, values=(), files=()):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             # This explicit fixture kubeconfig also protects client-only
@@ -113,6 +114,8 @@ class GovernanceChartTests(unittest.TestCase):
                     args.append("--dry-run=server")
                 if upgrade:
                     args.append("--is-upgrade")
+                for file in files:
+                    args.extend(["-f", str(file)])
                 for value in values:
                     args.extend(["--set", value])
                 completed = subprocess.run(args, capture_output=True, text=True, timeout=30)
@@ -176,6 +179,95 @@ class GovernanceChartTests(unittest.TestCase):
         for job in jobs:
             self.assertIn("automountServiceAccountToken: false", job)
             self.assertNotIn("/service-identity/inference", job)
+
+    def test_resource_client_requires_endpoint_cluster_and_ca(self):
+        with self.assertRaisesRegex(AssertionError, "downstream.resource.address is required"):
+            self.render(values=("downstream.resource.enabled=true",))
+        with self.assertRaisesRegex(AssertionError, "downstream.resource.clusterID is required"):
+            self.render(values=("downstream.resource.enabled=true", "downstream.resource.address=resource.fixture:19090"))
+        with self.assertRaisesRegex(AssertionError, "downstream.resource.caSecret is required"):
+            self.render(values=("downstream.resource.enabled=true", "downstream.resource.address=resource.fixture:19090", "downstream.resource.clusterID=cluster-one"))
+        rendered = self.render(values=("downstream.resource.enabled=true", "downstream.resource.address=resource.fixture:19090", "downstream.resource.clusterID=cluster-one", "downstream.resource.caSecret=resource-ca"))
+        deployment = next(text for (kind, _), text in rendered.items() if kind == "Deployment")
+        for expected in ("name: ANI_INSTANCE_ADDR", 'value: "resource.fixture:19090"',
+                         "name: ANI_INSTANCE_CLUSTER_ID", 'value: "cluster-one"',
+                         "mountPath: /service-identity/resource", "name: resource-ca",
+                         "name: governance-client-tls"):
+            self.assertIn(expected, deployment)
+        for (kind, _), job in rendered.items():
+            if kind == "Job":
+                self.assertNotIn("/service-identity/resource", job)
+
+    def test_offline_example_uses_external_model_identity_and_separate_db_credentials(self):
+        rendered = self.render(files=(CHART / "values-offline.example.yaml",))
+        deployment = next(text for (kind, _), text in rendered.items() if kind == "Deployment")
+        service = next(text for (kind, _), text in rendered.items() if kind == "Service")
+        self.assertIn("type: ClusterIP", service)
+        self.assertNotIn("nodePort:", service)
+        self.assertIn('value: "ani-model-grpc.ani-system.svc.cluster.local:19090"', deployment)
+        self.assertIn('value: "ani-model.ani.internal"', deployment)
+        self.assertIn("name: governance-client-tls", deployment)
+        self.assertIn("name: ani-model-server-tls", deployment)
+        self.assertNotIn("ani-governance-migration", deployment)
+        self.assertFalse(any(kind == "Certificate" for kind, _ in rendered))
+        config = next(text for (kind, _), text in rendered.items() if kind == "ConfigMap")
+        self.assertIn("migrate: false", config)
+        self.assertIn('"ani-governance-redis.ani-system.svc.cluster.local:6379"', config)
+        jobs = [text for (kind, _), text in rendered.items() if kind == "Job"]
+        self.assertEqual(len(jobs), 2)
+        for job in jobs:
+            self.assertIn("name: ani-governance-migration", job)
+            self.assertIn("automountServiceAccountToken: false", job)
+
+    def test_redis_can_use_cluster_default_or_explicit_ceph_and_registry_secret(self):
+        rendered = self.render(chart=REDIS_CHART)
+        self.assertIn(("StatefulSet", "redis"), rendered)
+        self.assertIn(("Service", "redis"), rendered)
+        stateful = next(text for (kind, _), text in rendered.items() if kind == "StatefulSet")
+        self.assertIn('storageClassName: "local-path"', stateful)
+        self.assertIn("name: redis", stateful)
+        default_config = next(text for (kind, _), text in self.render().items() if kind == "ConfigMap")
+        self.assertIn('"redis.ani-infra.svc.cluster.local:6379"', default_config)
+        cluster_default = self.render(chart=REDIS_CHART, values=("persistence.storageClass=",))
+        self.assertNotIn("storageClassName:", next(text for (kind, _), text in cluster_default.items() if kind == "StatefulSet"))
+        explicit = self.render(chart=REDIS_CHART, files=(REDIS_CHART / "values-offline.example.yaml",),
+                               values=("imagePullSecrets[0].name=registry-pull",))
+        stateful = next(text for (kind, _), text in explicit.items() if kind == "StatefulSet")
+        self.assertIn('storageClassName: "ani-block"', stateful)
+        self.assertIn("imagePullSecrets:\n        - name: registry-pull", stateful)
+        ephemeral = self.render(chart=REDIS_CHART, values=("persistence.enabled=false",))
+        stateful = next(text for (kind, _), text in ephemeral.items() if kind == "StatefulSet")
+        self.assertNotIn("volumeClaimTemplates:", stateful)
+        self.assertIn("emptyDir: {}", stateful)
+
+    def test_redis_custom_port_reaches_server_and_both_health_probes(self):
+        rendered = self.render(chart=REDIS_CHART, values=("service.port=6380",))
+        stateful = next(text for (kind, _), text in rendered.items() if kind == "StatefulSet")
+        service = next(text for (kind, _), text in rendered.items() if kind == "Service")
+        port = re.search(r'- name: REDIS_PORT\n\s+value: "(\d+)"', stateful).group(1)
+        self.assertIn("port: 6380", service)
+        self.assertIn("containerPort: 6380", stateful)
+        start = re.search(r"args:\n\s+- (.+)", stateful).group(1)
+        probes = [json.loads(command) for command in re.findall(r"command: (\[.*\])", stateful)
+                  if "redis-cli" in command]
+        self.assertEqual(len(probes), 2)
+        # Only the external Redis processes are replaced. Execute the rendered
+        # shell commands to check quoting and that the configured port is used.
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for binary in ("redis-server", "redis-cli"):
+                fake = root / binary
+                fake.write_text('#!/bin/sh\nprintf "%s\\n" "$@" > "$TRACE"\n' +
+                                ('printf "PONG\\n"\n' if binary == "redis-cli" else ""))
+                fake.chmod(0o700)
+            env = {**os.environ, "PATH": str(root) + os.pathsep + os.environ.get("PATH", ""),
+                   "REDIS_PORT": port, "REDIS_PASSWORD": 'fixture $pass :@ with spaces'}
+            calls = [(["/bin/sh", "-c", start], ["--port", "6380", "--appendonly", "yes", "--requirepass", env["REDIS_PASSWORD"]])]
+            calls.extend((command, ["-p", "6380", "-a", env["REDIS_PASSWORD"], "ping"]) for command in probes)
+            for index, (command, expected) in enumerate(calls):
+                trace = root / f"trace-{index}"
+                subprocess.run(command, env={**env, "TRACE": str(trace)}, check=True, capture_output=True, timeout=5)
+                self.assertEqual(trace.read_text().splitlines(), expected)
 
     def test_fixed_main_render_diff_contains_only_expected_changes(self):
         baseline = os.environ.get("ANI_CHART_BASELINE")
