@@ -29,7 +29,8 @@ auth:
 corsOrigins:
   - http://console.example.invalid:30081
 redis:
-  address: ani-governance-redis.ani-system.svc.cluster.local:6379
+  # Shared platform Valkey; the configuration key retains its Redis protocol name.
+  address: valkey.ani-platform.svc.cluster.local:6379
 
 config:
   existingSecret: ani-governance-config

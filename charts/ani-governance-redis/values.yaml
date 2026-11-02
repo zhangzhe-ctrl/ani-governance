@@ -4,14 +4,12 @@ image:
   tag: 7-alpine
   digest: sha256:ca0acbb137c1dc3339c8b147a58fd6f42775d4599327b50e7b116c23de501af2
   pullPolicy: IfNotPresent
-imagePullSecrets: []
 existingSecret: ani-governance-redis
 passwordKey: password
 service:
   port: 6379
 persistence:
   enabled: true
-  # Preserve existing installs; the offline example selects installer Ceph.
   storageClass: local-path
   size: 2Gi
 resources:

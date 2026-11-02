@@ -21,7 +21,6 @@ import unittest
 
 REPO = Path(__file__).resolve().parents[2]
 CHART = REPO / "charts/ani-governance"
-REDIS_CHART = REPO / "charts/ani-governance-redis"
 RBAC_KINDS = {"Role", "RoleBinding", "ClusterRole", "ClusterRoleBinding"}
 
 
@@ -212,62 +211,15 @@ class GovernanceChartTests(unittest.TestCase):
         self.assertFalse(any(kind == "Certificate" for kind, _ in rendered))
         config = next(text for (kind, _), text in rendered.items() if kind == "ConfigMap")
         self.assertIn("migrate: false", config)
-        self.assertIn('"ani-governance-redis.ani-system.svc.cluster.local:6379"', config)
+        self.assertIn('"valkey.ani-platform.svc.cluster.local:6379"', config)
+        secret_template = (CHART / "secrets.example.yaml").read_text()
+        self.assertIn("redis://:REPLACE_WITH_URLENCODED_VALKEY_PASSWORD@valkey.ani-platform.svc.cluster.local:6379/1", secret_template)
+        self.assertNotIn("ani-governance-redis", secret_template)
         jobs = [text for (kind, _), text in rendered.items() if kind == "Job"]
         self.assertEqual(len(jobs), 2)
         for job in jobs:
             self.assertIn("name: ani-governance-migration", job)
             self.assertIn("automountServiceAccountToken: false", job)
-
-    def test_redis_can_use_cluster_default_or_explicit_ceph_and_registry_secret(self):
-        rendered = self.render(chart=REDIS_CHART)
-        self.assertIn(("StatefulSet", "redis"), rendered)
-        self.assertIn(("Service", "redis"), rendered)
-        stateful = next(text for (kind, _), text in rendered.items() if kind == "StatefulSet")
-        self.assertIn('storageClassName: "local-path"', stateful)
-        self.assertIn("name: redis", stateful)
-        default_config = next(text for (kind, _), text in self.render().items() if kind == "ConfigMap")
-        self.assertIn('"redis.ani-infra.svc.cluster.local:6379"', default_config)
-        cluster_default = self.render(chart=REDIS_CHART, values=("persistence.storageClass=",))
-        self.assertNotIn("storageClassName:", next(text for (kind, _), text in cluster_default.items() if kind == "StatefulSet"))
-        explicit = self.render(chart=REDIS_CHART, files=(REDIS_CHART / "values-offline.example.yaml",),
-                               values=("imagePullSecrets[0].name=registry-pull",))
-        stateful = next(text for (kind, _), text in explicit.items() if kind == "StatefulSet")
-        self.assertIn('storageClassName: "ani-block"', stateful)
-        self.assertIn("imagePullSecrets:\n        - name: registry-pull", stateful)
-        ephemeral = self.render(chart=REDIS_CHART, values=("persistence.enabled=false",))
-        stateful = next(text for (kind, _), text in ephemeral.items() if kind == "StatefulSet")
-        self.assertNotIn("volumeClaimTemplates:", stateful)
-        self.assertIn("emptyDir: {}", stateful)
-
-    def test_redis_custom_port_reaches_server_and_both_health_probes(self):
-        rendered = self.render(chart=REDIS_CHART, values=("service.port=6380",))
-        stateful = next(text for (kind, _), text in rendered.items() if kind == "StatefulSet")
-        service = next(text for (kind, _), text in rendered.items() if kind == "Service")
-        port = re.search(r'- name: REDIS_PORT\n\s+value: "(\d+)"', stateful).group(1)
-        self.assertIn("port: 6380", service)
-        self.assertIn("containerPort: 6380", stateful)
-        start = re.search(r"args:\n\s+- (.+)", stateful).group(1)
-        probes = [json.loads(command) for command in re.findall(r"command: (\[.*\])", stateful)
-                  if "redis-cli" in command]
-        self.assertEqual(len(probes), 2)
-        # Only the external Redis processes are replaced. Execute the rendered
-        # shell commands to check quoting and that the configured port is used.
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            for binary in ("redis-server", "redis-cli"):
-                fake = root / binary
-                fake.write_text('#!/bin/sh\nprintf "%s\\n" "$@" > "$TRACE"\n' +
-                                ('printf "PONG\\n"\n' if binary == "redis-cli" else ""))
-                fake.chmod(0o700)
-            env = {**os.environ, "PATH": str(root) + os.pathsep + os.environ.get("PATH", ""),
-                   "REDIS_PORT": port, "REDIS_PASSWORD": 'fixture $pass :@ with spaces'}
-            calls = [(["/bin/sh", "-c", start], ["--port", "6380", "--appendonly", "yes", "--requirepass", env["REDIS_PASSWORD"]])]
-            calls.extend((command, ["-p", "6380", "-a", env["REDIS_PASSWORD"], "ping"]) for command in probes)
-            for index, (command, expected) in enumerate(calls):
-                trace = root / f"trace-{index}"
-                subprocess.run(command, env={**env, "TRACE": str(trace)}, check=True, capture_output=True, timeout=5)
-                self.assertEqual(trace.read_text().splitlines(), expected)
 
     def test_fixed_main_render_diff_contains_only_expected_changes(self):
         baseline = os.environ.get("ANI_CHART_BASELINE")

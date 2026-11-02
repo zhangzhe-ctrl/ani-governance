@@ -1,5 +1,8 @@
 # ANI Governance Charts
 
+> 当前平台的 Gov 连接共享 Valkey；新环境请使用文末离线指南。以下独立 Redis
+> 安装步骤与验收记录保留供旧部署参考。
+
 这组 Chart 面向新集群，不使用旧环境的 namespace、数据库或 Secret。
 
 | Chart | 命名空间 | 作用 |
@@ -40,4 +43,7 @@ Governance 业务 API 通过 NodePort 对外提供，不经过 Higress。Higress
 
 ## 离线部署示例
 
-新的离线环境可使用 [Gov 离线部署指南](ani-governance/README-offline.md)、[Redis Chart 指南](ani-governance-redis/README.md) 和对应的 `values-offline.example.yaml`。示例显式配置 `ani-system`、Redis 服务名和存储类；原有 Chart 默认值保持兼容。镜像、证书、Secret 和实际业务验收须按目标环境准备。
+新的离线环境可使用 [Gov 离线部署指南](ani-governance/README-offline.md) 和对应的
+`values-offline.example.yaml` 连接平台共享 Valkey，不需要安装独立 Redis。上文独立
+Redis 安装和验收记录仅适用于旧部署；原有 Chart 默认值保留以兼容旧 release。
+镜像、证书、Secret 和实际业务验收须按目标环境准备。

@@ -6,9 +6,9 @@
 [离线示例](values-offline.example.yaml) 使用 ClusterIP，由 Console 同源代理访问 REST。
 
 第一批 Governance + Model + Console 复用 installer 的
-`postgresql.ani-platform.svc.cluster.local:5432`，独立安装
-[Gov Redis](../ani-governance-redis/README.md)。本 Chart 不创建 PostgreSQL、
-Model、Console 或 IAM，不修改当前认证机制。
+`postgresql.ani-platform.svc.cluster.local:5432` 和平台 Valkey
+`valkey.ani-platform.svc.cluster.local:6379`。本 Chart 不创建 PostgreSQL、
+Valkey、Model、Console 或 IAM，不修改当前认证机制。
 
 ## 准备数据库和 Secret
 
@@ -24,12 +24,11 @@ Model、Console 或 IAM，不修改当前认证机制。
 
 | Secret / 键 | 消费者与内容 |
 | --- | --- |
-| `ani-governance-config / zz-secrets.yaml` | 服务配置：运行 DSN、Redis 原始密码、Asynq URI、JWT RSA 私钥和公钥 |
+| `ani-governance-config / zz-secrets.yaml` | 服务配置：运行 DSN、Valkey 原始密码、Asynq URI、JWT RSA 私钥和公钥 |
 | `ani-governance-migration / dsn` | 仅 Atlas 和 admin Job 使用的迁移 DSN |
 | `ani-governance-auth / access-key-encryption-key` | 独立 64 位十六进制主密钥，挂载为文件，注入 `ANI_ACCESS_KEY_ENCRYPTION_KEY_FILE` |
 | `ani-governance-auth / global-encryption-key` | 建议独立生成 64 位十六进制字符串，注入 `GOWIND_CRYPTO_KEY` |
 | `ani-governance-auth / admin-password` | 首次管理员密码；已有初始化不会被重置 |
-| `ani-governance-redis / password`（`ani-system`） | Redis 原始密码，须与配置 Secret 中相同 |
 
 `zz-secrets.yaml` 的结构：
 
@@ -38,10 +37,10 @@ data:
   database:
     source: "postgres://RUNTIME_USER:URLENCODED_PASSWORD@postgresql.ani-platform.svc.cluster.local:5432/ani_governance?sslmode=disable"
   redis:
-    password: "RAW_REDIS_PASSWORD"
+    password: "RAW_VALKEY_PASSWORD"
 server:
   asynq:
-    uri: "redis://:URLENCODED_REDIS_PASSWORD@ani-governance-redis.ani-system.svc.cluster.local:6379/1"
+    uri: "redis://:URLENCODED_VALKEY_PASSWORD@valkey.ani-platform.svc.cluster.local:6379/1"
 authn:
   jwt:
     private_key: |
@@ -50,7 +49,10 @@ authn:
       REPLACE_WITH_PUBLIC_KEY_PEM
 ```
 
-数据库及 Redis URI 中的密码需 URL 编码，`data.redis.password` 保留原文。
+Gov 的 `data.redis` 字段和 Asynq 的 `redis://` 使用 Redis 兼容协议连接 Valkey，
+不要求另建 Redis。部署方从平台受管凭据来源安全准备同一 Valkey 密码；跨命名空间
+不能直接引用 Secret。数据库及 Asynq URI 中的密码需 URL 编码，`data.redis.password`
+保留原文。
 配置文件不展开 shell 环境变量。基础 ConfigMap 已固定
 `data.database.driver=postgres`、`migrate=false`、`authz.type=casbin`；
 `zz-` 配置文件在其后覆盖。密钥需新生成并安全保存，多副本使用同一套；
@@ -96,13 +98,13 @@ Model 启用该身份和 RPC 的要求见
 | Gov server | 根 `Dockerfile` 的 `runtime-server` target；`make -C app/admin/service docker_server` |
 | Gov admin CLI | 根 `Dockerfile` 的 `runtime-admin` target；`make -C app/admin/service docker_admin` |
 | Gov Atlas（含本次 migrations） | `scripts/deploy/atlas/build-image.sh`，需要已准备的 Atlas v1.3.0 二进制及 busybox:1.37 基底 |
-| Redis | 独立 Redis Chart 的官方固定摘要，不由 Gov 源码构建 |
 
 server/admin 的编译版本以 `go.mod` 和 Dockerfile 为准；服务及 admin runtime 使用
 distroless，无 shell。Atlas 独立镜像内必须含 `/bin/atlas` 和
 `/app/migrations`，不能仅用一个没有迁移文件的上游 Atlas 镜像替代。
 
-离线环境先收集这四个精确镜像，并配置节点到离线仓库的信任。
+离线环境先收集这三个 Gov 镜像，并配置节点到离线仓库的信任；平台 Valkey 镜像
+由 installer 单独准备。
 覆盖三个业务镜像的 repository 与 tag/digest；digest 优先。
 私有仓库的 `imagePullSecrets` 在各工作负载命名空间分别创建。
 本 Chart 无外部 Chart 依赖；镜像与 Chart 归档分开交付。
@@ -110,7 +112,7 @@ distroless，无 shell。Atlas 独立镜像内必须含 `/bin/atlas` 和
 ## 安装和验收
 
 在仓库外编辑离线 values，填写本次构建的三个镜像版本、实际 Console origin 和 Secret 名。
-不使用历史验证摘要。Secret、Redis、业务库和证书须在 Helm 前就绪。
+不使用历史验证摘要。Secret、平台 Valkey、业务库和证书须在 Helm 前就绪。
 
 ```bash
 helm lint charts/ani-governance --strict -f /absolute/path/governance.values.yaml
