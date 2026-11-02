@@ -79,6 +79,12 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		rollback()
 		return nil, nil, err
 	}
+	createPaused, err := data.ModelDevCreatePausedFromEnv()
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	modeldevMaintenance := service.NewModelDevCreateMaintenance(createPaused)
 	modeldevConfig, err := data.ModelDevConfigFromEnv()
 	if err != nil {
 		rollback()
@@ -528,6 +534,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		modeldevGPU.Plans = acceleratorClient.Catalog
 	}
 	modeldevService := service.NewModelDevService(modeldevAuthorizationRepo, tenantRepo, modeldevAcceptanceRepo, modeldevClient, computeOwner, modeldevGPU)
+	modeldevService.SetCreateMaintenance(modeldevMaintenance)
 	if observabilityClient != nil {
 		modeldevService.SetMonitoring(observabilityClient)
 	}
@@ -602,9 +609,12 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	extraServers := []transport.Server{quotaWorker}
 	if instanceOwner != nil {
 		extraServers = append(extraServers, service.NewSandboxDispatchWorker(quotaLedgerRepo, sandboxService))
+		extraServers = append(extraServers, service.NewTenantSpaceDispatchWorker(tenantRepo, instanceOwner))
 	}
 	if modeldevClient != nil {
-		extraServers = append(extraServers, service.NewModelDevDispatchWorker(ctx, modeldevAcceptanceRepo, modeldevClient))
+		publisher := service.NewModelDevDispatchWorker(ctx, modeldevAcceptanceRepo, modeldevClient)
+		publisher.SetCreateMaintenance(modeldevMaintenance)
+		extraServers = append(extraServers, publisher)
 	}
 	if acceleratorClient != nil {
 		gpuSyncLog := ctx.NewLoggerHelper("gpu-usage-sync")

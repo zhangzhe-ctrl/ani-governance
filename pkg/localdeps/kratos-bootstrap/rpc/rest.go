@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"crypto/tls"
+	"net/http"
 	"net/http/pprof"
 
 	"github.com/gorilla/handlers"
@@ -35,6 +36,14 @@ func CreateRestServerWithFilters(cfg *conf.Bootstrap, extra []kratosRest.FilterF
 		return nil, err
 	}
 
+	// Kratos defaults to the process-wide mux for unmatched paths and methods.
+	// Imported packages can register debug handlers there even when pprof is disabled.
+	options = append(options,
+		kratosRest.NotFoundHandler(http.NotFoundHandler()),
+		kratosRest.MethodNotAllowedHandler(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		})),
+	)
 	srv := kratosRest.NewServer(options...)
 
 	if cfg != nil && cfg.Server != nil && cfg.Server.Rest != nil && cfg.Server.Rest.GetEnablePprof() {

@@ -36,6 +36,10 @@ func decodeInstanceHTTP(r *http.Request, message proto.Message) error {
 	}
 	newAction := ""
 	switch message.(type) {
+	case *view.SetInstanceSecurityGroupsRequest:
+		if err := validateSecurityGroupSelectionJSON(raw); err != nil {
+			return err
+		}
 	case *view.ChangeInstanceRequest:
 		if strings.HasSuffix(r.URL.Path, ":restart") {
 			newAction = "restart"
@@ -116,6 +120,27 @@ func decodeInstanceHTTP(r *http.Request, message proto.Message) error {
 	return nil
 }
 
+func validateSecurityGroupSelectionJSON(raw []byte) error {
+	invalid := errors.BadRequest("INVALID_INSTANCE_REQUEST", "explicit security_group_ids array required")
+	envelope, err := instanceJSONObject(raw)
+	if err != nil {
+		return invalid
+	}
+	data, err := instanceJSONObject(envelope["data"])
+	if err != nil {
+		return invalid
+	}
+	value, present := data["security_group_ids"]
+	if !present || bytes.Equal(bytes.TrimSpace(value), []byte("null")) {
+		return invalid
+	}
+	var ids []string
+	if json.Unmarshal(value, &ids) != nil {
+		return invalid
+	}
+	return nil
+}
+
 var instancePublicReason = regexp.MustCompile(`^[A-Z][A-Z0-9_]{0,95}$`)
 
 func instanceHTTPError(err error) error {
@@ -187,13 +212,15 @@ func decodeInstanceQuery(r *http.Request, message proto.Message) error {
 	allowed := map[string]bool{}
 	switch message.(type) {
 	case *vmview.ListVMsRequest:
-		allowed["page"], allowed["pageSize"] = true, true
+		for _, k := range []string{"page", "pageSize", "state", "keyword"} {
+			allowed[k] = true
+		}
 	case *view.ListMountablePVCsRequest, *view.ListInstanceMountablePVCsRequest:
 		for _, k := range []string{"page", "pageSize", "name"} {
 			allowed[k] = true
 		}
 	case *view.ListInstancesRequest:
-		for _, k := range []string{"page", "pageSize", "instance_kind", "compute_type", "observedState", "name"} {
+		for _, k := range []string{"page", "pageSize", "instance_kind", "compute_type", "observedState", "name", "id"} {
 			allowed[k] = true
 		}
 	case *computeview.ListPresetsRequest, *computeview.AdminListPresetsRequest:
@@ -274,6 +301,27 @@ func decodeInstanceQuery(r *http.Request, message proto.Message) error {
 				return invalid
 			}
 			object[field] = value
+		case "id":
+			value = strings.TrimSpace(value)
+			if utf8.RuneCountInString(value) > 36 {
+				return invalid
+			}
+			object[field] = value
+		case "state":
+			if value != "" && value != "all" {
+				switch value {
+				case "pending", "provisioning", "starting", "stopping", "running", "stopped", "failed", "deleting", "deleted":
+				default:
+					return invalid
+				}
+			}
+			object[field] = value
+		case "keyword":
+			value = strings.TrimSpace(value)
+			if utf8.RuneCountInString(value) > 80 {
+				return invalid
+			}
+			object[field] = value
 		}
 	}
 	raw, err := json.Marshal(object)
@@ -309,7 +357,7 @@ func validateInstanceConfigurationJSON(data map[string]json.RawMessage) error {
 		}
 		return false
 	}
-	for _, field := range []string{"workspace_mount_path", "volume_mounts", "network", "labels", "annotations", "env"} {
+	for _, field := range []string{"workspace_mount_path", "volume_mounts", "network", "labels", "annotations", "env", "security_group_ids"} {
 		raw, present := data[field]
 		if !present {
 			continue

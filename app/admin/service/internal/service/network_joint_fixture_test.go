@@ -30,8 +30,8 @@ type networkResourcePeer struct {
 	TenantID, ParentVPC, EntrySubnet, BackendSubnet, BackendAddress, SecondBackendAddress string
 	LiveClusterUID, VPCCIDR, SubnetCIDR                                                   string
 	ClusterID, ClusterUID, DefaultVPCNamespace, DefaultVPCName, DefaultVPCUID             string
-	LegacyDeviceID                                                                        string
 	GatewayID, QualifiedPublicPoolID                                                      string
+	NewVPCBaseDisabled                                                                    string
 	Client                                                                                *data.NetworkClient
 	DB                                                                                    *sql.DB
 }

@@ -35,3 +35,38 @@ func TestAdditionalHTTPFilterPreservesCORS(t *testing.T) {
 		t.Fatalf("request ID not exposed to browser: %q", got)
 	}
 }
+
+func TestRESTServerDoesNotFallBackToDefaultServeMux(t *testing.T) {
+	for _, cfg := range []*conf.Bootstrap{nil, {Server: &conf.Server{Rest: &conf.Server_REST{}}}} {
+		srv, err := CreateRestServer(cfg)
+		if err != nil {
+			t.Fatal(err)
+		}
+		w := httptest.NewRecorder()
+		srv.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/debug/pprof/", nil))
+		if w.Code != http.StatusNotFound {
+			t.Fatalf("disabled pprof should return 404, got %d", w.Code)
+		}
+		srv.Route("/").GET("/method-only", func(ctx khttp.Context) error {
+			return ctx.String(http.StatusOK, "ok")
+		})
+		w = httptest.NewRecorder()
+		srv.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/method-only", nil))
+		if w.Code != http.StatusMethodNotAllowed {
+			t.Fatalf("unsupported method should return 405, got %d", w.Code)
+		}
+	}
+}
+
+func TestRESTServerExplicitPprofStillWorks(t *testing.T) {
+	cfg := &conf.Bootstrap{Server: &conf.Server{Rest: &conf.Server_REST{EnablePprof: true}}}
+	srv, err := CreateRestServer(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := httptest.NewRecorder()
+	srv.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/debug/pprof", nil))
+	if w.Code != http.StatusOK {
+		t.Fatalf("explicit pprof should return 200, got %d", w.Code)
+	}
+}
