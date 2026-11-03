@@ -72,12 +72,14 @@ func (r *InstanceAuthorizationRepo) Authorize(ctx context.Context, tenant, user 
 		return ErrActionAuthorizationDenied
 	}
 	if r != nil && r.current != nil && path == NetworkVNicReadPath && method == "GET" {
-  return r.current.authorizeRoute(ctx, tenant, user, path, "NETWORK", method)
- }
- allowed := false
- switch path {
- case InstanceNetworkInterfacesPath: allowed = method == "GET"
- case InstanceNetworkInterfacePath: allowed = method == "PUT"
+		return r.current.authorizeRoute(ctx, tenant, user, path, "NETWORK", method)
+	}
+	allowed := false
+	switch path {
+	case InstanceNetworkInterfacesPath:
+		allowed = method == "GET"
+	case InstanceNetworkInterfacePath:
+		allowed = method == "PUT"
 	case InstanceCreatePath:
 		allowed = method == "POST" || method == "GET"
 	case InstanceSecurityGroupsPath:
