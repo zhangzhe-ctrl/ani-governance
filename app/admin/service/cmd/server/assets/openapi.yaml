@@ -16139,6 +16139,16 @@ components:
                     type: string
                 gateway:
                     type: string
+                exclude_ips:
+                    type: array
+                    items:
+                        type: string
+                enable_dhcp:
+                    type: boolean
+                dns_servers:
+                    type: array
+                    items:
+                        type: string
         CreateSubnetResponse:
             type: object
             properties:
@@ -25199,6 +25209,16 @@ components:
                     type: string
                 used_ip_range:
                     type: string
+                exclude_ips:
+                    type: array
+                    items:
+                        type: string
+                enable_dhcp:
+                    type: boolean
+                dns_servers:
+                    type: array
+                    items:
+                        type: string
             description: Tenant-facing subnet fields; ownership is resolved from authenticated context.
         SyncMenusRequest:
             type: object
