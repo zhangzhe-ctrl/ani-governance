@@ -59,12 +59,17 @@ type NetworkTenantClient interface {
 }
 type NetworkService struct {
 	adminv1.UnimplementedNetworkServiceServer
-	client  NetworkTenantClient
-	tenants ResourceTenantResolver
+	client            NetworkTenantClient
+	tenants           ResourceTenantResolver
+	vnicAuthorization InstanceActionAuthorizer
 }
 
-func NewNetworkService(client NetworkTenantClient, tenants ResourceTenantResolver) *NetworkService {
-	return &NetworkService{client: client, tenants: tenants}
+func NewNetworkService(client NetworkTenantClient, tenants ResourceTenantResolver, authorization ...InstanceActionAuthorizer) *NetworkService {
+	s := &NetworkService{client: client, tenants: tenants}
+	if len(authorization) > 0 {
+		s.vnicAuthorization = authorization[0]
+	}
+	return s
 }
 
 var vpcIDPattern = regexp.MustCompile(`^vpc_[0-9a-f]{32}$`)

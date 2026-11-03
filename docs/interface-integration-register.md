@@ -2170,3 +2170,15 @@ catalog sync, explicitly apply
 `sql/data/20261101010000_modeldev_environment_permissions.sql` for Permission/API
 links and exact default tenant-manager/template grants; other read-only roles
 require explicit grants. Live A/B acceptance remains pending coordinated cutover.
+
+## NET-VNIC-01 手动网卡及实例网络配置
+
+正式端点由 `api/protos/admin/service/v1/i_network.proto`、`i_vm.proto`、`i_instance.proto` 声明。VNIC 创建、详情与删除直接返回资源对象；列表及候选返回 `items/total`（total 是十进制字符串），严格使用 `page/pageSize` 默认 1/20、上限 100。VNIC 列表支持 name/subnet_id/state/binding_state 和成对 bindable_to_kind/bindable_to_id；候选按 consumer_kind=vm/container 独立分页，由 Resource owner 过滤同位置、同子网及实际支持的类型，Gov 不跨分页聚合。
+
+VNIC CRUD 及候选走 NETWORK 精确权限；VM/Instance 网络配置分别经 VIRTUAL_MACHINE/INSTANCE 的独立 get/set 权限。候选和 bindable 条件额外检查目标类型的当前读取权限；手动配置同时要求 NETWORK 的 VNIC 读取授权。API 目录同步与 `scripts/ops/sql/register-vnic-permissions.sql` 只登记权限和 API 关系，角色及套餐仍由正常管理入口配置。
+
+PUT `.../network-interfaces/primary` 的 data 为 mode、可选 vnic_id、expected_version、idempotency_key；mode 仅 automatic/manual，手动必须指定 VNIC，自动禁止带 VNIC。保存经实例 owner 原命令幂等、删除 fence 和版本检查，不追加 Restart。当前/期望/已应用配置只来自 Resource 正式读视图，待重启不是在线生效。Restart 沿原 VM/Instance 入口。
+
+出站复用 Resource mTLS，tenant UUID、actor、request ID 从认证及持久映射重建，丢弃入站身份 metadata。正式 Resource SDK 固定为 `v0.0.0-20261103075104-d1f85e7ff1df`，对应已 SSH 推送的 Resource 提交 `d1f85e7ff1df4afa5ff0a708b735d65281137560`；使用标准 Go module 下载，不使用 replace。真实页面/数据面验收由本批实施状态确认，合同登记不代表已部署或业务验收通过。
+
+新 owner 网卡接口同时接受 JWT/AK；AK 使用当前绑定租户角色执行新接口及手动选择所需 NETWORK 授权，主体 ID 不作为 User ID。PUT 只接收 data 对象的明确 snake_case 字段；expected_version 必须为规范的正十进制 int64 字符串。旧 owner 生命周期入口不因本批扩展 HMAC 表面。

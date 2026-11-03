@@ -18,6 +18,8 @@ const VMLogsPath = "/api/v1/virtual-machines/{vm_id}/logs"
 type VMRoute struct{ Path, Method string }
 
 var vmRoutes = map[string]VMRoute{
+ "network-interfaces": {"/api/v1/virtual-machines/{vm_id}/network-interfaces", "GET"},
+ "set-network-interface": {"/api/v1/virtual-machines/{vm_id}/network-interfaces/{slot}", "PUT"},
 	"set-security-groups": {"/api/v1/virtual-machines/{data.vm_id}/security-groups", "PUT"},
 	"create":              {VMCollectionPath, "POST"}, "list": {VMCollectionPath, "GET"}, "get": {VMGetPath, "GET"}, "delete": {VMDeletePath, "DELETE"}, "operation": {VMOperationPath, "GET"},
 	"start":            {"/api/v1/virtual-machines/{data.vm_id}/start", "POST"},
@@ -59,7 +61,10 @@ func (r *VMAuthorizationRepo) Authorize(ctx context.Context, tenant, user uint32
 	if r == nil || r.current == nil || !VMModuleRegistered() {
 		return ErrActionAuthorizationDenied
 	}
-	allowed := false
+	if path == NetworkVNicReadPath && method == "GET" {
+  return r.current.authorizeRoute(ctx, tenant, user, path, "NETWORK", method)
+ }
+ allowed := false
 	for _, route := range vmRoutes {
 		if route.Path == path && route.Method == method {
 			allowed = true
