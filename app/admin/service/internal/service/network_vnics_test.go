@@ -63,10 +63,15 @@ func TestVNicListPreservesRandomPageAndTotal(t *testing.T) {
 	}
 }
 func TestNetworkSelectionDoesNotTreatTargetAsEffective(t *testing.T) {
-	in := &network.NetworkInterfaces{Version: 9, Supported: true, Items: []*network.NetworkInterface{{Slot: "primary", Desired: &network.NetworkInterfaceChoice{Mode: "manual", VnicId: "vnic_0123456789abcdef0123456789abcdef", Ips: []string{"10.0.0.8"}}, Applied: &network.NetworkInterfaceChoice{Mode: "automatic"}, RequestedRevision: 9, AppliedRevision: 8, PendingRestart: true, CurrentIps: []string{"10.0.0.7"}}}}
-	out, e := wireNetworkInterfaces(in)
-	if e != nil || !out.Items[0].PendingRestart || out.Items[0].EffectiveNow || out.Items[0].CurrentIps[0] != "10.0.0.7" || out.Items[0].Desired.Ips[0] != "10.0.0.8" {
-		t.Fatal("pending selection became current", out, e)
+	for _, state := range []string{"configuring", "ready", "failed"} {
+		t.Run(state, func(t *testing.T) {
+			pending := state == "ready"
+			in := &network.NetworkInterfaces{Version: 9, Supported: true, Items: []*network.NetworkInterface{{Slot: "primary", Desired: &network.NetworkInterfaceChoice{Mode: "manual", VnicId: "vnic_0123456789abcdef0123456789abcdef", Ips: []string{"10.0.0.8"}}, Applied: &network.NetworkInterfaceChoice{Mode: "automatic"}, RequestedRevision: 9, AppliedRevision: 8, PendingRestart: pending, CurrentIps: []string{"10.0.0.7"}, ConfigurationState: state, OperationId: "33333333-3333-4333-8333-333333333333", OperationReason: "SECURITY_GROUP_SYNC_PENDING"}}}
+			out, e := wireNetworkInterfaces(in)
+			if e != nil || out.Items[0].PendingRestart != pending || out.Items[0].EffectiveNow || out.Items[0].CurrentIps[0] != "10.0.0.7" || out.Items[0].Desired.Ips[0] != "10.0.0.8" || out.Items[0].ConfigurationState != state || out.Items[0].OperationId != in.Items[0].OperationId || out.Items[0].OperationReason != in.Items[0].OperationReason {
+				t.Fatal("configuration progress or current network facts lost", out, e)
+			}
+		})
 	}
 	for _, d := range []*view.SetNetworkInterfaceData{{Mode: "manual", ExpectedVersion: 9, IdempotencyKey: "33333333-3333-4333-8333-333333333333"}, {Mode: "automatic", VnicId: "vnic_0123456789abcdef0123456789abcdef", ExpectedVersion: 9, IdempotencyKey: "33333333-3333-4333-8333-333333333333"}} {
 		if validNetworkInterfaceSelection("primary", d) {

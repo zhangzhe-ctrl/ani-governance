@@ -2179,6 +2179,8 @@ VNIC CRUD 及候选走 NETWORK 精确权限；VM/Instance 网络配置分别经 
 
 PUT `.../network-interfaces/primary` 的 data 为 mode、可选 vnic_id、expected_version、idempotency_key；mode 仅 automatic/manual，手动必须指定 VNIC，自动禁止带 VNIC。保存经实例 owner 原命令幂等、删除 fence 和版本检查，不追加 Restart。当前/期望/已应用配置只来自 Resource 正式读视图，待重启不是在线生效。Restart 沿原 VM/Instance 入口。
 
-出站复用 Resource mTLS，tenant UUID、actor、request ID 从认证及持久映射重建，丢弃入站身份 metadata。正式 Resource SDK 固定为 `v0.0.0-20261103075104-d1f85e7ff1df`，对应已 SSH 推送的 Resource 提交 `d1f85e7ff1df4afa5ff0a708b735d65281137560`；使用标准 Go module 下载，不使用 replace。真实页面/数据面验收由本批实施状态确认，合同登记不代表已部署或业务验收通过。
+出站复用 Resource mTLS，tenant UUID、actor、request ID 从认证及持久映射重建，丢弃入站身份 metadata。正式 Resource SDK 固定为 `v0.0.0-20261103092013-f4711fd8f7e0`，对应已 SSH 推送的 Resource 提交 `f4711fd8f7e0eb87c9595cf58773e3aa993f748c`；使用标准 Go module 下载，不使用 replace。真实页面/数据面验收由本批实施状态确认，合同登记不代表已部署或业务验收通过。
 
 新 owner 网卡接口同时接受 JWT/AK；AK 使用当前绑定租户角色执行新接口及手动选择所需 NETWORK 授权，主体 ID 不作为 User ID。PUT 只接收 data 对象的明确 snake_case 字段；expected_version 必须为规范的正十进制 int64 字符串。旧 owner 生命周期入口不因本批扩展 HMAC 表面。
+
+实例网卡读视图另返回 `configuration_state`（`configuring/ready/failed`）、`operation_id`、`operation_reason`，直接保留 owner 的持久配置操作投影。配置仍在处理中不能展示为保存完成或允许重启应用；当前地址与目标地址分别保留。Gov 不追加操作查询或轮询。

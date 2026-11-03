@@ -21785,6 +21785,12 @@ components:
                     format: date-time
                 observation_reason:
                     type: string
+                configuration_state:
+                    type: string
+                operation_id:
+                    type: string
+                operation_reason:
+                    type: string
         NetworkInterfaceChoice:
             type: object
             properties:
