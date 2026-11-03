@@ -27,11 +27,13 @@ message VNic {
  string binding_state=19 [json_name="binding_state"];
  string vpc_name=20 [json_name="vpc_name"]; string subnet_name=21 [json_name="subnet_name"];
  repeated string security_group_names=22 [json_name="security_group_names"];
+ string requested_ip=24 [json_name="requested_ip"]; string requested_mac=25 [json_name="requested_mac"];
 }
 message CreateVNicData {
  string name=1; string description=2;
  string subnet_id=3 [json_name="subnet_id"];
  string idempotency_key=4 [json_name="idempotency_key"];
+ string requested_ip=5 [json_name="requested_ip"]; string requested_mac=6 [json_name="requested_mac"];
 }
 message CreateVNicRequest { CreateVNicData data=1; }
 message GetVNicRequest { string vnic_id=1 [json_name="vnic_id"]; }

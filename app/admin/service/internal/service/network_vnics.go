@@ -40,7 +40,7 @@ func wireVNic(v *network.VNic, t, id string) (*view.VNic, error) {
 	if v == nil || v.TenantId != t || !vnicIDPattern.MatchString(v.Id) || (id != "" && id != v.Id) || !vpcIDPattern.MatchString(v.VpcId) || !subnetIDPattern.MatchString(v.SubnetId) || v.Version < 1 || v.State < network.ResourceState_RESOURCE_STATE_PROVISIONING || v.State > network.ResourceState_RESOURCE_STATE_DELETED {
 		return nil, invalidNetworkReply()
 	}
-	out := &view.VNic{Id: v.Id, Name: v.Name, Description: v.Description, VpcId: v.VpcId, SubnetId: v.SubnetId, State: strings.ToLower(strings.TrimPrefix(v.State.String(), "RESOURCE_STATE_")), Version: v.Version, MacAddress: v.MacAddress, PrimaryIp: v.PrimaryIp, Ips: append([]string{}, v.Ips...), SecurityGroupIds: append([]string{}, v.SecurityGroupIds...), ObservedAt: v.ObservedAt, ObservationStale: v.ObservationStale, Reason: v.Reason, LastOperationId: v.LastOperationId, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt, BindingState: v.BindingState, VpcName: v.VpcName, SubnetName: v.SubnetName, SecurityGroupNames: append([]string{}, v.SecurityGroupNames...), Bindings: []*view.VNicBinding{}}
+	out := &view.VNic{Id: v.Id, Name: v.Name, Description: v.Description, VpcId: v.VpcId, SubnetId: v.SubnetId, State: strings.ToLower(strings.TrimPrefix(v.State.String(), "RESOURCE_STATE_")), Version: v.Version, MacAddress: v.MacAddress, PrimaryIp: v.PrimaryIp, Ips: append([]string{}, v.Ips...), RequestedIp: v.RequestedIp, RequestedMac: v.RequestedMac, SecurityGroupIds: append([]string{}, v.SecurityGroupIds...), ObservedAt: v.ObservedAt, ObservationStale: v.ObservationStale, Reason: v.Reason, LastOperationId: v.LastOperationId, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt, BindingState: v.BindingState, VpcName: v.VpcName, SubnetName: v.SubnetName, SecurityGroupNames: append([]string{}, v.SecurityGroupNames...), Bindings: []*view.VNicBinding{}}
 	for _, b := range v.Bindings {
 		if b == nil || !canonicalCatalogUUID(b.ConsumerId) || b.Slot != "primary" || (b.ConsumerKind != "vm" && b.ConsumerKind != "container") {
 			return nil, invalidNetworkReply()
@@ -58,7 +58,7 @@ func (s *NetworkService) CreateVNic(ctx context.Context, r *view.CreateVNicReque
 		return nil, e
 	}
 	d := r.Data
-	out, e := c.CreateVNic(ctx, t, a, &network.CreateVNicRequest{Name: d.Name, Description: d.Description, SubnetId: d.SubnetId, IdempotencyKey: d.IdempotencyKey})
+	out, e := c.CreateVNic(ctx, t, a, &network.CreateVNicRequest{Name: d.Name, Description: d.Description, SubnetId: d.SubnetId, IdempotencyKey: d.IdempotencyKey, RequestedIp: d.RequestedIp, RequestedMac: d.RequestedMac})
 	if e != nil {
 		return nil, mapNetworkError(e)
 	}

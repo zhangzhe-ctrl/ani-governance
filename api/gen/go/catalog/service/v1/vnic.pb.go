@@ -162,6 +162,8 @@ type VNic struct {
 	VpcName            string                 `protobuf:"bytes,20,opt,name=vpc_name,proto3" json:"vpc_name,omitempty"`
 	SubnetName         string                 `protobuf:"bytes,21,opt,name=subnet_name,proto3" json:"subnet_name,omitempty"`
 	SecurityGroupNames []string               `protobuf:"bytes,22,rep,name=security_group_names,proto3" json:"security_group_names,omitempty"`
+	RequestedIp        string                 `protobuf:"bytes,24,opt,name=requested_ip,proto3" json:"requested_ip,omitempty"`
+	RequestedMac       string                 `protobuf:"bytes,25,opt,name=requested_mac,proto3" json:"requested_mac,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -350,12 +352,28 @@ func (x *VNic) GetSecurityGroupNames() []string {
 	return nil
 }
 
+func (x *VNic) GetRequestedIp() string {
+	if x != nil {
+		return x.RequestedIp
+	}
+	return ""
+}
+
+func (x *VNic) GetRequestedMac() string {
+	if x != nil {
+		return x.RequestedMac
+	}
+	return ""
+}
+
 type CreateVNicData struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Description    string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	SubnetId       string                 `protobuf:"bytes,3,opt,name=subnet_id,proto3" json:"subnet_id,omitempty"`
 	IdempotencyKey string                 `protobuf:"bytes,4,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	RequestedIp    string                 `protobuf:"bytes,5,opt,name=requested_ip,proto3" json:"requested_ip,omitempty"`
+	RequestedMac   string                 `protobuf:"bytes,6,opt,name=requested_mac,proto3" json:"requested_mac,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -414,6 +432,20 @@ func (x *CreateVNicData) GetSubnetId() string {
 func (x *CreateVNicData) GetIdempotencyKey() string {
 	if x != nil {
 		return x.IdempotencyKey
+	}
+	return ""
+}
+
+func (x *CreateVNicData) GetRequestedIp() string {
+	if x != nil {
+		return x.RequestedIp
+	}
+	return ""
+}
+
+func (x *CreateVNicData) GetRequestedMac() string {
+	if x != nil {
+		return x.RequestedMac
 	}
 	return ""
 }
@@ -1568,7 +1600,7 @@ const file_catalog_service_v1_vnic_proto_rawDesc = "" +
 	"\x06target\x18\b \x01(\bR\x06target\x12$\n" +
 	"\rconsumer_name\x18\t \x01(\tR\rconsumer_name\x12\"\n" +
 	"\fcompute_type\x18\n" +
-	" \x01(\tR\fcompute_type\"\xb5\x06\n" +
+	" \x01(\tR\fcompute_type\"\xff\x06\n" +
 	"\x04VNic\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -1598,12 +1630,16 @@ const file_catalog_service_v1_vnic_proto_rawDesc = "" +
 	"\rbinding_state\x18\x13 \x01(\tR\rbinding_state\x12\x1a\n" +
 	"\bvpc_name\x18\x14 \x01(\tR\bvpc_name\x12 \n" +
 	"\vsubnet_name\x18\x15 \x01(\tR\vsubnet_name\x122\n" +
-	"\x14security_group_names\x18\x16 \x03(\tR\x14security_group_names\"\x8e\x01\n" +
+	"\x14security_group_names\x18\x16 \x03(\tR\x14security_group_names\x12\"\n" +
+	"\frequested_ip\x18\x18 \x01(\tR\frequested_ip\x12$\n" +
+	"\rrequested_mac\x18\x19 \x01(\tR\rrequested_mac\"\xd8\x01\n" +
 	"\x0eCreateVNicData\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x1c\n" +
 	"\tsubnet_id\x18\x03 \x01(\tR\tsubnet_id\x12(\n" +
-	"\x0fidempotency_key\x18\x04 \x01(\tR\x0fidempotency_key\"K\n" +
+	"\x0fidempotency_key\x18\x04 \x01(\tR\x0fidempotency_key\x12\"\n" +
+	"\frequested_ip\x18\x05 \x01(\tR\frequested_ip\x12$\n" +
+	"\rrequested_mac\x18\x06 \x01(\tR\rrequested_mac\"K\n" +
 	"\x11CreateVNicRequest\x126\n" +
 	"\x04data\x18\x01 \x01(\v2\".catalog.service.v1.CreateVNicDataR\x04data\"*\n" +
 	"\x0eGetVNicRequest\x12\x18\n" +

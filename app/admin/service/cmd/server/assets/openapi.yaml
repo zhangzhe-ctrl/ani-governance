@@ -16235,6 +16235,10 @@ components:
                     type: string
                 idempotency_key:
                     type: string
+                requested_ip:
+                    type: string
+                requested_mac:
+                    type: string
         CreateVNicRequest:
             type: object
             properties:
@@ -26699,6 +26703,10 @@ components:
                     type: array
                     items:
                         type: string
+                requested_ip:
+                    type: string
+                requested_mac:
+                    type: string
         VNicBinding:
             type: object
             properties:

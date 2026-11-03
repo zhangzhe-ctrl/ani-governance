@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/go-kratos/kratos/v2/errors"
 	network "github.com/zhangzhe-ctrl/ani-resource-service/api/network/v1"
 	view "go-wind-admin/api/gen/go/catalog/service/v1"
 	"go-wind-admin/pkg/middleware/auth"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"testing"
 )
@@ -16,6 +18,19 @@ type vnicProbe struct {
 	tenant, actor string
 	wrongTenant   bool
 	request       *network.ListVNicsRequest
+	createRequest *network.CreateVNicRequest
+}
+
+func (p *vnicProbe) CreateVNic(ctx context.Context, t, a string, r *network.CreateVNicRequest) (*network.CreateVNicResponse, error) {
+	p.createRequest = proto.Clone(r).(*network.CreateVNicRequest)
+	reply, err := p.GetVNic(ctx, t, a, &network.GetVNicRequest{VnicId: "vnic_0123456789abcdef0123456789abcdef"})
+	if err != nil {
+		return nil, err
+	}
+	reply.Vnic.RequestedIp, reply.Vnic.RequestedMac = r.RequestedIp, r.RequestedMac
+	reply.Vnic.State = network.ResourceState_RESOURCE_STATE_PROVISIONING
+	reply.Vnic.PrimaryIp, reply.Vnic.MacAddress, reply.Vnic.Ips = "", "", nil
+	return &network.CreateVNicResponse{Vnic: reply.Vnic}, nil
 }
 
 func (p *vnicProbe) GetVNic(_ context.Context, t, a string, r *network.GetVNicRequest) (*network.GetVNicResponse, error) {
@@ -60,6 +75,37 @@ func TestVNicListPreservesRandomPageAndTotal(t *testing.T) {
 	}
 	if _, e = s.ListVNics(ctx, &view.ListVNicsRequest{BindableToKind: "vm"}); errors.Code(e) != 400 {
 		t.Fatal("unpaired bindability admitted", e)
+	}
+}
+
+func TestVNicCreatePreservesRequestedAddressIntent(t *testing.T) {
+	for _, intent := range []struct{ ip, mac string }{{}, {"10.0.0.42", "02:00:00:00:00:42"}} {
+		p := &vnicProbe{}
+		s := NewNetworkService(p, &tenantProbe{})
+		ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 5})
+		raw, err := json.Marshal(map[string]any{"data": map[string]string{"name": "lab", "subnet_id": "subnet_0123456789abcdef0123456789abcdef", "idempotency_key": "33333333-3333-4333-8333-333333333333", "requested_ip": intent.ip, "requested_mac": intent.mac}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		var request view.CreateVNicRequest
+		if err = protojson.Unmarshal(raw, &request); err != nil {
+			t.Fatal(err)
+		}
+		out, err := s.CreateVNic(ctx, &request)
+		if err != nil || p.createRequest == nil || p.createRequest.RequestedIp != intent.ip || p.createRequest.RequestedMac != intent.mac || p.createRequest.IdempotencyKey != request.Data.IdempotencyKey || out.Vnic.RequestedIp != intent.ip || out.Vnic.RequestedMac != intent.mac || out.Vnic.PrimaryIp != "" || out.Vnic.MacAddress != "" {
+			t.Fatal("requested allocation intent was lost or presented as an observed address", out, p.createRequest, err)
+		}
+		raw, err = protojson.Marshal(out.Vnic)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var fields map[string]any
+		if err = json.Unmarshal(raw, &fields); err != nil {
+			t.Fatal(err)
+		}
+		if intent.ip != "" && (fields["requested_ip"] != intent.ip || fields["requested_mac"] != intent.mac) {
+			t.Fatal("requested address JSON names changed", fields)
+		}
 	}
 }
 func TestNetworkSelectionDoesNotTreatTargetAsEffective(t *testing.T) {

@@ -492,7 +492,7 @@ func TestNetworkDomainErrorReasons(t *testing.T) {
 		code   codes.Code
 		reason string
 		http   int
-	}{{codes.AlreadyExists, "IDEMPOTENCY_CONFLICT", 409}, {codes.FailedPrecondition, "VERSION_CONFLICT", 412}, {codes.FailedPrecondition, "RESOURCE_IN_USE", 412}, {codes.NotFound, "RESOURCE_NOT_FOUND", 404}, {codes.Unavailable, "BASE_CONNECTIVITY_NOT_READY", 503}} {
+	}{{codes.AlreadyExists, "IDEMPOTENCY_CONFLICT", 409}, {codes.AlreadyExists, "ADDRESS_CONFLICT", 409}, {codes.FailedPrecondition, "VERSION_CONFLICT", 412}, {codes.FailedPrecondition, "RESOURCE_IN_USE", 412}, {codes.NotFound, "RESOURCE_NOT_FOUND", 404}, {codes.Unavailable, "BASE_CONNECTIVITY_NOT_READY", 503}} {
 		st, err := status.New(tc.code, "private dependency detail").WithDetails(&errdetails.ErrorInfo{Domain: "network.ani.io", Reason: tc.reason})
 		if err != nil {
 			t.Fatal(err)
