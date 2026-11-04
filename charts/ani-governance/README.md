@@ -297,7 +297,7 @@ certificate:
    （注入 `GWA_AUTH_REFRESH_COOKIE_INSECURE=true`）降级；**生产 HTTPS 保持 `false`**。
 
 跨域部署时还需保证 `corsOrigins`（生成到 `server.yaml` 的 CORS origins）包含前端站点，
-且 CORS 预检放行 `X-CSRF-Token` 自定义头（本 Chart 生成的配置已包含）。前端与 API 同源
+且 CORS 预检放行 `X-CSRF-Token` 和 `Idempotency-Key` 自定义头（本 Chart 生成的配置已包含）。前端与 API 同源
 （如前端 nginx 反向代理 `/api`）时不触发 CORS 预检，但仍受上述来源白名单约束。
 
 ## 离线环境部署

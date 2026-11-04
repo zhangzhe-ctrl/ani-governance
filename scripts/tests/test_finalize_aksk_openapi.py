@@ -10,6 +10,23 @@ spec.loader.exec_module(finalizer)
 
 
 class FinalizeOpenAPITests(unittest.TestCase):
+    def test_resource_delete_contract_exposes_header_and_flat_version(self):
+        def param(name, location):
+            return f"                - name: {name}\n                  in: {location}\n                  schema:\n                    type: string\n"
+
+        header = "                - name: Idempotency-Key\n                  in: header\n                  required: true\n                  schema:\n                    type: string\n"
+        text = "    /api/v1/inference/services/{resource_id}:\n        delete:\n            parameters:\n" + param("resource_id", "path") + param("idempotency_key", "query") + header + '            responses:\n                "200":\n                    description: OK\n'
+        text += "    /api/v1/sandbox/{data.sandbox_id}:\n        delete:\n            parameters:\n" + param("data.sandbox_id", "path") + param("data.sandbox_id", "query") + param("data.idempotency_key", "query") + param("data.expected_version", "query") + param("data.instance_id", "query") + header + '            responses:\n                "200":\n                    description: OK\ncomponents:\n'
+        result = finalizer.normalize_resource_delete_parameters(text)
+        self.assertIn('                "202":', result)
+        self.assertIn('                - name: data.expected_version\n                  in: query', result)
+        self.assertIn('                - name: idempotency_key\n', result)
+        self.assertIn('                - name: data.idempotency_key\n', result)
+        self.assertNotIn('                - name: data.instance_id\n', result)
+        self.assertEqual(result.count('                - name: data.sandbox_id\n'), 1)
+        self.assertEqual(result.count('                - name: Idempotency-Key\n'), 2)
+        self.assertEqual(result.count('                  schema:\n'), 7)
+
     def test_direct_object_schema_wins_for_every_http_method(self):
         for method in ['get', 'post', 'patch', 'delete']:
             with self.subTest(method=method):

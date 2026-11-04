@@ -129,7 +129,7 @@ func TestInferenceComputeSoftwareFlow(t *testing.T) {
 				require.NoError(t, os.WriteFile(filepath.Join(f.control, "cleanup-model-fails"), nil, 0600))
 			}
 			deletion := new(view.InferenceAcceptance)
-			f.call("POST", "/api/v1/inference/services/"+accepted.ResourceId+":delete", &view.DeleteInferenceRequest{IdempotencyKey: uuid.NewString(), ResourceId: accepted.ResourceId}, deletion, 202)
+			f.call("DELETE", "/api/v1/inference/services/"+accepted.ResourceId, &view.DeleteInferenceRequest{IdempotencyKey: uuid.NewString(), ResourceId: accepted.ResourceId}, deletion, 202)
 			if mode != "cpu" {
 				require.Eventually(t, func() bool { return f.eventCount("cleanup_model") > 0 }, 10*time.Second, 20*time.Millisecond)
 				require.Zero(t, f.eventCount("observe_release"), "CleanupModel failure must precede release coordination")
@@ -170,7 +170,7 @@ func TestInferenceComputeDeleteFirstRecovery(t *testing.T) {
 				require.NotEqual(t, quotaoperation.DispatchStateAcked, op.DispatchState)
 				require.NoError(t, os.WriteFile(filepath.Join(f.control, "pause"), nil, 0600))
 				d := new(view.InferenceAcceptance)
-				f.call("POST", "/api/v1/inference/services/"+a.ResourceId+":delete", &view.DeleteInferenceRequest{IdempotencyKey: uuid.NewString(), ResourceId: a.ResourceId}, d, 202)
+				f.call("DELETE", "/api/v1/inference/services/"+a.ResourceId, &view.DeleteInferenceRequest{IdempotencyKey: uuid.NewString(), ResourceId: a.ResourceId}, d, 202)
 				require.Eventually(t, func() bool {
 					o, e := f.ledger.GetOperationForUser(context.Background(), f.tenant.ID, d.OperationId)
 					return e == nil && o.DispatchState == quotaoperation.DispatchStateAcked
@@ -472,9 +472,15 @@ func (f *computeCrossFixture) call(method, path string, in, out proto.Message, e
 	f.t.Helper()
 	raw, err := protojson.Marshal(in)
 	require.NoError(f.t, err)
+	if method == "DELETE" {
+		raw = nil
+	}
 	r, err := http.NewRequest(method, f.url+path, bytes.NewReader(raw))
 	require.NoError(f.t, err)
 	r.Header.Set("Content-Type", "application/json")
+	if method == "DELETE" {
+		r.Header.Set("Idempotency-Key", in.(*view.DeleteInferenceRequest).IdempotencyKey)
+	}
 	r.Header.Set("Authorization", "Bearer "+f.token)
 	response, err := http.DefaultClient.Do(r)
 	require.NoError(f.t, err)

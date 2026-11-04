@@ -7,6 +7,7 @@
 package adminpb
 
 import (
+	_ "github.com/google/gnostic/openapiv3"
 	v1 "go-wind-admin/api/gen/go/inference/service/v1"
 	v11 "go-wind-admin/api/gen/go/inference/view/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -27,10 +28,13 @@ var File_admin_service_v1_i_inference_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_inference_proto_rawDesc = "" +
 	"\n" +
-	"\"admin/service/v1/i_inference.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a inference/service/v1/owner.proto\x1a\x1cinference/view/v1/view.proto2\x90\r\n" +
+	"\"admin/service/v1/i_inference.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a inference/service/v1/owner.proto\x1a\x1cinference/view/v1/view.proto2\xe0\x0e\n" +
 	"\x10InferenceService\x12\x91\x01\n" +
-	"\x0fCreateInference\x12,.inference.service.v1.CreateInferenceRequest\x1a).inference.service.v1.InferenceAcceptance\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/v1/inference/services\x12\xa6\x01\n" +
-	"\x0fDeleteInference\x12,.inference.service.v1.DeleteInferenceRequest\x1a).inference.service.v1.InferenceAcceptance\":\x82\xd3\xe4\x93\x024:\x01*\"//api/v1/inference/services/{resource_id}:delete\x12\x90\x01\n" +
+	"\x0fCreateInference\x12,.inference.service.v1.CreateInferenceRequest\x1a).inference.service.v1.InferenceAcceptance\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/v1/inference/services\x12\xf6\x02\n" +
+	"\x0fDeleteInference\x12,.inference.service.v1.DeleteInferenceRequest\x1a).inference.service.v1.InferenceAcceptance\"\x89\x02\xbaG\xd5\x01\x1a\xa8\x01Asynchronously delete the service. Provide the idempotency key either in the Idempotency-Key header or the idempotency_key query parameter, never both. No request body.2(\n" +
+	"&\n" +
+	"\x0fIdempotency-Key\x12\x06headerR\v\n" +
+	"\t\xca\x01\x06string\x82\xd3\xe4\x93\x02**(/api/v1/inference/services/{resource_id}\x12\x90\x01\n" +
 	"\fGetInference\x12).inference.service.v1.GetInferenceRequest\x1a#.inference.service.v1.InferenceView\"0\x82\xd3\xe4\x93\x02*\x12(/api/v1/inference/services/{resource_id}\x12\x8c\x01\n" +
 	"\rListInference\x12*.inference.service.v1.ListInferenceRequest\x1a+.inference.service.v1.ListInferenceResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/inference/services\x12\x9e\x01\n" +
 	"\x15GetInferenceOperation\x122.inference.service.v1.GetInferenceOperationRequest\x1a\x1c.inference.view.v1.Operation\"3\x82\xd3\xe4\x93\x02-\x12+/api/v1/inference/operations/{operation_id}\x12\xa6\x01\n" +

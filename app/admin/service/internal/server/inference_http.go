@@ -83,14 +83,15 @@ func RegisterInferenceHTTPServer(server *http.Server, inference *service.Inferen
 		}
 		return ctx.Result(nethttp.StatusAccepted, out)
 	})
-	server.Route("/").POST(data.InferenceDeletePath, func(ctx http.Context) error {
+	server.Route("/").DELETE(data.InferenceDeletePath, func(ctx http.Context) error {
 		http.SetOperation(ctx, admin.OperationInferenceServiceDeleteInference)
-		request := new(view.DeleteInferenceRequest)
-		if err := decodeInferenceHTTP(ctx.Request(), request); err != nil {
-			return err
+		key, _, err := decodeDeleteInput(ctx.Request(), false)
+		if err != nil {
+			return errors.BadRequest("INVALID_INFERENCE_REQUEST", "invalid inference delete request")
 		}
+		request := &view.DeleteInferenceRequest{IdempotencyKey: key}
 		resourceID := inferenceDeletePathResourceID(ctx.Vars())
-		if resourceID == "" || (request.ResourceId != "" && request.ResourceId != resourceID) {
+		if resourceID == "" {
 			return errors.BadRequest("INVALID_INFERENCE_REQUEST", "invalid inference resource")
 		}
 		request.ResourceId = resourceID

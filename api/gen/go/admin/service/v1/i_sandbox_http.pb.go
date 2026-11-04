@@ -214,9 +214,6 @@ func _SandboxService_ResumeSandbox0_HTTP_Handler(srv SandboxServiceHTTPServer) f
 func _SandboxService_DeleteSandbox0_HTTP_Handler(srv SandboxServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v1.DeleteSandboxRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
@@ -502,10 +499,10 @@ func (c *SandboxServiceHTTPClientImpl) CreateSandboxToken(ctx context.Context, i
 func (c *SandboxServiceHTTPClientImpl) DeleteSandbox(ctx context.Context, in *v1.DeleteSandboxRequest, opts ...http.CallOption) (*v1.SandboxAcceptance, error) {
 	var out v1.SandboxAcceptance
 	pattern := "/api/v1/sandbox/{data.sandbox_id}"
-	path := binding.EncodeURL(pattern, in, false)
+	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationSandboxServiceDeleteSandbox))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "DELETE", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -16,7 +16,7 @@ require (
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/jinzhu/inflection v1.0.0
-	github.com/liangzai006/ani-inference-service/api v0.1.2-image-registry.2.0.20261029104314-3688ea191407
+	github.com/liangzai006/ani-inference-service/api v0.1.2-image-registry.2.0.20261104085408-1254fd10d716
 	github.com/liangzai006/ani-model-service/api v0.0.0-20261028165608-620bcb1503a6
 	github.com/lib/pq v1.12.3
 	github.com/mileusna/useragent v1.3.5

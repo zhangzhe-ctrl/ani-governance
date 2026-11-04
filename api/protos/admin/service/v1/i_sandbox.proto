@@ -25,7 +25,8 @@ service SandboxService {
     option (google.api.http) = { post: "/api/v1/sandbox/{data.sandbox_id}:resume" body: "*" };
   }
   rpc DeleteSandbox(sandbox.service.v1.DeleteSandboxRequest) returns (sandbox.service.v1.SandboxAcceptance) {
-    option (google.api.http) = { delete: "/api/v1/sandbox/{data.sandbox_id}" body: "*" };
+    option (google.api.http) = { delete: "/api/v1/sandbox/{data.sandbox_id}" };
+    option (gnostic.openapi.v3.operation) = {description: "Asynchronously delete the sandbox. Supply the idempotency key either in the Idempotency-Key header or the data.idempotency_key query parameter, never both. Use only one of expected_version or data.expected_version for the optional version check. No request body." parameters: [{parameter: {name: "Idempotency-Key" in: "header" schema: {schema: {type: "string"}}}}, {parameter: {name: "expected_version" in: "query" schema: {schema: {type: "string"}}}}]};
   }
   rpc RunSandboxCode(sandbox.service.v1.RunSandboxCodeRequest) returns (sandbox.service.v1.SandboxCodeRun) {
     option (google.api.http) = { post: "/api/v1/sandbox/{data.sandbox_id}/code-runs" body: "*" };

@@ -1653,7 +1653,7 @@ roles 取页后需逐条回填权限/组织单元/字段权限，故 keyset 采�
 | 编号 | 入口 | 报文与可靠受理 | 当前授权条件 |
 |---|---|---|---|
 | INF-01 | `POST /api/v1/inference/services` | 请求顶层使用扁平推理字段（UUID idempotency_key、model_version_id、engine_image、engine_type、完整单字符串 command、cpu、memory、replicas、四字段 gpu）；不暴露内部附件、Kubernetes 数组或嵌套 resource/runtime/engine。调用现有 AcceptGpuCreate：授权、重放、Resolve、冻结、Ent一次占额、持久 dispatch；返回原 operation/resource、replayed、ACCEPTED | 可信 tenant-user Principal；活跃当前用户/租户/角色；当前套餐 INFERENCE；独立 `inference:service:create` → 当前 API route grant；对应 GPU PlanQuota；实际 Acc delegation 与已装配 Inference adapter |
-| INF-02 | `POST /api/v1/inference/services/{resource_id}:delete` | 顶层 `idempotency_key`；resource由路径绑定，正文若有须一致。调用现有 AcceptGpuDelete：未发可本地原子取消，否则持久 DELETE 关联并可靠投递；ACK不是释放完成 | 同一可信租户与独立 `inference:service:delete` 动作；权限先于原创建读取/幂等重放，不能用 Accelerator 读权或历史原记录绕过 |
+| INF-02 | `DELETE /api/v1/inference/services/{resource_id}` | `Idempotency-Key` 请求头或 `idempotency_key` 查询参数（二选一）；resource由路径绑定，无请求体，不接受 `expected_generation`。普通服务由 Inference 事务锁内读取当前版本；受管删除未发可本地原子取消，否则持久 DELETE 关联并可靠投递；ACK不是释放完成 | 同一可信租户与独立 `inference:service:delete` 动作；权限先于原创建读取/幂等重放，不能用 Accelerator 读权或历史原记录绕过 |
 
 ledger adapter action固定为权威 Inference RPC full method `CreateInferenceService` / `DeleteInferenceService`；目的地址和服务端精确 DNS SAN 只来自受管配置。真实 Inference RPC保留原业务tags，加入公共Acc附件与原全量charges；唯一业务摘要来自 Inference API公开helper，adapter核对durable ACK并映射既有三个snake_case字段。完整字段/单位/身份/错误/恢复见 [GPU owner接入指南](contracts/gpu-owner-integration-guide.md)。
 
@@ -1793,7 +1793,7 @@ NotFound 或没有身份/阶段的错误保持未知，不触发该收尾或直�
 | 删除模型/版本 | `DELETE /api/v1/models/{model_id}`、`DELETE /api/v1/model-versions/{model_version_id}` | `model:service:manage` |
 
 | 推理服务列表/详情 | `GET /api/v1/inference/services`、`GET /api/v1/inference/services/{resource_id}` | `inference:service:read` |
-| 推理服务创建/删除 | `POST /api/v1/inference/services`、`POST /api/v1/inference/services/{resource_id}:delete` | `inference:service:create` / `inference:service:delete` |
+| 推理服务创建/删除 | `POST /api/v1/inference/services`、`DELETE /api/v1/inference/services/{resource_id}` | `inference:service:create` / `inference:service:delete` |
 | 推理操作查询 | `GET /api/v1/inference/operations/{operation_id}`、`GET /api/v1/inference/services/{resource_id}/operations` | `inference:service:read` |
 | 推理更新/启停/重启 | `POST /api/v1/inference/services/{resource_id}:update`、`:start`、`:stop`、`:restart` | `inference:service:manage` |
 

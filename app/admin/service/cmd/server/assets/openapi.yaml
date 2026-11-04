@@ -8676,6 +8676,32 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/InferenceView'
+        delete:
+            tags:
+                - InferenceService
+            description: Asynchronously delete the service. Provide the idempotency key either in the Idempotency-Key header or the idempotency_key query parameter, never both. No request body.
+            operationId: InferenceService_DeleteInference
+            parameters:
+                - name: resource_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: idempotency_key
+                  in: query
+                  schema:
+                    type: string
+                - name: Idempotency-Key
+                  in: header
+                  schema:
+                    type: string
+            responses:
+                "202":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InferenceAcceptance'
     /api/v1/inference/services/{resource_id}/events:
         get:
             tags:
@@ -8886,30 +8912,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/RuntimeDiagnostics'
-    /api/v1/inference/services/{resource_id}:delete:
-        post:
-            tags:
-                - InferenceService
-            operationId: InferenceService_DeleteInference
-            parameters:
-                - name: resource_id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/DeleteInferenceRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/InferenceAcceptance'
     /api/v1/inference/services/{resource_id}:restart:
         post:
             tags:
@@ -12121,6 +12123,7 @@ paths:
         delete:
             tags:
                 - SandboxService
+            description: Asynchronously delete the sandbox. Supply the idempotency key either in the Idempotency-Key header or the data.idempotency_key query parameter, never both. Use only one of expected_version or data.expected_version for the optional version check. No request body.
             operationId: SandboxService_DeleteSandbox
             parameters:
                 - name: data.sandbox_id
@@ -12128,12 +12131,22 @@ paths:
                   required: true
                   schema:
                     type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/DeleteSandboxRequest'
-                required: true
+                - name: data.idempotency_key
+                  in: query
+                  schema:
+                    type: string
+                - name: data.expected_version
+                  in: query
+                  schema:
+                    type: string
+                - name: Idempotency-Key
+                  in: header
+                  schema:
+                    type: string
+                - name: expected_version
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -16646,15 +16659,6 @@ components:
         DeleteInferencePolicyResponse:
             type: object
             properties: {}
-        DeleteInferenceRequest:
-            type: object
-            properties:
-                idempotency_key:
-                    type: string
-                resource_id:
-                    type: string
-                expected_generation:
-                    type: string
         DeleteIntranetAddressPoolResponse:
             type: object
             properties:
@@ -16710,11 +16714,6 @@ components:
             properties:
                 data:
                     $ref: '#/components/schemas/MutateSandboxFileData'
-        DeleteSandboxRequest:
-            type: object
-            properties:
-                data:
-                    $ref: '#/components/schemas/SandboxActionData'
         DeleteSubnetResponse:
             type: object
             properties:

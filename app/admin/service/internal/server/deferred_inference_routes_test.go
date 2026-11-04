@@ -18,7 +18,7 @@ func TestNewRestServerRegistersInferenceManagement(t *testing.T) {
 		{http.MethodGet, "/api/v1/inference/services/service-1/operations"},
 		{http.MethodGet, "/api/v1/inference/operations/operation-1"},
 		{http.MethodPost, "/api/v1/inference/services/service-1:update"},
-		{http.MethodPost, "/api/v1/inference/services/service-1:delete"},
+		{http.MethodDelete, "/api/v1/inference/services/service-1"},
 		{http.MethodPost, "/api/v1/inference/services/service-1:start"},
 		{http.MethodPost, "/api/v1/inference/services/service-1:stop"},
 		{http.MethodPost, "/api/v1/inference/services/service-1:restart"},

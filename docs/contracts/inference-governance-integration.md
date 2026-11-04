@@ -21,7 +21,7 @@ Inference 的管理面统一由 Governance BFF 提供，入口是 `/api/v1/infer
 | `GET /api/v1/inference/operations/{operation_id}` | 操作详情 | `inference:service:read` |
 | `GET /api/v1/inference/services/{resource_id}/operations` | 服务操作列表 | `inference:service:read` |
 | `POST /api/v1/inference/services` | 创建 | `inference:service:create` |
-| `POST /api/v1/inference/services/{resource_id}:delete` | 删除 | `inference:service:delete` |
+| `DELETE /api/v1/inference/services/{resource_id}` | 删除 | `inference:service:delete` |
 | `POST /api/v1/inference/services/{resource_id}:update` | 更新 | `inference:service:update` |
 | `POST /api/v1/inference/services/{resource_id}:start` | 启动 | `inference:service:start` |
 | `POST /api/v1/inference/services/{resource_id}:stop` | 停止 | `inference:service:stop` |

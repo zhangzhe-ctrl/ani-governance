@@ -11,7 +11,7 @@ import (
 
 const (
 	InferenceCreatePath         = "/api/v1/inference/services"
-	InferenceDeletePath         = "/api/v1/inference/services/{resource_id}:delete"
+	InferenceDeletePath         = "/api/v1/inference/services/{resource_id}"
 	InferenceUpdatePath         = "/api/v1/inference/services/{resource_id}:update"
 	InferenceStartPath          = "/api/v1/inference/services/{resource_id}:start"
 	InferenceStopPath           = "/api/v1/inference/services/{resource_id}:stop"
@@ -42,7 +42,11 @@ func (r *InferenceAuthorizationRepo) Authorize(ctx context.Context, tenantID, us
 	if r == nil || r.actions == nil {
 		return ErrInferenceAuthorizationUnavailable
 	}
-	err := r.actions.authorizeRoute(ctx, tenantID, userID, path, "INFERENCE", "POST")
+	method := "POST"
+	if path == InferenceDeletePath {
+		method = "DELETE"
+	}
+	err := r.actions.authorizeRoute(ctx, tenantID, userID, path, "INFERENCE", method)
 	switch {
 	case errors.Is(err, ErrActionAuthorizationDenied):
 		return ErrInferenceAuthorizationDenied

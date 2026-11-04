@@ -27,7 +27,7 @@ var File_admin_service_v1_i_sandbox_proto protoreflect.FileDescriptor
 
 const file_admin_service_v1_i_sandbox_proto_rawDesc = "" +
 	"\n" +
-	" admin/service/v1/i_sandbox.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a sandbox/service/v1/sandbox.proto2\xa1\x13\n" +
+	" admin/service/v1/i_sandbox.proto\x12\x10admin.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a sandbox/service/v1/sandbox.proto2\x80\x16\n" +
 	"\x0eSandboxService\x12|\n" +
 	"\rCreateSandbox\x12(.sandbox.service.v1.CreateSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/api/v1/sandbox\x12}\n" +
 	"\rListSandboxes\x12(.sandbox.service.v1.ListSandboxesRequest\x1a).sandbox.service.v1.ListSandboxesResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/api/v1/sandbox\x12v\n" +
@@ -35,8 +35,14 @@ const file_admin_service_v1_i_sandbox_proto_rawDesc = "" +
 	"GetSandbox\x12%.sandbox.service.v1.GetSandboxRequest\x1a\x1b.sandbox.service.v1.Sandbox\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/sandbox/{sandbox_id}\x12\x9e\x01\n" +
 	"\x13GetSandboxOperation\x12..sandbox.service.v1.GetSandboxOperationRequest\x1a$.sandbox.service.v1.SandboxOperation\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/sandbox/operations/{operation_id}\x12\x92\x01\n" +
 	"\fPauseSandbox\x12'.sandbox.service.v1.PauseSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/api/v1/sandbox/{data.sandbox_id}:pause\x12\x95\x01\n" +
-	"\rResumeSandbox\x12(.sandbox.service.v1.ResumeSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"3\x82\xd3\xe4\x93\x02-:\x01*\"(/api/v1/sandbox/{data.sandbox_id}:resume\x12\x8e\x01\n" +
-	"\rDeleteSandbox\x12(.sandbox.service.v1.DeleteSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\",\x82\xd3\xe4\x93\x02&:\x01**!/api/v1/sandbox/{data.sandbox_id}\x12\x97\x01\n" +
+	"\rResumeSandbox\x12(.sandbox.service.v1.ResumeSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"3\x82\xd3\xe4\x93\x02-:\x01*\"(/api/v1/sandbox/{data.sandbox_id}:resume\x12\xed\x03\n" +
+	"\rDeleteSandbox\x12(.sandbox.service.v1.DeleteSandboxRequest\x1a%.sandbox.service.v1.SandboxAcceptance\"\x8a\x03\xbaG\xdd\x02\x1a\x86\x02Asynchronously delete the sandbox. Supply the idempotency key either in the Idempotency-Key header or the data.idempotency_key query parameter, never both. Use only one of expected_version or data.expected_version for the optional version check. No request body.2(\n" +
+	"&\n" +
+	"\x0fIdempotency-Key\x12\x06headerR\v\n" +
+	"\t\xca\x01\x06string2(\n" +
+	"&\n" +
+	"\x10expected_version\x12\x05queryR\v\n" +
+	"\t\xca\x01\x06string\x82\xd3\xe4\x93\x02#*!/api/v1/sandbox/{data.sandbox_id}\x12\x97\x01\n" +
 	"\x0eRunSandboxCode\x12).sandbox.service.v1.RunSandboxCodeRequest\x1a\".sandbox.service.v1.SandboxCodeRun\"6\x82\xd3\xe4\x93\x020:\x01*\"+/api/v1/sandbox/{data.sandbox_id}/code-runs\x12\x9e\x01\n" +
 	"\x11GetSandboxCodeRun\x12,.sandbox.service.v1.GetSandboxCodeRunRequest\x1a\".sandbox.service.v1.SandboxCodeRun\"7\x82\xd3\xe4\x93\x021\x12//api/v1/sandbox/{sandbox_id}/code-runs/{run_id}\x12\x92\x01\n" +
 	"\x10ListSandboxFiles\x12+.sandbox.service.v1.ListSandboxFilesRequest\x1a%.sandbox.service.v1.SandboxFileResult\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/sandbox/{sandbox_id}/files\x12\x98\x01\n" +

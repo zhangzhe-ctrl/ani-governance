@@ -365,7 +365,7 @@ func TestLookup(t *testing.T) {
 	}
 	for _, route := range []struct{ method, path, code string }{
 		{"GET", "/api/v1/inference/services", "inference:service:read"},
-		{"POST", "/api/v1/inference/services/{resource_id}:delete", "inference:service:delete"},
+		{"DELETE", "/api/v1/inference/services/{resource_id}", "inference:service:delete"},
 		{"POST", "/api/v1/inference-keys", "inference:key:create"},
 		{"GET", "/api/v1/inference-keys", "inference:key:read"},
 		{"GET", "/api/v1/inference-keys/{key_id}", "inference:key:read"},

@@ -14,6 +14,8 @@ import (
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/stretchr/testify/require"
 	res "github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/v1"
+	admin "go-wind-admin/api/gen/go/admin/service/v1"
+	view "go-wind-admin/api/gen/go/sandbox/service/v1"
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/service"
 	"go-wind-admin/pkg/middleware/auth"
@@ -63,6 +65,7 @@ type sandboxHTTPResource struct {
 	failure    error
 	create     *res.AcceptCreateRequest
 	created    *res.Sandbox
+	delete     *res.DeleteRequest
 	codeRun    *res.RunCodeRequest
 	fileReason string
 	tokenReq   *res.CreateTokenRequest
@@ -120,6 +123,7 @@ func (o *sandboxHTTPResource) ResumeSandbox(_ context.Context, _, _ string, r *r
 }
 func (o *sandboxHTTPResource) DeleteSandbox(_ context.Context, _, _ string, r *res.DeleteRequest) (*res.DeleteResponse, error) {
 	o.calls++
+	o.delete = r
 	return &res.DeleteResponse{Ack: &res.OperationAck{ResourceId: r.SandboxId, OperationId: "delete-op", Accepted: true}}, o.failure
 }
 
@@ -138,6 +142,9 @@ func TestSandboxHTTPPaginationAndCommandBoundary(t *testing.T) {
 		t.Helper()
 		r := httptest.NewRequest(method, path, strings.NewReader(body))
 		r.Header.Set("Content-Type", "application/json")
+		if method == "DELETE" {
+			r.Header.Set("Idempotency-Key", "k")
+		}
 		w := httptest.NewRecorder()
 		server.ServeHTTP(w, r)
 		require.Equal(t, code, w.Code, w.Body.String())
@@ -182,7 +189,33 @@ func TestSandboxHTTPPaginationAndCommandBoundary(t *testing.T) {
 	require.NoError(t, json.Unmarshal(response.Body.Bytes(), &result))
 	require.Equal(t, true, result["replayed"])
 	fire("POST", detail+":resume", `{"data":{"idempotency_key":"k","expected_version":"1"}}`, 200)
-	fire("DELETE", detail, `{"data":{"idempotency_key":"k","expected_version":"1"}}`, 200)
+	fire("DELETE", detail+"?expected_version=1", "", 200)
+	require.Equal(t, "k", owner.delete.IdempotencyKey)
+	require.EqualValues(t, 1, owner.delete.ExpectedVersion)
+	require.Equal(t, sandboxHTTPResourceID, owner.delete.SandboxId)
+	for _, query := range []string{"expected_version=-1", "expected_version=01", "expected_version=1&expected_version=2", "expected_version=1&data.expected_version=1", "tenant_id=other", "data.idempotency_key=k"} {
+		before := owner.calls
+		fire("DELETE", detail+"?"+query, "", 400)
+		require.Equal(t, before, owner.calls, query)
+	}
+	for _, keys := range [][]string{nil, {"k", "other"}} {
+		request := httptest.NewRequest("DELETE", detail, nil)
+		for _, key := range keys {
+			request.Header.Add("Idempotency-Key", key)
+		}
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, request)
+		require.Equal(t, 400, response.Code, response.Body.String())
+	}
+	web := httptest.NewServer(server)
+	defer web.Close()
+	client, err := khttp.NewClient(context.Background(), khttp.WithEndpoint(web.URL))
+	require.NoError(t, err)
+	defer client.Close()
+	_, err = admin.NewSandboxServiceHTTPClient(client).DeleteSandbox(context.Background(), &view.DeleteSandboxRequest{Data: &view.SandboxActionData{SandboxId: sandboxHTTPResourceID, IdempotencyKey: "generated-key", ExpectedVersion: 2}})
+	require.NoError(t, err)
+	require.Equal(t, "generated-key", owner.delete.IdempotencyKey)
+	require.EqualValues(t, 2, owner.delete.ExpectedVersion)
 	createBody := `{"data":{"idempotency_key":"create-1","name":"demo","preset_id":"44444444-4444-4444-8444-444444444444","image_reference":"registry.example/sandbox@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}}`
 	fire("POST", collection, createBody, 200)
 	require.Empty(t, owner.create.InstanceId)

@@ -30,6 +30,9 @@ CPU 无 charges、GPU Usage 或退款；GPU 仅按 ACC 返回的唯一计量向�
 provider/endpoint 均冻结，原 CREATE 字节与 charges 不改。UPDATE/Start/Stop/Restart
 沿 owner 既有幂等和当前 generation，无新的 Gov 账本，不重新解析规格或占退额。
 
+`DELETE /api/v1/inference/services/{resource_id}` 使用 `Idempotency-Key` 请求头或
+`idempotency_key` 查询参数（二选一），无请求体，不接受 `expected_generation`；直接删除由 Inference 在
+事务内锁定当前服务后受理。删除按提交时的当前状态执行，不检查用户页面的旧版本。
 DELETE 分配独立 operation ID，关联原 CREATE。只有锁内证明原 CREATE 从未发送
 才本地取消；发送过或结果不明均投递受管 DELETE。Gov 从原快照派生内部关闭范围，
 公网不能提供 scope。owner 尚无 service 的关闭仍可查询，并在重启后恢复；
@@ -42,6 +45,12 @@ DELETE 分配独立 operation ID，关联原 CREATE。只有锁内证明原 CREA
 原始 operation/resource ID 不因 ACK 丢失或重试改变。
 
 ## 升级顺序
+
+路由改动需要先执行 `admin sync-apis --dry-run`，确认变更后再同步 API 目录，
+执行 `scripts/ops/sql/register-inference-permissions.sql` 将 DELETE 路由关联既有
+`inference:service:delete` 权限，并按部署规范刷新权限策略；目录同步不会自动授权。
+跨域前端需要放行 `Idempotency-Key` 请求头（也可使用 Proto 查询参数）。旧的 `POST ...:delete` 和旧删除请求体
+不再受理，前端需与 BFF 同步切换。
 
 先发布匹配的独立 Inference API 并确认正式下载，再升级 owner 根模块、显式运行
 owner 新迁移、部署匹配 runtime，最后升级锁定同一 API 的 Gov。Gov 复用现有

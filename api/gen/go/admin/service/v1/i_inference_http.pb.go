@@ -48,7 +48,7 @@ type InferenceServiceHTTPServer interface {
 func RegisterInferenceServiceHTTPServer(s *http.Server, srv InferenceServiceHTTPServer) {
 	r := s.Route("/")
 	r.POST("/api/v1/inference/services", _InferenceService_CreateInference0_HTTP_Handler(srv))
-	r.POST("/api/v1/inference/services/{resource_id}:delete", _InferenceService_DeleteInference0_HTTP_Handler(srv))
+	r.DELETE("/api/v1/inference/services/{resource_id}", _InferenceService_DeleteInference0_HTTP_Handler(srv))
 	r.GET("/api/v1/inference/services/{resource_id}", _InferenceService_GetInference0_HTTP_Handler(srv))
 	r.GET("/api/v1/inference/services", _InferenceService_ListInference0_HTTP_Handler(srv))
 	r.GET("/api/v1/inference/operations/{operation_id}", _InferenceService_GetInferenceOperation0_HTTP_Handler(srv))
@@ -84,9 +84,6 @@ func _InferenceService_CreateInference0_HTTP_Handler(srv InferenceServiceHTTPSer
 func _InferenceService_DeleteInference0_HTTP_Handler(srv InferenceServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v1.DeleteInferenceRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
@@ -327,11 +324,11 @@ func (c *InferenceServiceHTTPClientImpl) CreateInference(ctx context.Context, in
 
 func (c *InferenceServiceHTTPClientImpl) DeleteInference(ctx context.Context, in *v1.DeleteInferenceRequest, opts ...http.CallOption) (*v1.InferenceAcceptance, error) {
 	var out v1.InferenceAcceptance
-	pattern := "/api/v1/inference/services/{resource_id}:delete"
-	path := binding.EncodeURL(pattern, in, false)
+	pattern := "/api/v1/inference/services/{resource_id}"
+	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationInferenceServiceDeleteInference))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
