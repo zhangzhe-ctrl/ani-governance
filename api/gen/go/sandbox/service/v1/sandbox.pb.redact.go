@@ -23,6 +23,55 @@ var (
 	_ redact.FieldRules
 )
 
+// Ensure ExecSandboxData implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ExecSandboxData)(nil)
+
+// Redact method implementation for ExecSandboxData
+func (x *ExecSandboxData) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: IdempotencyKey
+
+	// Safe field: ExpectedVersion
+
+	// Safe field: Rows
+
+	// Safe field: Cols
+}
+
+// Ensure ExecSandboxRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ExecSandboxRequest)(nil)
+
+// Redact method implementation for ExecSandboxRequest
+func (x *ExecSandboxRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Data
+}
+
+// Ensure ExecSandboxResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ExecSandboxResponse)(nil)
+
+// Redact method implementation for ExecSandboxResponse
+func (x *ExecSandboxResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SessionId
+
+	// Redacting field: WsUrl
+	x.WsUrl = ``
+
+	// Safe field: ExpiresAt
+}
+
 // Ensure RunSandboxCodeData implements the Redactor interface at compile time.
 var _ redact.Redactor = (*RunSandboxCodeData)(nil)
 

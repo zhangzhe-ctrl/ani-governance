@@ -37,6 +37,7 @@ const SandboxPausePath = "/api/v1/sandbox/{data.sandbox_id}:pause"
 const SandboxResumePath = "/api/v1/sandbox/{data.sandbox_id}:resume"
 const SandboxDeletePath = "/api/v1/sandbox/{data.sandbox_id}"
 const SandboxCodeRunPath = "/api/v1/sandbox/{data.sandbox_id}/code-runs"
+const SandboxExecPath = "/api/v1/sandbox/{data.sandbox_id}/exec"
 const SandboxCodeRunGetPath = "/api/v1/sandbox/{sandbox_id}/code-runs/{run_id}"
 const SandboxFilesListPath = "/api/v1/sandbox/{sandbox_id}/files"
 const SandboxFilesContentPath = "/api/v1/sandbox/{sandbox_id}/files/content"
@@ -94,7 +95,7 @@ func (r *InstanceAuthorizationRepo) Authorize(ctx context.Context, tenant, user 
 		allowed = method == "GET"
 	case SandboxCreatePath:
 		allowed = method == "POST" || method == "GET"
-	case SandboxPausePath, SandboxResumePath, SandboxCodeRunPath, SandboxTokenCreatePath:
+	case SandboxPausePath, SandboxResumePath, SandboxCodeRunPath, SandboxExecPath, SandboxTokenCreatePath:
 		allowed = method == "POST"
 	case SandboxFilesMutatePath:
 		allowed = method == "POST" || method == "DELETE"

@@ -6,6 +6,9 @@ import "gnostic/openapi/v3/annotations.proto";
 import "sandbox/service/v1/sandbox.proto";
 
 service SandboxService {
+  rpc ExecSandbox(sandbox.service.v1.ExecSandboxRequest) returns (sandbox.service.v1.ExecSandboxResponse) {
+    option (google.api.http) = { post: "/api/v1/sandbox/{data.sandbox_id}/exec" body: "*" };
+  }
   rpc CreateSandbox(sandbox.service.v1.CreateSandboxRequest) returns (sandbox.service.v1.SandboxAcceptance) {
     option (google.api.http) = { post: "/api/v1/sandbox" body: "*" };
   }

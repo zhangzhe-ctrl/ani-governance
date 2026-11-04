@@ -17,6 +17,7 @@ BEGIN
   ('POST','/api/v1/sandbox/{data.sandbox_id}:resume','sandbox:resume','SandboxService','INSTANCE','ResumeSandbox'),
   ('DELETE','/api/v1/sandbox/{data.sandbox_id}','sandbox:delete','SandboxService','INSTANCE','DeleteSandbox'),
   ('POST','/api/v1/sandbox/{data.sandbox_id}/code-runs','sandbox:code:run','SandboxService','INSTANCE','RunSandboxCode'),
+  ('POST','/api/v1/sandbox/{data.sandbox_id}/exec','sandbox:terminal:connect','SandboxService','INSTANCE','ExecSandbox'),
   ('GET','/api/v1/sandbox/{sandbox_id}/code-runs/{run_id}','sandbox:code:read','SandboxService','INSTANCE','GetSandboxCodeRun'),
   ('GET','/api/v1/sandbox/{sandbox_id}/files','sandbox:files:list','SandboxService','INSTANCE','ListSandboxFiles'),
   ('GET','/api/v1/sandbox/{sandbox_id}/files/content','sandbox:files:read','SandboxService','INSTANCE','ReadSandboxFile'),

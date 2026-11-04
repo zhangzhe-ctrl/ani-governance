@@ -510,6 +510,7 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		sandboxOwner = instanceOwner
 	}
 	sandboxService := service.NewSandboxService(sandboxOwner, data.NewInstanceAuthorizationRepo(entClient), tenantRepo, quotaLedgerRepo)
+	sandboxService.SetTerminalSessionClient(instanceSessions)
 	overviewService := service.NewOverviewService(
 		ctx.NewLoggerHelper("overview/service/admin-service"),
 		instanceService,

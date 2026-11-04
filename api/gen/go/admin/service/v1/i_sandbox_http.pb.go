@@ -24,6 +24,7 @@ const OperationSandboxServiceCreateSandbox = "/admin.service.v1.SandboxService/C
 const OperationSandboxServiceCreateSandboxToken = "/admin.service.v1.SandboxService/CreateSandboxToken"
 const OperationSandboxServiceDeleteSandbox = "/admin.service.v1.SandboxService/DeleteSandbox"
 const OperationSandboxServiceDeleteSandboxFile = "/admin.service.v1.SandboxService/DeleteSandboxFile"
+const OperationSandboxServiceExecSandbox = "/admin.service.v1.SandboxService/ExecSandbox"
 const OperationSandboxServiceGetSandbox = "/admin.service.v1.SandboxService/GetSandbox"
 const OperationSandboxServiceGetSandboxCodeRun = "/admin.service.v1.SandboxService/GetSandboxCodeRun"
 const OperationSandboxServiceGetSandboxFileOperation = "/admin.service.v1.SandboxService/GetSandboxFileOperation"
@@ -42,6 +43,7 @@ type SandboxServiceHTTPServer interface {
 	CreateSandboxToken(context.Context, *v1.CreateSandboxTokenRequest) (*v1.SandboxAccessToken, error)
 	DeleteSandbox(context.Context, *v1.DeleteSandboxRequest) (*v1.SandboxAcceptance, error)
 	DeleteSandboxFile(context.Context, *v1.DeleteSandboxFileRequest) (*v1.SandboxFileOperation, error)
+	ExecSandbox(context.Context, *v1.ExecSandboxRequest) (*v1.ExecSandboxResponse, error)
 	GetSandbox(context.Context, *v1.GetSandboxRequest) (*v1.Sandbox, error)
 	GetSandboxCodeRun(context.Context, *v1.GetSandboxCodeRunRequest) (*v1.SandboxCodeRun, error)
 	GetSandboxFileOperation(context.Context, *v1.GetSandboxFileOperationRequest) (*v1.SandboxFileOperation, error)
@@ -58,6 +60,7 @@ type SandboxServiceHTTPServer interface {
 
 func RegisterSandboxServiceHTTPServer(s *http.Server, srv SandboxServiceHTTPServer) {
 	r := s.Route("/")
+	r.POST("/api/v1/sandbox/{data.sandbox_id}/exec", _SandboxService_ExecSandbox0_HTTP_Handler(srv))
 	r.POST("/api/v1/sandbox", _SandboxService_CreateSandbox0_HTTP_Handler(srv))
 	r.GET("/api/v1/sandbox", _SandboxService_ListSandboxes0_HTTP_Handler(srv))
 	r.GET("/api/v1/sandbox/{sandbox_id}", _SandboxService_GetSandbox0_HTTP_Handler(srv))
@@ -74,6 +77,31 @@ func RegisterSandboxServiceHTTPServer(s *http.Server, srv SandboxServiceHTTPServ
 	r.GET("/api/v1/sandbox/{sandbox_id}/file-operations/{operation_id}", _SandboxService_GetSandboxFileOperation0_HTTP_Handler(srv))
 	r.POST("/api/v1/sandbox/{data.sandbox_id}/tokens", _SandboxService_CreateSandboxToken0_HTTP_Handler(srv))
 	r.DELETE("/api/v1/sandbox/{sandbox_id}/tokens/{token_id}", _SandboxService_RevokeSandboxToken0_HTTP_Handler(srv))
+}
+
+func _SandboxService_ExecSandbox0_HTTP_Handler(srv SandboxServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.ExecSandboxRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationSandboxServiceExecSandbox)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ExecSandbox(ctx, req.(*v1.ExecSandboxRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.ExecSandboxResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _SandboxService_CreateSandbox0_HTTP_Handler(srv SandboxServiceHTTPServer) func(ctx http.Context) error {
@@ -451,6 +479,7 @@ type SandboxServiceHTTPClient interface {
 	CreateSandboxToken(ctx context.Context, req *v1.CreateSandboxTokenRequest, opts ...http.CallOption) (rsp *v1.SandboxAccessToken, err error)
 	DeleteSandbox(ctx context.Context, req *v1.DeleteSandboxRequest, opts ...http.CallOption) (rsp *v1.SandboxAcceptance, err error)
 	DeleteSandboxFile(ctx context.Context, req *v1.DeleteSandboxFileRequest, opts ...http.CallOption) (rsp *v1.SandboxFileOperation, err error)
+	ExecSandbox(ctx context.Context, req *v1.ExecSandboxRequest, opts ...http.CallOption) (rsp *v1.ExecSandboxResponse, err error)
 	GetSandbox(ctx context.Context, req *v1.GetSandboxRequest, opts ...http.CallOption) (rsp *v1.Sandbox, err error)
 	GetSandboxCodeRun(ctx context.Context, req *v1.GetSandboxCodeRunRequest, opts ...http.CallOption) (rsp *v1.SandboxCodeRun, err error)
 	GetSandboxFileOperation(ctx context.Context, req *v1.GetSandboxFileOperationRequest, opts ...http.CallOption) (rsp *v1.SandboxFileOperation, err error)
@@ -519,6 +548,19 @@ func (c *SandboxServiceHTTPClientImpl) DeleteSandboxFile(ctx context.Context, in
 	opts = append(opts, http.Operation(OperationSandboxServiceDeleteSandboxFile))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "DELETE", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *SandboxServiceHTTPClientImpl) ExecSandbox(ctx context.Context, in *v1.ExecSandboxRequest, opts ...http.CallOption) (*v1.ExecSandboxResponse, error) {
+	var out v1.ExecSandboxResponse
+	pattern := "/api/v1/sandbox/{data.sandbox_id}/exec"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationSandboxServiceExecSandbox))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -12165,6 +12165,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SandboxCodeRun'
+    /api/v1/sandbox/{data.sandbox_id}/exec:
+        post:
+            tags:
+                - SandboxService
+            operationId: SandboxService_ExecSandbox
+            parameters:
+                - name: data.sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ExecSandboxRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ExecSandboxResponse'
     /api/v1/sandbox/{data.sandbox_id}/files:
         post:
             tags:
@@ -17320,6 +17344,35 @@ components:
                 wsUrl:
                     type: string
                 expiresAt:
+                    type: string
+        ExecSandboxData:
+            type: object
+            properties:
+                sandbox_id:
+                    type: string
+                idempotency_key:
+                    type: string
+                expected_version:
+                    type: string
+                rows:
+                    type: integer
+                    format: int32
+                cols:
+                    type: integer
+                    format: int32
+        ExecSandboxRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/ExecSandboxData'
+        ExecSandboxResponse:
+            type: object
+            properties:
+                session_id:
+                    type: string
+                ws_url:
+                    type: string
+                expires_at:
                     type: string
         ExecutionBaseModelView:
             type: object

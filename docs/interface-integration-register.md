@@ -1991,6 +1991,8 @@ Linux `DISK_IMAGE` 仅在 Resource 媒体目录 `initializationCapability=CLOUD_
 
 ## Sandbox 规格目录与权限接入（2026-10-27）
 
+独立终端接入：`POST /api/v1/sandbox/{sandbox_id}/exec` 使用 `sandbox:terminal:connect` 和当前主线 INSTANCE 套餐，返回短期会话及连接地址；请求、响应及权限要求见[前端 HTTP 合同](contracts/frontend-http-api.md)。需要同步 API 目录并通过正常流程授予权限。Gateway 和 Resource 的 API 模块已固定，正式服务部署与端到端验收仍需核实。
+
 **当前合同更新：** Sandbox 是独立资源，接口及安全边界见[前端 HTTP 合同](contracts/frontend-http-api.md)。以下为历史记录，父实例相关规则已被本次需求取代，历史验收不能证明独立创建已验证。
 
 Sandbox 创建可以传 `image_id` + `image_scope`，也可以传已登记的租户或平台镜像 `image_reference`；两者不可混用。Resource Image 校验登记及权限并冻结不可变引用。修改的实现和实际验收以 Resource 执行状态为准。

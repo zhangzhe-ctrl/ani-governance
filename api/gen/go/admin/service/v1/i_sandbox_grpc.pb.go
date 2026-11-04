@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	SandboxService_ExecSandbox_FullMethodName             = "/admin.service.v1.SandboxService/ExecSandbox"
 	SandboxService_CreateSandbox_FullMethodName           = "/admin.service.v1.SandboxService/CreateSandbox"
 	SandboxService_ListSandboxes_FullMethodName           = "/admin.service.v1.SandboxService/ListSandboxes"
 	SandboxService_GetSandbox_FullMethodName              = "/admin.service.v1.SandboxService/GetSandbox"
@@ -42,6 +43,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SandboxServiceClient interface {
+	ExecSandbox(ctx context.Context, in *v1.ExecSandboxRequest, opts ...grpc.CallOption) (*v1.ExecSandboxResponse, error)
 	CreateSandbox(ctx context.Context, in *v1.CreateSandboxRequest, opts ...grpc.CallOption) (*v1.SandboxAcceptance, error)
 	ListSandboxes(ctx context.Context, in *v1.ListSandboxesRequest, opts ...grpc.CallOption) (*v1.ListSandboxesResponse, error)
 	GetSandbox(ctx context.Context, in *v1.GetSandboxRequest, opts ...grpc.CallOption) (*v1.Sandbox, error)
@@ -66,6 +68,16 @@ type sandboxServiceClient struct {
 
 func NewSandboxServiceClient(cc grpc.ClientConnInterface) SandboxServiceClient {
 	return &sandboxServiceClient{cc}
+}
+
+func (c *sandboxServiceClient) ExecSandbox(ctx context.Context, in *v1.ExecSandboxRequest, opts ...grpc.CallOption) (*v1.ExecSandboxResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ExecSandboxResponse)
+	err := c.cc.Invoke(ctx, SandboxService_ExecSandbox_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *sandboxServiceClient) CreateSandbox(ctx context.Context, in *v1.CreateSandboxRequest, opts ...grpc.CallOption) (*v1.SandboxAcceptance, error) {
@@ -232,6 +244,7 @@ func (c *sandboxServiceClient) RevokeSandboxToken(ctx context.Context, in *v1.Re
 // All implementations must embed UnimplementedSandboxServiceServer
 // for forward compatibility.
 type SandboxServiceServer interface {
+	ExecSandbox(context.Context, *v1.ExecSandboxRequest) (*v1.ExecSandboxResponse, error)
 	CreateSandbox(context.Context, *v1.CreateSandboxRequest) (*v1.SandboxAcceptance, error)
 	ListSandboxes(context.Context, *v1.ListSandboxesRequest) (*v1.ListSandboxesResponse, error)
 	GetSandbox(context.Context, *v1.GetSandboxRequest) (*v1.Sandbox, error)
@@ -258,6 +271,9 @@ type SandboxServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSandboxServiceServer struct{}
 
+func (UnimplementedSandboxServiceServer) ExecSandbox(context.Context, *v1.ExecSandboxRequest) (*v1.ExecSandboxResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExecSandbox not implemented")
+}
 func (UnimplementedSandboxServiceServer) CreateSandbox(context.Context, *v1.CreateSandboxRequest) (*v1.SandboxAcceptance, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateSandbox not implemented")
 }
@@ -325,6 +341,24 @@ func RegisterSandboxServiceServer(s grpc.ServiceRegistrar, srv SandboxServiceSer
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&SandboxService_ServiceDesc, srv)
+}
+
+func _SandboxService_ExecSandbox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ExecSandboxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SandboxServiceServer).ExecSandbox(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SandboxService_ExecSandbox_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SandboxServiceServer).ExecSandbox(ctx, req.(*v1.ExecSandboxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _SandboxService_CreateSandbox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -622,6 +656,10 @@ var SandboxService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "admin.service.v1.SandboxService",
 	HandlerType: (*SandboxServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ExecSandbox",
+			Handler:    _SandboxService_ExecSandbox_Handler,
+		},
 		{
 			MethodName: "CreateSandbox",
 			Handler:    _SandboxService_CreateSandbox_Handler,

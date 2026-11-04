@@ -41,7 +41,10 @@ type SandboxService struct {
 	authorization InstanceActionAuthorizer
 	tenants       ResourceTenantResolver
 	admission     SandboxIntentStore
+	sessions      InstanceSessionClient
 }
+
+func (s *SandboxService) SetTerminalSessionClient(client InstanceSessionClient) { s.sessions = client }
 
 func NewSandboxService(client SandboxOwnerClient, authorization InstanceActionAuthorizer, tenants ResourceTenantResolver, admission SandboxIntentStore) *SandboxService {
 	return &SandboxService{client: client, authorization: authorization, tenants: tenants, admission: admission}

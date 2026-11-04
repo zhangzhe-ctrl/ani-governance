@@ -19,13 +19,16 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func sandboxHTTPError(err error) error {
+func sandboxHTTPError(err error, operation string) error {
 	if err == nil {
 		return nil
 	}
 	var known *kratoserrors.Error
 	if stderrors.As(err, &known) {
 		return known
+	}
+	if operation == admin.OperationSandboxServiceExecSandbox && status.Code(err) == codes.ResourceExhausted {
+		return kratoserrors.ServiceUnavailable("SANDBOX_TERMINAL_RESOURCE_EXHAUSTED", "sandbox terminal dependency exhausted")
 	}
 	code, reason := 503, "SANDBOX_DEPENDENCY_UNAVAILABLE"
 	switch status.Code(err) {
@@ -125,6 +128,12 @@ func bindSandboxPath(request, bound proto.Message) error {
 		return nil
 	}
 	switch in := request.(type) {
+	case *view.ExecSandboxRequest:
+		path := bound.(*view.ExecSandboxRequest).Data
+		if in.Data == nil || path == nil || in.Data.SandboxId != "" && in.Data.SandboxId != path.SandboxId {
+			return invalid
+		}
+		in.Data.SandboxId = path.SandboxId
 	case *view.CreateSandboxRequest:
 		if in.Data == nil || in.Data.InstanceId != "" {
 			return invalid
@@ -174,6 +183,9 @@ func RegisterSandboxHTTPServer(server *http.Server, s admin.SandboxServiceHTTPSe
 		invoke                  func(context.Context, proto.Message) (proto.Message, error)
 	}
 	routes := []route{
+		{"POST", data.SandboxExecPath, admin.OperationSandboxServiceExecSandbox, func() proto.Message { return new(view.ExecSandboxRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.ExecSandbox(c, r.(*view.ExecSandboxRequest))
+		}},
 		{"POST", data.SandboxCreatePath, admin.OperationSandboxServiceCreateSandbox, func() proto.Message { return new(view.CreateSandboxRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
 			return s.CreateSandbox(c, r.(*view.CreateSandboxRequest))
 		}},
@@ -265,7 +277,7 @@ func RegisterSandboxHTTPServer(server *http.Server, s admin.SandboxServiceHTTPSe
 				return r.invoke(c, in.(proto.Message))
 			})(ctx, request)
 			if err != nil {
-				return sandboxHTTPError(err)
+				return sandboxHTTPError(err, r.operation)
 			}
 			ctx.Response().Header().Set("Cache-Control", "no-store")
 			return ctx.Result(200, result)

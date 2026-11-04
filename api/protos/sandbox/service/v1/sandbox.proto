@@ -4,6 +4,20 @@ package sandbox.service.v1;
 import "google/protobuf/timestamp.proto";
 import "redact/v1/redact.proto";
 
+message ExecSandboxData {
+  string sandbox_id = 1 [json_name = "sandbox_id"];
+  string idempotency_key = 2 [json_name = "idempotency_key"];
+  int64 expected_version = 3 [json_name = "expected_version"];
+  int32 rows = 4;
+  int32 cols = 5;
+}
+message ExecSandboxRequest { ExecSandboxData data = 1; }
+message ExecSandboxResponse {
+  string session_id = 1 [json_name = "session_id"];
+  string ws_url = 2 [json_name = "ws_url", (redact.value).string = ""];
+  string expires_at = 3 [json_name = "expires_at"];
+}
+
 message RunSandboxCodeData {
   string sandbox_id = 1 [json_name = "sandbox_id"];
   string idempotency_key = 2 [json_name = "idempotency_key"];

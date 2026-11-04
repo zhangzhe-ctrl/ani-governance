@@ -257,14 +257,15 @@ func TestCountsAndKeys(t *testing.T) {
 	// The Sandbox code, file and token APIs add nine capabilities to the
 	// lifecycle-only baseline used by this cross-branch count.
 	const sandboxPhaseTwoCapabilities = 9
+	const sandboxTerminalCapabilities = 1
 	const vmLogCapabilities = 1
 	const modelDevEnvironmentCapabilities = 2
 	const manualVNicCapabilities = 9
-	if want := 204 - 3 + len(platformComponentReads) + len(platformComponentLogStreams) + len(securityGroupCapabilities) + len(storageWrites) + len(storageStats) + sandboxPhaseTwoCapabilities + vmLogCapabilities + modelDevEnvironmentCapabilities + manualVNicCapabilities; CapabilityCount() != want {
+	if want := 204 - 3 + len(platformComponentReads) + len(platformComponentLogStreams) + len(securityGroupCapabilities) + len(storageWrites) + len(storageStats) + sandboxPhaseTwoCapabilities + sandboxTerminalCapabilities + vmLogCapabilities + modelDevEnvironmentCapabilities + manualVNicCapabilities; CapabilityCount() != want {
 		t.Errorf("CapabilityCount() = %d, want %d", CapabilityCount(), want)
 	}
 	keys := AllKeys()
-	if want := 390 - 3 + len(securityGroupCapabilities) + len(storageWrites) + len(storageStats) + sandboxPhaseTwoCapabilities + vmLogCapabilities + modelDevEnvironmentCapabilities + manualVNicCapabilities; len(keys) != want {
+	if want := 390 - 3 + len(securityGroupCapabilities) + len(storageWrites) + len(storageStats) + sandboxPhaseTwoCapabilities + sandboxTerminalCapabilities + vmLogCapabilities + modelDevEnvironmentCapabilities + manualVNicCapabilities; len(keys) != want {
 		t.Errorf("AllKeys() = %d, want %d", len(keys), want)
 	}
 	keySet := make(map[string]bool, len(keys))
@@ -403,6 +404,7 @@ func TestSandboxCapabilities(t *testing.T) {
 		{"POST", "/api/v1/sandbox/{data.sandbox_id}:resume", "resume"},
 		{"DELETE", "/api/v1/sandbox/{data.sandbox_id}", "delete"},
 		{"POST", "/api/v1/sandbox/{data.sandbox_id}/code-runs", "code:run"},
+		{"POST", "/api/v1/sandbox/{data.sandbox_id}/exec", "terminal:connect"},
 		{"GET", "/api/v1/sandbox/{sandbox_id}/code-runs/{run_id}", "code:read"},
 		{"GET", "/api/v1/sandbox/{sandbox_id}/files", "files:list"},
 		{"GET", "/api/v1/sandbox/{sandbox_id}/files/content", "files:read"},
