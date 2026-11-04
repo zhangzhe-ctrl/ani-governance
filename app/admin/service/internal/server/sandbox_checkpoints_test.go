@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -164,5 +165,81 @@ func TestSandboxCheckpointsHTTP(t *testing.T) {
 	require.EqualValues(t, 2, owner.list.Page)
 	for _, q := range []string{"?page=0", "?pageSize=101", "?page=1&page=2", "?tenant_id=x"} {
 		call("GET", q, "", 400)
+	}
+}
+
+// The Resource receipt is persisted internally, while both the initial HTTP
+// response and journal replay retain the established public reason.
+type cloneHTTPRejectedOwner struct {
+	*sandboxHTTPResource
+	err   error
+	calls int
+}
+
+func (o *cloneHTTPRejectedOwner) AcceptSandboxClone(context.Context, string, string, *res.AcceptSandboxCloneRequest) (*res.AcceptSandboxCloneResponse, error) {
+	o.calls++
+	return nil, o.err
+}
+
+type cloneHTTPRejectedAdmission struct {
+	sandboxHTTPAdmission
+	intent *data.SandboxCreateIntent
+}
+
+func (a *cloneHTTPRejectedAdmission) FindSandboxCreateIntent(_ context.Context, _ uint32, id string) (*data.SandboxCreateIntent, error) {
+	if a.intent != nil && a.intent.SandboxID == id {
+		return a.intent, nil
+	}
+	return nil, nil
+}
+func (a *cloneHTTPRejectedAdmission) RegisterSandboxCreateIntent(_ context.Context, in data.SandboxCreateIntent) (*data.SandboxCreateIntent, bool, error) {
+	a.intent = &in
+	return a.intent, false, nil
+}
+func (a *cloneHTTPRejectedAdmission) RejectSandboxClone(_ context.Context, tenant uint32, id, operation, reason string) error {
+	if a.intent == nil || a.intent.TenantID != tenant || a.intent.SandboxID != id || a.intent.OperationID != operation {
+		panic("wrong intent")
+	}
+	a.intent.Acknowledged = true
+	a.intent.LastErrorCode = reason
+	return nil
+}
+
+func TestCloneHTTPCommittedRejectionPreservesReasonsOnReplay(t *testing.T) {
+	for _, tc := range []struct {
+		receipt string
+		code    codes.Code
+		reason  string
+		http    int
+	}{
+		{"SANDBOX_CLONE_REJECTED_NOT_FOUND", codes.NotFound, "SANDBOX_NOT_FOUND", 404},
+		{"SANDBOX_CLONE_REJECTED_VERSION", codes.FailedPrecondition, "SANDBOX_VERSION_CONFLICT", 409},
+		{"SANDBOX_CLONE_REJECTED_CONFLICT", codes.FailedPrecondition, "SANDBOX_IDEMPOTENCY_CONFLICT", 409},
+	} {
+		t.Run(tc.receipt, func(t *testing.T) {
+			owner := &cloneHTTPRejectedOwner{sandboxHTTPResource: new(sandboxHTTPResource), err: status.Error(tc.code, tc.receipt)}
+			admission := new(cloneHTTPRejectedAdmission)
+			server := khttp.NewServer(khttp.Middleware(func(next middleware.Handler) middleware.Handler {
+				return func(ctx context.Context, r any) (any, error) {
+					return next(auth.NewPrincipalContext(ctx, &auth.Principal{Type: auth.SubjectUser, ID: 9, TenantID: 7}), r)
+				}
+			}))
+			RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, new(checkpointAuth), sandboxHTTPTenants{}, admission))
+			path := "/api/v1/sandbox/" + sandboxHTTPResourceID + "/checkpoints/77777777-7777-4777-8777-777777777777:clone"
+			body := `{"data":{"name":"copy","preset_id":"22222222-2222-4222-8222-222222222222","image_reference":"registry.example/image:tag","idempotency_key":"clone","expected_version":"2"}}`
+			for i := 0; i < 2; i++ {
+				w := httptest.NewRecorder()
+				req := httptest.NewRequest("POST", path, strings.NewReader(body))
+				req.Header.Set("Content-Type", "application/json")
+				server.ServeHTTP(w, req)
+				require.Equal(t, tc.http, w.Code, w.Body.String())
+				var response map[string]any
+				require.NoError(t, json.Unmarshal(w.Body.Bytes(), &response))
+				require.Equal(t, tc.reason, response["reason"])
+			}
+			require.Equal(t, 1, owner.calls, "replay must not redispatch committed rejection")
+			require.True(t, admission.intent.Acknowledged)
+			require.Equal(t, tc.receipt, admission.intent.LastErrorCode, "internal receipt must remain exact")
+		})
 	}
 }

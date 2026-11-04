@@ -47,6 +47,16 @@ func sandboxHTTPError(err error) error {
 		code, reason = 499, "SANDBOX_CANCELED"
 	}
 	message := status.Convert(err).Message()
+	// Resource's committed-rejection receipts are an internal delivery
+	// contract. Keep the existing HTTP reasons on both first call and replay.
+	switch {
+	case status.Code(err) == codes.NotFound && message == "SANDBOX_CLONE_REJECTED_NOT_FOUND":
+		return kratoserrors.New(404, "SANDBOX_NOT_FOUND", "sandbox request failed")
+	case status.Code(err) == codes.FailedPrecondition && message == "SANDBOX_CLONE_REJECTED_VERSION":
+		return kratoserrors.New(409, "SANDBOX_VERSION_CONFLICT", "sandbox request failed")
+	case status.Code(err) == codes.FailedPrecondition && message == "SANDBOX_CLONE_REJECTED_CONFLICT":
+		return kratoserrors.New(409, "SANDBOX_IDEMPOTENCY_CONFLICT", "sandbox request failed")
+	}
 	if instancePublicReason.MatchString(message) && (strings.HasPrefix(message, "SANDBOX_") || strings.HasPrefix(message, "INSTANCE_") || strings.HasPrefix(message, "COMPUTE_PRESET_")) {
 		reason = message
 	}

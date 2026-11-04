@@ -9,6 +9,8 @@ CREATE TABLE sys_sandbox_create_intents (
  intent_digest text NOT NULL,
  actor text NOT NULL,
  command jsonb NOT NULL,
+ command_kind text NOT NULL DEFAULT 'create',
+ CONSTRAINT sys_sandbox_create_intents_command_kind_check CHECK (command_kind IN ('create', 'checkpoint_clone')),
  acknowledged boolean NOT NULL DEFAULT false,
  lease_generation bigint NOT NULL DEFAULT 0,
  lease_until timestamptz NOT NULL DEFAULT '-infinity',

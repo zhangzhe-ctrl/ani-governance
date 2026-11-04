@@ -100,7 +100,7 @@ func (r *QuotaLedgerRepo) RegisterSandboxCreateIntent(ctx context.Context, in Sa
 }
 func (r *QuotaLedgerRepo) AcknowledgeSandboxCreate(ctx context.Context, tenant uint32, sandboxID, operationID string) error {
 	return r.transaction(ctx, func(tx *ent.Tx) error {
-		result, err := tx.SandboxExec(ctx, `UPDATE sys_sandbox_create_intents SET acknowledged=true,last_error_code='',updated_at=CURRENT_TIMESTAMP WHERE tenant_id=$1 AND sandbox_id=$2 AND operation_id=$3 AND NOT (acknowledged AND last_error_code='SANDBOX_TRANSFER_WFFC_UNSUPPORTED')`, tenant, sandboxID, operationID)
+		result, err := tx.SandboxExec(ctx, `UPDATE sys_sandbox_create_intents SET acknowledged=true,last_error_code='',updated_at=CURRENT_TIMESTAMP WHERE tenant_id=$1 AND sandbox_id=$2 AND operation_id=$3 AND NOT (acknowledged AND last_error_code<>'')`, tenant, sandboxID, operationID)
 		if err != nil {
 			return err
 		}
@@ -115,11 +115,16 @@ func (r *QuotaLedgerRepo) AcknowledgeSandboxCreate(ctx context.Context, tenant u
 	})
 }
 
-// A WFFC rejection may be finalized only after Resource has durably fenced
-// this exact command against later acceptance. Other RPC errors remain pending.
-func (r *QuotaLedgerRepo) RejectSandboxCloneWFFC(ctx context.Context, tenant uint32, sandboxID, operationID string) error {
+// Finalize only the dedicated receipts from a Resource version that has
+// durably fenced this exact command. Generic RPC errors are not proof.
+func (r *QuotaLedgerRepo) RejectSandboxClone(ctx context.Context, tenant uint32, sandboxID, operationID, reason string) error {
+	switch reason {
+	case "SANDBOX_TRANSFER_WFFC_UNSUPPORTED", "SANDBOX_CLONE_REJECTED_NOT_FOUND", "SANDBOX_CLONE_REJECTED_VERSION", "SANDBOX_CLONE_REJECTED_CONFLICT":
+	default:
+		return fmt.Errorf("unrecognized sandbox clone rejection")
+	}
 	return r.transaction(ctx, func(tx *ent.Tx) error {
-		result, err := tx.SandboxExec(ctx, `UPDATE sys_sandbox_create_intents SET acknowledged=true,last_error_code='SANDBOX_TRANSFER_WFFC_UNSUPPORTED',updated_at=CURRENT_TIMESTAMP WHERE tenant_id=$1 AND sandbox_id=$2 AND operation_id=$3 AND command_kind='checkpoint_clone' AND (NOT acknowledged OR last_error_code='SANDBOX_TRANSFER_WFFC_UNSUPPORTED')`, tenant, sandboxID, operationID)
+		result, err := tx.SandboxExec(ctx, `UPDATE sys_sandbox_create_intents SET acknowledged=true,last_error_code=$4,updated_at=CURRENT_TIMESTAMP WHERE tenant_id=$1 AND sandbox_id=$2 AND operation_id=$3 AND command_kind='checkpoint_clone' AND (NOT acknowledged OR last_error_code=$4)`, tenant, sandboxID, operationID, reason)
 		if err != nil {
 			return err
 		}

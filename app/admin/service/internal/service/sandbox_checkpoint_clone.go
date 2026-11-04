@@ -23,7 +23,7 @@ type sandboxCloneClient interface {
 	AcceptSandboxClone(context.Context, string, string, *res.AcceptSandboxCloneRequest) (*res.AcceptSandboxCloneResponse, error)
 }
 type sandboxCloneRejectionLedger interface {
-	RejectSandboxCloneWFFC(context.Context, uint32, string, string) error
+	RejectSandboxClone(context.Context, uint32, string, string, string) error
 }
 
 func (s *SandboxService) CloneSandboxCheckpoint(ctx context.Context, r *view.CloneSandboxCheckpointRequest) (*view.SandboxAcceptance, error) {
@@ -149,8 +149,11 @@ func (s *SandboxService) deliverSandboxClone(ctx context.Context, intent *data.S
 		return nil, kratoserrors.ServiceUnavailable("SANDBOX_INVALID_INTENT", "clone intent digest mismatch")
 	}
 	if intent.Acknowledged {
-		if intent.LastErrorCode == "SANDBOX_TRANSFER_WFFC_UNSUPPORTED" {
-			return nil, status.Error(codes.Unimplemented, "SANDBOX_TRANSFER_WFFC_UNSUPPORTED")
+		if rejected := sandboxCloneRejection(intent.LastErrorCode); rejected != nil {
+			return nil, rejected
+		}
+		if intent.LastErrorCode != "" {
+			return nil, kratoserrors.ServiceUnavailable("SANDBOX_INVALID_INTENT", "unknown clone terminal outcome")
 		}
 		return &view.SandboxAcceptance{OperationId: intent.OperationID, ResourceId: intent.SandboxID, Accepted: true, Replayed: true, IntentEnforcement: sandboxEgressIntentEnforcement(req.Spec.EgressIntent)}, nil
 	}
@@ -167,14 +170,14 @@ func (s *SandboxService) deliverSandboxClone(ctx context.Context, intent *data.S
 	out, err := client.AcceptSandboxClone(ctx, intent.ResourceTenantID, intent.Actor, &req)
 	if err != nil {
 		st, ok := status.FromError(err)
-		if ok && st.Code() == codes.Unimplemented && st.Message() == "SANDBOX_TRANSFER_WFFC_UNSUPPORTED" {
+		if ok && sandboxCloneRejection(st.Message()) != nil && status.Code(sandboxCloneRejection(st.Message())) == st.Code() {
 			ledger, ok := s.admission.(sandboxCloneRejectionLedger)
 			if !ok {
 				return nil, kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "sandbox clone rejection could not be recorded")
 			}
 			recordCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 			defer cancel()
-			if recordErr := ledger.RejectSandboxCloneWFFC(recordCtx, intent.TenantID, intent.SandboxID, intent.OperationID); recordErr != nil {
+			if recordErr := ledger.RejectSandboxClone(recordCtx, intent.TenantID, intent.SandboxID, intent.OperationID, st.Message()); recordErr != nil {
 				return nil, kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "sandbox clone rejection could not be recorded")
 			}
 		}
@@ -189,4 +192,18 @@ func (s *SandboxService) deliverSandboxClone(ctx context.Context, intent *data.S
 		return nil, err
 	}
 	return &view.SandboxAcceptance{OperationId: intent.OperationID, ResourceId: intent.SandboxID, Accepted: true, Replayed: replay || out.Ack.Replayed, IntentEnforcement: sandboxEgressIntentEnforcement(req.Spec.EgressIntent)}, nil
+}
+
+// Only exact reason/code pairs are trusted as committed Resource receipts.
+func sandboxCloneRejection(reason string) error {
+	switch reason {
+	case "SANDBOX_TRANSFER_WFFC_UNSUPPORTED":
+		return status.Error(codes.Unimplemented, reason)
+	case "SANDBOX_CLONE_REJECTED_NOT_FOUND":
+		return status.Error(codes.NotFound, reason)
+	case "SANDBOX_CLONE_REJECTED_VERSION", "SANDBOX_CLONE_REJECTED_CONFLICT":
+		return status.Error(codes.FailedPrecondition, reason)
+	default:
+		return nil
+	}
 }

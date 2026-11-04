@@ -150,6 +150,10 @@ func TestCloneRejectionDoesNotReleaseUnknownIntent(t *testing.T) {
 	require.Error(t, err)
 	require.Len(t, owner.requests, 1)
 	require.False(t, admission.intents[owner.requests[0].Context.ResourceId].Acknowledged)
+	owner.reject = status.Error(codes.NotFound, "SANDBOX_NOT_FOUND")
+	_, err = svc.CloneSandboxCheckpoint(ctx, r)
+	require.Error(t, err)
+	require.False(t, admission.intents[owner.requests[0].Context.ResourceId].Acknowledged, "generic not-found does not prove a committed clone rejection")
 }
 
 func TestCloneFreezesEgressIntent(t *testing.T) {
@@ -182,4 +186,45 @@ func TestCloneRejectsChangedResolvedEgressIntent(t *testing.T) {
 	require.Error(t, err)
 	require.Empty(t, admission.intents)
 	require.Empty(t, owner.requests)
+}
+
+func TestCloneDedicatedRejectionReceiptsEndIntentAndReplay(t *testing.T) {
+	for _, tc := range []struct {
+		reason string
+		code   codes.Code
+	}{
+		{"SANDBOX_CLONE_REJECTED_NOT_FOUND", codes.NotFound},
+		{"SANDBOX_CLONE_REJECTED_VERSION", codes.FailedPrecondition},
+		{"SANDBOX_CLONE_REJECTED_CONFLICT", codes.FailedPrecondition},
+	} {
+		t.Run(tc.reason, func(t *testing.T) {
+			owner := &cloneOwner{sandboxTestClient: &sandboxTestClient{resolved: &res.ResolveCreateSpecResponse{Name: "target", ImageReference: "example/image@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", PresetId: sandboxTestPreset, Workspace: &res.WorkspaceSpec{Size: "10Gi"}}}, reject: status.Error(tc.code, tc.reason)}
+			admission := new(sandboxTestAdmission)
+			svc := NewSandboxService(owner, new(cloneAuth), sandboxTenantResolver{}, admission)
+			ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42})
+			r := &view.CloneSandboxCheckpointRequest{Data: &view.CloneSandboxCheckpointData{SourceSandboxId: "33333333-3333-4333-8333-333333333333", CheckpointId: "44444444-4444-4444-8444-444444444444", IdempotencyKey: "dedicated", ExpectedVersion: 1, Name: "target", PresetId: sandboxTestPreset, ImageReference: "example/image:tag"}}
+			_, err := svc.CloneSandboxCheckpoint(ctx, r)
+			require.Equal(t, tc.code, status.Code(err))
+			require.Equal(t, tc.reason, status.Convert(err).Message())
+			intent := admission.intents[owner.requests[0].Context.ResourceId]
+			require.True(t, intent.Acknowledged)
+			require.Equal(t, tc.reason, intent.LastErrorCode)
+			owner.reject = nil
+			_, err = svc.CloneSandboxCheckpoint(ctx, r)
+			require.Equal(t, tc.code, status.Code(err))
+			require.Equal(t, tc.reason, status.Convert(err).Message())
+			require.Len(t, owner.requests, 1)
+		})
+	}
+}
+
+func TestCloneWrongReceiptCodeRemainsPending(t *testing.T) {
+	owner := &cloneOwner{sandboxTestClient: &sandboxTestClient{resolved: &res.ResolveCreateSpecResponse{Name: "target", ImageReference: "example/image@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", PresetId: sandboxTestPreset, Workspace: &res.WorkspaceSpec{Size: "10Gi"}}}, reject: status.Error(codes.Unavailable, "SANDBOX_CLONE_REJECTED_VERSION")}
+	admission := new(sandboxTestAdmission)
+	svc := NewSandboxService(owner, new(cloneAuth), sandboxTenantResolver{}, admission)
+	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 42})
+	r := &view.CloneSandboxCheckpointRequest{Data: &view.CloneSandboxCheckpointData{SourceSandboxId: "33333333-3333-4333-8333-333333333333", CheckpointId: "44444444-4444-4444-8444-444444444444", IdempotencyKey: "bad-code", ExpectedVersion: 1, Name: "target", PresetId: sandboxTestPreset, ImageReference: "example/image:tag"}}
+	_, err := svc.CloneSandboxCheckpoint(ctx, r)
+	require.Error(t, err)
+	require.False(t, admission.intents[owner.requests[0].Context.ResourceId].Acknowledged)
 }
