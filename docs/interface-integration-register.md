@@ -2207,4 +2207,4 @@ Gov → Observability 沿用现有 TLS 1.3 mTLS 及精确证书身份，重建�
 正式 API 依赖，当前只验证本地联合源码，未更新集群或完成跨服务真实验收。
 ## 2026-11-04 Sandbox 独立终端
 
-`POST /api/v1/sandbox/{sandbox_id}/exec` 按用户和 SANDBOX 套餐检查 `sandbox:terminal:connect`，通过 Resource 解析独立 Sandbox 绑定，并经受信 Session Gateway 签发单次短期连接票据。返回 `session_id`、`ws_url`、`expires_at`；请求、票据和审计脱敏、并发边界见[前端合同](contracts/frontend-http-api.md)。需要同步 API 目录、登记并授权新权限，以及发布 Resource 和 Session Gateway 的正式 API 依赖；当前仅本地联合源码验证，未部署或真实连接验收。
+`POST /api/v1/sandbox/{sandbox_id}/exec` 按用户和 SANDBOX 套餐检查 `sandbox:terminal:connect`，通过 Resource 解析独立 Sandbox 绑定，并经受信 Session Gateway 签发单次短期连接票据。返回 `session_id`、`ws_url`、`expires_at`；请求、票据和审计脱敏、并发边界见[前端合同](contracts/frontend-http-api.md)。需要同步 API 目录、登记并授权新权限。Resource 和 Gateway 的固定 API 模块已可下载；66 曾使用隔离兼容镜像测试，正式服务部署及本分支的跨服务验收尚未完成。

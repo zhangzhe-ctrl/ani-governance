@@ -15,6 +15,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/service"
 	"go-wind-admin/pkg/middleware/auth"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -25,10 +27,16 @@ func (o *sandboxTerminalHTTPOwner) ResolveSandboxTerminal(_ context.Context, ten
 	return &terminal.SandboxTerminalBinding{TenantId: tenant, SandboxId: id, Version: 1, ClusterId: "44444444-4444-4444-8444-444444444444", Namespace: "tenant-" + tenant, NamespaceUid: "namespace-uid", PodName: "sandbox-" + id, PodUid: "pod-uid", ContainerName: "sandbox", Shell: "/bin/sh"}, nil
 }
 
-type sandboxTerminalHTTPSessions struct{ request *session.CreateSessionRequest }
+type sandboxTerminalHTTPSessions struct {
+	request *session.CreateSessionRequest
+	err     error
+}
 
 func (s *sandboxTerminalHTTPSessions) CreateSession(_ context.Context, r *session.CreateSessionRequest) (*session.CreateSessionResponse, error) {
 	s.request = r
+	if s.err != nil {
+		return nil, s.err
+	}
 	return &session.CreateSessionResponse{SessionId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc", ConnectUrl: "wss://example.test/api/v1/realtime/sessions/cccccccc-cccc-4ccc-8ccc-cccccccccccc?ticket=test", ExpiresAt: timestamppb.New(time.Unix(2000000000, 0))}, nil
 }
 
@@ -68,6 +76,11 @@ func TestSandboxTerminalHTTPPathAndAuthorization(t *testing.T) {
 	require.Contains(t, w.Body.String(), `"session_id":"cccccccc-cccc-4ccc-8ccc-cccccccccccc"`)
 	require.Equal(t, sandboxHTTPResourceID, sessions.request.Target.SandboxBinding.SandboxId)
 	require.Empty(t, sessions.request.Target.InstanceId)
+	sessions.err = status.Error(codes.ResourceExhausted, "SANDBOX_FILE_TOO_LARGE")
+	w = call(body, 503)
+	require.Contains(t, w.Body.String(), "SANDBOX_TERMINAL_RESOURCE_EXHAUSTED")
+	require.NotContains(t, w.Body.String(), "SANDBOX_FILE_TOO_LARGE")
+	sessions.err = nil
 	sessions.request = nil
 	call(`{"data":{"sandbox_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","idempotency_key":"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb","expected_version":"1","rows":24,"cols":80}}`, 400)
 	require.Nil(t, sessions.request)

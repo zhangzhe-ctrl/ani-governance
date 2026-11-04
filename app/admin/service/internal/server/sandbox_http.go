@@ -19,6 +19,15 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+// sandboxOperationHTTPError keeps terminal resource exhaustion separate from
+// file-size errors, while preserving the common mapping for other endpoints.
+func sandboxOperationHTTPError(err error, operation string) error {
+	if operation == admin.OperationSandboxServiceExecSandbox && status.Code(err) == codes.ResourceExhausted {
+		return kratoserrors.ServiceUnavailable("SANDBOX_TERMINAL_RESOURCE_EXHAUSTED", "sandbox terminal dependency exhausted")
+	}
+	return sandboxHTTPError(err)
+}
+
 func sandboxHTTPError(err error) error {
 	if err == nil {
 		return nil
@@ -515,7 +524,7 @@ func RegisterSandboxHTTPServer(server *http.Server, s admin.SandboxServiceHTTPSe
 				return r.invoke(c, in.(proto.Message))
 			})(ctx, request)
 			if err != nil {
-				return sandboxHTTPError(err)
+				return sandboxOperationHTTPError(err, r.operation)
 			}
 			ctx.Response().Header().Set("Cache-Control", "no-store")
 			return ctx.Result(200, result)
