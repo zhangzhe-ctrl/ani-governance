@@ -42,7 +42,7 @@ func (b *InferenceGpuBinding) dispatchManaged(ctx context.Context, command *Quot
 			return nil, e
 		}
 	case InferenceDeleteAction:
-		request := &runtimev1.DeleteInferenceServiceRequest{RequestId: command.OperationID, ResourceId: command.ResourceID, CreateOperationId: command.CreateOperationID, ExpectedGeneration: c.DeleteExpectedGeneration, ManagedDeleteScope: c.DeleteScope, Context: &runtimev1.CommandContext{TenantId: command.ResourceTenantID, ResourceId: command.ResourceID, OperationId: command.OperationID}}
+		request := &runtimev1.DeleteInferenceServiceRequest{RequestId: command.OperationID, ResourceId: command.ResourceID, CreateOperationId: command.CreateOperationID, ManagedDeleteScope: c.DeleteScope, Context: &runtimev1.CommandContext{TenantId: command.ResourceTenantID, ResourceId: command.ResourceID, OperationId: command.OperationID}}
 		hash, e := contractv1.ManagedDeleteCommandHash(request, command.ResourceTenantID, command.Actor.Type, command.Actor.ID)
 		if e != nil {
 			return nil, e

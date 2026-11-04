@@ -31,7 +31,6 @@ func TestModelInferenceWritesDecodeTopLevelFields(t *testing.T) {
 		{"import", "/api/v1/models:import", `{"source":"modelscope","repo_id":"Qwen/Qwen3","idempotency_key":"import-1"}`, &catalog.ImportModelRequest{Source: "modelscope", RepoId: "Qwen/Qwen3", IdempotencyKey: "import-1"}, 200},
 		{"import bundle", "/api/v1/models:import-bundle", `{"idempotency_key":"bundle-1","model":{"name":"qwen"},"version":{"version":"v1"},"source":{"provider":"modelscope","repo_id":"Qwen/Qwen3"}}`, &catalog.ImportModelBundleRequest{IdempotencyKey: "bundle-1", Model: &catalog.ImportModelBundleModelData{Name: "qwen"}, Version: &catalog.ImportModelBundleVersionData{Version: "v1"}, Source: &catalog.ImportModelBundleSourceData{Provider: "modelscope", RepoId: "Qwen/Qwen3"}}, 200},
 		{"create inference", "/api/v1/inference/services", `{"name":"qwen","idempotency_key":"create-1","model_version_id":"version-1"}`, &view.CreateInferenceRequest{Name: "qwen", IdempotencyKey: "create-1", ModelVersionId: "version-1"}, 202},
-		{"delete inference", "/api/v1/inference/services/service-1:delete", `{"idempotency_key":"delete-1","expected_generation":"3"}`, &view.DeleteInferenceRequest{ResourceId: "service-1", IdempotencyKey: "delete-1", ExpectedGeneration: 3}, 202},
 		{"update inference", "/api/v1/inference/services/service-1:update", `{"idempotency_key":"update-1","expected_generation":"3","update_mask":"replicas","replicas":2}`, &view.UpdateInferenceRequest{ResourceId: "service-1", IdempotencyKey: "update-1", ExpectedGeneration: 3, UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"replicas"}}, Replicas: 2}, 202},
 	}
 	for _, action := range []string{"start", "stop", "restart"} {
@@ -74,7 +73,7 @@ func TestModelInferenceWritesDecodeTopLevelFields(t *testing.T) {
 }
 
 func TestInferenceWritesRejectEnvelopeAndPathMismatch(t *testing.T) {
-	for _, action := range []string{"delete", "update", "start", "stop", "restart"} {
+	for _, action := range []string{"update", "start", "stop", "restart"} {
 		t.Run(action, func(t *testing.T) {
 			called := false
 			srv := khttp.NewServer(khttp.Middleware(func(next middleware.Handler) middleware.Handler {
@@ -84,7 +83,7 @@ func TestInferenceWritesRejectEnvelopeAndPathMismatch(t *testing.T) {
 				}
 			}))
 			RegisterInferenceHTTPServer(srv, service.NewInferenceService(nil))
-			for _, body := range []string{`{"resource_id":"another-service","idempotency_key":"request-1","expected_generation":"3"}`, `{"data":{"idempotency_key":"request-1","expected_generation":"3"}}`} {
+			for _, body := range []string{`{"resource_id":"another-service","idempotency_key":"request-1"}`, `{"data":{"idempotency_key":"request-1"}}`} {
 				recorder := httptest.NewRecorder()
 				request := httptest.NewRequest(http.MethodPost, "/api/v1/inference/services/service-1:"+action, strings.NewReader(body))
 				request.Header.Set("Content-Type", "application/json")

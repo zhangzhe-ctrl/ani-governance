@@ -267,12 +267,11 @@ func (x *GpuSelection) GetProfileVersion() uint64 {
 }
 
 type DeleteInferenceRequest struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	IdempotencyKey     string                 `protobuf:"bytes,2,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
-	ResourceId         string                 `protobuf:"bytes,3,opt,name=resource_id,proto3" json:"resource_id,omitempty"`
-	ExpectedGeneration int64                  `protobuf:"varint,4,opt,name=expected_generation,proto3" json:"expected_generation,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	IdempotencyKey string                 `protobuf:"bytes,2,opt,name=idempotency_key,proto3" json:"idempotency_key,omitempty"`
+	ResourceId     string                 `protobuf:"bytes,3,opt,name=resource_id,proto3" json:"resource_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *DeleteInferenceRequest) Reset() {
@@ -317,13 +316,6 @@ func (x *DeleteInferenceRequest) GetResourceId() string {
 		return x.ResourceId
 	}
 	return ""
-}
-
-func (x *DeleteInferenceRequest) GetExpectedGeneration() int64 {
-	if x != nil {
-		return x.ExpectedGeneration
-	}
-	return 0
 }
 
 type InferenceAcceptance struct {
@@ -1286,11 +1278,10 @@ const file_inference_service_v1_owner_proto_rawDesc = "" +
 	"\n" +
 	"profile_id\x18\x03 \x01(\tR\n" +
 	"profile_id\x12(\n" +
-	"\x0fprofile_version\x18\x04 \x01(\x04R\x0fprofile_version\"\xa2\x01\n" +
+	"\x0fprofile_version\x18\x04 \x01(\x04R\x0fprofile_version\"\x8b\x01\n" +
 	"\x16DeleteInferenceRequest\x12(\n" +
 	"\x0fidempotency_key\x18\x02 \x01(\tR\x0fidempotency_key\x12 \n" +
-	"\vresource_id\x18\x03 \x01(\tR\vresource_id\x120\n" +
-	"\x13expected_generation\x18\x04 \x01(\x03R\x13expected_generationJ\x04\b\x01\x10\x02R\x04data\"\xc5\x01\n" +
+	"\vresource_id\x18\x03 \x01(\tR\vresource_idJ\x04\b\x01\x10\x02J\x04\b\x04\x10\x05R\x04dataR\x13expected_generation\"\xc5\x01\n" +
 	"\x13InferenceAcceptance\x12\"\n" +
 	"\foperation_id\x18\x01 \x01(\tR\foperation_id\x12 \n" +
 	"\vresource_id\x18\x02 \x01(\tR\vresource_id\x12\x1a\n" +

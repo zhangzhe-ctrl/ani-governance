@@ -150,7 +150,7 @@ func validateInferenceStored(in StoredCommand) (*Facts, error) {
 		if scope.ResourceClass != c.ResourceClass || scope.ClusterId != c.ClusterID || scope.CreateCommandDigest != c.CreateCommandDigest {
 			return nil, Invalid("inference delete scope mismatch")
 		}
-		request := &runtimev1.DeleteInferenceServiceRequest{ResourceId: in.ResourceID, CreateOperationId: in.CreateOperationID, ExpectedGeneration: c.DeleteExpectedGeneration, ManagedDeleteScope: scope, Context: &runtimev1.CommandContext{TenantId: in.TenantID, ResourceId: in.ResourceID, OperationId: in.OperationID}}
+		request := &runtimev1.DeleteInferenceServiceRequest{ResourceId: in.ResourceID, CreateOperationId: in.CreateOperationID, ManagedDeleteScope: scope, Context: &runtimev1.CommandContext{TenantId: in.TenantID, ResourceId: in.ResourceID, OperationId: in.OperationID}}
 		hash, e := contractv1.ManagedDeleteCommandHash(request, in.TenantID, in.ActorType, in.ActorID)
 		if e != nil {
 			return nil, e

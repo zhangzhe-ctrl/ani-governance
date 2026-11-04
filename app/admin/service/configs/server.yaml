@@ -11,6 +11,7 @@ server:
       headers:
         - "X-Requested-With"
         - "X-Request-ID"
+        - "Idempotency-Key"
         - "Content-Type"
         - "Authorization"
         - "X-Captcha-Id"

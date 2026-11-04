@@ -229,7 +229,13 @@ func RegisterSandboxHTTPServer(server *http.Server, s admin.SandboxServiceHTTPSe
 			http.SetOperation(ctx, r.operation)
 			request := r.request()
 			bindRequest := func() error {
-				if r.method == "GET" || r.operation == admin.OperationSandboxServiceRevokeSandboxToken {
+				if r.operation == admin.OperationSandboxServiceDeleteSandbox {
+					key, version, err := decodeDeleteInput(ctx.Request(), true)
+					if err != nil {
+						return kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid sandbox delete request")
+					}
+					request.(*view.DeleteSandboxRequest).Data = &view.SandboxActionData{IdempotencyKey: key, ExpectedVersion: version}
+				} else if r.method == "GET" || r.operation == admin.OperationSandboxServiceRevokeSandboxToken {
 					if err := decodeSandboxQuery(ctx.Request(), request); err != nil {
 						return err
 					}

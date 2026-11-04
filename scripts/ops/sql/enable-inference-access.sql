@@ -24,7 +24,7 @@ BEGIN
  FOR r IN SELECT * FROM (VALUES
   ('inference:service:read','GET','/api/v1/inference/services'),
   ('inference:service:create','POST','/api/v1/inference/services'),
-  ('inference:service:delete','POST','/api/v1/inference/services/{resource_id}:delete'),
+  ('inference:service:delete','DELETE','/api/v1/inference/services/{resource_id}'),
   ('inference:service:update','POST','/api/v1/inference/services/{resource_id}:update'),
   ('inference:service:start','POST','/api/v1/inference/services/{resource_id}:start'),
   ('inference:service:stop','POST','/api/v1/inference/services/{resource_id}:stop'),

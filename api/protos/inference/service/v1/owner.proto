@@ -45,7 +45,8 @@ message DeleteInferenceRequest {
   reserved "data";
   string idempotency_key = 2 [json_name = "idempotency_key"];
   string resource_id = 3 [json_name = "resource_id"];
-  int64 expected_generation = 4 [json_name = "expected_generation"];
+  reserved 4;
+  reserved "expected_generation";
 }
 message InferenceAcceptance {
   string operation_id = 1 [json_name = "operation_id"];

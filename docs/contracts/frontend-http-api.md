@@ -4,7 +4,7 @@
 
 Governance BFF 当前提供 `/api/v1/inference/...` 推理服务管理接口，包括普通及 GPU 推理的创建、列表/详情、操作查询、更新、启停/重启和删除。业务管理请求直接访问 Governance；Higress 仅承载 OpenAI 兼容推理数据面（例如 `/v1/completions`），不得把这些 `/api/v1/...` 路由加入 Higress。Inference BFF 的列表请求使用 `page`/`pageSize`，响应使用 `items`/`total`；`total` 在 JSON 中是十进制字符串。
 
-Sandbox 管理从 Governance BFF 进入，Resource 不暴露公网 HTTP。接口为 `POST /api/v1/sandbox`、`GET /api/v1/sandbox`、`GET /api/v1/sandbox/{sandbox_id}`、`GET /api/v1/sandbox/operations/{operation_id}`，以及带 `:pause`、`:resume` 的 POST 和 DELETE。创建和生命周期请求使用 `data` 对象，返回异步受理的 `operation_id`/`resource_id`；列表返回 `items`/`total`。Sandbox 是独立资源，不要求其他实例。Gov 完成认证、权限、INSTANCE 套餐检查和可信租户映射；Resource 按租户和 Sandbox ID 检查归属。列表使用 `page/pageSize` 和默认值 `1/20`。
+Sandbox 管理从 Governance BFF 进入，Resource 不暴露公网 HTTP。接口为 `POST /api/v1/sandbox`、`GET /api/v1/sandbox`、`GET /api/v1/sandbox/{sandbox_id}`、`GET /api/v1/sandbox/operations/{operation_id}`，以及带 `:pause`、`:resume` 的 POST 和 DELETE。创建、暂停和恢复使用 `data` 对象；删除不使用请求体，使用 `Idempotency-Key` 请求头或 `data.idempotency_key` 查询参数（二选一），以及可选 `expected_version` 或 `data.expected_version` 查询参数（二选一）。生命周期操作返回异步受理的 `operation_id`/`resource_id`；列表返回 `items`/`total`。Sandbox 是独立资源，不要求其他实例。Gov 完成认证、权限、INSTANCE 套餐检查和可信租户映射；Resource 按租户和 Sandbox ID 检查归属。列表使用 `page/pageSize` 和默认值 `1/20`。
 
 Sandbox 文件接口以工作盘 `/workspace` 为根，路径为相对路径。`GET /api/v1/sandbox/{sandbox_id}/files` 接收 `path`、`limit`（默认 100，最大 500）及 `cursor`，递归返回 `items`、`total`、`next_cursor`；`GET /api/v1/sandbox/{sandbox_id}/files/content?path=...` 返回 `content_base64`。`POST /api/v1/sandbox/{sandbox_id}/files` 使用 `data` 包含 `idempotency_key`、`path`、`content_base64`、`overwrite` 和可选 `expected_version`；`DELETE` 同一路径使用 `data` 的 `idempotency_key`、`path` 和可选版本。文件内容单次上限 1 MiB。变更响应有 `operation_id`、`state` 和 `reason`，可通过 `GET /api/v1/sandbox/{sandbox_id}/file-operations/{operation_id}` 查询。相同幂等键及参数重放返回原结果，不同内容冲突；`unknown` 不证明是否执行，不能自动重复提交新键。文件列表、读取、写入、删除和操作查询分别授权。
 
@@ -18,13 +18,13 @@ Sandbox Token：`POST /api/v1/sandbox/{sandbox_id}/tokens` 的 `data` 包含 `id
 
 ## 推理服务管理接口
 
-当前注册的管理路由如下；创建、更新、删除、启动、停止和重启请求的业务字段直接位于 JSON 顶层，不使用 `data` 包装：
+当前注册的管理路由如下；创建、更新、启动、停止和重启请求的业务字段直接位于 JSON 顶层；删除的幂等键使用 `Idempotency-Key` 请求头或 `idempotency_key` 查询参数（二选一），无请求体：
 
 - `POST /api/v1/inference/services`：创建服务。
 - `GET /api/v1/inference/services`：列表，可选 `status`、`capability`，分页使用 `page`/`pageSize`。
 - `GET /api/v1/inference/services/{resource_id}`：详情。
 - `POST /api/v1/inference/services/{resource_id}:update`：部分更新。
-- `POST /api/v1/inference/services/{resource_id}:delete`：删除。
+- `DELETE /api/v1/inference/services/{resource_id}`：删除，使用 `Idempotency-Key` 请求头或 `idempotency_key` 查询参数（二选一），无请求体。
 - `POST /api/v1/inference/services/{resource_id}:start`、`:stop`、`:restart`：生命周期操作。
 - `GET /api/v1/inference/operations/{operation_id}`：操作详情。
 - `GET /api/v1/inference/services/{resource_id}/operations`：服务操作列表，分页使用 `page`/`pageSize`。
@@ -38,8 +38,8 @@ Sandbox Token：`POST /api/v1/sandbox/{sandbox_id}/tokens` 的 `data` 包含 `id
 `secret`。完整报文、分页上限及旧 Key 补存边界见[推理调用 Key 合同](inference-keys.md)。
 
 - 查询参数放在 URL 中，创建和修改的业务数据使用 JSON 请求体。
-- 业务字段及请求体结构以接口定义为准。模型创建、版本创建、导入、组合导入及推理创建、更新、删除、启动、停止、重启共 10 个接口不使用 `data` 包装；其他接口保持各自已声明结构。
-- 本批次只迁移请求体，响应结构不变。推理路径中的 `resource_id` 为资源身份；请求体可省略该字段，若提供则必须与路径一致。`idempotency_key`、`expected_generation`、`update_mask` 的含义保持不变。
+- 业务字段及请求体结构以接口定义为准。模型创建、版本创建、导入、组合导入及推理创建、更新、启动、停止、重启不使用 `data` 包装；推理与 Sandbox 删除的幂等键使用 `Idempotency-Key` 请求头或各自 Proto 查询参数（二选一），无请求体；其他接口保持各自已声明结构。
+- 本批次只迁移请求体，响应结构不变。推理路径中的 `resource_id` 为资源身份；支持请求体的接口若提供该字段，必须与路径一致。删除不接受 `expected_generation`，幂等键通过 `Idempotency-Key` 请求头或 `idempotency_key` 查询参数传递（二选一）；更新和启停重启继续使用各自的 `expected_generation`，更新继续使用 `update_mask`。
 - 公共分页参数统一使用 `page`、`pageSize`；筛选和排序参数由各接口声明。
 
 ## 2 详情响应

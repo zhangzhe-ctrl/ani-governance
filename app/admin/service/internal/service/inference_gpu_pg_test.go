@@ -84,7 +84,7 @@ func TestInferenceGPUBlockMemoryReadAndDeleteKeepsOriginalCharge(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, before, 1)
 	require.EqualValues(t, 24570, before[0].OriginalUnits)
-	request := &view.DeleteInferenceRequest{IdempotencyKey: uuid.NewString(), ResourceId: resourceID, ExpectedGeneration: 1}
+	request := &view.DeleteInferenceRequest{IdempotencyKey: uuid.NewString(), ResourceId: resourceID}
 	deleted, err := f.service.DeleteInference(f.ctx, request)
 	require.NoError(t, err)
 	replay, err := f.service.DeleteInference(f.ctx, request)
@@ -175,11 +175,15 @@ func newInferenceGPUFixture(t *testing.T) *inferenceGPUFixture {
 	require.NoError(t, err)
 	var permissions []uint32
 	for _, path := range []string{data.InferenceCreatePath, data.InferenceDeletePath} {
+		method := "POST"
+		if path == data.InferenceDeletePath {
+			method = "DELETE"
+		}
 		perm, e := c.Client().Permission.Create().SetName("inference " + path).SetCode("inference:" + uuid.NewString()).SetStatus(permission.StatusOn).Save(sys)
 		require.NoError(t, e)
-		route, e := c.Client().Api.Query().Where(api.PathEQ(path), api.MethodEQ("POST")).Only(sys)
+		route, e := c.Client().Api.Query().Where(api.PathEQ(path), api.MethodEQ(method)).Only(sys)
 		if ent.IsNotFound(e) {
-			route, e = c.Client().Api.Create().SetModule("InferenceService").SetPath(path).SetMethod("POST").SetScope(api.ScopeAdmin).SetBusinessModule(api.BusinessModule("INFERENCE")).SetStatus(api.StatusOn).Save(sys)
+			route, e = c.Client().Api.Create().SetModule("InferenceService").SetPath(path).SetMethod(method).SetScope(api.ScopeAdmin).SetBusinessModule(api.BusinessModule("INFERENCE")).SetStatus(api.StatusOn).Save(sys)
 		}
 		require.NoError(t, e)
 		require.NoError(t, c.Client().PermissionApi.Create().SetPermissionID(perm.ID).SetAPIID(route.ID).Exec(sys))
@@ -294,6 +298,6 @@ func TestInferenceCPUActorsRemainTrusted(t *testing.T) {
 		actor, err := (&auth.Principal{Type: subject, ID: principal.ID, TenantID: principal.TenantID}).Actor()
 		require.NoError(t, err)
 		require.Equal(t, actor, f.owner.actor)
-		require.EqualValues(t, 7, f.owner.delete.ExpectedGeneration)
+		require.Equal(t, f.owner.service.Id, f.owner.delete.ResourceId)
 	}
 }

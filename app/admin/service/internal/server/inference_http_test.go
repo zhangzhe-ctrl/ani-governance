@@ -11,6 +11,7 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware"
 	kratoshttp "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/stretchr/testify/require"
+	admin "go-wind-admin/api/gen/go/admin/service/v1"
 	view "go-wind-admin/api/gen/go/inference/service/v1"
 	"go-wind-admin/app/admin/service/internal/service"
 )
@@ -60,34 +61,62 @@ func TestInferencePublicHTTPRejectsTrustedFieldsAndAmbiguousJSON(t *testing.T) {
 	require.Error(t, decodeInferenceHTTP(request, new(view.CreateInferenceRequest)))
 }
 
-func TestInferenceDeleteHTTPDecodesFlatBody(t *testing.T) {
-	request := httptest.NewRequest("POST", "/api/v1/inference/services/service-1:delete", strings.NewReader(`{"idempotency_key":"20000000-0000-4000-8000-000000000001","resource_id":"service-1","expected_generation":"1"}`))
-	request.Header.Set("Content-Type", "application/json")
-	decoded := new(view.DeleteInferenceRequest)
-	require.NoError(t, decodeInferenceHTTP(request, decoded))
-	require.Equal(t, "service-1", decoded.ResourceId)
-}
-
-func TestInferenceDeleteHTTPBindsRouteResourceID(t *testing.T) {
+func TestInferenceDeleteHTTPHeaderAndPath(t *testing.T) {
 	called := 0
+	var got *view.DeleteInferenceRequest
 	srv := kratoshttp.NewServer(kratoshttp.Middleware(func(next middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (interface{}, error) {
 			called++
+			got = req.(*view.DeleteInferenceRequest)
 			return &view.InferenceAcceptance{ResourceId: "service-1"}, nil
 		}
 	}))
 	RegisterInferenceHTTPServer(srv, service.NewInferenceService(nil))
+	request := httptest.NewRequest("DELETE", "/api/v1/inference/services/service-1", nil)
+	request.Header.Set("Idempotency-Key", "delete-1")
 	recorder := httptest.NewRecorder()
-	request := httptest.NewRequest("POST", "/api/v1/inference/services/service-1:delete", strings.NewReader(`{"idempotency_key":"20000000-0000-4000-8000-000000000001"}`))
-	request.Header.Set("Content-Type", "application/json")
 	srv.ServeHTTP(recorder, request)
-	require.Equal(t, http.StatusAccepted, recorder.Code)
+	require.Equal(t, http.StatusAccepted, recorder.Code, recorder.Body.String())
 	require.Equal(t, 1, called)
+	require.Equal(t, "service-1", got.ResourceId)
+	require.Equal(t, "delete-1", got.IdempotencyKey)
+	for _, tc := range []struct {
+		path, body string
+		keys       []string
+		forged     bool
+	}{
+		{"/api/v1/inference/services/service-1", "", nil, false},
+		{"/api/v1/inference/services/service-1", "", []string{"a", "b"}, false},
+		{"/api/v1/inference/services/service-1?expected_generation=1", "", []string{"a"}, false},
+		{"/api/v1/inference/services/service-1?idempotency_key=a", "", []string{"a"}, false},
+		{"/api/v1/inference/services/service-1", `{"expected_generation":"1"}`, []string{"a"}, false},
+		{"/api/v1/inference/services/service-1", "", []string{"a"}, true},
+	} {
+		r := httptest.NewRequest("DELETE", tc.path, strings.NewReader(tc.body))
+		for _, key := range tc.keys {
+			r.Header.Add("Idempotency-Key", key)
+		}
+		if tc.forged {
+			r.Header.Set("X-Ani-Tenant-Id", "forged")
+		}
+		w := httptest.NewRecorder()
+		srv.ServeHTTP(w, r)
+		require.Equal(t, http.StatusBadRequest, w.Code, w.Body.String())
+		require.Equal(t, 1, called)
+	}
+	web := httptest.NewServer(srv)
+	defer web.Close()
+	client, err := kratoshttp.NewClient(context.Background(), kratoshttp.WithEndpoint(web.URL))
+	require.NoError(t, err)
+	defer client.Close()
+	_, err = admin.NewInferenceServiceHTTPClient(client).DeleteInference(context.Background(), &view.DeleteInferenceRequest{ResourceId: "service-1", IdempotencyKey: "generated-key"})
+	require.NoError(t, err)
+	require.Equal(t, "generated-key", got.IdempotencyKey)
 }
 
 func TestInferenceHTTPAcceptsCanonicalRawPath(t *testing.T) {
-	request := httptest.NewRequest("POST", "/api/v1/inference/services/service-1:delete", strings.NewReader(`{"idempotency_key":"20000000-0000-4000-8000-000000000001"}`))
+	request := httptest.NewRequest("POST", "/api/v1/inference/services/service-1:update", strings.NewReader(`{"idempotency_key":"20000000-0000-4000-8000-000000000001"}`))
 	request.URL.RawPath = request.URL.Path
 	request.Header.Set("Content-Type", "application/json")
-	require.NoError(t, decodeInferenceHTTP(request, new(view.DeleteInferenceRequest)))
+	require.NoError(t, decodeInferenceHTTP(request, new(view.UpdateInferenceRequest)))
 }

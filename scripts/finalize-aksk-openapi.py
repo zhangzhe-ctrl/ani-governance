@@ -534,7 +534,44 @@ def require_modeldev_device_mode(text):
     return text[:start] + section + text[end:]
 
 
+def normalize_resource_delete_parameters(text):
+    # gnostic maps every non-path Proto field to a query parameter. These two
+    # hand-written public handlers additionally allow an idempotency header.
+    # Remove Sandbox fields that are not accepted as query parameters.
+    for route, removed, accepted in (
+        ("/api/v1/inference/services/{resource_id}", (), True),
+        ("/api/v1/sandbox/{data.sandbox_id}", ("data.sandbox_id", "data.instance_id"), False),
+    ):
+        marker = "    " + route + ":\n"
+        if marker not in text:
+            continue
+        start = text.index(marker)
+        end = text.find("\n    /", start + len(marker))
+        if end < 0:
+            end = text.index("\ncomponents:", start)
+        section = text[start:end]
+        match = re.search(r"(?m)^        delete:\n(?:(?: {9,}.*|)\n)*", section)
+        if match is None:
+            raise SystemExit("expected delete operation for " + route)
+        operation = match.group(0)
+        if "- name: Idempotency-Key\n                  in: header\n" not in operation:
+            raise SystemExit("missing delete idempotency header for " + route)
+        for name in removed:
+            pattern = r"(?m)^                - name: " + re.escape(name) + r"\n                  in: query\n(?:(?: {18,}.*|)\n)*"
+            operation, count = re.subn(pattern, "", operation)
+            if count != 1:
+                raise SystemExit("unexpected generated delete query parameter " + name)
+        if accepted:
+            operation, count = re.subn(r'(?m)^                "200":$', '                "202":', operation)
+            if count != 1:
+                raise SystemExit("unexpected inference delete response")
+        section = section[:match.start()] + operation + section[match.end():]
+        text = text[:start] + section + text[end:]
+    return text
+
+
 def finalize(text):
+    text = normalize_resource_delete_parameters(text)
     text = require_modeldev_device_mode(text)
     text = remove_synthetic_200(text, "/api/v1/auth/api-keys", "201")
     # Minimal generator fixtures may omit ModelDev. Its public contract test

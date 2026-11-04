@@ -331,10 +331,7 @@ func (s *InferenceService) DeleteInference(ctx context.Context, in *view.DeleteI
 				return nil, status.Error(codes.Unavailable, "INVALID_INFERENCE_RESPONSE")
 			}
 			if current.GetResource().GetGpu() == nil {
-				if in.ExpectedGeneration != 0 && in.ExpectedGeneration != current.Generation {
-					return nil, status.Error(codes.FailedPrecondition, "inference generation changed")
-				}
-				return s.deleteDirect(ctx, in, tenant, actor, current.Generation)
+				return s.deleteDirect(ctx, in, tenant, actor)
 			}
 		}
 	}
@@ -348,21 +345,18 @@ func (s *InferenceService) DeleteInference(ctx context.Context, in *view.DeleteI
 	return &view.InferenceAcceptance{OperationId: result.DeleteOperationId, ResourceId: result.ResourceId, Result: result.Result, DispatchOperationId: result.DispatchOperationId}, nil
 }
 
-func (s *InferenceService) deleteDirect(ctx context.Context, in *view.DeleteInferenceRequest, tenant, actor string, generation int64) (*view.InferenceAcceptance, error) {
+func (s *InferenceService) deleteDirect(ctx context.Context, in *view.DeleteInferenceRequest, tenant, actor string) (*view.InferenceAcceptance, error) {
 	trusted, ok := s.owner.(interface {
 		DeleteTrusted(context.Context, string, string, *runtimev1.DeleteInferenceServiceRequest) (*runtimev1.OperationResponse, error)
 	})
 	if !ok {
 		return nil, status.Error(codes.Unavailable, "INFERENCE_ADAPTER_UNAVAILABLE")
 	}
-	if generation < 1 {
-		return nil, status.Error(codes.Unavailable, "INVALID_INFERENCE_RESPONSE")
-	}
 	requestID := in.IdempotencyKey
 	if strings.TrimSpace(requestID) == "" {
 		return nil, status.Error(codes.InvalidArgument, "idempotency_key is required")
 	}
-	result, err := trusted.DeleteTrusted(ctx, tenant, actor, &runtimev1.DeleteInferenceServiceRequest{RequestId: requestID, ResourceId: in.ResourceId, ExpectedGeneration: generation})
+	result, err := trusted.DeleteTrusted(ctx, tenant, actor, &runtimev1.DeleteInferenceServiceRequest{RequestId: requestID, ResourceId: in.ResourceId})
 	if err != nil {
 		return nil, mapInferenceOwnerError(err)
 	}
