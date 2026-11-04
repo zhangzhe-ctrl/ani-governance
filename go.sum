@@ -412,10 +412,14 @@ github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261103151539-076c267e6e16
 github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261103151539-076c267e6e16/go.mod h1:iKr1O5uZilyGT0CIQv4X4Yu8/nomK5Qt77ax+O8HjR4=
 github.com/zhangzhe-ctrl/ani-resource-service/api/instance/terminal v0.0.0-20261013075021-0937f5aa9c6c h1:+Z/R4AX9U0RpY+smnrCO9cVFTxLqjjp0r7NbUWdchNE=
 github.com/zhangzhe-ctrl/ani-resource-service/api/instance/terminal v0.0.0-20261013075021-0937f5aa9c6c/go.mod h1:8N+MSiQHH8SrwQ6HOvEunPq37KNHiTr2/78mhzraFSw=
+github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/terminal v0.0.0-20261104041614-a26e1a00c9f4 h1:727lcvgZbr8MicTBGKVhyjIPXRSa8L5N47V6bMKGPnU=
+github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/terminal v0.0.0-20261104041614-a26e1a00c9f4/go.mod h1:dQ4RWkTsxGOLTXl5rqEMlCSClREtv4TFB5BERFE2oRY=
 github.com/zhangzhe-ctrl/ani-resource-service/api/vm/console v0.0.0-20261023185414-0a53b99c8d9f h1:dC5v8SPszcnt5W0pl5rBOSCL85nDJnQJkjy1YcWFZLs=
 github.com/zhangzhe-ctrl/ani-resource-service/api/vm/console v0.0.0-20261023185414-0a53b99c8d9f/go.mod h1:aFsjlMnejbYpMPxuooE0xAmyzwcjyDRjZAjS2YoroE8=
 github.com/zhangzhe-ctrl/ani-session-gateway/api v0.1.1-0.20261024051540-811cc3839244 h1:OBfuKBJM/sPd3W9pIcFdVaaYQakVWljq3Pf/R13xBiU=
 github.com/zhangzhe-ctrl/ani-session-gateway/api v0.1.1-0.20261024051540-811cc3839244/go.mod h1:UkqQImej+6VSty5W5AZv55scFHNrZR1qoTDy/8IdVbA=
+github.com/zhangzhe-ctrl/ani-session-gateway/api v0.1.1-0.20261104041726-98914216a996 h1:cPZez3JOlmOsppf/SqUjN7XZMnvOXOZfr/UrpEij/uw=
+github.com/zhangzhe-ctrl/ani-session-gateway/api v0.1.1-0.20261104041726-98914216a996/go.mod h1:efrl/3Y48TfOAUplDk219kd+yz4Gl8EirU7OJ7Gy1CY=
 go.einride.tech/aip v0.86.3 h1:jg80Ec4XBPYg1i7avzrl3MJol/dUwmMMLHtcmEMyxgM=
 go.einride.tech/aip v0.86.3/go.mod h1:dZuN/0sXeoscfWqsW8QLcLrGZdvsCC1B2R2CZ4kHmao=
 go.mongodb.org/mongo-driver/v2 v2.9.0 h1:e2mQdOmbkiYz+dj3faM7lVDwl7WdnRD+g5VicafMhL0=
