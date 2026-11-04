@@ -25,4 +25,5 @@ enum Module {
   INSTANCE = 16;        // GPU container instances, separate current action grants
   VIRTUAL_MACHINE = 17; // Virtual machines; feature entitlement, no resource charge
   STORAGE = 18;         // Independent volumes and read-only object browsing
+  SANDBOX = 20;         // 沙箱：独立于容器实例的生命周期与套餐资格
 }

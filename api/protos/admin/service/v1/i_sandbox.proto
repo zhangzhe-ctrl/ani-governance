@@ -6,6 +6,21 @@ import "gnostic/openapi/v3/annotations.proto";
 import "sandbox/service/v1/sandbox.proto";
 
 service SandboxService {
+  rpc ExecSandbox(sandbox.service.v1.ExecSandboxRequest) returns (sandbox.service.v1.ExecSandboxResponse) {
+    option (google.api.http) = { post: "/api/v1/sandbox/{data.sandbox_id}/exec" body: "*" };
+  }
+  rpc OpenSandboxPreview(sandbox.service.v1.OpenSandboxPreviewRequest) returns (sandbox.service.v1.SandboxPreviewAcceptance) {
+    option (google.api.http) = { post: "/api/v1/sandbox/{data.sandbox_id}/ports" body: "*" };
+  }
+  rpc CloseSandboxPreview(sandbox.service.v1.CloseSandboxPreviewRequest) returns (sandbox.service.v1.SandboxPreviewAcceptance) {
+    option (google.api.http) = { post: "/api/v1/sandbox/{data.sandbox_id}/ports/{data.preview_id}:close" body: "*" };
+  }
+  rpc ListSandboxPreviews(sandbox.service.v1.ListSandboxPreviewsRequest) returns (sandbox.service.v1.ListSandboxPreviewsResponse) {
+    option (google.api.http) = { get: "/api/v1/sandbox/{sandbox_id}/ports" };
+  }
+  rpc GetSandboxPreviewOperation(sandbox.service.v1.GetSandboxPreviewOperationRequest) returns (sandbox.service.v1.SandboxPreviewOperation) {
+    option (google.api.http) = { get: "/api/v1/sandbox/{sandbox_id}/port-operations/{operation_id}" };
+  }
   rpc CreateSandbox(sandbox.service.v1.CreateSandboxRequest) returns (sandbox.service.v1.SandboxAcceptance) {
     option (google.api.http) = { post: "/api/v1/sandbox" body: "*" };
   }
@@ -18,6 +33,41 @@ service SandboxService {
   rpc GetSandboxOperation(sandbox.service.v1.GetSandboxOperationRequest) returns (sandbox.service.v1.SandboxOperation) {
     option (google.api.http) = { get: "/api/v1/sandbox/operations/{operation_id}" };
   }
+  rpc ListSandboxOperations(sandbox.service.v1.ListSandboxOperationsRequest) returns (sandbox.service.v1.ListSandboxOperationsResponse) {
+    option (google.api.http) = { get: "/api/v1/sandbox/{sandbox_id}/operations" };
+  }
+  rpc ListSandboxEnvironment(sandbox.service.v1.ListSandboxEnvironmentRequest) returns (sandbox.service.v1.ListSandboxEnvironmentResponse) {
+    option (google.api.http) = { get: "/api/v1/sandbox/{sandbox_id}/environment" };
+  }
+  rpc GetSandboxEgress(sandbox.service.v1.GetSandboxEgressRequest) returns (sandbox.service.v1.GetSandboxEgressResponse) {
+    option (google.api.http) = { get: "/api/v1/sandbox/{sandbox_id}/egress" };
+  }
+  rpc ListSandboxEvents(sandbox.service.v1.ListSandboxEventsRequest) returns (sandbox.service.v1.ListSandboxEventsResponse) {
+    option (google.api.http) = { get: "/api/v1/sandbox/{sandbox_id}/events" };
+  }
+  rpc ListSandboxSecurityEvents(sandbox.service.v1.ListSandboxSecurityEventsRequest) returns (sandbox.service.v1.ListSandboxSecurityEventsResponse) {
+    option (google.api.http) = { get: "/api/v1/sandbox/{sandbox_id}/security-events" };
+  }
+  rpc ListSandboxCheckpoints(sandbox.service.v1.ListSandboxCheckpointsRequest) returns (sandbox.service.v1.ListSandboxCheckpointsResponse) {
+    option (google.api.http) = { get: "/api/v1/sandbox/{sandbox_id}/checkpoints" };
+  }
+  rpc CreateSandboxCheckpoint(sandbox.service.v1.CreateSandboxCheckpointRequest) returns (sandbox.service.v1.CreateSandboxCheckpointResponse) {
+    option (google.api.http) = { post: "/api/v1/sandbox/{data.sandbox_id}/checkpoints" body: "*" };
+  }
+  rpc CloneSandboxCheckpoint(sandbox.service.v1.CloneSandboxCheckpointRequest) returns (sandbox.service.v1.SandboxAcceptance) {
+    option (google.api.http) = { post: "/api/v1/sandbox/{data.source_sandbox_id}/checkpoints/{data.checkpoint_id}:clone" body: "*" };
+  }
+  rpc RestoreSandboxCheckpoint(sandbox.service.v1.RestoreSandboxCheckpointRequest) returns (sandbox.service.v1.SandboxAcceptance) {
+    option (google.api.http) = { post: "/api/v1/sandbox/{data.sandbox_id}/checkpoints/{data.checkpoint_id}:restore" body: "*" };
+  }
+  rpc GetSandboxMetrics(sandbox.service.v1.GetSandboxMetricsRequest) returns (sandbox.service.v1.SandboxMetricsResponse) {
+    option (google.api.http) = { get: "/api/v1/sandbox/{sandbox_id}/metrics" };
+  }
+  rpc GetSandboxLatestMetrics(sandbox.service.v1.GetSandboxLatestMetricsRequest) returns (sandbox.service.v1.SandboxMetricsResponse) {
+    option (google.api.http) = { get: "/api/v1/sandbox/{sandbox_id}/metrics/latest" };
+  }
+  // HTTP uses a dedicated SSE handler and generation-time OpenAPI description.
+  rpc StreamSandboxLogs(sandbox.service.v1.StreamSandboxLogsRequest) returns (stream sandbox.service.v1.StreamSandboxLogsFrame);
   rpc PauseSandbox(sandbox.service.v1.PauseSandboxRequest) returns (sandbox.service.v1.SandboxAcceptance) {
     option (google.api.http) = { post: "/api/v1/sandbox/{data.sandbox_id}:pause" body: "*" };
   }

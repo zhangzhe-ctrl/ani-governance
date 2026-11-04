@@ -13,6 +13,7 @@ import (
 )
 
 var instanceLogsHTTPPath = regexp.MustCompile(`^/api/v1/instances/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/logs$`)
+var sandboxLogsHTTPPath = regexp.MustCompile(`^/api/v1/sandbox/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/logs$`)
 
 // The training log stream is the second long-lived SSE channel. Its own handler
 // owns the bounded lifetime, so the shared ordinary timeout must not cut it.
@@ -78,7 +79,7 @@ func instanceHTTPTimeoutFilter(ordinary time.Duration, ownerBudgets ...time.Dura
 				ctx, cancel = context.WithTimeout(ctx, 45*time.Second)
 			} else if gpuHTTPPath.MatchString(r.URL.Path) {
 				ctx, cancel = context.WithTimeout(ctx, 35*time.Second)
-			} else if r.URL.Path == "/api/v1/sandbox" || strings.HasPrefix(r.URL.Path, "/api/v1/sandbox/") {
+			} else if (r.URL.Path == "/api/v1/sandbox" || strings.HasPrefix(r.URL.Path, "/api/v1/sandbox/")) && !(r.Method == http.MethodGet && sandboxLogsHTTPPath.MatchString(r.URL.Path)) {
 				// Sandbox may synchronously access a Pod; leave room for its 30s Resource RPC.
 				budget := max(ordinary, 35*time.Second)
 				ctx, cancel = context.WithTimeout(ctx, budget)
@@ -97,7 +98,7 @@ func instanceHTTPTimeoutFilter(ordinary time.Duration, ownerBudgets ...time.Dura
 				ctx, cancel = context.WithTimeout(ctx, 25*time.Second)
 			} else if metrics {
 				ctx, cancel = context.WithTimeout(ctx, 10*time.Second)
-			} else if ordinary > 0 && !(r.Method == http.MethodGet && (instanceLogsHTTPPath.MatchString(r.URL.Path) || inferenceLogsStreamHTTPPath.MatchString(r.URL.Path) || modelDevLogStreamHTTPPath.MatchString(r.URL.Path) || modelDevArtifactDownloadHTTPPath.MatchString(r.URL.Path) || platformComponentLogStreamHTTPPath.MatchString(r.URL.Path))) {
+			} else if ordinary > 0 && !(r.Method == http.MethodGet && (instanceLogsHTTPPath.MatchString(r.URL.Path) || sandboxLogsHTTPPath.MatchString(r.URL.Path) || inferenceLogsStreamHTTPPath.MatchString(r.URL.Path) || modelDevLogStreamHTTPPath.MatchString(r.URL.Path) || modelDevArtifactDownloadHTTPPath.MatchString(r.URL.Path) || platformComponentLogStreamHTTPPath.MatchString(r.URL.Path))) {
 				ctx, cancel = context.WithTimeout(ctx, ordinary)
 			} else {
 				ctx, cancel = context.WithCancel(ctx)

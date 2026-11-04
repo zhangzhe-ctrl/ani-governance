@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"sync"
 	"time"
@@ -65,7 +66,7 @@ func (w *SandboxDispatchWorker) loop(ctx context.Context, done chan struct{}) {
 		callCtx, cancel := context.WithTimeout(ctx, 70*time.Second)
 		intent, err := w.ledger.ClaimSandboxCreate(callCtx)
 		if err == nil && intent != nil {
-			_, err = w.sandbox.deliverSandboxCreate(callCtx, intent, true)
+			err = w.deliver(callCtx, intent)
 			if err != nil {
 				code := status.Code(err).String()
 				cleanupCtx, cleanupCancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
@@ -79,5 +80,20 @@ func (w *SandboxDispatchWorker) loop(ctx context.Context, done chan struct{}) {
 			slog.Warn("sandbox create claim failed")
 		}
 		cancel()
+	}
+}
+
+// deliver is also exercised directly to ensure worker retries respect the same
+// safety barrier as public retries of unconfirmed historical commands.
+func (w *SandboxDispatchWorker) deliver(ctx context.Context, intent *data.SandboxCreateIntent) error {
+	switch intent.CommandKind {
+	case "", "create":
+		_, err := w.sandbox.deliverSandboxCreate(ctx, intent, true)
+		return err
+	case "checkpoint_clone":
+		_, err := w.sandbox.deliverSandboxClone(ctx, intent, true)
+		return err
+	default:
+		return fmt.Errorf("unknown sandbox command kind")
 	}
 }

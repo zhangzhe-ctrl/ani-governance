@@ -91,6 +91,7 @@ func (Menu) Fields() []ent.Field {
 				"InternalMessage", "INTERNAL_MESSAGE",
 				"Task", "TASK",
 				"Inference", "INFERENCE",
+				"Sandbox", "SANDBOX",
 			).
 			Optional().
 			Nillable(),

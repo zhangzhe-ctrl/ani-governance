@@ -50,6 +50,14 @@ func (a *sandboxTestAdmission) AcknowledgeSandboxCreate(_ context.Context, tenan
 	}
 	return nil
 }
+func (a *sandboxTestAdmission) RejectSandboxCloneWFFC(_ context.Context, tenant uint32, id, operation string) error {
+	if a.intents[id] == nil || a.intents[id].Acknowledged {
+		return errors.New("intent missing or resolved")
+	}
+	a.intents[id].Acknowledged = true
+	a.intents[id].LastErrorCode = "SANDBOX_TRANSFER_WFFC_UNSUPPORTED"
+	return nil
+}
 
 type sandboxTenantResolver struct{}
 

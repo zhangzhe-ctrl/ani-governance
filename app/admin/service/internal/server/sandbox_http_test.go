@@ -19,6 +19,7 @@ import (
 	"go-wind-admin/pkg/middleware/auth"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const sandboxHTTPResourceID = "22222222-2222-4222-8222-222222222222"
@@ -58,14 +59,18 @@ func (sandboxHTTPTenants) ResourceTenantID(context.Context, uint32) (string, err
 
 type sandboxHTTPResource struct {
 	service.SandboxOwnerClient
-	calls      int
-	list       *res.ListSandboxesRequest
-	failure    error
-	create     *res.AcceptCreateRequest
-	created    *res.Sandbox
-	codeRun    *res.RunCodeRequest
-	fileReason string
-	tokenReq   *res.CreateTokenRequest
+	calls        int
+	list         *res.ListSandboxesRequest
+	failure      error
+	create       *res.AcceptCreateRequest
+	created      *res.Sandbox
+	codeRun      *res.RunCodeRequest
+	fileReason   string
+	fileQuery    *res.QueryFilesRequest
+	historyQuery *res.ListOperationsRequest
+	emptyFiles   bool
+	runUnknown   bool
+	tokenReq     *res.CreateTokenRequest
 }
 
 func (o *sandboxHTTPResource) RunSandboxCode(_ context.Context, tenant, actor string, r *res.RunCodeRequest) (*res.CodeRun, error) {
@@ -79,7 +84,10 @@ func (o *sandboxHTTPResource) RunSandboxCode(_ context.Context, tenant, actor st
 
 func (o *sandboxHTTPResource) GetSandboxCodeRun(_ context.Context, _, _ string, r *res.GetCodeRunRequest) (*res.CodeRun, error) {
 	o.calls++
-	return &res.CodeRun{RunId: r.RunId, SandboxId: r.SandboxId, State: "succeeded", Stdout: []byte("hello\n")}, o.failure
+	if o.runUnknown {
+		return &res.CodeRun{RunId: r.RunId, SandboxId: r.SandboxId, State: "unknown", CreatedAt: timestamppb.New(time.Unix(1000, 0))}, o.failure
+	}
+	return &res.CodeRun{RunId: r.RunId, SandboxId: r.SandboxId, State: "succeeded", Stdout: []byte("hello\n"), CreatedAt: timestamppb.New(time.Unix(1000, 0)), CompletedAt: timestamppb.New(time.Unix(1005, 0))}, o.failure
 }
 
 func (o *sandboxHTTPResource) ListSandboxes(_ context.Context, t, a string, r *res.ListSandboxesRequest) (*res.ListSandboxesResponse, error) {
@@ -89,6 +97,24 @@ func (o *sandboxHTTPResource) ListSandboxes(_ context.Context, t, a string, r *r
 	o.calls++
 	o.list = r
 	return &res.ListSandboxesResponse{Total: 3}, o.failure
+}
+func (o *sandboxHTTPResource) ListSandboxOperations(_ context.Context, tenant, actor string, r *res.ListOperationsRequest) (*res.ListOperationsResponse, error) {
+	if r.TenantId != tenant || actor != "governance:user:9" {
+		panic("untrusted operation scope")
+	}
+	o.calls++
+	o.historyQuery = r
+	if r.SandboxId != sandboxHTTPResourceID {
+		return nil, status.Error(codes.NotFound, "SANDBOX_NOT_FOUND")
+	}
+	return &res.ListOperationsResponse{Total: 3, Items: []*res.Operation{{Id: "55555555-5555-4555-8555-555555555555", SandboxId: r.SandboxId, Action: "code_run", State: "succeeded", CreatedAt: timestamppb.New(time.Unix(1000, 0)), CompletedAt: timestamppb.New(time.Unix(1005, 0))}}}, o.failure
+}
+func (o *sandboxHTTPResource) GetSandboxOperation(_ context.Context, tenant, actor string, r *res.GetOperationRequest) (*res.GetOperationResponse, error) {
+	if r.TenantId != tenant || actor != "governance:user:9" {
+		panic("untrusted operation scope")
+	}
+	o.calls++
+	return &res.GetOperationResponse{Operation: &res.Operation{Id: r.OperationId, SandboxId: sandboxHTTPResourceID, Action: "create", State: "succeeded", CreatedAt: timestamppb.New(time.Unix(1000, 0))}}, nil
 }
 func (o *sandboxHTTPResource) GetSandbox(_ context.Context, _ string, _ string, r *res.GetSandboxRequest) (*res.GetSandboxResponse, error) {
 	o.calls++
@@ -224,6 +250,17 @@ func TestSandboxCodeRunHTTPCreateAndGet(t *testing.T) {
 	w = httptest.NewRecorder()
 	server.ServeHTTP(w, get)
 	require.Equal(t, 200, w.Code, w.Body.String())
+	require.Contains(t, w.Body.String(), "1970-01-01T00:16:40Z")
+	require.Contains(t, w.Body.String(), "1970-01-01T00:16:45Z")
+	owner.runUnknown = true
+	unknown := httptest.NewRecorder()
+	server.ServeHTTP(unknown, httptest.NewRequest("GET", base+"/"+owner.codeRun.RunId, nil))
+	require.Equal(t, 200, unknown.Code, unknown.Body.String())
+	var unknownBody map[string]any
+	require.NoError(t, json.Unmarshal(unknown.Body.Bytes(), &unknownBody))
+	require.Equal(t, "unknown", unknownBody["state"])
+	require.Contains(t, unknownBody, "completed_at")
+	require.Nil(t, unknownBody["completed_at"])
 	var response map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &response))
 	require.Equal(t, "succeeded", response["state"])
@@ -370,6 +407,10 @@ func (o *sandboxHTTPResource) QuerySandboxFiles(_ context.Context, tenant, actor
 		panic("untrusted file scope")
 	}
 	o.calls++
+	o.fileQuery = r
+	if r.Action == "list" && o.emptyFiles {
+		return &res.FileResult{Items: []*res.FileEntry{}, Total: 0}, o.failure
+	}
 	if r.Action == "read" {
 		return &res.FileResult{Path: r.Path, ContentBase64: "aGVsbG8="}, o.failure
 	}
@@ -411,6 +452,26 @@ func TestSandboxFilesHTTPContractsAndAuthorization(t *testing.T) {
 	}
 	w := fire("GET", base+"?path=sub&limit=10&cursor=1", "", 200)
 	require.Contains(t, w.Body.String(), "sub/hello")
+	require.EqualValues(t, 10, owner.fileQuery.Limit)
+	fire("GET", base, "", 200)
+	require.Zero(t, owner.fileQuery.Page)
+	require.Zero(t, owner.fileQuery.PageSize)
+	require.Zero(t, owner.fileQuery.Limit)
+	owner.emptyFiles = true
+	empty := fire("GET", base+"?page=1&pageSize=20", "", 200)
+	var emptyResult map[string]any
+	require.NoError(t, json.Unmarshal(empty.Body.Bytes(), &emptyResult))
+	require.Equal(t, "0", emptyResult["total"])
+	require.Equal(t, []any{}, emptyResult["items"])
+	owner.emptyFiles = false
+	fire("GET", base+"?path=sub&page=2&pageSize=7", "", 200)
+	require.EqualValues(t, 2, owner.fileQuery.Page)
+	require.EqualValues(t, 7, owner.fileQuery.PageSize)
+	for _, query := range []string{"page=0", "pageSize=101", "page=1&limit=10", "page=1&cursor="} {
+		before := owner.calls
+		fire("GET", base+"?"+query, "", 400)
+		require.Equal(t, before, owner.calls)
+	}
 	w = fire("GET", base+"/content?path=sub%2Fhello", "", 200)
 	require.Contains(t, w.Body.String(), "aGVsbG8=")
 	fire("POST", base, `{"data":{"idempotency_key":"key","path":"sub/hello","content_base64":"aGVsbG8="}}`, 200)
@@ -488,4 +549,55 @@ func TestSandboxTokenIssueAndRevokeHTTP(t *testing.T) {
 	fire("DELETE", base+"/"+owner.tokenReq.TokenId, "", 200)
 	fire("POST", base, `{"data":{"idempotency_key":"bad","expires_in":"2h"}}`, 400)
 	fire("POST", base, `{"data":{"idempotency_key":"ports","scopes":["ports"]}}`, 501)
+}
+
+func TestSandboxOperationHistoryHTTP(t *testing.T) {
+	owner := new(sandboxHTTPResource)
+	authorization := new(sandboxHTTPAuthorization)
+	server := khttp.NewServer(khttp.Middleware(func(next middleware.Handler) middleware.Handler {
+		return func(ctx context.Context, r any) (any, error) {
+			return next(auth.NewPrincipalContext(ctx, &auth.Principal{Type: auth.SubjectUser, ID: 9, TenantID: 7}), r)
+		}
+	}))
+	RegisterSandboxHTTPServer(server, service.NewSandboxService(owner, authorization, sandboxHTTPTenants{}, sandboxHTTPAdmission{}))
+	base := "/api/v1/sandbox/" + sandboxHTTPResourceID + "/operations"
+	fire := func(path string, code int) *httptest.ResponseRecorder {
+		t.Helper()
+		w := httptest.NewRecorder()
+		server.ServeHTTP(w, httptest.NewRequest("GET", path, nil))
+		require.Equal(t, code, w.Code, w.Body.String())
+		return w
+	}
+	w := fire(base+"?page=2&pageSize=7", 200)
+	require.Equal(t, sandboxHTTPResourceID, owner.historyQuery.SandboxId)
+	require.EqualValues(t, 2, owner.historyQuery.Page)
+	require.EqualValues(t, 7, owner.historyQuery.PageSize)
+	require.Contains(t, w.Body.String(), "code_run")
+	require.Contains(t, w.Body.String(), "1970-01-01T00:16:45Z")
+	var result map[string]any
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &result))
+	require.Equal(t, "3", result["total"])
+	items, ok := result["items"].([]any)
+	require.True(t, ok)
+	require.Len(t, items, 1)
+	item, ok := items[0].(map[string]any)
+	require.True(t, ok)
+	require.Equal(t, "55555555-5555-4555-8555-555555555555", item["operation_id"])
+	require.NotContains(t, item, "instance_id")
+	fire(base, 200)
+	old := fire("/api/v1/sandbox/operations/55555555-5555-4555-8555-555555555555", 200)
+	require.Contains(t, old.Body.String(), "create")
+	fire("/api/v1/sandbox/99999999-9999-4999-8999-999999999999/operations", 404)
+	fire(base, 200)
+	require.EqualValues(t, 1, owner.historyQuery.Page)
+	require.EqualValues(t, 20, owner.historyQuery.PageSize)
+	for _, query := range []string{"page=0", "page=01", "pageSize=101", "page_size=2", "page=1&page=2", "tenant_id=other"} {
+		before := owner.calls
+		fire(base+"?"+query, 400)
+		require.Equal(t, before, owner.calls)
+	}
+	before := owner.calls
+	authorization.denied = true
+	fire(base, 403)
+	require.Equal(t, before, owner.calls)
 }

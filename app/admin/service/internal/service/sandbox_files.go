@@ -16,6 +16,17 @@ type sandboxFileClient interface {
 	GetSandboxFileOperation(context.Context, string, string, *res.GetFileOperationRequest) (*res.FileOperation, error)
 }
 
+// AuthorizeSandboxFileWrite checks the same data-plane grant used by the write
+// operation before an HTTP multipart handler consumes a potentially large body.
+// The write checks it again to cover permission changes while receiving data.
+func (s *SandboxService) AuthorizeSandboxFileWrite(ctx context.Context, id string) error {
+	if !sandboxUUID(id) {
+		return kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid sandbox identity")
+	}
+	_, _, err := s.sandboxDataScope(ctx, data.SandboxFilesMutatePath, "POST", id)
+	return err
+}
+
 func sandboxFileResult(r *res.FileResult) (*view.SandboxFileResult, error) {
 	if r == nil {
 		return nil, kratoserrors.ServiceUnavailable("SANDBOX_INVALID_RESPONSE", "invalid file response")
@@ -51,7 +62,7 @@ func sandboxFileOperation(r *res.FileOperation, id, operation string) (*view.San
 	}
 	return &view.SandboxFileOperation{OperationId: r.OperationId, SandboxId: r.SandboxId, State: r.State, Reason: r.Reason, Replayed: r.Replayed, Result: result}, nil
 }
-func (s *SandboxService) querySandboxFiles(ctx context.Context, id, path, action string, limit uint32, cursor, route string) (*view.SandboxFileResult, error) {
+func (s *SandboxService) querySandboxFiles(ctx context.Context, id, path, action string, limit uint32, cursor string, page, pageSize uint32, route string) (*view.SandboxFileResult, error) {
 	if !sandboxUUID(id) {
 		return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid sandbox identity")
 	}
@@ -63,7 +74,7 @@ func (s *SandboxService) querySandboxFiles(ctx context.Context, id, path, action
 	if !ok {
 		return nil, kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "sandbox files not configured")
 	}
-	r, err := client.QuerySandboxFiles(ctx, tenant, actor, &res.QueryFilesRequest{TenantId: tenant, SandboxId: id, Action: action, Path: path, Limit: limit, Cursor: cursor})
+	r, err := client.QuerySandboxFiles(ctx, tenant, actor, &res.QueryFilesRequest{TenantId: tenant, SandboxId: id, Action: action, Path: path, Limit: limit, Cursor: cursor, Page: page, PageSize: pageSize})
 	if err != nil {
 		return nil, err
 	}
@@ -73,13 +84,24 @@ func (s *SandboxService) ListSandboxFiles(ctx context.Context, r *view.ListSandb
 	if r == nil {
 		return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid request")
 	}
-	return s.querySandboxFiles(ctx, r.SandboxId, r.Path, "list", r.Limit, r.Cursor, data.SandboxFilesListPath)
+	page, size := uint32(0), uint32(0)
+	if r.Page != nil || r.PageSize != nil {
+		if r.Limit != 0 || r.Cursor != "" {
+			return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "cannot mix pagination modes")
+		}
+		var err error
+		page, size, err = resolveComputePage(r.Page, r.PageSize)
+		if err != nil {
+			return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid page or pageSize")
+		}
+	}
+	return s.querySandboxFiles(ctx, r.SandboxId, r.Path, "list", r.Limit, r.Cursor, page, size, data.SandboxFilesListPath)
 }
 func (s *SandboxService) ReadSandboxFile(ctx context.Context, r *view.ReadSandboxFileRequest) (*view.SandboxFileResult, error) {
 	if r == nil {
 		return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid request")
 	}
-	return s.querySandboxFiles(ctx, r.SandboxId, r.Path, "read", 0, "", data.SandboxFilesContentPath)
+	return s.querySandboxFiles(ctx, r.SandboxId, r.Path, "read", 0, "", 0, 0, data.SandboxFilesContentPath)
 }
 func (s *SandboxService) mutateSandboxFile(ctx context.Context, r *view.MutateSandboxFileData, action, method string) (*view.SandboxFileOperation, error) {
 	if r == nil || !sandboxUUID(r.SandboxId) || sandboxKey(r.IdempotencyKey) != nil {

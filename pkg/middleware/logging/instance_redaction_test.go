@@ -49,6 +49,17 @@ func TestVMConsoleAuditDoesNotRetainTicketOrBody(t *testing.T) {
 	require.Empty(t, record.GetResponse())
 }
 
+func TestSandboxTerminalAuditDoesNotRetainTicketOrBody(t *testing.T) {
+	env := newAuditServer(t)
+	env.fire(http.MethodPost, "/case/5?ticket=private-ticket", map[string]string{"X-Test-Operation": admin.OperationSandboxServiceExecSandbox, "Content-Type": "application/json", "Referer": "https://example.test/?ticket=private-ticket"}, `{"data":{"idempotency_key":"private"}}`, "127.0.0.1:1234")
+	require.Len(t, env.capture.api, 1)
+	record := env.capture.api[0]
+	require.Equal(t, "[redacted]", record.GetRequestBody())
+	require.Empty(t, record.GetReferer())
+	require.Equal(t, "/case/5", record.GetRequestUri())
+	require.Empty(t, record.GetResponse())
+}
+
 func TestSandboxCodeRunAuditDoesNotRetainCode(t *testing.T) {
 	env := newAuditServer(t)
 	env.fire(http.MethodPost, "/case/5?code=private-code", map[string]string{"X-Test-Operation": admin.OperationSandboxServiceRunSandboxCode, "Content-Type": "application/json", "Referer": "https://example.test/?code=private-code"}, `{"data":{"code":"private-code","stdin":"private-input"}}`, "127.0.0.1:1234")

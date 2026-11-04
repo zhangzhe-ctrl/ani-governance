@@ -26,7 +26,7 @@ require (
 	github.com/xiaoqidun/entps v1.50.1
 	github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20261027163656-86ce81af852a
 	github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261031195825-d807cbdbd5dd
-	github.com/zhangzhe-ctrl/ani-observability-service/api v0.1.3-0.20261028072444-5377d534eac6
+	github.com/zhangzhe-ctrl/ani-observability-service/api v0.1.3-0.20261104041218-404fc690e77b
 	github.com/zhangzhe-ctrl/ani-resource-service v0.0.0-20261103151539-076c267e6e16
 	github.com/zhangzhe-ctrl/ani-resource-service/api/instance/terminal v0.0.0-20261013075021-0937f5aa9c6c
 	github.com/zhangzhe-ctrl/ani-resource-service/api/vm/console v0.0.0-20261023185414-0a53b99c8d9f
@@ -177,6 +177,7 @@ require (
 	github.com/zclconf/go-cty v1.19.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.2.0 // indirect
 	github.com/zhangzhe-ctrl/ani-governance/api/quota v0.0.0-20261017184327-1c605c793b88
+	github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/terminal v0.0.0
 	go.einride.tech/aip v0.86.3
 	go.mongodb.org/mongo-driver/v2 v2.9.0
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect

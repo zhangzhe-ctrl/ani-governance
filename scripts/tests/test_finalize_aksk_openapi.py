@@ -10,6 +10,30 @@ spec.loader.exec_module(finalizer)
 
 
 class FinalizeOpenAPITests(unittest.TestCase):
+    def test_sandbox_file_write_declares_json_and_multipart(self):
+        text = '''    /api/v1/sandbox/{data.sandbox_id}/files:
+        post:
+            operationId: SandboxService_WriteSandboxFile
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/WriteSandboxFileRequest'
+                required: true
+        delete:
+            operationId: SandboxService_DeleteSandboxFile
+components:
+'''
+        result = finalizer.add_sandbox_upload_multipart(text)
+        self.assertIn("                    application/json:\n", result)
+        self.assertIn("                    multipart/form-data:\n", result)
+        self.assertIn("                                    format: binary\n", result)
+        self.assertIn("                                - idempotency_key\n", result)
+        self.assertIn("        delete:\n            operationId: SandboxService_DeleteSandboxFile\n", result)
+        with self.assertRaises(SystemExit):
+            finalizer.add_sandbox_upload_multipart(result)
+        self.assertEqual(finalizer.add_sandbox_upload_multipart('components:\n'), 'components:\n')
+
     def test_direct_object_schema_wins_for_every_http_method(self):
         for method in ['get', 'post', 'patch', 'delete']:
             with self.subTest(method=method):

@@ -15,6 +15,9 @@ func TestInstanceLogTimeoutKeepsOrdinaryDeadlineAndClientCancellation(t *testing
 	}{
 		{"GET", "/api/v1/instances", true},
 		{"GET", "/api/v1/instances/10000000-0000-4000-8000-000000000001/logs", false},
+		{"GET", "/api/v1/sandbox/10000000-0000-4000-8000-000000000001/logs", false},
+		{"POST", "/api/v1/sandbox/10000000-0000-4000-8000-000000000001/logs", true},
+		{"GET", "/api/v1/sandbox/10000000-0000-4000-8000-000000000001/events", true},
 		{"POST", "/api/v1/instances/10000000-0000-4000-8000-000000000001/logs", true},
 		{"GET", "/api/v1/instances/10000000-0000-4000-8000-000000000001/runtime", true},
 		// The training log stream owns its bounded lifetime, exactly like the

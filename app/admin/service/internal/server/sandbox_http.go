@@ -74,6 +74,20 @@ func decodeSandboxQuery(r *nethttp.Request, message proto.Message) error {
 		}
 		value := entries[0]
 		switch target := message.(type) {
+		case *view.ListSandboxPreviewsRequest:
+			if field != "page" && field != "pageSize" {
+				return invalid
+			}
+			n, err := strconv.ParseUint(value, 10, 32)
+			if err != nil || n == 0 || strconv.FormatUint(n, 10) != value || field == "pageSize" && n > 100 {
+				return invalid
+			}
+			number := uint32(n)
+			if field == "page" {
+				target.Page = &number
+			} else {
+				target.PageSize = &number
+			}
 		case *view.ListSandboxesRequest:
 			if field != "page" && field != "pageSize" {
 				return invalid
@@ -88,10 +102,119 @@ func decodeSandboxQuery(r *nethttp.Request, message proto.Message) error {
 			} else {
 				target.PageSize = &number
 			}
+		case *view.ListSandboxOperationsRequest:
+			if field != "page" && field != "pageSize" {
+				return invalid
+			}
+			n, err := strconv.ParseUint(value, 10, 32)
+			if err != nil || n == 0 || strconv.FormatUint(n, 10) != value || field == "pageSize" && n > 100 {
+				return invalid
+			}
+			number := uint32(n)
+			if field == "page" {
+				target.Page = &number
+			} else {
+				target.PageSize = &number
+			}
+		case *view.ListSandboxCheckpointsRequest:
+			if field != "page" && field != "pageSize" {
+				return invalid
+			}
+			n, err := strconv.ParseUint(value, 10, 32)
+			if err != nil || n == 0 || strconv.FormatUint(n, 10) != value || field == "pageSize" && n > 100 {
+				return invalid
+			}
+			number := uint32(n)
+			if field == "page" {
+				target.Page = &number
+			} else {
+				target.PageSize = &number
+			}
+		case *view.ListSandboxEnvironmentRequest:
+			if field != "page" && field != "pageSize" {
+				return invalid
+			}
+			n, err := strconv.ParseUint(value, 10, 32)
+			if err != nil || n == 0 || strconv.FormatUint(n, 10) != value || field == "pageSize" && n > 100 {
+				return invalid
+			}
+			number := uint32(n)
+			if field == "page" {
+				target.Page = &number
+			} else {
+				target.PageSize = &number
+			}
+		case *view.ListSandboxEventsRequest:
+			if field != "page" && field != "pageSize" {
+				return invalid
+			}
+			n, err := strconv.ParseUint(value, 10, 32)
+			if err != nil || n == 0 || strconv.FormatUint(n, 10) != value || field == "pageSize" && n > 100 {
+				return invalid
+			}
+			number := uint32(n)
+			if field == "page" {
+				target.Page = &number
+			} else {
+				target.PageSize = &number
+			}
+		case *view.ListSandboxSecurityEventsRequest:
+			if field == "severity" {
+				if value != "info" && value != "warning" && value != "critical" {
+					return invalid
+				}
+				target.Severity = value
+				continue
+			}
+			if field != "page" && field != "pageSize" {
+				return invalid
+			}
+			n, err := strconv.ParseUint(value, 10, 32)
+			if err != nil || n == 0 || strconv.FormatUint(n, 10) != value || field == "pageSize" && n > 100 {
+				return invalid
+			}
+			number := uint32(n)
+			if field == "page" {
+				target.Page = &number
+			} else {
+				target.PageSize = &number
+			}
+		case *view.GetSandboxMetricsRequest:
+			switch field {
+			case "start":
+				if value == "" {
+					return invalid
+				}
+				target.Start = value
+			case "end":
+				if value == "" {
+					return invalid
+				}
+				target.End = value
+			case "step":
+				n, err := strconv.ParseUint(value, 10, 32)
+				if err != nil || n == 0 || strconv.FormatUint(n, 10) != value {
+					return invalid
+				}
+				target.Step = uint32(n)
+			default:
+				return invalid
+			}
 		case *view.ListSandboxFilesRequest:
 			switch field {
 			case "path":
 				target.Path = value
+			case "page", "pageSize":
+				n, err := strconv.ParseUint(value, 10, 32)
+				if err != nil || n == 0 || strconv.FormatUint(n, 10) != value || field == "pageSize" && n > 100 {
+					return invalid
+				}
+				number := uint32(n)
+				if field == "page" {
+					target.Page = &number
+				} else {
+					target.PageSize = &number
+				}
 			case "cursor":
 				target.Cursor = value
 			case "limit":
@@ -112,6 +235,15 @@ func decodeSandboxQuery(r *nethttp.Request, message proto.Message) error {
 			return invalid
 		}
 	}
+	if _, ok := message.(*view.ListSandboxFilesRequest); ok {
+		_, page := values["page"]
+		_, pageSize := values["pageSize"]
+		_, limit := values["limit"]
+		_, cursor := values["cursor"]
+		if (page || pageSize) && (limit || cursor) {
+			return invalid
+		}
+	}
 	return nil
 }
 
@@ -125,6 +257,25 @@ func bindSandboxPath(request, bound proto.Message) error {
 		return nil
 	}
 	switch in := request.(type) {
+	case *view.ExecSandboxRequest:
+		path := bound.(*view.ExecSandboxRequest).Data
+		if in.Data == nil || path == nil || in.Data.SandboxId != "" && in.Data.SandboxId != path.SandboxId {
+			return invalid
+		}
+		in.Data.SandboxId = path.SandboxId
+	case *view.OpenSandboxPreviewRequest:
+		path := bound.(*view.OpenSandboxPreviewRequest).Data
+		if in.Data == nil || path == nil || in.Data.SandboxId != "" && in.Data.SandboxId != path.SandboxId {
+			return invalid
+		}
+		in.Data.SandboxId = path.SandboxId
+	case *view.CloseSandboxPreviewRequest:
+		path := bound.(*view.CloseSandboxPreviewRequest).Data
+		if in.Data == nil || path == nil || in.Data.SandboxId != "" && in.Data.SandboxId != path.SandboxId || in.Data.PreviewId != "" && in.Data.PreviewId != path.PreviewId {
+			return invalid
+		}
+		in.Data.SandboxId = path.SandboxId
+		in.Data.PreviewId = path.PreviewId
 	case *view.CreateSandboxRequest:
 		if in.Data == nil || in.Data.InstanceId != "" {
 			return invalid
@@ -141,6 +292,26 @@ func bindSandboxPath(request, bound proto.Message) error {
 			return invalid
 		}
 		in.Data.SandboxId = path.SandboxId
+	case *view.CreateSandboxCheckpointRequest:
+		path := bound.(*view.CreateSandboxCheckpointRequest).Data
+		if in.Data == nil || path == nil || in.Data.SandboxId != "" && in.Data.SandboxId != path.SandboxId {
+			return invalid
+		}
+		in.Data.SandboxId = path.SandboxId
+	case *view.CloneSandboxCheckpointRequest:
+		path := bound.(*view.CloneSandboxCheckpointRequest).Data
+		if in.Data == nil || path == nil || in.Data.SourceSandboxId != "" && in.Data.SourceSandboxId != path.SourceSandboxId || in.Data.CheckpointId != "" && in.Data.CheckpointId != path.CheckpointId {
+			return invalid
+		}
+		in.Data.SourceSandboxId = path.SourceSandboxId
+		in.Data.CheckpointId = path.CheckpointId
+	case *view.RestoreSandboxCheckpointRequest:
+		path := bound.(*view.RestoreSandboxCheckpointRequest).Data
+		if in.Data == nil || path == nil || in.Data.SandboxId != "" && in.Data.SandboxId != path.SandboxId || in.Data.CheckpointId != "" && in.Data.CheckpointId != path.CheckpointId {
+			return invalid
+		}
+		in.Data.SandboxId = path.SandboxId
+		in.Data.CheckpointId = path.CheckpointId
 	case *view.WriteSandboxFileRequest:
 		path := bound.(*view.WriteSandboxFileRequest).Data
 		if in.Data == nil || path == nil || in.Data.SandboxId != "" && in.Data.SandboxId != path.SandboxId {
@@ -174,6 +345,21 @@ func RegisterSandboxHTTPServer(server *http.Server, s admin.SandboxServiceHTTPSe
 		invoke                  func(context.Context, proto.Message) (proto.Message, error)
 	}
 	routes := []route{
+		{"POST", data.SandboxExecPath, admin.OperationSandboxServiceExecSandbox, func() proto.Message { return new(view.ExecSandboxRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.ExecSandbox(c, r.(*view.ExecSandboxRequest))
+		}},
+		{"POST", data.SandboxPreviewOpenPath, admin.OperationSandboxServiceOpenSandboxPreview, func() proto.Message { return new(view.OpenSandboxPreviewRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.OpenSandboxPreview(c, r.(*view.OpenSandboxPreviewRequest))
+		}},
+		{"POST", data.SandboxPreviewClosePath, admin.OperationSandboxServiceCloseSandboxPreview, func() proto.Message { return new(view.CloseSandboxPreviewRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.CloseSandboxPreview(c, r.(*view.CloseSandboxPreviewRequest))
+		}},
+		{"GET", data.SandboxPreviewListPath, admin.OperationSandboxServiceListSandboxPreviews, func() proto.Message { return new(view.ListSandboxPreviewsRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.ListSandboxPreviews(c, r.(*view.ListSandboxPreviewsRequest))
+		}},
+		{"GET", data.SandboxPreviewOperationPath, admin.OperationSandboxServiceGetSandboxPreviewOperation, func() proto.Message { return new(view.GetSandboxPreviewOperationRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.GetSandboxPreviewOperation(c, r.(*view.GetSandboxPreviewOperationRequest))
+		}},
 		{"POST", data.SandboxCreatePath, admin.OperationSandboxServiceCreateSandbox, func() proto.Message { return new(view.CreateSandboxRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
 			return s.CreateSandbox(c, r.(*view.CreateSandboxRequest))
 		}},
@@ -182,6 +368,39 @@ func RegisterSandboxHTTPServer(server *http.Server, s admin.SandboxServiceHTTPSe
 		}},
 		{"GET", data.SandboxGetPath, admin.OperationSandboxServiceGetSandbox, func() proto.Message { return new(view.GetSandboxRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
 			return s.GetSandbox(c, r.(*view.GetSandboxRequest))
+		}},
+		{"GET", data.SandboxOperationsListPath, admin.OperationSandboxServiceListSandboxOperations, func() proto.Message { return new(view.ListSandboxOperationsRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.ListSandboxOperations(c, r.(*view.ListSandboxOperationsRequest))
+		}},
+		{"GET", data.SandboxEnvironmentPath, admin.OperationSandboxServiceListSandboxEnvironment, func() proto.Message { return new(view.ListSandboxEnvironmentRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.ListSandboxEnvironment(c, r.(*view.ListSandboxEnvironmentRequest))
+		}},
+		{"GET", data.SandboxEgressPath, admin.OperationSandboxServiceGetSandboxEgress, func() proto.Message { return new(view.GetSandboxEgressRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.GetSandboxEgress(c, r.(*view.GetSandboxEgressRequest))
+		}},
+		{"GET", data.SandboxEventsPath, admin.OperationSandboxServiceListSandboxEvents, func() proto.Message { return new(view.ListSandboxEventsRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.ListSandboxEvents(c, r.(*view.ListSandboxEventsRequest))
+		}},
+		{"GET", data.SandboxSecurityEventsPath, admin.OperationSandboxServiceListSandboxSecurityEvents, func() proto.Message { return new(view.ListSandboxSecurityEventsRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.ListSandboxSecurityEvents(c, r.(*view.ListSandboxSecurityEventsRequest))
+		}},
+		{"GET", data.SandboxCheckpointsPath, admin.OperationSandboxServiceListSandboxCheckpoints, func() proto.Message { return new(view.ListSandboxCheckpointsRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.ListSandboxCheckpoints(c, r.(*view.ListSandboxCheckpointsRequest))
+		}},
+		{"POST", data.SandboxCheckpointCreatePath, admin.OperationSandboxServiceCreateSandboxCheckpoint, func() proto.Message { return new(view.CreateSandboxCheckpointRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.CreateSandboxCheckpoint(c, r.(*view.CreateSandboxCheckpointRequest))
+		}},
+		{"POST", data.SandboxCheckpointClonePath, admin.OperationSandboxServiceCloneSandboxCheckpoint, func() proto.Message { return new(view.CloneSandboxCheckpointRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.CloneSandboxCheckpoint(c, r.(*view.CloneSandboxCheckpointRequest))
+		}},
+		{"POST", data.SandboxCheckpointRestorePath, admin.OperationSandboxServiceRestoreSandboxCheckpoint, func() proto.Message { return new(view.RestoreSandboxCheckpointRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.RestoreSandboxCheckpoint(c, r.(*view.RestoreSandboxCheckpointRequest))
+		}},
+		{"GET", data.SandboxMetricsPath, admin.OperationSandboxServiceGetSandboxMetrics, func() proto.Message { return new(view.GetSandboxMetricsRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.GetSandboxMetrics(c, r.(*view.GetSandboxMetricsRequest))
+		}},
+		{"GET", data.SandboxMetricsLatestPath, admin.OperationSandboxServiceGetSandboxLatestMetrics, func() proto.Message { return new(view.GetSandboxLatestMetricsRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
+			return s.GetSandboxLatestMetrics(c, r.(*view.GetSandboxLatestMetricsRequest))
 		}},
 		{"GET", data.SandboxOperationPath, admin.OperationSandboxServiceGetSandboxOperation, func() proto.Message { return new(view.GetSandboxOperationRequest) }, func(c context.Context, r proto.Message) (proto.Message, error) {
 			return s.GetSandboxOperation(c, r.(*view.GetSandboxOperationRequest))
@@ -234,12 +453,18 @@ func RegisterSandboxHTTPServer(server *http.Server, s admin.SandboxServiceHTTPSe
 						return err
 					}
 				} else {
-					limit := int64(65536)
-					if r.operation == admin.OperationSandboxServiceRunSandboxCode || r.operation == admin.OperationSandboxServiceWriteSandboxFile {
-						limit = 7 << 20
-					}
-					if err := decodeStrictJSONHTTPWithLimit(ctx.Request(), request, limit); err != nil {
-						return kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid sandbox request")
+					if r.operation == admin.OperationSandboxServiceWriteSandboxFile && isSandboxMultipart(ctx.Request()) {
+						if err := decodeSandboxMultipart(ctx.Request(), request.(*view.WriteSandboxFileRequest)); err != nil {
+							return err
+						}
+					} else {
+						limit := int64(65536)
+						if r.operation == admin.OperationSandboxServiceRunSandboxCode || r.operation == admin.OperationSandboxServiceWriteSandboxFile {
+							limit = 7 << 20
+						}
+						if err := decodeStrictJSONHTTPWithLimit(ctx.Request(), request, limit); err != nil {
+							return kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid sandbox request")
+						}
 					}
 				}
 				bound := r.request()
@@ -258,6 +483,21 @@ func RegisterSandboxHTTPServer(server *http.Server, s admin.SandboxServiceHTTPSe
 			}
 			result, err := ctx.Middleware(func(c context.Context, in any) (any, error) {
 				if codeRun {
+					if r.operation == admin.OperationSandboxServiceWriteSandboxFile && isSandboxMultipart(ctx.Request()) {
+						bound := new(view.WriteSandboxFileRequest)
+						if err := ctx.BindVars(bound); err != nil || bound.Data == nil {
+							return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid sandbox path")
+						}
+						authorizer, ok := s.(interface {
+							AuthorizeSandboxFileWrite(context.Context, string) error
+						})
+						if !ok {
+							return nil, kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "sandbox file authorization not configured")
+						}
+						if err := authorizer.AuthorizeSandboxFileWrite(c, bound.Data.SandboxId); err != nil {
+							return nil, err
+						}
+					}
 					if err := bindRequest(); err != nil {
 						return nil, err
 					}

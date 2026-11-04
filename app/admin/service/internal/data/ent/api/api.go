@@ -130,6 +130,7 @@ const (
 	BusinessModuleVirtualMachine  BusinessModule = "VIRTUAL_MACHINE"
 	BusinessModuleInstance        BusinessModule = "INSTANCE"
 	BusinessModuleStorage         BusinessModule = "STORAGE"
+	BusinessModuleSandbox         BusinessModule = "SANDBOX"
 )
 
 func (bm BusinessModule) String() string {
@@ -139,7 +140,7 @@ func (bm BusinessModule) String() string {
 // BusinessModuleValidator is a validator for the "business_module" field enum values. It is called by the builders before save.
 func BusinessModuleValidator(bm BusinessModule) error {
 	switch bm {
-	case BusinessModuleDashboard, BusinessModuleOpm, BusinessModuleSystem, BusinessModuleDict, BusinessModuleTenant, BusinessModulePermission, BusinessModuleLog, BusinessModuleInternalMessage, BusinessModuleTask, BusinessModuleModel, BusinessModuleNetwork, BusinessModuleAccelerator, BusinessModuleImage, BusinessModuleInference, BusinessModuleVirtualMachine, BusinessModuleInstance, BusinessModuleStorage:
+	case BusinessModuleDashboard, BusinessModuleOpm, BusinessModuleSystem, BusinessModuleDict, BusinessModuleTenant, BusinessModulePermission, BusinessModuleLog, BusinessModuleInternalMessage, BusinessModuleTask, BusinessModuleModel, BusinessModuleNetwork, BusinessModuleAccelerator, BusinessModuleImage, BusinessModuleInference, BusinessModuleVirtualMachine, BusinessModuleInstance, BusinessModuleStorage, BusinessModuleSandbox:
 		return nil
 	default:
 		return fmt.Errorf("api: invalid enum value for business_module field: %q", bm)

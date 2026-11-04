@@ -23,6 +23,321 @@ var (
 	_ redact.FieldRules
 )
 
+// Ensure ExecSandboxData implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ExecSandboxData)(nil)
+
+// Redact method implementation for ExecSandboxData
+func (x *ExecSandboxData) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: IdempotencyKey
+
+	// Safe field: ExpectedVersion
+
+	// Safe field: Rows
+
+	// Safe field: Cols
+}
+
+// Ensure ExecSandboxRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ExecSandboxRequest)(nil)
+
+// Redact method implementation for ExecSandboxRequest
+func (x *ExecSandboxRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Data
+}
+
+// Ensure ExecSandboxResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ExecSandboxResponse)(nil)
+
+// Redact method implementation for ExecSandboxResponse
+func (x *ExecSandboxResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SessionId
+
+	// Redacting field: WsUrl
+	x.WsUrl = ``
+
+	// Safe field: ExpiresAt
+}
+
+// Ensure OpenSandboxPreviewData implements the Redactor interface at compile time.
+var _ redact.Redactor = (*OpenSandboxPreviewData)(nil)
+
+// Redact method implementation for OpenSandboxPreviewData
+func (x *OpenSandboxPreviewData) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: IdempotencyKey
+
+	// Safe field: ExpectedVersion
+
+	// Safe field: Port
+
+	// Safe field: Protocol
+
+	// Safe field: TtlSeconds
+}
+
+// Ensure OpenSandboxPreviewRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*OpenSandboxPreviewRequest)(nil)
+
+// Redact method implementation for OpenSandboxPreviewRequest
+func (x *OpenSandboxPreviewRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Data
+}
+
+// Ensure CloseSandboxPreviewData implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CloseSandboxPreviewData)(nil)
+
+// Redact method implementation for CloseSandboxPreviewData
+func (x *CloseSandboxPreviewData) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: PreviewId
+
+	// Safe field: IdempotencyKey
+
+	// Safe field: ExpectedVersion
+}
+
+// Ensure CloseSandboxPreviewRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CloseSandboxPreviewRequest)(nil)
+
+// Redact method implementation for CloseSandboxPreviewRequest
+func (x *CloseSandboxPreviewRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Data
+}
+
+// Ensure ListSandboxPreviewsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxPreviewsRequest)(nil)
+
+// Redact method implementation for ListSandboxPreviewsRequest
+func (x *ListSandboxPreviewsRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: Page
+
+	// Safe field: PageSize
+}
+
+// Ensure GetSandboxPreviewOperationRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*GetSandboxPreviewOperationRequest)(nil)
+
+// Redact method implementation for GetSandboxPreviewOperationRequest
+func (x *GetSandboxPreviewOperationRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: OperationId
+}
+
+// Ensure SandboxPreview implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxPreview)(nil)
+
+// Redact method implementation for SandboxPreview
+func (x *SandboxPreview) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: PreviewId
+
+	// Safe field: SandboxId
+
+	// Safe field: Port
+
+	// Safe field: Protocol
+
+	// Safe field: State
+
+	// Safe field: Reason
+
+	// Safe field: Address
+
+	// Safe field: Desired
+
+	// Safe field: ExpiresAt
+
+	// Safe field: Replayed
+}
+
+// Ensure SandboxPreviewAcceptance implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxPreviewAcceptance)(nil)
+
+// Redact method implementation for SandboxPreviewAcceptance
+func (x *SandboxPreviewAcceptance) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Preview
+
+	// Safe field: OperationId
+}
+
+// Ensure ListSandboxPreviewsResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxPreviewsResponse)(nil)
+
+// Redact method implementation for ListSandboxPreviewsResponse
+func (x *ListSandboxPreviewsResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Items
+
+	// Safe field: Total
+}
+
+// Ensure SandboxPreviewOperation implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxPreviewOperation)(nil)
+
+// Redact method implementation for SandboxPreviewOperation
+func (x *SandboxPreviewOperation) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: OperationId
+
+	// Safe field: PreviewId
+
+	// Safe field: Action
+
+	// Safe field: State
+
+	// Safe field: Reason
+
+	// Safe field: CreatedAt
+
+	// Safe field: CompletedAt
+}
+
+// Ensure GetSandboxMetricsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*GetSandboxMetricsRequest)(nil)
+
+// Redact method implementation for GetSandboxMetricsRequest
+func (x *GetSandboxMetricsRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: Start
+
+	// Safe field: End
+
+	// Safe field: Step
+}
+
+// Ensure GetSandboxLatestMetricsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*GetSandboxLatestMetricsRequest)(nil)
+
+// Redact method implementation for GetSandboxLatestMetricsRequest
+func (x *GetSandboxLatestMetricsRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+}
+
+// Ensure SandboxMetricPoint implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxMetricPoint)(nil)
+
+// Redact method implementation for SandboxMetricPoint
+func (x *SandboxMetricPoint) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Timestamp
+
+	// Safe field: Value
+
+	// Safe field: Status
+}
+
+// Ensure SandboxMetricSeries implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxMetricSeries)(nil)
+
+// Redact method implementation for SandboxMetricSeries
+func (x *SandboxMetricSeries) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Name
+
+	// Safe field: Unit
+
+	// Safe field: Status
+
+	// Safe field: Points
+
+	// Safe field: Reason
+}
+
+// Ensure SandboxMetricsResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxMetricsResponse)(nil)
+
+// Redact method implementation for SandboxMetricsResponse
+func (x *SandboxMetricsResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Scope
+
+	// Safe field: PodUid
+
+	// Safe field: Start
+
+	// Safe field: End
+
+	// Safe field: Step
+
+	// Safe field: Series
+
+	// Safe field: HistoryCompleteBeforeMigration
+}
+
 // Ensure RunSandboxCodeData implements the Redactor interface at compile time.
 var _ redact.Redactor = (*RunSandboxCodeData)(nil)
 
@@ -104,6 +419,10 @@ func (x *SandboxCodeRun) Redact() {
 	// Safe field: Replayed
 
 	// Safe field: Reason
+
+	// Safe field: CreatedAt
+
+	// Safe field: CompletedAt
 }
 
 // Ensure SandboxFileEntry implements the Redactor interface at compile time.
@@ -167,6 +486,10 @@ func (x *ListSandboxFilesRequest) Redact() {
 	// Safe field: Limit
 
 	// Safe field: Cursor
+
+	// Safe field: Page
+
+	// Safe field: PageSize
 }
 
 // Ensure ReadSandboxFileRequest implements the Redactor interface at compile time.
@@ -346,6 +669,20 @@ func (x *RevokeSandboxTokenResponse) Redact() {
 	// Safe field: Revoked
 }
 
+// Ensure SandboxEgressIntent implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxEgressIntent)(nil)
+
+// Redact method implementation for SandboxEgressIntent
+func (x *SandboxEgressIntent) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: NetworkEgressPolicy
+
+	// Safe field: EgressAllowlist
+}
+
 // Ensure CreateSandboxData implements the Redactor interface at compile time.
 var _ redact.Redactor = (*CreateSandboxData)(nil)
 
@@ -370,6 +707,8 @@ func (x *CreateSandboxData) Redact() {
 	// Safe field: ImageId
 
 	// Safe field: ImageScope
+
+	// Safe field: EgressIntent
 }
 
 // Ensure CreateSandboxRequest implements the Redactor interface at compile time.
@@ -400,6 +739,8 @@ func (x *SandboxAcceptance) Redact() {
 	// Safe field: Accepted
 
 	// Safe field: Replayed
+
+	// Safe field: IntentEnforcement
 }
 
 // Ensure GetSandboxRequest implements the Redactor interface at compile time.
@@ -650,6 +991,570 @@ func (x *GetSandboxOperationRequest) Redact() {
 	// Safe field: OperationId
 }
 
+// Ensure ListSandboxOperationsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxOperationsRequest)(nil)
+
+// Redact method implementation for ListSandboxOperationsRequest
+func (x *ListSandboxOperationsRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: Page
+
+	// Safe field: PageSize
+}
+
+// Ensure ListSandboxOperationsResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxOperationsResponse)(nil)
+
+// Redact method implementation for ListSandboxOperationsResponse
+func (x *ListSandboxOperationsResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Items
+
+	// Safe field: Total
+}
+
+// Ensure ListSandboxEnvironmentRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxEnvironmentRequest)(nil)
+
+// Redact method implementation for ListSandboxEnvironmentRequest
+func (x *ListSandboxEnvironmentRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: Page
+
+	// Safe field: PageSize
+}
+
+// Ensure SandboxEnvironmentVariable implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxEnvironmentVariable)(nil)
+
+// Redact method implementation for SandboxEnvironmentVariable
+func (x *SandboxEnvironmentVariable) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Name
+
+	// Safe field: Source
+
+	// Safe field: SecretRef
+
+	// Safe field: FieldRef
+}
+
+// Ensure ListSandboxEnvironmentResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxEnvironmentResponse)(nil)
+
+// Redact method implementation for ListSandboxEnvironmentResponse
+func (x *ListSandboxEnvironmentResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Items
+
+	// Safe field: Total
+}
+
+// Ensure GetSandboxEgressRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*GetSandboxEgressRequest)(nil)
+
+// Redact method implementation for GetSandboxEgressRequest
+func (x *GetSandboxEgressRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+}
+
+// Ensure SandboxEgressLabelExpression implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxEgressLabelExpression)(nil)
+
+// Redact method implementation for SandboxEgressLabelExpression
+func (x *SandboxEgressLabelExpression) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Key
+
+	// Safe field: Operator
+
+	// Safe field: Values
+}
+
+// Ensure SandboxEgressSelector implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxEgressSelector)(nil)
+
+// Redact method implementation for SandboxEgressSelector
+func (x *SandboxEgressSelector) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: MatchLabels
+
+	// Safe field: MatchExpressions
+}
+
+// Ensure SandboxEgressIPBlock implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxEgressIPBlock)(nil)
+
+// Redact method implementation for SandboxEgressIPBlock
+func (x *SandboxEgressIPBlock) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Cidr
+
+	// Safe field: Except
+}
+
+// Ensure SandboxEgressPeer implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxEgressPeer)(nil)
+
+// Redact method implementation for SandboxEgressPeer
+func (x *SandboxEgressPeer) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: PodSelector
+
+	// Safe field: NamespaceSelector
+
+	// Safe field: IpBlock
+}
+
+// Ensure SandboxEgressPort implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxEgressPort)(nil)
+
+// Redact method implementation for SandboxEgressPort
+func (x *SandboxEgressPort) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Protocol
+
+	// Safe field: PortType
+
+	// Safe field: Port
+
+	// Safe field: EndPort
+}
+
+// Ensure SandboxEgressRule implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxEgressRule)(nil)
+
+// Redact method implementation for SandboxEgressRule
+func (x *SandboxEgressRule) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Peers
+
+	// Safe field: Ports
+}
+
+// Ensure GetSandboxEgressResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*GetSandboxEgressResponse)(nil)
+
+// Redact method implementation for GetSandboxEgressResponse
+func (x *GetSandboxEgressResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Source
+
+	// Safe field: Declaration
+
+	// Safe field: Enforcement
+
+	// Safe field: HostAllowlistKnown
+
+	// Safe field: Isolated
+
+	// Safe field: Rules
+
+	// Safe field: HostAllowlistStatus
+
+	// Safe field: Intent
+
+	// Safe field: IntentEnforcement
+}
+
+// Ensure ListSandboxEventsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxEventsRequest)(nil)
+
+// Redact method implementation for ListSandboxEventsRequest
+func (x *ListSandboxEventsRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: Page
+
+	// Safe field: PageSize
+}
+
+// Ensure SandboxEvent implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxEvent)(nil)
+
+// Redact method implementation for SandboxEvent
+func (x *SandboxEvent) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: OccurredAt
+
+	// Safe field: Type
+
+	// Safe field: Reason
+
+	// Safe field: Message
+}
+
+// Ensure ListSandboxEventsResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxEventsResponse)(nil)
+
+// Redact method implementation for ListSandboxEventsResponse
+func (x *ListSandboxEventsResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Items
+
+	// Safe field: Total
+
+	// Safe field: Scope
+
+	// Safe field: HistoryCompleteBeforeMigration
+}
+
+// Ensure ListSandboxSecurityEventsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxSecurityEventsRequest)(nil)
+
+// Redact method implementation for ListSandboxSecurityEventsRequest
+func (x *ListSandboxSecurityEventsRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: Page
+
+	// Safe field: PageSize
+
+	// Safe field: Severity
+}
+
+// Ensure SandboxSecurityEvent implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxSecurityEvent)(nil)
+
+// Redact method implementation for SandboxSecurityEvent
+func (x *SandboxSecurityEvent) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: OccurredAt
+
+	// Safe field: Severity
+
+	// Safe field: EventType
+
+	// Safe field: Description
+}
+
+// Ensure ListSandboxSecurityEventsResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxSecurityEventsResponse)(nil)
+
+// Redact method implementation for ListSandboxSecurityEventsResponse
+func (x *ListSandboxSecurityEventsResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Items
+
+	// Safe field: Total
+
+	// Safe field: Source
+
+	// Safe field: HistoryCompleteBeforeMigration
+}
+
+// Ensure ListSandboxCheckpointsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxCheckpointsRequest)(nil)
+
+// Redact method implementation for ListSandboxCheckpointsRequest
+func (x *ListSandboxCheckpointsRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: Page
+
+	// Safe field: PageSize
+}
+
+// Ensure SandboxCheckpoint implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxCheckpoint)(nil)
+
+// Redact method implementation for SandboxCheckpoint
+func (x *SandboxCheckpoint) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: Name
+
+	// Safe field: Status
+
+	// Safe field: Reason
+
+	// Safe field: Scope
+
+	// Safe field: SizeBytes
+
+	// Safe field: SizeKnown
+
+	// Safe field: CreatedAt
+
+	// Safe field: ProviderStatus
+}
+
+// Ensure ListSandboxCheckpointsResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListSandboxCheckpointsResponse)(nil)
+
+// Redact method implementation for ListSandboxCheckpointsResponse
+func (x *ListSandboxCheckpointsResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Items
+
+	// Safe field: Total
+
+	// Safe field: Source
+}
+
+// Ensure CreateSandboxCheckpointData implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CreateSandboxCheckpointData)(nil)
+
+// Redact method implementation for CreateSandboxCheckpointData
+func (x *CreateSandboxCheckpointData) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: Name
+
+	// Safe field: IdempotencyKey
+
+	// Safe field: ExpectedVersion
+}
+
+// Ensure CreateSandboxCheckpointRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CreateSandboxCheckpointRequest)(nil)
+
+// Redact method implementation for CreateSandboxCheckpointRequest
+func (x *CreateSandboxCheckpointRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Data
+}
+
+// Ensure CreateSandboxCheckpointResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CreateSandboxCheckpointResponse)(nil)
+
+// Redact method implementation for CreateSandboxCheckpointResponse
+func (x *CreateSandboxCheckpointResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: CheckpointId
+
+	// Safe field: OperationId
+
+	// Safe field: State
+
+	// Safe field: Replayed
+}
+
+// Ensure CloneSandboxCheckpointData implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CloneSandboxCheckpointData)(nil)
+
+// Redact method implementation for CloneSandboxCheckpointData
+func (x *CloneSandboxCheckpointData) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SourceSandboxId
+
+	// Safe field: CheckpointId
+
+	// Safe field: IdempotencyKey
+
+	// Safe field: ExpectedVersion
+
+	// Safe field: Name
+
+	// Safe field: PresetId
+
+	// Safe field: WorkspaceSize
+
+	// Safe field: ImageId
+
+	// Safe field: ImageScope
+
+	// Safe field: ImageReference
+
+	// Safe field: EgressIntent
+}
+
+// Ensure CloneSandboxCheckpointRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CloneSandboxCheckpointRequest)(nil)
+
+// Redact method implementation for CloneSandboxCheckpointRequest
+func (x *CloneSandboxCheckpointRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Data
+}
+
+// Ensure RestoreSandboxCheckpointData implements the Redactor interface at compile time.
+var _ redact.Redactor = (*RestoreSandboxCheckpointData)(nil)
+
+// Redact method implementation for RestoreSandboxCheckpointData
+func (x *RestoreSandboxCheckpointData) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: CheckpointId
+
+	// Safe field: IdempotencyKey
+
+	// Safe field: ExpectedVersion
+}
+
+// Ensure RestoreSandboxCheckpointRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*RestoreSandboxCheckpointRequest)(nil)
+
+// Redact method implementation for RestoreSandboxCheckpointRequest
+func (x *RestoreSandboxCheckpointRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Data
+}
+
+// Ensure StreamSandboxLogsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*StreamSandboxLogsRequest)(nil)
+
+// Redact method implementation for StreamSandboxLogsRequest
+func (x *StreamSandboxLogsRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SandboxId
+
+	// Safe field: TailLines
+
+	// Safe field: Follow
+
+	// Safe field: SinceTime
+
+	// Safe field: PodUid
+}
+
+// Ensure StreamSandboxLogsFrame implements the Redactor interface at compile time.
+var _ redact.Redactor = (*StreamSandboxLogsFrame)(nil)
+
+// Redact method implementation for StreamSandboxLogsFrame
+func (x *StreamSandboxLogsFrame) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Kind
+
+	// Safe field: Data
+
+	// Safe field: Reason
+
+	// Safe field: PodUid
+}
+
+// Ensure SandboxOperationHistoryItem implements the Redactor interface at compile time.
+var _ redact.Redactor = (*SandboxOperationHistoryItem)(nil)
+
+// Redact method implementation for SandboxOperationHistoryItem
+func (x *SandboxOperationHistoryItem) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: OperationId
+
+	// Safe field: SandboxId
+
+	// Safe field: Action
+
+	// Safe field: State
+
+	// Safe field: Reason
+
+	// Safe field: CreatedAt
+
+	// Safe field: CompletedAt
+}
+
 // Ensure SandboxOperation implements the Redactor interface at compile time.
 var _ redact.Redactor = (*SandboxOperation)(nil)
 
@@ -674,4 +1579,6 @@ func (x *SandboxOperation) Redact() {
 	// Safe field: Reason
 
 	// Safe field: CreatedAt
+
+	// Safe field: CompletedAt
 }

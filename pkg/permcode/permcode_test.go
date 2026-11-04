@@ -257,14 +257,15 @@ func TestCountsAndKeys(t *testing.T) {
 	// The Sandbox code, file and token APIs add nine capabilities to the
 	// lifecycle-only baseline used by this cross-branch count.
 	const sandboxPhaseTwoCapabilities = 9
+	const sandboxDetailCapabilities = 17
 	const vmLogCapabilities = 1
 	const modelDevEnvironmentCapabilities = 2
 	const manualVNicCapabilities = 9
-	if want := 204 - 3 + len(platformComponentReads) + len(platformComponentLogStreams) + len(securityGroupCapabilities) + len(storageWrites) + len(storageStats) + sandboxPhaseTwoCapabilities + vmLogCapabilities + modelDevEnvironmentCapabilities + manualVNicCapabilities; CapabilityCount() != want {
+	if want := 204 - 3 + len(platformComponentReads) + len(platformComponentLogStreams) + len(securityGroupCapabilities) + len(storageWrites) + len(storageStats) + sandboxPhaseTwoCapabilities + sandboxDetailCapabilities + vmLogCapabilities + modelDevEnvironmentCapabilities + manualVNicCapabilities; CapabilityCount() != want {
 		t.Errorf("CapabilityCount() = %d, want %d", CapabilityCount(), want)
 	}
 	keys := AllKeys()
-	if want := 390 - 3 + len(securityGroupCapabilities) + len(storageWrites) + len(storageStats) + sandboxPhaseTwoCapabilities + vmLogCapabilities + modelDevEnvironmentCapabilities + manualVNicCapabilities; len(keys) != want {
+	if want := 390 - 3 + len(securityGroupCapabilities) + len(storageWrites) + len(storageStats) + sandboxPhaseTwoCapabilities + sandboxDetailCapabilities + vmLogCapabilities + modelDevEnvironmentCapabilities + manualVNicCapabilities; len(keys) != want {
 		t.Errorf("AllKeys() = %d, want %d", len(keys), want)
 	}
 	keySet := make(map[string]bool, len(keys))
@@ -399,10 +400,23 @@ func TestSandboxCapabilities(t *testing.T) {
 		{"GET", "/api/v1/sandbox", "list"},
 		{"GET", "/api/v1/sandbox/{sandbox_id}", "read"},
 		{"GET", "/api/v1/sandbox/operations/{operation_id}", "operation:read"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}/operations", "operation:list"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}/environment", "environment:list"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}/events", "event:list"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}/checkpoints", "checkpoint:list"},
+		{"POST", "/api/v1/sandbox/{data.sandbox_id}/checkpoints", "checkpoint:create"},
+		{"POST", "/api/v1/sandbox/{data.source_sandbox_id}/checkpoints/{data.checkpoint_id}:clone", "checkpoint:clone"},
+		{"POST", "/api/v1/sandbox/{data.sandbox_id}/checkpoints/{data.checkpoint_id}:restore", "checkpoint:restore"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}/logs", "logs:read"},
+		{"POST", "/api/v1/sandbox/{data.sandbox_id}/ports", "preview:open"},
+		{"POST", "/api/v1/sandbox/{data.sandbox_id}/ports/{data.preview_id}:close", "preview:close"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}/ports", "preview:list"},
+		{"GET", "/api/v1/sandbox/{sandbox_id}/port-operations/{operation_id}", "preview:operation:read"},
 		{"POST", "/api/v1/sandbox/{data.sandbox_id}:pause", "pause"},
 		{"POST", "/api/v1/sandbox/{data.sandbox_id}:resume", "resume"},
 		{"DELETE", "/api/v1/sandbox/{data.sandbox_id}", "delete"},
 		{"POST", "/api/v1/sandbox/{data.sandbox_id}/code-runs", "code:run"},
+		{"POST", "/api/v1/sandbox/{data.sandbox_id}/exec", "terminal:connect"},
 		{"GET", "/api/v1/sandbox/{sandbox_id}/code-runs/{run_id}", "code:read"},
 		{"GET", "/api/v1/sandbox/{sandbox_id}/files", "files:list"},
 		{"GET", "/api/v1/sandbox/{sandbox_id}/files/content", "files:read"},
@@ -413,12 +427,12 @@ func TestSandboxCapabilities(t *testing.T) {
 		{"DELETE", "/api/v1/sandbox/{sandbox_id}/tokens/{token_id}", "token:revoke"},
 	} {
 		exp, err := Resolve(r.method, r.path)
-		if err != nil || exp.Code != "sandbox:"+r.action || exp.BusinessModule != "INSTANCE" || exp.ScopeKind != "tenant" {
+		if err != nil || exp.Code != "sandbox:"+r.action || exp.BusinessModule != "SANDBOX" || exp.ScopeKind != "tenant" {
 			t.Fatalf("Sandbox capability %s %s: %+v %v", r.method, r.path, exp, err)
 		}
 	}
 	module, code, ok := ComputeCatalogGrant("SANDBOX")
-	if !ok || module != "INSTANCE" || code != "sandbox:preset:read" {
+	if !ok || module != "SANDBOX" || code != "sandbox:preset:read" {
 		t.Fatalf("Sandbox catalog grant: %s %s %v", module, code, ok)
 	}
 }

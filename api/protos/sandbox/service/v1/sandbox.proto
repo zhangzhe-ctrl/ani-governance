@@ -4,6 +4,61 @@ package sandbox.service.v1;
 import "google/protobuf/timestamp.proto";
 import "redact/v1/redact.proto";
 
+message ExecSandboxData {
+  string sandbox_id = 1 [json_name = "sandbox_id"];
+  string idempotency_key = 2 [json_name = "idempotency_key"];
+  int64 expected_version = 3 [json_name = "expected_version"];
+  int32 rows = 4;
+  int32 cols = 5;
+}
+message ExecSandboxRequest { ExecSandboxData data = 1; }
+message ExecSandboxResponse {
+  string session_id = 1 [json_name = "session_id"];
+  string ws_url = 2 [json_name = "ws_url", (redact.value).string = ""];
+  string expires_at = 3 [json_name = "expires_at"];
+}
+
+message OpenSandboxPreviewData { string sandbox_id = 1 [json_name="sandbox_id"]; string idempotency_key = 2 [json_name="idempotency_key"]; int64 expected_version = 3 [json_name="expected_version"]; uint32 port = 4; string protocol = 5; uint32 ttl_seconds = 6 [json_name="ttl_seconds"]; }
+message OpenSandboxPreviewRequest { OpenSandboxPreviewData data = 1; }
+message CloseSandboxPreviewData { string sandbox_id = 1 [json_name="sandbox_id"]; string preview_id = 2 [json_name="preview_id"]; string idempotency_key = 3 [json_name="idempotency_key"]; int64 expected_version = 4 [json_name="expected_version"]; }
+message CloseSandboxPreviewRequest { CloseSandboxPreviewData data = 1; }
+message ListSandboxPreviewsRequest { string sandbox_id = 1 [json_name="sandbox_id"]; optional uint32 page = 2; optional uint32 page_size = 3 [json_name="pageSize"]; }
+message GetSandboxPreviewOperationRequest { string sandbox_id = 1 [json_name="sandbox_id"]; string operation_id = 2 [json_name="operation_id"]; }
+message SandboxPreview { string preview_id = 1 [json_name="preview_id"]; string sandbox_id = 2 [json_name="sandbox_id"]; uint32 port = 3; string protocol = 4; string state = 5; string reason = 6; string address = 7; string desired = 8; google.protobuf.Timestamp expires_at = 9 [json_name="expires_at"]; bool replayed = 10; }
+message SandboxPreviewAcceptance { SandboxPreview preview = 1; string operation_id = 2 [json_name="operation_id"]; }
+message ListSandboxPreviewsResponse { repeated SandboxPreview items = 1; int64 total = 2; }
+message SandboxPreviewOperation { string operation_id = 1 [json_name="operation_id"]; string preview_id = 2 [json_name="preview_id"]; string action = 3; string state = 4; string reason = 5; google.protobuf.Timestamp created_at = 6 [json_name="created_at"]; google.protobuf.Timestamp completed_at = 7 [json_name="completed_at"]; }
+
+// Historical and latest metrics cover only the currently identified Pod.
+message GetSandboxMetricsRequest {
+  string sandbox_id = 1 [json_name = "sandbox_id"];
+  string start = 2;
+  string end = 3;
+  uint32 step = 4;
+}
+message GetSandboxLatestMetricsRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; }
+message SandboxMetricPoint {
+  string timestamp = 1;
+  optional double value = 2;
+  string status = 3;
+}
+message SandboxMetricSeries {
+  string name = 1;
+  string unit = 2;
+  string status = 3;
+  repeated SandboxMetricPoint points = 4;
+  string reason = 5;
+}
+message SandboxMetricsResponse {
+  string scope = 1;
+  string pod_uid = 2 [json_name = "pod_uid"];
+  string start = 3;
+  string end = 4;
+  uint32 step = 5;
+  repeated SandboxMetricSeries series = 6;
+  bool history_complete_before_migration = 7 [json_name = "history_complete_before_migration"];
+}
+
 message RunSandboxCodeData {
   string sandbox_id = 1 [json_name = "sandbox_id"];
   string idempotency_key = 2 [json_name = "idempotency_key"];
@@ -28,6 +83,8 @@ message SandboxCodeRun {
   bool truncated = 7;
   bool replayed = 8;
   string reason = 9;
+  google.protobuf.Timestamp created_at = 10 [json_name = "created_at"];
+  google.protobuf.Timestamp completed_at = 11 [json_name = "completed_at"];
 }
 
 message SandboxFileEntry {
@@ -46,7 +103,7 @@ message SandboxFileResult {
   int64 total = 6;
   string next_cursor = 7 [json_name = "next_cursor"];
 }
-message ListSandboxFilesRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; string path = 2; uint32 limit = 3; string cursor = 4; }
+message ListSandboxFilesRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; string path = 2; uint32 limit = 3; string cursor = 4; optional uint32 page = 5; optional uint32 page_size = 6 [json_name = "pageSize"]; }
 message ReadSandboxFileRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; string path = 2; }
 message MutateSandboxFileData {
   string sandbox_id = 1 [json_name = "sandbox_id"];
@@ -85,6 +142,7 @@ message SandboxAccessToken {
 message RevokeSandboxTokenRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; string token_id = 2 [json_name = "token_id"]; }
 message RevokeSandboxTokenResponse { bool revoked = 1; }
 
+message SandboxEgressIntent { string network_egress_policy = 1 [json_name = "network_egress_policy"]; repeated string egress_allowlist = 2 [json_name = "egress_allowlist"]; }
 message CreateSandboxData {
   string idempotency_key = 1 [json_name = "idempotency_key"];
   string name = 2;
@@ -94,6 +152,7 @@ message CreateSandboxData {
   string instance_id = 6 [json_name = "instance_id", deprecated = true];
   string image_id = 7 [json_name = "image_id"];
   string image_scope = 8 [json_name = "image_scope"];
+  SandboxEgressIntent egress_intent = 9 [json_name = "egress_intent"];
 }
 message CreateSandboxRequest { CreateSandboxData data = 1; }
 message SandboxAcceptance {
@@ -101,6 +160,7 @@ message SandboxAcceptance {
   string resource_id = 2 [json_name = "resource_id"];
   bool accepted = 3;
   bool replayed = 4;
+  string intent_enforcement = 5 [json_name = "intent_enforcement"];
 }
 message GetSandboxRequest { string instance_id = 1 [json_name = "instance_id", deprecated = true]; string sandbox_id = 2 [json_name = "sandbox_id"]; }
 message ListSandboxesRequest {
@@ -170,6 +230,65 @@ message PauseSandboxRequest { SandboxActionData data = 1; }
 message ResumeSandboxRequest { SandboxActionData data = 1; }
 message DeleteSandboxRequest { SandboxActionData data = 1; }
 message GetSandboxOperationRequest { string instance_id = 1 [json_name = "instance_id", deprecated = true]; string operation_id = 2 [json_name = "operation_id"]; }
+message ListSandboxOperationsRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; optional uint32 page = 2; optional uint32 page_size = 3 [json_name = "pageSize"]; }
+message ListSandboxOperationsResponse { repeated SandboxOperationHistoryItem items = 1; int64 total = 2; }
+message ListSandboxEnvironmentRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; optional uint32 page = 2; optional uint32 page_size = 3 [json_name = "pageSize"]; }
+message SandboxEnvironmentVariable { string name = 1; string source = 2; string secret_ref = 3 [json_name = "secret_ref"]; string field_ref = 4 [json_name = "field_ref"]; }
+message ListSandboxEnvironmentResponse { repeated SandboxEnvironmentVariable items = 1; int64 total = 2; }
+message GetSandboxEgressRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; }
+message SandboxEgressLabelExpression { string key = 1; string operator = 2; repeated string values = 3; }
+message SandboxEgressSelector { map<string,string> match_labels = 1 [json_name = "match_labels"]; repeated SandboxEgressLabelExpression match_expressions = 2 [json_name = "match_expressions"]; }
+message SandboxEgressIPBlock { string cidr = 1; repeated string except = 2; }
+message SandboxEgressPeer { SandboxEgressSelector pod_selector = 1 [json_name = "pod_selector"]; SandboxEgressSelector namespace_selector = 2 [json_name = "namespace_selector"]; SandboxEgressIPBlock ip_block = 3 [json_name = "ip_block"]; }
+message SandboxEgressPort { string protocol = 1; string port_type = 2 [json_name = "port_type"]; string port = 3; int32 end_port = 4 [json_name = "end_port"]; }
+message SandboxEgressRule { repeated SandboxEgressPeer peers = 1; repeated SandboxEgressPort ports = 2; }
+message GetSandboxEgressResponse { string source = 1; string declaration = 2; string enforcement = 3; bool host_allowlist_known = 4 [json_name = "host_allowlist_known"]; bool isolated = 5; repeated SandboxEgressRule rules = 6; string host_allowlist_status = 7 [json_name = "host_allowlist_status"]; SandboxEgressIntent intent = 8; string intent_enforcement = 9 [json_name = "intent_enforcement"]; }
+message ListSandboxEventsRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; optional uint32 page = 2; optional uint32 page_size = 3 [json_name = "pageSize"]; }
+message SandboxEvent { string id = 1; string occurred_at = 2 [json_name = "occurred_at"]; string type = 3; string reason = 4; string message = 5; }
+message ListSandboxEventsResponse { repeated SandboxEvent items = 1; int64 total = 2; string scope = 3; bool history_complete_before_migration = 4 [json_name = "history_complete_before_migration"]; }
+message ListSandboxSecurityEventsRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; optional uint32 page = 2; optional uint32 page_size = 3 [json_name = "pageSize"]; string severity = 4; }
+message SandboxSecurityEvent { string id = 1; string occurred_at = 2 [json_name = "occurred_at"]; string severity = 3; string event_type = 4 [json_name = "event_type"]; string description = 5; }
+message ListSandboxSecurityEventsResponse { repeated SandboxSecurityEvent items = 1; int64 total = 2; string source = 3; bool history_complete_before_migration = 4 [json_name = "history_complete_before_migration"]; }
+message ListSandboxCheckpointsRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; optional uint32 page = 2; optional uint32 page_size = 3 [json_name = "pageSize"]; }
+message SandboxCheckpoint { string id = 1; string name = 2; string status = 3; string reason = 4; string scope = 5; int64 size_bytes = 6 [json_name = "size_bytes"]; bool size_known = 7 [json_name = "size_known"]; string created_at = 8 [json_name = "created_at"]; string provider_status = 9 [json_name = "provider_status"]; }
+message ListSandboxCheckpointsResponse { repeated SandboxCheckpoint items = 1; int64 total = 2; string source = 3; }
+message CreateSandboxCheckpointData { string sandbox_id = 1 [json_name = "sandbox_id"]; string name = 2; string idempotency_key = 3 [json_name = "idempotency_key"]; int64 expected_version = 4 [json_name = "expected_version"]; }
+message CreateSandboxCheckpointRequest { CreateSandboxCheckpointData data = 1; }
+message CreateSandboxCheckpointResponse { string checkpoint_id = 1 [json_name = "checkpoint_id"]; string operation_id = 2 [json_name = "operation_id"]; string state = 3; bool replayed = 4; }
+// Cloning creates a separate Sandbox. Source identity is bound into the
+// durable command; the destination does not depend on an Instance resource.
+message CloneSandboxCheckpointData {
+  string source_sandbox_id = 1 [json_name = "source_sandbox_id"];
+  string checkpoint_id = 2 [json_name = "checkpoint_id"];
+  string idempotency_key = 3 [json_name = "idempotency_key"];
+  int64 expected_version = 4 [json_name = "expected_version"];
+  string name = 5;
+  string preset_id = 6 [json_name = "preset_id"];
+  string workspace_size = 7 [json_name = "workspace_size"];
+  string image_id = 8 [json_name = "image_id"];
+  string image_scope = 9 [json_name = "image_scope"];
+  string image_reference = 10 [json_name = "image_reference"];
+  SandboxEgressIntent egress_intent = 11 [json_name = "egress_intent"];
+}
+message CloneSandboxCheckpointRequest { CloneSandboxCheckpointData data = 1; }
+message RestoreSandboxCheckpointData {
+  string sandbox_id = 1 [json_name = "sandbox_id"];
+  string checkpoint_id = 2 [json_name = "checkpoint_id"];
+  string idempotency_key = 3 [json_name = "idempotency_key"];
+  int64 expected_version = 4 [json_name = "expected_version"];
+}
+message RestoreSandboxCheckpointRequest { RestoreSandboxCheckpointData data = 1; }
+message StreamSandboxLogsRequest { string sandbox_id = 1 [json_name = "sandbox_id"]; optional uint32 tail_lines = 2; optional bool follow = 3; string since_time = 4 [json_name = "since_time"]; string pod_uid = 5 [json_name = "pod_uid"]; }
+message StreamSandboxLogsFrame { string kind = 1; bytes data = 2; string reason = 3; string pod_uid = 4 [json_name = "pod_uid"]; }
+message SandboxOperationHistoryItem {
+  string operation_id = 1 [json_name = "operation_id"];
+  string sandbox_id = 2 [json_name = "sandbox_id"];
+  string action = 3;
+  string state = 4;
+  string reason = 5;
+  google.protobuf.Timestamp created_at = 6 [json_name = "created_at"];
+  google.protobuf.Timestamp completed_at = 7 [json_name = "completed_at"];
+}
 message SandboxOperation {
   string id = 1;
   string sandbox_id = 2 [json_name = "sandbox_id"];
@@ -179,4 +298,5 @@ message SandboxOperation {
   string state = 6;
   string reason = 7;
   google.protobuf.Timestamp created_at = 8 [json_name = "created_at"];
+  google.protobuf.Timestamp completed_at = 9 [json_name = "completed_at"];
 }

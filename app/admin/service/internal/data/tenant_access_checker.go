@@ -261,6 +261,8 @@ func mapProtoModuleToEnt(m identityV1.Module) planmodule.Module {
 		return planmodule.ModuleStorage
 	case identityV1.Module_MODEL:
 		return planmodule.ModuleModel
+	case identityV1.Module_SANDBOX:
+		return planmodule.ModuleSandbox
 	default:
 		return ""
 	}
@@ -304,6 +306,8 @@ func mapApiBusinessModuleToProto(m api.BusinessModule) identityV1.Module {
 		return identityV1.Module_STORAGE
 	case api.BusinessModuleModel:
 		return identityV1.Module_MODEL
+	case api.BusinessModuleSandbox:
+		return identityV1.Module_SANDBOX
 	default:
 		return identityV1.Module_MODULE_UNSPECIFIED
 	}

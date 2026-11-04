@@ -26,7 +26,7 @@ import (
 )
 
 // newRestServerWithSwagger builds the real REST server for one EnableSwagger value.
-func newRestServerWithSwagger(t *testing.T, enableSwagger bool) http.Handler {
+func newRestServerWithSwagger(t *testing.T, enableSwagger bool, extra ...any) http.Handler {
 	t.Helper()
 
 	cfg := &bConf.Bootstrap{
@@ -48,55 +48,54 @@ func newRestServerWithSwagger(t *testing.T, enableSwagger bool) http.Handler {
 	quotaService := service.NewQuotaAdminService(ctx, data.NewQuotaAdminRepo(ctx, client))
 
 	srv, err := NewRestServer(ctx, nil, nil,
-		nil,                               // authenticationService
-		nil,                               // mfaService
-		nil,                               // loginPolicyService
-		nil,                               // portalService
-		nil,                               // taskService
-		nil,                               // dictTypeService
-		nil,                               // dictEntryService
-		nil,                               // languageService
-		tenantService,                     // tenantService
-		nil,                               // planService
-		nil,                               // planQuotaService
-		quotaService,                      // quotaAdminService
-		nil,                               // planModuleService
-		nil,                               // userService
-		nil,                               // userProfileService
-		nil,                               // roleService
-		nil,                               // positionService
-		nil,                               // orgUnitService
-		nil,                               // menuService
-		apiService,                        // apiService
-		nil,                               // permissionService
-		nil,                               // permissionGroupService
-		nil,                               // permissionAuditLogService
-		nil,                               // policyEvaluationLogService
-		nil,                               // loginAuditLogService
-		nil,                               // apiAuditLogService
-		nil,                               // operationAuditLogService
-		nil,                               // dataAccessAuditLogService
-		nil,                               // redisCacheMonitorService
-		nil,                               // serverMonitorService
-		nil,                               // notificationChannelService
-		nil,                               // onlineSessionService
-		nil,                               // dashboardService
-		nil,                               // internalMessageService
-		nil,                               // internalMessageCategoryService
-		nil,                               // internalMessageRecipientService
-		nil,                               // accessKeyService
-		nil,                               // configService
-		nil,                               // networkService
-		nil,                               // platformNetworkService
-		nil,                               // acceleratorService
-		nil,                               // imageService
-		nil,                               // storageService
-		nil,                               // modeldevService
-		service.NewInferenceService(nil),  // inferenceService
-		service.NewModelService(nil, nil), // modelService: preserve route registration without a downstream client
-		nil,                               // computePresetService
-		nil,                               // overviewService
-		nil,                               // platformComponentService
+		nil,                                  // authenticationService
+		nil,                                  // mfaService
+		nil,                                  // loginPolicyService
+		nil,                                  // portalService
+		nil,                                  // taskService
+		nil,                                  // dictTypeService
+		nil,                                  // dictEntryService
+		nil,                                  // languageService
+		tenantService,                        // tenantService
+		nil,                                  // planService
+		nil,                                  // planQuotaService
+		quotaService,                         // quotaAdminService
+		nil,                                  // planModuleService
+		nil,                                  // userService
+		nil,                                  // userProfileService
+		nil,                                  // roleService
+		nil,                                  // positionService
+		nil,                                  // orgUnitService
+		nil,                                  // menuService
+		apiService,                           // apiService
+		nil,                                  // permissionService
+		nil,                                  // permissionGroupService
+		nil,                                  // permissionAuditLogService
+		nil,                                  // policyEvaluationLogService
+		nil,                                  // loginAuditLogService
+		nil,                                  // apiAuditLogService
+		nil,                                  // operationAuditLogService
+		nil,                                  // dataAccessAuditLogService
+		nil,                                  // redisCacheMonitorService
+		nil,                                  // serverMonitorService
+		nil,                                  // notificationChannelService
+		nil,                                  // onlineSessionService
+		nil,                                  // dashboardService
+		nil,                                  // internalMessageService
+		nil,                                  // internalMessageCategoryService
+		nil,                                  // internalMessageRecipientService
+		nil,                                  // accessKeyService
+		nil,                                  // configService
+		nil,                                  // networkService
+		nil,                                  // platformNetworkService
+		nil,                                  // acceleratorService
+		nil,                                  // imageService
+		nil,                                  // storageService
+		nil,                                  // modeldevService
+		service.NewInferenceService(nil),     // inferenceService
+		service.NewModelService(nil, nil),    // modelService: preserve route registration without a downstream client
+		nil,                                  // computePresetService
+		append([]any{nil, nil}, extra...)..., // optional overview, platform and other services
 	)
 	require.NoError(t, err)
 	require.NotNil(t, srv, "NewRestServer must build a server for this configuration")
