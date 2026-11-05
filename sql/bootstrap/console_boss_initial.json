@@ -5,7 +5,7 @@
     "console": "80002bade7898a1dc2f69882ac4f00f73dc44a76",
     "boss": "7352521e784047974eb410365c7f2cbd9f056f0d",
     "observed": "2026-11-05",
-    "note": "基于最新 main 保留原 480 条并纳入 VPC、子网关联实例查询；云主机镜像 6 条未接前端，明确不播种。不复制现场租户、账号、测试权限、价格或配额。",
+    "note": "基于最新 main 保留原 480 条并纳入 VPC、子网关联实例查询；云主机镜像 6 条未接前端，明确不播种。不复制现场租户、账号、测试权限、价格或配额。 Sandbox 详情新增17个接口先登记为不播种：需要显式同步目录、登记权限及授权。",
     "baseline_governance": "fe5c9b7c78c75d5e07c64c915c2cd25736be09f2"
   },
   "groups": [
@@ -8770,6 +8770,125 @@
       "path": "/api/v1/virtual-machine-images/{image_id}/upload-sessions",
       "operation": "VMImageService_CreateVMImageUploadSession",
       "module": "VIRTUAL_MACHINE",
+      "permissions": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sandbox/{data.sandbox_id}/checkpoints",
+      "operation": "SandboxService_CreateSandboxCheckpoint",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sandbox/{data.sandbox_id}/checkpoints/{data.checkpoint_id}:restore",
+      "operation": "SandboxService_RestoreSandboxCheckpoint",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sandbox/{data.sandbox_id}/exec",
+      "operation": "SandboxService_ExecSandbox",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sandbox/{data.sandbox_id}/ports",
+      "operation": "SandboxService_OpenSandboxPreview",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sandbox/{data.sandbox_id}/ports/{data.preview_id}:close",
+      "operation": "SandboxService_CloseSandboxPreview",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sandbox/{data.source_sandbox_id}/checkpoints/{data.checkpoint_id}:clone",
+      "operation": "SandboxService_CloneSandboxCheckpoint",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sandbox/{sandbox_id}/checkpoints",
+      "operation": "SandboxService_ListSandboxCheckpoints",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sandbox/{sandbox_id}/egress",
+      "operation": "SandboxService_GetSandboxEgress",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sandbox/{sandbox_id}/environment",
+      "operation": "SandboxService_ListSandboxEnvironment",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sandbox/{sandbox_id}/events",
+      "operation": "SandboxService_ListSandboxEvents",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sandbox/{sandbox_id}/metrics",
+      "operation": "SandboxService_GetSandboxMetrics",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sandbox/{sandbox_id}/metrics/latest",
+      "operation": "SandboxService_GetSandboxLatestMetrics",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sandbox/{sandbox_id}/operations",
+      "operation": "SandboxService_ListSandboxOperations",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sandbox/{sandbox_id}/port-operations/{operation_id}",
+      "operation": "SandboxService_GetSandboxPreviewOperation",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sandbox/{sandbox_id}/ports",
+      "operation": "SandboxService_ListSandboxPreviews",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sandbox/{sandbox_id}/security-events",
+      "operation": "SandboxService_ListSandboxSecurityEvents",
+      "module": "SANDBOX",
+      "permissions": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sandbox/{sandbox_id}/logs",
+      "operation": "SandboxService_StreamSandboxLogs",
+      "module": "SANDBOX",
       "permissions": []
     }
   ],

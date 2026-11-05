@@ -23,11 +23,21 @@ func releaseSeed(t *testing.T) (*initialSeed, []API) {
 func TestInitialSeedReleaseCoverage(t *testing.T) {
 	seed, catalog := releaseSeed(t)
 	require.Len(t, seed.Routes, 482)
-	require.Len(t, seed.ExcludedRoutes, 6)
+	require.Len(t, seed.ExcludedRoutes, 23)
+	deferredSandbox := 0
+	for _, route := range seed.ExcludedRoutes {
+		if route.Module == "SANDBOX" {
+			deferredSandbox++
+			require.True(t, deferredSandboxOperations[route.Operation], route.Operation)
+			require.Empty(t, route.Permissions, route.Operation)
+		}
+	}
+	require.Equal(t, len(deferredSandboxOperations), deferredSandbox)
 	selected := seed.catalogForInit(catalog)
 	require.Len(t, selected, 482)
 	for _, api := range selected {
 		require.NotEqual(t, "VMImageService", api.Module, api.Path)
+		require.False(t, deferredSandboxOperations[api.Operation], api.Path)
 	}
 	require.Len(t, seed.Permissions, 370)
 	require.Len(t, seed.Menus, 49) // 21 Console pages, 26 BOSS pages and two containers.
@@ -67,7 +77,7 @@ func TestInitialSeedRejectsIncompleteOrExpandedRelease(t *testing.T) {
 	require.ErrorContains(t, err, "API catalog is incomplete")
 	expanded := append(append([]API{}, catalog...), API{Method: "GET", Path: "/api/v1/extra", Operation: "Extra_Get", BusinessModule: "SYSTEM"})
 	_, err = loadInitialSeed(expanded)
-	require.ErrorContains(t, err, "expected exactly 488")
+	require.ErrorContains(t, err, "expected exactly 505")
 	changed := append([]API{}, catalog...)
 	changed[0].BusinessModule = "SYSTEM"
 	if changed[0].BusinessModule == catalog[0].BusinessModule {
@@ -91,6 +101,21 @@ func TestInitialSeedRejectsAuthorizationGaps(t *testing.T) {
 		}},
 		{"template needs valid metadata", func(s *initialSeed) { s.RoleTemplates[2].TemplateFor = "platform:admin" }},
 		{"excluded route cannot grant", func(s *initialSeed) { s.ExcludedRoutes[0].Permissions = []string{"vm:read"} }},
+		{"deferred sandbox route cannot grant", func(s *initialSeed) {
+			for i := range s.ExcludedRoutes {
+				if s.ExcludedRoutes[i].Operation == "SandboxService_ExecSandbox" {
+					s.ExcludedRoutes[i].Permissions = []string{"sandbox:read"}
+				}
+			}
+		}},
+		{"existing sandbox route cannot be excluded", func(s *initialSeed) {
+			for _, route := range s.Routes {
+				if route.Operation == "SandboxService_GetSandbox" {
+					route.Permissions = nil
+					s.ExcludedRoutes[0] = route
+				}
+			}
+		}},
 		{"business route cannot be excluded", func(s *initialSeed) { s.ExcludedRoutes[0] = s.Routes[0] }},
 		{"business exempt is not public", func(s *initialSeed) {
 			for i := range s.Routes {
