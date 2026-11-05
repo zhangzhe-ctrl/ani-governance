@@ -30,6 +30,7 @@ type NetworkOperationPolicy struct {
 // NetworkOperations is the complete tenant Network surface. Catalog membership
 // never grants a role: current tenant, NETWORK and Casbin gates still apply.
 var NetworkOperations = map[string]NetworkOperationPolicy{
+	"/admin.service.v1.NetworkService/ListNetworkInstances":      {"GET", "/api/v1/networks/instances", "network:instance:list", true},
 	"/admin.service.v1.NetworkService/CreateVNic":                {"POST", "/api/v1/networks/vnics", "network:vnic:create", false},
 	"/admin.service.v1.NetworkService/GetVNic":                   {"GET", "/api/v1/networks/vnics/{vnic_id}", "network:vnic:get", true},
 	"/admin.service.v1.NetworkService/ListVNics":                 {"GET", "/api/v1/networks/vnics", "network:vnic:list", true},
@@ -52,28 +53,30 @@ var NetworkOperations = map[string]NetworkOperationPolicy{
 	"/admin.service.v1.NetworkService/ListVPCCIDRPresets": {"GET", "/api/v1/networks/vpc-cidr-presets", "network:vpc:presets", true},
 	"/admin.service.v1.NetworkService/CreateVPC":          {"POST", "/api/v1/networks/vpcs", "network:vpc:create", false},
 	VPCReadOperation: {"GET", "/api/v1/networks/vpcs/{vpc_id}", "network:vpc:get", true},
-	"/admin.service.v1.NetworkService/ListVPCs":                 {"GET", "/api/v1/networks/vpcs", "network:vpc:list", true},
-	"/admin.service.v1.NetworkService/DeleteVPC":                {"DELETE", "/api/v1/networks/vpcs/{vpc_id}", "network:vpc:delete", false},
-	"/admin.service.v1.NetworkService/GetOperation":             {"GET", "/api/v1/networks/operations/{operation_id}", "network:operation:get", true},
-	"/admin.service.v1.NetworkService/CreateSubnet":             {"POST", "/api/v1/networks/subnets", "network:subnet:create", false},
-	"/admin.service.v1.NetworkService/GetSubnet":                {"GET", "/api/v1/networks/subnets/{subnet_id}", "network:subnet:get", true},
-	"/admin.service.v1.NetworkService/ListSubnets":              {"GET", "/api/v1/networks/subnets", "network:subnet:list", true},
-	"/admin.service.v1.NetworkService/DeleteSubnet":             {"DELETE", "/api/v1/networks/subnets/{subnet_id}", "network:subnet:delete", false},
-	"/admin.service.v1.NetworkService/CreateEIP":                {"POST", "/api/v1/networks/eips", "network:eip:create", false},
-	"/admin.service.v1.NetworkService/GetEIP":                   {"GET", "/api/v1/networks/eips/{eip_id}", "network:eip:get", true},
-	"/admin.service.v1.NetworkService/ListEIPs":                 {"GET", "/api/v1/networks/eips", "network:eip:list", true},
-	"/admin.service.v1.NetworkService/DeleteEIP":                {"DELETE", "/api/v1/networks/eips/{eip_id}", "network:eip:delete", false},
-	"/admin.service.v1.NetworkService/GetVPCSnat":               {"GET", "/api/v1/networks/vpcs/{vpc_id}/snat", "network:snat:get", true},
-	"/admin.service.v1.NetworkService/BindVPCSnat":              {"POST", "/api/v1/networks/vpcs/{vpc_id}/snat/bindings", "network:snat:bind", false},
-	"/admin.service.v1.NetworkService/GetVPCSnatBinding":        {"GET", "/api/v1/networks/snat/bindings/{binding_id}", "network:snat:get", true},
-	"/admin.service.v1.NetworkService/SetVPCSnatEnabled":        {"PATCH", "/api/v1/networks/snat/bindings/{binding_id}", "network:snat:update", false},
-	"/admin.service.v1.NetworkService/DeleteVPCSnatBinding":     {"DELETE", "/api/v1/networks/snat/bindings/{binding_id}", "network:snat:delete", false},
-	"/admin.service.v1.NetworkService/CreateLoadBalancer":       {"POST", "/api/v1/networks/load-balancers", "network:load-balancer:create", false},
-	"/admin.service.v1.NetworkService/GetLoadBalancer":          {"GET", "/api/v1/networks/load-balancers/{load_balancer_id}", "network:load-balancer:get", true},
-	"/admin.service.v1.NetworkService/ListLoadBalancers":        {"GET", "/api/v1/networks/load-balancers", "network:load-balancer:list", true},
-	"/admin.service.v1.NetworkService/UpdateLoadBalancer":       {"PATCH", "/api/v1/networks/load-balancers/{load_balancer_id}", "network:load-balancer:update", false},
-	"/admin.service.v1.NetworkService/DeleteLoadBalancer":       {"DELETE", "/api/v1/networks/load-balancers/{load_balancer_id}", "network:load-balancer:delete", false},
-	"/admin.service.v1.NetworkService/GetLoadBalancerOperation": {"GET", "/api/v1/networks/load-balancers/operations/{operation_id}", "network:load-balancer:operation:get", true},
+	"/admin.service.v1.NetworkService/ListVPCs":                      {"GET", "/api/v1/networks/vpcs", "network:vpc:list", true},
+	"/admin.service.v1.NetworkService/ListVPCAssociatedInstances":    {"GET", "/api/v1/networks/vpcs/{vpc_id}/associated-instances", "network:vpc:get", true},
+	"/admin.service.v1.NetworkService/DeleteVPC":                     {"DELETE", "/api/v1/networks/vpcs/{vpc_id}", "network:vpc:delete", false},
+	"/admin.service.v1.NetworkService/GetOperation":                  {"GET", "/api/v1/networks/operations/{operation_id}", "network:operation:get", true},
+	"/admin.service.v1.NetworkService/CreateSubnet":                  {"POST", "/api/v1/networks/subnets", "network:subnet:create", false},
+	"/admin.service.v1.NetworkService/GetSubnet":                     {"GET", "/api/v1/networks/subnets/{subnet_id}", "network:subnet:get", true},
+	"/admin.service.v1.NetworkService/ListSubnetAssociatedInstances": {"GET", "/api/v1/networks/subnets/{subnet_id}/associated-instances", "network:subnet:get", true},
+	"/admin.service.v1.NetworkService/ListSubnets":                   {"GET", "/api/v1/networks/subnets", "network:subnet:list", true},
+	"/admin.service.v1.NetworkService/DeleteSubnet":                  {"DELETE", "/api/v1/networks/subnets/{subnet_id}", "network:subnet:delete", false},
+	"/admin.service.v1.NetworkService/CreateEIP":                     {"POST", "/api/v1/networks/eips", "network:eip:create", false},
+	"/admin.service.v1.NetworkService/GetEIP":                        {"GET", "/api/v1/networks/eips/{eip_id}", "network:eip:get", true},
+	"/admin.service.v1.NetworkService/ListEIPs":                      {"GET", "/api/v1/networks/eips", "network:eip:list", true},
+	"/admin.service.v1.NetworkService/DeleteEIP":                     {"DELETE", "/api/v1/networks/eips/{eip_id}", "network:eip:delete", false},
+	"/admin.service.v1.NetworkService/GetVPCSnat":                    {"GET", "/api/v1/networks/vpcs/{vpc_id}/snat", "network:snat:get", true},
+	"/admin.service.v1.NetworkService/BindVPCSnat":                   {"POST", "/api/v1/networks/vpcs/{vpc_id}/snat/bindings", "network:snat:bind", false},
+	"/admin.service.v1.NetworkService/GetVPCSnatBinding":             {"GET", "/api/v1/networks/snat/bindings/{binding_id}", "network:snat:get", true},
+	"/admin.service.v1.NetworkService/SetVPCSnatEnabled":             {"PATCH", "/api/v1/networks/snat/bindings/{binding_id}", "network:snat:update", false},
+	"/admin.service.v1.NetworkService/DeleteVPCSnatBinding":          {"DELETE", "/api/v1/networks/snat/bindings/{binding_id}", "network:snat:delete", false},
+	"/admin.service.v1.NetworkService/CreateLoadBalancer":            {"POST", "/api/v1/networks/load-balancers", "network:load-balancer:create", false},
+	"/admin.service.v1.NetworkService/GetLoadBalancer":               {"GET", "/api/v1/networks/load-balancers/{load_balancer_id}", "network:load-balancer:get", true},
+	"/admin.service.v1.NetworkService/ListLoadBalancers":             {"GET", "/api/v1/networks/load-balancers", "network:load-balancer:list", true},
+	"/admin.service.v1.NetworkService/UpdateLoadBalancer":            {"PATCH", "/api/v1/networks/load-balancers/{load_balancer_id}", "network:load-balancer:update", false},
+	"/admin.service.v1.NetworkService/DeleteLoadBalancer":            {"DELETE", "/api/v1/networks/load-balancers/{load_balancer_id}", "network:load-balancer:delete", false},
+	"/admin.service.v1.NetworkService/GetLoadBalancerOperation":      {"GET", "/api/v1/networks/load-balancers/operations/{operation_id}", "network:load-balancer:operation:get", true},
 }
 
 var OwnerNetworkInterfaceOperations = map[string]NetworkOperationPolicy{
@@ -146,6 +149,8 @@ func networkRequestMessage(operation string) proto.Message {
 		return &view.SetInstanceNetworkInterfaceRequest{}
 	}
 	switch strings.TrimPrefix(operation, "/admin.service.v1.NetworkService/") {
+	case "ListNetworkInstances":
+		return &view.ListNetworkInstancesRequest{}
 	case "CreateVNic":
 		return &view.CreateVNicRequest{}
 	case "GetVNic":
@@ -190,6 +195,10 @@ func networkRequestMessage(operation string) proto.Message {
 		return &view.ListVPCCIDRPresetsRequest{}
 	case "ListVPCs":
 		return &view.ListVPCsRequest{}
+	case "ListVPCAssociatedInstances":
+		return &view.ListVPCAssociatedInstancesRequest{}
+	case "ListSubnetAssociatedInstances":
+		return &view.ListSubnetAssociatedInstancesRequest{}
 	case "DeleteVPC":
 		return &view.DeleteVPCRequest{}
 	case "GetOperation":
@@ -296,6 +305,10 @@ func networkQueryFields(operation string) map[string]bool {
 	}
 	fields := map[string]bool{}
 	switch strings.TrimPrefix(operation, "/admin.service.v1.NetworkService/") {
+	case "ListNetworkInstances":
+		for _, field := range []string{"vpc_id", "subnet_id", "page", "pageSize"} {
+			fields[field] = true
+		}
 	case "ListVNics":
 		for _, field := range []string{"page", "pageSize", "name", "subnet_id", "state", "binding_state", "bindable_to_kind", "bindable_to_id"} {
 			fields[field] = true
@@ -304,10 +317,16 @@ func networkQueryFields(operation string) map[string]bool {
 		for _, field := range []string{"page", "pageSize", "name", "consumer_kind"} {
 			fields[field] = true
 		}
-	case "ListVPCs", "ListSecurityGroups":
+	case "ListVPCs":
+		for _, field := range []string{"name", "state", "page", "pageSize", "can_use", "can_manage"} {
+			fields[field] = true
+		}
+	case "ListSecurityGroups":
 		for _, field := range []string{"name", "state", "page", "pageSize"} {
 			fields[field] = true
 		}
+	case "ListVPCAssociatedInstances", "ListSubnetAssociatedInstances":
+		fields["page"], fields["pageSize"] = true, true
 	case "ListSecurityGroupRules", "ListSecurityGroupBindings":
 		fields["page"], fields["pageSize"] = true, true
 		if strings.HasSuffix(operation, "/ListSecurityGroupRules") {
@@ -321,7 +340,7 @@ func networkQueryFields(operation string) map[string]bool {
 			fields[field] = true
 		}
 	case "ListSubnets":
-		for _, field := range []string{"vpc_id", "name", "state", "limit", "cursor"} {
+		for _, field := range []string{"vpc_id", "name", "state", "limit", "cursor", "can_use", "can_manage"} {
 			fields[field] = true
 		}
 	case "ListLoadBalancers":
@@ -339,6 +358,9 @@ func validateNetworkQuery(operation string, query url.Values) bool {
 			return false
 		}
 		value := values[0]
+		if (field == "can_use" || field == "can_manage") && value != "true" && value != "false" {
+			return false
+		}
 		pattern := networkIDPatterns[field]
 		if pattern == nil {
 			pattern = platformNetworkIDPatterns[field]

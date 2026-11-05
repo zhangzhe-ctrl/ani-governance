@@ -15,8 +15,10 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"reflect"
 	"testing"
+	"time"
 )
 
 type vpcProbe struct {
@@ -35,6 +37,9 @@ type vpcProbe struct {
 	snatVersion                     int64
 	snatKey                         string
 	vpcPage, vpcPageSize            uint32
+	canUse, canManage               *bool
+	vpcReply                        *networkv1.VPC
+	subnetReply                     *networkv1.Subnet
 	eipSecurityGroupIDs             []string
 	eipName, eipDescription, eipKey string
 }
@@ -51,7 +56,10 @@ func (p *vpcProbe) GetVPC(_ context.Context, tenant string, actor string, id str
 	if p.wrong {
 		tenant = "other"
 	}
-	return &networkv1.GetVPCResponse{Vpc: &networkv1.VPC{Id: id, TenantId: tenant, Name: "vpc", State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}, p.err
+	if p.vpcReply != nil {
+		return &networkv1.GetVPCResponse{Vpc: p.vpcReply}, p.err
+	}
+	return &networkv1.GetVPCResponse{Vpc: &networkv1.VPC{Id: id, TenantId: tenant, OwnerScope: networkv1.OwnerScope_OWNER_SCOPE_TENANT, Name: "vpc", State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}, p.err
 }
 
 // panicTenant panics on any unexpected replayed tenant/actor; it keeps the
@@ -65,23 +73,76 @@ func panicTenant(tenant, actor string) {
 	}
 }
 
-func (p *vpcProbe) ListVPCs(_ context.Context, tenant, actor string, _ string, _ string, page uint32, pageSize uint32) (*networkv1.ListVPCsResponse, error) {
+func (p *vpcProbe) ListVPCs(_ context.Context, tenant, actor string, _ string, _ string, page uint32, pageSize uint32, canUse, canManage *bool) (*networkv1.ListVPCsResponse, error) {
 	p.calls++
 	panicTenant(tenant, actor)
 	p.vpcPage, p.vpcPageSize = page, pageSize
-	return &networkv1.ListVPCsResponse{Total: 37, Items: []*networkv1.VPC{{Id: "vpc_11111111111111111111111111111111", TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}}, p.err
+	p.canUse, p.canManage = canUse, canManage
+	if p.vpcReply != nil {
+		return &networkv1.ListVPCsResponse{Items: []*networkv1.VPC{p.vpcReply}, Total: 1}, p.err
+	}
+	return &networkv1.ListVPCsResponse{Total: 37, Items: []*networkv1.VPC{{Id: "vpc_11111111111111111111111111111111", TenantId: tenant, OwnerScope: networkv1.OwnerScope_OWNER_SCOPE_TENANT, State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}}}, p.err
+}
+
+// associatedFactsProbe 记录 ListNetworkInstances 的 scope/分页与回复，
+// 供 NET-26～27 的 path 式关联实例接口断言透传语义。与 main 的
+// associatedInstanceProbe（query 式统一入口）互补，互不复用。
+type associatedFactsProbe struct {
+	*vpcProbe
+	associatedVPCID, associatedSubnetID string
+	associatedPage, associatedPageSize  uint32
+	associatedItems                     []*networkv1.AssociatedInstance
+	associatedTotal                     int64
+}
+
+func (p *associatedFactsProbe) ListNetworkInstances(_ context.Context, tenant, actor, vpcID, subnetID string, page, pageSize uint32) (*networkv1.ListNetworkInstancesResponse, error) {
+	p.calls++
+	panicTenant(tenant, actor)
+	if (vpcID == "") == (subnetID == "") {
+		panic("network scope must be exactly one")
+	}
+	p.associatedVPCID, p.associatedSubnetID, p.associatedPage, p.associatedPageSize = vpcID, subnetID, page, pageSize
+	items := p.associatedItems
+	if items == nil {
+		itemSubnet := subnetID
+		if itemSubnet == "" {
+			itemSubnet = "subnet_11111111111111111111111111111111"
+		}
+		scopeTenant := tenant
+		if p.wrong {
+			scopeTenant = "other"
+		}
+		items = []*networkv1.AssociatedInstance{{
+			TenantId: scopeTenant, ConsumerType: "container_instance", ConsumerId: "3f0c9a2e-7d1b-4c58-a6e0-f1b2c3d4e5f6",
+			ConsumerName: "demo-1", ConsumerState: "running", SubnetId: itemSubnet, SubnetName: "test", Slot: "primary",
+			AttachmentId: "att_0123456789abcdef0123456789abcdef", AttachmentState: "attached",
+			ObservedAt: timestamppb.New(time.Unix(1774941611, 0)),
+			Addresses:  []*networkv1.NetworkAddress{{NicName: "default", Address: "10.42.1.15"}},
+		}}
+	}
+	total := p.associatedTotal
+	if total == 0 {
+		total = int64(len(items))
+	}
+	return &networkv1.ListNetworkInstancesResponse{Total: total, Items: items}, p.err
 }
 
 func (p *vpcProbe) CreateVPC(_ context.Context, tenant, actor string, _, _, _, _ string) (*networkv1.CreateVPCResponse, error) {
 	p.calls++
 	panicTenant(tenant, actor)
-	return &networkv1.CreateVPCResponse{Vpc: &networkv1.VPC{Id: "vpc_11111111111111111111111111111111", TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_PROVISIONING}}, p.err
+	if p.vpcReply != nil {
+		return &networkv1.CreateVPCResponse{Vpc: p.vpcReply}, p.err
+	}
+	return &networkv1.CreateVPCResponse{Vpc: &networkv1.VPC{Id: "vpc_11111111111111111111111111111111", TenantId: tenant, OwnerScope: networkv1.OwnerScope_OWNER_SCOPE_TENANT, State: networkv1.ResourceState_RESOURCE_STATE_PROVISIONING}}, p.err
 }
 
 func (p *vpcProbe) DeleteVPC(_ context.Context, tenant, actor, id string) (*networkv1.DeleteVPCResponse, error) {
 	p.calls++
 	panicTenant(tenant, actor)
-	return &networkv1.DeleteVPCResponse{Vpc: &networkv1.VPC{Id: id, TenantId: tenant, State: networkv1.ResourceState_RESOURCE_STATE_DELETED}}, p.err
+	if p.vpcReply != nil {
+		return &networkv1.DeleteVPCResponse{Vpc: p.vpcReply}, p.err
+	}
+	return &networkv1.DeleteVPCResponse{Vpc: &networkv1.VPC{Id: id, TenantId: tenant, OwnerScope: networkv1.OwnerScope_OWNER_SCOPE_TENANT, State: networkv1.ResourceState_RESOURCE_STATE_DELETED}}, p.err
 }
 
 func (p *vpcProbe) GetOperation(_ context.Context, tenant, actor, id string) (*networkv1.GetOperationResponse, error) {
@@ -172,7 +233,7 @@ func TestNetworkTrustedScope(t *testing.T) {
 		t.Fatalf("foreign response accepted: %v", err)
 	}
 	p.wrong = false
-	for code, want := range map[codes.Code]int{codes.NotFound: 404, codes.InvalidArgument: 400, codes.PermissionDenied: 503, codes.Unauthenticated: 503, codes.Unavailable: 503, codes.DeadlineExceeded: 504} {
+	for code, want := range map[codes.Code]int{codes.NotFound: 404, codes.InvalidArgument: 400, codes.PermissionDenied: 403, codes.Unauthenticated: 503, codes.Unavailable: 503, codes.DeadlineExceeded: 504} {
 		p.err = status.Error(code, "private dependency detail")
 		if _, err := s.GetVPC(ctx, req); errors.Code(err) != want {
 			t.Fatalf("%v: %v", code, err)
@@ -279,13 +340,19 @@ func (p *vpcProbe) scope(tenant, actor string) string {
 	}
 	return tenant
 }
+func (p *vpcProbe) catalogSubnet(tenant, id, vpcID string) *networkv1.Subnet {
+	if p.subnetReply != nil {
+		return p.subnetReply
+	}
+	return testSubnet(tenant, id, vpcID)
+}
 func testSubnet(tenant, id, vpcID string) *networkv1.Subnet {
-	return &networkv1.Subnet{Id: id, TenantId: tenant, VpcId: vpcID, Name: "subnet", Cidr: "10.0.1.0/24", Gateway: "10.0.1.1", State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}
+	return &networkv1.Subnet{Id: id, TenantId: tenant, OwnerScope: networkv1.OwnerScope_OWNER_SCOPE_TENANT, VpcId: vpcID, Name: "subnet", Cidr: "10.0.1.0/24", Gateway: "10.0.1.1", State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE}
 }
 func (p *vpcProbe) CreateSubnet(_ context.Context, tenant, actor, vpcID, _, _, _, _ string, gateway *string, excludeIPs []string, enableDHCP *bool, dnsServers []string) (*networkv1.CreateSubnetResponse, error) {
 	p.subnetGateway = gateway
 	p.subnetExcludeIPs, p.subnetEnableDHCP, p.subnetDNSServers = excludeIPs, enableDHCP, dnsServers
-	subnet := testSubnet(p.scope(tenant, actor), testSubnetID, vpcID)
+	subnet := p.catalogSubnet(p.scope(tenant, actor), testSubnetID, vpcID)
 	subnet.ExcludeIps, subnet.EnableDhcp, subnet.DnsServers = excludeIPs, enableDHCP != nil && *enableDHCP, dnsServers
 	return &networkv1.CreateSubnetResponse{Subnet: subnet}, p.err
 }
@@ -316,13 +383,14 @@ func TestSubnetCreationPreservesAdvancedOptions(t *testing.T) {
 	}
 }
 func (p *vpcProbe) GetSubnet(_ context.Context, tenant, actor, id string) (*networkv1.GetSubnetResponse, error) {
-	return &networkv1.GetSubnetResponse{Subnet: testSubnet(p.scope(tenant, actor), id, testVPCID)}, p.err
+	return &networkv1.GetSubnetResponse{Subnet: p.catalogSubnet(p.scope(tenant, actor), id, testVPCID)}, p.err
 }
-func (p *vpcProbe) ListSubnets(_ context.Context, tenant, actor, vpcID, _, _ string, _ int32, _ string) (*networkv1.ListSubnetsResponse, error) {
-	return &networkv1.ListSubnetsResponse{Items: []*networkv1.Subnet{testSubnet(p.scope(tenant, actor), testSubnetID, vpcID)}, Total: 37, NextCursor: "subnet-cursor"}, p.err
+func (p *vpcProbe) ListSubnets(_ context.Context, tenant, actor, vpcID, _, _ string, _ int32, _ string, canUse, canManage *bool) (*networkv1.ListSubnetsResponse, error) {
+	p.canUse, p.canManage = canUse, canManage
+	return &networkv1.ListSubnetsResponse{Items: []*networkv1.Subnet{p.catalogSubnet(p.scope(tenant, actor), testSubnetID, vpcID)}, Total: 37, NextCursor: "subnet-cursor"}, p.err
 }
 func (p *vpcProbe) DeleteSubnet(_ context.Context, tenant, actor, id string) (*networkv1.DeleteSubnetResponse, error) {
-	return &networkv1.DeleteSubnetResponse{Subnet: testSubnet(p.scope(tenant, actor), id, testVPCID)}, p.err
+	return &networkv1.DeleteSubnetResponse{Subnet: p.catalogSubnet(p.scope(tenant, actor), id, testVPCID)}, p.err
 }
 func testSnat(tenant, id string) *networkv1.VPCSnatBinding {
 	return &networkv1.VPCSnatBinding{Id: id, TenantId: tenant, VpcId: testVPCID, EipId: "eip_66666666666666666666666666666666", State: networkv1.ResourceState_RESOURCE_STATE_AVAILABLE, DesiredEnabled: true, ObservationStale: true, LastOperationId: testOperationID}
@@ -527,7 +595,7 @@ func TestNetworkDomainErrorReasons(t *testing.T) {
 		code   codes.Code
 		reason string
 		http   int
-	}{{codes.AlreadyExists, "IDEMPOTENCY_CONFLICT", 409}, {codes.AlreadyExists, "ADDRESS_CONFLICT", 409}, {codes.FailedPrecondition, "VERSION_CONFLICT", 412}, {codes.FailedPrecondition, "RESOURCE_IN_USE", 412}, {codes.NotFound, "RESOURCE_NOT_FOUND", 404}, {codes.Unavailable, "BASE_CONNECTIVITY_NOT_READY", 503}} {
+	}{{codes.AlreadyExists, "IDEMPOTENCY_CONFLICT", 409}, {codes.AlreadyExists, "ADDRESS_CONFLICT", 409}, {codes.FailedPrecondition, "VERSION_CONFLICT", 412}, {codes.FailedPrecondition, "RESOURCE_IN_USE", 412}, {codes.FailedPrecondition, "NETWORK_NEW_ADMISSION_CLOSED", 412}, {codes.PermissionDenied, "PERMISSION_DENIED", 403}, {codes.NotFound, "RESOURCE_NOT_FOUND", 404}, {codes.Unavailable, "BASE_CONNECTIVITY_NOT_READY", 503}} {
 		st, err := status.New(tc.code, "private dependency detail").WithDetails(&errdetails.ErrorInfo{Domain: "network.ani.io", Reason: tc.reason})
 		if err != nil {
 			t.Fatal(err)
@@ -567,6 +635,177 @@ func TestVPCPageDefaultsAndValidationBeforeCall(t *testing.T) {
 		_, err := s.ListVPCs(ctx, req)
 		if errors.Code(err) != 400 || p.calls != 0 {
 			t.Fatalf("invalid window reached downstream: %v calls=%d", err, p.calls)
+		}
+	}
+}
+
+func TestNetworkCatalogReadScopeAndCapabilities(t *testing.T) {
+	const tenant = "11111111-1111-4111-8111-111111111111"
+	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 5})
+	for _, tc := range []struct {
+		name, replyTenant, owner string
+		scope                    networkv1.OwnerScope
+		readable, writable       bool
+	}{
+		{"private", tenant, "tenant", networkv1.OwnerScope_OWNER_SCOPE_TENANT, true, true},
+		{"platform", "", "platform", networkv1.OwnerScope_OWNER_SCOPE_PLATFORM, true, false},
+		{"foreign private", "other", "", networkv1.OwnerScope_OWNER_SCOPE_TENANT, false, false},
+		{"private without tenant", "", "", networkv1.OwnerScope_OWNER_SCOPE_TENANT, false, false},
+		{"platform with tenant", tenant, "", networkv1.OwnerScope_OWNER_SCOPE_PLATFORM, false, false},
+		{"unspecified", tenant, "", networkv1.OwnerScope_OWNER_SCOPE_UNSPECIFIED, false, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			p := &vpcProbe{
+				vpcReply: &networkv1.VPC{Id: testVPCID, TenantId: tc.replyTenant, OwnerScope: tc.scope, CanUse: true,
+					State: networkv1.ResourceState_RESOURCE_STATE_DEGRADED, ObservationStale: true},
+				subnetReply: &networkv1.Subnet{Id: testSubnetID, VpcId: testVPCID, TenantId: tc.replyTenant, OwnerScope: tc.scope, CanUse: true,
+					State: networkv1.ResourceState_RESOURCE_STATE_DEGRADED, ObservationStale: true},
+			}
+			s := NewNetworkService(p, &tenantProbe{})
+			vpc, err := s.GetVPC(ctx, &catalogv1.GetVPCRequest{VpcId: testVPCID})
+			if (err == nil) != tc.readable || (!tc.readable && errors.Code(err) != 503) {
+				t.Fatalf("VPC scope: %v", err)
+			}
+			if tc.readable && (vpc.Vpc.OwnerScope != tc.owner || !vpc.Vpc.CanUse || vpc.Vpc.CanManage || !vpc.Vpc.ObservationStale) {
+				t.Fatal("VPC capabilities were changed by readiness/observation mapping", vpc)
+			}
+			vpcs, err := s.ListVPCs(ctx, &catalogv1.ListVPCsRequest{})
+			if (err == nil) != tc.readable || (tc.readable && (len(vpcs.Items) != 1 || vpcs.Items[0].OwnerScope != tc.owner)) {
+				t.Fatal("VPC list scope", vpcs, err)
+			}
+			subnet, err := s.GetSubnet(ctx, &catalogv1.GetSubnetRequest{SubnetId: testSubnetID})
+			if (err == nil) != tc.readable || (!tc.readable && errors.Code(err) != 503) {
+				t.Fatalf("subnet scope: %v", err)
+			}
+			if tc.readable && (subnet.Subnet.OwnerScope != tc.owner || !subnet.Subnet.CanUse || subnet.Subnet.CanManage || subnet.Subnet.UsedIpRange != nil) {
+				t.Fatal("subnet capabilities or absent IP range were changed", subnet)
+			}
+			subnets, err := s.ListSubnets(ctx, &catalogv1.ListSubnetsRequest{VpcId: testVPCID})
+			if (err == nil) != tc.readable || (tc.readable && (len(subnets.Items) != 1 || subnets.Items[0].OwnerScope != tc.owner)) {
+				t.Fatal("subnet list scope", subnets, err)
+			}
+			for _, call := range []func() error{
+				func() error { _, e := s.CreateVPC(ctx, &catalogv1.CreateVPCRequest{}); return e },
+				func() error { _, e := s.DeleteVPC(ctx, &catalogv1.DeleteVPCRequest{VpcId: testVPCID}); return e },
+				func() error { _, e := s.CreateSubnet(ctx, &catalogv1.CreateSubnetRequest{VpcId: testVPCID}); return e },
+				func() error {
+					_, e := s.DeleteSubnet(ctx, &catalogv1.DeleteSubnetRequest{SubnetId: testSubnetID})
+					return e
+				},
+			} {
+				if e := call(); (e == nil) != tc.writable || (!tc.writable && errors.Code(e) != 503) {
+					t.Fatalf("readable scope widened a tenant mutation reply: %v", e)
+				}
+			}
+		})
+	}
+}
+
+func TestNetworkAssociatedInstancesPassRecordedFactsThrough(t *testing.T) {
+	ctx := auth.NewContext(context.Background(), &authv1.UserTokenPayload{TenantId: trans.Ptr(uint32(5)), UserId: 7})
+	const vpcID = "vpc_11111111111111111111111111111111"
+	const subnetID = "subnet_22222222222222222222222222222222"
+	trustedTenant := "11111111-1111-4111-8111-111111111111"
+	p := &associatedFactsProbe{vpcProbe: &vpcProbe{}, associatedTotal: 5, associatedItems: []*networkv1.AssociatedInstance{{
+		TenantId: trustedTenant, ConsumerType: "unknown", ConsumerId: "3f0c9a2e-7d1b-4c58-a6e0-f1b2c3d4e5f6",
+		ConsumerState: "unknown", SubnetId: subnetID, SubnetName: "old", Slot: "primary",
+		AttachmentId: "att_0123456789abcdef0123456789abcdef", AttachmentState: "released",
+		AttachmentReason: "ATTACHMENT_PROTOCOL_VIOLATION", ObservationStale: true,
+	}}}
+	out, err := NewNetworkService(p, &tenantProbe{}).ListVPCAssociatedInstances(ctx, &catalogv1.ListVPCAssociatedInstancesRequest{VpcId: vpcID})
+	if err != nil {
+		t.Fatalf("vpc entry: %v", err)
+	}
+	if p.associatedVPCID != vpcID || p.associatedSubnetID != "" || p.associatedPage != 1 || p.associatedPageSize != 20 {
+		t.Fatalf("scope/page = %q %q %d %d", p.associatedVPCID, p.associatedSubnetID, p.associatedPage, p.associatedPageSize)
+	}
+	if out.GetTotal() != 5 || len(out.GetItems()) != 1 {
+		t.Fatalf("page = total %d items %d", out.GetTotal(), len(out.GetItems()))
+	}
+	// 未登记类型、释放异常与过期观测必须原样到达前端：在这里改名等于掩盖问题。
+	item := out.GetItems()[0]
+	if item.GetConsumerType() != "unknown" || item.GetConsumerState() != "unknown" || item.GetAttachmentState() != "released" ||
+		item.GetAttachmentReason() != "ATTACHMENT_PROTOCOL_VIOLATION" || !item.GetObservationStale() ||
+		item.GetObservedAt() != nil || len(item.GetAddresses()) != 0 {
+		t.Fatalf("legacy row = %+v", item)
+	}
+
+	subnet, err := NewNetworkService(&associatedFactsProbe{vpcProbe: &vpcProbe{}}, &tenantProbe{}).ListSubnetAssociatedInstances(ctx, &catalogv1.ListSubnetAssociatedInstancesRequest{SubnetId: subnetID, Page: proto.Uint32(2), PageSize: proto.Uint32(7)})
+	if err != nil {
+		t.Fatalf("subnet entry: %v", err)
+	}
+	first := subnet.GetItems()[0]
+	if first.GetSubnetId() != subnetID || first.GetConsumerType() != "container_instance" || first.GetConsumerState() != "running" ||
+		first.GetAttachmentState() != "attached" || first.GetObservedAt() == nil || first.GetObservedAt().AsTime().Unix() != 1774941611 ||
+		len(first.GetAddresses()) != 1 || first.GetAddresses()[0].GetNicName() != "default" || first.GetAddresses()[0].GetAddress() != "10.42.1.15" {
+		t.Fatalf("subnet row = %+v", first)
+	}
+}
+
+func TestNetworkAssociatedInstancesRejectsInvalidRequestsAndBrokenResponses(t *testing.T) {
+	ctx := auth.NewContext(context.Background(), &authv1.UserTokenPayload{TenantId: trans.Ptr(uint32(5)), UserId: 7})
+	const trustedTenant = "11111111-1111-4111-8111-111111111111"
+	const subnetID = "subnet_22222222222222222222222222222222"
+	foreignSubnet := func() []*networkv1.AssociatedInstance {
+		return []*networkv1.AssociatedInstance{{TenantId: trustedTenant, SubnetId: "subnet_33333333333333333333333333333333", ConsumerType: "unknown", ConsumerState: "unknown", AttachmentState: "attached"}}
+	}
+	cases := []struct {
+		name           string
+		probe          *associatedFactsProbe
+		subnet         bool
+		id             string
+		page, pageSize *uint32
+		items          []*networkv1.AssociatedInstance
+		want           int
+		called         bool
+	}{
+		{"missing vpc id", &associatedFactsProbe{vpcProbe: &vpcProbe{}}, false, "", nil, nil, nil, 400, false},
+		{"uppercase vpc id", &associatedFactsProbe{vpcProbe: &vpcProbe{}}, false, "vpc_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", nil, nil, nil, 400, false},
+		{"path shaped like parent", &associatedFactsProbe{vpcProbe: &vpcProbe{}}, false, "vpc_1111111111111111111111111111111/../x", nil, nil, nil, 400, false},
+		{"pageSize over hundred", &associatedFactsProbe{vpcProbe: &vpcProbe{}}, false, "vpc_11111111111111111111111111111111", proto.Uint32(1), proto.Uint32(101), nil, 400, false},
+		{"zero page", &associatedFactsProbe{vpcProbe: &vpcProbe{}}, true, subnetID, proto.Uint32(0), nil, nil, 400, false},
+		{"network not found", &associatedFactsProbe{vpcProbe: &vpcProbe{err: status.Error(codes.NotFound, "vpc not found")}}, false, "vpc_11111111111111111111111111111111", nil, nil, nil, 404, true},
+		{"dependency unavailable", &associatedFactsProbe{vpcProbe: &vpcProbe{err: status.Error(codes.Unavailable, "database detail")}}, false, "vpc_11111111111111111111111111111111", nil, nil, nil, 503, true},
+		{"foreign tenant row", &associatedFactsProbe{vpcProbe: &vpcProbe{wrong: true}}, false, "vpc_11111111111111111111111111111111", nil, nil, nil, 503, true},
+		{"row outside requested subnet", &associatedFactsProbe{vpcProbe: &vpcProbe{}}, true, subnetID, nil, nil, foreignSubnet(), 503, true},
+		{"invented consumer type", &associatedFactsProbe{vpcProbe: &vpcProbe{}}, true, subnetID, nil, nil, []*networkv1.AssociatedInstance{{TenantId: trustedTenant, SubnetId: subnetID, ConsumerType: "notebook", AttachmentState: "attached"}}, 503, true},
+		{"unknown attachment state", &associatedFactsProbe{vpcProbe: &vpcProbe{}}, true, subnetID, nil, nil, []*networkv1.AssociatedInstance{{TenantId: trustedTenant, SubnetId: subnetID, ConsumerType: "unknown", AttachmentState: "active"}}, 503, true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			p := tc.probe
+			if tc.items != nil {
+				p.associatedItems = tc.items
+			}
+			s := NewNetworkService(p, &tenantProbe{})
+			var err error
+			if tc.subnet {
+				_, err = s.ListSubnetAssociatedInstances(ctx, &catalogv1.ListSubnetAssociatedInstancesRequest{SubnetId: tc.id, Page: tc.page, PageSize: tc.pageSize})
+			} else {
+				_, err = s.ListVPCAssociatedInstances(ctx, &catalogv1.ListVPCAssociatedInstancesRequest{VpcId: tc.id, Page: tc.page, PageSize: tc.pageSize})
+			}
+			if got := errors.Code(err); got != tc.want {
+				t.Fatalf("code = %d want %d (%v)", got, tc.want, err)
+			}
+			if called := p.calls > 0; called != tc.called {
+				t.Fatalf("downstream called = %v want %v", called, tc.called)
+			}
+		})
+	}
+}
+
+func TestNetworkCatalogFiltersPreservePresence(t *testing.T) {
+	ctx := auth.NewPrincipalContext(context.Background(), &auth.Principal{Type: auth.SubjectUser, ID: 7, TenantID: 5})
+	for _, canUse := range []*bool{nil, proto.Bool(false), proto.Bool(true)} {
+		for _, canManage := range []*bool{nil, proto.Bool(false), proto.Bool(true)} {
+			p := &vpcProbe{}
+			s := NewNetworkService(p, &tenantProbe{})
+			if _, err := s.ListVPCs(ctx, &catalogv1.ListVPCsRequest{CanUse: canUse, CanManage: canManage}); err != nil || !reflect.DeepEqual(p.canUse, canUse) || !reflect.DeepEqual(p.canManage, canManage) {
+				t.Fatal("VPC optional filter presence lost", p.canUse, p.canManage, err)
+			}
+			if _, err := s.ListSubnets(ctx, &catalogv1.ListSubnetsRequest{VpcId: testVPCID, CanUse: canUse, CanManage: canManage}); err != nil || !reflect.DeepEqual(p.canUse, canUse) || !reflect.DeepEqual(p.canManage, canManage) {
+				t.Fatal("subnet optional filter presence lost", p.canUse, p.canManage, err)
+			}
 		}
 	}
 }

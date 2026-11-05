@@ -12,6 +12,7 @@
 | `retire-legacy-file-access.sql` | 数据修复，旧安装文件/API/menu 清理；先按文件退役计划完成结构迁移并审查备份。 |
 | `repair-tenant-logout.sql` | 数据修复，旧安装登出权限缺失时使用；原子且可重跑，需确认现有权限/API 唯一。 |
 | `register-accelerator-permissions.sql` | 数据修复，API 目录 dry-run 与显式同步后登记权限；不授角色、不开套餐或租户额度。 |
+| `register-network-instance-permission.sql` | API 目录 dry-run 与显式同步后，将 `GET /api/v1/networks/instances` 精确关联到 `network:instance:list` / NETWORK；不授角色、套餐或 API Key，不改变现有身份范围。 |
 | `retire-inference-management.sql` | 部署不含推理管理路由的版本后，停用旧 API 与未被其它活动 API 使用的推理权限；保留 ID、授权关系和历史账目，执行前审查并备份匹配行。 |
 | `register-instance-restart-pvc-permissions.sql` | 本批四条 API、三项权限及 tenant-a 的精确角色/INSTANCE 关联；缺省只 dry-run，需显式核对租户、套餐和角色 ID，`apply=true` 才补缺失记录。先用同一 merged dev 的 `admin sync-apis --dry-run` 核对并备份；保留既有 ID、状态与其他关联，不改额度。 |
 | `register-model-permissions.sql` | 数据修复，Model BFF API 目录同步后登记精确权限；不授角色、不开套餐或租户额度。 |
@@ -23,6 +24,7 @@
 | `grant-quota-platform-read.sql` | 数据修复，给受保护平台管理员角色（`platform:admin`）补授 `quota-definition:view`、`tenant:quota-read`，修复配额目录/租户配额账户对平台管理员 403；不新建/放宽其它角色，不改权限-API 关联、不开套餐。 |
 | `grant-quota-tenant-self-read.sql` | 数据修复，给租户管理员模板 `template:tenant:manager` 与既有 `tenant:manager` 角色补授 `quota:account:self-read`（自助读本人配额账户）；不触碰平台角色与其它角色码，不代表已开通 TENANT 模块。 |
 | `grant-storage-tenant-permissions.sql` | 数据修复，给租户管理员模板 `template:tenant:manager` 与既有 `tenant:manager` 角色补授全部 9 个 `storage:*` 权限码（卷创建/列表/详情/扩容/删除，桶与对象只读浏览/下载），修复存储接口对租户管理员 403（权限与 API 关联本已存在，缺的是角色授予）；逐条校验权限点已绑定对应在线路由，不触碰平台角色与其它角色码，不代表已开通 STORAGE 模块。 |
+| `grant-sandbox-tenant-permissions.sql` | 数据修复，给租户管理员模板 `template:tenant:manager` 与既有 `tenant:manager` 角色补授全部 17 个 `sandbox:*` 权限码（生命周期创建/列表/详情/操作查询/暂停/恢复/删除、规格目录、代码执行与结果、文件列举/读取/写入/删除/操作查询、访问令牌创建/吊销），修复 `/api/v1/sandbox/{id}/code-runs`、`/files`、`/tokens` 等接口对租户管理员 403（权限与 API 关联本已存在，缺的是角色授予）；逐条校验权限点已绑定对应在线路由，不触碰平台角色与其它角色码，不代表已开通 SANDBOX 模块。 |
 | `register-modeldev-execution-detail-permissions.sql` | 数据修复，把执行详情的 `/pods`、`/events`、`/resource-metrics` 关联到 `modeldev:execution:get`、`/logs/stream` 关联到 `modeldev:execution:logs`；不新建权限、不授角色或套餐。须先跑 `admin sync-apis --dry-run` 确认四条路由已入目录，再由迁移 owner 执行；整套前置见 `scripts/ops/apply-modeldev-execution-detail.sh`。 |
 | `register-modeldev-resume-registration-permission.sql` | 数据修复，把 `POST /api/v1/modeldev/executions/{execution_id}:resume-model-registration` 关联到既有的 `modeldev:manage_execution`；不新建权限码、不授角色或套餐。该路由由 `admin sync-apis` 写入目录但不会自动绑定权限，未执行前恢复登记恒返回 403。 |
 

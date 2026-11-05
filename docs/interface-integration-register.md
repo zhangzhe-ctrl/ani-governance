@@ -1,6 +1,37 @@
 # 功能对接与接口风格改动登记
 
 Sandbox 实验预览候选新增端口开放、关闭、列表及操作查询，使用四个独立 `sandbox:preview:*` 权限和 SANDBOX 套餐；权限登记默认 OFF。完整路径、请求、公开网络边界和状态见[前端 HTTP 合同](contracts/frontend-http-api.md)。本候选尚未部署或真实验收。
+## VM-IMAGE-01～06：租户虚拟机镜像自助管理
+
+当前公开合同见 `api/protos/admin/service/v1/i_vm_image.proto`，请求 DTO 见
+`api/protos/vm/service/v1/image.proto`。六个入口使用用户 JWT、VIRTUAL_MACHINE
+套餐和逐动作权限；当前 Service 不接受 API Key 主体。可信租户取自 Principal，
+通过持久映射转换为 Resource UUID，不接受公网自报 tenant 或 actor。
+
+| 编号 | HTTP | 权限码 | 成功响应 |
+| --- | --- | --- | --- |
+| VM-IMAGE-01 | GET `/api/v1/virtual-machine-images` | `vm:read` | 200，`items` / `total` |
+| VM-IMAGE-02 | GET `/api/v1/virtual-machine-images/{image_id}` | `vm:read` | 200，镜像对象 |
+| VM-IMAGE-03 | POST `/api/v1/virtual-machine-images` | `vm:image:upload` | 202，持久镜像记录 |
+| VM-IMAGE-04 | POST `/api/v1/virtual-machine-images/{image_id}/upload-sessions` | `vm:image:upload` | 200，上传票据，`Cache-Control: no-store` |
+| VM-IMAGE-05 | PATCH `/api/v1/virtual-machine-images/{image_id}` | `vm:image:update` | 200，更新后的镜像 |
+| VM-IMAGE-06 | DELETE `/api/v1/virtual-machine-images/{image_id}` | `vm:image:delete` | 202，删除中的镜像 |
+
+列表使用 `page` / `pageSize`（默认 1/20，上限 100）及 `kind` / `state` / `keyword`；
+写请求保持 `{data:{...}}`，PATCH 另带字符串 `update_mask`，仅允许 name/description。
+写操作传 `idempotency_key`，PATCH/DELETE 传 `expected_version`；响应字段采用 lowerCamel。
+上传文件经票据中的 method/url/headers 直达上传入口，Gov 不接收文件字节。
+认证失败 401，权限或套餐拒绝 403，不存在与跨租户对象均 404，版本/幂等/占用冲突 409，
+依赖失败 503。API 目录同步及 `scripts/ops/sql/*vm-image*permissions*.sql` 均需按部署授权
+显式执行；代码合并不表示已授权、已部署或已通过真实上传验收。
+
+Gov → Resource 使用已管理的 Resource mTLS 连接，调用身份 `ani-governance`，接收者
+身份由受管 `server_name` 校验；完整方法为 `/vm.v1.VMImageService/` 下的
+`ListImages`、`GetImage`、`CreateImage`、`CreateUploadSession`、`UpdateImage`、`DeleteImage`。
+调用均为当前用户的租户内委托，每次超时 30 秒；重建 `x-ani-tenant-id`、
+`x-ani-actor=governance:user:<用户ID>` 和新 `x-ani-request-id`，不透传公网身份头。
+读操作无业务幂等键；四个写方法沿用上述请求幂等键，更新/删除沿用版本检查。
+Resource 承担对象归属、持久幂等、源盘/上传生命周期及原生系统副作用。
 
 总体状态：**进行中，未结项**。最后更新：2026-10-13。
 
@@ -25,7 +56,8 @@ Sandbox 实验预览候选新增端口开放、关闭、列表及操作查询，
 | API Key / AK-SK | AK-01～AK-07；AK-IDEM-01（创建幂等，2026-10-10）；AK-ROLE-INFO-01（响应回填角色名称/描述，2026-10-13） | 签名、角色绑定、加密与可信审计已完成，真实 VPC 闭环 PASS；创建幂等已在 ani-system 真实环境实测（HTTP 20/20 PASS + 8 并发 ALL PASS）；AK-ROLE-INFO-01 已在 ani-system 实测 14/14 PASS 且既有三脚本回归不退化 | AKSK-VPC-20260922 已完成本批；幂等与角色信息回填属向后兼容增强，未并入风格批次 |
 | VPC 详情查询的机器调用 | NET-01；复用 AK-* | 必要 vpc-read 接收已整合，双 actor 与真实 mTLS 查询 PASS | AKSK-VPC-20260922 已完成本批 |
 | Network 安全组与实例绑定 | NET-SG-01～NET-SG-15 | 正式 SDK 固定；Fedora 定向测试、构建与 HTTP/mTLS/PG/worker 闭环通过；真实流量验收待执行 | 新接口遵守 data 包装；既有 Network 接口格式保留 |
-| Network 租户面读写对接 | NET-01～NET-25；复用 AK-*、AUTH-* | 当前 25 方法支持 JWT/AK；NET-01～24 的历史三条主链验收和 NET-25 增量结果分批记录 | 当前合同见下方增量与 [AK/SK 合同](contracts/aksk-signature.md)；真实环境按批次验收 |
+| Network 租户面读写对接 | NET-01～NET-27；复用 AK-*、AUTH-* | 当前 27 方法支持 JWT/AK；NET-01～24 的历史三条主链验收、NET-25 与 NET-26～27 增量结果分批记录 | 当前合同见下方增量与 [AK/SK 合同](contracts/aksk-signature.md)；真实环境按批次验收 |
+| 平台基础网络与关联实例 | NET-BASE-01；复用 VPC/Subnet Get/List | `owner_scope/can_manage/can_use`、可选能力过滤及当前租户 Attachment 摘要；源码与实际验证分开交付 | 当前合同见[平台基础网络与当前网络关联实例](contracts/frontend-http-api.md#平台基础网络与当前网络关联实例)，不改变原分页或配额行为 |
 | Gov → Resource 调用规范收敛 | S2S-RES-01；复用 NET-01～NET-25 与既有 Image 11 RPC | Network/Image 调用端与 Resource 接收端已修改；隔离真实业务链路通过，生产验收未执行 | 传输与可信上下文即时修复，见下方结果；不调整 HTTP 风格 |
 | Gov → Resource Sandbox 生命周期 | SANDBOX-01～08 | 当前需求为独立 Sandbox：源码调整、跨仓兼容和验收结果见 Resource 唯一状态；旧父实例模型的历史证据不能代表新模型已验收 | Gov 需固定支持独立创建的 Resource 正式版本；升级前执行切换门禁，整体验收待完成 |
 | 通用配额、GPU 实例与 Inference 接入 | QUOTA-01～03；INF-01/02；QUOTA-LAB-01～04；复用 PLAN-11～14、TENANT-04/08 | 保留 ACC 目录与 Resource 实例执行/释放合同；Inference 管理由 Governance BFF 接入并通过受信 mTLS 客户端投递；旧模拟 owner 入口退役 | 当前合同见 [GPU owner 指南](contracts/gpu-owner-integration-guide.md)；源码、部署与真实 GPU 验收分别记录 |
@@ -41,6 +73,21 @@ Sandbox 实验预览候选新增端口开放、关闭、列表及操作查询，
 历史 **GOV-RESOURCE-20260922** 对接了 NET-01～NET-11 共 11 个租户接口；“17/17”是该批场景数，不是 Resource 租户 RPC 全量覆盖。该批 AK 实际只支持 GetVPC，其余接口的机器访问在 2026-10-09 增补。历史计划、证据及部署保持各自时点；当前覆盖与响应合同以下方本轮小节和源码为准。
 
 <a id="vpc-page-r01"></a>
+
+## 2026-11-03：VPC / 子网关联实例（NET-26～NET-27）
+
+组长要求删除 VPC 详情页原「算力关联」表，改为 VPC 汇总页与子网详情页各挂一个「关联资源」表。本批只做后端只读查询，资源范围限容器实例与虚拟机；Sandbox、换网待重启与多网卡不在本批，也不聚合子网/LB/EIP。
+
+| 编号 | RPC | HTTP 方法与路径 | 权限码 | HTTP 响应 |
+| --- | --- | --- | --- | --- |
+| NET-26 | ListNetworkInstances | `GET /api/v1/networks/vpcs/{vpc_id}/associated-instances` | `network:vpc:get`（复用） | items / total |
+| NET-27 | ListNetworkInstances | `GET /api/v1/networks/subnets/{subnet_id}/associated-instances` | `network:subnet:get`（复用） | items / total |
+
+两个入口共用 Resource 的 `ListNetworkInstances`，只接受 `page`/`pageSize`（默认 1/20，上限 100），其余 query、重复参数与 body 一律 400；`vpc_id`/`subnet_id` 沿用 `networkIDPatterns`。响应行的 `consumer_type`、`consumer_state`、`attachment_state`、`attachment_reason` 是相互独立的既成事实并原样透出：`unknown` 只用于历史上未登记类型的行；资源记录已被清理时保留整行而不是删掉；`addresses` 只来自 Network 自己的持久观测，空数组不等于「未接网」，`observation_stale` 与 `observed_at` 分开表达。网络不存在返回 404，存在但没有关联返回空页。
+
+复用权限码不等于减少登记：两条新 `(method, path)` 仍须进入 `NetworkOperations`、能力映射附录与 `sys_apis`，并在 `sys_permission_apis` 关联到复用的详情码，`CapabilityCount`/`AllKeys` 基线各加 2。因此只持 `network:vpc:get` 或 `network:subnet:get` 的既有角色在目录关联后即可看到该表，无需重新授权；若上线漏做关联，表现是「能进详情、关联实例 403」，属部署缺项而非代码缺陷。
+
+Resource 侧同步新增 `network_attachments.consumer_type`（迁移 0028 只回填 `plan->>'WorkloadMode'` 能确证的两类，其余保持空值），并把 `ConsumerType` 排除出 `PrepareAttachment` 的意图指纹，使存量 attachment 的重放不因新列变成幂等冲突。
 
 ## 2026-10-15：VPC R01 页码参考实现
 
@@ -283,7 +330,7 @@ NET-08 `CreateEIP` 增加可选 `security_group_ids`，随同一次 Resource 创
 | AUTH-13 | `GET /api/v1/auth/captcha` | 独立获取图形验证码 | 登录不再使用；接口是否删除待指定 |
 | AUTH-14 | `POST /api/v1/auth/captcha/verify` | 独立验证图形验证码 | 登录不再使用；接口是否删除待指定 |
 | AUTH-15 | `PUT /api/v1/admin/me` | 本人资料自助更新；直接落 `userRepo.Update`，**绕过 `UserService` 的角色类型/租户校验**，携带 `roleIds`+`role_ids`　掩码可能自改角色（见 MGMT-11） | 已接线但此前未登记，本轮补登；路径/字段待指定 |
-| AUTH-16 | `POST /api/v1/admin/me/password` | 本人自助改密；`oldPassword`/`newPassword` 走 AES 密文（与登录直接提交明文密码不同）；成功后吊销本人全部客户端令牌 | 已接线但此前未登记，本轮补登；协议/路径待指定 |
+| AUTH-16 | `POST /api/v1/admin/me/password` | 本人自助改密；`oldPassword`/`newPassword` 走 AES 密文（与登录直接提交明文密码不同）；成功后吊销本人全部客户端令牌 | 已接线但此前未登记，本轮补登；协议/路径待指定。凭证定位自 2026-11-05 起按操作人租户收敛，平台账号与他租户同名时不再 500 |
 | AUTH-17 | `POST /api/v1/admin/me/contact` | 向本人待绑定邮箱发送验证码；当前只支持 EMAIL，不支持手机号。与 AUTH-18 配合建立邮箱凭证，可用于找回密码；邀请接受流程会自行建立邮箱凭证，不以本接口为前置 | 已接线；2026-09-22 前端交接复核更正用途；待指定 |
 | AUTH-18 | `POST /api/v1/admin/me/contact/verify` | 校验本人联系方式验证码，与 AUTH-17 成对 | 已接线但此前未登记，本轮补登；待指定 |
 
@@ -433,7 +480,7 @@ Cookie 现状：`refresh_token` 为 HttpOnly，Path=`/api/v1/auth/refresh`、Sam
 | ACCOUNT-04 | `PUT /api/v1/admin/users/{id}` | `data`、`updateMask`，可另传 `password`；当前 Service 即使只改资料/状态也要求传有效角色 |
 | ACCOUNT-05 | `DELETE /api/v1/admin/users/{id}` | 删除用户；拒绝删除默认平台管理员或操作者本人 |
 | ACCOUNT-06 | `GET /api/v1/admin/users:exists` | `id` / `username` 二选一，返回 `exist`；用户名查重仅支持当前租户，平台身份按用户名调用会拒绝，不能额外传 `tenantId` 指定目标；平台页面改用 ACCOUNT-01 按目标租户＋用户名精确过滤 |
-| ACCOUNT-07 | `POST /api/v1/admin/users/{user_id}/password` | `newPassword`；当前仍要求 AES 编码，与登录不同；路径目录问题见 MGMT-05 |
+| ACCOUNT-07 | `POST /api/v1/admin/users/{user_id}/password` | `newPassword`；当前仍要求 AES 编码，与登录不同；路径目录问题见 MGMT-05。同名账号跨租户时曾返回 500 `query one data failed`（凭证按 identifier 定位且平台身份不带租户范围），2026-11-05 起按目标用户租户定位，成功 200 `{}`；仅当同一租户内出现重复 identifier 脏数据时返回 409 `CONFLICT`，不再出现 500 |
 | ACCOUNT-08 | `GET /api/v1/admin/users/username/{username}` | 用户名读取别名；同名账号可能跨租户，平台管理优先使用 ID |
 | ACCOUNT-09 | `DELETE /api/v1/admin/users/username/{username}` | 已注册的旧别名；Service 删除保护按 ID 查目标，不能据路由存在认定此别名可用，见 MGMT-06 |
 | ROLE-01 | `GET /api/v1/admin/roles` | 按租户与 `type` 读取角色 |
@@ -740,8 +787,8 @@ const url = `${BASE_URL}/api/v1/admin/users?${params.toString()}`;
 | 接口 / 操作 | 暂缓原因或接入前置 |
 | --- | --- |
 | AUTH-15 `PUT /api/v1/admin/me` | 直接进入通用用户更新，可写角色；必须先由后端限定自助字段（MGMT-11）。页面隐藏字段无法消除已暴露接口的风险，正式开放给真实用户前需处理 |
-| ACCOUNT-07 `POST /api/v1/admin/users/{user_id}/password` | 仍要求 AES+Base64，且 HTTP 路径模板与 API 目录不一致（MGMT-05）；建议本批先不开放重置密码按钮 |
-| ACCOUNT-04 顶层 password、AUTH-16 `POST /api/v1/admin/me/password` | 同样仍是旧 AES 协议；不能复用创建/登录明文提交，也不以普通 PUT 夹带密码绕过前述问题 |
+| ACCOUNT-07 `POST /api/v1/admin/users/{user_id}/password` | 仍要求 AES+Base64，且 HTTP 路径模板与 API 目录不一致（MGMT-05）；跨租户同名账号必现的 500 `query one data failed` 已于 2026-11-05 修复（凭证按目标用户租户定位）并在 ani-system 真机复验，重置按钮不再因此缺陷暂缓 |
+| ACCOUNT-04 顶层 password、AUTH-16 `POST /api/v1/admin/me/password` | 同样仍是旧 AES 协议；不能复用创建/登录明文提交，也不以普通 PUT 夹带密码绕过前述问题。两者与 ACCOUNT-07 共用凭证定位，跨租户同名 500 已在 2026-11-05 同批修复 |
 | ACCOUNT-08/09 用户名详情/删除别名 | 使用 ID 入口；用户名删除有实现缺口，平台同名账号存在跨租户歧义（MGMT-06） |
 | ROLE-03～05、PERM-*、PERMGROUP-* 自定义角色与权限写入 | 四类页面先选择已有角色。运营/只读权限矩阵待定；删除保护不完整（MGMT-10/18）。权限点 PUT 清绑定一条（MGMT-09）已于 2026-10-21 修复，不再构成暂缓理由 |
 | TENANT-05 `DELETE /api/v1/admin/tenants/{id}` | 仅删除租户记录，不等于关联数据及下游资源清理；首批普通管理流程不开放 |
@@ -1719,6 +1766,10 @@ main 发布使用 Resource `e7b5a8a3435996181bff62e025a21224c97d2464`，Gov 依�
 
 2026-10-28 本编号增加 Restart、AttachPVC、DetachPVC 和实例范围候选，当前输入、权限、重放先行、查询与 CPU/GPU DELETE 明确拒绝合同见[容器实例 HTTP 合同](contracts/container-instances.md#重启与已有-pvc-挂卸)。本批仅 Resource/Gov 后端，无 Console/BROWSER 门禁；实现、正式模块、测试部署及验收进度统一在 Resource `docs/execution/status.md#container-restart-pvc-20261028`，不以本登记表示现场通过。
 
+2026-10-30 本编号增加列表 `id` 子串过滤，并明确列表在不传 `observedState` 时排除 `deleted` 墓碑；当前参数、长度与交集规则见[容器实例 HTTP 合同](contracts/container-instances.md#规格与列表)。Resource 侧过滤先于计数和分页，Gov 只做参数校验与透传；本批含 kcn 测试环境换镜像实测与回滚，前端 ID 选项放开由 Console 另行排期。
+
+2026-11-04 本编号收紧容器实例卷挂载口径：候选与挂载统一限定 Storage 受管卷（`storage.ani.io/managed-by` + `storage.ani.io/tenant-id` 标签），未被任何实例引用（`pending/active/retiring`，停止态仍算占用）的卷才可选可挂；受理在 Resource 事务内对 `borrowed_pvc_guards` 行锁 + 引用台账做原子预占，冲突返回 409 `INSTANCE_PVC_IN_USE`，候选新增 `unavailable_reason=PVC_IN_USE`。非受管盘返回 404 `INSTANCE_PVC_NOT_FOUND`。Gov 无功能代码改动（错误透传沿用既有 reason 白名单），规则、错误与前端处理见[容器实例 HTTP 合同](contracts/container-instances.md#工作目录已有卷与业务配置)；Resource 实现与验收状态见 Resource 仓执行状态，不以本登记表示现场通过。
+
 ## MODELDEV-09：产物列表分页参数校验对齐（2026-10-13）
 
 前端联调时提出 `next_page_token` 是否为分页参数、能否与其他 ModelDev 列表对齐。当时四个列表统一使用 `page_size` + `page_token` / `next_page_token`，`presets`、`input-versions`（含 `state` 过滤，`state` 非分页参数）本就一致。
@@ -2030,9 +2081,9 @@ Sandbox 创建可以传 `image_id` + `image_scope`，也可以传已登记的租
 
 2026-10-29 增补 `gpu_quota`（GS 侧租户配额展示，编号沿用本条，不新开）：响应新增第五块 `gpu_quota{shared_memory_mib, physical_count}`，两项均含 `quota_code/unit/limit/occupied/available/over_limit/configured/enforcement`，**数值一律十进制字符串**（与 `/api/v1/me/quota-accounts` 同源同口径，避免 JS 2^53 精度上限），与同响应内四块卡片的 JSON number 类型不同。数据源复用 `QuotaAdminRepo.ListTenantAccounts(ctx, tenantID)`，只挑 `gpu.shared_memory_mib`（`CONCURRENT`，MiB）与 `gpu.physical.count`（`CONCURRENT`，gpu）两项，其余配额不进响应；两项是**二选一语义**（Whole 模式计整卡、Shared 模式计显存，同一实例只按一种计），不可相加。租户身份仍只取自 JWT，不接受租户入参（带查询串依旧 400）。`configured=false` 表示当前套餐未配置该配额（数值补 `"0"`），**不表示无限**；`enforcement` 仅 `ENFORCED` 表示真正拦截创建。鉴权沿用入口权限 `overview:resource-count:read`，不加数据源二次鉴权（配额数据属本租户自身套餐配置，无跨租户读取面）。降级沿用部分成功：配额读取失败、`missing` 装配或目录缺该 code 时只把两项补零并置 `configured=false` 记 WARN，整体仍 200。路由、权限码、`sys_apis` 与数据库均无变更，因此不需要 `sync-apis` 或新迁移。
 
-## GPU-MONITORING-01 GPU monitoring v1.1
+## GPU-MONITORING-01 GPU monitoring current allocation labels
 
-Contract: [GPU monitoring](contracts/gpu-monitoring.md); authority: [accepted v1.1 plan](plans/gpu-monitoring-backend-phase1-plan.md). Implements dedicated physical, tenant and authorized-resource reads, retained ACC attribution and readonly quota summaries. Container and inference detail types use original UsageRef; ModelDev execution is a reviewed extension contract. GPU transport/response and budget rules are separate from existing CPU/training reads. Implementation, Fedora checks and real-cluster acceptance are tracked separately in the task's single execution index; registration does not assert live completion. API/permission catalogue synchronization is explicit, with no user/role/policy changes.
+Contract: [GPU monitoring](contracts/gpu-monitoring.md). Physical, tenant and authorized-resource routes and readonly quota summaries remain. Business queries now send trusted identity directly to Obs and read labeled Prometheus records; ACC historical scope RPCs and pagination are removed. `index_complete` means requested curve time coverage, `ownership_available_from` is deprecated/unfilled, and `uncovered_resource_kinds` is empty. No monitoring history table, old/new switch or backfill is added. ACC/Obs/Gov changes require coordinated rollout; this registration does not assert testing or deployment. Container and inference detail types use original UsageRef; ModelDev execution is a reviewed extension contract. GPU transport/response and budget rules are separate from existing CPU/training reads. Implementation, Fedora checks and real-cluster acceptance are tracked separately in the task's single execution index; registration does not assert live completion. API/permission catalogue synchronization is explicit, with no user/role/policy changes.
 
 `GET /api/v1/admin/tenants/quota-account-summaries` additionally returns `summary` with configured-tenant counts and per-quota limit/occupied/available totals. Aggregation retains platform-only `tenant:quota-read`, existing filters and the current read-only snapshot; it is independent of pagination. Shared-plan limits count per tenant, unconfigured account occupation is retained, and every aggregate number is a decimal string. No route, database migration, new permission or quota mutation is added; complete field semantics are maintained in the contract linked above.
 
@@ -2058,13 +2109,13 @@ Proto 唯一合同为 `api/protos/usage/service/v1/usage.proto`。
 查询使用 RFC3339 整秒 start/end（最近30天）、metric=gpu/cpu/memory；排行另支持
 keyword 名称/ID子串、order=asc/desc、page/pageSize（独立默认1/20，上限100），未知、重复、空值和GET body拒绝。
 结果无 data 包装，total/rank/activeTenantCount 为十进制字符串；缺失完整均值、峰值、占比不补零。
-Gov 从同一次租户目录读取持久 UUID，ACC 读取受管集群及历史 GPU scopes；只向已登记
+Gov 从同一次租户目录读取持久 UUID，ACC 只读取受管集群；GPU target 直接使用可信租户身份，历史值来自带业务标签的 Prometheus record。只向已登记
 `/observability.usage.v1.ResourceUsageService/QueryUsage` 发送服务端可信范围，mTLS复用现有Obs连接，
 platform metadata不伪造tenant header，超时40秒、继承父取消、不自动重试。
 Obs先计算全租户时间对齐统计，Gov再排序/搜索/分页，全平台三卡与占比分母不随筛选分页变化；
 数据不完整时不提供精确rank/share；rank始终是全局均值降序名次，asc仅改变展示顺序。最多128租户、16集群，超预算失败不截断。
 范围以Gov仍持久的租户目录为准（含停用、过期、冻结及保留的软删标记行）；完全物理删除且无目录映射的历史不作完整覆盖承诺。
-客户端scope/观测快照按用户、窗口和租户范围短时复用15秒，不复用用户授权结果。
+观测查询结果按用户、窗口和租户范围短时复用15秒，不复用用户授权结果；没有 ACC scope 历史缓存。
 本条为新增实现合同；部署、权限登记和真实跨仓验收由本任务发布步骤分别确认。
 
 ## PLAT-COMP-20261028：平台组件健康快照（PLAT-COMP-01）
@@ -2174,7 +2225,6 @@ catalog sync, explicitly apply
 `sql/data/20261101010000_modeldev_environment_permissions.sql` for Permission/API
 links and exact default tenant-manager/template grants; other read-only roles
 require explicit grants. Live A/B acceptance remains pending coordinated cutover.
-
 ## NET-12～NET-15 子网高级创建参数
 
 租户子网创建沿用现有 `POST /api/v1/networks/subnets` 的扁平请求体和 `gateway` 字段，追加 `exclude_ips: string[]`、可选 `enable_dhcp: bool`、`dns_servers: string[]`。未提供 DHCP 开关时向 Resource 保留缺省 presence，业务默认 false；显式 false 不丢失。三字段经可信租户/actor 客户端转发，Resource 负责校验、规范化及原键幂等；Subnet 创建、详情与列表响应回传这三项持久配置，不据此宣称 DHCP/DNS 已在运行端生效。此增量不增加 HTTP 路径、权限或套餐关系。
@@ -2203,8 +2253,12 @@ PUT `.../network-interfaces/primary` 的 data 为 mode、可选 vnic_id、expect
 Observability 的 `MonitoringService/QuerySandboxRange` / `QuerySandboxLatest`。
 Gov → Observability 沿用现有 TLS 1.3 mTLS 及精确证书身份，重建单值租户、用户 actor 与新 request ID，
 单次最长 30 秒并继承取消；查询前后核验 Resource 身份和版本。CPU 单位 cores，guest 内存单位 bytes，
-网络收发单位 bytes/s；未知或缺样不记作 0，历史仅覆盖 Resource 已记录的 Pod。RPC 新增部分尚未发布
-正式 API 依赖，当前只验证本地联合源码，未更新集群或完成跨服务真实验收。
+网络收发单位 bytes/s；未知或缺样不记作 0，历史仅覆盖 Resource 已记录的 Pod。RPC API 已可下载，但对应 PR 尚未合入且不包含服务端实现；未更新集群或完成跨服务真实验收。
 ## 2026-11-04 Sandbox 独立终端
 
 `POST /api/v1/sandbox/{sandbox_id}/exec` 按用户和 SANDBOX 套餐检查 `sandbox:terminal:connect`，通过 Resource 解析独立 Sandbox 绑定，并经受信 Session Gateway 签发单次短期连接票据。返回 `session_id`、`ws_url`、`expires_at`；请求、票据和审计脱敏、并发边界见[前端合同](contracts/frontend-http-api.md)。需要同步 API 目录、登记并授权新权限。Resource 和 Gateway 的固定 API 模块已可下载；66 曾使用隔离兼容镜像测试，正式服务部署及本分支的跨服务验收尚未完成。
+## PERMGROUP-PAGE-01：权限分组页码列表保留跨页父节点的子分组（2026-11-05）
+
+`GET /api/v1/admin/permission-groups` 显式传入 `page` 或 `pageSize` 时，返回当前页的平铺 `items`；`parentId` 和物化路径保留，`total` 仍按相同筛选条件统计全部分组。分页窗口和搜索结果中的子分组不再因父节点不在结果内而消失。
+
+未显式指定页码参数的旧树查询，以及 `noPaging=true` 的完整树查询，保留树形响应。BOSS 分组管理页使用页码列表；权限选择器通过完整树查询取得选项。本次不迁移其他存量分页窗口、鉴权或写入接口。

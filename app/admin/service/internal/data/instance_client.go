@@ -19,6 +19,7 @@ type InstanceClient struct {
 	sandbox         sandboxv1.SandboxServiceClient
 	sandboxTerminal sandboxterminal.SandboxTerminalServiceClient
 	vm              *VMClient
+	image           *VMImageClient
 }
 
 func (c *InstanceClient) VM() *VMClient {
@@ -26,6 +27,15 @@ func (c *InstanceClient) VM() *VMClient {
 		return nil
 	}
 	return c.vm
+}
+
+// VMImage exposes the tenant image adapter on the same managed connection. It is
+// nil when Resource wiring is absent, and the image lane then fails closed.
+func (c *InstanceClient) VMImage() *VMImageClient {
+	if c == nil {
+		return nil
+	}
+	return c.image
 }
 
 func instanceCall[T any](c *InstanceClient, ctx context.Context, tenant, actor string, fn func(context.Context) (T, error)) (T, error) {

@@ -21,9 +21,12 @@ message VPC {
  int64 subnet_count = 13 [json_name = "subnet_count"];
  VPCPublicEgress public_egress = 14 [json_name = "public_egress"];
  VPCBaseConnectivity base_connectivity = 15 [json_name = "base_connectivity"];
+ string owner_scope = 16 [json_name = "owner_scope"];
+ bool can_manage = 17 [json_name = "can_manage"];
+ bool can_use = 18 [json_name = "can_use"];
 }
-// Read-only system connection summary. Ready describes fresh configuration
-// evidence, not traffic health; internal EIP/SNAT identities stay private.
+// Read-only system connection summary from Resource's persisted native state.
+// Platform-owned VPCs omit this tenant connection summary.
 message VPCBaseConnectivity {
  string state = 1 [json_name = "state"];
  string reason = 2 [json_name = "reason"];
@@ -59,6 +62,8 @@ message ListVPCsRequest {
  reserved "limit", "cursor";
  optional uint32 page = 5 [json_name = "page"];
  optional uint32 page_size = 6 [json_name = "pageSize"];
+ optional bool can_use = 7 [json_name = "can_use"];
+ optional bool can_manage = 8 [json_name = "can_manage"];
 }
 message ListVPCsResponse {
  repeated VPC items = 1 [json_name = "items"];
@@ -200,6 +205,9 @@ message Subnet {
  repeated string exclude_ips = 21 [json_name = "exclude_ips"];
  bool enable_dhcp = 22 [json_name = "enable_dhcp"];
  repeated string dns_servers = 23 [json_name = "dns_servers"];
+ string owner_scope = 24 [json_name = "owner_scope"];
+ bool can_manage = 25 [json_name = "can_manage"];
+ bool can_use = 26 [json_name = "can_use"];
 }
 message CreateSubnetRequest {
  string vpc_id = 1 [json_name = "vpc_id"];
@@ -221,6 +229,8 @@ message ListSubnetsRequest {
  string state = 3 [json_name = "state"];
  int32 limit = 4 [json_name = "limit"];
  string cursor = 5 [json_name = "cursor"];
+ optional bool can_use = 6 [json_name = "can_use"];
+ optional bool can_manage = 7 [json_name = "can_manage"];
 }
 message ListSubnetsResponse {
  repeated Subnet items = 1 [json_name = "items"];
@@ -443,3 +453,41 @@ message LoadBalancerMutableData { string name = 1; string description = 2; LoadB
 
 message ListVPCCIDRPresetsRequest {}
 message ListVPCCIDRPresetsResponse { repeated string cidrs = 1 [json_name = "cidrs"]; }
+
+// Compute consumers holding a slot in one VPC or subnet. Resource run state and
+// attachment state stay independent facts: a running instance can still be
+// reserved, and a released attachment can still be listed when blocked.
+message AssociatedInstance {
+ string consumer_type = 1 [json_name = "consumer_type"];
+ string consumer_id = 2 [json_name = "consumer_id"];
+ string consumer_name = 3 [json_name = "consumer_name"];
+ string consumer_state = 4 [json_name = "consumer_state"];
+ string subnet_id = 5 [json_name = "subnet_id"];
+ string subnet_name = 6 [json_name = "subnet_name"];
+ string slot = 7 [json_name = "slot"];
+ string attachment_id = 8 [json_name = "attachment_id"];
+ string attachment_state = 9 [json_name = "attachment_state"];
+ string attachment_reason = 10 [json_name = "attachment_reason"];
+ bool observation_stale = 11 [json_name = "observation_stale"];
+ google.protobuf.Timestamp observed_at = 12 [json_name = "observed_at"];
+ repeated NetworkAddress addresses = 13 [json_name = "addresses"];
+}
+// Empty addresses means Network has no eligible observation, never "unattached".
+message NetworkAddress {
+ string nic_name = 1 [json_name = "nic_name"];
+ string address = 2 [json_name = "address"];
+}
+message ListVPCAssociatedInstancesRequest {
+ string vpc_id = 1 [json_name = "vpc_id"];
+ optional uint32 page = 2 [json_name = "page"];
+ optional uint32 page_size = 3 [json_name = "pageSize"];
+}
+message ListSubnetAssociatedInstancesRequest {
+ string subnet_id = 1 [json_name = "subnet_id"];
+ optional uint32 page = 2 [json_name = "page"];
+ optional uint32 page_size = 3 [json_name = "pageSize"];
+}
+message ListAssociatedInstancesResponse {
+ repeated AssociatedInstance items = 1 [json_name = "items"];
+ int64 total = 2 [json_name = "total"];
+}

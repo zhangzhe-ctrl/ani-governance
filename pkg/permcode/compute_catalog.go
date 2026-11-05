@@ -11,7 +11,7 @@ func ComputeCatalogGrant(usage string) (module, code string, ok bool) {
 	case "CONTAINER_INSTANCE":
 		return "INSTANCE", "instance:preset:read", true
 	case "TRAINING":
-		return "MODEL", "modeldev:compute-preset:read", true
+		return "MODELDEV", "modeldev:compute-preset:read", true
 	case "INFERENCE":
 		return "INFERENCE", "inference:compute-preset:read", true
 	case "VIRTUAL_MACHINE":

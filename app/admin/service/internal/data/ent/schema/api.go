@@ -64,6 +64,7 @@ func (Api) Fields() []ent.Field {
 				"VirtualMachine", "VIRTUAL_MACHINE",
 				"Instance", "INSTANCE",
 				"Storage", "STORAGE",
+				"ModelDev", "MODELDEV",
 				"Sandbox", "SANDBOX",
 			).
 			Optional().
