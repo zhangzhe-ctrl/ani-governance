@@ -26,11 +26,11 @@ require (
 	github.com/xiaoqidun/entps v1.50.1
 	github.com/zhangzhe-ctrl/ani-accelerator-service v0.0.0-20261104060553-30420850c4bd
 	github.com/zhangzhe-ctrl/ani-modeldev-service v0.0.0-20261031195825-d807cbdbd5dd
-	github.com/zhangzhe-ctrl/ani-observability-service/api v0.1.3-0.20261104060620-47ceb0edf98e
-	github.com/zhangzhe-ctrl/ani-resource-service v1.6.1-0.20261105065511-078a33791456
+	github.com/zhangzhe-ctrl/ani-observability-service/api v0.1.3-0.20261105120047-e39bb8974208
+	github.com/zhangzhe-ctrl/ani-resource-service v1.6.1-0.20261105120214-e9cc6cec3973
 	github.com/zhangzhe-ctrl/ani-resource-service/api/instance/terminal v0.0.0-20261013075021-0937f5aa9c6c
 	github.com/zhangzhe-ctrl/ani-resource-service/api/vm/console v0.0.0-20261023185414-0a53b99c8d9f
-	github.com/zhangzhe-ctrl/ani-session-gateway/api v0.1.1-0.20261024051540-811cc3839244
+	github.com/zhangzhe-ctrl/ani-session-gateway/api v0.1.1-0.20261104041726-98914216a996
 	go.opentelemetry.io/otel/trace v1.46.0
 	golang.org/x/net v0.60.0
 	google.golang.org/genproto v0.0.0-20260908043556-f8649ddbbfe6
@@ -177,6 +177,7 @@ require (
 	github.com/zclconf/go-cty v1.19.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.2.0 // indirect
 	github.com/zhangzhe-ctrl/ani-governance/api/quota v0.0.0-20261017184327-1c605c793b88
+	github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/terminal v0.0.0-20261104041614-a26e1a00c9f4
 	go.einride.tech/aip v0.86.3
 	go.mongodb.org/mongo-driver/v2 v2.9.0
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect

@@ -1,5 +1,6 @@
 # 功能对接与接口风格改动登记
 
+Sandbox 实验预览候选新增端口开放、关闭、列表及操作查询，使用四个独立 `sandbox:preview:*` 权限和 SANDBOX 套餐；权限登记默认 OFF。完整路径、请求、公开网络边界和状态见[前端 HTTP 合同](contracts/frontend-http-api.md)。本候选尚未部署或真实验收。
 ## VM-IMAGE-01～06：租户虚拟机镜像自助管理
 
 当前公开合同见 `api/protos/admin/service/v1/i_vm_image.proto`，请求 DTO 见
@@ -2049,6 +2050,8 @@ Sandbox 创建可以传 `image_id` + `image_scope`，也可以传已登记的租
 
 二期新增文件、代码执行及 Sandbox Token 路由；请求、响应、作用范围和独立授权以[前端 HTTP 合同](contracts/frontend-http-api.md)及 Proto 为准。目录同步后仍须显式配置权限和套餐关系。
 
+2026-11-04 Sandbox 文件上传即时修复：复用现有文件写入路由及权限，增加 multipart 二进制上传，继续支持 JSON/Base64。字段、大小上限和语义见[前端 HTTP 合同](contracts/frontend-http-api.md)；源码及部署和实际验收分别核实。
+
 管理入口为 Governance BFF；七条路由以 `api/protos/admin/service/v1/i_sandbox.proto` 为准，写请求保留 `data` 包装。各动作使用独立 `sandbox:create/list/read/operation:read/pause/resume/delete` 权限，均检查当前 INSTANCE 套餐、真实父实例租户归属，再经 mTLS 委托 Resource。新建与重放的父实例删除准入、查询/清理边界及 Pod/PVC/PV 引用响应见[前端 HTTP 合同](contracts/frontend-http-api.md)。映射维护于 `docs/contracts/permission-code-capability-map.tsv`。
 
 `GET /api/v1/compute-presets?usage=SANDBOX` 使用 INSTANCE 套餐及独立 `sandbox:preset:read` 权限；默认 `compute_type=cpu`，显式 GPU 类型或非空 `gpu_mode` 返回 400。保持 SANDBOX 用途传给 Resource，不复用容器实例用途或权限。目录同步不自动授权；`scripts/ops/sql/register-sandbox-permissions.sql` 只准备默认 OFF 的权限及 API 关系，角色/套餐通过正常管理入口单独配置。
@@ -2242,6 +2245,18 @@ PUT `.../network-interfaces/primary` 的 data 为 mode、可选 vnic_id、expect
 
 实例网卡读视图另返回 `configuration_state`（`configuring/ready/failed`）、`operation_id`、`operation_reason`，直接保留 owner 的持久配置操作投影。配置仍在处理中不能展示为保存完成或允许重启应用；当前地址与目标地址分别保留。Gov 不追加操作查询或轮询。
 
+2026-11-03 Sandbox 出口声明：创建可选记录 Host 白名单意图；`GET /api/v1/sandbox/{sandbox_id}/egress` 要求 `sandbox:egress:read` 和 SANDBOX 套餐，分别返回已保存意图与当前 Pod 的标准 Kubernetes NetworkPolicy 声明。意图未由 Sandbox 下发执行；细节见[前端 HTTP 合同](contracts/frontend-http-api.md)，本地源码尚未部署或集群验收。
+
+2026-11-04 Sandbox 指标委托：`GET /api/v1/sandbox/{sandbox_id}/metrics` 和
+`/metrics/latest` 分别使用现有历史/最新读权限及 SANDBOX 套餐。Gov 通过 Resource 取得并核验
+当前或已持久化历史 Pod UID，再将服务端确定的 tenant、sandbox、cluster、Pod UID 发送给
+Observability 的 `MonitoringService/QuerySandboxRange` / `QuerySandboxLatest`。
+Gov → Observability 沿用现有 TLS 1.3 mTLS 及精确证书身份，重建单值租户、用户 actor 与新 request ID，
+单次最长 30 秒并继承取消；查询前后核验 Resource 身份和版本。CPU 单位 cores，guest 内存单位 bytes，
+网络收发单位 bytes/s；未知或缺样不记作 0，历史仅覆盖 Resource 已记录的 Pod。RPC API 已可下载，但对应 PR 尚未合入且不包含服务端实现；未更新集群或完成跨服务真实验收。
+## 2026-11-04 Sandbox 独立终端
+
+`POST /api/v1/sandbox/{sandbox_id}/exec` 按用户和 SANDBOX 套餐检查 `sandbox:terminal:connect`，通过 Resource 解析独立 Sandbox 绑定，并经受信 Session Gateway 签发单次短期连接票据。返回 `session_id`、`ws_url`、`expires_at`；请求、票据和审计脱敏、并发边界见[前端合同](contracts/frontend-http-api.md)。需要同步 API 目录、登记并授权新权限。Resource 和 Gateway 的固定 API 模块已可下载；66 曾使用隔离兼容镜像测试，正式服务部署及本分支的跨服务验收尚未完成。
 ## PERMGROUP-PAGE-01：权限分组页码列表保留跨页父节点的子分组（2026-11-05）
 
 `GET /api/v1/admin/permission-groups` 显式传入 `page` 或 `pageSize` 时，返回当前页的平铺 `items`；`parentId` 和物化路径保留，`total` 仍按相同筛选条件统计全部分组。分页窗口和搜索结果中的子分组不再因父节点不在结果内而消失。

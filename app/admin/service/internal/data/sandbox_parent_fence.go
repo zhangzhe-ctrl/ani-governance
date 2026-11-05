@@ -17,8 +17,10 @@ import (
 type SandboxCreateIntent struct {
 	TenantID                                                                  uint32
 	ResourceTenantID, InstanceID, SandboxID, OperationID, IntentDigest, Actor string
+	CommandKind                                                               string
 	Command                                                                   []byte
 	Acknowledged                                                              bool
+	LastErrorCode                                                             string
 	LeaseGeneration                                                           int64
 }
 
@@ -37,11 +39,11 @@ func (r *QuotaLedgerRepo) sandboxTenantTx(ctx context.Context, tenant uint32, f 
 	})
 }
 
-const sandboxIntentColumns = `tenant_id,resource_tenant_id,instance_id,sandbox_id,operation_id,intent_digest,actor,command,acknowledged`
+const sandboxIntentColumns = `tenant_id,resource_tenant_id,instance_id,sandbox_id,operation_id,intent_digest,actor,command,acknowledged,command_kind,last_error_code`
 
 func sandboxScanIntent(ctx context.Context, tx *ent.Tx, query string, args ...any) (*SandboxCreateIntent, error) {
 	i := new(SandboxCreateIntent)
-	err := tx.SandboxScan(ctx, query, args, &i.TenantID, &i.ResourceTenantID, &i.InstanceID, &i.SandboxID, &i.OperationID, &i.IntentDigest, &i.Actor, &i.Command, &i.Acknowledged)
+	err := tx.SandboxScan(ctx, query, args, &i.TenantID, &i.ResourceTenantID, &i.InstanceID, &i.SandboxID, &i.OperationID, &i.IntentDigest, &i.Actor, &i.Command, &i.Acknowledged, &i.CommandKind, &i.LastErrorCode)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
@@ -59,6 +61,12 @@ func (r *QuotaLedgerRepo) FindSandboxCreateIntent(ctx context.Context, tenant ui
 
 // Registration retains a tenant-serialized durable command for retry.
 func (r *QuotaLedgerRepo) RegisterSandboxCreateIntent(ctx context.Context, in SandboxCreateIntent) (out *SandboxCreateIntent, replay bool, err error) {
+	if in.CommandKind == "" {
+		in.CommandKind = "create"
+	}
+	if in.CommandKind != "create" && in.CommandKind != "checkpoint_clone" {
+		return nil, false, fmt.Errorf("invalid sandbox command kind")
+	}
 	if in.TenantID == 0 || in.ResourceTenantID == "" || in.SandboxID == "" || in.OperationID == "" || in.IntentDigest == "" || in.Actor == "" || len(in.Command) == 0 {
 		return nil, false, fmt.Errorf("incomplete sandbox intent")
 	}
@@ -68,7 +76,7 @@ func (r *QuotaLedgerRepo) RegisterSandboxCreateIntent(ctx context.Context, in Sa
 			return e
 		}
 		if old != nil {
-			if old.ResourceTenantID != in.ResourceTenantID || old.InstanceID != in.InstanceID || old.OperationID != in.OperationID || old.IntentDigest != in.IntentDigest {
+			if old.ResourceTenantID != in.ResourceTenantID || old.InstanceID != in.InstanceID || old.OperationID != in.OperationID || old.IntentDigest != in.IntentDigest || old.CommandKind != in.CommandKind {
 				return kratoserrors.Conflict("SANDBOX_IDEMPOTENCY_CONFLICT", "sandbox create intent changed")
 			}
 			out, replay = old, true
@@ -81,7 +89,7 @@ func (r *QuotaLedgerRepo) RegisterSandboxCreateIntent(ctx context.Context, in Sa
 		if row.TenantSpaceState == tenant.TenantSpaceStateCLOSING || row.TenantSpaceState == tenant.TenantSpaceStateCLOSED {
 			return kratoserrors.Conflict("TENANT_SPACE_CLOSING", "租户空间正在关闭，无法创建 Sandbox")
 		}
-		_, e = tx.SandboxExec(ctx, `INSERT INTO sys_sandbox_create_intents(tenant_id,resource_tenant_id,instance_id,sandbox_id,operation_id,intent_digest,actor,command) VALUES($1,$2,$3,$4,$5,$6,$7,$8::jsonb)`, in.TenantID, in.ResourceTenantID, in.InstanceID, in.SandboxID, in.OperationID, in.IntentDigest, in.Actor, string(in.Command))
+		_, e = tx.SandboxExec(ctx, `INSERT INTO sys_sandbox_create_intents(tenant_id,resource_tenant_id,instance_id,sandbox_id,operation_id,intent_digest,actor,command,command_kind) VALUES($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9)`, in.TenantID, in.ResourceTenantID, in.InstanceID, in.SandboxID, in.OperationID, in.IntentDigest, in.Actor, string(in.Command), in.CommandKind)
 		if e != nil {
 			return e
 		}
@@ -92,7 +100,7 @@ func (r *QuotaLedgerRepo) RegisterSandboxCreateIntent(ctx context.Context, in Sa
 }
 func (r *QuotaLedgerRepo) AcknowledgeSandboxCreate(ctx context.Context, tenant uint32, sandboxID, operationID string) error {
 	return r.transaction(ctx, func(tx *ent.Tx) error {
-		result, err := tx.SandboxExec(ctx, `UPDATE sys_sandbox_create_intents SET acknowledged=true,updated_at=CURRENT_TIMESTAMP WHERE tenant_id=$1 AND sandbox_id=$2 AND operation_id=$3`, tenant, sandboxID, operationID)
+		result, err := tx.SandboxExec(ctx, `UPDATE sys_sandbox_create_intents SET acknowledged=true,last_error_code='',updated_at=CURRENT_TIMESTAMP WHERE tenant_id=$1 AND sandbox_id=$2 AND operation_id=$3 AND NOT (acknowledged AND last_error_code<>'')`, tenant, sandboxID, operationID)
 		if err != nil {
 			return err
 		}
@@ -107,11 +115,35 @@ func (r *QuotaLedgerRepo) AcknowledgeSandboxCreate(ctx context.Context, tenant u
 	})
 }
 
+// Finalize only the dedicated receipts from a Resource version that has
+// durably fenced this exact command. Generic RPC errors are not proof.
+func (r *QuotaLedgerRepo) RejectSandboxClone(ctx context.Context, tenant uint32, sandboxID, operationID, reason string) error {
+	switch reason {
+	case "SANDBOX_TRANSFER_WFFC_UNSUPPORTED", "SANDBOX_CLONE_REJECTED_NOT_FOUND", "SANDBOX_CLONE_REJECTED_VERSION", "SANDBOX_CLONE_REJECTED_CONFLICT":
+	default:
+		return fmt.Errorf("unrecognized sandbox clone rejection")
+	}
+	return r.transaction(ctx, func(tx *ent.Tx) error {
+		result, err := tx.SandboxExec(ctx, `UPDATE sys_sandbox_create_intents SET acknowledged=true,last_error_code=$4,updated_at=CURRENT_TIMESTAMP WHERE tenant_id=$1 AND sandbox_id=$2 AND operation_id=$3 AND command_kind='checkpoint_clone' AND (NOT acknowledged OR last_error_code=$4)`, tenant, sandboxID, operationID, reason)
+		if err != nil {
+			return err
+		}
+		n, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if n != 1 {
+			return fmt.Errorf("sandbox clone intent already resolved or missing")
+		}
+		return nil
+	})
+}
+
 // The scheduling lease never declares a create absent or clears its fence.
 func (r *QuotaLedgerRepo) ClaimSandboxCreate(ctx context.Context) (out *SandboxCreateIntent, err error) {
 	err = r.transaction(ctx, func(tx *ent.Tx) error {
 		i := new(SandboxCreateIntent)
-		e := tx.SandboxScan(ctx, `UPDATE sys_sandbox_create_intents SET lease_generation=lease_generation+1,lease_until=CURRENT_TIMESTAMP+interval '90 seconds',updated_at=CURRENT_TIMESTAMP WHERE (tenant_id,sandbox_id)=(SELECT tenant_id,sandbox_id FROM sys_sandbox_create_intents WHERE NOT acknowledged AND retry_at<=CURRENT_TIMESTAMP AND lease_until<=CURRENT_TIMESTAMP ORDER BY retry_at,created_at,tenant_id,sandbox_id FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING `+sandboxIntentColumns+`,lease_generation`, nil, &i.TenantID, &i.ResourceTenantID, &i.InstanceID, &i.SandboxID, &i.OperationID, &i.IntentDigest, &i.Actor, &i.Command, &i.Acknowledged, &i.LeaseGeneration)
+		e := tx.SandboxScan(ctx, `UPDATE sys_sandbox_create_intents SET lease_generation=lease_generation+1,lease_until=CURRENT_TIMESTAMP+interval '90 seconds',updated_at=CURRENT_TIMESTAMP WHERE (tenant_id,sandbox_id)=(SELECT tenant_id,sandbox_id FROM sys_sandbox_create_intents WHERE NOT acknowledged AND retry_at<=CURRENT_TIMESTAMP AND lease_until<=CURRENT_TIMESTAMP ORDER BY retry_at,created_at,tenant_id,sandbox_id FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING `+sandboxIntentColumns+`,lease_generation`, nil, &i.TenantID, &i.ResourceTenantID, &i.InstanceID, &i.SandboxID, &i.OperationID, &i.IntentDigest, &i.Actor, &i.Command, &i.Acknowledged, &i.CommandKind, &i.LastErrorCode, &i.LeaseGeneration)
 		if errors.Is(e, sql.ErrNoRows) {
 			return nil
 		}

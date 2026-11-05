@@ -229,6 +229,75 @@ def add_instance_log_stream(text):
     return text.replace(marker, "\n" + operation + "components:\n", 1)
 
 
+def add_sandbox_log_stream(text):
+    # Runtime HTTP is a protected SSE relay, not generated unary JSON.
+    if "            operationId: SandboxService_ListSandboxEvents\n" not in text:
+        return text
+    route = "    /api/v1/sandbox/{sandbox_id}/logs:\n"
+    if route in text:
+        raise SystemExit("sandbox logs must be declared once as SSE")
+    operation = """    /api/v1/sandbox/{sandbox_id}/logs:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_StreamSandboxLogs
+            description: Current verified Sandbox Pod stdout/stderr as SSE. Resume uses both sinceTime and podUid and may repeat lines.
+            security:
+                - BearerAuth: []
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                    format: uuid
+                - name: tailLines
+                  in: query
+                  schema:
+                    type: integer
+                    minimum: 1
+                    maximum: 1000
+                    default: 100
+                - name: follow
+                  in: query
+                  schema:
+                    type: boolean
+                    default: true
+                - name: sinceTime
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: podUid
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: SSE ready/log/end/error events and heartbeat comments.
+                    content:
+                        text/event-stream:
+                            schema:
+                                type: string
+                "400":
+                    description: Invalid log options
+                "403":
+                    description: Sandbox access denied
+                "404":
+                    description: Sandbox not found
+                "409":
+                    description: Current Pod unavailable or changed
+                "429":
+                    description: Connection limit reached
+                "503":
+                    description: Log upstream unavailable
+"""
+    marker = "\ncomponents:\n"
+    if text.count(marker) != 1:
+        raise SystemExit("expected one OpenAPI components section")
+    return text.replace(marker, "\n" + operation + "components:\n", 1)
+
+
 def add_execution_log_stream(text):
     # The training log channel is a hand-written SSE handler, not a protobuf
     # annotation, so the generator cannot infer it. The tenant gate still looks
@@ -534,7 +603,56 @@ def require_modeldev_device_mode(text):
     return text[:start] + section + text[end:]
 
 
+def add_sandbox_upload_multipart(text):
+    # The Sandbox write RPC uses JSON in Proto, while the HTTP adapter also
+    # supports a binary multipart representation at the same method/path.
+    # Proto's HTTP annotation cannot express both, so declare the latter here
+    # as part of the pinned OpenAPI generation workflow.
+    operation = "            operationId: SandboxService_WriteSandboxFile\n"
+    if operation not in text:
+        return text  # Minimal generator fixtures may omit Sandbox.
+    if text.count(operation) != 1:
+        raise SystemExit("ambiguous Sandbox file write operation")
+    start = text.index(operation)
+    end = text.find("\n        delete:\n", start)
+    if end < 0:
+        raise SystemExit("expected Sandbox file write/delete route")
+    section = text[start:end]
+    marker = "                            $ref: '#/components/schemas/WriteSandboxFileRequest'\n"
+    if section.count(marker) != 1 or "                    multipart/form-data:\n" in section:
+        raise SystemExit("expected one unmodified Sandbox file write schema")
+    multipart = """                    multipart/form-data:
+                        schema:
+                            type: object
+                            required:
+                                - file
+                                - path
+                                - idempotency_key
+                            properties:
+                                file:
+                                    type: string
+                                    format: binary
+                                    description: Arbitrary binary content; maximum 1 MiB.
+                                path:
+                                    type: string
+                                    description: Destination path relative to /workspace; includes the filename.
+                                idempotency_key:
+                                    type: string
+                                expected_version:
+                                    type: integer
+                                    format: int64
+                                    minimum: 0
+                                overwrite:
+                                    type: boolean
+                                    default: false
+                            additionalProperties: false
+"""
+    section = section.replace(marker, marker + multipart, 1)
+    return text[:start] + section + text[end:]
+
+
 def finalize(text):
+    text = add_sandbox_upload_multipart(text)
     text = require_modeldev_device_mode(text)
     text = remove_synthetic_200(text, "/api/v1/auth/api-keys", "201")
     # Minimal generator fixtures may omit ModelDev. Its public contract test
@@ -562,7 +680,7 @@ def finalize(text):
             text = remove_synthetic_200(text, route, status, method)
     # response_body endpoints retain their explicit public-object schema,
     # including the Network/Image mutation responses and existing details.
-    return add_platform_component_log_error_schema(add_platform_component_log_stream(add_artifact_download(add_execution_log_stream(add_instance_log_stream(require_compute_usage(repair_instance_operation(repair_network_operation(remove_shadowed_200(text)))))))))
+    return add_platform_component_log_error_schema(add_platform_component_log_stream(add_artifact_download(add_execution_log_stream(add_sandbox_log_stream(add_instance_log_stream(require_compute_usage(repair_instance_operation(repair_network_operation(remove_shadowed_200(text))))))))))
 
 
 if __name__ == "__main__":

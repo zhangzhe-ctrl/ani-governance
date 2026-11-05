@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	terminal "github.com/zhangzhe-ctrl/ani-resource-service/api/instance/terminal/v1"
 	pb "github.com/zhangzhe-ctrl/ani-resource-service/api/instance/v1"
+	sandboxterminal "github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/terminal/v1"
 	sandboxv1 "github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -14,10 +15,11 @@ import (
 )
 
 type InstanceClient struct {
-	client  pb.InstanceServiceClient
-	sandbox sandboxv1.SandboxServiceClient
-	vm      *VMClient
-	image   *VMImageClient
+	client          pb.InstanceServiceClient
+	sandbox         sandboxv1.SandboxServiceClient
+	sandboxTerminal sandboxterminal.SandboxTerminalServiceClient
+	vm              *VMClient
+	image           *VMImageClient
 }
 
 func (c *InstanceClient) VM() *VMClient {

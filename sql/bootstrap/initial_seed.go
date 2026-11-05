@@ -51,6 +51,28 @@ type initialSeed struct {
 
 var permissionCodePattern = regexp.MustCompile(`^[a-z][a-z0-9_-]*(:[a-z][a-z0-9_-]*)+$`)
 
+// Newly introduced Sandbox detail routes are not part of the frozen fresh-install
+// grants. Their permission registration remains explicit and defaults to OFF.
+var deferredSandboxOperations = map[string]bool{
+	"SandboxService_CreateSandboxCheckpoint":    true,
+	"SandboxService_RestoreSandboxCheckpoint":   true,
+	"SandboxService_ExecSandbox":                true,
+	"SandboxService_OpenSandboxPreview":         true,
+	"SandboxService_CloseSandboxPreview":        true,
+	"SandboxService_CloneSandboxCheckpoint":     true,
+	"SandboxService_ListSandboxCheckpoints":     true,
+	"SandboxService_GetSandboxEgress":           true,
+	"SandboxService_ListSandboxEnvironment":     true,
+	"SandboxService_ListSandboxEvents":          true,
+	"SandboxService_GetSandboxMetrics":          true,
+	"SandboxService_GetSandboxLatestMetrics":    true,
+	"SandboxService_ListSandboxOperations":      true,
+	"SandboxService_GetSandboxPreviewOperation": true,
+	"SandboxService_ListSandboxPreviews":        true,
+	"SandboxService_ListSandboxSecurityEvents":  true,
+	"SandboxService_StreamSandboxLogs":          true,
+}
+
 func loadInitialSeed(catalog []API) (*initialSeed, error) {
 	var seed initialSeed
 	if err := json.Unmarshal(initialSeedJSON, &seed); err != nil {
@@ -172,12 +194,15 @@ func (s *initialSeed) validate(catalog []API) error {
 			return fail("%v", err)
 		}
 	}
-	// Unintegrated VM image endpoints remain in the binary, but must not be
-	// initialized or granted until their frontend flow is ready.
+	// Excluded routes remain in the binary, but are neither initialized nor
+	// granted by this frozen release seed. Explicit API synchronization and
+	// permission registration are required before they can be authorized.
 	for _, r := range s.ExcludedRoutes {
 		key := r.Method + " " + r.Path
 		a, exists := actual[key]
-		if !exists || expected[key] || a.Operation != r.Operation || a.BusinessModule != r.Module || a.Module != "VMImageService" || len(r.Permissions) != 0 || r.Authentication != "" {
+		allowed := a.Module == "VMImageService" && r.Module == "VIRTUAL_MACHINE" ||
+			a.Module == "SandboxService" && r.Module == "SANDBOX" && deferredSandboxOperations[r.Operation]
+		if !exists || expected[key] || a.Operation != r.Operation || a.BusinessModule != r.Module || !allowed || len(r.Permissions) != 0 || r.Authentication != "" {
 			return fail("invalid excluded route %s", key)
 		}
 		expected[key] = true

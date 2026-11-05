@@ -33,6 +33,23 @@ const SandboxCreatePath = "/api/v1/sandbox"
 const SandboxListPath = "/api/v1/sandbox"
 const SandboxGetPath = "/api/v1/sandbox/{sandbox_id}"
 const SandboxOperationPath = "/api/v1/sandbox/operations/{operation_id}"
+const SandboxOperationsListPath = "/api/v1/sandbox/{sandbox_id}/operations"
+const SandboxEnvironmentPath = "/api/v1/sandbox/{sandbox_id}/environment"
+const SandboxEgressPath = "/api/v1/sandbox/{sandbox_id}/egress"
+const SandboxEventsPath = "/api/v1/sandbox/{sandbox_id}/events"
+const SandboxSecurityEventsPath = "/api/v1/sandbox/{sandbox_id}/security-events"
+const SandboxPreviewOpenPath = "/api/v1/sandbox/{data.sandbox_id}/ports"
+const SandboxExecPath = "/api/v1/sandbox/{data.sandbox_id}/exec"
+const SandboxPreviewClosePath = "/api/v1/sandbox/{data.sandbox_id}/ports/{data.preview_id}:close"
+const SandboxPreviewListPath = "/api/v1/sandbox/{sandbox_id}/ports"
+const SandboxPreviewOperationPath = "/api/v1/sandbox/{sandbox_id}/port-operations/{operation_id}"
+const SandboxCheckpointsPath = "/api/v1/sandbox/{sandbox_id}/checkpoints"
+const SandboxCheckpointCreatePath = "/api/v1/sandbox/{data.sandbox_id}/checkpoints"
+const SandboxCheckpointClonePath = "/api/v1/sandbox/{data.source_sandbox_id}/checkpoints/{data.checkpoint_id}:clone"
+const SandboxCheckpointRestorePath = "/api/v1/sandbox/{data.sandbox_id}/checkpoints/{data.checkpoint_id}:restore"
+const SandboxLogsPath = "/api/v1/sandbox/{sandbox_id}/logs"
+const SandboxMetricsPath = "/api/v1/sandbox/{sandbox_id}/metrics"
+const SandboxMetricsLatestPath = "/api/v1/sandbox/{sandbox_id}/metrics/latest"
 const SandboxPausePath = "/api/v1/sandbox/{data.sandbox_id}:pause"
 const SandboxResumePath = "/api/v1/sandbox/{data.sandbox_id}:resume"
 const SandboxDeletePath = "/api/v1/sandbox/{data.sandbox_id}"
@@ -97,7 +114,7 @@ func (r *InstanceAuthorizationRepo) Authorize(ctx context.Context, tenant, user 
 	case SandboxCreatePath:
 		allowed = method == "POST" || method == "GET"
 		module = "SANDBOX"
-	case SandboxPausePath, SandboxResumePath, SandboxCodeRunPath, SandboxTokenCreatePath:
+	case SandboxPausePath, SandboxResumePath, SandboxCodeRunPath, SandboxExecPath, SandboxTokenCreatePath, SandboxPreviewOpenPath, SandboxPreviewClosePath, SandboxCheckpointCreatePath, SandboxCheckpointClonePath, SandboxCheckpointRestorePath:
 		allowed = method == "POST"
 		module = "SANDBOX"
 	case SandboxFilesMutatePath:
@@ -106,7 +123,7 @@ func (r *InstanceAuthorizationRepo) Authorize(ctx context.Context, tenant, user 
 	case SandboxDeletePath, SandboxTokenRevokePath:
 		allowed = method == "DELETE"
 		module = "SANDBOX"
-	case SandboxGetPath, SandboxOperationPath, SandboxCodeRunGetPath, SandboxFilesListPath, SandboxFilesContentPath, SandboxFilesOperationPath:
+	case SandboxGetPath, SandboxOperationPath, SandboxOperationsListPath, SandboxEnvironmentPath, SandboxEgressPath, SandboxEventsPath, SandboxSecurityEventsPath, SandboxLogsPath, SandboxMetricsPath, SandboxMetricsLatestPath, SandboxCodeRunGetPath, SandboxFilesListPath, SandboxFilesContentPath, SandboxFilesOperationPath, SandboxPreviewListPath, SandboxPreviewOperationPath, SandboxCheckpointsPath:
 		allowed = method == "GET"
 		module = "SANDBOX"
 	}

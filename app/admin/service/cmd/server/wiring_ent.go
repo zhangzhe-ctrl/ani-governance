@@ -510,6 +510,10 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		sandboxOwner = instanceOwner
 	}
 	sandboxService := service.NewSandboxService(sandboxOwner, data.NewInstanceAuthorizationRepo(entClient), tenantRepo, quotaLedgerRepo)
+	sandboxService.SetTerminalSessionClient(instanceSessions)
+	if observabilityClient != nil {
+		sandboxService.SetMetricsReader(data.NewSandboxMetricsReader(observabilityClient))
+	}
 	vmAcceptance, err := service.NewGpuAcceptance(quotaLedgerRepo, quotaRegistry, tenantRepo, nil, vmBinding, quotaWorker)
 	if err != nil {
 		rollback()

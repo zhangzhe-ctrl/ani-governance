@@ -1,6 +1,22 @@
 # ANI 服务间调用规则
 
-Governance 当前通过受信 Inference API 客户端提供推理服务管理 BFF。Gov → Inference 使用 TLS 1.3 双向认证、精确 DNS SAN 和登记的 RPC；客户端重建租户与 actor metadata，不透传公网 Authorization 或自报 owner。Sandbox 管理使用同一 Resource mTLS listener 的 `sandbox.v1.SandboxService` 精确方法白名单，Gov 先完成用户权限、INSTANCE 套餐检查和持久化 `resource_tenant_id` 映射，再重建 `x-ani-tenant-id`、`x-ani-actor`、`x-ani-request-id`。Resource 负责 immutable image、冻结规格、持久幂等和 PostgreSQL/Kubernetes worker；文件查询、写删及操作查询也使用该受信 RPC 与独立权限。Sandbox Token 由 Resource 签发并逐请求校验；Gov 保留独立的令牌主体，核对目标、范围、租户状态和签发者当前动作权限，不把令牌主体伪装为用户。 Sandbox 新创建同时携带公共意图摘要 `create_intent_digest` 与完整冻结命令摘要；Governance 使用 Resource API 模块的 canonical helper，不另建摘要算法。重放先读原 Sandbox 的持久摘要与创建 operation，不依赖当前 preset 或运行配置；仅新请求进入解析/受理。Inference 的 GPU 命令还携带冻结业务摘要、执行/展示快照和操作幂等 ID，Gov 原始 quota_items 仍只保存在 Gov。Model、Resource 与 ACC 的现行合同保持各自范围。
+Sandbox 实验预览委托 Resource 同一 mTLS listener 的 `OpenPreview`、`ClosePreview`、`ListPreviews`、`GetPreviewOperation`。Gov 完成用户、独立动作权限、SANDBOX 套餐及持久租户映射后重建租户和 actor；写请求携带稳定幂等键及 Sandbox 版本。直接 NodePort 不具备额外入口认证，访问范围及返回地址语义以[前端合同](frontend-http-api.md)为准。Resource 禁用时返回 unavailable，不因请求传入任何启用标志。
+
+Governance 当前通过受信 Inference API 客户端提供推理服务管理 BFF。Gov → Inference 使用 TLS 1.3 双向认证、精确 DNS SAN 和登记的 RPC；客户端重建租户与 actor metadata，不透传公网 Authorization 或自报 owner。Sandbox 管理使用同一 Resource mTLS listener 的 `sandbox.v1.SandboxService` 精确方法白名单，Gov 先完成用户权限、SANDBOX 套餐检查和持久化 `resource_tenant_id` 映射，再重建 `x-ani-tenant-id`、`x-ani-actor`、`x-ani-request-id`。Resource 负责 immutable image、冻结规格、持久幂等和 PostgreSQL/Kubernetes worker；文件查询、写删及操作查询也使用该受信 RPC 与独立权限。Sandbox Token 由 Resource 签发并逐请求校验；Gov 保留独立的令牌主体，核对目标、范围、租户状态和签发者当前动作权限，不把令牌主体伪装为用户。 Sandbox 新创建同时携带公共意图摘要 `create_intent_digest` 与完整冻结命令摘要；Governance 使用 Resource API 模块的 canonical helper，不另建摘要算法。重放先读原 Sandbox 的持久摘要与创建 operation，不依赖当前 preset 或运行配置；仅新请求进入解析/受理。Inference 的 GPU 命令还携带冻结业务摘要、执行/展示快照和操作幂等 ID，Gov 原始 quota_items 仍只保存在 Gov。Model、Resource 与 ACC 的现行合同保持各自范围。
+
+Sandbox 出口声明委托受信 RPC `GetSandboxEgress`，携带可信租户与行为人，仅返回标准 NetworkPolicy 声明，不能把 Host 或执行状态推断为已知。
+
+Sandbox 的事件查询和日志流分别委托受信 RPC `ListSandboxEvents`、`StreamSandboxLogs`，使用各自用户权限及可信租户。日志流继承 HTTP 请求的取消链和有界流生命周期，不使用 30 秒一元调用超时；Resource 核验当前 Pod 与续传 UID。公开数据范围、SSE 格式和保留规则以[前端 HTTP 合同](frontend-http-api.md)为准。
+
+Sandbox 指标历史通过受信 RPC `ListSandboxPodHistory` 获取身份。Resource 按 `tenant_id` 和 `sandbox_id` 验证归属，只返回已持久化的 Pod UID；迁移前已丢失的 UID 无法保证完整。
+
+Sandbox 指标查询由 Gov 委托 Observability 的完整 RPC
+`/observability.monitoring.v1.MonitoringService/QuerySandboxLatest` 和
+`/observability.monitoring.v1.MonitoringService/QuerySandboxRange`：Gov 先按用户及 SANDBOX 动作权限检查，
+从 Resource 获取独立 `sandbox_id` 对应集群和当前或历史 Pod UID，并在查询后复核 Sandbox 版本和身份。
+出站重建可信资源租户 UUID、`governance:user:<用户ID>` 和新 request ID；继承上游取消，单次最多 30 秒。
+Observability 从目标中的业务 Sandbox UUID 识别对象，不把 CRI runtime sandbox ID 或旧实例 ID 当成它。
+这两个 RPC 的 API 子模块尚未发布，当前仅本地联合测试，不代表已部署。
 
 适用：Gov → svc、svc → Gov、svc → svc 的内部业务 RPC。本文是新接入及修改服务间调用时必须遵守的统一规范；存量差异须在明确范围的独立迁移中处理，见[当前差异与迁移边界](#current-differences)。规范入仓不表示当前运行实现已全部符合。本文不改变各服务的业务职责、已发布字段或历史验收结论。
 
@@ -331,6 +347,9 @@ Gov delegates CreateVNic/GetVNic/ListVNics/DeleteVNic/ListVNicBindingTargets to 
 VMService and InstanceService GetNetworkInterfaces/SetNetworkInterface use the existing 30-second owner unary client, current owner grants and trusted tenant mapping. Manual choice additionally requires VNIC read permission under NETWORK. Set uses the owner's canonical command codec and LookupCommandReplay before a new command; a Governance accepted-delete fence blocks new writes. Saving only records a desired selection; platform Restart remains a separate authorized command. A timeout never triggers a new identity or automatic fallback.
 
 Only the four new VM/Instance network-interface Get/Set operations additionally admit signed API Key requests. Their dedicated scope preserves `governance:access-key:<id>` and checks the key's current tenant, enabled/unexpired credential, bound tenant role, exact route grant and owner/NETWORK plan modules in the existing repeatable-read authorization transaction. Key IDs never query User membership. Existing owner lifecycle endpoints retain their established credential policy.
+## Sandbox 终端受信调用
+
+Gov 通过现有 Resource 业务 mTLS 调用 `/sandbox.terminal.v1.SandboxTerminalService/ResolveTerminalSession`，从受信主体重建 tenant/actor/request ID；Resource 仅放行 Gov 身份及对应租户，返回独立 sandbox_id、版本、Namespace UID、Pod UID 和固定容器/shell。Gov 按 `sandbox:terminal:connect` 和 SANDBOX 套餐鉴权后，以现有 Session Gateway mTLS 调用 `/ani.session.v1.SessionService/CreateSession` 创建 SANDBOX 会话，不填写旧 instance_id。Session Gateway 的 `ValidateTerminalSession` 只通过 Resource 专用 listener 对精确 SG SPIFFE 身份开放，在签发和连接时复核绑定。Resource 和 Gateway 的固定 API 模块已可下载；服务版本、证书和网络策略仍需协调部署及验收。
 
 ## Platform base-network catalog and attachment summaries
 

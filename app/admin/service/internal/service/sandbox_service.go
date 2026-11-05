@@ -41,7 +41,12 @@ type SandboxService struct {
 	authorization InstanceActionAuthorizer
 	tenants       ResourceTenantResolver
 	admission     SandboxIntentStore
+	metrics       *data.SandboxMetricsReader
+	sessions      InstanceSessionClient
 }
+
+func (s *SandboxService) SetMetricsReader(reader *data.SandboxMetricsReader)    { s.metrics = reader }
+func (s *SandboxService) SetTerminalSessionClient(client InstanceSessionClient) { s.sessions = client }
 
 func NewSandboxService(client SandboxOwnerClient, authorization InstanceActionAuthorizer, tenants ResourceTenantResolver, admission SandboxIntentStore) *SandboxService {
 	return &SandboxService{client: client, authorization: authorization, tenants: tenants, admission: admission}
@@ -99,6 +104,13 @@ func (s *SandboxService) CreateSandbox(ctx context.Context, r *view.CreateSandbo
 	resourceID := stableSandboxID(tenant, r.Data.IdempotencyKey, "resource")
 	operationID := stableSandboxID(tenant, r.Data.IdempotencyKey, "operation")
 	input := &res.CreateSandboxData{Name: r.Data.Name, ImageId: r.Data.ImageId, ImageScope: r.Data.ImageScope, ImageReference: r.Data.ImageReference, PresetId: r.Data.PresetId, WorkspaceSize: r.Data.WorkspaceSize}
+	if r.Data.EgressIntent != nil {
+		candidate := &res.SandboxEgressIntent{NetworkEgressPolicy: r.Data.EgressIntent.NetworkEgressPolicy, EgressAllowlist: append([]string{}, r.Data.EgressIntent.EgressAllowlist...)}
+		input.EgressIntent, err = res.NormalizeEgressIntent(candidate)
+		if err != nil {
+			return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid sandbox egress intent")
+		}
+	}
 	intentDigest, err := res.CreateIntentDigest("", input)
 	if err != nil {
 		return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid sandbox create intent")
@@ -115,7 +127,7 @@ func (s *SandboxService) CreateSandbox(ctx context.Context, r *view.CreateSandbo
 		return nil, err
 	}
 	if intent != nil {
-		if intent.ResourceTenantID != tenant || intent.OperationID != operationID || !sandboxIntentMatches(intent, input, intentDigest) {
+		if (intent.CommandKind != "" && intent.CommandKind != "create") || intent.ResourceTenantID != tenant || intent.OperationID != operationID || !sandboxIntentMatches(intent, input, intentDigest) {
 			return nil, kratoserrors.Conflict("SANDBOX_IDEMPOTENCY_CONFLICT", "sandbox create intent changed")
 		}
 		return s.deliverSandboxCreate(ctx, intent, true)
@@ -143,11 +155,29 @@ func (s *SandboxService) CreateSandbox(ctx context.Context, r *view.CreateSandbo
 		}
 		return nil, cause
 	}
+	// Existing intent/resource replay is handled above; no new restricted
+	// command may rely on an older Resource that merely stores the intent.
+	if err := rejectUnsupportedSandboxEgress(input.EgressIntent); err != nil {
+		// An older concurrent Gov may have journalled this command after our
+		// first read. Preserve a matching durable intent rather than returning a
+		// rejection while the dispatcher can still deliver it.
+		existing, lookupErr := s.admission.FindSandboxCreateIntent(ctx, p.TenantID, resourceID)
+		if lookupErr != nil {
+			return nil, lookupErr
+		}
+		if existing != nil {
+			if (existing.CommandKind != "" && existing.CommandKind != "create") || existing.ResourceTenantID != tenant || existing.OperationID != operationID || !sandboxIntentMatches(existing, input, intentDigest) {
+				return nil, kratoserrors.Conflict("SANDBOX_IDEMPOTENCY_CONFLICT", "sandbox create intent changed")
+			}
+			return s.deliverSandboxCreate(ctx, existing, true)
+		}
+		return replayAccepted(err)
+	}
 	resolved, err := s.client.ResolveSandbox(ctx, tenant, actor, &res.ResolveCreateSpecRequest{TenantId: tenant, ContractVersion: 1, Data: input})
 	if err != nil {
 		return replayAccepted(err)
 	}
-	if resolved == nil {
+	if resolved == nil || !proto.Equal(resolved.EgressIntent, input.EgressIntent) {
 		return replayAccepted(kratoserrors.ServiceUnavailable("SANDBOX_INVALID_RESPONSE", "invalid sandbox resolution"))
 	}
 	command := &res.CommandContext{TenantId: tenant, ResourceId: resourceID, OperationId: operationID}
@@ -168,7 +198,7 @@ func (s *SandboxService) CreateSandbox(ctx context.Context, r *view.CreateSandbo
 }
 
 func (s *SandboxService) deliverSandboxCreate(ctx context.Context, intent *data.SandboxCreateIntent, replay bool) (*view.SandboxAcceptance, error) {
-	if intent == nil {
+	if intent == nil || (intent.CommandKind != "" && intent.CommandKind != "create") {
 		return nil, kratoserrors.ServiceUnavailable("SANDBOX_INVALID_INTENT", "sandbox intent missing")
 	}
 	var req res.AcceptCreateRequest
@@ -206,7 +236,7 @@ func (s *SandboxService) deliverSandboxCreate(ctx context.Context, intent *data.
 		if err := s.admission.AcknowledgeSandboxCreate(ackCtx, intent.TenantID, intent.SandboxID, intent.OperationID); err != nil {
 			return nil, err
 		}
-		return &view.SandboxAcceptance{OperationId: intent.OperationID, ResourceId: intent.SandboxID, Accepted: true, Replayed: true}, nil
+		return &view.SandboxAcceptance{OperationId: intent.OperationID, ResourceId: intent.SandboxID, Accepted: true, Replayed: true, IntentEnforcement: sandboxEgressIntentEnforcement(req.Spec.EgressIntent)}, nil
 	}
 	if replay {
 		if prior, lookupErr := lookup(); lookupErr == nil {
@@ -214,6 +244,12 @@ func (s *SandboxService) deliverSandboxCreate(ctx context.Context, intent *data.
 		} else if status.Code(lookupErr) != codes.NotFound {
 			return nil, lookupErr
 		}
+	}
+	// A historical journal row may predate enforcement and Resource may still
+	// be old. Never send a restricted command unless it was already proved
+	// accepted above. Keep unconfirmed rows pending for future observation.
+	if err := rejectUnsupportedSandboxEgress(req.Spec.EgressIntent); err != nil {
+		return nil, status.Error(codes.Unavailable, "SANDBOX_EGRESS_OUTCOME_UNCONFIRMED")
 	}
 	ack, err := s.client.AcceptSandboxCreate(ctx, intent.ResourceTenantID, intent.Actor, &req)
 	if err != nil {
@@ -245,7 +281,14 @@ func (s *SandboxService) deliverSandboxCreate(ctx context.Context, intent *data.
 	if err = s.admission.AcknowledgeSandboxCreate(ackCtx, intent.TenantID, intent.SandboxID, intent.OperationID); err != nil {
 		return nil, err
 	}
-	return &view.SandboxAcceptance{OperationId: intent.OperationID, ResourceId: intent.SandboxID, Accepted: true, Replayed: replay || ack.Ack.Replayed}, nil
+	return &view.SandboxAcceptance{OperationId: intent.OperationID, ResourceId: intent.SandboxID, Accepted: true, Replayed: replay || ack.Ack.Replayed, IntentEnforcement: sandboxEgressIntentEnforcement(req.Spec.EgressIntent)}, nil
+}
+
+func sandboxEgressIntentEnforcement(intent *res.SandboxEgressIntent) string {
+	if intent == nil {
+		return ""
+	}
+	return "not_applied_by_sandbox"
 }
 
 // Older durable intents included an instance reference in their digest. Retain
@@ -277,7 +320,7 @@ func sandboxCreateReplay(previous *res.GetSandboxResponse, tenant, resourceID, o
 	if !matches {
 		return nil, kratoserrors.Conflict("SANDBOX_IDEMPOTENCY_CONFLICT", "sandbox create intent changed")
 	}
-	return &view.SandboxAcceptance{OperationId: operationID, ResourceId: resourceID, Accepted: true, Replayed: true}, nil
+	return &view.SandboxAcceptance{OperationId: operationID, ResourceId: resourceID, Accepted: true, Replayed: true, IntentEnforcement: sandboxEgressIntentEnforcement(input.EgressIntent)}, nil
 }
 
 func wireSandbox[T proto.Message, U proto.Message](in T, out U) error {
@@ -342,6 +385,69 @@ func (s *SandboxService) GetSandbox(ctx context.Context, r *view.GetSandboxReque
 	return result, nil
 }
 
+type sandboxHistoryClient interface {
+	ListSandboxOperations(context.Context, string, string, *res.ListOperationsRequest) (*res.ListOperationsResponse, error)
+}
+
+// Operation reasons are public codes, never provider error strings. Unknown
+// codes use a stable generic value until explicitly added to this contract.
+func sandboxPublicOperationReason(reason string) string {
+	switch reason {
+	case "", "SANDBOX_CAPABILITY_UNSUPPORTED", "SANDBOX_DATA_PLANE_UNAVAILABLE",
+		"SANDBOX_DEPENDENCY_UNAVAILABLE", "SANDBOX_DISPATCH_OUTCOME_UNKNOWN",
+		"SANDBOX_FILE_OUTCOME_UNKNOWN", "SANDBOX_LIFECYCLE_CHANGED", "SANDBOX_PROVIDER_CLUSTER_MISMATCH",
+		"SANDBOX_PROVIDER_OWNERSHIP_CONFLICT", "SANDBOX_TARGET_UNAVAILABLE",
+		"WORKSPACE_LOST", "WORKSPACE_MISSING", "WORKSPACE_RECLAIM_POLICY_MISMATCH",
+		"too_large", "invalid", "conflict", "not_found", "unknown",
+		"SANDBOX_CHECKPOINT_CREATE_REJECTED", "SANDBOX_CHECKPOINT_OUTCOME_UNKNOWN",
+		"SANDBOX_CHECKPOINT_OWNERSHIP_CONFLICT", "SANDBOX_CHECKPOINT_PROTECTION_REJECTED",
+		"SANDBOX_CHECKPOINT_RELEASE_UNCONFIRMED", "SANDBOX_CHECKPOINT_UNSUPPORTED",
+		"CSI_SNAPSHOT_LAST_ERROR", "SANDBOX_CHECKPOINT_PROVIDER_ACCESS_DENIED", "SANDBOX_CHECKPOINT_PROVIDER_IDENTITY_MISMATCH",
+		"CHECKPOINT_IDENTITY_INCOMPLETE", "CHECKPOINT_PROVIDER_MISSING", "CHECKPOINT_IDENTITY_MISMATCH", "CHECKPOINT_PROVIDER_DELETING", "CHECKPOINT_PROVIDER_NOT_READY", "CHECKPOINT_REASON_UNAVAILABLE",
+		"SANDBOX_TRANSFER_CREATE_REJECTED", "SANDBOX_TRANSFER_OUTCOME_UNKNOWN",
+		"SANDBOX_TRANSFER_PVC_PENDING", "SANDBOX_TRANSFER_WAIT_FOR_FIRST_CONSUMER", "SANDBOX_TRANSFER_WFFC_UNSUPPORTED":
+		return reason
+	default:
+		return "SANDBOX_OPERATION_REASON_UNAVAILABLE"
+	}
+}
+
+func (s *SandboxService) ListSandboxOperations(ctx context.Context, r *view.ListSandboxOperationsRequest) (*view.ListSandboxOperationsResponse, error) {
+	if r == nil || !sandboxUUID(r.SandboxId) {
+		return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid sandbox identity")
+	}
+	page, size, err := resolveComputePage(r.Page, r.PageSize)
+	if err != nil {
+		return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "invalid page or pageSize")
+	}
+	tenant, actor, err := s.scope(ctx, data.SandboxOperationsListPath, "GET")
+	if err != nil {
+		return nil, err
+	}
+	client, ok := s.client.(sandboxHistoryClient)
+	if !ok {
+		return nil, kratoserrors.ServiceUnavailable("SANDBOX_UNAVAILABLE", "sandbox operation history is not configured")
+	}
+	out, err := client.ListSandboxOperations(ctx, tenant, actor, &res.ListOperationsRequest{TenantId: tenant, SandboxId: r.SandboxId, Page: page, PageSize: size})
+	if err != nil {
+		return nil, err
+	}
+	if out == nil || out.Total < 0 {
+		return nil, kratoserrors.ServiceUnavailable("SANDBOX_INVALID_RESPONSE", "invalid sandbox operation list")
+	}
+	result := &view.ListSandboxOperationsResponse{Items: []*view.SandboxOperationHistoryItem{}, Total: out.Total}
+	for _, item := range out.Items {
+		if item == nil || item.SandboxId != r.SandboxId {
+			return nil, kratoserrors.ServiceUnavailable("SANDBOX_INVALID_RESPONSE", "invalid sandbox operation")
+		}
+		result.Items = append(result.Items, &view.SandboxOperationHistoryItem{
+			OperationId: item.Id, SandboxId: item.SandboxId, Action: item.Action,
+			State: item.State, Reason: sandboxPublicOperationReason(item.Reason), CreatedAt: item.CreatedAt, CompletedAt: item.CompletedAt,
+		})
+	}
+	return result, nil
+}
+
 func (s *SandboxService) GetSandboxOperation(ctx context.Context, r *view.GetSandboxOperationRequest) (*view.SandboxOperation, error) {
 	if r == nil || r.OperationId == "" {
 		return nil, kratoserrors.BadRequest("INVALID_SANDBOX_REQUEST", "operation identity is required")
@@ -352,7 +458,21 @@ func (s *SandboxService) GetSandboxOperation(ctx context.Context, r *view.GetSan
 	}
 	out, err := s.client.GetSandboxOperation(ctx, tenant, actor, &res.GetOperationRequest{TenantId: tenant, OperationId: r.OperationId})
 	if err != nil {
-		return nil, err
+		if status.Code(err) == codes.NotFound {
+			pending, pendingErr := s.pendingSandboxOperation(ctx, tenant, r.OperationId, err)
+			if status.Code(pendingErr) != codes.NotFound {
+				return pending, pendingErr
+			}
+			// An intent can become acknowledged between the owner NotFound and
+			// the journal read. Re-read the owner once before reporting absence;
+			// an unavailable second read must remain unavailable.
+			out, err = s.client.GetSandboxOperation(ctx, tenant, actor, &res.GetOperationRequest{TenantId: tenant, OperationId: r.OperationId})
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
 	}
 	result := new(view.SandboxOperation)
 	if out == nil || out.Operation == nil {
@@ -362,6 +482,7 @@ func (s *SandboxService) GetSandboxOperation(ctx context.Context, r *view.GetSan
 		return nil, err
 	}
 	result.InstanceId = ""
+	result.Reason = sandboxPublicOperationReason(result.Reason)
 	return result, nil
 }
 

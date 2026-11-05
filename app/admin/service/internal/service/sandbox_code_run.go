@@ -27,7 +27,7 @@ func sandboxCodeResponse(response *res.CodeRun, sandboxID, runID string) (*view.
 	}
 	return &view.SandboxCodeRun{RunId: response.RunId, SandboxId: response.SandboxId, State: response.State,
 		Stdout: strings.ToValidUTF8(string(response.Stdout), "\uFFFD"), Stderr: strings.ToValidUTF8(string(response.Stderr), "\uFFFD"),
-		ExitCode: response.ExitCode, Truncated: response.Truncated, Replayed: response.Replayed, Reason: response.Reason}, nil
+		ExitCode: response.ExitCode, Truncated: response.Truncated, Replayed: response.Replayed, Reason: response.Reason, CreatedAt: response.CreatedAt, CompletedAt: response.CompletedAt}, nil
 }
 
 func (s *SandboxService) RunSandboxCode(ctx context.Context, request *view.RunSandboxCodeRequest) (*view.SandboxCodeRun, error) {

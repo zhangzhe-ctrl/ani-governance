@@ -340,6 +340,7 @@ func NewRestServer(
 		case *service.SandboxService:
 			if typed != nil {
 				RegisterSandboxHTTPServer(srv, typed)
+				RegisterSandboxLogsHTTP(srv, typed)
 			}
 		case *service.PlatformComponentService:
 			RegisterPlatformComponentHTTP(srv, typed)

@@ -12289,6 +12289,59 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SandboxAcceptance'
+    /api/v1/sandbox/{data.sandbox_id}/checkpoints:
+        post:
+            tags:
+                - SandboxService
+            operationId: SandboxService_CreateSandboxCheckpoint
+            parameters:
+                - name: data.sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateSandboxCheckpointRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateSandboxCheckpointResponse'
+    /api/v1/sandbox/{data.sandbox_id}/checkpoints/{data.checkpoint_id}:restore:
+        post:
+            tags:
+                - SandboxService
+            operationId: SandboxService_RestoreSandboxCheckpoint
+            parameters:
+                - name: data.sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: data.checkpoint_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RestoreSandboxCheckpointRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxAcceptance'
     /api/v1/sandbox/{data.sandbox_id}/code-runs:
         post:
             tags:
@@ -12313,6 +12366,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SandboxCodeRun'
+    /api/v1/sandbox/{data.sandbox_id}/exec:
+        post:
+            tags:
+                - SandboxService
+            operationId: SandboxService_ExecSandbox
+            parameters:
+                - name: data.sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ExecSandboxRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ExecSandboxResponse'
     /api/v1/sandbox/{data.sandbox_id}/files:
         post:
             tags:
@@ -12329,6 +12406,31 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/WriteSandboxFileRequest'
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            required:
+                                - file
+                                - path
+                                - idempotency_key
+                            properties:
+                                file:
+                                    type: string
+                                    format: binary
+                                    description: Arbitrary binary content; maximum 1 MiB.
+                                path:
+                                    type: string
+                                    description: Destination path relative to /workspace; includes the filename.
+                                idempotency_key:
+                                    type: string
+                                expected_version:
+                                    type: integer
+                                    format: int64
+                                    minimum: 0
+                                overwrite:
+                                    type: boolean
+                                    default: false
+                            additionalProperties: false
                 required: true
             responses:
                 "200":
@@ -12360,6 +12462,59 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SandboxFileOperation'
+    /api/v1/sandbox/{data.sandbox_id}/ports:
+        post:
+            tags:
+                - SandboxService
+            operationId: SandboxService_OpenSandboxPreview
+            parameters:
+                - name: data.sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/OpenSandboxPreviewRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxPreviewAcceptance'
+    /api/v1/sandbox/{data.sandbox_id}/ports/{data.preview_id}:close:
+        post:
+            tags:
+                - SandboxService
+            operationId: SandboxService_CloseSandboxPreview
+            parameters:
+                - name: data.sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: data.preview_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CloseSandboxPreviewRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxPreviewAcceptance'
     /api/v1/sandbox/{data.sandbox_id}/tokens:
         post:
             tags:
@@ -12432,6 +12587,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SandboxAcceptance'
+    /api/v1/sandbox/{data.source_sandbox_id}/checkpoints/{data.checkpoint_id}:clone:
+        post:
+            tags:
+                - SandboxService
+            operationId: SandboxService_CloneSandboxCheckpoint
+            parameters:
+                - name: data.source_sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: data.checkpoint_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CloneSandboxCheckpointRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxAcceptance'
     /api/v1/sandbox/{sandbox_id}:
         get:
             tags:
@@ -12454,6 +12638,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Sandbox'
+    /api/v1/sandbox/{sandbox_id}/checkpoints:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_ListSandboxCheckpoints
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSandboxCheckpointsResponse'
     /api/v1/sandbox/{sandbox_id}/code-runs/{run_id}:
         get:
             tags:
@@ -12477,6 +12689,80 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SandboxCodeRun'
+    /api/v1/sandbox/{sandbox_id}/egress:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_GetSandboxEgress
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetSandboxEgressResponse'
+    /api/v1/sandbox/{sandbox_id}/environment:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_ListSandboxEnvironment
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSandboxEnvironmentResponse'
+    /api/v1/sandbox/{sandbox_id}/events:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_ListSandboxEvents
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSandboxEventsResponse'
     /api/v1/sandbox/{sandbox_id}/file-operations/{operation_id}:
         get:
             tags:
@@ -12524,6 +12810,16 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
             responses:
                 "200":
                     description: OK
@@ -12553,6 +12849,166 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SandboxFileResult'
+    /api/v1/sandbox/{sandbox_id}/metrics:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_GetSandboxMetrics
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: start
+                  in: query
+                  schema:
+                    type: string
+                - name: end
+                  in: query
+                  schema:
+                    type: string
+                - name: step
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxMetricsResponse'
+    /api/v1/sandbox/{sandbox_id}/metrics/latest:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_GetSandboxLatestMetrics
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxMetricsResponse'
+    /api/v1/sandbox/{sandbox_id}/operations:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_ListSandboxOperations
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSandboxOperationsResponse'
+    /api/v1/sandbox/{sandbox_id}/port-operations/{operation_id}:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_GetSandboxPreviewOperation
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: operation_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SandboxPreviewOperation'
+    /api/v1/sandbox/{sandbox_id}/ports:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_ListSandboxPreviews
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSandboxPreviewsResponse'
+    /api/v1/sandbox/{sandbox_id}/security-events:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_ListSandboxSecurityEvents
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: severity
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSandboxSecurityEventsResponse'
     /api/v1/sandbox/{sandbox_id}/tokens/{token_id}:
         delete:
             tags:
@@ -14131,6 +14587,61 @@ paths:
                     description: Connection limit reached
                 "503":
                     description: Diagnostic target or upstream unavailable before READY
+    /api/v1/sandbox/{sandbox_id}/logs:
+        get:
+            tags:
+                - SandboxService
+            operationId: SandboxService_StreamSandboxLogs
+            description: Current verified Sandbox Pod stdout/stderr as SSE. Resume uses both sinceTime and podUid and may repeat lines.
+            security:
+                - BearerAuth: []
+            parameters:
+                - name: sandbox_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                    format: uuid
+                - name: tailLines
+                  in: query
+                  schema:
+                    type: integer
+                    minimum: 1
+                    maximum: 1000
+                    default: 100
+                - name: follow
+                  in: query
+                  schema:
+                    type: boolean
+                    default: true
+                - name: sinceTime
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: podUid
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: SSE ready/log/end/error events and heartbeat comments.
+                    content:
+                        text/event-stream:
+                            schema:
+                                type: string
+                "400":
+                    description: Invalid log options
+                "403":
+                    description: Sandbox access denied
+                "404":
+                    description: Sandbox not found
+                "409":
+                    description: Current Pod unavailable or changed
+                "429":
+                    description: Connection limit reached
+                "503":
+                    description: Log upstream unavailable
     /api/v1/modeldev/executions/{execution_id}/logs/stream:
         get:
             tags:
@@ -15639,6 +16150,55 @@ components:
                     description: 租户ID
                     format: uint32
             description: 清理租户数据 - 请求
+        CloneSandboxCheckpointData:
+            type: object
+            properties:
+                source_sandbox_id:
+                    type: string
+                checkpoint_id:
+                    type: string
+                idempotency_key:
+                    type: string
+                expected_version:
+                    type: string
+                name:
+                    type: string
+                preset_id:
+                    type: string
+                workspace_size:
+                    type: string
+                image_id:
+                    type: string
+                image_scope:
+                    type: string
+                image_reference:
+                    type: string
+                egress_intent:
+                    $ref: '#/components/schemas/SandboxEgressIntent'
+            description: |-
+                Cloning creates a separate Sandbox. Source identity is bound into the
+                 durable command; the destination does not depend on an Instance resource.
+        CloneSandboxCheckpointRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/CloneSandboxCheckpointData'
+        CloseSandboxPreviewData:
+            type: object
+            properties:
+                sandbox_id:
+                    type: string
+                preview_id:
+                    type: string
+                idempotency_key:
+                    type: string
+                expected_version:
+                    type: string
+        CloseSandboxPreviewRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/CloseSandboxPreviewData'
         Config:
             type: object
             properties:
@@ -16451,6 +17011,33 @@ components:
                 data:
                     $ref: '#/components/schemas/Role'
             description: 创建角色 - 请求
+        CreateSandboxCheckpointData:
+            type: object
+            properties:
+                sandbox_id:
+                    type: string
+                name:
+                    type: string
+                idempotency_key:
+                    type: string
+                expected_version:
+                    type: string
+        CreateSandboxCheckpointRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/CreateSandboxCheckpointData'
+        CreateSandboxCheckpointResponse:
+            type: object
+            properties:
+                checkpoint_id:
+                    type: string
+                operation_id:
+                    type: string
+                state:
+                    type: string
+                replayed:
+                    type: boolean
         CreateSandboxData:
             type: object
             properties:
@@ -16470,6 +17057,8 @@ components:
                     type: string
                 image_scope:
                     type: string
+                egress_intent:
+                    $ref: '#/components/schemas/SandboxEgressIntent'
         CreateSandboxRequest:
             type: object
             properties:
@@ -17775,6 +18364,35 @@ components:
                     type: string
                 expiresAt:
                     type: string
+        ExecSandboxData:
+            type: object
+            properties:
+                sandbox_id:
+                    type: string
+                idempotency_key:
+                    type: string
+                expected_version:
+                    type: string
+                rows:
+                    type: integer
+                    format: int32
+                cols:
+                    type: integer
+                    format: int32
+        ExecSandboxRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/ExecSandboxData'
+        ExecSandboxResponse:
+            type: object
+            properties:
+                session_id:
+                    type: string
+                ws_url:
+                    type: string
+                expires_at:
+                    type: string
         ExecutionBaseModelView:
             type: object
             properties:
@@ -18659,6 +19277,29 @@ components:
             properties:
                 credential:
                     $ref: '#/components/schemas/PublisherCredential'
+        GetSandboxEgressResponse:
+            type: object
+            properties:
+                source:
+                    type: string
+                declaration:
+                    type: string
+                enforcement:
+                    type: string
+                host_allowlist_known:
+                    type: boolean
+                isolated:
+                    type: boolean
+                rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxEgressRule'
+                host_allowlist_status:
+                    type: string
+                intent:
+                    $ref: '#/components/schemas/SandboxEgressIntent'
+                intent_enforcement:
+                    type: string
         GetSubnetResponse:
             type: object
             properties:
@@ -20909,6 +21550,70 @@ components:
                         $ref: '#/components/schemas/RuntimeEvent'
                 total:
                     type: string
+        ListSandboxCheckpointsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxCheckpoint'
+                total:
+                    type: string
+                source:
+                    type: string
+        ListSandboxEnvironmentResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxEnvironmentVariable'
+                total:
+                    type: string
+        ListSandboxEventsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxEvent'
+                total:
+                    type: string
+                scope:
+                    type: string
+                history_complete_before_migration:
+                    type: boolean
+        ListSandboxOperationsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxOperationHistoryItem'
+                total:
+                    type: string
+        ListSandboxPreviewsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxPreview'
+                total:
+                    type: string
+        ListSandboxSecurityEventsResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxSecurityEvent'
+                total:
+                    type: string
+                source:
+                    type: string
+                history_complete_before_migration:
+                    type: boolean
         ListSandboxesResponse:
             type: object
             properties:
@@ -22506,6 +23211,28 @@ components:
                     description: 登录时间（刷新轮换继承首次登录时间）
                     format: date-time
             description: 在线会话
+        OpenSandboxPreviewData:
+            type: object
+            properties:
+                sandbox_id:
+                    type: string
+                idempotency_key:
+                    type: string
+                expected_version:
+                    type: string
+                port:
+                    type: integer
+                    format: uint32
+                protocol:
+                    type: string
+                ttl_seconds:
+                    type: integer
+                    format: uint32
+        OpenSandboxPreviewRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/OpenSandboxPreviewData'
         Operation:
             type: object
             properties:
@@ -24418,6 +25145,22 @@ components:
                     type: integer
                     format: int32
             description: 重启调度任务 - 回应
+        RestoreSandboxCheckpointData:
+            type: object
+            properties:
+                sandbox_id:
+                    type: string
+                checkpoint_id:
+                    type: string
+                idempotency_key:
+                    type: string
+                expected_version:
+                    type: string
+        RestoreSandboxCheckpointRequest:
+            type: object
+            properties:
+                data:
+                    $ref: '#/components/schemas/RestoreSandboxCheckpointData'
         ResumeSandboxRequest:
             type: object
             properties:
@@ -24832,6 +25575,8 @@ components:
                     type: boolean
                 replayed:
                     type: boolean
+                intent_enforcement:
+                    type: string
         SandboxAccessToken:
             type: object
             properties:
@@ -24859,6 +25604,27 @@ components:
                     type: string
                 instance_id:
                     type: string
+        SandboxCheckpoint:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                status:
+                    type: string
+                reason:
+                    type: string
+                scope:
+                    type: string
+                size_bytes:
+                    type: string
+                size_known:
+                    type: boolean
+                created_at:
+                    type: string
+                provider_status:
+                    type: string
         SandboxCodeRun:
             type: object
             properties:
@@ -24880,6 +25646,108 @@ components:
                 replayed:
                     type: boolean
                 reason:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+                completed_at:
+                    type: string
+                    format: date-time
+        SandboxEgressIPBlock:
+            type: object
+            properties:
+                cidr:
+                    type: string
+                except:
+                    type: array
+                    items:
+                        type: string
+        SandboxEgressIntent:
+            type: object
+            properties:
+                network_egress_policy:
+                    type: string
+                egress_allowlist:
+                    type: array
+                    items:
+                        type: string
+        SandboxEgressLabelExpression:
+            type: object
+            properties:
+                key:
+                    type: string
+                operator:
+                    type: string
+                values:
+                    type: array
+                    items:
+                        type: string
+        SandboxEgressPeer:
+            type: object
+            properties:
+                pod_selector:
+                    $ref: '#/components/schemas/SandboxEgressSelector'
+                namespace_selector:
+                    $ref: '#/components/schemas/SandboxEgressSelector'
+                ip_block:
+                    $ref: '#/components/schemas/SandboxEgressIPBlock'
+        SandboxEgressPort:
+            type: object
+            properties:
+                protocol:
+                    type: string
+                port_type:
+                    type: string
+                port:
+                    type: string
+                end_port:
+                    type: integer
+                    format: int32
+        SandboxEgressRule:
+            type: object
+            properties:
+                peers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxEgressPeer'
+                ports:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxEgressPort'
+        SandboxEgressSelector:
+            type: object
+            properties:
+                match_labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                match_expressions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxEgressLabelExpression'
+        SandboxEnvironmentVariable:
+            type: object
+            properties:
+                name:
+                    type: string
+                source:
+                    type: string
+                secret_ref:
+                    type: string
+                field_ref:
+                    type: string
+        SandboxEvent:
+            type: object
+            properties:
+                id:
+                    type: string
+                occurred_at:
+                    type: string
+                type:
+                    type: string
+                reason:
+                    type: string
+                message:
                     type: string
         SandboxFileEntry:
             type: object
@@ -24928,6 +25796,51 @@ components:
                     type: string
                 next_cursor:
                     type: string
+        SandboxMetricPoint:
+            type: object
+            properties:
+                timestamp:
+                    type: string
+                value:
+                    type: number
+                    format: double
+                status:
+                    type: string
+        SandboxMetricSeries:
+            type: object
+            properties:
+                name:
+                    type: string
+                unit:
+                    type: string
+                status:
+                    type: string
+                points:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxMetricPoint'
+                reason:
+                    type: string
+        SandboxMetricsResponse:
+            type: object
+            properties:
+                scope:
+                    type: string
+                pod_uid:
+                    type: string
+                start:
+                    type: string
+                end:
+                    type: string
+                step:
+                    type: integer
+                    format: uint32
+                series:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SandboxMetricSeries'
+                history_complete_before_migration:
+                    type: boolean
         SandboxOperation:
             type: object
             properties:
@@ -24948,6 +25861,92 @@ components:
                 created_at:
                     type: string
                     format: date-time
+                completed_at:
+                    type: string
+                    format: date-time
+        SandboxOperationHistoryItem:
+            type: object
+            properties:
+                operation_id:
+                    type: string
+                sandbox_id:
+                    type: string
+                action:
+                    type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+                completed_at:
+                    type: string
+                    format: date-time
+        SandboxPreview:
+            type: object
+            properties:
+                preview_id:
+                    type: string
+                sandbox_id:
+                    type: string
+                port:
+                    type: integer
+                    format: uint32
+                protocol:
+                    type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                address:
+                    type: string
+                desired:
+                    type: string
+                expires_at:
+                    type: string
+                    format: date-time
+                replayed:
+                    type: boolean
+        SandboxPreviewAcceptance:
+            type: object
+            properties:
+                preview:
+                    $ref: '#/components/schemas/SandboxPreview'
+                operation_id:
+                    type: string
+        SandboxPreviewOperation:
+            type: object
+            properties:
+                operation_id:
+                    type: string
+                preview_id:
+                    type: string
+                action:
+                    type: string
+                state:
+                    type: string
+                reason:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+                completed_at:
+                    type: string
+                    format: date-time
+        SandboxSecurityEvent:
+            type: object
+            properties:
+                id:
+                    type: string
+                occurred_at:
+                    type: string
+                severity:
+                    type: string
+                event_type:
+                    type: string
+                description:
+                    type: string
         SandboxSnapshot:
             type: object
             properties:

@@ -121,3 +121,60 @@ func TestSandboxCreateDispatchLeasePostgres(t *testing.T) {
 	require.False(t, stored.Acknowledged, "timeout never proves non-delivery")
 	require.NoError(t, repo.AcknowledgeSandboxCreate(ctx, tenant, second.SandboxID, second.OperationID))
 }
+
+func TestRejectedSandboxCloneIsTerminalAcrossDispatchRestart(t *testing.T) {
+	ctx := context.Background()
+	c := newLedgerPGClient(t)
+	cleanLedger(t, c)
+	repo := newTestRepo(c)
+	tenant, _ := seedTenantPlan(t, c, "sandbox-clone-wffc-reject", 100)
+	intent := SandboxCreateIntent{TenantID: tenant, ResourceTenantID: uuid.NewString(), SandboxID: uuid.NewString(), OperationID: uuid.NewString(), IntentDigest: "digest", Actor: "governance:user:7", Command: []byte(`{}`), CommandKind: "checkpoint_clone"}
+	_, _, err := repo.RegisterSandboxCreateIntent(ctx, intent)
+	require.NoError(t, err)
+	claimed, err := repo.ClaimSandboxCreate(ctx)
+	require.NoError(t, err)
+	require.NotNil(t, claimed)
+	require.NoError(t, repo.RejectSandboxClone(ctx, tenant, intent.SandboxID, intent.OperationID, "SANDBOX_TRANSFER_WFFC_UNSUPPORTED"))
+	require.NoError(t, repo.RejectSandboxClone(ctx, tenant, intent.SandboxID, intent.OperationID, "SANDBOX_TRANSFER_WFFC_UNSUPPORTED"), "duplicate trusted rejection must be idempotent")
+	require.NoError(t, repo.RetrySandboxCreate(ctx, tenant, intent.SandboxID, claimed.LeaseGeneration, "late timeout"))
+	after, err := repo.FindSandboxCreateIntent(ctx, tenant, intent.SandboxID)
+	require.NoError(t, err)
+	require.True(t, after.Acknowledged)
+	require.Equal(t, "SANDBOX_TRANSFER_WFFC_UNSUPPORTED", after.LastErrorCode)
+	require.Error(t, repo.AcknowledgeSandboxCreate(ctx, tenant, intent.SandboxID, intent.OperationID), "late success must not replace rejection")
+	restarted := newTestRepo(c)
+	next, err := restarted.ClaimSandboxCreate(ctx)
+	require.NoError(t, err)
+	require.Nil(t, next, "terminal rejection must never be dispatched after restart")
+}
+
+func TestCloneCommittedRejectionsUnblockTenantClosePostgres(t *testing.T) {
+	c := newLedgerPGClient(t)
+	cleanLedger(t, c)
+	ctx := context.Background()
+	ledger := newTestRepo(c)
+	tenantRepo := newTenantRepoForLedgerTest(c)
+	for _, reason := range []string{"SANDBOX_CLONE_REJECTED_NOT_FOUND", "SANDBOX_CLONE_REJECTED_VERSION", "SANDBOX_CLONE_REJECTED_CONFLICT"} {
+		t.Run(reason, func(t *testing.T) {
+			tenant, _ := seedTenantPlan(t, c, reason, 100)
+			_, err := c.DB().ExecContext(ctx, `UPDATE sys_tenants SET resource_tenant_id=$2, tenant_space_state='LEGACY',tenant_space_operation_id=NULL WHERE id=$1`, tenant, uuid.NewString())
+			require.NoError(t, err)
+			intent := SandboxCreateIntent{TenantID: tenant, ResourceTenantID: uuid.NewString(), SandboxID: uuid.NewString(), OperationID: uuid.NewString(), IntentDigest: "digest", Actor: "governance:user:7", Command: []byte(`{}`), CommandKind: "checkpoint_clone"}
+			_, _, err = ledger.RegisterSandboxCreateIntent(ctx, intent)
+			require.NoError(t, err)
+			_, _, err = tenantRepo.RequestTenantSpaceClose(ctx, tenant)
+			require.Error(t, err)
+			require.NoError(t, ledger.RejectSandboxClone(ctx, tenant, intent.SandboxID, intent.OperationID, reason))
+			require.NoError(t, ledger.RejectSandboxClone(ctx, tenant, intent.SandboxID, intent.OperationID, reason))
+			require.Error(t, ledger.RejectSandboxClone(ctx, tenant, intent.SandboxID, intent.OperationID, "SANDBOX_CLONE_REJECTED_VERSION-other"))
+			require.Error(t, ledger.AcknowledgeSandboxCreate(ctx, tenant, intent.SandboxID, intent.OperationID))
+			stored, err := ledger.FindSandboxCreateIntent(ctx, tenant, intent.SandboxID)
+			require.NoError(t, err)
+			require.True(t, stored.Acknowledged)
+			require.Equal(t, reason, stored.LastErrorCode)
+			_, closed, err := tenantRepo.RequestTenantSpaceClose(ctx, tenant)
+			require.NoError(t, err)
+			require.False(t, closed)
+		})
+	}
+}

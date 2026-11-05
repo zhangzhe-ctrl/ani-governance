@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	pb "github.com/zhangzhe-ctrl/ani-resource-service/api/sandbox/v1"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -59,6 +60,109 @@ func (c *InstanceClient) ListSandboxes(ctx context.Context, tenant, actor string
 	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.ListSandboxesResponse, error) { return c.sandbox.ListSandboxes(call, r) })
 }
 
+func (c *InstanceClient) ListSandboxPodHistory(ctx context.Context, tenant, actor string, r *pb.ListSandboxPodHistoryRequest) (*pb.ListSandboxPodHistoryResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.ListSandboxPodHistoryResponse, error) {
+		return c.sandbox.ListSandboxPodHistory(call, r)
+	})
+}
+
+func (c *InstanceClient) ListSandboxOperations(ctx context.Context, tenant, actor string, r *pb.ListOperationsRequest) (*pb.ListOperationsResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.ListOperationsResponse, error) {
+		return c.sandbox.ListOperations(call, r)
+	})
+}
+
+func (c *InstanceClient) ListSandboxEnvironment(ctx context.Context, tenant, actor string, r *pb.ListEnvironmentVariablesRequest) (*pb.ListEnvironmentVariablesResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.ListEnvironmentVariablesResponse, error) {
+		return c.sandbox.ListEnvironmentVariables(call, r)
+	})
+}
+func (c *InstanceClient) GetSandboxEgress(ctx context.Context, tenant, actor string, r *pb.GetSandboxEgressRequest) (*pb.GetSandboxEgressResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.GetSandboxEgressResponse, error) {
+		return c.sandbox.GetSandboxEgress(call, r)
+	})
+}
+func (c *InstanceClient) ListSandboxEvents(ctx context.Context, tenant, actor string, r *pb.ListSandboxEventsRequest) (*pb.ListSandboxEventsResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.ListSandboxEventsResponse, error) {
+		return c.sandbox.ListSandboxEvents(call, r)
+	})
+}
+
+func (c *InstanceClient) ListSandboxSecurityEvents(ctx context.Context, tenant, actor string, r *pb.ListSandboxSecurityEventsRequest) (*pb.ListSandboxSecurityEventsResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.ListSandboxSecurityEventsResponse, error) {
+		return c.sandbox.ListSandboxSecurityEvents(call, r)
+	})
+}
+
+func (c *InstanceClient) ListSandboxCheckpoints(ctx context.Context, tenant, actor string, r *pb.ListSandboxCheckpointsRequest) (*pb.ListSandboxCheckpointsResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.ListSandboxCheckpointsResponse, error) {
+		return c.sandbox.ListSandboxCheckpoints(call, r)
+	})
+}
+
+func (c *InstanceClient) CreateSandboxCheckpoint(ctx context.Context, tenant, actor string, r *pb.CreateSandboxCheckpointRequest) (*pb.CreateSandboxCheckpointResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.CreateSandboxCheckpointResponse, error) {
+		return c.sandbox.CreateSandboxCheckpoint(call, r)
+	})
+}
+
+func (c *InstanceClient) AcceptSandboxClone(ctx context.Context, tenant, actor string, r *pb.AcceptSandboxCloneRequest) (*pb.AcceptSandboxCloneResponse, error) {
+	if r == nil || r.Context == nil || r.Context.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.AcceptSandboxCloneResponse, error) {
+		return c.sandbox.AcceptSandboxClone(call, r)
+	})
+}
+
+func (c *InstanceClient) RestoreSandboxCheckpoint(ctx context.Context, tenant, actor string, r *pb.RestoreSandboxCheckpointRequest) (*pb.RestoreSandboxCheckpointResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.RestoreSandboxCheckpointResponse, error) {
+		return c.sandbox.RestoreSandboxCheckpoint(call, r)
+	})
+}
+
+// The HTTP handler owns the stream lifetime; unary sandboxCall would cancel
+// it after 30 seconds and must not be used for this operation.
+func (c *InstanceClient) StreamSandboxLogs(ctx context.Context, tenant, actor string, r *pb.StreamSandboxLogsRequest) (grpc.ServerStreamingClient[pb.StreamSandboxLogsResponse], error) {
+	if c == nil || c.sandbox == nil {
+		return nil, status.Error(codes.Unavailable, "SANDBOX_ADAPTER_UNAVAILABLE")
+	}
+	if !validResourceIdentity(tenant, actor) {
+		return nil, status.Error(codes.Unauthenticated, "INVALID_SANDBOX_CALLER")
+	}
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	call := metadata.NewOutgoingContext(ctx, metadata.Pairs("x-ani-tenant-id", tenant, "x-ani-actor", actor, "x-ani-request-id", uuid.NewString()))
+	return c.sandbox.StreamSandboxLogs(call, r, grpc.MaxCallRecvMsgSize(20*1024))
+}
 func (c *InstanceClient) GetSandboxOperation(ctx context.Context, tenant, actor string, r *pb.GetOperationRequest) (*pb.GetOperationResponse, error) {
 	if r == nil || r.TenantId != tenant {
 		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
@@ -214,4 +318,31 @@ func (c *InstanceClient) VerifySandboxToken(ctx context.Context, value, sandboxI
 		return denied()
 	}
 	return &auth.Principal{Type: auth.SubjectSandbox, TenantID: r.GovTenantId, IssuerID: r.IssuerId, SandboxID: r.SandboxId, SandboxTokenID: r.TokenId, SandboxExpiresAt: r.ExpiresAt, ResourceTenantID: r.TenantId, SandboxScopes: append([]string(nil), r.Scopes...)}, nil
+}
+
+func (c *InstanceClient) OpenSandboxPreview(ctx context.Context, tenant, actor string, r *pb.OpenPreviewRequest) (*pb.OpenPreviewResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.OpenPreviewResponse, error) { return c.sandbox.OpenPreview(call, r) })
+}
+func (c *InstanceClient) CloseSandboxPreview(ctx context.Context, tenant, actor string, r *pb.ClosePreviewRequest) (*pb.ClosePreviewResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.ClosePreviewResponse, error) { return c.sandbox.ClosePreview(call, r) })
+}
+func (c *InstanceClient) ListSandboxPreviews(ctx context.Context, tenant, actor string, r *pb.ListPreviewsRequest) (*pb.ListPreviewsResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.ListPreviewsResponse, error) { return c.sandbox.ListPreviews(call, r) })
+}
+func (c *InstanceClient) GetSandboxPreviewOperation(ctx context.Context, tenant, actor string, r *pb.GetPreviewOperationRequest) (*pb.GetPreviewOperationResponse, error) {
+	if r == nil || r.TenantId != tenant {
+		return nil, status.Error(codes.InvalidArgument, "INVALID_SANDBOX_REQUEST")
+	}
+	return sandboxCall(c, ctx, tenant, actor, func(call context.Context) (*pb.GetPreviewOperationResponse, error) {
+		return c.sandbox.GetPreviewOperation(call, r)
+	})
 }
