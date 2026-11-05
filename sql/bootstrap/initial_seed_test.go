@@ -29,7 +29,7 @@ func TestInitialSeedReleaseCoverage(t *testing.T) {
 	for _, api := range selected {
 		require.NotEqual(t, "VMImageService", api.Module, api.Path)
 	}
-	require.Len(t, seed.Permissions, 369)
+	require.Len(t, seed.Permissions, 370)
 	require.Len(t, seed.Menus, 49) // 21 Console pages, 26 BOSS pages and two containers.
 	require.Len(t, seed.FullPlanModules, 19)
 	routes := map[string]initialRoute{}
@@ -83,6 +83,13 @@ func TestInitialSeedRejectsAuthorizationGaps(t *testing.T) {
 		name   string
 		mutate func(*initialSeed)
 	}{
+		{"template cannot cross scope", func(s *initialSeed) {
+			s.RoleTemplates[1].Permissions = append(s.RoleTemplates[1].Permissions, "network:platform:public-pool:create")
+		}},
+		{"template cannot use unknown permission", func(s *initialSeed) {
+			s.RoleTemplates[0].Permissions = append(s.RoleTemplates[0].Permissions, "unknown:grant")
+		}},
+		{"template needs valid metadata", func(s *initialSeed) { s.RoleTemplates[2].TemplateFor = "platform:admin" }},
 		{"excluded route cannot grant", func(s *initialSeed) { s.ExcludedRoutes[0].Permissions = []string{"vm:read"} }},
 		{"business route cannot be excluded", func(s *initialSeed) { s.ExcludedRoutes[0] = s.Routes[0] }},
 		{"business exempt is not public", func(s *initialSeed) {
@@ -109,5 +116,91 @@ func TestInitialSeedRejectsAuthorizationGaps(t *testing.T) {
 			scenario.mutate(&seed)
 			require.Error(t, seed.validate(catalog))
 		})
+	}
+}
+
+func TestInitialSeedAdministratorAPICoverage(t *testing.T) {
+	seed, _ := releaseSeed(t)
+	roles := map[string]map[string]bool{"platform": {}, "tenant": {}}
+	for _, permission := range seed.Permissions {
+		for _, role := range permission.Roles {
+			roles[role][permission.Code] = true
+		}
+	}
+	coverage := map[string]int{}
+	shared, independent := 0, 0
+	for _, route := range seed.Routes {
+		if route.Authentication == "independent" {
+			independent++
+			continue
+		}
+		matched := map[string]bool{}
+		for role, permissions := range roles {
+			for _, permission := range route.Permissions {
+				if permissions[permission] {
+					matched[role] = true
+				}
+			}
+			if matched[role] {
+				coverage[role]++
+			}
+		}
+		require.NotEmpty(t, matched, route.Method+" "+route.Path)
+		if len(matched) == 2 {
+			shared++
+		}
+	}
+	require.Equal(t, map[string]int{"platform": 257, "tenant": 258}, coverage)
+	require.Equal(t, 43, shared)
+	require.Equal(t, 10, independent)
+	require.Equal(t, 482, coverage["platform"]+coverage["tenant"]-shared+independent)
+}
+
+func TestInitialSeedAdditionalRoleTemplateBoundaries(t *testing.T) {
+	seed, _ := releaseSeed(t)
+	templates := map[string]map[string]bool{}
+	for _, template := range seed.RoleTemplates {
+		templates[template.Code] = map[string]bool{}
+		for _, code := range template.Permissions {
+			templates[template.Code][code] = true
+		}
+	}
+	ops, developer, viewer := templates["template:platform:operator"], templates["template:tenant:developer"], templates["template:tenant:viewer"]
+	require.Len(t, ops, 106)
+	require.Len(t, developer, 182)
+	require.Len(t, viewer, 95)
+	for _, code := range []string{"role:create", "permission:edit", "sys:platform_admin", "tenant:create", "plan:edit", "sys:reset_others_credential"} {
+		require.False(t, ops[code], code)
+	}
+	for _, code := range []string{"sys:tenant_manager", "user:create", "role:edit", "network:platform:public-pool:create"} {
+		require.False(t, developer[code], code)
+	}
+	for _, code := range []string{"vm:create", "instance:create", "storage:volume:create", "instance:pvc:attach", "inference:key:read", "image:credential:get", "instance:exec", "vm:console"} {
+		require.False(t, viewer[code], code)
+	}
+	for _, grants := range []map[string]bool{ops, developer, viewer} {
+		require.True(t, grants["auth:logout"], "logout must not require administrator/API-key management permission")
+	}
+	// POST metric queries and object metadata/download queries are read operations.
+	// The other exceptions are current-user account/security and inbox operations.
+	safePost := map[string]bool{
+		"POST /api/v1/gpu/resources/{resourceKind}/{resourceId}/metrics/query": true,
+		"POST /api/v1/gpu/metrics/query":                                       true,
+		"POST /api/v1/instances/{instance_id}/metrics/query":                   true,
+		"POST /api/v1/storage/buckets/{data.bucket_id}/objects:head":           true,
+		"POST /api/v1/storage/buckets/{data.bucket_id}/objects:download-url":   true,
+	}
+	self := map[string]bool{}
+	for _, permission := range seed.Permissions {
+		if permission.Group == "common.identity" || permission.Group == "common.message" || permission.Code == "auth:logout" {
+			self[permission.Code] = true
+		}
+	}
+	for _, route := range seed.Routes {
+		for _, code := range route.Permissions {
+			if viewer[code] && route.Method != "GET" && !self[code] {
+				require.True(t, safePost[route.Method+" "+route.Path], code+": "+route.Method+" "+route.Path)
+			}
+		}
 	}
 }

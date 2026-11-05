@@ -32,6 +32,11 @@ type initialMenu struct {
 	Key, Name, Path, Module, Client, Parent string
 	Permissions                             []string
 }
+type initialRoleTemplate struct {
+	Code, Name, Scope, Description string
+	TemplateFor                    string `json:"template_for"`
+	Permissions                    []string
+}
 type initialSeed struct {
 	Version         string
 	Source          map[string]string
@@ -40,7 +45,8 @@ type initialSeed struct {
 	Routes          []initialRoute
 	ExcludedRoutes  []initialRoute `json:"excluded_routes"`
 	Menus           []initialMenu
-	FullPlanModules []string `json:"full_plan_modules"`
+	FullPlanModules []string              `json:"full_plan_modules"`
+	RoleTemplates   []initialRoleTemplate `json:"role_templates"`
 }
 
 var permissionCodePattern = regexp.MustCompile(`^[a-z][a-z0-9_-]*(:[a-z][a-z0-9_-]*)+$`)
@@ -70,6 +76,7 @@ func (s *initialSeed) validate(catalog []API) error {
 	}
 	permissions := map[string]bool{}
 	tenantCodes := map[string]bool{}
+	platformCodes := map[string]bool{}
 	for _, p := range s.Permissions {
 		if !permissionCodePattern.MatchString(p.Code) || permissions[p.Code] || !groups[p.Group] || p.Name == "" || len(p.Roles) == 0 {
 			return fail("invalid permission %q", p.Code)
@@ -83,6 +90,30 @@ func (s *initialSeed) validate(catalog []API) error {
 		}
 		permissions[p.Code] = true
 		tenantCodes[p.Code] = roles["tenant"]
+		platformCodes[p.Code] = roles["platform"]
+	}
+	if len(s.RoleTemplates) != 3 {
+		return fail("expected three additional role templates")
+	}
+	templateScopes := map[string]string{
+		"template:platform:operator": "PLATFORM",
+		"template:tenant:developer":  "TENANT",
+		"template:tenant:viewer":     "TENANT",
+	}
+	templates := map[string]bool{}
+	for _, template := range s.RoleTemplates {
+		expectedScope, known := templateScopes[template.Code]
+		if !known || template.Name == "" || template.Description == "" || expectedScope != template.Scope || templates[template.Code] || "template:"+template.TemplateFor != template.Code || len(template.Permissions) == 0 {
+			return fail("invalid role template %q", template.Code)
+		}
+		seen := map[string]bool{}
+		for _, code := range template.Permissions {
+			if !permissions[code] || seen[code] || (template.Scope == "TENANT" && !tenantCodes[code]) || (template.Scope == "PLATFORM" && !platformCodes[code]) {
+				return fail("invalid permission %s on role template %s", code, template.Code)
+			}
+			seen[code] = true
+		}
+		templates[template.Code] = true
 	}
 	actual := map[string]API{}
 	for _, a := range catalog {
@@ -250,6 +281,20 @@ func (s *initialSeed) apply(ctx context.Context, tx *sql.Tx) error {
 		permissions[p.Code] = id
 		for _, role := range p.Roles {
 			if _, err = tx.ExecContext(ctx, `INSERT INTO sys_role_permissions(tenant_id,role_id,permission_id,effect,status,created_at) VALUES(0,$1,$2,'ALLOW','ON',NOW())`, roles[role], id); err != nil {
+				return err
+			}
+		}
+	}
+	for _, template := range s.RoleTemplates {
+		var id int64
+		if err := tx.QueryRowContext(ctx, `INSERT INTO sys_roles(tenant_id,name,code,status,type,is_protected,data_scope,description,created_at) VALUES(0,$1,$2,'ON','TEMPLATE',true,'ALL',$3,NOW()) RETURNING id`, template.Name, template.Code, template.Description).Scan(&id); err != nil {
+			return err
+		}
+		if _, err := tx.ExecContext(ctx, `INSERT INTO sys_role_metadata(tenant_id,role_id,is_template,template_for,template_version,scope,sync_policy,custom_overrides,created_at) VALUES(0,$1,true,$2,1,$3,'MANUAL','{}',NOW())`, id, template.TemplateFor, template.Scope); err != nil {
+			return err
+		}
+		for _, code := range template.Permissions {
+			if _, err := tx.ExecContext(ctx, `INSERT INTO sys_role_permissions(tenant_id,role_id,permission_id,effect,status,created_at) VALUES(0,$1,$2,'ALLOW','ON',NOW())`, id, permissions[code]); err != nil {
 				return err
 			}
 		}
